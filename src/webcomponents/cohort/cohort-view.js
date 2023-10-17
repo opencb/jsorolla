@@ -251,7 +251,6 @@ export default class CohortView extends LitElement {
                             title: "Annotation sets",
                             field: "annotationSets",
                             type: "custom",
-                            defaultValue: "N/A",
                             display: {
                                 showPDF: false,
                                 render: field => html`
@@ -259,18 +258,11 @@ export default class CohortView extends LitElement {
                                         .annotationSets="${field}">
                                     </annotation-set-view>
                                 `,
+                                defaultValue: "N/A",
                             },
                         },
-                    ],
-                },
-                {
-                    title: "Samples",
-                    display: {
-                        visible: cohort => cohort?.id,
-                    },
-                    elements: [
                         {
-                            title: "List of samples",
+                            title: "Samples",
                             field: "samples",
                             type: "table",
                             display: {
@@ -301,9 +293,10 @@ export default class CohortView extends LitElement {
                                         }
                                     }
                                 ],
-                                defaultValue: "No phenotypes found",
+                                pagination: true,
+                                search: true,
                             },
-                        },
+                        }
                     ],
                 },
             ],

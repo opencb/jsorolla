@@ -143,24 +143,16 @@ export default class FileQcAscatMetrics extends LitElement {
                                 columns: [
                                     {
                                         title: "ASCAT File",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`<span style="font-weight:bold">${data.file || ""}</span>`,
-                                        },
+                                        field: "file",
+                                        formatter: value => `<span style="font-weight:bold">${value || ""}</span>`,
                                     },
                                     {
                                         title: "ASCAT Aberrant Fraction",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`${data.aberrantCellFraction}`,
-                                        },
+                                        field: "aberrantCellFraction",
                                     },
                                     {
                                         title: "ASCAT Ploidy",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`${data.ploidy}`,
-                                        },
+                                        field: "ploidy",
                                     },
                                 ],
                             },

@@ -29,6 +29,88 @@ context("Variant Browser Grid Germline", () => {
         });
     });
 
+    context("Modal Setting", () => {
+
+        it("should move modal setting", () => {
+
+            cy.get("button[data-action='settings']")
+                .click();
+
+            BrowserTest.getElementByComponent({
+                selector: `${browserGrid} opencb-grid-toolbar`,
+                tag:"div",
+                elementId: "SettingModal"
+            }).as("settingModal");
+
+            cy.get("@settingModal")
+                .then(($modal) => {
+                    const startPosition = $modal.offset();
+                    cy.log("start Position:", startPosition);
+                    // Drag the modal to a new position using Cypress's drag command
+                    cy.get("@settingModal")
+                        .find(".modal-header")
+                        .as("modalHeader");
+                    cy.get("@modalHeader")
+                        .trigger("mousedown", { which: 1 }); // Trigger mouse down event
+                    cy.get("@modalHeader")
+                        .trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
+                    cy.get("@modalHeader")
+                        .trigger("mouseup"); // Release the mouse
+
+                    // Get the final position of the modal
+                    cy.get("@modalHeader")
+                        .then(($modal) => {
+                            const finalPosition = $modal.offset();
+                            cy.log("final Position:", finalPosition);
+                            // Assert that the modal has moved
+                            expect(finalPosition.left).to.not.equal(startPosition.left);
+                            expect(finalPosition.top).to.not.equal(startPosition.top);
+                        });
+                });
+        });
+
+        it("should hidden columns [Type,Consequence Type,Gene]",() => {
+            const columns = ["Type","Consequence Type","Gene"];
+            cy.get("variant-browser-grid thead th")
+                .as("headerColumns");
+            columns.forEach(col => {
+                cy.get("@headerColumns")
+                    .contains("div",col)
+                    .should("be.visible");
+            });
+            cy.get("button[data-action='settings']")
+                .click();
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
+            columns.forEach(col => {
+                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                    .contains(col)
+                    .click();
+            });
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
+            BrowserTest.getElementByComponent({
+                selector: `${browserGrid} opencb-grid-toolbar`,
+                tag:"div",
+                elementId: "SettingModal"
+            }).as("settingModal");
+            cy.get("@settingModal")
+                .contains("button", "OK")
+                .click();
+            cy.get("@headerColumns")
+                .should("not.exist");
+            cy.get("@headerColumns")
+                .should("exist");
+            cy.get("@headerColumns")
+                .then($header => {
+                    const _columns = Array.from($header, th => th.textContent.trim());
+                    columns.forEach(col => {
+                        expect(col).not.to.be.oneOf(_columns);
+                    });
+                });
+        });
+    });
+
     context("Grid", () => {
         it("should render variant-browser-grid", () => {
             cy.get(browserGrid)
@@ -39,6 +121,7 @@ context("Variant Browser Grid Germline", () => {
             UtilsTest.changePage(browserGrid,2);
             UtilsTest.changePage(browserGrid,3);
         });
+
     });
 
     context("Tooltip", () => {
@@ -54,9 +137,9 @@ context("Variant Browser Grid Germline", () => {
                             cy.get("a")
                                 .eq(0)
                                 .trigger("mouseover");
-                        })
+                        });
                     cy.get(".qtip-content")
-                        .should('be.visible');
+                        .should("be.visible");
             });
         });
 
@@ -72,7 +155,7 @@ context("Variant Browser Grid Germline", () => {
                                 .trigger("mouseover");
                     });
                     cy.get(".qtip-content")
-                        .should('be.visible');
+                        .should("be.visible");
             });
         });
 
@@ -98,9 +181,9 @@ context("Variant Browser Grid Germline", () => {
                 .within(() => {
                     cy.get("a")
                         .trigger("mouseover");
-            })
+            });
             cy.get(".qtip-content")
-                .should('be.visible');
+                .should("be.visible");
         });
     });
 
@@ -113,7 +196,7 @@ context("Variant Browser Grid Germline", () => {
                         .trigger("mouseover");
                 });
             cy.get(".qtip-content")
-                .should('be.visible');
+                .should("be.visible");
         });
 
         it("should display conservation help", () => {
@@ -124,7 +207,7 @@ context("Variant Browser Grid Germline", () => {
                         .trigger("mouseover");
                 });
             cy.get(".qtip-content")
-                .should('be.visible');
+                .should("be.visible");
         });
 
         it("should display population frequencies help", () => {
@@ -135,7 +218,7 @@ context("Variant Browser Grid Germline", () => {
                             .trigger("mouseover");
             });
             cy.get(".qtip-content")
-                .should('be.visible');
+                .should("be.visible");
         });
 
         it("should display clinical info help", () => {
@@ -146,7 +229,7 @@ context("Variant Browser Grid Germline", () => {
                             .trigger("mouseover");
             });
             cy.get(".qtip-content")
-                .should('be.visible');
+                .should("be.visible");
         });
     });
 
@@ -193,6 +276,75 @@ context("Variant Browser Grid Germline", () => {
                         .contains("a","Ensembl Genome Browser")
                         .click();
             });
+        });
+    });
+
+    context("Varsome Links", () => {
+        it("should display a link to varsome in the variant tooltip", () => {
+            cy.get("tbody tr:first td")
+                .eq(1)
+                .find("a[tooltip-title]")
+                .trigger("mouseover");
+            cy.get("div.qtip-content")
+                .find(`div[data-cy="varsome-variant-link"]`)
+                .within(() => {
+                    cy.get("a")
+                        .should("exist")
+                        .and("contain.text", "Varsome");
+                    cy.get("a")
+                        .invoke("attr", "href")
+                        .should("have.string", "https://varsome.com/variant/");
+                });
+        });
+
+        it("should display a link to varsome in the gene tooltip", () => {
+            cy.get("tbody tr:first td")
+                .eq(2)
+                .find("a[tooltip-title]")
+                .eq(0)
+                .trigger("mouseover");
+            cy.get("div.qtip-content")
+                .find(`div[data-cy="varsome-gene-link"]`)
+                .within(() => {
+                    cy.get("a")
+                        .should("exist")
+                        .and("contain.text", "Varsome");
+                    cy.get("a")
+                        .invoke("attr", "href")
+                        .should("have.string", "https://varsome.com/gene/");
+                });
+        });
+
+        it("should display a link to varsome in the Actions dropdown", () => {
+            cy.get("tbody tr:first td")
+                .last()
+                .find(`div.dropdown ul.dropdown-menu li[data-cy="varsome-variant-link"]`)
+                .within(() => {
+                    cy.get("a")
+                        .should("exist")
+                        .and("contain.text", "Varsome");
+                    cy.get("a")
+                        .invoke("attr", "href")
+                        .should("have.string", "https://varsome.com/variant/");
+                });
+        });
+
+        it("should display an action to copy variant ID in Varsome format", () => {
+            cy.get("tbody tr:first td")
+                .last()
+                .find(`div.dropdown ul.dropdown-menu li[data-cy="varsome-copy"]`)
+                .within(() => {
+                    cy.get("a")
+                        .should("exist")
+                        .and("contain.text", "Copy Varsome ID");
+                    // eslint-disable-next-line cypress/no-force
+                    cy.get("a")
+                        .click({force: true});
+                    UtilsTest.assertValueCopiedToClipboard()
+                        .then(content => {
+                            expect(content).to.match(/^chr/);
+                        });
+                });
         });
     });
 });

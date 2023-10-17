@@ -17,6 +17,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./file-preview.js";
 import "./file-view.js";
 import "../commons/opencga-browser.js";
@@ -79,10 +81,10 @@ export default class FileBrowser extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
 
     // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
     // is executed twice in case there is external settings
@@ -99,14 +101,45 @@ export default class FileBrowser extends LitElement {
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-        if (this.settings?.table) {
-            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
-        }
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        }
+        // if (this.settings?.table) {
+        //     this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+        // }
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config?.filter?.result.grid,
+            ...this.settings.table
+        });
+
+        // if (this.settings?.table?.toolbar) {
+        //     this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+        // }
+        UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
+            ...this._config.filter?.result?.grid?.toolbar,
+            ...this.settings.table?.toolbar
+        });
+
+        // if (this.opencgaSession.user?.configs?.IVA?.fileBrowserCatalog?.grid) {
+        //     this._config.filter.result.grid = {
+        //         ...this._config.filter.result.grid,
+        //         ...this.opencgaSession.user.configs?.IVA?.fileBrowserCatalog.grid,
+        //     };
+        // }
+
+        // Apply user configuration
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.fileBrowser?.grid
+        });
+
+        this.requestUpdate();
     }
 
+    onSettingsUpdate() {
+        this.settingsObserver();
+    }
+
+    onFileUpdate() {
+        this.settingsObserver();
+    }
     render() {
         if (!this.opencgaSession || !this._config) {
             return "";
@@ -117,7 +150,8 @@ export default class FileBrowser extends LitElement {
                 resource="FILE"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @fileUpdate="${this.onFileUpdate}">
             </opencga-browser>
         `;
     }
@@ -136,10 +170,12 @@ export default class FileBrowser extends LitElement {
                     render: params => html`
                         <file-grid
                             .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.result.grid}"
                             .query="${params.executedQuery}"
+                            .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
-                            @selectrow="${e => params.onClickRow(e, "file")}">
+                            @selectrow="${e => params.onClickRow(e, "file")}"
+                            @fileUpdate="${e => params.onComponentUpdate(e, "file")}"
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </file-grid>
                         <file-detail
                             .opencgaSession="${params.opencgaSession}"

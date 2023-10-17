@@ -23,6 +23,9 @@ import "../../../webcomponents/individual/individual-detail.js";
 import "../../../webcomponents/individual/individual-view.js";
 import "../../../webcomponents/commons/json-viewer.js";
 import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils";
+import "../../../webcomponents/individual/individual-update.js";
+import "../../../webcomponents/individual/individual-create.js";
+
 
 class IndividualBrowserGridTest extends LitElement {
 
@@ -67,6 +70,14 @@ class IndividualBrowserGridTest extends LitElement {
             pageList: [10, 25, 50],
             multiSelection: false,
             showSelectCheckbox: false,
+            // FIXME: temporarily moved here
+            showColumns: false, // To clean-up?
+            showDownload: false, // To clean-up?
+            showExport: true,
+            showSettings: true,
+            showNew: true,
+            showCreate: true,
+            // FIXME\
             toolbar: {
                 showColumns: true,
                 showDownload: false,
@@ -112,6 +123,11 @@ class IndividualBrowserGridTest extends LitElement {
                     this._ready = true;
                 });
         }
+    }
+
+    onSettingsUpdate() {
+        this.configGrid = {...this.configGrid, ...this.opencgaSession?.user?.configs?.IVA?.individualBrowser?.grid};
+        this.propertyObserver();
     }
 
     getDefaultTabsConfig() {
@@ -168,6 +184,7 @@ class IndividualBrowserGridTest extends LitElement {
                     .individuals="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.configGrid}"
+                    @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${this.selectInstance}">
                 </individual-grid>
                 <individual-detail

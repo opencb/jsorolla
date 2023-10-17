@@ -15,13 +15,13 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../../core/utils-new.js";
-import GridCommons from "../../../commons/grid-commons.js";
-import "./../../../commons/view/detail-tabs.js";
+import UtilsNew from "../../../../../core/utils-new.js";
+import GridCommons from "../../../../commons/grid-commons.js";
+import "../../../../commons/view/detail-tabs.js";
 import knockoutDataIndividuals from "../test/knockout.20201103172343.kFIvpr.individuals.js";
 
 
-export default class KnockoutIndividualVariants extends LitElement {
+export default class KnockoutVariantIndividual extends LitElement {
 
     constructor() {
         super();
@@ -37,7 +37,7 @@ export default class KnockoutIndividualVariants extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            individual: {
+            variant: {
                 type: Object
             },
             config: {
@@ -49,16 +49,13 @@ export default class KnockoutIndividualVariants extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
-        this.gridId = this._prefix + "KnockoutIndividualGrid";
-        this.individual = null;
+        this.gridId = this._prefix + "KnockoutVAPGrid";
 
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-        }
 
-        if (changedProperties.has("individual")) {
+        if (changedProperties.has("variant")) {
             this.prepareData();
             this.renderTable();
         }
@@ -69,10 +66,9 @@ export default class KnockoutIndividualVariants extends LitElement {
     }
 
     prepareData() {
-        if (this.individual) {
-            const variants = this.individual.genes.flatMap(gene => gene.transcripts.flatMap(transcript => transcript.variants));
-            this.tableData = variants;
-        }
+        // TODO
+
+        this.tableData = this.variant.data;
 
     }
 
@@ -87,8 +83,6 @@ export default class KnockoutIndividualVariants extends LitElement {
             icons: GridCommons.GRID_ICONS,
             uniqueId: "id",
             pagination: true,
-            // pageSize: this._config.pageSize,
-            // pageList: this._config.pageList,
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
@@ -108,24 +102,32 @@ export default class KnockoutIndividualVariants extends LitElement {
     _initTableColumns() {
         return [
             {
-                title: "id",
-                field: "id"
+                title: "Individual Id",
+                field: "sampleId"
+            },
+            {
+                title: "Sample",
+                field: "sampleId"
             },
             {
                 title: "Type",
-                field: "knockoutType"
+                field: "type"
             },
             {
                 title: "GT",
-                field: "genotype"
+                field: "variant.genotype"
             },
             {
-                title: "Depth",
-                field: ""
+                title: "DP",
+                field: "dp"
             },
             {
                 title: "Filter",
-                field: "filter"
+                field: "variant.filter"
+            },
+            {
+                title: "Qual",
+                field: "qual"
             }
         ];
     }
@@ -139,6 +141,7 @@ export default class KnockoutIndividualVariants extends LitElement {
 
     render() {
         return html`
+            <h3>Individual presenting ${this.variant?.id}</h3>
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
@@ -147,4 +150,4 @@ export default class KnockoutIndividualVariants extends LitElement {
 
 }
 
-customElements.define("knockout-individual-variants", KnockoutIndividualVariants);
+customElements.define("knockout-variant-individual", KnockoutVariantIndividual);

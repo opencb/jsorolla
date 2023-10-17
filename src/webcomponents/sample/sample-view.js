@@ -270,13 +270,14 @@ export default class SampleView extends LitElement {
                         {
                             title: "Description",
                             field: "description",
-                            defaultValue: "N/A",
+                            display: {
+                                defaultValue: "N/A",
+                            }
                         },
                         {
                             title: "Phenotypes",
                             field: "phenotypes",
                             type: "list",
-                            defaultValue: "N/A",
                             display: {
                                 // showPDF: false,
                                 contentLayout: "bullets",

@@ -35,11 +35,11 @@ export default class DiseasePanelUpdate extends LitElement {
 
     static get properties() {
         return {
-            diseasePanel: {
-                type: Object
-            },
             diseasePanelId: {
                 type: String
+            },
+            active: {
+                type: Boolean,
             },
             opencgaSession: {
                 type: Object
@@ -51,7 +51,7 @@ export default class DiseasePanelUpdate extends LitElement {
     }
 
     #init() {
-        this.diseasePanel = {};
+        this._diseasePanel = {};
         this.diseasePanelId = "";
         this.annotatedGenes = {};
         this.displayConfig = {
@@ -76,8 +76,9 @@ export default class DiseasePanelUpdate extends LitElement {
     }
 
     onComponentIdObserver(e) {
-        this.diseasePanel = e.detail.value;
+        this._diseasePanel = UtilsNew.objectClone(e.detail.value);
         this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     onComponentFieldChange(e) {
@@ -117,15 +118,56 @@ export default class DiseasePanelUpdate extends LitElement {
                 }
             }
         }
+
+        // Set the region coordinates if needed: location, assembly, and source
+        if (e.detail?.component?.regions?.length > 0) {
+            for (const region of e.detail.component.regions) {
+                if (region.id) {
+                    if (region.id !== region.coordinates?.[0]?.location) {
+                        region.coordinates = [
+                            {
+                                location: region.id,
+                                assembly: this.opencgaSession?.project?.organism?.assembly || "",
+                                // source: region.source || "",
+                            }
+                        ];
+                    }
+                } else {
+                    if (region.coordinates) {
+                        region.coordinates = null;
+                    }
+                }
+            }
+        }
+
+        if (e.detail?.component?.variants?.length > 0) {
+            for (const variant of e.detail.component.variants) {
+                if (variant.id) {
+                    if (variant.id !== variant.coordinates?.[0]?.location) {
+                        variant.coordinates = [
+                            {
+                                location: variant.id,
+                                assembly: this.opencgaSession?.project?.organism?.assembly || "",
+                                // source: region.source || "",
+                            }
+                        ];
+                    }
+                } else {
+                    if (variant.coordinates) {
+                        variant.coordinates = null;
+                    }
+                }
+            }
+        }
     }
 
     render() {
         return html`
             <opencga-update
                 .resource="${"DISEASE_PANEL"}"
-                .component="${this.diseasePanel}"
                 .componentId="${this.diseasePanelId}"
                 .opencgaSession="${this.opencgaSession}"
+                .active="${this.active}"
                 .config="${this._config}"
                 @componentIdObserver = ${this.onComponentIdObserver}
                 @componentFieldChange = ${this.onComponentFieldChange}>
@@ -149,7 +191,7 @@ export default class DiseasePanelUpdate extends LitElement {
                             display: {
                                 disabled: true,
                                 placeholder: "Add a short ID...",
-                                helpMessage: this.diseasePanel?.creationDate ? `Created on ${UtilsNew.dateFormatter(this.diseasePanel.creationDate)}` : "No creation date",
+                                helpMessage: this._diseasePanel?.creationDate ? `Created on ${UtilsNew.dateFormatter(this._diseasePanel.creationDate)}` : "No creation date",
                                 help: {
                                     text: "Add a disease panel ID"
                                 }
@@ -272,8 +314,12 @@ export default class DiseasePanelUpdate extends LitElement {
                                 view: gene => html`
                                     <div>
                                         <div>${gene?.name} (<a href="${BioinfoUtils.getGeneLink(gene?.id)}" target="_blank">${gene?.id}</a>)</div>
-                                        <div style="margin: 5px 0">MoI: ${gene?.modesOfInheritance.join(", ") || "NA"} (Confidence: ${gene.confidence || "NA"})</div>
+                                        <div style="margin: 5px 0">MoI: ${gene?.modesOfInheritance?.join(", ") || "NA"} (Confidence: ${gene.confidence || "NA"})</div>
                                         <div class="help-block">${gene.coordinates?.[0]?.location}</div>
+                                        <div class="help-block">
+                                            Location: ${gene.coordinates?.[0]?.location || "-"},
+                                            Assembly: ${gene.coordinates?.[0]?.assembly || "-"},
+                                        </div>
                                     </div>
                                 `,
                             },
@@ -301,7 +347,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                     field: "genes[].modesOfInheritance",
                                     type: "select",
                                     multiple: true,
-                                    save: value => value.split(","), // Array when select and multiple
+                                    save: value => value?.split(",") || [], // Array when select and multiple
                                     allowedValues: MODE_OF_INHERITANCE,
                                     display: {
                                         placeholder: "Select a mode of inheritance..."
@@ -321,7 +367,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                     field: "genes[].cancer.roles",
                                     type: "select",
                                     multiple: true,
-                                    save: value => value.split(","), // Array when select and multiple
+                                    save: value => value?.split(",") || [], // Array when select and multiple
                                     allowedValues: ROLE_IN_CANCER,
                                     display: {
                                         placeholder: "Select role in cancer..."
@@ -342,7 +388,14 @@ export default class DiseasePanelUpdate extends LitElement {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
                                 view: region => html `
-                                    <div>${region.id} - ${region?.modesOfInheritance.join(", ") || "-"}</div>
+                                    <div>
+                                        <div>${region?.id}</div>
+                                        <div style="margin: 5px 0">MoI: ${region?.modesOfInheritance?.join(", ") || "-"} (Confidence: ${region?.confidence || "NA"})</div>
+                                        <div class="help-block">
+                                            Location: ${region.coordinates?.[0]?.location || "-"},
+                                            Assembly: ${region.coordinates?.[0]?.assembly || "-"},
+                                        </div>
+                                    </div>
                                 `,
                             },
                             elements: [
@@ -351,7 +404,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                     field: "regions[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add region...",
+                                        placeholder: "Add a region location (e.g. 1:10100-10110)...",
                                     }
                                 },
                                 {
@@ -359,7 +412,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                     field: "regions[].modesOfInheritance",
                                     type: "select",
                                     multiple: true,
-                                    save: value => value.split(","), // Array when select and multiple
+                                    save: value => value?.split(",") || [], // Array when select and multiple
                                     allowedValues: MODE_OF_INHERITANCE,
                                     display: {
                                         placeholder: "Select a mode of inheritance..."
@@ -389,7 +442,14 @@ export default class DiseasePanelUpdate extends LitElement {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
                                 view: variant => html`
-                                    <div>${variant.id} - ${variant?.modesOfInheritance.join(", ") || "-"}</div>
+                                    <div>
+                                        <div>${variant.id}</div>
+                                        <div style="margin: 5px 0">MoI: ${variant?.modesOfInheritance?.join(", ") || "-"}</div>
+                                        <div class="help-block">
+                                            Location: ${variant.coordinates?.[0]?.location || "-"},
+                                            Assembly: ${variant.coordinates?.[0]?.assembly || "-"},
+                                        </div>
+                                    </div>
                                 `,
                             },
                             elements: [
@@ -406,7 +466,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                     field: "variants[].modesOfInheritance",
                                     type: "select",
                                     multiple: true,
-                                    save: value => value.split(","), // Array when select and multiple
+                                    save: value => value?.split(",") || [], // Array when select and multiple
                                     allowedValues: MODE_OF_INHERITANCE,
                                     display: {
                                         placeholder: "Select a mode of inheritance..."

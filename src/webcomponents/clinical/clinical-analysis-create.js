@@ -23,6 +23,7 @@ import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/catalog-search-autocomplete.js";
+import "../commons/image-viewer.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 
@@ -42,16 +43,32 @@ export default class ClinicalAnalysisCreate extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             config: {
-                type: Object
-            }
+                type: Object,
+            },
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
     _init() {
         this.clinicalAnalysis = {};
+        this.displayConfigDefault = {
+            style: "margin: 10px",
+            buttonsWidth: 8,
+            buttonClearText: "Clear",
+            buttonOkText: "Create Clinical Analysis",
+            width: 8,
+            titleVisible: false,
+            titleAlign: "left",
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+
+        };
+
     }
 
     connectedCallback() {
@@ -107,14 +124,17 @@ export default class ClinicalAnalysisCreate extends LitElement {
         }
 
         // In FAMILY, changing the proband only sets the 'proband.id' field of the clinicalAnalysis object
-        // We have to add also the disorders list to 'proband.disorders'.
+        // We need to save the full member object in proband.
         if (e.detail.param === "proband.id" && this.clinicalAnalysis.type === "FAMILY") {
+            // Changing the 'proband.id' means we have to reset the disorder field
+            delete this.clinicalAnalysis.disorder;
             if (this.clinicalAnalysis.proband?.id) {
                 const proband = this.clinicalAnalysis.family.members.find(member => member.id === this.clinicalAnalysis.proband?.id);
-                this.clinicalAnalysis.proband.disorders = proband?.disorders || [];
-            } else if (this.clinicalAnalysis.proband?.disorders) {
-                // If we have remove the 'proband.id', we have to remove also the 'proband.disorders' field
-                delete this.clinicalAnalysis.proband.disorders;
+                this.clinicalAnalysis.proband = UtilsNew.objectClone(proband);
+                this.clinicalAnalysis.proband.disorders = this.clinicalAnalysis.proband.disorders || [];
+            } else {
+                // If we have removed the 'proband.id' field, we have to remove also the full proband object
+                delete this.clinicalAnalysis.proband;
             }
         }
 
@@ -175,7 +195,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
                         for (const member of this.clinicalAnalysis.family.members) {
                             if (member.disorders && member.disorders.length > 0 && member.father.id && member.mother.id) {
-                                this.clinicalAnalysis.proband = member;
+                                this.clinicalAnalysis.proband = UtilsNew.objectClone(member);
                                 break;
                             }
                         }
@@ -330,28 +350,11 @@ export default class ClinicalAnalysisCreate extends LitElement {
             icon: "fas fa-user-md",
             requires: "2.0.0",
             description: "Sample Variant Stats description",
-            display: {
-                buttonsWidth: 10,
-                buttonClearText: "Clear",
-                buttonOkText: "Create Clinical Analysis",
-                width: 10,
-                titleVisible: false,
-                titleAlign: "left",
-                titleWidth: 4,
-                defaultLayout: "horizontal",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.objectCompare(this.clinicalAnalysis, this._clinicalAnalysis),
-                                notificationType: "warning",
-                            }
-                        },
                         {
                             title: "Case ID",
                             field: "id",
@@ -499,27 +502,24 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 errorClassName: "",
                                 columns: [
                                     {
+                                        id: "id",
                                         title: "ID",
-                                        type: "custom",
-                                        display: {
-                                            render: sample => html`<span style="font-weight: bold">${sample.id}</span>`,
-                                        },
+                                        field: "id",
+                                        formatter: (value, row) => `<span style="font-weight: bold">${row.id}</span>`,
                                     },
                                     {
+                                        id: "fileIds",
                                         title: "Files",
                                         field: "fileIds",
-                                        type: "custom",
-                                        display: {
-                                            render: fileIds => {
-                                                const fileVcfs = fileIds.filter(file => file.includes(".vcf")).join("<br>");
-                                                return UtilsNew.renderHTML(`${fileVcfs}`);
-                                            },
+                                        formatter: values => {
+                                            return (values || []).filter(file => file?.includes(".vcf")).join("<br>") || "-";
                                         },
                                     },
                                     {
+                                        id: "Status",
                                         title: "Status",
                                         field: "status.name",
-                                        defaultValue: "-",
+                                        formatter: value => value ?? "-"
                                     },
                                 ]
                             }
@@ -584,58 +584,57 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 errorClassName: "",
                                 columns: [
                                     {
+                                        id: "individualId",
                                         title: "Individual ID",
-                                        type: "custom",
-                                        display: {
-                                            render: individual => html`
-                                                <div style="font-weight: bold">${individual.id}</div>
+                                        formatter: (value, row) => `
+                                                <div style="font-weight: bold">
+                                                    ${row.id}
+                                                </div>
                                                 <div class="help-block">
-                                                    ${individual?.sex?.id || "Not specified"} (${individual.karyotypicSex || "Not specified"})
+                                                    ${row?.sex?.id || "Not specified"} (${row.karyotypicSex || "Not specified"})
                                                 </div>
                                             `,
-                                        },
                                     },
                                     {
+                                        id: "name",
                                         title: "Individual Name",
                                         field: "name",
                                     },
                                     {
+                                        id: "samples",
                                         title: "Samples",
                                         field: "samples",
-                                        type: "custom",
-                                        display: {
-                                            render: samples => {
-                                                if (!samples || samples.length === 0) {
-                                                    return "-";
-                                                }
-                                                return samples.map(sample => html`<div>${sample.id}</div>`);
-                                            },
+                                        formatter: values => {
+                                            if (!values || values.length === 0) {
+                                                return "-";
+                                            }
+                                            return values.map(sample => `<div>${sample.id}</div>`);
                                         },
                                     },
                                     {
+                                        id: "fatherId",
                                         title: "Father",
                                         field: "father.id",
                                     },
                                     {
+                                        id: "motherId",
                                         title: "Mother",
                                         field: "mother.id",
                                     },
                                     {
+                                        id: "disorders",
                                         title: "Disorders",
                                         field: "disorders",
-                                        type: "custom",
-                                        display: {
-                                            render: disorders => {
-                                                if (disorders && disorders.length > 0) {
-                                                    let id = disorders[0].id;
-                                                    const name = disorders[0].name;
-                                                    if (id?.startsWith("OMIM:")) {
-                                                        id = html`<a href="https://omim.org/entry/${id.split(":")[1]}" target="_blank">${id}</a>`;
-                                                    }
-                                                    return html`${name} (${id})`;
-                                                } else {
-                                                    return html`<span>N/A</span>`;
+                                        formatter: (values, row) => {
+                                            if (values && values.length > 0) {
+                                                let id = values[0].id;
+                                                const name = values[0].name;
+                                                if (id?.startsWith("OMIM:")) {
+                                                    id = `<a href="https://omim.org/entry/${id.split(":")[1]}" target="_blank">${id}</a>`;
                                                 }
+                                                return `${name} (${id})`;
+                                            } else {
+                                                return "<span>N/A</span>";
                                             }
                                         }
                                     }
@@ -646,11 +645,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             title: "Pedigree",
                             type: "custom",
                             display: {
-                                // defaultLayout: "vertical",
                                 render: data => {
-                                    if (data.family) {
-                                        return html`<pedigree-view .family="${data.family}"></pedigree-view>`;
+                                    if (data?.family?.pedigreeGraph?.base64) {
+                                        return html`
+                                            <image-viewer
+                                                .data="${data.family?.pedigreeGraph?.base64}">
+                                            </image-viewer>
+                                        `;
                                     }
+                                    return "-";
                                 },
                                 errorMessage: "No family selected",
                             }
@@ -703,19 +706,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 errorMessage: "No proband selected",
                                 columns: [
                                     {
+                                        id: "fileIds",
                                         title: "ID",
-                                        type: "custom",
-                                        display: {
-                                            render: sample => html`<span style="font-weight: bold">${sample.id}</span>`,
-                                        }
+                                        formatter: (value, row) => `<span style="font-weight: bold">${row.id}</span>`,
                                     },
                                     {
+                                        id: "fileIds",
                                         title: "Files",
                                         field: "fileIds",
-                                        type: "custom",
-                                        display: {
-                                            render: fileIds => html`${fileIds.join("\n")}`,
-                                        },
+                                        formatter: (values, row) => `${values.join("\n")}`,
                                     },
                                     {
                                         title: "Somatic",
@@ -724,7 +723,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     {
                                         title: "Status",
                                         field: "status.name",
-                                        defaultValue: "-",
+                                        formatter: value => value ?? "-"
                                     }
                                 ]
                             }

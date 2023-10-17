@@ -41,7 +41,10 @@ export default class DiseasePanelCreate extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
+            displayConfig: {
+                type: Object
+            },
         };
     }
 
@@ -65,9 +68,23 @@ export default class DiseasePanelCreate extends LitElement {
             //     }
             // ]
         };
+        this.isLoading = false;
         this.annotatedGenes = {};
-
+        this.displayConfigDefault = {
+            style: "margin: 10px",
+            buttonOkText: "Create",
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+        };
         this._config = this.getDefaultConfig();
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
     }
 
     onFieldChange(e) {
@@ -83,7 +100,8 @@ export default class DiseasePanelCreate extends LitElement {
                     const params = {
                         exclude: "transcripts,annotation",
                     };
-                    this.opencgaSession.cellbaseClient.getGeneClient(gene.name, "info", params)
+                    this.opencgaSession.cellbaseClient
+                        .getGeneClient(gene.name, "info", params)
                         .then(res => {
                             const g = res.responses[0].results[0];
                             gene.id = g.id;
@@ -106,14 +124,63 @@ export default class DiseasePanelCreate extends LitElement {
                 }
             }
         }
+        // Set the region coordinates if needed: location, assembly, and source
+        if (e.detail?.data?.regions?.length > 0) {
+            for (const region of e.detail.data.regions) {
+                if (region.id) {
+                    if (region.id !== region.coordinates?.[0]?.location) {
+                        region.coordinates = [
+                            {
+                                location: region.id,
+                                assembly: this.opencgaSession?.project?.organism?.assembly || "",
+                                // source: region.source || "",
+                            }
+                        ];
+                    }
+                } else {
+                    if (region.coordinates) {
+                        region.coordinates = null;
+                    }
+                }
+            }
+        }
+        // Set the variant coordinates if needed: location, assembly, and source
+        if (e.detail?.data?.variants?.length > 0) {
+            for (const variant of e.detail.data.variants) {
+                if (variant.id) {
+                    if (variant.id !== variant.coordinates?.[0]?.location) {
+                        variant.coordinates = [
+                            {
+                                location: variant.id,
+                                assembly: this.opencgaSession?.project?.organism?.assembly || "",
+                                // source: region.source || "",
+                            }
+                        ];
+                    }
+                } else {
+                    if (variant.coordinates) {
+                        variant.coordinates = null;
+                    }
+                }
+            }
+        }
         this.diseasePanel = {...e.detail.data}; // force to refresh the object-list
         this.requestUpdate();
     }
 
     onClear() {
-        this.diseasePanel = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
+        // this.diseasePanel = {};
+        // this._config = {...this.getDefaultConfig(), ...this.config};
+        // this.requestUpdate();
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Clear disease panel",
+            message: "Are you sure to clear?",
+            ok: () => {
+                this.diseasePanel = {};
+                this._config = this.getDefaultConfig();
+                this.requestUpdate();
+            },
+        });
     }
 
     onSubmit(e) {
@@ -136,6 +203,10 @@ export default class DiseasePanelCreate extends LitElement {
     }
 
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         return html`
             <data-form
                 .data="${this.diseasePanel}"
@@ -149,27 +220,12 @@ export default class DiseasePanelCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            type: "form",
-            display: {
-                buttonsVisible: true,
-                buttonOkText: "Create",
-                titleWidth: 3,
-                width: "8",
-                defaultValue: "",
-                defaultLayout: "horizontal",
-            },
+            // type: "form",
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => Object.keys(this.diseasePanel).length > 0,
-                                notificationType: "warning",
-                            }
-                        },
                         {
                             title: "Disease Panel ID",
                             field: "id",
@@ -207,7 +263,7 @@ export default class DiseasePanelCreate extends LitElement {
                                     field: "disorders[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add variant ID...",
+                                        placeholder: "Add disorder ID...",
                                     }
                                 },
                                 {
@@ -297,8 +353,11 @@ export default class DiseasePanelCreate extends LitElement {
                                 view: gene => html`
                                     <div>
                                         <div>${gene?.name} (<a href="${BioinfoUtils.getGeneLink(gene?.id)}" target="_blank">${gene?.id}</a>)</div>
-                                        <div style="margin: 5px 0">MoI: ${gene?.modeOfInheritance || "NA"} (Confidence: ${gene.confidence || "NA"})</div>
-                                        <div class="help-block">${gene.coordinates?.[0]?.location}</div>
+                                        <div style="margin: 5px 0">MoI: ${gene?.modesOfInheritance?.join(", ") || "-"} (Confidence: ${gene.confidence || "NA"})</div>
+                                        <div class="help-block">
+                                            Location: ${gene.coordinates?.[0]?.location || "-"},
+                                            Assembly: ${gene.coordinates?.[0]?.assembly || "-"},
+                                        </div>
                                     </div>
                                 `,
                             },
@@ -326,7 +385,7 @@ export default class DiseasePanelCreate extends LitElement {
                                     field: "genes[].modesOfInheritance",
                                     type: "select",
                                     multiple: true,
-                                    save: value => value.split(","), // Array when select and multiple
+                                    save: value => value?.split(",") || [], // Array when select and multiple
                                     allowedValues: MODE_OF_INHERITANCE,
                                     display: {
                                         placeholder: "Select a mode of inheritance..."
@@ -346,7 +405,7 @@ export default class DiseasePanelCreate extends LitElement {
                                     field: "genes[].cancer.roles",
                                     type: "select",
                                     multiple: true,
-                                    save: value => value.split(","), // Array when select and multiple
+                                    save: value => value?.split(",") || [], // Array when select and multiple
                                     allowedValues: ROLE_IN_CANCER,
                                     display: {
                                         placeholder: "Select role in cancer..."
@@ -366,17 +425,24 @@ export default class DiseasePanelCreate extends LitElement {
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
-                                view: region => html`
-                                    <div>${region.id} - ${region?.modeOfInheritance || "-"}</div>
+                                view: region => html `
+                                    <div>
+                                        <div>${region?.id}</div>
+                                        <div style="margin: 5px 0">MoI: ${region?.modesOfInheritance?.join(", ") || "-"} (Confidence: ${region?.confidence || "NA"})</div>
+                                        <div class="help-block">
+                                            Location: ${region.coordinates?.[0]?.location || "-"},
+                                            Assembly: ${region.coordinates?.[0]?.assembly || "-"},
+                                        </div>
+                                    </div>
                                 `,
                             },
                             elements: [
                                 {
-                                    title: "Region ID",
+                                    title: "Region ID/Location",
                                     field: "regions[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add region...",
+                                        placeholder: "Add a region ID/Location (e.g. 1:10100-10110)...",
                                     }
                                 },
                                 {
@@ -384,7 +450,7 @@ export default class DiseasePanelCreate extends LitElement {
                                     field: "regions[].modesOfInheritance",
                                     type: "select",
                                     multiple: true,
-                                    save: value => value.split(","), // Array when select and multiple
+                                    save: value => value?.split(",") || [], // Array when select and multiple
                                     allowedValues: MODE_OF_INHERITANCE,
                                     display: {
                                         placeholder: "Select a mode of inheritance..."
@@ -414,16 +480,23 @@ export default class DiseasePanelCreate extends LitElement {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
                                 view: variant => html`
-                                    <div>${variant.id} - ${variant?.modeOfInheritance || "-"}</div>
+                                    <div>
+                                        <div>${variant.id}</div>
+                                        <div style="margin: 5px 0">MoI: ${variant?.modesOfInheritance?.join(", ") || "-"}</div>
+                                        <div class="help-block">
+                                            Location: ${variant.coordinates?.[0]?.location || "-"},
+                                            Assembly: ${variant.coordinates?.[0]?.assembly || "-"},
+                                        </div>
+                                    </div>
                                 `,
                             },
                             elements: [
                                 {
-                                    title: "Variant ID",
+                                    title: "Variant ID/Location",
                                     field: "variants[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add variant ID...",
+                                        placeholder: "Add the variant ID/Location...",
                                     }
                                 },
                                 {
@@ -431,7 +504,7 @@ export default class DiseasePanelCreate extends LitElement {
                                     field: "variants[].modesOfInheritance",
                                     type: "select",
                                     multiple: true,
-                                    save: value => value.split(","), // Array when select and multiple
+                                    save: value => value?.split(",") || [], // Array when select and multiple
                                     allowedValues: MODE_OF_INHERITANCE,
                                     display: {
                                         placeholder: "Select a mode of inheritance..."

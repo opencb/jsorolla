@@ -31,7 +31,6 @@ import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
 import NotificationManager from "../../core/notification-manager.js";
 
-import AnalysisRegistry from "../../webcomponents/variant/analysis/analysis-registry.js";
 import "../../webcomponents/clinical/clinical-analysis-browser.js";
 import "../../webcomponents/clinical/clinical-analysis-portal.js";
 import "../../webcomponents/variant/variant-browser.js";
@@ -231,7 +230,7 @@ class IvaApp extends LitElement {
             // Admin
             "study-admin",
             "study-admin-iva",
-            "catalog-admin",
+            // "catalog-admin",
             "study-variant-admin",
             "opencga-admin",
             "variants-admin",
@@ -637,6 +636,18 @@ class IvaApp extends LitElement {
     async logout() {
         // this delete token in the client and removes the Cookies
         await this.opencgaClient.logout();
+
+        // Check if sso is active: we will redirect to 'meta/sso/logout' endpoint
+        if (this.opencgaClient?._config?.sso) {
+            // eslint-disable-next-line no-undef
+            Cookies.expire("JSESSIONID");
+
+            const config = this.opencgaClient._config;
+            const ivaUrl = window.location;
+            window.location = `${config.host}/webservices/rest/${config.version}/meta/sso/logout?url=${ivaUrl}`;
+            return;
+        }
+
         this._createOpencgaSessionFromConfig();
 
         this.tool = "#home";
@@ -1307,7 +1318,8 @@ class IvaApp extends LitElement {
                 ${this.config.enabledComponents?.aboutzetta ? html`
                     <div class="content" id="faq">
                         <custom-page
-                            .page="${this.config.aboutPage}">
+                            .page="${this.config.aboutPage}"
+                            .opencgaSession="${this.opencgaSession}">
                         </custom-page>
                     </div>
                 ` : null}
@@ -1686,6 +1698,7 @@ class IvaApp extends LitElement {
                 <clinical-analysis-browser
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.settings.CLINICAL_ANALYSIS_BROWSER}"
+                    .config="${{componentId: "clinicalAnalysisBrowserCatalog"}}"
                     .query="${this.queries["clinical-analysis"]}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "clinical-analysis")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "clinical-analysis")}">

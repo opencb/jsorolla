@@ -16,7 +16,6 @@
  */
 
 import {html, LitElement} from "lit";
-import UtilsTest from "../../../../cypress/support/utils-test.js";
 import UtilsNew from "../../../core/utils-new.js";
 
 import "../../../webcomponents/variant/interpretation/variant-interpreter-grid.js";
@@ -157,6 +156,11 @@ class VariantInterpreterGridTest extends LitElement {
         ];
     }
 
+    onSettingsUpdate() {
+        this.configVariantInterpreterGrid = {...this.configVariantInterpreterGrid, ...this.opencgaSession?.user?.configs?.IVA?.variantInterpreterBrowser?.grid};
+        this.opencgaSessionObserver();
+    }
+
     render() {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
@@ -167,6 +171,7 @@ class VariantInterpreterGridTest extends LitElement {
                 Variant Interpreter Browser (${this.testVariantFile?.split("-")?.at(-1)})
             </h2>
             <variant-interpreter-grid
+                toolId="variantInterpreterBrowser"
                 .opencgaSession="${this.opencgaSession}"
                 .clinicalVariants="${this.variantInterpreterData}"
                 .clinicalAnalysis="${this.clinicalAnalysisData}"
@@ -175,7 +180,7 @@ class VariantInterpreterGridTest extends LitElement {
                 @selectrow="${this.onSelectVariant}"
                 @updaterow="${this.onUpdateVariant}"
                 @checkrow="${this.onCheckVariant}"
-                @gridconfigsave="${this.onGridConfigSave}">
+                @settingsUpdate="${() => this.onSettingsUpdate()}">
             </variant-interpreter-grid>
         `;
     }

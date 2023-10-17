@@ -52,13 +52,6 @@ export default class CohortBrowser extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
-    // is executed twice in case there is external settings
     update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
@@ -72,12 +65,43 @@ export default class CohortBrowser extends LitElement {
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-        if (this.settings?.table) {
-            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
-        }
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        }
+        // if (this.settings?.table) {
+        //     this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+        // }
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config?.filter?.result.grid,
+            ...this.settings.table
+        });
+        // if (this.settings?.table?.toolbar) {
+        //     this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+        // }
+
+        UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
+            ...this._config.filter?.result?.grid?.toolbar,
+            ...this.settings.table?.toolbar
+        });
+
+        // if (this.opencgaSession.user?.configs?.IVA?.cohortBrowserCatalog?.grid) {
+        //     this._config.filter.result.grid = {
+        //         ...this._config.filter.result.grid,
+        //         ...this.opencgaSession.user.configs.IVA.cohortBrowserCatalog.grid,
+        //     };
+        // }
+        // Apply user configuration
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.cohortBrowser?.grid
+        });
+
+        this.requestUpdate();
+    }
+
+    onSettingsUpdate() {
+        this.settingsObserver();
+    }
+
+    onCohortUpdate() {
+        this.settingsObserver();
     }
 
     render() {
@@ -86,7 +110,8 @@ export default class CohortBrowser extends LitElement {
                 resource="COHORT"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @cohortUpdate="${this.onCohortUpdate}">
             </opencga-browser>` : "";
     }
 
@@ -108,7 +133,9 @@ export default class CohortBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "cohort")}">
+                            @selectrow="${e => params.onClickRow(e, "cohort")}"
+                            @cohortUpdate="${e => params.onComponentUpdate(e, "cohort")}"
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </cohort-grid>
                         <cohort-detail
                             .opencgaSession="${params.opencgaSession}"
