@@ -78,8 +78,8 @@ export default class PdfBuilder {
             defaultStyle: {
                 fontSize: 10
             },
-            watermark: {...dataFormConfig.displayDoc.watermark},
-            content: [this.#creatTextElement(dataFormConfig?.displayDoc?.headerTitle), dataFormConfig.sections ? this.#transformData() : []]
+            watermark: {...dataFormConfig?.displayDoc.watermark},
+            content: [this.#creatTextElement(dataFormConfig?.displayDoc?.headerTitle), dataFormConfig?.sections ? this.#transformData() : []]
         };
     }
 

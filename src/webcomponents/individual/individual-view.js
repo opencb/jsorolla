@@ -184,7 +184,7 @@ export default class IndividualView extends LitElement {
                             title: "Individual ID",
                             type: "custom",
                             display: {
-                                render: data => html`
+                                render: data => `
                                     <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})
                                 `,
                             },
@@ -272,7 +272,7 @@ export default class IndividualView extends LitElement {
                             field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => field ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-"
+                                render: field => field ? `${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-"
                             },
                         },
                         {
@@ -280,7 +280,7 @@ export default class IndividualView extends LitElement {
                             field: "creationDate",
                             type: "custom",
                             display: {
-                                render: field => field ? html`${UtilsNew.dateFormatter(field)}` : "-"
+                                render: field => field ? UtilsNew.dateFormatter(field) : "-"
                             },
                         },
                         {
@@ -288,7 +288,7 @@ export default class IndividualView extends LitElement {
                             field: "modificationDate",
                             type: "custom",
                             display: {
-                                render: field => field ? html`${UtilsNew.dateFormatter(field)}` : "-"
+                                render: field => field ? UtilsNew.dateFormatter(field) : "-"
                             },
                         },
                         {
