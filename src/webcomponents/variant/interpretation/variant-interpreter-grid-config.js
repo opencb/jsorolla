@@ -243,14 +243,14 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 containerStyle: "margin: 5px 5px 5px 0px",
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
-                                        <select-field-filter
+                                        <select-field-filter2
                                             .data="${this.selectColumnData}"
                                             .value="${this.selectedColumns?.join(",")}"
                                             .title="${"Columns"}"
                                             .multiple="${true}"
                                             .classes="${"btn-sm"}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </select-field-filter>
+                                        </select-field-filter2>
                                     `;
                                 }
                             }

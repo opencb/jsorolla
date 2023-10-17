@@ -19,6 +19,7 @@ import LitUtils from "./utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "./utils/notification-utils.js";
 import "./forms/data-form.js";
+import "./forms/select-field-filter2.js";
 
 export default class CatalogBrowserGridConfig extends LitElement {
 
@@ -224,14 +225,14 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                 containerStyle: "margin: 5px 5px 5px 0px",
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
-                                        <select-field-filter
+                                        <select-field-filter2
                                             .data="${this.selectColumnData}"
                                             .value="${this.selectedColumns?.join(",")}"
                                             .title="${"Columns"}"
                                             .multiple="${true}"
                                             .classes="${"btn-sm"}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </select-field-filter>
+                                        </select-field-filter2>
                                     `;
                                 }
                             }
