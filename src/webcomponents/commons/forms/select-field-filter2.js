@@ -167,10 +167,6 @@ export default class SelectFieldFilter2 extends LitElement {
     }
 
     optionsFormatter(item) {
-        if (typeof item.element != "undefined") {
-            console.log(`selected element ([id='${item._resultId}']):`, document.querySelector(`[id='${item._resultId}']`));
-        }
-
         // optgroup elements
         if (typeof item.children != "undefined") {
             const $groupItem = $(
