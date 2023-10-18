@@ -94,26 +94,6 @@ export default class SelectFieldFilter2 extends LitElement {
 
     firstUpdated() {
         this.select = $("#" + this._prefix);
-        this.initSelect = {
-            config: data => ({
-                theme: "bootstrap-5",
-                selectionCssClass: "select2--small",
-                tags: this._config?.freeTag ?? true,
-                multiple: this.multiple,
-                separator: this.separator,
-                placeholder: this.placeholder,
-                disabled: this.disabled,
-                width: "80%",
-                data: data,
-                templateResult: e => this.optionsFormatter(e)
-            }),
-            onSelect: e => this.filterChange(e),
-            unselect: e => this.filterChange(e)
-        };
-
-        this.select.select2(this.initSelect.config({}))
-            .on("select2:select", this.initSelect.onSelect)
-            .on("select2:unselect", this.initSelect.unselect);
     }
 
     updated(changedProperties) {
@@ -121,25 +101,10 @@ export default class SelectFieldFilter2 extends LitElement {
             this.loadData();
         }
 
-        if (changedProperties.has("disabled")) {
-            const selectElm = document.querySelector("#" + this._prefix);
-            selectElm.disabled = !selectElm.disabled;
-        }
-
         if (changedProperties.has("value") || changedProperties.has("disabled")) {
             this.loadValueSelected();
         }
     }
-
-    // loadData() {
-    //     if (this.data) {
-    //         this.select.empty();
-    //         this.data.forEach(item => {
-    //             this.select.append(new Option(item.name, item.id, false, false));
-    //         });
-    //         this.select.trigger("change");
-    //     }
-    // }
 
     loadData() {
         if (this.data) {
@@ -149,9 +114,9 @@ export default class SelectFieldFilter2 extends LitElement {
             // if exist children options
                 if (item?.fields && item?.fields.length > 0) {
                     options.push({
-                    text: item.id,
-                    children: item.fields.map(opt => ({id: opt.id, text: opt.name}))
-                });
+                        text: item.id,
+                        children: item.fields.map(opt => ({id: opt.id, text: opt.name}))
+                    });
                 } else {
                     options.push({
                     id: item.id,
@@ -159,25 +124,37 @@ export default class SelectFieldFilter2 extends LitElement {
                 });
                 }
             });
-            // events for select & unselect
-            this.select.select2(this.initSelect.config(options))
-                .on("select2:select", this.initSelect.onSelect)
-                .on("select2:unselect", this.initSelect.unselect);
+            this.select.select2({
+                theme: "bootstrap-5",
+                selectionCssClass: "select2--small",
+                tags: this._config?.freeTag ?? false,
+                multiple: this.multiple,
+                separator: this.separator,
+                placeholder: this.placeholder || "Select option(s)",
+                disabled: this.disabled,
+                width: "80%",
+                data: options,
+                tokenSeparator: this.tokenSeparator,
+                selectOnClose: false,
+                templateResult: e => this.optionsFormatter(e),
+            })
+                .on("select2:select", e => this.filterChange(e))
+                .on("select2:unselect", e => this.filterChange(e));
+
+            this.querySelector("span.select2-search.select2-search--inline").style = "display: none";
         }
     }
 
     optionsFormatter(item) {
         // optgroup elements
         if (typeof item.children != "undefined") {
-            const $groupItem = $(
-                "<span class='fw-bold fs-6 text-dark'>" + item.text + "</span>"
-            );
-            return $groupItem;
+            return $(`
+                <span class='fw-bold fs-6 text-dark'>${item.text}</span>
+            `);
         }
-        const $item = $(
-            "<small>" + item.text + "</small>"
-        );
-        return $item;
+        return $(`
+            <small>${item.text}</small>
+        `);
     }
 
     loadValueSelected() {
