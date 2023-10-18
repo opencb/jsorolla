@@ -82,7 +82,7 @@ export default class SelectFieldFilter2 extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        $.fn.selectpicker.Constructor.BootstrapVersion = "5";
+        // $.fn.selectpicker.Constructor.BootstrapVersion = "5";
         this.multiple = false;
         this.all = false;
         this.data = [];
@@ -118,8 +118,7 @@ export default class SelectFieldFilter2 extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("data")) {
-            // this.loadData();
-            this.loadDataWithGroup();
+            this.loadData();
         }
 
         if (changedProperties.has("disabled")) {
@@ -132,34 +131,35 @@ export default class SelectFieldFilter2 extends LitElement {
         }
     }
 
-    loadData() {
-        if (this.data) {
-            this.select.empty();
-            this.data.forEach(item => {
-                this.select.append(new Option(item.name, item.id, false, false));
-            });
-            this.select.trigger("change");
-        }
-    }
+    // loadData() {
+    //     if (this.data) {
+    //         this.select.empty();
+    //         this.data.forEach(item => {
+    //             this.select.append(new Option(item.name, item.id, false, false));
+    //         });
+    //         this.select.trigger("change");
+    //     }
+    // }
 
-    loadDataWithGroup() {
+    loadData() {
         if (this.data) {
             const options = [];
             this.select.empty();
             this.data.forEach(item => {
+            // if exist children options
                 if (item?.fields && item?.fields.length > 0) {
                     options.push({
-                        text: item.id,
-                        children: item.fields.map(opt => ({id: opt.id, text: opt.name}))
-                    });
+                    text: item.id,
+                    children: item.fields.map(opt => ({id: opt.id, text: opt.name}))
+                });
                 } else {
                     options.push({
-                        id: item.id,
-                        text: item.name,
-                    });
+                    id: item.id,
+                    text: item.name,
+                });
                 }
-                // this.select.append(new Option(item.name, item.id, false, false));
             });
+            // events for select & unselect
             this.select.select2(this.initSelect.config(options))
                 .on("select2:select", this.initSelect.onSelect)
                 .on("select2:unselect", this.initSelect.unselect);
@@ -174,11 +174,9 @@ export default class SelectFieldFilter2 extends LitElement {
             );
             return $groupItem;
         }
-
         const $item = $(
             "<small>" + item.text + "</small>"
         );
-
         return $item;
     }
 
