@@ -15,8 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../commons/forms/form-utils";
-import AnalysisUtils from "../../commons/analysis/analysis-utils";
+import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
@@ -87,7 +86,7 @@ export default class RdTieringAnalysis extends LitElement {
         return null;
     }
 
-    onFieldChange(e, field) {
+    onFieldChange() {
         this.toolParams = {...this.toolParams};
         this.requestUpdate();
     }
