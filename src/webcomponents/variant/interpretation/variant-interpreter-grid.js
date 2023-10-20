@@ -378,7 +378,11 @@ export default class VariantInterpreterGrid extends LitElement {
                             // FIXME Temporary code to check which variants are being interpreted or have been reported
                             // This should be implemented by OpenCGA
                             // return this.fillReportedVariants(variantResponse.responses[0].results);
-                            return variantResponse;
+                            // return variantResponse;
+
+                            // Prepare data for columns extensions
+                            const rows = variantResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
                         })
                         .then(() => params.success(variantResponse))
                         .catch(e => params.error(e))
