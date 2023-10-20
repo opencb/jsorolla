@@ -84,7 +84,14 @@ export default {
                     [newColumns].flat().forEach(newColumn => {
                         const group = hasGroupedRows ? columns[index] : columns;
                         const position = newColumn.position ?? group.length;
-                        const config = {...newColumn.config};
+                        const columnData = data[extension.id] || {};
+                        const config = {
+                            ...newColumn.config,
+                            // We need to overwrite the formatter to provide custom data of this columns
+                            formatter: (value, row, index) => {
+                                return newColumn.config.formatter(value, row, index, columnData);
+                            },
+                        };
                         // check if we have provided a function to check if column is visible
                         // This function will be called only when we do NOT have row groups or when the rowspan value is 1
                         if (typeof checkColumnVisible === "function") {
