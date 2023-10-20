@@ -95,7 +95,7 @@ export default class RdTieringAnalysis extends LitElement {
     onSubmit() {
         const toolParams = {
             clinicalAnalysis: this.toolParams.clinicalAnalysis || "",
-            panels: this.toolParams.panels.split(",") || [],
+            panels: (this.toolParams.panels || "").split(","),
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -157,13 +157,12 @@ export default class RdTieringAnalysis extends LitElement {
                         //   - Once the clinical analysis id is selected, query its panels?
                         //   - All the studies have panels?
                         title: "Disease Panels",
-                        field: "panels.id",
+                        field: "panels",
                         type: "custom",
                         display: {
                             render: (panels, dataFormFilterChange) => {
-                                // Todo: check if its working
                                 // Get whether disease panels can be modified or are fixed
-                                const casePanelLock = !!this.clinicalAnalysisId;
+                                const casePanelLock = !!this.clinicalAnalysis;
                                 // Get the list of disease panels for the dropdown
                                 let diseasePanels = [];
                                 if (casePanelLock) {
@@ -177,15 +176,15 @@ export default class RdTieringAnalysis extends LitElement {
                                     diseasePanels = this.opencgaSession.study?.panels;
                                 }
                                 return html`
-                                    <disease-panel-filter
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .diseasePanels="${diseasePanels}"
-                                        .panel="${this.diseasePanelIds}"
-                                        .showExtendedFilters="${false}"
-                                        .showSelectedPanels="${false}"
+                                    <select-field-filter
+                                        .data="${diseasePanels}"
+                                        .value=${panels}
+                                        .liveSearch=${diseasePanels?.length > 5}
+                                        .multiple="${true}"
                                         .disabled="${casePanelLock}"
+                                        separator="\n"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                    </disease-panel-filter>
+                                    </select-field-filter>
                                 `;
                             },
                         }
