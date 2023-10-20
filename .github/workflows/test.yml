@@ -24,13 +24,17 @@ jobs:
           cache: "npm"
           cache-dependency-path: "package.json"
       - run: npm install
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-folder
+          path: build
       - run: npm run test:prepare
       - uses: cypress-io/github-action@v5
         with:
-          start: npm run serve
+          start: npm run serve:build
           command: npm run test:run
           browser: chrome
-          wait-on: 'http://localhost:3000/src/sites/test-app/'
+          wait-on: 'http://localhost:4000/test-app/'
       - uses: actions/upload-artifact@v3
         if: always()
         with:
