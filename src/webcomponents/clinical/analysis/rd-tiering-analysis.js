@@ -138,12 +138,12 @@ export default class RdTieringAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Clinical Analysis ID",
-                        field: "clinicalAnalysisId",
+                        field: "clinicalAnalysis",
                         type: "custom",
                         display: {
-                            render: (clinicalAnalysisId, dataFormFilterChange, updateParams, clinicalAnalysis) => html`
+                            render: (clinicalAnalysis, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
-                                    .value="${clinicalAnalysisId}"
+                                    .value="${clinicalAnalysis}"
                                     .resource="${"CLINICAL_ANALYSIS"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: false, disabled: !!clinicalAnalysis}}"
