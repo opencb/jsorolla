@@ -289,12 +289,19 @@ export default class CohortGrid extends LitElement {
                 id: "id",
                 title: "Cohort ID",
                 field: "id",
+                formatter: (cohortId, cohort) => {
+                    return `
+                        <div>
+                            <span style="font-weight: bold; margin: 5px 0">${cohortId}</span>
+                            ${cohort.name ? `<span class="help-block" style="margin: 5px 0">${cohort.name}</span>` : ""}
+                        </div>`;
+                },
                 halign: this._config.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
                 id: "numSamples",
-                title: "#Samples",
+                title: "Number of Samples",
                 field: "numSamples",
                 // formatter: (value, row) => row.numSamples ?? 0,
                 halign: this._config.header.horizontalAlign,
@@ -302,20 +309,25 @@ export default class CohortGrid extends LitElement {
             },
             {
                 id: "creationDate",
-                title: "Date",
+                title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
                 halign: this._config.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
-            {
-                id: "type",
-                title: "Type",
-                field: "type",
-                halign: this._config.header.horizontalAlign,
-                visible: this.gridCommons.isColumnVisible("type")
-            }
+            // {
+            //     id: "type",
+            //     title: "Type",
+            //     field: "type",
+            //     halign: this._config.header.horizontalAlign,
+            //     visible: this.gridCommons.isColumnVisible("type")
+            // }
         ];
+
+        if (this._config.annotations?.length > 0) {
+            this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
+        }
+
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
                 id: "actions",

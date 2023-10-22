@@ -218,14 +218,14 @@ export default class FileBrowser extends LitElement {
                                 type: "string",
                                 placeholder: "HG01879, HG01880, HG01881...",
                                 description: ""
-                            }, /*
+                            },
                             {
-                                id: "path",
-                                name: "Path",
+                                id: "jobId",
+                                name: "Job ID",
                                 type: "string",
-                                placeholder: "genomes/resources/files/...",
-                                description: ""
-                            },*/
+                                placeholder: "Job ID ...",
+                                description: "",
+                            },
                             {
                                 id: "directory",
                                 name: "Directory",
@@ -234,35 +234,24 @@ export default class FileBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "jobId",
-                                name: "Job ID",
-                                placeholder: "Job ID ...",
-                                allowedValues: "",
-                                defaultValue: "",
-                                description: "",
-                            },
-                            {
                                 id: "format",
                                 name: "Format",
-                                type: "category",
-                                multiple: true,
-                                allowedValues: ["VCF", "BCF", "GVCF", "TBI", "BIGWIG", "SAM", "BAM", "BAI", "CRAM", "CRAI", "FASTQ", "FASTA", "PED", "TAB_SEPARATED_VALUES",
-                                    "COMMA_SEPARATED_VALUES", "XML", "PROTOCOL_BUFFER", "JSON", "AVRO", "PARQUET", "IMAGE", "PLAIN", "BINARY", "EXECUTABLE", "GZIP", "NONE", "UNKNOWN"],
-                                placeholder: "genomes/resources/files/...",
+                                type: "string",
+                                placeholder: "Format ...",
                                 description: ""
                             },
-                            {
-                                id: "bioformat",
-                                name: "Bioformat",
-                                type: "category",
-                                multiple: true,
-                                allowedValues: ["MICROARRAY_EXPRESSION_ONECHANNEL_AGILENT", "MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX", "MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX",
-                                    "MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT", "MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX", "DATAMATRIX_EXPRESSION", "IDLIST", "IDLIST_RANKED",
-                                    "ANNOTATION_GENEVSANNOTATION", "OTHER_NEWICK", "OTHER_BLAST", "OTHER_INTERACTION", "OTHER_GENOTYPE", "OTHER_PLINK", "OTHER_VCF", "OTHER_PED",
-                                    "VARIANT", "ALIGNMENT", "COVERAGE", "SEQUENCE", "PEDIGREE", "REFERENCE_GENOME", "NONE", "UNKNOWN"],
-                                placeholder: "ALIGNMENT,VARIANT...",
-                                description: ""
-                            },
+                            // {
+                            //     id: "bioformat",
+                            //     name: "Bioformat",
+                            //     type: "category",
+                            //     multiple: true,
+                            //     allowedValues: ["MICROARRAY_EXPRESSION_ONECHANNEL_AGILENT", "MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX", "MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX",
+                            //         "MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT", "MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX", "DATAMATRIX_EXPRESSION", "IDLIST", "IDLIST_RANKED",
+                            //         "ANNOTATION_GENEVSANNOTATION", "OTHER_NEWICK", "OTHER_BLAST", "OTHER_INTERACTION", "OTHER_GENOTYPE", "OTHER_PLINK", "OTHER_VCF", "OTHER_PED",
+                            //         "VARIANT", "ALIGNMENT", "COVERAGE", "SEQUENCE", "PEDIGREE", "REFERENCE_GENOME", "NONE", "UNKNOWN"],
+                            //     placeholder: "ALIGNMENT,VARIANT...",
+                            //     description: ""
+                            // },
                             {
                                 id: "internalVariantIndexStatus",
                                 name: "Variant Index Status",

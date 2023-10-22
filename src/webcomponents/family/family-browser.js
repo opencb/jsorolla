@@ -58,23 +58,8 @@ export default class FamilyBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "fb" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
-
-        // These are for making the queries to server
-        /* this.facetFields = [];
-        this.facetRanges = [];
-
-        this.facetFieldsName = [];
-        this.facetRangeFields = [];
-
-        this.facets = new Set();
-        this.facetFilters = [];
-
-        this.facetActive = true;
-        this.selectedFacet = {};
-        this.selectedFacetFormatted = {};
-        this.errorState = false;*/
     }
 
     update(changedProperties) {
@@ -228,20 +213,20 @@ export default class FamilyBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "phenotypes",
-                                name: "Phenotype",
-                                placeholder: "Full-text search, e.g. *melanoma*",
-                                description: ""
-                            },
-                            {
                                 id: "disorders",
                                 name: "Disorders",
                                 placeholder: "Intellectual disability,Arthrogryposis...",
                                 description: ""
                             },
                             {
+                                id: "phenotypes",
+                                name: "Phenotype",
+                                placeholder: "Full-text search, e.g. *melanoma*",
+                                description: ""
+                            },
+                            {
                                 id: "date",
-                                name: "Date",
+                                name: "Creation Date",
                                 description: ""
                             },
                             {

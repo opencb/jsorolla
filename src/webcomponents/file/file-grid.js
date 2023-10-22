@@ -122,7 +122,6 @@ export default class OpencgaFileGrid extends LitElement {
 
     renderRemoteTable() {
         if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
-            // const filters = {...this.query};
             if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
@@ -156,7 +155,7 @@ export default class OpencgaFileGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        include: "id,name,path,uuid,sampleIds,status,format,bioformat,size,creationDate,modificationDate,internal",
+                        include: "id,name,path,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal",
                         ...this.query
                     };
                     // When searching by directory we must also show directories
@@ -283,14 +282,58 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "name",
                 title: "Name",
                 field: "name",
+                formatter: (fileName, row) => {
+                    return `
+                        <div>
+                            <span style="font-weight: bold; margin: 5px 0">${fileName}</span>
+                            <span class="help-block" style="margin: 5px 0">/${row.path.replace(row.name, "").replace("//", "/")}</span>
+                        </div>`;
+                },
                 visible: this.gridCommons.isColumnVisible("name")
             },
+            // {
+            //     id: "directory",
+            //     title: "Directory",
+            //     field: "path",
+            //     formatter: (_, row) => "/" + row.path.replace("/" + row.name, ""),
+            //     visible: this.gridCommons.isColumnVisible("directory")
+            // },
             {
-                id: "directory",
-                title: "Directory",
-                field: "path",
-                formatter: (_, row) => "/" + row.path.replace("/" + row.name, ""),
-                visible: this.gridCommons.isColumnVisible("directory")
+                id: "sampleIds",
+                title: "Samples",
+                field: "sampleIds",
+                formatter: sampleIds => {
+                    let html = "-";
+                    if (sampleIds?.length > 0) {
+                        html = `<div style="white-space: nowrap">`;
+                        for (let i = 0; i < sampleIds.length; i++) {
+                            // Display first 3 files
+                            if (i < 3) {
+                                html += `<div style="margin: 2px 0"><span style="font-weight: bold">${sampleIds[i]}</span></div>`;
+                            } else {
+                                html += `<a tooltip-title="Samples" tooltip-text='${sampleIds.join("<br>")}'>... view all samples (${sampleIds.length})</a>`;
+                                break;
+                            }
+                        }
+                        html += "</div>";
+                    }
+                    return html;
+                },
+                // halign: this._config.header.horizontalAlign,
+                // visible: this.gridCommons.isColumnVisible("sampleIds")
+            },
+            {
+                id: "jobId",
+                title: "Job ID",
+                field: "jobId",
+                formatter: jobId => {
+                    if (jobId) {
+                        return `<div>${jobId}</div>`;
+                    } else {
+                        return "-";
+                    }
+                },
+                // visible: this.gridCommons.isColumnVisible("jobId")
             },
             {
                 id: "size",
@@ -305,15 +348,11 @@ export default class OpencgaFileGrid extends LitElement {
                 field: "format",
                 visible: this.gridCommons.isColumnVisible("format")
             },
-            {
-                id: "bioformat",
-                title: "Bioformat",
-                field: "bioformat",
-                visible: this.gridCommons.isColumnVisible("bioformat")
-            },
             // {
-            //     title: "Status",
-            //     field: "internal.status.name"
+            //     id: "bioformat",
+            //     title: "Bioformat",
+            //     field: "bioformat",
+            //     visible: this.gridCommons.isColumnVisible("bioformat")
             // },
             {
                 id: "index",
@@ -342,8 +381,11 @@ export default class OpencgaFileGrid extends LitElement {
             },
         ];
 
-        if (this.opencgaSession && this._config.showActions) {
+        if (this._config.annotations?.length > 0) {
+            this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
+        }
 
+        if (this.opencgaSession && this._config.showActions) {
             const downloadUrl = this.opencgaSession?.server? [
                 this.opencgaSession?.server.host,
                 "/webservices/rest/",

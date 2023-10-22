@@ -17,6 +17,7 @@
 import UtilsNew from "../../core/utils-new.js";
 import CustomActions from "./custom-actions.js";
 import ExtensionsManager from "../extensions-manager.js";
+import CatalogGridFormatter from "./catalog-grid-formatter";
 
 
 export default class GridCommons {
@@ -274,6 +275,16 @@ export default class GridCommons {
 
     isColumnVisible(colName) {
         if (this.config.columns?.length > 0) {
+            // return this.config.columns.some(column => column === colName || column.split(":")[0] === colName);
+
+            // let found = false;
+            // for (const column of this.config.columns) {
+            //     if (column === colName || column.split(":")[0] === colName) {
+            //         found = true;
+            //     }
+            // }
+            // return found;
+
             return this.config.columns.includes(colName);
         } else {
             // Columns are visible by default.
@@ -296,6 +307,23 @@ export default class GridCommons {
                 }
             });
         return rowStyle;
+    }
+
+    addColumnsFromAnnotations(columns, formatter, gridConfig) {
+        if (gridConfig?.annotations?.length > 0) {
+            for (const annotation of gridConfig.annotations) {
+                const column = {
+                    id: "annotations",
+                    title: annotation.title || "Custom Annotation",
+                    field: "annotationSets",
+                    formatter: annotationSets => formatter(annotationSets, annotation.variableSetId, annotation.variables),
+                    halign: gridConfig.header.horizontalAlign,
+                    // visible: this.gridCommons.isColumnVisible("annotations")
+                };
+                columns.splice(annotation.position, 0, column);
+            }
+        }
+        return columns;
     }
 
     addColumnsFromExtensions(columns, componentId) {

@@ -211,16 +211,16 @@ export default class IndividualBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "phenotypes",
-                                name: "Phenotype",
-                                placeholder: "Full-text search, e.g. *melanoma*",
+                                id: "disorders",
+                                name: "Disorder",
+                                placeholder: "Intellectual disability,Arthrogryposis...",
                                 multiple: true,
                                 description: ""
                             },
                             {
-                                id: "disorders",
-                                name: "Disorder",
-                                placeholder: "Intellectual disability,Arthrogryposis...",
+                                id: "phenotypes",
+                                name: "Phenotype",
+                                placeholder: "Full-text search, e.g. *melanoma*",
                                 multiple: true,
                                 description: ""
                             },
@@ -243,13 +243,13 @@ export default class IndividualBrowser extends LitElement {
                                 placeholder: "White caucasian,asiatic...",
                                 description: ""
                             },
-                            {
-                                id: "lifeStatus",
-                                name: "Life Status",
-                                allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
-                                multiple: true,
-                                description: ""
-                            },
+                            // {
+                            //     id: "lifeStatus",
+                            //     name: "Life Status",
+                            //     allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
+                            //     multiple: true,
+                            //     description: ""
+                            // },
                             {
                                 id: "date",
                                 name: "Date",

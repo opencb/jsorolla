@@ -72,13 +72,13 @@ p {
 }
 
 a:link, a:visited {
-    /*color: var(--main-color-link);*/
-    color: var(--main-bg-color);
+    color: var(--main-color-link);
+    /*color: var(--main-bg-color);*/
 }
 
 a:focus, a:hover {
-    /*color: var(--main-color-hover);*/
-    color: var(--main-bg-color);
+    color: var(--main-color-hover);
+    /*color: var(--main-bg-color);*/
     text-decoration: none;
 }
 

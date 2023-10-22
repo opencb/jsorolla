@@ -136,7 +136,7 @@ export default class FamilyGrid extends LitElement {
     }
 
     renderTable() {
-        if (this.families && this.families?.length > 0) {
+        if (this.families?.length > 0) {
             this.renderLocalTable();
         } else {
             this.renderRemoteTable();
@@ -146,7 +146,6 @@ export default class FamilyGrid extends LitElement {
 
     renderRemoteTable() {
         if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
-            // const filters = {...this.query};
             if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
@@ -385,19 +384,6 @@ export default class FamilyGrid extends LitElement {
         return result;
     }
 
-    membersFormatter(value, row) {
-        if (UtilsNew.isNotEmptyArray(value)) {
-            const members = value.map(member => `<p>${member.id} (${member.sex?.id || member.sex})</p>`).join("");
-            return `
-                <a tooltip-title="Members" tooltip-text="${members}">
-                    ${value.length} members found
-                </a>
-            `;
-        } else {
-            return "No members found";
-        }
-    }
-
     async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
@@ -426,6 +412,7 @@ export default class FamilyGrid extends LitElement {
                 id: "id",
                 title: "Family",
                 field: "id",
+                formatter: familyId => `<div><span style="font-weight: bold">${familyId}</span></div>`,
                 sortable: true,
                 halign: this._config.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("id")
@@ -434,7 +421,27 @@ export default class FamilyGrid extends LitElement {
                 id: "members",
                 title: "Members",
                 field: "members",
-                formatter: this.membersFormatter.bind(this),
+                formatter: members => {
+                    let html = "-";
+                    if (members?.length > 0) {
+                        html = `<div style="white-space: nowrap">`;
+                        for (let i = 0; i < members.length; i++) {
+                            // Display first 5 members
+                            if (i < 5) {
+                                html += `
+                                    <div style="margin: 2px 0">
+                                        <span style="font-weight: bold">${members[i].id}</span><span> (${members[i].sex.id})</span>
+                                    </div>
+                                `;
+                            } else {
+                                html += `<a tooltip-title="Files" tooltip-text='${members.join("")}'>... view all members (${members.length})</a>`;
+                                break;
+                            }
+                        }
+                        html += "</div>";
+                    }
+                    return html;
+                },
                 halign: this._config.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("members")
             },
@@ -442,7 +449,7 @@ export default class FamilyGrid extends LitElement {
                 id: "disorders",
                 title: "Disorders",
                 field: "disorders",
-                formatter: disorders => disorders.map(disorder => CatalogGridFormatter.disorderFormatter(disorder)).join("<br>"),
+                formatter: disorders => CatalogGridFormatter.disorderFormatter(disorders),
                 halign: this._config.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("disorders")
             },
@@ -472,6 +479,10 @@ export default class FamilyGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
+
+        if (this._config.annotations?.length > 0) {
+            this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
+        }
 
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({

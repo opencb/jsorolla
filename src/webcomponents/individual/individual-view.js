@@ -187,6 +187,20 @@ export default class IndividualView extends LitElement {
                                 render: data => html`
                                     <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})
                                 `,
+                                // render: {
+                                //     separator: "-",
+                                //     items: [
+                                //         {
+                                //             text: "${data.id}",
+                                //             style: {
+                                //                 "font-weight": "bold"
+                                //             }
+                                //         },
+                                //         {
+                                //             text: "${data.uuid}",
+                                //         }
+                                //     ]
+                                // }
                             },
                         },
                         {
@@ -244,20 +258,31 @@ export default class IndividualView extends LitElement {
                             field: "phenotypes",
                             type: "list",
                             display: {
-                                contentLayout: "bullets",
-                                render: phenotype => {
-                                    let id = phenotype.id;
-                                    if (phenotype.id.startsWith("HP:")) {
-                                        id = html`
-                                            <a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">
-                                                ${phenotype.id}
-                                            </a>
-                                        `;
-                                    }
-                                    return html`${phenotype.name} (${id})`;
-                                },
+                                contentLayout: "vertical",
+                                // render: phenotype => {
+                                //     let id = phenotype.id;
+                                //     if (phenotype.id.startsWith("HP:")) {
+                                //         id = html`
+                                //             <a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">
+                                //                 ${phenotype.id}
+                                //             </a>
+                                //         `;
+                                //     }
+                                //     return html`${phenotype.name} (${id})`;
+                                // },
+                                render: phenotype => UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype])),
                                 defaultValue: "N/A",
                             },
+                        },
+                        {
+                            title: "Date of Birth",
+                            field: "dateOfBirth",
+                            type: "custom",
+                            display: {
+                                render: dateOfBirth => {
+                                    return dateOfBirth ? moment(dateOfBirth, "YYYYMMDDHHmmss").format("D MMM YYYY") : "-";
+                                }
+                            }
                         },
                         {
                             title: "Life Status",
