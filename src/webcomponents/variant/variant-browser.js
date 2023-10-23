@@ -87,13 +87,6 @@ export default class VariantBrowser extends LitElement {
         this.COMPONENT_ID = "variant-browser";
         this._prefix = UtilsNew.randomString(8);
 
-        // These are for making the queries to server
-        /* this.facetFields = [];
-        this.facetRanges = [];
-
-        this.facetFieldsName = [];
-        this.facetRangeFields = [];*/
-
         this.results = [];
         this._showInitMessage = true;
 
@@ -130,12 +123,9 @@ export default class VariantBrowser extends LitElement {
     }
 
     settingsObserver() {
-        if (!this.opencgaSession) {
-            return;
-        }
-        this._config = this.getDefaultConfig();
+        this._config = {...this.getDefaultConfig()};
 
-        // filter list, canned filters, detail tabs
+        // Apply Study grid configuration
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
@@ -154,13 +144,11 @@ export default class VariantBrowser extends LitElement {
             };
         }
 
-        // Apply user configuration
-        if (this.opencgaSession.user?.configs?.IVA?.[this.COMPONENT_ID]?.grid) {
-            this._config.filter.result.grid = {
-                ...this._config.filter.result.grid,
-                ...this.opencgaSession.user.configs.IVA[this.COMPONENT_ID].grid,
-            };
-        }
+        // Apply User grid configuration. Only 'pageSize', 'columns', 'geneSet', 'consequenceType' and 'populationFrequenciesConfig' are set
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.VARIANT_BROWSER?.grid
+        });
 
         this.requestUpdate();
     }
@@ -442,7 +430,7 @@ export default class VariantBrowser extends LitElement {
                                     .config="${this._config.filter.result.grid}"
                                     @queryComplete="${this.onQueryComplete}"
                                     @selectrow="${this.onSelectVariant}"
-                                    @gridconfigsave="${this.onGridConfigSave}">
+                                    @settingsUpdate="${this.onSettingsUpdate}">
                                 </variant-browser-grid>
 
                                 <!-- Bottom tabs with specific variant information -->

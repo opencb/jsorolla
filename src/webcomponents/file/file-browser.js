@@ -17,8 +17,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./file-preview.js";
 import "./file-view.js";
 import "../commons/opencga-browser.js";
@@ -48,12 +46,6 @@ export default class FileBrowser extends LitElement {
             query: {
                 type: Object
             },
-            /* facetQuery: {
-                type: Object
-            },
-            selectedFacet: {
-                type: Object
-            },*/
             settings: {
                 type: Object
             }
@@ -61,33 +53,10 @@ export default class FileBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "fb" + UtilsNew.randomString(6);
-
-        // These are for making the queries to server
-        /* this.facetFields = [];
-        this.facetRanges = [];
-
-        this.facetFieldsName = [];
-        this.facetRangeFields = [];
-
-        this.facets = new Set();
-        this.facetFilters = [];
-
-        this.facetActive = true;
-        this.selectedFacet = {};
-        this.selectedFacetFormatted = {};
-        this.errorState = false;*/
-
+        this.TOOL_ID = "FILE_BROWSER";
         this._config = this.getDefaultConfig();
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
-
-    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
-    // is executed twice in case there is external settings
     update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
@@ -96,38 +65,27 @@ export default class FileBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
-        // merge filter list, canned filters, detail tabs
+        this._config = this.getDefaultConfig();
+
+        // Apply Study settings
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-        // if (this.settings?.table) {
-        //     this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
-        // }
+
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config?.filter?.result.grid,
             ...this.settings.table
         });
 
-        // if (this.settings?.table?.toolbar) {
-        //     this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        // }
         UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
             ...this._config.filter?.result?.grid?.toolbar,
             ...this.settings.table?.toolbar
         });
 
-        // if (this.opencgaSession.user?.configs?.IVA?.fileBrowserCatalog?.grid) {
-        //     this._config.filter.result.grid = {
-        //         ...this._config.filter.result.grid,
-        //         ...this.opencgaSession.user.configs?.IVA?.fileBrowserCatalog.grid,
-        //     };
-        // }
-
-        // Apply user configuration
+        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.fileBrowser?.grid
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid
         });
 
         this.requestUpdate();
@@ -240,18 +198,6 @@ export default class FileBrowser extends LitElement {
                                 placeholder: "Format ...",
                                 description: ""
                             },
-                            // {
-                            //     id: "bioformat",
-                            //     name: "Bioformat",
-                            //     type: "category",
-                            //     multiple: true,
-                            //     allowedValues: ["MICROARRAY_EXPRESSION_ONECHANNEL_AGILENT", "MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX", "MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX",
-                            //         "MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT", "MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX", "DATAMATRIX_EXPRESSION", "IDLIST", "IDLIST_RANKED",
-                            //         "ANNOTATION_GENEVSANNOTATION", "OTHER_NEWICK", "OTHER_BLAST", "OTHER_INTERACTION", "OTHER_GENOTYPE", "OTHER_PLINK", "OTHER_VCF", "OTHER_PED",
-                            //         "VARIANT", "ALIGNMENT", "COVERAGE", "SEQUENCE", "PEDIGREE", "REFERENCE_GENOME", "NONE", "UNKNOWN"],
-                            //     placeholder: "ALIGNMENT,VARIANT...",
-                            //     description: ""
-                            // },
                             {
                                 id: "internalVariantIndexStatus",
                                 name: "Variant Index Status",
@@ -342,8 +288,7 @@ export default class FileBrowser extends LitElement {
                 }
             },
             aggregation: {
-                default: ["creationYear>>creationMonth", "format", "bioformat", "format>>bioformat", "status", "size[0..214748364800]:10737418240", "numSamples[0..10]:1"],
-                // default: ["type>>size[0..214748364800]:10737418240", "format>>avg(size)", "release"],
+                default: ["creationYear>>creationMonth", "format", "status", "size[0..214748364800]:10737418240", "numSamples[0..10]:1"],
                 render: params => html `
                     <facet-filter
                         .config="${params.config.aggregation}"
@@ -425,16 +370,6 @@ export default class FileBrowser extends LitElement {
                                 allowedValues: ["VCF", "BCF", "GVCF", "TBI", "BIGWIG", "SAM", "BAM", "BAI", "CRAM", "CRAI", "FASTQ", "FASTA", "PED", "TAB_SEPARATED_VALUES",
                                     "COMMA_SEPARATED_VALUES", "XML", "PROTOCOL_BUFFER", "JSON", "AVRO", "PARQUET", "IMAGE", "PLAIN", "BINARY", "EXECUTABLE", "GZIP", "NONE", "UNKNOWN"],
                                 description: "Format"
-                            },
-                            {
-                                id: "bioformat",
-                                name: "Bioformat",
-                                type: "category",
-                                allowedValues: ["MICROARRAY_EXPRESSION_ONECHANNEL_AGILENT", "MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX", "MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX",
-                                    "MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT", "MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX", "DATAMATRIX_EXPRESSION", "IDLIST", "IDLIST_RANKED",
-                                    "ANNOTATION_GENEVSANNOTATION", "OTHER_NEWICK", "OTHER_BLAST", "OTHER_INTERACTION", "OTHER_GENOTYPE", "OTHER_PLINK", "OTHER_VCF", "OTHER_PED",
-                                    "VARIANT", "ALIGNMENT", "COVERAGE", "SEQUENCE", "PEDIGREE", "REFERENCE_GENOME", "NONE", "UNKNOWN"],
-                                description: "Bioformat"
                             },
                             {
                                 id: "external",
@@ -559,8 +494,6 @@ export default class FileBrowser extends LitElement {
             }
         };
     }
-
-
 }
 
 customElements.define("file-browser", FileBrowser);

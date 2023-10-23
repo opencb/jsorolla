@@ -56,7 +56,7 @@ export default class IndividualBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
+        this.TOOL_ID = "INDIVIDUAL_BROWSER";
         this._config = this.getDefaultConfig();
     }
 
@@ -68,38 +68,27 @@ export default class IndividualBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
-        // merge filter list, canned filters, detail tabs
+        this._config = this.getDefaultConfig();
+
+        // Apply Study grid configuration
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-        // if (this.settings?.table) {
-        //     this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
-        // }
 
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config?.filter?.result.grid,
             ...this.settings.table
         });
 
-        // if (this.settings?.table?.toolbar) {
-        //     this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        // }
-
         UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
             ...this._config.filter?.result?.grid?.toolbar,
             ...this.settings.table?.toolbar
         });
-        // Apply user configuration
-        // if (this.opencgaSession.user?.configs?.IVA?.individualBrowserCatalog?.grid) {
-        //     this._config.filter.result.grid = {
-        //         ...this._config.filter.result.grid,
-        //         ...this.opencgaSession.user.configs.IVA.individualBrowserCatalog.grid,
-        //     };
-        // }
+
+        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.individualBrowser?.grid
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid
         });
 
         this.requestUpdate();
@@ -169,11 +158,6 @@ export default class IndividualBrowser extends LitElement {
                             .data="${params.facetResults}">
                         </opencb-facet-results>`
                 }
-                /*
-                {
-                    id: "comparator-tab",
-                    name: "Comparator"
-                }*/
             ],
             filter: {
                 searchButton: false,
@@ -243,13 +227,6 @@ export default class IndividualBrowser extends LitElement {
                                 placeholder: "White caucasian,asiatic...",
                                 description: ""
                             },
-                            // {
-                            //     id: "lifeStatus",
-                            //     name: "Life Status",
-                            //     allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
-                            //     multiple: true,
-                            //     description: ""
-                            // },
                             {
                                 id: "date",
                                 name: "Date",

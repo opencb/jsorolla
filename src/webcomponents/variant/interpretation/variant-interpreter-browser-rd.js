@@ -58,7 +58,7 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     _init() {
-        this.COMPONENT_ID = "variant-interpreter-rd";
+        this.COMPONENT_ID = "VARIANT_INTERPRETER_RD";
         this._prefix = UtilsNew.randomString(8);
 
         this.query = {};

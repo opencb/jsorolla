@@ -281,7 +281,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
             }
         };
     }
-
 }
 
 customElements.define("clinical-analysis-browser", ClinicalAnalysisBrowser);

@@ -16,8 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/opencga-browser.js";
 import "../commons/facet-filter.js";
 import "./family-grid.js";
@@ -45,12 +43,6 @@ export default class FamilyBrowser extends LitElement {
             query: {
                 type: Object
             },
-            /* facetQuery: {
-                type: Object
-            },
-            selectedFacet: {
-                type: Object
-            },*/
             settings: {
                 type: Object
             }
@@ -58,15 +50,14 @@ export default class FamilyBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
+        this.TOOL_ID = "FAMILY_BROWSER";
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("settings") || changedProperties.has("config")) {
+        if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -78,42 +69,20 @@ export default class FamilyBrowser extends LitElement {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
 
-        // if (this.settings?.table) {
-        //     this._config.filter.result.grid = {
-        //         ...this._config.filter.result.grid,
-        //         ...this.settings.table,
-        //     };
-        // }
-
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config?.filter?.result.grid,
             ...this.settings.table
         });
-
-        // if (this.settings?.table?.toolbar) {
-        //     this._config.filter.result.grid.toolbar = {
-        //         ...this._config.filter.result.grid.toolbar,
-        //         ...this.settings.table.toolbar,
-        //     };
-        // }
 
         UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
             ...this._config.filter?.result?.grid?.toolbar,
             ...this.settings.table?.toolbar
         });
 
-        // Apply user configuration
-        // if (this.opencgaSession.user?.configs?.IVA?.familyBrowserCatalog?.grid) {
-        //     this._config.filter.result.grid = {
-        //         ...this._config.filter.result.grid,
-        //         ...this.opencgaSession.user.configs.IVA.familyBrowserCatalog.grid,
-        //     };
-        // }
-
-        // Apply user configuration
+        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.familyBrowser?.grid
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid
         });
 
         this.requestUpdate();
@@ -185,11 +154,6 @@ export default class FamilyBrowser extends LitElement {
                         </opencb-facet-results>
                     `,
                 }
-                /*
-                {
-                    id: "comparator-tab",
-                    name: "Comparator"
-                }*/
             ],
             filter: {
                 searchButton: false,
@@ -237,17 +201,7 @@ export default class FamilyBrowser extends LitElement {
                         ]
                     }
                 ],
-                examples: [
-                    {
-                        id: "Full",
-                        query: {
-                            id: "lp",
-                            members: "hg",
-                            phenotypes: "melanoma",
-                            creationDate: "2020"
-                        }
-                    }
-                ],
+                examples: [],
                 activeFilters: {
                     complexFields: [
                         {id: "annotation", separator: ";"},
@@ -270,7 +224,6 @@ export default class FamilyBrowser extends LitElement {
                             id: "family-view",
                             name: "Overview",
                             active: true,
-                            // visible:
                             render: (family, active, opencgaSession) => html`
                                 <family-view
                                     .opencgaSession="${opencgaSession}"
@@ -292,7 +245,7 @@ export default class FamilyBrowser extends LitElement {
                         {
                             id: "json-view",
                             name: "JSON Data",
-                            render: (family, active, opencgaSession) => html`
+                            render: (family, active) => html`
                                 <json-viewer
                                     .data="${family}"
                                     .active="${active}">

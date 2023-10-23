@@ -89,7 +89,7 @@ export default class SampleGrid extends LitElement {
         };
 
         this.toolbarConfig = {
-            toolId: "sampleBrowser",
+            toolId: "SAMPLE_BROWSER",
             resource: "SAMPLE",
             columns: this._getDefaultColumns(),
             create: {

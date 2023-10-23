@@ -95,7 +95,7 @@ export default class JobGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this.config?.toolbar,
-            toolId: "jobBrowser",
+            toolId: "JOB_BROWSER",
             resource: "JOB",
             columns: this._getDefaultColumns(),
             create: {

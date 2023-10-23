@@ -106,7 +106,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                     }
                 });
             } else {
-            // it just one head: get a list of object
+                // it just one head: get a list of object
                 columnsHead.forEach(column => {
                     addColumnData(column);
                 });
@@ -135,10 +135,18 @@ export default class CatalogBrowserGridConfig extends LitElement {
     }
 
     async onSubmit() {
-        // Update user configuration
-        // console.log("onGridConfigSave", this, "values", e.detail.value.columns);
         try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.toolId, this.config);
+            // Update user configuration
+            await OpencgaCatalogUtils.updateGridConfig(
+                "IVA",
+                this.opencgaSession,
+                this.toolId,
+                {
+                    pageSize: this.config.pageSize,
+                    columns: this.config.columns,
+                    highlights: this.config.highlights,
+                }
+            );
             LitUtils.dispatchCustomEvent(this, "settingsUpdate");
 
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {

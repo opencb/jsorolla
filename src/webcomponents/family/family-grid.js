@@ -88,7 +88,7 @@ export default class FamilyGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: "familyBrowser",
+            toolId: "FAMILY_BROWSER",
             resource: "FAMILY",
             columns: this._getDefaultColumns(),
             create: {

@@ -55,7 +55,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
     }
 
     _init() {
-        this.COMPONENT_ID = "variant-interpreter-cancer-cnv";
+        this.COMPONENT_ID = "VARIANT_INTERPRETER_CANCER_SNV";
         this._prefix = UtilsNew.randomString(8);
 
         this.query = {};

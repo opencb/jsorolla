@@ -50,11 +50,10 @@ export default class SampleBrowser extends LitElement {
     }
 
     _init() {
+        this.TOOL_ID = "SAMPLE_BROWSER";
         this._config = this.getDefaultConfig();
     }
 
-    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
-    // is executed twice in case there is external settings
     update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
@@ -63,38 +62,27 @@ export default class SampleBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
+
+        // Apply Study settings
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-        // if (this.settings?.table) {
-        //     this.config.filter.result.grid = {...this.config.filter.result.grid, ...this.settings.table};
-        // }
 
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config?.filter?.result.grid,
             ...this.settings.table
         });
 
-        // if (this.settings?.table?.toolbar) {
-        //     this.config.filter.result.grid.toolbar = {...this.config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        // }
-
         UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
             ...this._config.filter?.result?.grid?.toolbar,
             ...this.settings.table?.toolbar
         });
 
-        // if (this.opencgaSession.user?.configs?.IVA?.sampleBrowserCatalog?.grid) {
-        //     this.config.filter.result.grid = {
-        //         ...this.config.filter.result.grid,
-        //         ...this.opencgaSession.user.configs.IVA.sampleBrowserCatalog.grid,
-        //     };
-        // }
-        // Apply user configuration
+        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.sampleBrowser?.grid
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid
         });
 
         this.requestUpdate();
@@ -228,7 +216,6 @@ export default class SampleBrowser extends LitElement {
                             showExport: true,
                             showSettings: true,
                             exportTabs: ["download", "link", "code"]
-                            // columns list for the dropdown will be added in grid components based on settings.table.columns
                         },
                     }
                 },
@@ -457,8 +444,6 @@ export default class SampleBrowser extends LitElement {
             }
         };
     }
-
 }
-
 
 customElements.define("sample-browser", SampleBrowser);

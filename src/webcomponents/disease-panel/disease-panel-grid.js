@@ -89,7 +89,7 @@ export default class DiseasePanelGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: "diseasePanelBrowser",
+            toolId: "DISEASE_PANEL_BROWSER",
             resource: "DISEASE_PANEL",
             columns: this._getDefaultColumns(),
             create: {

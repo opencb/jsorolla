@@ -88,7 +88,7 @@ export default class OpencgaFileGrid extends LitElement {
         };
 
         this.toolbarConfig = {
-            toolId: "fileBrowser",
+            toolId: "FILE_BROWSER",
             resource: "FILE",
             columns: this._getDefaultColumns(),
             create: {

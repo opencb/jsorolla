@@ -135,16 +135,22 @@ export default class OpencgaCatalogUtils {
     }
 
     // Update grid configuration of the specified browser
-    static updateGridConfig(opencgaSession, browserName, newGridConfig) {
-        const newConfig = {
-            ...opencgaSession.user.configs?.IVA,
-            [browserName]: {
-                ...opencgaSession.user.configs?.IVA[browserName],
-                grid: newGridConfig,
-            },
+    static updateGridConfig(id = "IVA", opencgaSession, toolId, gridConfig) {
+        const userGridSettings = {
+            settings: {
+                ...opencgaSession.user.configs?.[id]?.settings,
+                [toolId]: {
+                    ...opencgaSession.user.configs?.[id][toolId],
+                    grid: gridConfig,
+                },
+            }
+        };
+        const newGridConfig = {
+            ...opencgaSession.user.configs?.[id],
+            ...userGridSettings
         };
 
-        return opencgaSession.opencgaClient.updateUserConfigs(newConfig)
+        return opencgaSession.opencgaClient.updateUserConfig(id, newGridConfig)
             .then(response => {
                 // Update user configuration in opencgaSession object
                 // eslint-disable-next-line no-param-reassign

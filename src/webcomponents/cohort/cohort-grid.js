@@ -89,7 +89,7 @@ export default class CohortGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: "cohortBrowser",
+            toolId: "COHORT_BROWSER",
             resource: "COHORT",
             columns: this._getDefaultColumns(),
             create: {
@@ -315,13 +315,6 @@ export default class CohortGrid extends LitElement {
                 halign: this._config.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
-            // {
-            //     id: "type",
-            //     title: "Type",
-            //     field: "type",
-            //     halign: this._config.header.horizontalAlign,
-            //     visible: this.gridCommons.isColumnVisible("type")
-            // }
         ];
 
         if (this._config.annotations?.length > 0) {

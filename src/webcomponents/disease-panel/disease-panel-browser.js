@@ -17,8 +17,6 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import {construction} from "../commons/under-construction.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./disease-panel-gene-view.js";
 import "./disease-panel-region-view.js";
 import "./disease-panel-summary.js";
@@ -58,7 +56,8 @@ export default class DiseasePanelBrowser extends LitElement {
     }
 
     _init() {
-        this._config = this.getDefautlConfig();
+        this.TOOL_ID = "DISEASE_PANEL_BROWSER";
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
@@ -70,50 +69,29 @@ export default class DiseasePanelBrowser extends LitElement {
 
     settingsObserver() {
         this._config = {
-            ...this.getDefautlConfig(),
+            ...this.getDefaultConfig(),
             ...(this.config || {}),
         };
 
+        // Apply Study settings
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-
-        // if (this.settings?.table) {
-        //     this._config.filter.result.grid = {
-        //         ...this._config.filter.result.grid,
-        //         ...this.settings.table,
-        //     };
-        // }
 
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config?.filter?.result.grid,
             ...this.settings?.table
         });
 
-        // if (this.settings?.table?.toolbar) {
-        //     this._config.filter.result.grid.toolbar = {
-        //         ...this._config.filter.result.grid.toolbar,
-        //         ...this.settings.table.toolbar,
-        //     };
-        // }
-
         UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
             ...this._config.filter?.result?.grid?.toolbar,
             ...this.settings?.table?.toolbar
         });
 
-
-        // if (this.opencgaSession.user?.configs?.IVA?.diseasePanelBrowser?.grid) {
-        //     this._config.filter.result.grid = {
-        //         ...this._config.filter.result.grid,
-        //         ...this.opencgaSession.user.configs.IVA.diseasePanelBrowser.grid,
-        //     };
-        // }
-
-        // Apply user configuration
+        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.diseasePanelBrowser?.grid
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid
         });
 
         this.requestUpdate();
@@ -139,7 +117,7 @@ export default class DiseasePanelBrowser extends LitElement {
         `;
     }
 
-    getDefautlConfig() {
+    getDefaultConfig() {
         return {
             title: "Disease Panel Browser",
             icon: "fab fa-searchengin",
@@ -245,11 +223,6 @@ export default class DiseasePanelBrowser extends LitElement {
                                 field: "tags",
                                 resource: "DISEASE_PANEL"
                             },
-                            // {
-                            //     id: "date",
-                            //     name: "Date",
-                            //     description: ""
-                            // }
                         ]
                     }
                 ],
@@ -315,7 +288,6 @@ export default class DiseasePanelBrowser extends LitElement {
             },
         };
     }
-
 }
 
 customElements.define("disease-panel-browser", DiseasePanelBrowser);

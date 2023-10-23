@@ -97,9 +97,9 @@ export default class VariantInterpreterGridConfig extends LitElement {
             case "genotype.type":
                 this.config.genotype.type = e.detail.value;
                 break;
-            case "showHgvs":
-                this.config.showHgvs = e.detail.value;
-                break;
+            // case "showHgvs":
+            //     this.config.showHgvs = e.detail.value;
+            //     break;
             case "geneSet.ensembl":
             case "geneSet.refseq":
             case "consequenceType.all":
@@ -142,16 +142,32 @@ export default class VariantInterpreterGridConfig extends LitElement {
     }
 
     async onSubmit() {
-        const newGridConfig = {...this.config};
+        // const newGridConfig = {...this.config};
+        //
+        // // Remove highlights and copies configuration from new config
+        // if (newGridConfig._highlights) {
+        //     delete newGridConfig._highlights;
+        // }
 
-        // Remove highlights and copies configuration from new config
-        if (newGridConfig._highlights) {
-            delete newGridConfig._highlights;
-        }
-
-        // Update user configuration
         try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.toolId, newGridConfig);
+            // Update user configuration
+            await OpencgaCatalogUtils
+                .updateGridConfig(
+                    "IVA",
+                    this.opencgaSession,
+                    this.toolId,
+                    {
+                        // All Variant Grids
+                        pageSize: this.config.pageSize,
+                        columns: this.config.columns,
+                        geneSet: this.config.geneSet,
+                        consequenceType: this.config.consequenceType,
+                        populationFrequenciesConfig: this.config.populationFrequenciesConfig,
+                        highlights: this.config.highlights,
+                        // Only Variant Interpreter Grids
+                        genotype: this.config.genotype,
+                    }
+                );
             LitUtils.dispatchCustomEvent(this, "settingsUpdate");
 
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -278,15 +294,15 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 width: 6,
                             }
                         },
-                        {
-                            title: "Show HGVS column",
-                            field: "showHgvs",
-                            type: "checkbox",
-                            text: "Show HGVS",
-                            display: {
-                                width: 6,
-                            }
-                        }
+                        // {
+                        //     title: "Show HGVS column",
+                        //     field: "showHgvs",
+                        //     type: "checkbox",
+                        //     text: "Show HGVS",
+                        //     display: {
+                        //         width: 6,
+                        //     }
+                        // }
                     ]
                 },
                 {

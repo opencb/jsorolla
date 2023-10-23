@@ -88,7 +88,7 @@ export default class IndividualGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: "individualBrowser",
+            toolId: "INDIVIDUAL_BROWSER",
             resource: "INDIVIDUAL",
             columns: this._getDefaultColumns(),
             create: {
@@ -527,21 +527,20 @@ export default class IndividualGrid extends LitElement {
             },
         ];
 
-        this._config.annotations = [
-            {
-                title: "Cardiology Tests",
-                position: 6,
-                variableSetId: "cardiology_tests_checklist",
-                variables: ["ecg_test", "echo_test"]
-            },
-            // {
-            //     title: "Risk Assessment",
-            //     position: 7,
-            //     variableSetId: "risk_assessment",
-            //     variables: ["vf_cardiac_arrest_events"]
-            // }
-        ];
-
+        // Example of custom annotation configuration:
+        // this._config.annotations = [
+        //     {
+        //         title: "Cardiology Tests",
+        //         position: 6,
+        //         variableSetId: "cardiology_tests_checklist",
+        //         variables: ["ecg_test", "echo_test"]
+        //     },
+        //     {
+        //         title: "Risk Assessment",
+        //         position: 7,
+        //         variableSetId: "risk_assessment",
+        //     }
+        // ];
         if (this._config.annotations?.length > 0) {
             this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
