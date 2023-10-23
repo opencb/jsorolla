@@ -33,8 +33,12 @@ export default class BrowserTest {
 
     static selectCaseVariantBrowser = caseName => {
         cy.get("table").within(() => {
-            cy.get(`tr[data-uniqueid=${caseName}]`).as("selectedCase");
-            cy.get("@selectedCase").find("a").contains(caseName).click();
+            cy.get(`tr[data-uniqueid=${caseName}]`)
+                .as("selectedCase");
+            cy.get("@selectedCase")
+                .find("a")
+                .contains(caseName)
+                .click();
         });
     };
 
@@ -47,7 +51,8 @@ export default class BrowserTest {
     // All browser has filters
     static saveCurrentFilter = data => {
         // Open the filters
-        cy.get("button[data-cy='filter-button']").click({ force: true });
+        cy.get("button[data-cy='filter-button']")
+            .click({ force: true });
 
         // save current
         cy.get("ul.saved-filter-wrapper a[data-action='active-filter-save']")
@@ -55,37 +60,52 @@ export default class BrowserTest {
             .click();
         // Wait modal should be visible
         cy.wait(500);
-        cy.get("input[data-cy='modal-filter-name']").type(data.name);
-        cy.get("input[data-cy='modal-filter-description']").type(data.description);
-        cy.get("button[data-cy='modal-filter-save-button']").click();
+        cy.get("input[data-cy='modal-filter-name']")
+            .type(data.name);
+        cy.get("input[data-cy='modal-filter-description']")
+            .type(data.description);
+        cy.get("button[data-cy='modal-filter-save-button']")
+            .click();
     };
 
     // All browser has filters
     static removeFilters = name => {
-        cy.get(".active-filter-label").click();
-        cy.get("ul.saved-filter-wrapper").contains(name);
-        cy.get(`span.action-buttons i[data-cy=delete][data-filter-id='${name}']`).click();
-        cy.get("#myModalLabel").contains("Are you sure?");
-        cy.get(":nth-child(5) > .modal > .modal-dialog > .modal-content > .modal-footer > .btn-primary").click();
+        cy.get(".active-filter-label")
+            .click();
+        cy.get("ul.saved-filter-wrapper")
+            .contains(name);
+        cy.get(`span.action-buttons i[data-cy=delete][data-filter-id='${name}']`)
+            .click();
+        cy.get("#myModalLabel")
+            .contains("Are you sure?");
+        cy.get(":nth-child(5) > .modal > .modal-dialog > .modal-content > .modal-footer > .btn-primary")
+            .click();
     };
 
     // Should be command for all test?
     static checkNotificationManager = msg => {
-        cy.get(".notification-manager", { timeout: 500 }).contains(msg)
+        cy.get(".notification-manager", { timeout: 500 })
+            .contains(msg)
             .should("be.visible");
     };
 
     static setFeatureIds = value => {
         const val = Array.isArray(value) ? value.join("{enter}") + "{enter}" : value;
         // Select2 Widgets
-        cy.get("div[data-cy='feature']").contains("span", "Feature IDs (gene, SNPs, ...)");
-        cy.get("feature-filter select-token-filter ul").click({ force: true });
-        cy.get("div[data-cy='feature'] .select2-search__field").type(val, { delay: 200 });
+        cy.get("div[data-cy='feature']")
+            .contains("span", "Feature IDs (gene, SNPs, ...)");
+        cy.get("feature-filter select-token-filter ul")
+            .click({ force: true });
+        cy.get("div[data-cy='feature'] .select2-search__field")
+            .type(val, { delay: 200 });
     };
 
     static setGeneBiotype = value => {
-        cy.get("div[data-cy='biotype']").contains("span", "Gene Biotype");
-        cy.get(".subsection-content biotype-filter select-field-filter ul[role='presentation']").contains(value).click({ force: true });
+        cy.get("div[data-cy='biotype']")
+            .contains("span", "Gene Biotype");
+        cy.get(".subsection-content biotype-filter select-field-filter ul[role='presentation']")
+            .contains(value)
+            .click({ force: true });
     };
 
     static setVariantType = value => {
@@ -94,11 +114,14 @@ export default class BrowserTest {
             value.forEach(val => {
                 // cy.get(`variant-type-filter checkbox-field-filter ul > li > input[value='${key}'`).invoke("prop = "checked", value[key]);
                 // setCheckBox(`variant-type-filter checkbox-field-filter ul > li > input[value='${key}'`, value[key]);
-                cy.get(`variant-type-filter checkbox-field-filter ul > li > input[value='${val}'`).click({ force: true });
+                cy.get(`variant-type-filter checkbox-field-filter ul > li > input[value='${val}'`)
+                    .click({ force: true });
             });
         }
         if (value === "all") {
-            return cy.get("variant-type-filter button").contains("Select all").click();
+            return cy.get("variant-type-filter button")
+                .contains("Select all")
+                .click();
         }
     };
 
@@ -113,7 +136,9 @@ export default class BrowserTest {
             "genes_by_roles_in_cancer": "Filter Genes by Role in Cancer"
         };
 
-        cy.get("disease-panel-filter div").contains("span", filters[filter]).as("diseaseFilter");
+        cy.get("disease-panel-filter div")
+            .contains("span", filters[filter])
+            .as("diseaseFilter");
 
         switch (filter) {
             case "disease_panels":
@@ -121,15 +146,23 @@ export default class BrowserTest {
             case "genes_by_moi":
             case "genes_by_confidence":
             case "genes_by_roles_in_cancer":
-                cy.get("@diseaseFilter").parent().within(() => {
-                    value.map(val => {
-                        cy.get("select-field-filter ul[role='presentation']").contains(val).click({ force: true });
+                cy.get("@diseaseFilter")
+                    .parent()
+                    .within(() => {
+                        value.map(val => {
+                            cy.get("select-field-filter ul[role='presentation']")
+                                .contains(val)
+                                .click({ force: true });
+                        });
                     });
-                });
                 break;
             case "panel_intersection":
-                cy.get("@diseaseFilter").parent().within(() => {
-                    cy.get("toggle-switch button").contains(value).click({ force: true });
+                cy.get("@diseaseFilter")
+                    .parent()
+                    .within(() => {
+                        cy.get("toggle-switch button")
+                            .contains(value)
+                            .click({ force: true });
                 });
                 break;
         }
@@ -143,23 +176,33 @@ export default class BrowserTest {
             "clinical_status": "Check Status"
         };
 
-        cy.get("clinical-annotation-filter").contains("span", filters[filter]).as("clinicalDbFilter");
+        cy.get("clinical-annotation-filter")
+            .contains("span", filters[filter])
+            .as("clinicalDbFilter");
 
         switch (filter) {
             case "clinical_database":
             case "clinical_significance":
-                cy.get("@clinicalDbFilter").parent().within(() => {
-                    if (Array.isArray(value)) {
-                        value.forEach(val => cy.get("select-field-filter ul[role='presentation']").contains(val).click({ force: true }));
-                    } else {
-                        cy.get("select-field-filter ul[role='presentation']").contains(value).click({ force: true });
-                    }
+                cy.get("@clinicalDbFilter")
+                    .parent()
+                    .within(() => {
+                        if (Array.isArray(value)) {
+                            value.forEach(val => cy.get("select-field-filter ul[role='presentation']")
+                                .contains(val)
+                                .click({ force: true }));
+                        } else {
+                            cy.get("select-field-filter ul[role='presentation']")
+                                .contains(value)
+                                .click({ force: true });
+                        }
                 });
                 break;
             case "clinical_status":
-                cy.get("@clinicalDbFilter").parent().within(() => {
-                    // cy.get("checkbox-field-filter input[value='Confirmed']").invoke("prop", "checked", value);
-                    UtilsTest.setCheckBox("checkbox-field-filter input[value='Confirmed']", value);
+                cy.get("@clinicalDbFilter")
+                    .parent()
+                    .within(() => {
+                        // cy.get("checkbox-field-filter input[value='Confirmed']").invoke("prop", "checked", value);
+                        UtilsTest.setCheckBox("checkbox-field-filter input[value='Confirmed']", value);
                 });
         }
     };
@@ -182,12 +225,16 @@ export default class BrowserTest {
                 // cy.get(`consequence-type-select-filter label input[value='${filters[filter]}']`).invoke("prop", "checked", value);
                 // setCheckBox(`consequence-type-select-filter label input[value='${filters[filter]}']`, value);
                 // cy.get("input[value*=LoF]").click({force: true});
-                cy.get(`consequence-type-select-filter label input[value='${filters[filter]}']`).click({ force: true });
+                cy.get(`consequence-type-select-filter label input[value='${filters[filter]}']`)
+                    .click({ force: true });
                 break;
             case "terms_manual":
-                cy.get("consequence-type-select-filter").contains("span", filters[filter]);
+                cy.get("consequence-type-select-filter")
+                    .contains("span", filters[filter]);
                 value.forEach(val => {
-                    cy.get("consequence-type-select-filter select-field-filter ul[role='presentation']").contains(val).click({ force: true });
+                    cy.get("consequence-type-select-filter select-field-filter ul[role='presentation']")
+                        .contains(val)
+                        .click({ force: true });
                 });
         }
     };
@@ -201,13 +248,15 @@ export default class BrowserTest {
             .click({ force: true });
 
         // Typing
-        cy.get(`cohort-stats-filter div[data-cy='number-field-filter-wrapper-${filter}'] input[data-field='value']`).first()
+        cy.get(`cohort-stats-filter div[data-cy='number-field-filter-wrapper-${filter}'] input[data-field='value']`)
+            .first()
             .type(value, { force: true });
     };
 
     static selectPopulationFrequency = population => {
         // Show Collapse
-        cy.get(`i[data-cy='pop-freq-toggle-${population}']`).click();
+        cy.get(`i[data-cy='pop-freq-toggle-${population}']`)
+            .click();
     };
 
     static setPopulationFrequency = (population, filter, opt, value) => {
@@ -217,7 +266,8 @@ export default class BrowserTest {
         // cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-GNOMAD_GENOMES']").should("be.visible");
 
         if (filter === "Set_All") {
-            cy.get(`population-frequency-filter div[data-cy='pop-freq-codes-wrapper-${population}'] input[data-mode='all']`).type(value);
+            cy.get(`population-frequency-filter div[data-cy='pop-freq-codes-wrapper-${population}'] input[data-mode='all']`)
+                .type(value);
         } else {
             cy.get("div[data-cy='populationFrequency']")
                 .contains("span", "Select Population Frequency");
@@ -236,7 +286,8 @@ export default class BrowserTest {
     static setPopulationFrequencyInterpreter = (population, filter, opt, value) => {
 
         if (filter === "Set_All") {
-            cy.get(`population-frequency-filter div[data-cy='pop-freq-codes-wrapper-${population}'] input[data-mode='all']`).type(value);
+            cy.get(`population-frequency-filter div[data-cy='pop-freq-codes-wrapper-${population}'] input[data-mode='all']`)
+                .type(value);
         } else {
             cy.get("div[data-cy='populationFrequency']")
                 .contains("span", "Select Population Frequency");
@@ -250,7 +301,8 @@ export default class BrowserTest {
                             .contains(opt)
                             .click({ force: true });
                     } else {
-                        cy.get("population-frequency-filter  select-field-filter[data-cy='comparator'] button").contains("span", opt);
+                        cy.get("population-frequency-filter  select-field-filter[data-cy='comparator'] button")
+                            .contains("span", opt);
                     }
                 });
 
@@ -263,24 +315,33 @@ export default class BrowserTest {
     static setGoAccesions = value => {
         // GO Accessions (max. 100 terms)
         // todo: remove token
-        cy.get("go-accessions-filter .select2").first().click({ force: true })
-            .find(".select2-search__field").type(value + "{enter}", { delay: 200 });
+        cy.get("go-accessions-filter .select2")
+            .first()
+            .click({ force: true })
+            .find(".select2-search__field")
+            .type(value + "{enter}", { delay: 200 });
 
     };
 
     static setHpoAccesions = value => {
         // HPO Accessions
-        cy.get("hpo-accessions-filter .select2").first().click({ force: true })
-            .find(".select2-search__field").type(value + "{enter}", { delay: 200 });
+        cy.get("hpo-accessions-filter .select2")
+            .first()
+            .click({ force: true })
+            .find(".select2-search__field")
+            .type(value + "{enter}", { delay: 200 });
     };
 
     static setProteingSubsScore = (filter, score, opt, value) => {
         switch (filter) {
             case "sift":
             case "polyphen":
-                cy.get(`protein-substitution-score-filter .${filter} .score-select .dropdown a`).contains(score).click({ force: true });
+                cy.get(`protein-substitution-score-filter .${filter} .score-select .dropdown a`)
+                    .contains(score)
+                    .click({ force: true });
                 if (score === "Score") {
-                    cy.get(`protein-substitution-score-filter .${filter} .score-comparator .select-field-filter`).click();
+                    cy.get(`protein-substitution-score-filter .${filter} .score-comparator .select-field-filter`)
+                        .click();
                     cy.get(`protein-substitution-score-filter .${filter} .score-comparator .dropdown-menu`)
                         .contains(opt)
                         .click();
@@ -289,7 +350,8 @@ export default class BrowserTest {
                 }
                 break;
             case "operator":
-                cy.get(`protein-substitution-score-filter .rating-label-${score}`).click();
+                cy.get(`protein-substitution-score-filter .rating-label-${score}`)
+                    .click();
                 break;
         }
 
@@ -297,21 +359,28 @@ export default class BrowserTest {
 
     static setCadd = (opt, value) => {
         // opt, value
-        cy.get("protein-substitution-score-filter .polyphen .score-comparator .select-field-filter").click();
-        cy.get("protein-substitution-score-filter .polyphen .score-comparator .dropdown-menu").contains(opt).click();
-        cy.get("protein-substitution-score-filter .polyphen .score-value input[type='number']").type(value);
+        cy.get("protein-substitution-score-filter .polyphen .score-comparator .select-field-filter")
+            .click();
+        cy.get("protein-substitution-score-filter .polyphen .score-comparator .dropdown-menu")
+            .contains(opt)
+            .click();
+        cy.get("protein-substitution-score-filter .polyphen .score-value input[type='number']")
+            .type(value);
     };
 
     static setConservation = (filter, value) => {
-        cy.get(`conservation-filter .cf-${filter} input[type='text']`).type(value);
+        cy.get(`conservation-filter .cf-${filter} input[type='text']`)
+            .type(value);
     };
 
     static setClinicalFullText = value => {
-        cy.get("variant-browser-filter fulltext-search-accessions-filter textarea[name='traits']").type(value);
+        cy.get("variant-browser-filter fulltext-search-accessions-filter textarea[name='traits']")
+            .type(value);
     };
 
     static sectionFilter = section => {
-        cy.get(`variant-browser-filter a[data-cy-section-title='${section}']`).click();
+        cy.get(`variant-browser-filter a[data-cy-section-title='${section}']`)
+            .click();
     };
 
     static getActiveFilter = () => {
@@ -319,7 +388,8 @@ export default class BrowserTest {
     }
 
     static removeActiveFilters = filter => {
-        cy.get(`opencga-active-filters button[data-filter-name='${filter}']`).click();
+        cy.get(`opencga-active-filters button[data-filter-name='${filter}']`)
+            .click();
     };
 
     /**
@@ -349,26 +419,55 @@ export default class BrowserTest {
 
     static caseInterpreterWizard = view => {
         // select,qc,variant-browser,review,report
-        cy.get(`.variant-interpreter-step [data-view=${view}]`).click();
+        cy.get(`.variant-interpreter-step [data-view=${view}]`)
+            .click();
     };
 
     static showVariantBrowserTab = (component, tab) => {
-        cy.get(`${component} [data-id='${tab}']`).click({ force: true });
+        cy.get(`${component} [data-id='${tab}']`)
+            .click({ force: true });
     };
 
     static toggleSectionFilter = (filter) => {
-        cy.get(`section-filter a[data-cy-section-title=${filter}]`).click();
+        cy.get(`section-filter a[data-cy-section-title=${filter}]`)
+            .click();
     }
     // This work for simple header table (No nested)
-    // index will be add global variable indexColumn
-    static getColumnIndexByHeader = (columnName) => {
+    // The indexColumn variable will be index
+    // !DEPRECATED
+    static getColumnIndexByHeaderOld = (columnName) => {
         let shouldStop = false;
-        cy.get("thead th").each(($column,index) => {
-            if(shouldStop) return true;
-            if($column[0].getAttribute("data-field") === columnName) {
+        cy.get("thead th")
+            .each(($column,index) => {
+                if(shouldStop) return true;
+                if($column[0].getAttribute("data-field") === columnName) {
                 shouldStop = true;
-                return cy.wrap(index).as("indexColumn")
+                return cy.wrap(index)
+                    .as("indexColumn")
             }
+        })
+    }
+
+    // This work for simple header table (No nested)
+    static getColumnIndexByHeader = (columnName) => {
+        cy.get("thead th")
+            .then(($headers) => {
+                const columnIndex = Array.from($headers)
+                    .findIndex(th => th.textContent.trim() === columnName)
+                cy.wrap(columnIndex)
+                    .as("indexColumn")
+            });
+    }
+
+    //
+    /* It's designed to help locate and select elements
+    /* within a component that uses a prefix in its ID attribute.
+    */
+    static getElementByComponent = ({selector,tag,elementId}) => {
+        return cy.get(selector)
+            .then($element => {
+            const prefix = $element.prop('_prefix');
+            return cy.get(`${tag}[id='${prefix}${elementId}']`)
         })
     }
 }

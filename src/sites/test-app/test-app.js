@@ -18,25 +18,37 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
 import NotificationManager from "../../core/notification-manager.js";
 import {OpenCGAClientMock} from "./clients/opencga-client-mock.js";
+import {CellBaseClientMock} from "./clients/cellbase-client-mock.js";
 
 
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/variant/variant-browser-grid.js";
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
-import "../../webcomponents/commons/layouts/custom-page.js";
 import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
 
 import "./webcomponents/data-form-test.js";
+import "./webcomponents/custom-page-test.js";
 import "./webcomponents/variant-browser-grid-test.js";
+import "./webcomponents/sample-browser-grid-test.js";
 import "./webcomponents/variant-interpreter-grid-test.js";
+import "./webcomponents/file-browser-grid-test.js";
+import "./webcomponents/individual-browser-grid-test.js";
+import "./webcomponents/family-browser-grid-test.js";
+import "./webcomponents/cohort-browser-grid-test.js";
+import "./webcomponents/job-browser-grid-test.js";
+import "./webcomponents/disease-panel-browser-grid-test.js";
+
+
+import "./webcomponents/genome-browser-test.js";
+import "./webcomponents/protein-lollipop-test.js";
 
 import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
 import {SAMPLE_DATA} from "./data/data-example.js";
@@ -89,9 +101,17 @@ class TestApp extends LitElement {
             "home",
             "gettingstarted",
             "login",
+            "aboutzetta",
             "data-form",
             "utils-new",
             "catalog-filters",
+            "file-browser-grid",
+            "individual-browser-grid",
+            "family-browser-grid",
+            "cohort-browser-grid",
+            "sample-browser-grid",
+            "job-browser-grid",
+            "disease-panel-browser-grid",
             "opencga-update",
             "variant-browser-grid-germline",
             "variant-browser-grid-cancer",
@@ -100,7 +120,7 @@ class TestApp extends LitElement {
             "variant-interpreter-grid-cancer-cnv",
             "variant-filters",
             "genome-browser",
-            "lollipop",
+            "protein-lollipop",
             "pedigree",
             "mutational-signatures",
         ];
@@ -195,46 +215,37 @@ class TestApp extends LitElement {
         //         this.opencgaSession = content;
         //         this.requestUpdate();
         //     });
-        this.opencgaSession = new OpenCGAClientMock().createAnonymousSession();
+        this.opencgaSession = {};
         this.initProjectMock();
     }
 
     initProjectMock() {
-        this.opencgaSession = {
-            project: {
-                id: "family",
-                name: "Family Studies GRCh38",
-                fqn: "demo@family",
-                description: "Project description",
-                organism: {
-                    scientificName: "hsapiens",
-                    commonName: "",
-                    assembly: "GRCh38"
-                },
-                cellbase: {
-                    url: "https://uk.ws.zettagenomics.com/cellbase/",
-                    version: "v5.1",
-                    dataRelease: "3"
+        UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/opencga-session.json`)
+            .then(content => {
+                this.opencgaSession = content;
 
-                }
-            }
-        };
+                // Initialise opencgaSession
+                this.opencgaSession.projects = content.user.projects;
+                this.opencgaSession.project = content.user.projects[0];
+                this.opencgaSession.study = content.user.projects[0].studies[0];
 
-        // TODO
-        // JSZip.loadAsync(UtilsNew.importBinaryFile(opencgasession.data.zip))
-        //     .then(zip => {
-        //         zip.file(filename).async("string")
-        //             .then(content => {
-        //                 this.opencgaSession = JSON.parse(content);
-        //                 this.requestUpdate();
-        //             });
-        //     }).catch(err => {
-        //     console.error("File not exist", err);
-        // });
-        // this.opencgaSession.projects = this.opencgaSession.user.projects;
-        // this.opencgaSession.project = this.opencgaSession.projects[0];
-        // this.opencgaSession.study = this.opencgaSession.project.studies[0];
-        // this.mutate();
+                // Initialise opencgaSession Client Mock
+                this.opencgaSession.opencgaClient = new OpenCGAClientMock();
+                this.opencgaSession.cellbaseClient = new CellBaseClientMock();
+                // We need to save the testDataVersion in the configuration of each client
+                this.opencgaSession.opencgaClient._config.testDataVersion = this.testDataVersion;
+                this.opencgaSession.cellbaseClient._config.testDataVersion = this.testDataVersion;
+                this.opencgaSession.testEnv = {
+                    test: {
+                        prefix: "test",
+                        active: true,
+                    }
+                };
+                this.requestUpdate();
+            })
+            .catch(err => {
+                console.log(err);
+            });
     }
 
 
@@ -246,7 +257,7 @@ class TestApp extends LitElement {
 
     opencgaSessionObserver() {
         this.renderHashFragments();
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     changeTool(e) {
@@ -290,7 +301,6 @@ class TestApp extends LitElement {
                 hashFrag += "/" + this.opencgaSession.study.id;
             }
         }
-
         if (window.location.hash === hashFrag) {
             // debugger
             this.hashFragmentListener(this);
@@ -405,8 +415,8 @@ class TestApp extends LitElement {
             }
             this.query = query;
         }
-
         const componentName = this.tool.replace("#", "");
+
         if (UtilsNew.isNotUndefined(this.config.enabledComponents[componentName])) {
             this.config.enabledComponents[componentName] = true;
         } else {
@@ -420,6 +430,7 @@ class TestApp extends LitElement {
         $("body,html").animate({
             scrollTop: 0
         }, 1);
+
     }
 
 
@@ -491,7 +502,9 @@ class TestApp extends LitElement {
         if (page) {
             return html`
                 <div class="content" id="page">
-                    <custom-page .page="${page}"></custom-page>
+                    <custom-page
+                        .page="${page}">
+                    </custom-page>
                 </div>
             `;
         }
@@ -641,6 +654,94 @@ class TestApp extends LitElement {
                     </div>
                 ` : null}
 
+                ${this.config.enabledComponents?.aboutzetta ? html`
+                    <div class="content" id="faq">
+                        <custom-page-test
+                            .page="${this.config.aboutPage}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </custom-page-test>
+                    </div>
+                ` : null}
+
+
+                ${this.config.enabledComponents["file-browser-grid"] ? html`
+                    <div class="content" id="file-browser-grid">
+                        <file-browser-grid-test
+                            testFile="files-chinese"
+                            testDataVersion="${this.testDataVersion || ""}"
+                            .opencgaSession="${this.opencgaSession || {}}"
+                            .config="${this.config}">
+                        </file-browser-grid-test>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["individual-browser-grid"] ? html`
+                    <div class="content" id="individual-browser-grid">
+                        <individual-browser-grid-test
+                            testFile="individuals-platinum"
+                            testDataVersion="${this.testDataVersion || ""}"
+                            .opencgaSession="${this.opencgaSession || {}}"
+                            .config="${this.config}">
+                        </individual-browser-grid-test>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["family-browser-grid"] ? html`
+                    <div class="content" id="family-browser-grid">
+                        <family-browser-grid-test
+                            testFile="families-platinum"
+                            testDataVersion="${this.testDataVersion || ""}"
+                            .opencgaSession="${this.opencgaSession || {}}"
+                            .config="${this.config}">
+                        </family-browser-grid-test>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["cohort-browser-grid"] ? html`
+                    <div class="content" id="cohort-browser-grid">
+                        <cohort-browser-grid-test
+                            testFile="cohorts-1000G"
+                            testDataVersion="${this.testDataVersion || ""}"
+                            .opencgaSession="${this.opencgaSession || {}}"
+                            .config="${this.config}">
+                        </cohort-browser-grid-test>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["sample-browser-grid"] ? html`
+                    <div class="content" id="sample-browser-grid">
+                        <sample-browser-grid-test
+                            testFile="samples-platinum"
+                            testDataVersion="${this.testDataVersion || ""}"
+                            .opencgaSession="${this.opencgaSession || {}}"
+                            .config="${this.config}">
+                        </sample-browser-grid-test>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["job-browser-grid"] ? html`
+                    <div class="content" id="job-browser-grid">
+                        <job-browser-grid-test
+                            testFile="job-1000G"
+                            testDataVersion="${this.testDataVersion || ""}"
+                            .opencgaSession="${this.opencgaSession || {}}"
+                            .config="${this.config}">
+                        </job-browser-grid-test>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["disease-panel-browser-grid"] ? html`
+                    <div class="content" id="disease-panel-browser-grid">
+                        <disease-panel-browser-grid-test
+                            testFile="disease-panel-platinum"
+                            testDataVersion="${this.testDataVersion || ""}"
+                            .opencgaSession="${this.opencgaSession || {}}"
+                            .config="${this.config}">
+                        </disease-panel-browser-grid-test>
+                    </div>
+                ` : nothing}
+
+
                 ${this.config.enabledComponents["opencga-update"] ? html`
                     <div class="content" id="opencga-update">
                         <opencga-update
@@ -661,7 +762,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-browser-grid-germline"] ? html`
                     <div style="padding:2%" class="content" id="variant-grid">
                         <variant-browser-grid-test
-                            testDataFile="variant-browser-germline"
+                            testVariantFile="variant-browser-germline"
                             testDataVersion="${this.testDataVersion}"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
@@ -672,7 +773,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-browser-grid-cancer"] ? html`
                     <div style="padding: 2%" class="content" id="variant-grid">
                         <variant-browser-grid-test
-                            testDataFile="variant-browser-cancer"
+                            testVariantFile="variant-browser-cancer"
                             testDataVersion="${this.testDataVersion}"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
@@ -683,7 +784,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-interpreter-grid-germline"] ? html`
                     <div style="padding:2%" class="content" id="variant-interpreter-grid">
                         <variant-interpreter-grid-test
-                            testDataFile="variant-interpreter-germline"
+                            testVariantFile="variant-interpreter-germline"
                             testDataVersion="${this.testDataVersion}"
                             testClinicalData="clinical-analysis-CA-11-platinum"
                             .opencgaSession="${this.opencgaSession}"
@@ -696,7 +797,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-interpreter-grid-cancer"] ? html`
                     <div style="padding:2%" class="content" id="variant-interpreter-grid">
                         <variant-interpreter-grid-test
-                            testDataFile="variant-interpreter-cancer"
+                            testVariantFile="variant-interpreter-cancer"
                             testDataVersion="${this.testDataVersion}"
                             testClinicalData="clinical-analysis-AN-1-test38"
                             .opencgaSession="${this.opencgaSession}"
@@ -709,7 +810,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-interpreter-grid-cancer-cnv"] ? html`
                 <div style="padding:2%" class="content" id="variant-interpreter-grid">
                     <variant-interpreter-grid-test
-                        testDataFile="variant-interpreter-cnv"
+                        testVariantFile="variant-interpreter-cnv"
                         testDataVersion="${this.testDataVersion}"
                         testClinicalData="clinical-analysis-AN-1-test38"
                         .opencgaSession="${this.opencgaSession}"
@@ -736,21 +837,19 @@ class TestApp extends LitElement {
 
                 ${this.config.enabledComponents["genome-browser"] ? html`
                     <div class="content" id="genome-browser">
-                        <genome-browser
+                        <genome-browser-test
                             .opencgaSession="${this.opencgaSession}"
-                            .region="${"1:1000000"}"
-                            .active="${true}"
-                            .config="${{
-            cellBaseClient: this.cellbaseClient,
-            featuresOfInterest: []}}"
-                            .tracks="${GENOME_BROWSER_TRACKS_EXAMPLE}">
-                        </genome-browser>
+                            .testDataVersion="${this.testDataVersion}">
+                        </genome-browser-test>
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents["lollipop"] ? html`
-                    <div class="content" id="lollipop">
-                        Not available yet...
+                ${this.config.enabledComponents["protein-lollipop"] ? html`
+                    <div class="content" id="protein-lollipop">
+                        <protein-lollipop-test
+                            .opencgaSession="${this.opencgaSession}"
+                            .testDataVersion="${this.testDataVersion}">
+                        </protein-lollipop-test>
                     </div>
                 ` : null}
 

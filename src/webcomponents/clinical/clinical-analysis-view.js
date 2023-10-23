@@ -412,9 +412,7 @@ export default class ClinicalAnalysisView extends LitElement {
                                     {
                                         title: "Preparation Method",
                                         field: "processing.preparationMethod",
-                                        display: {
-                                            defaultValue: "-",
-                                        },
+                                        formatter: (value, row) => value ?? "-"
                                     },
                                     {
                                         title: "Somatic",
@@ -424,16 +422,12 @@ export default class ClinicalAnalysisView extends LitElement {
                                         title: "Creation Date",
                                         field: "creationDate",
                                         type: "custom", // this is not needed. feels right though
-                                        display: {
-                                            render: creationDate => html`${moment(creationDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
-                                        }
+                                        formatter: value => `${moment(value, "YYYYMMDDHHmmss").format("D MMM YY")}`
                                     },
                                     {
                                         title: "Status",
                                         field: "status.name",
-                                        display: {
-                                            defaultValue: "-",
-                                        },
+                                        formatter: (value, row) => value ?? "-"
                                     },
                                 ],
                                 defaultValue: "No sample found",

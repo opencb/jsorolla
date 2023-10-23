@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utils-new.js";
+import ExtensionsManager from "../extensions-manager.js";
 import "./family-view.js";
 import "../commons/view/detail-tabs.js";
 
@@ -23,7 +23,7 @@ export default class FamilyDetail extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -47,62 +47,79 @@ export default class FamilyDetail extends LitElement {
         };
     }
 
-    _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6);
+    #init() {
+        this.COMPONENT_ID = "family-detail";
+        this._family = null;
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.family = null;
-        }
-
+    update(changedProperties) {
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
         }
 
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+        if (changedProperties.has("family")) {
+            this.familyObserver();
         }
+
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+            this.#updateDetailTabs();
+        }
+
+        super.update(changedProperties);
     }
 
     familyIdObserver() {
-        if (this.opencgaSession) {
-            if (this.familyId) {
-                this.opencgaSession.opencgaClient.families().info(this.familyId, {study: this.opencgaSession.study.fqn})
-                    .then(restResponse => {
-                        this.family = restResponse.getResult(0);
-                        this.requestUpdate();
-                    })
-                    .catch(restResponse => {
-                        console.error(restResponse);
-                    });
-            } else {
-                this.family = null;
-            }
-
+        if (this.opencgaSession && this.familyId) {
+            this.opencgaSession.opencgaClient.families()
+                .info(this.familyId, {
+                    study: this.opencgaSession.study.fqn,
+                })
+                .then(restResponse => {
+                    this._family = restResponse.getResult(0);
+                    this.requestUpdate();
+                })
+                .catch(restResponse => {
+                    console.error(restResponse);
+                });
         }
     }
 
-    getDefaultConfig() {
-        return {
-            // details config in family-browser
-        };
+    familyObserver() {
+        this._family = {...this.family};
+        this.requestUpdate();
+    }
+
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
     }
 
     render() {
-
         if (!this.opencgaSession) {
             return "";
         }
 
         return html`
             <detail-tabs
-                .data="${this.family}"
+                .data="${this._family}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>`;
+            </detail-tabs>
+        `;
+    }
+
+    getDefaultConfig() {
+        return {
+            items: [],
+        };
     }
 
 }

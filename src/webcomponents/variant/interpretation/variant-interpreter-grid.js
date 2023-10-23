@@ -45,6 +45,9 @@ export default class VariantInterpreterGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String
+            },
             opencgaSession: {
                 type: Object
             },
@@ -67,6 +70,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = this.toolId + "-grid";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
@@ -89,6 +93,14 @@ export default class VariantInterpreterGrid extends LitElement {
         };
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("toolId") && this.toolId) {
+            this.COMPONENT_ID = this.toolId + "-grid";
+        }
+
+        super.update(changedProperties);
+    }
+
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
@@ -99,7 +111,7 @@ export default class VariantInterpreterGrid extends LitElement {
         if (changedProperties.has("query") || changedProperties.has("clinicalVariants")) {
             this.renderVariants();
         }
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("config") || changedProperties.has("toolId")) {
             this.configObserver();
             this.requestUpdate();
             this.renderVariants();
@@ -151,15 +163,23 @@ export default class VariantInterpreterGrid extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
-        this.toolbarConfig = {
-            resource: "CLINICAL_VARIANT",
+        this.toolbarSetting = {
             showExport: true,
             exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
             // ...this._config,
-            ...this._config.toolbar, // it comes from external settings
+            // it comes from external settings
             showColumns: false,
+            showSettings: true,
+            ...this._config,
             // columns: defaultColumns[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
             // gridColumns: defaultColumns, // original column structure
+        };
+
+        this.toolbarConfig = {
+            toolId: this.toolId,
+            resource: "CLINICAL_VARIANT",
+            showInterpreterConfig: true,
+            columns: this._getDefaultColumns()
         };
     }
 
@@ -848,6 +868,12 @@ export default class VariantInterpreterGrid extends LitElement {
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Decipher
                                         </a>
                                     </li>
+                                    <li data-cy="varsome-variant-link">
+                                        <a target="_blank" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""}
+                                            href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Varsome
+                                        </a>
+                                    </li>
                                     <li class="dropdown-header">CellBase Links</li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
@@ -886,6 +912,11 @@ export default class VariantInterpreterGrid extends LitElement {
                                     <li>
                                         <a href="javascript: void 0" class="btn force-text-left" data-action="download">
                                             <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                        </a>
+                                    </li>
+                                    <li data-cy="varsome-copy">
+                                        <a href="javascript: void 0" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
+                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Copy Varsome ID
                                         </a>
                                     </li>
                                     ${copiesHtml ? `
@@ -1024,45 +1055,18 @@ export default class VariantInterpreterGrid extends LitElement {
                     title: "Review",
                     rowspan: 1,
                     colspan: 1,
-                    formatter: (value, row) => {
-                        // Check disable status
+                    formatter: (value, row, index) => {
                         const disabled = (!this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
-                        // Prepare comments
-                        let commentsTooltipText = "";
-                        if (row.comments?.length > 0) {
-                            for (const comment of row.comments) {
-                                commentsTooltipText += `
-                                    <div style="padding: 5px">
-                                        <label>${comment.author} - ${UtilsNew.dateFormatter(comment.date)}</label>
-                                        <div>
-                                            ${comment.message || "-"}
-                                        </div>
-                                    </div>
-                                `;
-                            }
-                        }
-                        return `
-                            ${this._config?.showEditReview ? `
-                                <button id="${this._prefix}${row.id}VariantReviewButton" class="btn btn-link" data-variant-id="${row.id}" ${disabled}>
-                                    <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
-                                </button>`: ""
-                        }
-                            ${this.checkedVariants?.has(row.id) ? `
-                                <div class="help-block" style="margin: 5px 0">${this.checkedVariants.get(row.id).status}</div>
-                            ` : ""
-                        }
-                            ${row.comments?.length > 0 ? `
-                                <a class="" tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${row.comments.length} comments</a>
-                            ` : ""
-                        }
-                        `;
+                        const checked = this.checkedVariants.has(row.id);
+                        const variant = checked ? this.checkedVariants.get(row.id) : row;
+                        return VariantInterpreterGridFormatter.reviewFormatter(variant, index, checked, disabled, this._prefix, this._config);
                     },
                     align: "center",
                     events: {
                         "click button": e => this.onVariantReview(e)
                     },
-                    visible: this.review,
                     excludeFromSettings: true,
+                    visible: this.review || this._config?.showReview,
                     excludeFromExport: true // this is used in opencga-export
                 },
             ]
@@ -1070,8 +1074,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // update columns dynamically
         this._columns = this._updateTableColumns(this._columns);
-
-        // this._columns = UtilsNew.mergeTable(this._columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
 
         return this._columns;
     }
@@ -1238,6 +1241,14 @@ export default class VariantInterpreterGrid extends LitElement {
             case "download":
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
                 break;
+            case "copy-varsome-id":
+                // Note: varsome format is disabled for copy_number variants
+                // See https://app.clickup.com/t/36631768/TASK-3902
+                if (row.type !== "COPY_NUMBER") {
+                    const varsomeId = BioinfoUtils.getVariantInVarsomeFormat(row.id);
+                    UtilsNew.copyToClipboard(varsomeId);
+                }
+                break;
             default:
                 const copy = this._config.copies.find(copy => copy.id.toLowerCase() === action);
                 if (copy) {
@@ -1356,7 +1367,7 @@ export default class VariantInterpreterGrid extends LitElement {
         }
 
         // Set 'Edit' button as enabled/disabled
-        document.getElementById(this._prefix + variantId + "VariantReviewButton").disabled = !e.currentTarget.checked;
+        document.getElementById(`${this._prefix}${variantId}VariantReviewButton`).disabled = !e.currentTarget.checked;
         const reviewActionButton = document.getElementById(`${this._prefix}${variantId}VariantReviewActionButton`);
         if (e.currentTarget.checked) {
             reviewActionButton.removeAttribute("disabled");
@@ -1521,9 +1532,9 @@ export default class VariantInterpreterGrid extends LitElement {
 
             <opencb-grid-toolbar
                 .config="${this.toolbarConfig}"
-                .query="${this.query}"
+                .settings="${this.toolbarSetting}"
+                .query="${this.filters}"
                 .opencgaSession="${this.opencgaSession}"
-                .rightToolbar="${this.getRightToolbar()}"
                 @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}"
                 @export="${this.onDownload}">
@@ -1567,7 +1578,7 @@ export default class VariantInterpreterGrid extends LitElement {
                             <clinical-interpretation-variant-evidence-review
                                 .opencgaSession="${this.opencgaSession}"
                                 .review="${this.evidenceReview}"
-                                .mode="${"form"}"
+                                .mode="${"page"}"
                                 .somatic="${this.clinicalAnalysis.type === "CANCER"}"
                                 @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
                             </clinical-interpretation-variant-evidence-review>
@@ -1575,32 +1586,6 @@ export default class VariantInterpreterGrid extends LitElement {
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                             <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onEvidenceReviewOk()}">Ok</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 1024px">
-                    <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h3>Settings</h3>
-                        </div>
-                        <div class="modal-body">
-                            <div class="container-fluid">
-                                <variant-interpreter-grid-config
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .gridColumns="${this._columns}"
-                                    .config="${this._config}"
-                                    @configChange="${this.onGridConfigChange}">
-                                </variant-interpreter-grid-config>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onGridConfigSave(e)}">OK</button>
                         </div>
                     </div>
                 </div>

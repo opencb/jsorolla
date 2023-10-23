@@ -17,6 +17,8 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import {construction} from "../commons/under-construction.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./disease-panel-gene-view.js";
 import "./disease-panel-region-view.js";
 import "./disease-panel-summary.js";
@@ -76,19 +78,52 @@ export default class DiseasePanelBrowser extends LitElement {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
 
-        if (this.settings?.table) {
-            this._config.filter.result.grid = {
-                ...this._config.filter.result.grid,
-                ...this.settings.table,
-            };
-        }
+        // if (this.settings?.table) {
+        //     this._config.filter.result.grid = {
+        //         ...this._config.filter.result.grid,
+        //         ...this.settings.table,
+        //     };
+        // }
 
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {
-                ...this._config.filter.result.grid.toolbar,
-                ...this.settings.table.toolbar,
-            };
-        }
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config?.filter?.result.grid,
+            ...this.settings?.table
+        });
+
+        // if (this.settings?.table?.toolbar) {
+        //     this._config.filter.result.grid.toolbar = {
+        //         ...this._config.filter.result.grid.toolbar,
+        //         ...this.settings.table.toolbar,
+        //     };
+        // }
+
+        UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
+            ...this._config.filter?.result?.grid?.toolbar,
+            ...this.settings?.table?.toolbar
+        });
+
+
+        // if (this.opencgaSession.user?.configs?.IVA?.diseasePanelBrowser?.grid) {
+        //     this._config.filter.result.grid = {
+        //         ...this._config.filter.result.grid,
+        //         ...this.opencgaSession.user.configs.IVA.diseasePanelBrowser.grid,
+        //     };
+        // }
+
+        // Apply user configuration
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.diseasePanelBrowser?.grid
+        });
+
+        this.requestUpdate();
+    }
+
+    onSettingsUpdate() {
+        this.settingsObserver();
+    }
+    onDiseasePanelUpdate() {
+        this.settingsObserver();
     }
 
     render() {
@@ -98,7 +133,8 @@ export default class DiseasePanelBrowser extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .cellbaseClient="${this.cellbaseClient}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @diseasePanelUpdate="${this.onDiseasePanelUpdate}">
             </opencga-browser>
         `;
     }
@@ -121,7 +157,9 @@ export default class DiseasePanelBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "diseasePanel")}">
+                            @selectrow="${e => params.onClickRow(e, "diseasePanel")}"
+                            @diseasePanelUpdate="${e => params.onComponentUpdate(e, "diseasePanel")}"
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </disease-panel-grid>
                         <disease-panel-detail
                             .opencgaSession="${params.opencgaSession}"
@@ -219,7 +257,7 @@ export default class DiseasePanelBrowser extends LitElement {
                 result: {
                     grid: {
                         pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageList: [5, 10, 25],
                         multiSelection: false,
                         showSelectCheckbox: false
                     }

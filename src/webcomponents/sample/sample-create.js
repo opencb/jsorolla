@@ -45,8 +45,8 @@ export default class SampleCreate extends LitElement {
 
     #init() {
         this.sample = {};
-        this.collection = {from: []};
-        this.annotationSet = {};
+        // this.collection = {from: []};
+        // this.annotationSet = {};
         this.isLoading = false;
         this.displayConfigDefault = {
             style: "margin: 10px",
@@ -131,20 +131,11 @@ export default class SampleCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            type: "form",
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => Object.keys(this.sample).length > 0,
-                                notificationType: "warning",
-                            },
-                        },
                         {
                             title: "Sample ID",
                             field: "id",
@@ -330,7 +321,7 @@ export default class SampleCreate extends LitElement {
                         },
                         {
                             title: "Lab Sample ID",
-                            field: "processing.labSambpleId",
+                            field: "processing.labSampleId",
                             type: "input-text",
                             display: {
                                 placeholder: "Add the lab sample ID...",
@@ -378,7 +369,7 @@ export default class SampleCreate extends LitElement {
                                     },
                                 },
                                 {
-                                    title: "name",
+                                    title: "Name",
                                     field: "collection.from[].name",
                                     type: "input-text",
                                     display: {
@@ -480,8 +471,7 @@ export default class SampleCreate extends LitElement {
                                 {
                                     title: "Age of onset",
                                     field: "phenotypes[].ageOfOnset",
-                                    type: "input-num",
-                                    allowedValues: [0],
+                                    type: "input-text",
                                     display: {
                                         placeholder: "Add an age of onset..."
                                     },

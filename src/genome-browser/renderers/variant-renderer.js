@@ -5,6 +5,41 @@ import LollipopLayout from "../../core/visualisation/lollipop-layout.js";
 
 export default class VariantRenderer extends Renderer {
 
+    #getVariantOpaictyByQuality(variant, sample) {
+        const quality = this.config.quality;
+        const study = variant.studies?.[0];
+        if (quality && typeof quality === "object") {
+            // Check if no file is associated with this sample
+            if (typeof sample?.fileIndex !== "number" || !study?.files?.[sample.fileIndex]) {
+                return this.config.qualityNotPassedOpacity;
+            }
+            const file = study.files[sample.fileIndex];
+            // Check filter
+            if (quality?.filter && Array.isArray(quality.filter)) {
+                if (!quality.filter.includes(file?.data?.FILTER)) {
+                    return this.config.qualityNotPassedOpacity;
+                }
+            }
+            // Check minimum quality
+            if (typeof quality.minQuality === "number") {
+                const qual = Number(file?.data?.QUAL ?? 0);
+                if (qual < quality.minQuality) {
+                    return this.config.qualityNotPassedOpacity;
+                }
+            }
+            // Check minimum coverage value
+            if (typeof quality.minDP === "number") {
+                const dpIndex = (study?.sampleDataKeys || []).indexOf("DP");
+                const dp = Number(sample?.data?.[dpIndex] ?? 0);
+                if (dp < quality.minDP) {
+                    return this.config.qualityNotPassedOpacity;
+                }
+            }
+        }
+        // Default, return quality passed opacity
+        return this.config.qualityPassedOpacity;
+    }
+
     render(features, options) {
         const lollipopRegionWidth = options.requestedRegion.length() * options.pixelBase;
         const lollipopStartX = GenomeBrowserUtils.getFeatureX(options.requestedRegion.start, options);
@@ -26,7 +61,13 @@ export default class VariantRenderer extends Renderer {
         }
 
         (features || []).forEach((feature, featureIndex) => {
-            const group = SVG.addChild(options.svgCanvasFeatures, "g", {});
+            const group = SVG.addChild(options.svgCanvasFeatures, "g", {
+                "data-cy": "gb-variant",
+                "data-id": feature.id || "-",
+                "data-type": feature.type || "-",
+                "data-ct": feature?.annotation?.displayConsequenceType || "-",
+                "data-index": featureIndex,
+            });
 
             // get feature genomic information
             const start = feature.start;
@@ -58,6 +99,7 @@ export default class VariantRenderer extends Renderer {
 
                 // Render lollipop stick
                 const lollipopStick = SVG.addChild(group, "path", {
+                    "data-cy": "gb-variant-lollipop-path",
                     "d": lollipopPath.join(" "),
                     "fill": "transparent",
                     "stroke": this.config.lollipopStickColor,
@@ -90,6 +132,7 @@ export default class VariantRenderer extends Renderer {
                 }
             } else {
                 variantElement = SVG.addChild(group, "rect", {
+                    "data-cy": "gb-variant-lollipop-shape",
                     "x": x,
                     "y": 0,
                     "width": `${width}px`,
@@ -145,6 +188,7 @@ export default class VariantRenderer extends Renderer {
 
                     // Create highlight icon
                     SVG.addChild(group, "path", {
+                        "data-cy": "gb-variant-highlight",
                         "d": iconPath.join(" "),
                         "fill": "transparent",
                         "stroke-width": this.config.highlightIconWidth,
@@ -153,12 +197,13 @@ export default class VariantRenderer extends Renderer {
 
                     // Mask for displaying tooltip with the highlight info
                     const highlightMaskElement = SVG.addChild(group, "rect", {
-                        x: iconCenterX - this.config.highlightIconSize / 2,
-                        y: 0,
-                        width: this.config.highlightIconSize,
-                        height: this.config.highlightHeight,
-                        fill: "transparent",
-                        stroke: "transparent",
+                        "data-cy": "gb-variant-highlight-mask",
+                        "x": iconCenterX - this.config.highlightIconSize / 2,
+                        "y": 0,
+                        "width": this.config.highlightIconSize,
+                        "height": this.config.highlightHeight,
+                        "fill": "transparent",
+                        "stroke": "transparent",
                     });
                     $(highlightMaskElement).qtip({
                         content: {
@@ -187,6 +232,9 @@ export default class VariantRenderer extends Renderer {
                 const sampleGenotypeTooltipText = this.getValueFromConfig("sampleGenotypeTooltipText", [feature, sampleData]);
 
                 const sampleGenotypeElement = SVG.addChild(group, "rect", {
+                    "data-cy": "gb-variant-genotype",
+                    "data-sample-index": index,
+                    "data-sample-genotype": genotype,
                     "x": x,
                     "y": topPosition + (index * this.config.sampleHeight) + 1,
                     "width": width,
@@ -196,7 +244,7 @@ export default class VariantRenderer extends Renderer {
                     // "stroke-opacity": 0.7,
                     "fill": sampleGenotypeColor,
                     "cursor": "pointer",
-                    // "data-genotype": genotype,
+                    "opacity": this.#getVariantOpaictyByQuality(feature, sampleData),
                 });
 
                 if (sampleGenotypeTooltipText) {
@@ -221,7 +269,6 @@ export default class VariantRenderer extends Renderer {
 
     getDefaultConfig() {
         return {
-            infoWidgetId: "id",
             strokeColor: "#555",
             height: 10,
             histogramColor: "#58f3f0",
@@ -260,6 +307,14 @@ export default class VariantRenderer extends Renderer {
             highlightIconColor: "red",
             highlightIconSize: 6,
             highlightIconWidth: 1,
+            // Quality control
+            quality: {
+                filter: ["PASS"],
+                minQuality: 60,
+                minDP: 20,
+            },
+            qualityPassedOpacity: "1",
+            qualityNotPassedOpacity: "0.3",
         };
     }
 

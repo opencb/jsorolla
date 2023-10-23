@@ -26,12 +26,8 @@ const hosts = [
         url: "https://ws.opencb.org/opencga-test"
     },
     {
-        id: "eglh",
-        url: "https://eglh.app.zettagenomics.com/opencga"
-    },
-    {
-        id: "test-reference",
-        url: "https://test.app.zettagenomics.com/TASK-3799/opencga"
+        id: "testteam",
+        url: "https://test.app.zettagenomics.com/testteam/opencga"
     },
 ];
 
@@ -781,15 +777,15 @@ const SUITE = {
                     visibility: "public",
                     featured: false,
                 },
-                {
-                    id: "catalog-admin",
-                    name: "Catalog Management",
-                    fa_icon: "fas fa-file-invoice",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    description: "",
-                    visibility: "public",
-                    featured: false,
-                },
+                // {
+                //     id: "catalog-admin",
+                //     name: "Catalog Management",
+                //     fa_icon: "fas fa-file-invoice",
+                //     icon: "img/tools/icons/variant_browser.svg",
+                //     description: "",
+                //     visibility: "public",
+                //     featured: false,
+                // },
                 {
                     id: "study-variant-admin",
                     name: "Study Variant Admin",

@@ -1,0 +1,210 @@
+/**
+ * Copyright 2015-2023 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {html, LitElement} from "lit";
+
+import UtilsNew from "../../../core/utils-new.js";
+
+import "../../../webcomponents/sample/sample-grid.js";
+import "../../../webcomponents/sample/sample-detail.js";
+import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils.js";
+import "../../../webcomponents/sample/sample-update.js";
+import "../../../webcomponents/sample/sample-create.js";
+
+
+class SampleBrowserGridTest extends LitElement {
+
+    constructor() {
+        super();
+        this.#init();
+    }
+
+    createRenderRoot() {
+        return this;
+    }
+
+    static get properties() {
+        return {
+            opencgaSession: {
+                type: Object
+            },
+            testDataVersion: {
+                type: String
+            },
+            _ready: {
+                type: Boolean,
+                state: true,
+            }
+        };
+    }
+
+    #init() {
+        this._ready = false;
+        this.FILES = [
+            "samples-platinum.json",
+        ];
+        this._data = [];
+        this._selectedInstance = {};
+
+        this.configGrid = {
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            multiSelection: false,
+            showSelectCheckbox: false,
+            // FIXME: temporarily moved here
+            showColumns: false, // To clean-up?
+            showDownload: false, // To clean-up?
+            showExport: true,
+            showSettings: true,
+            showNew: true,
+            showCreate: true,
+            // FIXME\
+            toolbar: {
+                // FIXME 20230830 Vero BUG: Toolbar configuration (and clientS configuration) is currently ignored.
+                //  The configurations read in the following files for deciding whether the buttons are displayed or not,
+                //  are not under the toolbar key but in the parent. I move this configuration temporarily to the parent.
+                //  See clients browser.settings.js and getDefaultConfig() in:
+                //  - sample-browser.js
+                //  - sample-grid.js
+                //  - opencb-grid-toolbar.js
+                showColumns: true,
+                showDownload: false,
+                showExport: false,
+                showSettings: false,
+                exportTabs: ["download", "link", "code"]
+            },
+        };
+    }
+
+    // TODO: The Sample Browser Test needs to test two things:
+    //   1. The view:
+    //      - The sample browser: table grid and details
+    //      - The sample browser facet
+    //  2. The filters
+
+    update(changedProperties) {
+        if (changedProperties.has("testDataVersion") || changedProperties.has("opencgaSession")) {
+            this.propertyObserver();
+        }
+
+        super.update(changedProperties);
+    }
+
+    propertyObserver() {
+        if (this.opencgaSession?.cellbaseClient && this.testDataVersion) {
+
+            const promises = this.FILES.map(file => {
+                return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
+            });
+
+            // Import all files
+            Promise.all(promises)
+                .then(data => {
+                    this._data = data[0];
+                    this._selectedInstance = this._data[0];
+                    // Mutate data and update
+                    this.mutate();
+                    this.requestUpdate();
+                })
+                .catch(error => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                }).finally(() => {
+                    this._ready = true;
+                });
+        }
+    }
+
+    onSettingsUpdate() {
+        this.configGrid = {...this.configGrid, ...this.opencgaSession?.user?.configs?.IVA?.sampleBrowser?.grid};
+        this.propertyObserver();
+    }
+
+    getDefaultTabsConfig() {
+        return {
+            title: "Sample",
+            showTitle: true,
+            items: [
+                {
+                    id: "sample-view",
+                    name: "Overview",
+                    active: true,
+                    render: (sample, active, opencgaSession) => html`
+                                <sample-view
+                                    .sample="${sample}"
+                                    .active="${active}"
+                                    .opencgaSession="${opencgaSession}">
+                                </sample-view>
+                            `,
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (sample, active) => html`
+                        <json-viewer
+                            .data="${sample}"
+                            .active="${active}">
+                        </json-viewer>
+                    `,
+                }
+            ]
+        };
+    }
+
+    mutate() {
+        // 1. Mutations related to date
+        // this._data[3].id = "";
+        // this._data[1].creationDate = "";
+        this._data[2].creationDate = "20540101"; // No valid format
+        this._data[2].creationDate = "20210527101416"; // Valid format
+
+        // Finally, we update samples mem address to force a rendering
+        this._data = [...this._data];
+    }
+
+    selectInstance(e) {
+        this._selectedInstance = e.detail.row;
+        this.requestUpdate();
+    }
+
+    render() {
+        if (!this._ready) {
+            return html `Processing`;
+        }
+
+        return html`
+            <div data-cy="sample-browser-container">
+                <h2 style="font-weight: bold;">
+                    Sample Browser Grid (${this.FILES[0]})
+                </h2>
+                <sample-grid
+                    .samples="${this._data}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.configGrid}"
+                    @settingsUpdate="${() => this.onSettingsUpdate()}"
+                    @selectrow="${this.selectInstance}">
+                </sample-grid>
+                <sample-detail
+                    .sample="${this._selectedInstance}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.getDefaultTabsConfig()}">
+                </sample-detail>
+            </div>
+        `;
+    }
+
+}
+
+customElements.define("sample-browser-grid-test", SampleBrowserGridTest);
