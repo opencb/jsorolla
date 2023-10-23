@@ -246,9 +246,11 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                         <select-field-filter2
                                             .data="${this.selectColumnData}"
                                             .value="${this.selectedColumns?.join(",")}"
-                                            .title="${"Columns"}"
-                                            .multiple="${true}"
-                                            .classes="${"btn-sm"}"
+                                            .config="${{
+                                                title: "Columns",
+                                                tags: false,
+                                                liveSearch: false
+                                            }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                         </select-field-filter2>
                                     `;

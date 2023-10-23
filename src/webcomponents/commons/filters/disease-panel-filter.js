@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 import "../forms/select-field-filter.js";
+import "../forms/select-field-filter2.js";
 import "../forms/toggle-switch.js";
 import "../forms/toggle-radio.js";
 
@@ -210,16 +211,17 @@ export default class DiseasePanelFilter extends LitElement {
                         </label>
                     ` : nothing
                     }
-                    <select-field-filter
+                    <select-field-filter2
                         .data="${this.diseasePanelsSelectOptions}"
                         .value=${this.panel}
-                        .liveSearch=${this.diseasePanelsSelectOptions?.length > 5}
-                        .multiple="${this.multiple || false}"
                         .classes="${this.classes}"
-                        .disabled="${this.disabled || false}"
-                        separator="\n"
+                        .config="${{
+                            tags: false,
+                            multiple: this.multiple,
+                            separator: "\n"
+                        }}"
                         @filterChange="${e => this.filterChange(e, "panel")}">
-                    </select-field-filter>
+                    </select-field-filter2>
                 </div>
 
             ${this.showSelectedPanels && this.panel?.length > 0 ? html`
