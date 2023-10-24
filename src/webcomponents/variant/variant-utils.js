@@ -158,7 +158,7 @@ export default class VariantUtils {
                     for (let j = 0; j < v.annotation.consequenceTypes.length; j++) {
                         const cT = v.annotation.consequenceTypes[j];
                         // gene
-                        if (cT?.geneName !== "" && cT?.geneName !== undefined) {
+                        if (typeof cT?.geneName === "string" && ct?.geneName !== "") {
                             genes.add(cT.geneName);
                         }
 
