@@ -62,7 +62,7 @@ export default class SelectTokenFilter extends LitElement {
         this.select = $("#" + this._prefix);
         this.select.select2({
             separator: this._config.separator ?? [","],
-            tags: this._config.freeTag ?? true, // Feature "Tagging": Dynamically create new options from text input by the user.
+            tags: this._config.freeTag ?? true, // Used to enable free text responses. Feature "Tagging": Dynamically create new options from text input by the user.
             multiple: this._config.multiple ?? true,
             // https://select2.org/appearance#container-width
             width: this._config.width ?? "style",
@@ -76,8 +76,7 @@ export default class SelectTokenFilter extends LitElement {
                 transport: async (params, success, failure) => this._config.source(params, success, failure),
                 // NOTE processResults() expects a RestResponse instance, override the whole ajax() method in case of external data source (not Opencga)
                 processResults: (restResponse, params) => {
-                    // 1. Results
-                    // FIXME: find example with duplicated result by id. Remove duplicates
+                    // 1. Results: it is allowed now to run an array of queries in this._config.source(...) if needed
                     let results = (restResponse.constructor === Array) ?
                         [].concat(...restResponse.map(response => response.getResults())) :
                         restResponse.getResults();
@@ -104,14 +103,15 @@ export default class SelectTokenFilter extends LitElement {
                     `);
                 }
                 try {
-                    return this._config.formatResult?.(item) ?? this.#templateResultsDefault(item);
+                    //  Fixme: To implement a third case. A component without view where the template is just the ID
+                    return this._config.viewResult?.(item) ?? this.#templateResultsDefault(item);
                 } catch (e) {
                     console.error(e);
                 }
             },
             // Customisation of the selected result
             templateSelection: item => {
-                return this._config.formatSelection?.(item) ?? item.id ?? item.text;
+                return this._config.viewSelection?.(item) ?? item.id ?? item.text;
             },
             ...this._config
         })
@@ -124,21 +124,15 @@ export default class SelectTokenFilter extends LitElement {
     }
 
     #templateResultsDefault(item) {
-        // Item can be:
-        //  - Text typed. item: {id: "text typed", text: "text typed"}
-        //  - Rest api result: item: {id: "", name: "", description: "", etc.}
-        //  - Array of strings, item is a string (i.e. Individual, phenotype filter)
-        // QUESTION: A way for distinguishing  from result:
-        //  - this._config.freeTag
-        //  - name === undefined => Weak condition
-        // If free text response has been configured (tags=true),
-        // one of the items to process will be the text typed.
-        // If name is not defined it means tags=true,
-        // this._config.fields() mapper function is defined but the user is typing a non existing word (in data source).
-        // This avoids printing `undefined` in dropdown.
+        // CAUTION: name === undefined is a weak condition for distinguishing types of results:
+        //      - Text typed -> item: {id: "text typed", text: "text typed"}
+        //      - Rest API result -> item: {id: "", name: "", description: "", etc.}
+        //      - Array of strings -> item is a string (i.e. Individual, phenotype filter)
+        // If free text response has been configured (tags=true), one of the items to process will be the text typed.
+        // If name is not defined it means tags=true, this._config.fields() mapper function is defined but the user is
+        // typing a non existing word (in data source). This avoids printing `undefined` in dropdown.
         try {
             const {name, ...rest} = this._config.fields(item) ?? item.id;
-            // return item.queryResult ? $(`
             return item.name ? $(`
                 <span>${item.name}</span>
                 ${(rest ? Object.entries(rest)
@@ -173,7 +167,9 @@ export default class SelectTokenFilter extends LitElement {
                 this.select.data("select2").$selection.removeClass("");
             }
         }
-
+        // Note: Useful for copy&paste comma-separated genes (i.e. "brca1,brca2") and get split-by-comma tags on select
+        //  - In Variant Browser -> Filter Genomic -> Feature IDs (gene, SNPs...)
+        //  - With select2 option tags=true
         if (changedProperties.has("value")) {
             // manual addition of <option> elements is needed when tags=true in select2. We do it in any case.
             this.select.empty();
@@ -236,11 +232,16 @@ export default class SelectTokenFilter extends LitElement {
         // join by "," only as the operator (, or ;) is not a concern of this component.
         // this component only needs to split by all separators (defined in config) in updated() fn,
         // but it doesn't need to reckon which one is being used at the moment (some tokens can contain commas (e.g. in HPO))
+        debugger
         const data = this.select.select2("data") || [];
         const selection = data.map(el => el[this.keyObject]).join(",");
+        // Note 20231021 Vero:
+        // Bubbles needs to be false, since all parent components are listening to the event and dispatching it again.
+        // (same decision in select-field-filter.js)
+        debugger
         LitUtils.dispatchCustomEvent(this, "filterChange", selection, {
-            data: e.params?.data || [],
-        });
+            data: e.params?.data || {},
+        }, null, {bubbles: false, composed: false});
     }
 
     toggleFileUpload() {

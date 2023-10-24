@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 import "../forms/select-token-filter.js";
+import UtilsNew from "../../../core/utils-new";
 
 export default class CellbaseSearchAutocomplete extends LitElement {
 
@@ -69,11 +70,17 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                 category: "feature",
                 subcategory: "ontology",
                 operation: "search",
-                searchField: "id,name",
-                getSearchField: term => {
-                    return /^[^:\s]+:/.test(term) ? "id": "name";
-                },
-                placeholder: "Start typing...",
+                getSearchField: term => /^[^:\s]+:/.test(term) ? "id": "name",
+                placeholder: "Start typing a phenotype ID or name...",
+                queryParams: {},
+                // Pre-process the results of the query if needed.
+            },
+            "DISORDER": {
+                category: "feature",
+                subcategory: "ontology",
+                operation: "search",
+                getSearchField: term => /^[^:\s]+:/.test(term) ? "id": "name",
+                placeholder: "Start typing a disorder ID or name ...",
                 queryParams: {},
                 // Pre-process the results of the query if needed.
             },
@@ -82,11 +89,12 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                 category: "feature",
                 subcategory: "gene",
                 operation: "search",
-                // searchField is a query param referring one of the endpoints fields
-                searchField: "name",
-                getSearchField: term => term.startsWith("ENSG0") ? "id" : "name",
+                getSearchField: term => {
+                    debugger
+                    return term.startsWith("ENSG0") ? "id" : "name";
+                },
                 valueField: "name",
-                placeholder: "Start typing...",
+                placeholder: "Start typing an ensemble gene ID or name...",
                 queryParams: {},
                 // CAUTION: query params depends on the resource/operation (i.e. search, info) used
                 //  Q1: Is this component intended to use only the "search" operation?
@@ -113,12 +121,11 @@ export default class CellbaseSearchAutocomplete extends LitElement {
             source: item.source,
             description: item.description,
             text: item.name || item.id,
-            // queryResult: true, // Could solve issue in select-token-filter.js, #templateResultsDefault()
         }));
     }
 
     // Templating one option of dropdown
-    #formatResult(option) {
+    #viewResult(option) {
         return option.name ? $(`
             <div class="result-wrapper">
                 <div class="result-name-wrapper">
@@ -159,10 +166,19 @@ export default class CellbaseSearchAutocomplete extends LitElement {
     }
 
     onFilterChange(e) {
+        debugger
         const value = e.detail.value;
-        delete e.detail.data.selected;
+        const data = e.detail.data.selected ? e.detail.data : {};
+        if (!UtilsNew.isEmpty(data)) {
+            // 1. To remove internal keys from select2 that are not part of the data model.
+            const internalKeys = ["selected", "text"];
+            internalKeys.forEach(key => delete data[key]);
+            // 2. To filter out entries with undefined values
+            Object.keys(data).forEach(key => typeof data[key] === "undefined" && delete data[key]);
+        }
+        // 3. To dispatch event with value autocompleted and data filtered
         LitUtils.dispatchCustomEvent(this, "filterChange", value, {
-            data: e.detail.data,
+            data: data,
         });
     }
 
@@ -173,7 +189,6 @@ export default class CellbaseSearchAutocomplete extends LitElement {
 
         return html`
             <select-token-filter
-                .value="${this.value}"
                 .keyObject="${this.RESOURCES[this.resource].valueField || "id"}"
                 .classes="${this.classes}"
                 .config="${this._config}"
@@ -183,13 +198,10 @@ export default class CellbaseSearchAutocomplete extends LitElement {
     }
 
     getDefaultConfig() {
-        // const searchField = this.searchField || this.RESOURCES[this.resource].searchField || "";
-        // const searchFields = searchField ? searchField.split(",").map(s => s.trim()) : null;
         return {
             disabled: false,
             multiple: false,
-            freeTag: true,
-            // searchField: searchField,
+            freeTag: false,
             limit: 10,
             maxItems: 0, // No limit set
             minimumInputLength: 3, // Only start searching when the user has input 3 or more characters
@@ -204,10 +216,8 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                     skip: (page - 1) * this._config.limit,
                 };
                 const options = {};
-                // let queries = [];
                 if (params?.data?.term) {
                     const currentSearchField = this.RESOURCES[this.resource].getSearchField(params.data.term);
-                    console.log("Current search field: ", currentSearchField);
                     const queryParamsField = {
                         [`${currentSearchField}`]: `~/${params?.data?.term}/i`,
                         ...queryParams,
@@ -222,37 +232,14 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                             options);
                         success(response);
                     } catch (error) {
-                        console.log(error);
-                    }
-                }
-                /*
-                    if (searchFields) {
-                        queries = searchFields.map(searchField => {
-                            const queryParamsField = {
-                                [`${searchField}`]: `~/${params?.data?.term}/i`,
-                                ...queryParams,
-                            };
-                            return this.cellbaseClient
-                                .get(this.RESOURCES[this.resource].category,
-                                    this.RESOURCES[this.resource].subcategory,
-                                    "",
-                                    this.RESOURCES[this.resource].operation,
-                                    queryParamsField,
-                                    options);
-                        });
-                    }
-                }
-                Promise.all(queries)
-                    .then(response => success(response))
-                    .catch(error => {
                         // TODO Vero 20230928: manage failure
                         console.log(error);
-                    });
-                     */
+                    }
+                }
             },
             filterResults: results => this.#filterResults(results),
-            formatResult: result => this.#formatResult(result),
-            formatSelection: result => result[this._config.searchField],
+            viewResult: result => this.#viewResult(result),
+            viewSelection: result => result[this._config.searchField],
         };
     }
 

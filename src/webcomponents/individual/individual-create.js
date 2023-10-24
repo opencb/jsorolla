@@ -15,8 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utils-new.js";
-import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils";
@@ -56,24 +54,12 @@ export default class IndividualCreate extends LitElement {
             defaultValue: "",
             defaultLayout: "horizontal"
         };
+        this.updatedFields = {};
         this._config = this.getDefaultConfig();
     }
 
     #setLoading(value) {
         this.isLoading = value;
-        this.requestUpdate();
-    }
-
-    #fillSectionItem(currentItem, data) {
-        // Object.entries(data).forEach(([key, value]) => {
-        //     currentItem[key] = data[key] ?? value;
-        // });
-        currentItem.id = data.id ?? currentItem.id;
-        currentItem.name = data.name ?? currentItem.name;
-        currentItem.source = data.source ?? currentItem.source;
-        currentItem.description = data.description ?? currentItem.description;
-
-        this.individual = {...this.individual};
         this.requestUpdate();
     }
 
@@ -85,7 +71,7 @@ export default class IndividualCreate extends LitElement {
         super.update(changedProperties);
     }
 
-    onFieldChange(e, field) {
+    onFieldChange(e) {
         this.individual = {...e.detail.data}; // force to refresh the object-list
         this.requestUpdate();
     }
@@ -412,48 +398,38 @@ export default class IndividualCreate extends LitElement {
                             type: "object-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                // CAUTION 20231024 Vero: "collapsedUpdate" not considered in data-form.js. Perhaps "collapsed" (L1324 in data-form.js) ?
                                 collapsedUpdate: true,
                                 view: pheno => html`
                                     <div>${pheno.id} - ${pheno?.name}</div>
                                 `,
+                                search: {
+                                    title: "Autocomplete",
+                                    button: false,
+                                    render: (currentData, dataFormFilterChange) => html`
+                                        <cellbase-search-autocomplete
+                                            .resource="${"PHENOTYPE"}"
+                                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.data)}">
+                                        </cellbase-search-autocomplete>
+                                    `,
+                                },
                             },
                             elements: [
                                 {
                                     title: "Phenotype ID",
                                     field: "phenotypes[].id",
-                                    type: "custom",
+                                    type: "input-text",
                                     display: {
                                         placeholder: "Add phenotype ID......",
-                                        render: (data, dataFormFilterChange, updateParams, allData, currentItem) => {
-                                            return html `
-                                                <cellbase-search-autocomplete
-                                                    .value="${data}"
-                                                    .resource="${"PHENOTYPE"}"
-                                                    .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                                    .searchField="${"id"}"
-                                                    @filterChange="${e => this.#fillSectionItem(currentItem, e.detail.data)}">
-                                                </cellbase-search-autocomplete>
-                                            `;
-                                        },
                                     }
                                 },
                                 {
                                     title: "Name",
                                     field: "phenotypes[].name",
-                                    type: "custom",
+                                    type: "input-text",
                                     display: {
                                         placeholder: "Add phenotype name...",
-                                        render: (data, dataFormFilterChange, updateParams, allData, currentItem) => {
-                                            return html `
-                                                <cellbase-search-autocomplete
-                                                    .value="${data}"
-                                                    .resource="${"PHENOTYPE"}"
-                                                    .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                                    .searchField="${"name"}"
-                                                    @filterChange="${e => this.#fillSectionItem(currentItem, e.detail.data)}">
-                                                </cellbase-search-autocomplete>
-                                            `;
-                                        },
                                     }
                                 },
                                 {
@@ -507,6 +483,18 @@ export default class IndividualCreate extends LitElement {
                                 view: disorder => html`
                                     <div>${disorder.id} - ${disorder?.name}</div>
                                 `,
+                                search: {
+                                    title: "Autocomplete",
+                                    button: false,
+                                    render: (currentData, dataFormFilterChange) => html`
+                                        <cellbase-search-autocomplete
+                                            .resource="${"DISORDER"}"
+                                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.data)}">
+                                        </cellbase-search-autocomplete>
+                                    `,
+                                },
+
                             },
                             elements: [
                                 {
@@ -546,23 +534,6 @@ export default class IndividualCreate extends LitElement {
                         },
                     ],
                 },
-                // {
-                //     title: "Annotations Sets",
-                //     elements: [
-                //         {
-                //             field: "annotationSets",
-                //             type: "custom",
-                //             display: {
-                //                 layout: "vertical",
-                //                 defaultLayout: "vertical",
-                //                 width: 12,
-                //                 style: "padding-left: 0px",
-                //                 render: individual => html`
-                //                 `
-                //             }
-                //         }
-                //     ]
-                // }
             ]
         });
     }
