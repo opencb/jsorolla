@@ -381,7 +381,10 @@ class IvaApp extends LitElement {
                     active: true,
                     prefix: opencgaPrefix,
                 },
-                sso: opencgaSsoActive,
+                sso: {
+                    active: opencgaSsoActive,
+                    cookie: opencgaSsoCookie,
+                },
             });
 
             this.reactomeClient = new ReactomeClient();
@@ -638,9 +641,9 @@ class IvaApp extends LitElement {
         await this.opencgaClient.logout();
 
         // Check if sso is active: we will redirect to 'meta/sso/logout' endpoint
-        if (this.opencgaClient?._config?.sso) {
+        if (this.opencgaClient?._config?.sso?.active) {
             // eslint-disable-next-line no-undef
-            Cookies.expire("JSESSIONID");
+            Cookies.expire(this.opencgaClient._config.sso.cookie);
 
             const config = this.opencgaClient._config;
             const ivaUrl = window.location;
