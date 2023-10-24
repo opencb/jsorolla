@@ -438,10 +438,23 @@ export default class SampleCreate extends LitElement {
                             type: "object-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                // CAUTION 20231024 Vero: "collapsedUpdate" not considered in data-form.js. Perhaps "collapsed" (L1324 in data-form.js) ?
                                 collapsedUpdate: true,
                                 view: phenotype => html`
                                     <div>${phenotype.id} - ${phenotype?.name}</div>
-                                    <div class="help-block">${phenotype?.description}</div>`,
+                                    <div class="help-block">${phenotype?.description}</div>
+                                `,
+                                search: {
+                                    title: "Autocomplete",
+                                    button: false,
+                                    render: (currentData, dataFormFilterChange) => html`
+                                        <cellbase-search-autocomplete
+                                            .resource="${"PHENOTYPE"}"
+                                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.data)}">
+                                        </cellbase-search-autocomplete>
+                                    `,
+                                },
                             },
                             elements: [
                                 {
