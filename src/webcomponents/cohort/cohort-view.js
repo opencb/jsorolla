@@ -216,13 +216,13 @@ export default class CohortView extends LitElement {
                             title: "Annotation sets",
                             field: "annotationSets",
                             type: "custom",
-                            defaultValue: "N/A",
                             display: {
                                 render: field => html`
                                     <annotation-set-view
                                         .annotationSets="${field}">
                                     </annotation-set-view>
                                 `,
+                                defaultValue: "N/A",
                             },
                         },
                     ],
@@ -246,15 +246,17 @@ export default class CohortView extends LitElement {
                                     {
                                         title: "Somatic",
                                         field: "somatic",
-                                        defaultValue: "false",
+                                        display: {
+                                            defaultValue: "false",
+                                        },
                                     },
                                     {
                                         title: "Phenotypes",
                                         field: "phenotypes",
                                         type: "custom",
-                                        defaultValue: "-",
                                         display: {
                                             render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-",
+                                            defaultValue: "-",
                                         },
                                     },
                                 ],
