@@ -61,6 +61,7 @@ export default class SelectTokenFilter extends LitElement {
     firstUpdated() {
         this.select = $("#" + this._prefix);
         this.select.select2({
+            dropdownParent: document.querySelector(`#${this._prefix}`).parentElement,
             separator: this._config.separator ?? [","],
             tags: this._config.freeTag ?? true, // Used to enable free text responses. Feature "Tagging": Dynamically create new options from text input by the user.
             multiple: this._config.multiple ?? true,
