@@ -155,7 +155,10 @@ export default class SelectTokenFilter extends LitElement {
             }
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config
+            };
         }
         super.update(changedProperties);
     }
@@ -233,13 +236,11 @@ export default class SelectTokenFilter extends LitElement {
         // join by "," only as the operator (, or ;) is not a concern of this component.
         // this component only needs to split by all separators (defined in config) in updated() fn,
         // but it doesn't need to reckon which one is being used at the moment (some tokens can contain commas (e.g. in HPO))
-        debugger
         const data = this.select.select2("data") || [];
         const selection = data.map(el => el[this.keyObject]).join(",");
         // Note 20231021 Vero:
         // Bubbles needs to be false, since all parent components are listening to the event and dispatching it again.
         // (same decision in select-field-filter.js)
-        debugger
         LitUtils.dispatchCustomEvent(this, "filterChange", selection, {
             data: e.params?.data || {},
         }, null, {bubbles: false, composed: false});
@@ -255,33 +256,6 @@ export default class SelectTokenFilter extends LitElement {
                 <input id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." style="margin: 0 5px" @click=${this.toggleDisabled}>
                 <span style="font-weight: bold">All</span>
             </span>`;
-    }
-
-    renderStyle() {
-        return html `
-            <style>
-                .result-wrapper {
-                    display: flex;
-                    flex-direction: column;
-                }
-                .result-name-wrapper {
-                    display: flex;
-                    align-items: center;
-                }
-                .result-source {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin-right: 8px;
-                    font-size: 10px;
-                    padding: 2px 4px;
-                    color: white;
-                    background-color: #d91c5e;
-                    border: 1px solid #d91c5e;
-                    border-radius: 2px;
-                }
-            </style>
-        `;
     }
 
     render() {
@@ -300,9 +274,8 @@ export default class SelectTokenFilter extends LitElement {
                 </form>
             `;
         } else {
-            // TODO Vero: (1) Make style configurable, remove from here, (2) Default bootstrap
             return html`
-                ${this.renderStyle()}
+                ${this._config.viewResultStyle?.() ?? nothing}
                 <div>
                     <div class="input-group">
                         <select

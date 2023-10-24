@@ -62,6 +62,7 @@ export default class CellbaseSearchAutocomplete extends LitElement {
             count: false,
         };
         this.#initResourcesConfig();
+        this.searchField = "";
     }
 
     #initResourcesConfig() {
@@ -90,20 +91,13 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                 subcategory: "gene",
                 operation: "search",
                 getSearchField: term => {
-                    debugger
-                    return term.startsWith("ENSG0") ? "id" : "name";
+                    // FIXME: Query gene by id is not working! Temporarily returning ALWAYS name
+                    // return term.startsWith("ENSG0") ? "id" : "name";
+                    return term.startsWith("ENSG0") ? "name" : "name";
                 },
                 valueField: "name",
                 placeholder: "Start typing an ensemble gene ID or name...",
-                queryParams: {},
-                // CAUTION: query params depends on the resource/operation (i.e. search, info) used
-                //  Q1: Is this component intended to use only the "search" operation?
-                //  N1: Not all the entities in Cellbase have the search operation
-                //  N2: I.e for the subcategory/resource Gene, we are currently using the operations:
-                //      - /startsWith: in feature-filter.js
-                //      - /info: in disease-panel-create.js, this.cellbaseClient.getGeneClient("", "info", "");
-                // Query params:
-                query: {},
+                queryParams: {}, // CAUTION: query params depends on the resource/operation (i.e. search, info) used
             },
             "VARIANT": {},
             "PROTEIN": {},
@@ -125,6 +119,34 @@ export default class CellbaseSearchAutocomplete extends LitElement {
     }
 
     // Templating one option of dropdown
+    // TODO Vero: Style with default bootstrap
+    #viewResultStyle() {
+        return html `
+            <style>
+                .result-wrapper {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .result-name-wrapper {
+                    display: flex;
+                    align-items: center;
+                }
+                .result-source {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: 8px;
+                    font-size: 10px;
+                    padding: 2px 4px;
+                    color: white;
+                    background-color: #d91c5e;
+                    border: 1px solid #d91c5e;
+                    border-radius: 2px;
+                }
+            </style>
+        `;
+    }
+
     #viewResult(option) {
         return option.name ? $(`
             <div class="result-wrapper">
@@ -166,7 +188,6 @@ export default class CellbaseSearchAutocomplete extends LitElement {
     }
 
     onFilterChange(e) {
-        debugger
         const value = e.detail.value;
         const data = e.detail.data.selected ? e.detail.data : {};
         if (!UtilsNew.isEmpty(data)) {
@@ -218,6 +239,7 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                 const options = {};
                 if (params?.data?.term) {
                     const currentSearchField = this.RESOURCES[this.resource].getSearchField(params.data.term);
+                    this.searchField = currentSearchField;
                     const queryParamsField = {
                         [`${currentSearchField}`]: `~/${params?.data?.term}/i`,
                         ...queryParams,
@@ -239,7 +261,8 @@ export default class CellbaseSearchAutocomplete extends LitElement {
             },
             filterResults: results => this.#filterResults(results),
             viewResult: result => this.#viewResult(result),
-            viewSelection: result => result[this._config.searchField],
+            viewResultStyle: () => this.#viewResultStyle(),
+            viewSelection: result => result[this.searchField],
         };
     }
 
