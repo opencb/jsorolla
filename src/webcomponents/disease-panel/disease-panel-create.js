@@ -20,6 +20,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../commons/utils/lit-utils";
 import "../commons/filters/cellbase-search-autocomplete.js";
+import UtilsNew from "../../core/utils-new";
 
 export default class DiseasePanelCreate extends LitElement {
 
@@ -68,6 +69,7 @@ export default class DiseasePanelCreate extends LitElement {
             // ]
         };
         this.isLoading = false;
+        // NOTE Vero 20231025: Probably not needed.
         this.annotatedGenes = {};
         this.displayConfigDefault = {
             style: "margin: 10px",
@@ -80,13 +82,18 @@ export default class DiseasePanelCreate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig
+            };
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
     onFieldChange(e) {
+        // CAUTION 20232310 Vero: I have added the Autocomplete search, so the query  would not be necessary
+        //  for "Add Item" but required for "Add Batch". Think about how to take advantage of autocomplete. Discuss with Nacho.
         // Get gene.name and coordinates
         if (e.detail?.data?.genes?.length > 0) {
             for (const gene of e.detail.data.genes) {
@@ -359,26 +366,25 @@ export default class DiseasePanelCreate extends LitElement {
                                         </div>
                                     </div>
                                 `,
+                                search: {
+                                    title: "Autocomplete",
+                                    button: false,
+                                    render: (currentData, dataFormFilterChange) => html`
+                                        <cellbase-search-autocomplete
+                                                .resource="${"GENE"}"
+                                                .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                                @filterChange="${e => dataFormFilterChange(e.detail.data)}">
+                                        </cellbase-search-autocomplete>
+                                    `,
+                                },
                             },
                             elements: [
                                 {
-                                    title: "Gene",
+                                    title: "Gene Name",
                                     field: "genes[].name",
-                                    type: "custom",
+                                    type: "input-text",
                                     display: {
-                                        placeholder: "Add gene...",
-                                        render: (data, dataFormFilterChange) => {
-                                            return html `
-                                                <cellbase-search-autocomplete
-                                                    .value="${data}"
-                                                    .resource="${"GENE"}"
-                                                    .searchField="${"name"}"
-                                                    .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                                    .config="${{multiple: false}}"
-                                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                                </cellbase-search-autocomplete>
-                                            `;
-                                        },
+                                        placeholder: "Add gene name...",
                                     }
                                 },
                                 {

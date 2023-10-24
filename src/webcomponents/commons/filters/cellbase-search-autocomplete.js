@@ -97,7 +97,9 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                 },
                 valueField: "name",
                 placeholder: "Start typing an ensemble gene ID or name...",
-                queryParams: {}, // CAUTION: query params depends on the resource/operation (i.e. search, info) used
+                queryParams: {
+                    exclude: "transcripts,annotation",
+                }, // CAUTION: query params depends on the resource/operation (i.e. search, info) used
             },
             "VARIANT": {},
             "PROTEIN": {},
