@@ -97,6 +97,11 @@ export default class DiseasePanelCreate extends LitElement {
         // Get gene.name and coordinates
         if (e.detail?.data?.genes?.length > 0) {
             for (const gene of e.detail.data.genes) {
+                // Remove fields that are useful for visualisation but not allowed in the opencga data model
+                if (e.detail.action === "AUTOCOMPLETE") {
+                    delete gene.source;
+                    delete gene.description;
+                }
                 // Checks:
                 // 1. gene.name MUST exist to query CellBase
                 // 2. the gene MUST NOT being annotated

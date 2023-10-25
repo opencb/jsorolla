@@ -322,6 +322,17 @@ export default class DiseasePanelUpdate extends LitElement {
                                         </div>
                                     </div>
                                 `,
+                                search: {
+                                    title: "Autocomplete",
+                                    button: false,
+                                    render: (currentData, dataFormFilterChange) => html`
+                                        <cellbase-search-autocomplete
+                                                .resource="${"GENE"}"
+                                                .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                                @filterChange="${e => dataFormFilterChange(e.detail.data)}">
+                                        </cellbase-search-autocomplete>
+                                    `,
+                                },
                             },
                             elements: [
                                 {
