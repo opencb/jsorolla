@@ -97,11 +97,6 @@ export default class DiseasePanelCreate extends LitElement {
         // Get gene.name and coordinates
         if (e.detail?.data?.genes?.length > 0) {
             for (const gene of e.detail.data.genes) {
-                // Remove fields that are useful for visualisation but not allowed in the opencga data model
-                if (e.detail.action === "AUTOCOMPLETE") {
-                    delete gene.source;
-                    delete gene.description;
-                }
                 // Checks:
                 // 1. gene.name MUST exist to query CellBase
                 // 2. the gene MUST NOT being annotated
@@ -371,25 +366,21 @@ export default class DiseasePanelCreate extends LitElement {
                                         </div>
                                     </div>
                                 `,
-                                search: {
-                                    title: "Autocomplete",
-                                    button: false,
-                                    render: (currentData, dataFormFilterChange) => html`
-                                        <cellbase-search-autocomplete
-                                                .resource="${"GENE"}"
-                                                .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                                @filterChange="${e => dataFormFilterChange(e.detail.data)}">
-                                        </cellbase-search-autocomplete>
-                                    `,
-                                },
                             },
                             elements: [
                                 {
                                     title: "Gene Name",
                                     field: "genes[].name",
-                                    type: "input-text",
+                                    type: "custom",
                                     display: {
                                         placeholder: "Add gene name...",
+                                        render: (data, dataFormFilterChange) => html`
+                                            <cellbase-search-autocomplete
+                                                .resource="${"GENE"}"
+                                                .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                                @filterChange="${e => dataFormFilterChange(e.detail.data.name)}">
+                                            </cellbase-search-autocomplete>
+                                        `,
                                     }
                                 },
                                 {
