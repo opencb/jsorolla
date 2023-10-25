@@ -311,7 +311,8 @@ export default class GridCommons {
         if (!this.context?._config?.skipExtensions) {
             const id = componentId || this.context?.COMPONENT_ID;
             const isVisible = columnId => this.isColumnVisible(columnId);
-            return ExtensionsManager.injectColumns(columns, id, isVisible, this.extensionsData);
+            const getData = () => this.extensionsData || {};
+            return ExtensionsManager.injectColumns(columns, id, isVisible, getData);
         }
         // No extensions to inject, just return the original columns list
         return columns;
