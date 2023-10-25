@@ -380,6 +380,7 @@ export default class VariantInterpreterGrid extends LitElement {
                             // return this.fillReportedVariants(variantResponse.responses[0].results);
                             // return variantResponse;
 
+                            // Josemi Note 2023-10-25: we would need to move this to gridCommons in the future
                             // Prepare data for columns extensions
                             const rows = variantResponse.responses?.[0]?.results || [];
                             return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
@@ -462,11 +463,35 @@ export default class VariantInterpreterGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: this.clinicalVariants,
+            // data: this.clinicalVariants,
             columns: this._getDefaultColumns(),
-            sidePagination: "local",
+            sidePagination: "server",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
+
+            // Josemi Note 2023-10-25: we have added the ajax function for local variants also to support executing async calls
+            // when getting additional data from columns extensions.
+            // This should be moved to a gridCommons in a future
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.clinicalVariants.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+
+            // Jsoemi Note 2023-10-25: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.clinicalVariants.length,
+                    rows: response,
+                };
+            },
+
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
