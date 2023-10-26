@@ -442,7 +442,6 @@ export default class SampleCreate extends LitElement {
                                 collapsedUpdate: true,
                                 view: phenotype => html`
                                     <div>${phenotype.id} - ${phenotype?.name}</div>
-                                    <div class="help-block">${phenotype?.description}</div>
                                 `,
                                 search: {
                                     title: "Autocomplete",

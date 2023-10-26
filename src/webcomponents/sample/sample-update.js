@@ -414,7 +414,6 @@ export default class SampleUpdate extends LitElement {
                                 showResetListButton: true,
                                 view: phenotype => html`
                                     <div>${phenotype.id} - ${phenotype?.name}</div>
-                                    <div class="help-block">${phenotype?.description}</div>
                                 `,
                                 search: {
                                     title: "Autocomplete",
