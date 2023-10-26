@@ -229,7 +229,10 @@ export default class CellbaseSearchAutocomplete extends LitElement {
             maxItems: 0, // No limit set
             minimumInputLength: 3, // Only start searching when the user has input 3 or more characters
             placeholder: this.RESOURCES[this.resource].placeholder,
-            fields: this.RESOURCES[this.resource].fields,
+            filterResults: this.#filterResults,
+            viewResultStyle: this.#viewResultStyle,
+            viewResult: this.#viewResult,
+            viewSelection: result => result[this.searchField],
             // TODO Vero: change name to fetch
             source: async (params, success, failure) => {
                 const page = params?.data?.page || 1;
@@ -238,22 +241,22 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                     ...this.RESOURCES[this.resource].queryParams,
                     skip: (page - 1) * this._config.limit,
                 };
-                const options = {};
                 if (params?.data?.term) {
-                    const currentSearchField = this.RESOURCES[this.resource].getSearchField(params.data.term);
-                    this.searchField = currentSearchField;
+                    // Get the query param field. It will vary with the text typed by the user according to a regex
+                    this.searchField = this.RESOURCES[this.resource].getSearchField(params.data.term);
+                    // Set the query params
                     const queryParamsField = {
-                        [`${currentSearchField}`]: `~/${params?.data?.term}/i`,
+                        [this.searchField]: `~/${params?.data?.term}/i`,
                         ...queryParams,
                     };
+                    // Query cellbase with the appropriate resource params
                     try {
                         const response = await this.cellbaseClient.get(
                             this.RESOURCES[this.resource].category,
                             this.RESOURCES[this.resource].subcategory,
                             "",
                             this.RESOURCES[this.resource].operation,
-                            queryParamsField,
-                            options);
+                            queryParamsField);
                         success(response);
                     } catch (error) {
                         // TODO Vero 20230928: manage failure
@@ -261,10 +264,6 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                     }
                 }
             },
-            filterResults: results => this.#filterResults(results),
-            viewResult: result => this.#viewResult(result),
-            viewResultStyle: () => this.#viewResultStyle(),
-            viewSelection: result => result[this.searchField],
         };
     }
 
