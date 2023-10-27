@@ -200,7 +200,8 @@ export default class CatalogGridFormatter {
                     html += `
                         <div style="white-space: nowrap">
                             <span style="margin: 2px 0; font-weight: bold">${variable}:</span> ${annotationSet.annotations[variable]}
-                        </div>`;
+                        </div>
+                    `;
                 }
             } else {
                 // This entity has not this variableSetId annotated
@@ -215,7 +216,8 @@ export default class CatalogGridFormatter {
                         html += `
                             <div style="white-space: nowrap">
                                 <span style="margin: 2px 0; font-weight: bold">${variable}:</span> ${annotationSet.annotations[variable]}
-                            </div>`;
+                            </div>
+                        `;
                     }
                 }
             } else {

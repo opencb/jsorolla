@@ -633,7 +633,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 formatter: (value, row) => {
                     const panelHtml = row.panels?.length > 0 ? CatalogGridFormatter.panelFormatter(row.panels) : "-";
                     return `
-                        <div>${CatalogGridFormatter.disorderFormatter(value, row)}</div>
+                        <div>${CatalogGridFormatter.disorderFormatter([value], row)}</div>
                         <div style="margin: 5px 0">${panelHtml}</div>
                     `;
                 },
