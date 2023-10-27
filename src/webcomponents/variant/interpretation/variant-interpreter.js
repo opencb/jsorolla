@@ -30,6 +30,7 @@ import "../custom/steiner-report.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
+import "../../clinical/clinical-analysis-review.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 class VariantInterpreter extends LitElement {
@@ -378,10 +379,9 @@ class VariantInterpreter extends LitElement {
                             -->
                             </div>
                             <div>
-                                <!-- Controls aligned to the LEFT -->
                                 <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
                                     ${this._config?.tools?.map(item => html`
-                                        ${!item.hidden ? html`
+                                        ${(typeof item.visible === "undefined" || !!item.visible) ? html`
                                             <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
                                                href="javascript: void 0" data-view="${item.id}"
                                                @click="${this.onClickSection}">
@@ -434,7 +434,7 @@ class VariantInterpreter extends LitElement {
                                     <variant-interpreter-methods
                                         .opencgaSession="${this.opencgaSession}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .config="${this._config}">
+                                        .settings="${this._config.tools.find(tool => tool.id === "methods")}">
                                     </variant-interpreter-methods>
                                 </div>
                             ` : null}

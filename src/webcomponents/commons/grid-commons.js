@@ -272,9 +272,9 @@ export default class GridCommons {
         }
     }
 
-    isColumnVisible(colName) {
+    isColumnVisible(colName, parentName) {
         if (this.config.columns?.length > 0) {
-            return this.config.columns.includes(colName);
+            return this.config.columns.includes(colName) || this.config.columns.includes(parentName);
         } else {
             // Columns are visible by default.
             return true;
