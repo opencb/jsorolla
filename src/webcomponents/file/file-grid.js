@@ -320,7 +320,7 @@ export default class OpencgaFileGrid extends LitElement {
                     return html;
                 },
                 // halign: this._config.header.horizontalAlign,
-                // visible: this.gridCommons.isColumnVisible("sampleIds")
+                visible: this.gridCommons.isColumnVisible("sampleIds")
             },
             {
                 id: "jobId",
@@ -333,7 +333,7 @@ export default class OpencgaFileGrid extends LitElement {
                         return "-";
                     }
                 },
-                // visible: this.gridCommons.isColumnVisible("jobId")
+                visible: this.gridCommons.isColumnVisible("jobId")
             },
             {
                 id: "size",
