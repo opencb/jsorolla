@@ -132,7 +132,10 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     configObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Config for the grid toolbar
@@ -550,7 +553,7 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                     align: "center",
                     nucleotideGenotype: true,
-                    visible: this.gridCommons.isColumnVisible(this.samples[i].id),
+                    visible: this.gridCommons.isColumnVisible(this.samples[i].id, "samples"),
                 });
             }
         }
@@ -576,7 +579,7 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: this.cohortFormatter,
                     align: "center",
                     eligible: true,
-                    visible: this.gridCommons.isColumnVisible(study.id),
+                    visible: this.gridCommons.isColumnVisible(study.id, "cohorts"),
                 });
             }
         }
@@ -616,7 +619,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     formatter: this.populationFrequenciesFormatter,
                     align: "center",
-                    visible: this.gridCommons.isColumnVisible(this.populationFrequencies.studies[j].id),
+                    visible: this.gridCommons.isColumnVisible(this.populationFrequencies.studies[j].id, "popfreq"),
                 });
             }
         }
@@ -757,6 +760,7 @@ export default class VariantBrowserGrid extends LitElement {
                 },
                 // ...ExtensionsManager.getColumns("variant-browser-grid"),
                 {
+                    id: "select",
                     title: "Select",
                     rowspan: 2,
                     colspan: 1,
@@ -765,7 +769,8 @@ export default class VariantBrowserGrid extends LitElement {
                     events: {
                         "click input": this.onCheck.bind(this)
                     },
-                    visible: this._config.showSelectCheckbox
+                    visible: this._config.showSelectCheckbox,
+                    excludeFromSettings: true, // If true, this column will not be visible in Settings column
                 },
                 {
                     id: "actions",
@@ -849,7 +854,8 @@ export default class VariantBrowserGrid extends LitElement {
                         "click a": (e, value, row) => this.onActionClick(e, value, row)
                     },
                     visible: this._config?.showActions,
-                    excludeFromExport: true // this is used in opencga-export
+                    excludeFromSettings: true,
+                    excludeFromExport: true, // this is used in opencga-export
                 },
             ],
             [
@@ -861,7 +867,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: this.siftPproteinScoreFormatter.bind(this),
                     halign: "center",
-                    visible: this.gridCommons.isColumnVisible("SIFT")
+                    visible: this.gridCommons.isColumnVisible("SIFT", "deleteriousness")
                 },
                 {
                     id: "polyphen",
@@ -871,7 +877,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: this.polyphenProteinScoreFormatter.bind(this),
                     halign: "center",
-                    visible: this.gridCommons.isColumnVisible("polyphen")
+                    visible: this.gridCommons.isColumnVisible("polyphen", "deleteriousness")
                 },
                 {
                     id: "revel",
@@ -881,7 +887,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: this.revelProteinScoreFormatter.bind(this),
                     halign: "center",
-                    visible: this.gridCommons.isColumnVisible("revel")
+                    visible: this.gridCommons.isColumnVisible("revel", "deleteriousness")
                 },
                 {
                     id: "cadd",
@@ -892,10 +898,10 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: (value, row) => VariantGridFormatter.caddScaledFormatter(value, row),
                     align: "right",
                     halign: "center",
-                    visible: this.gridCommons.isColumnVisible("cadd")
+                    visible: this.gridCommons.isColumnVisible("cadd", "deleteriousness")
                 },
                 {
-                    id: "splaiceai",
+                    id: "spliceai",
                     title: "SpliceAI",
                     field: "spliceai",
                     colspan: 1,
@@ -903,7 +909,7 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: (value, row) => VariantGridFormatter.spliceAIFormatter(value, row),
                     align: "right",
                     halign: "center",
-                    visible: this.gridCommons.isColumnVisible("spliceai")
+                    visible: this.gridCommons.isColumnVisible("spliceai", "deleteriousness")
                 },
                 {
                     id: "phylop",
@@ -914,7 +920,7 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: this.conservationFormatter,
                     align: "right",
                     halign: "center",
-                    visible: this.gridCommons.isColumnVisible("phylop")
+                    visible: this.gridCommons.isColumnVisible("phylop", "conservation")
                 },
                 {
                     id: "phastCons",
@@ -925,7 +931,7 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: this.conservationFormatter,
                     align: "right",
                     halign: "center",
-                    visible: this.gridCommons.isColumnVisible("phastCons")
+                    visible: this.gridCommons.isColumnVisible("phastCons", "conservation")
                 },
                 {
                     id: "gerp",
@@ -936,7 +942,7 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: this.conservationFormatter,
                     align: "right",
                     halign: "center",
-                    visible: this.gridCommons.isColumnVisible("gerp")
+                    visible: this.gridCommons.isColumnVisible("gerp", "conservation")
                     // visible: this.opencgaSession.project.organism.assembly.toUpperCase() === "GRCH37"
                 },
                 ...sampleColumns,
@@ -950,7 +956,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
                     align: "center",
-                    visible: this.gridCommons.isColumnVisible("clinvar")
+                    visible: this.gridCommons.isColumnVisible("clinvar", "clinicalInfo")
                 },
                 {
                     id: "cosmic",
@@ -960,7 +966,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
                     align: "center",
-                    visible: this.gridCommons.isColumnVisible("cosmic")
+                    visible: this.gridCommons.isColumnVisible("cosmic", "clinicalInfo")
                 },
             ]
         ];

@@ -17,8 +17,6 @@
 import UtilsNew from "../../core/utils-new.js";
 import CustomActions from "./custom-actions.js";
 import ExtensionsManager from "../extensions-manager.js";
-import CatalogGridFormatter from "./catalog-grid-formatter";
-
 
 export default class GridCommons {
 
@@ -273,19 +271,9 @@ export default class GridCommons {
         }
     }
 
-    isColumnVisible(colName) {
+    isColumnVisible(colName, parentName) {
         if (this.config.columns?.length > 0) {
-            // return this.config.columns.some(column => column === colName || column.split(":")[0] === colName);
-
-            // let found = false;
-            // for (const column of this.config.columns) {
-            //     if (column === colName || column.split(":")[0] === colName) {
-            //         found = true;
-            //     }
-            // }
-            // return found;
-
-            return this.config.columns.includes(colName);
+            return this.config.columns.includes(colName) || this.config.columns.includes(parentName);
         } else {
             // Columns are visible by default.
             return true;
