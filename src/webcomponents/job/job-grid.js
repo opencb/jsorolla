@@ -430,7 +430,6 @@ export default class JobGrid extends LitElement {
                     if (UtilsNew.isNotEmpty(params)) {
                         html = "<div>";
                         for (const key of Object.keys(params)) {
-                            typeof params[key]
                             let nestedObject = "";
                             if (typeof params[key] === "object") {
                                 for (const subKey of Object.keys(params[key])) {
@@ -455,7 +454,7 @@ export default class JobGrid extends LitElement {
                     }
                     return html;
                 },
-                // visible: this.gridCommons.isColumnVisible("params")
+                visible: this.gridCommons.isColumnVisible("params")
             },
             {
                 id: "output",
@@ -511,7 +510,7 @@ export default class JobGrid extends LitElement {
                         return `<a tooltip-title="Runtime"  tooltip-text="${f}"> ${duration.humanize()} </a>`;
                     }
                 },
-                // visible: this.gridCommons.isColumnVisible("executionR")
+                visible: this.gridCommons.isColumnVisible("executionR")
             },
             {
                 id: "executionD",

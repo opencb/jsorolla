@@ -422,7 +422,7 @@ export default class DiseasePanelGrid extends LitElement {
                     `;
                 },
                 align: "center",
-                visible: true
+                visible: this.gridCommons.isColumnVisible("stats")
             },
             {
                 id: "source",
