@@ -101,6 +101,7 @@ export default class VariantBrowser extends LitElement {
         this.variant = null;
 
         this.activeTab = "table-tab";
+        this.TOOL_ID = "VARIANT_BROWSER";
         this._config = this.getDefaultConfig();
     }
 
@@ -147,7 +148,7 @@ export default class VariantBrowser extends LitElement {
         // Apply User grid configuration. Only 'pageSize', 'columns', 'geneSet', 'consequenceType' and 'populationFrequenciesConfig' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.VARIANT_BROWSER?.grid
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid,
         });
 
         this.requestUpdate();
