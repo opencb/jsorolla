@@ -306,6 +306,8 @@ export default class GridCommons {
                     field: "annotationSets",
                     formatter: annotationSets => formatter(annotationSets, annotation.variableSetId, annotation.variables),
                     halign: gridConfig.header.horizontalAlign,
+                    visible: true,
+                    excludeFromSettings: true,
                     // visible: this.gridCommons.isColumnVisible("annotations")
                 };
                 columns.splice(annotation.position, 0, column);

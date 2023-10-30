@@ -61,9 +61,14 @@ export default class CatalogBrowserGridConfig extends LitElement {
         this.selectedColumns = []; // get all id columns visible
         const isColumnVisible = col => col.visible === undefined || col.visible;
         const addColumnData = col => {
-            this.selectColumnData.push({id: col.id, name: col.title});
-            if (isColumnVisible(col)) {
-                this.selectedColumns.push(col.id);
+            if (!col.excludeFromSettings) {
+                this.selectColumnData.push({
+                    id: col.id,
+                    name: col.title
+                });
+                if (isColumnVisible(col)) {
+                    this.selectedColumns.push(col.id);
+                }
             }
         };
 
