@@ -88,7 +88,7 @@ export default class JobGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         this.toolbarSetting = {
-            ...this.config,
+            ...this._config,
             // columns: this._getDefaultColumns().filter(col => col.field)
         };
 
@@ -317,6 +317,10 @@ export default class JobGrid extends LitElement {
 
     onColumnChange(e) {
         this.gridCommons.onColumnChange(e);
+    }
+
+    onRefresh() {
+        this.table.bootstrapTable("refresh");
     }
 
     detailFormatter(value, row) {
@@ -588,6 +592,7 @@ export default class JobGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
+                    @refresh="${this.onRefresh}"
                     @actionClick="${e => this.onActionClick(e)}"
                     @jobCreate="${this.renderRemoteTable}">
                 </opencb-grid-toolbar>` : nothing
@@ -626,6 +631,7 @@ export default class JobGrid extends LitElement {
             showCreate: true,
             showExport: true,
             showSettings: true,
+            showRefresh: true,
             showActions: true,
             detailView: true,
             detailFormatter: this.detailFormatter,
