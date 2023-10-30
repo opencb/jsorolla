@@ -98,7 +98,10 @@ class FamilyBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this._config = {...this._config, ...this.opencgaSession?.user?.configs?.IVA?.familyBrowser?.grid};
+        this._config = {
+            ...this._config,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.familyBrowser?.grid
+        };
         this.opencgaSessionObserver();
     }
 

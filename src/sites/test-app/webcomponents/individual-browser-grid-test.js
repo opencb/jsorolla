@@ -126,7 +126,10 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this.configGrid = {...this.configGrid, ...this.opencgaSession?.user?.configs?.IVA?.individualBrowser?.grid};
+        this.configGrid = {
+            ...this.configGrid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.individualBrowser?.grid
+        };
         this.propertyObserver();
     }
 

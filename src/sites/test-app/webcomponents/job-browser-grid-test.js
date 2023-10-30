@@ -100,7 +100,7 @@ class JobBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this._config = {...this.opencgaSession?.user?.configs?.IVA?.jobBrowser?.grid};
+        this._config = {...this.opencgaSession?.user?.configs?.IVA?.settings?.jobBrowser?.grid};
         this.opencgaSessionObserver();
     }
 

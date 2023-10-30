@@ -93,7 +93,7 @@ class CohortBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this._config = {...this.opencgaSession?.user?.configs?.IVA?.cohortBrowser?.grid};
+        this._config = {...this.opencgaSession?.user?.configs?.IVA?.settings?.cohortBrowser?.grid};
         this.opencgaSessionObserver();
     }
 

@@ -127,7 +127,10 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this.configVariantGrid = {...this.configVariantGrid, ...this.opencgaSession?.user?.configs?.IVA?.variantBrowser?.grid};
+        this.configVariantGrid = {
+            ...this.configVariantGrid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.variantBrowser?.grid
+        };
         this.opencgaSessionObserver();
     }
 
@@ -139,26 +142,6 @@ class VariantBrowserGridTest extends LitElement {
             <h2 style="font-weight: bold;">
                 Variant Browser (${this.testVariantFile?.split("-")?.at(-1)})
             </h2>
-
-            <!--
-        <div>
-            <button class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""}`}"
-                type="button" @click="${() => this.mutate()}">
-                    <i class="fas fa-sync"></i>
-                    <strong>Mutate 1: missing variants</strong>
-            </button>
-            <button type="button" class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""}`}"
-                @click="${() => this.mutate("sdsad")}">
-                    <i class="fas fa-sync"></i>
-                    <strong>Mutate 2: other case</strong>
-            </button>
-            <button type="button" class="${`btn btn-success ${this.activeTab === "genome-tab" ? "active" : ""}`}"
-                @click="${() => this.mutate("sadasd")}">
-                    <i class="fas fa-sync"></i>
-                    <strong>Mutate 3: worse case</strong>
-            </button>
-        </div>
-        -->
 
             <variant-browser-grid
                 .variants="${this.variants}"

@@ -113,7 +113,10 @@ class DiseasePanelBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this.configGrid = {...this.configGrid, ...this.opencgaSession?.user?.configs?.IVA?.diseasePanelBrowser?.grid};
+        this.configGrid = {
+            ...this.configGrid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.diseasePanelBrowser?.grid
+        };
         this.propertyObserver();
     }
 

@@ -101,7 +101,7 @@ class FileBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this._config = {...this.opencgaSession?.user?.configs?.IVA?.fileBrowser?.grid};
+        this._config = {...this.opencgaSession?.user?.configs?.IVA?.settings?.fileBrowser?.grid};
         this.opencgaSessionObserver();
     }
 

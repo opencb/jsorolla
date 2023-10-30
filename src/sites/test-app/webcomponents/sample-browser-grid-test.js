@@ -128,7 +128,10 @@ class SampleBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this.configGrid = {...this.configGrid, ...this.opencgaSession?.user?.configs?.IVA?.sampleBrowser?.grid};
+        this.configGrid = {
+            ...this.configGrid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.sampleBrowser?.grid
+        };
         this.propertyObserver();
     }
 

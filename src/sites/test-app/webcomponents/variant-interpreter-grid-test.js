@@ -157,7 +157,10 @@ class VariantInterpreterGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this.configVariantInterpreterGrid = {...this.configVariantInterpreterGrid, ...this.opencgaSession?.user?.configs?.IVA?.variantInterpreterBrowser?.grid};
+        this.configVariantInterpreterGrid = {
+            ...this.configVariantInterpreterGrid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.variantInterpreterBrowser?.grid
+        };
         this.opencgaSessionObserver();
     }
 
