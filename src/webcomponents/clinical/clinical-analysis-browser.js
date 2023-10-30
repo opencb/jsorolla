@@ -92,7 +92,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         // Apply user configuration
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.[this._config.componentId]?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this._config.componentId]?.grid,
         });
 
 
@@ -281,6 +281,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
             }
         };
     }
+
 }
 
 customElements.define("clinical-analysis-browser", ClinicalAnalysisBrowser);

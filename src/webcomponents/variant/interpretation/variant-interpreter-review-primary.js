@@ -128,10 +128,10 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         }
 
         // Check for user configuration
-        if (this.toolId && this.opencgaSession.user?.configs?.IVA?.[this.toolId]?.grid) {
+        if (this.toolId && this.opencgaSession.user?.configs?.IVA?.settings?.[this.toolId]?.grid) {
             this._config.result.grid = {
                 ...this._config.result.grid,
-                ...this.opencgaSession.user.configs.IVA[this.toolId].grid,
+                ...this.opencgaSession.user.configs.IVA.settings[this.toolId].grid,
                 showGenomeBrowserLink: false,
             };
         }
