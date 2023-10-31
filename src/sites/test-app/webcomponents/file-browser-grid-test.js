@@ -57,6 +57,7 @@ class FileBrowserGridTest extends LitElement {
     }
 
     #init() {
+        this.TOOL_ID = "FILE_BROWSER";
         this.isLoading = false;
         this.data = [];
         this._config = {};
@@ -101,7 +102,9 @@ class FileBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this._config = {...this.opencgaSession?.user?.configs?.IVA?.settings?.fileBrowser?.grid};
+        this._config = {
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid,
+        };
         this.opencgaSessionObserver();
     }
 

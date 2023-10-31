@@ -53,25 +53,12 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     #init() {
+        this.TOOL_ID = "VARIANT_BROWSER";
         this.isLoading = false;
         this.variants = [];
         this._dataFormConfig = DATA_FORM_EXAMPLE;
 
-        this.configVariantGrid = {
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            multiSelection: false,
-            showSelectCheckbox: false,
-            toolbar: {
-                // showNew: true,
-                showColumns: true,
-                showDownload: false,
-                showExport: false,
-                showSettings: false,
-                exportTabs: ["download", "link", "code"]
-                // columns list for the dropdown will be added in grid webcomponents based on settings.table.columns
-            },
-        };
+        this._config = {};
     }
 
     #setLoading(value) {
@@ -127,9 +114,9 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this.configVariantGrid = {
-            ...this.configVariantGrid,
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.variantBrowser?.grid
+        this._config = {
+            ...this._config,
+            ...this._config?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid
         };
         this.opencgaSessionObserver();
     }
@@ -146,7 +133,7 @@ class VariantBrowserGridTest extends LitElement {
             <variant-browser-grid
                 .variants="${this.variants}"
                 .opencgaSession="${this.opencgaSession}"
-                .config="${this.configVariantGrid}"
+                .config="${this._config}"
                 @settingsUpdate="${() => this.onSettingsUpdate()}"
                 .populationFrequencies="${this.config.populationFrequencies}">
             </variant-browser-grid>

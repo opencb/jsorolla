@@ -62,6 +62,7 @@ class FamilyBrowserGridTest extends LitElement {
     }
 
     #init() {
+        this.TOOL_ID = "FAMILY_BROWSER";
         this._ready = false;
         this.data = [];
         this._config = {};
@@ -99,8 +100,7 @@ class FamilyBrowserGridTest extends LitElement {
 
     onSettingsUpdate() {
         this._config = {
-            ...this._config,
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.familyBrowser?.grid
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid,
         };
         this.opencgaSessionObserver();
     }

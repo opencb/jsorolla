@@ -58,6 +58,7 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     #init() {
+        this.TOOL_ID = "INDIVIDUAL_BROWSER";
         this._ready = false;
         this.FILES = [
             "individuals-platinum.json",
@@ -65,27 +66,7 @@ class IndividualBrowserGridTest extends LitElement {
         this._data = [];
         this._selectedInstance = {};
 
-        this.configGrid = {
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            multiSelection: false,
-            showSelectCheckbox: false,
-            // FIXME: temporarily moved here
-            showColumns: false, // To clean-up?
-            showDownload: false, // To clean-up?
-            showExport: true,
-            showSettings: true,
-            showNew: true,
-            showCreate: true,
-            // FIXME\
-            toolbar: {
-                showColumns: true,
-                showDownload: false,
-                showExport: false,
-                showSettings: false,
-                exportTabs: ["download", "link", "code"]
-            },
-        };
+        this._config = {};
     }
 
     update(changedProperties) {
@@ -126,9 +107,8 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this.configGrid = {
-            ...this.configGrid,
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.individualBrowser?.grid
+        this._config = {
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL]?.grid,
         };
         this.propertyObserver();
     }
@@ -186,7 +166,7 @@ class IndividualBrowserGridTest extends LitElement {
                 <individual-grid
                     .individuals="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
-                    .config="${this.configGrid}"
+                    .config="${this._config}"
                     @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${this.selectInstance}">
                 </individual-grid>

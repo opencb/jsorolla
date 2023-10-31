@@ -53,6 +53,7 @@ class DiseasePanelBrowserGridTest extends LitElement {
     }
 
     #init() {
+        this.TOOL_ID = "DISEASE_PANEL_BROWSER";
         this._ready = false;
         this.FILES = [
             "disease-panels-platinum.json",
@@ -60,19 +61,7 @@ class DiseasePanelBrowserGridTest extends LitElement {
         this._data = [];
         this._selectedInstance = {};
 
-        this.configGrid = {
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            multiSelection: false,
-            showSelectCheckbox: false,
-            toolbar: {
-                showColumns: true,
-                showDownload: false,
-                showExport: false,
-                showSettings: false,
-                exportTabs: ["download", "link", "code"]
-            },
-        };
+        this._config = {};
     }
 
     // TODO: The Sample Browser Test needs to test two things:
@@ -113,9 +102,8 @@ class DiseasePanelBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this.configGrid = {
-            ...this.configGrid,
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.diseasePanelBrowser?.grid
+        this._config = {
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid,
         };
         this.propertyObserver();
     }

@@ -52,6 +52,7 @@ class SampleBrowserGridTest extends LitElement {
     }
 
     #init() {
+        this.TOOL_ID = "SAMPLE_BROWSER";
         this._ready = false;
         this.FILES = [
             "samples-platinum.json",
@@ -59,34 +60,7 @@ class SampleBrowserGridTest extends LitElement {
         this._data = [];
         this._selectedInstance = {};
 
-        this.configGrid = {
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            multiSelection: false,
-            showSelectCheckbox: false,
-            // FIXME: temporarily moved here
-            showColumns: false, // To clean-up?
-            showDownload: false, // To clean-up?
-            showExport: true,
-            showSettings: true,
-            showNew: true,
-            showCreate: true,
-            // FIXME\
-            toolbar: {
-                // FIXME 20230830 Vero BUG: Toolbar configuration (and clientS configuration) is currently ignored.
-                //  The configurations read in the following files for deciding whether the buttons are displayed or not,
-                //  are not under the toolbar key but in the parent. I move this configuration temporarily to the parent.
-                //  See clients browser.settings.js and getDefaultConfig() in:
-                //  - sample-browser.js
-                //  - sample-grid.js
-                //  - opencb-grid-toolbar.js
-                showColumns: true,
-                showDownload: false,
-                showExport: false,
-                showSettings: false,
-                exportTabs: ["download", "link", "code"]
-            },
-        };
+        this._config = {};
     }
 
     // TODO: The Sample Browser Test needs to test two things:
@@ -128,9 +102,8 @@ class SampleBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this.configGrid = {
-            ...this.configGrid,
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.sampleBrowser?.grid
+        this._config = {
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid,
         };
         this.propertyObserver();
     }
@@ -195,7 +168,7 @@ class SampleBrowserGridTest extends LitElement {
                 <sample-grid
                     .samples="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
-                    .config="${this.configGrid}"
+                    .config="${this._config}"
                     @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${this.selectInstance}">
                 </sample-grid>
