@@ -210,7 +210,7 @@ context("Variant Interpreter Grid Cancer", () => {
 
         it("should display cohort stats (population frequencies) tooltip", () => {
             cy.get("tbody tr:first > td")
-                .eq(8)
+                .eq(10)
                 .within(() => {
                     cy.get("a").trigger("mouseover");
                 });
@@ -220,7 +220,7 @@ context("Variant Interpreter Grid Cancer", () => {
 
         it("should reference population frequencies tooltip", () => {
             cy.get("tbody tr:first > td")
-                .eq(9)
+                .eq(11)
                 .within(() => {
                     cy.get("a")
                         .trigger("mouseover");
