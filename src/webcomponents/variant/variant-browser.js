@@ -84,6 +84,7 @@ export default class VariantBrowser extends LitElement {
     }
 
     _init() {
+        this.TOOL_ID = "VARIANT_BROWSER";
         this.COMPONENT_ID = "variant-browser";
         this._prefix = UtilsNew.randomString(8);
 
@@ -101,7 +102,6 @@ export default class VariantBrowser extends LitElement {
         this.variant = null;
 
         this.activeTab = "table-tab";
-        this.TOOL_ID = "VARIANT_BROWSER";
         this._config = this.getDefaultConfig();
     }
 
