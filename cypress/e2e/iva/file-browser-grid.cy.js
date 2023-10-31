@@ -22,7 +22,7 @@ context("File Browser Grid", () => {
     const browserDetail = "file-detail";
 
     beforeEach(() => {
-        cy.visit("#file-browser-grid")
+        cy.visit("#file-browser-grid");
         cy.waitUntil(() => {
             return cy.get(browserGrid)
                 .should("be.visible");
@@ -151,8 +151,8 @@ context("File Browser Grid", () => {
                 });
         });
 
-        it("should hidden columns [Directory,Format,Bioformat]",() => {
-            const columns = ["Directory","Format","Bioformat"];
+        it("should hidden columns [Name,Format]",() => {
+            const columns = ["Name","Format"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");
 
@@ -242,7 +242,6 @@ context("File Browser Grid", () => {
         });
     });
 
-
     context("detail tab", () => {
         it("should render", () => {
             cy.get(browserDetail)
@@ -250,10 +249,10 @@ context("File Browser Grid", () => {
         });
 
         it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Name")
+            BrowserTest.getColumnIndexByHeader("Name");
             cy.get("@indexColumn")
                 .then((indexColumn) => {
-                    const indexRow = 2
+                    const indexRow = 2;
                     // eslint-disable-next-line cypress/unsafe-to-chain-command
                     cy.get(`tbody tr`)
                         .eq(indexRow)
@@ -261,7 +260,7 @@ context("File Browser Grid", () => {
                         .find("td")
                         .eq(indexColumn)
                         .invoke("text")
-                        .as("textRow")
+                        .as("textRow");
                     });
 
             cy.get("@textRow")
@@ -269,8 +268,12 @@ context("File Browser Grid", () => {
                     cy.get("detail-tabs > div.panel")
                         .invoke("text")
                         .then((text) => {
+                            const textRowTrimmed = textRow.trim();
+                            const lastLineMatch = textRowTrimmed.match(/^([^\n]+)/);
+                            const id = lastLineMatch ? lastLineMatch[1].trim() : textRowTrimmed;
+
                             const textTab = text.split(":");
-                            expect(textRow).to.equal(textTab[1].trim());
+                            expect(id).to.equal(textTab[1].trim());
                         });
                 });
         });
