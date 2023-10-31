@@ -35,7 +35,7 @@ export default class DiseasePanel {
     }
 
     info(panels, params) {
-        // Mocked response for Sample update test
+        // Mocked response for Disease Panel update test
         if (panels === "Early_onset_dystonia-PanelAppId-192") {
             return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/disease-panels-platinum.json`)
                 .then(data => ({

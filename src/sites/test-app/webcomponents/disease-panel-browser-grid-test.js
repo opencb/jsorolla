@@ -61,7 +61,19 @@ class DiseasePanelBrowserGridTest extends LitElement {
         this._data = [];
         this._selectedInstance = {};
 
-        this._config = {};
+        this._config = {
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            multiSelection: false,
+            showSelectCheckbox: false,
+            toolbar: {
+                showColumns: true,
+                showDownload: false,
+                showExport: false,
+                showSettings: false,
+                exportTabs: ["download", "link", "code"]
+            },
+        };
     }
 
     // TODO: The Sample Browser Test needs to test two things:
@@ -103,40 +115,11 @@ class DiseasePanelBrowserGridTest extends LitElement {
 
     onSettingsUpdate() {
         this._config = {
+            ...this._config,
             ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid,
         };
+
         this.propertyObserver();
-    }
-
-
-    getDefaultTabsConfig() {
-        return {
-            title: "Disease Panel",
-            showTitle: true,
-            items: [
-                {
-                    id: "disease-panel-view",
-                    name: "Summary",
-                    active: true,
-                    render: (diseasePanel, _active, opencgaSession) => html`
-                        <disease-panel-summary
-                            .diseasePanel="${diseasePanel}"
-                            .opencgaSession="${opencgaSession}">
-                        </disease-panel-summary>
-                    `,
-                },
-                {
-                    id: "json-view",
-                    name: "JSON Data",
-                    render: (diseasePanel, active) => html`
-                        <json-viewer
-                                .data="${diseasePanel}"
-                                .active="${active}">
-                        </json-viewer>
-                    `,
-                },
-            ]
-        };
     }
 
     mutate() {
@@ -168,7 +151,7 @@ class DiseasePanelBrowserGridTest extends LitElement {
                 <disease-panel-grid
                     .diseasePanels="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
-                    .config="${this.configGrid}"
+                    .config="${this._config}"
                     @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${e => this.selectInstance(e)}">
                 </disease-panel-grid>
@@ -179,6 +162,36 @@ class DiseasePanelBrowserGridTest extends LitElement {
                 </disease-panel-detail>
             </div>
         `;
+    }
+
+    getDefaultTabsConfig() {
+        return {
+            title: "Disease Panel",
+            showTitle: true,
+            items: [
+                {
+                    id: "disease-panel-view",
+                    name: "Summary",
+                    active: true,
+                    render: (diseasePanel, _active, opencgaSession) => html`
+                        <disease-panel-summary
+                            .diseasePanel="${diseasePanel}"
+                            .opencgaSession="${opencgaSession}">
+                        </disease-panel-summary>
+                    `,
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (diseasePanel, active) => html`
+                        <json-viewer
+                                .data="${diseasePanel}"
+                                .active="${active}">
+                        </json-viewer>
+                    `,
+                },
+            ]
+        };
     }
 
 }

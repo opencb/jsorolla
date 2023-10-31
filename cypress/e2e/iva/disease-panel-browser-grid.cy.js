@@ -345,7 +345,7 @@ context("Disease Panel Browser Grid", () => {
         });
 
         it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Panel ID");
+            BrowserTest.getColumnIndexByHeader("Panel");
             cy.get("@indexColumn")
                 .then(indexColumn => {
                     const indexRow = 2;
@@ -362,11 +362,13 @@ context("Disease Panel Browser Grid", () => {
             cy.get("@textRow")
                 .then((textRow) => {
                     const textRowTrimmed = textRow.trim();
+                    const lastLineMatch = textRowTrimmed.match(/(?:^|\n)([^\n]+)$/);
+                    const id = lastLineMatch ? lastLineMatch[1].trim() : textRowTrimmed;
                     cy.get("detail-tabs > div.panel")
                         .invoke("text")
                         .then((text) => {
                             const textTab = text.trim().split(" ");
-                            expect(textRowTrimmed).to.equal(textTab[2].trim());
+                            expect(id).to.equal(textTab[2].trim());
                         });
                 });
         });

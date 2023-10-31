@@ -733,7 +733,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["disease-panel-browser-grid"] ? html`
                     <div class="content" id="disease-panel-browser-grid">
                         <disease-panel-browser-grid-test
-                            testFile="disease-panel-platinum"
+                            testFile="disease-panels-platinum"
                             testDataVersion="${this.testDataVersion || ""}"
                             .opencgaSession="${this.opencgaSession || {}}"
                             .config="${this.config}">
