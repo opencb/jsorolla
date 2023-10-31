@@ -53,7 +53,7 @@ export default class JobBrowser extends LitElement {
     }
 
     _init() {
-        this.TOOL_ID = "FILE_BROWSER";
+        this.TOOL_ID = "JOB_BROWSER";
         this._config = this.getDefaultConfig();
     }
 
@@ -456,6 +456,7 @@ export default class JobBrowser extends LitElement {
             },
         };
     }
+
 }
 
 customElements.define("job-browser", JobBrowser);
