@@ -326,7 +326,7 @@ context("Individual Browser Grid", () => {
                 cy.get("@body")
                     .find(`td:nth-child(${creationDateIndex})`)
                     .each(td => {
-                        const regExp = /^(([0-9])|([0-2][0-9])|([3][0-1])) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/
+                        const regExp = /^(([0-9])|([0-2][0-9])|([3][0-1])) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/;
                         expect(td.text()).to.match(regExp);
                     });
             });
@@ -350,17 +350,15 @@ context("Individual Browser Grid", () => {
                     .as("row");
             });
 
-
         });
 
         context("extension", () => {
             it("should display 'Extra Column' column", () => {
                 cy.get("thead th")
                     .contains("Extra column")
-                    .should('be.visible')
-            })
-        })
-
+                    .should('be.visible');
+            });
+        });
 
     });
 
@@ -378,10 +376,10 @@ context("Individual Browser Grid", () => {
         });
 
         it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Individual")
+            BrowserTest.getColumnIndexByHeader("Individual");
             cy.get("@indexColumn")
                 .then(indexColumn => {
-                    const indexRow = 2
+                    const indexRow = 2;
                     // eslint-disable-next-line cypress/unsafe-to-chain-command
                     cy.get(`tbody tr`)
                         .eq(indexRow)
@@ -389,7 +387,7 @@ context("Individual Browser Grid", () => {
                         .find("td")
                         .eq(indexColumn)
                         .invoke("text")
-                        .as("textRow")
+                        .as("textRow");
                 });
 
             cy.get("@textRow")
@@ -397,8 +395,12 @@ context("Individual Browser Grid", () => {
                     cy.get("detail-tabs > div.panel")
                         .invoke("text")
                         .then((text) => {
+                            const textRowTrimmed = textRow.trim();
+                            const firstLineMatch = textRowTrimmed.match(/^([^\n]+)/);
+                            const id = firstLineMatch ? firstLineMatch[1].trim() : textRowTrimmed;
+
                             const textTab = text.trim().split(" ");
-                            expect(textRow).to.equal(textTab[1].trim());
+                            expect(id).to.equal(textTab[1].trim());
                         });
                 });
         });

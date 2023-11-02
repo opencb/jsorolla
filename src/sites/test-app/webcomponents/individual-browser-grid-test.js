@@ -83,7 +83,7 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     propertyObserver() {
-        if (this.opencgaSession?.cellbaseClient && this.testDataVersion) {
+        if (this.opencgaSession && this.testDataVersion) {
 
             const promises = this.FILES.map(file => {
                 return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
@@ -108,9 +108,10 @@ class IndividualBrowserGridTest extends LitElement {
 
     onSettingsUpdate() {
         this._config = {
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL]?.grid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid,
         };
-        this.propertyObserver();
+        // this.propertyObserver();
+        this.requestUpdate();
     }
 
     getDefaultTabsConfig() {
