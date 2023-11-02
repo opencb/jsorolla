@@ -99,10 +99,6 @@ context("Variant Interpreter Grid Germiline", () => {
                 .contains("button", "OK")
                 .click();
             cy.get("@headerColumns")
-                .should("not.exist");
-            cy.get("@headerColumns")
-                .should("exist");
-            cy.get("@headerColumns")
                 .should($header => {
                     const _columns = Array.from($header, th => th.textContent.trim());
                     columns.forEach(col => {
