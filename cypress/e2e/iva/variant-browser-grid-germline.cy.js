@@ -98,10 +98,6 @@ context("Variant Browser Grid Germline", () => {
                 .contains("button", "OK")
                 .click();
             cy.get("@headerColumns")
-                .should("not.exist");
-            cy.get("@headerColumns")
-                .should("exist");
-            cy.get("@headerColumns")
                 .then($header => {
                     const _columns = Array.from($header, th => th.textContent.trim());
                     columns.forEach(col => {
