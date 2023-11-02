@@ -269,8 +269,12 @@ context("Job Browser Grid", () => {
                 cy.get("detail-tabs > div.panel")
                     .invoke("text")
                     .then((text) => {
+                        const textRowTrimmed = textRow.trim();
+                        const firstLineMatch = textRowTrimmed.match(/^([^\n]+)/);
+                        const id = firstLineMatch ? firstLineMatch[1].trim() : textRowTrimmed;
+
                         const textTab = text.trim().split(" ");
-                        expect(textRow).to.equal(textTab[1].trim());
+                        expect(id).to.equal(textTab[1].trim());
                     });
             });
         });
