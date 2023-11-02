@@ -269,8 +269,8 @@ context("File Browser Grid", () => {
                         .invoke("text")
                         .then((text) => {
                             const textRowTrimmed = textRow.trim();
-                            const lastLineMatch = textRowTrimmed.match(/^([^\n]+)/);
-                            const id = lastLineMatch ? lastLineMatch[1].trim() : textRowTrimmed;
+                            const firstLineMatch = textRowTrimmed.match(/^([^\n]+)/);
+                            const id = firstLineMatch ? firstLineMatch[1].trim() : textRowTrimmed;
 
                             const textTab = text.split(":");
                             expect(id).to.equal(textTab[1].trim());

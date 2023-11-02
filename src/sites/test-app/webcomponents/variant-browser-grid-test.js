@@ -116,7 +116,7 @@ class VariantBrowserGridTest extends LitElement {
     onSettingsUpdate() {
         this._config = {
             ...this._config,
-            ...this._config?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid
         };
         this.opencgaSessionObserver();
     }

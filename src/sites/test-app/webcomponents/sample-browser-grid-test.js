@@ -78,7 +78,7 @@ class SampleBrowserGridTest extends LitElement {
     }
 
     propertyObserver() {
-        if (this.opencgaSession?.cellbaseClient && this.testDataVersion) {
+        if (this.opencgaSession && this.testDataVersion) {
 
             const promises = this.FILES.map(file => {
                 return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
