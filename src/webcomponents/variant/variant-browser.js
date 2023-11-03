@@ -84,7 +84,6 @@ export default class VariantBrowser extends LitElement {
     }
 
     _init() {
-        this.TOOL_ID = "VARIANT_BROWSER";
         this.COMPONENT_ID = "variant-browser";
         this._prefix = UtilsNew.randomString(8);
 
@@ -148,7 +147,7 @@ export default class VariantBrowser extends LitElement {
         // Apply User grid configuration. Only 'pageSize', 'columns', 'geneSet', 'consequenceType' and 'populationFrequenciesConfig' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         });
 
         this.requestUpdate();
@@ -421,6 +420,7 @@ export default class VariantBrowser extends LitElement {
                         <div class="main-view">
                             <div id="table-tab" class="${`content-tab ${this.activeTab === "table-tab" ? "active" : ""}`}">
                                 <variant-browser-grid
+                                    .toolId="${this.COMPONENT_ID}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .query="${this.executedQuery}"
                                     .cohorts="${this.opencgaSession?.project?.studies ?? []}"
