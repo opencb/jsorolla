@@ -55,7 +55,7 @@ class JobBrowserGridTest extends LitElement {
     }
 
     #init() {
-        this.TOOL_ID = "JOB_BROWSER";
+        this.COMPONENT_ID = "job-browser";
         this.isLoading = false;
         this.data = [];
         this._config = {};
@@ -99,7 +99,7 @@ class JobBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this._config = {...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid};
+        this._config = {...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid};
         this.opencgaSessionObserver();
     }
 
@@ -113,6 +113,7 @@ class JobBrowserGridTest extends LitElement {
                 Catalog Browser Grid (${this.testFile})
             </h2>
             <job-grid
+                .toolId="${this.COMPONENT_ID}"
                 .jobs="${this.jobs}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
