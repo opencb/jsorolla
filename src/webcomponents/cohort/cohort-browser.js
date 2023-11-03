@@ -49,7 +49,7 @@ export default class CohortBrowser extends LitElement {
     }
 
     _init() {
-        this.TOOL_ID = "COHORT_BROWSER";
+        this.COMPONENT_ID = "cohort-browser";
         this._config = this.getDefaultConfig();
     }
 
@@ -81,7 +81,7 @@ export default class CohortBrowser extends LitElement {
         // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
 
         this.requestUpdate();
@@ -118,6 +118,7 @@ export default class CohortBrowser extends LitElement {
                     active: true,
                     render: params => html `
                         <cohort-grid
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .query="${params.executedQuery}"
                             .search="${params.executedQuery}"
@@ -347,6 +348,7 @@ export default class CohortBrowser extends LitElement {
             }
         };
     }
+
 }
 
 customElements.define("cohort-browser", CohortBrowser);

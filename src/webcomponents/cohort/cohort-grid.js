@@ -38,6 +38,9 @@ export default class CohortGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -66,6 +69,7 @@ export default class CohortGrid extends LitElement {
 
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
@@ -89,7 +93,7 @@ export default class CohortGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: "COHORT_BROWSER",
+            toolId: this.toolId,
             resource: "COHORT",
             columns: this._getDefaultColumns(),
             create: {
