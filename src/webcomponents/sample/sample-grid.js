@@ -39,6 +39,9 @@ export default class SampleGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -67,6 +70,7 @@ export default class SampleGrid extends LitElement {
 
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
@@ -89,7 +93,7 @@ export default class SampleGrid extends LitElement {
         };
 
         this.toolbarConfig = {
-            toolId: "SAMPLE_BROWSER",
+            toolId: this.toolId,
             resource: "SAMPLE",
             columns: this._getDefaultColumns(),
             create: {
