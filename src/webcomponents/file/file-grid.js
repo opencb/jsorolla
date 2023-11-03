@@ -38,6 +38,9 @@ export default class OpencgaFileGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -66,6 +69,7 @@ export default class OpencgaFileGrid extends LitElement {
 
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
@@ -88,7 +92,7 @@ export default class OpencgaFileGrid extends LitElement {
         };
 
         this.toolbarConfig = {
-            toolId: "FILE_BROWSER",
+            toolId: this.toolId,
             resource: "FILE",
             columns: this._getDefaultColumns(),
             create: {
