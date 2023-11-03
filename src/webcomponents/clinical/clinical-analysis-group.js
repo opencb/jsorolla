@@ -15,6 +15,9 @@ export default class ClinicalAnalysisGroup extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object,
             },
@@ -31,6 +34,7 @@ export default class ClinicalAnalysisGroup extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "clinical-analysis-group";
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
         this.activeGroup = this._config.groups[0];
@@ -134,6 +138,7 @@ export default class ClinicalAnalysisGroup extends LitElement {
                             <span id="${this._prefix}GroupCount${item}"></span>
                         </h3>
                         <clinical-analysis-grid
+                            .toolId="${this.toolId}"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this._config}"
                             .query="${{
