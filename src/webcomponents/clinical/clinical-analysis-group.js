@@ -96,6 +96,31 @@ export default class ClinicalAnalysisGroup extends LitElement {
         this.updateGroups();
     }
 
+    renderGroupItem(item) {
+        const query = {
+            ...this.query,
+            [this.activeGroup.queryField]: item,
+        };
+        return html`
+            <div>
+                <h3>
+                    <i class="fas ${this.activeGroup.display.icon} icon-padding"></i>
+                    <strong>${item || this.activeGroup.display.emptyTitle}</strong>
+                    <span id="${this._prefix}GroupCount${item}"></span>
+                </h3>
+                <clinical-analysis-grid
+                    .toolId="${this.toolId}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config}"
+                    .query="${query}"
+                    .active="${true}"
+                    @rowUpdate="${() => this.onRowUpdate()}"
+                    @queryComplete="${e => this.onQueryComplete(e, item)}">
+                </clinical-analysis-grid>
+            </div>
+        `;
+    }
+
     render() {
         return html`
             <div>
@@ -130,27 +155,7 @@ export default class ClinicalAnalysisGroup extends LitElement {
                         </ul>
                     </div>
                 </div>
-                ${this.groups.map(item => html`
-                    <div>
-                        <h3>
-                            <i class="fas ${this.activeGroup.display.icon} icon-padding"></i>
-                            <strong>${item || this.activeGroup.display.emptyTitle}</strong>
-                            <span id="${this._prefix}GroupCount${item}"></span>
-                        </h3>
-                        <clinical-analysis-grid
-                            .toolId="${this.toolId}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this._config}"
-                            .query="${{
-                                ...this.query,
-                                [this.activeGroup.queryField]: item,
-                            }}"
-                            .active="${true}"
-                            @rowUpdate="${() => this.onRowUpdate()}"
-                            @queryComplete="${e => this.onQueryComplete(e, item)}">
-                        </clinical-analysis-grid>
-                    </div>
-                `)}
+                ${this.groups.map(item => this.renderGroupItem(item))}
             </div>
         `;
     }
