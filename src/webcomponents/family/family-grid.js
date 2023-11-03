@@ -65,6 +65,7 @@ export default class FamilyGrid extends LitElement {
 
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
@@ -88,7 +89,7 @@ export default class FamilyGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: "FAMILY_BROWSER",
+            toolId: this.toolId,
             resource: "FAMILY",
             columns: this._getDefaultColumns(),
             create: {

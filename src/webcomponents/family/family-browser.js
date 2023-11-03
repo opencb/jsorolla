@@ -50,7 +50,7 @@ export default class FamilyBrowser extends LitElement {
     }
 
     _init() {
-        this.TOOL_ID = "FAMILY_BROWSER";
+        this.COMPONENT_ID = "family-browser";
         this._config = this.getDefaultConfig();
     }
 
@@ -82,7 +82,7 @@ export default class FamilyBrowser extends LitElement {
         // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
 
         this.requestUpdate();
@@ -124,6 +124,7 @@ export default class FamilyBrowser extends LitElement {
                     active: true,
                     render: params => html `
                         <family-grid
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .query="${params.executedQuery}"
                             .config="${params.config.filter.result.grid}"
