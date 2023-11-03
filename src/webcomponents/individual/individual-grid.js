@@ -37,6 +37,9 @@ export default class IndividualGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -65,6 +68,7 @@ export default class IndividualGrid extends LitElement {
 
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
@@ -88,7 +92,7 @@ export default class IndividualGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: "INDIVIDUAL_BROWSER",
+            toolId: this.toolId,
             resource: "INDIVIDUAL",
             columns: this._getDefaultColumns(),
             create: {

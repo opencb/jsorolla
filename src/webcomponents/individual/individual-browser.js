@@ -56,7 +56,7 @@ export default class IndividualBrowser extends LitElement {
     }
 
     _init() {
-        this.TOOL_ID = "INDIVIDUAL_BROWSER";
+        this.COMPONENT_ID = "individual-browser";
         this._config = this.getDefaultConfig();
     }
 
@@ -88,7 +88,7 @@ export default class IndividualBrowser extends LitElement {
         // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
 
         this.requestUpdate();
@@ -130,6 +130,7 @@ export default class IndividualBrowser extends LitElement {
                     active: true,
                     render: params => html`
                         <individual-grid
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
