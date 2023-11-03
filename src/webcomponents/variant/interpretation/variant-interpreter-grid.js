@@ -70,7 +70,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     #init() {
-        this.COMPONENT_ID = this.toolId + "-grid";
+        this.COMPONENT_ID = "";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
