@@ -20,8 +20,6 @@ import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/job/job-grid.js";
 import "../../../webcomponents/job/job-detail.js";
-// import "../../../webcomponents/job/job-create.js";
-// import "../../../webcomponents/job/job-update.js";
 
 
 class JobBrowserGridTest extends LitElement {

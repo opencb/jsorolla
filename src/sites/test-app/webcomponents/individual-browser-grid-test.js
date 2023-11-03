@@ -22,7 +22,7 @@ import "../../../webcomponents/individual/individual-grid.js";
 import "../../../webcomponents/individual/individual-detail.js";
 import "../../../webcomponents/individual/individual-view.js";
 import "../../../webcomponents/commons/json-viewer.js";
-import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils";
+import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils.js";
 import "../../../webcomponents/individual/individual-update.js";
 import "../../../webcomponents/individual/individual-create.js";
 
@@ -58,7 +58,7 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     #init() {
-        this.TOOL_ID = "INDIVIDUAL_BROWSER";
+        this.COMPONENT_ID = "individual-browser";
         this._ready = false;
         this.FILES = [
             "individuals-platinum.json",
@@ -108,7 +108,7 @@ class IndividualBrowserGridTest extends LitElement {
 
     onSettingsUpdate() {
         this._config = {
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         };
         // this.propertyObserver();
         this.requestUpdate();
@@ -165,6 +165,7 @@ class IndividualBrowserGridTest extends LitElement {
                     Individual Browser Grid (${this.FILES[0]})
                 </h2>
                 <individual-grid
+                    .toolId="${this.COMPONENT_ID}"
                     .individuals="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config}"

@@ -23,7 +23,7 @@ import "../../../webcomponents/disease-panel/disease-panel-detail.js";
 import "../../../webcomponents/disease-panel/disease-panel-create.js";
 import "../../../webcomponents/disease-panel/disease-panel-update.js";
 
-import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils";
+import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils.js";
 
 
 class DiseasePanelBrowserGridTest extends LitElement {
@@ -53,7 +53,7 @@ class DiseasePanelBrowserGridTest extends LitElement {
     }
 
     #init() {
-        this.TOOL_ID = "DISEASE_PANEL_BROWSER";
+        this.COMPONENT_ID = "disease-panel-browser";
         this._ready = false;
         this.FILES = [
             "disease-panels-platinum.json",
@@ -116,7 +116,7 @@ class DiseasePanelBrowserGridTest extends LitElement {
     onSettingsUpdate() {
         this._config = {
             ...this._config,
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         };
 
         this.propertyObserver();
@@ -149,6 +149,7 @@ class DiseasePanelBrowserGridTest extends LitElement {
                     Disease Panel Browser Grid (${this.FILES[0]})
                 </h2>
                 <disease-panel-grid
+                    .toolId="${this.COMPONENT_ID}"
                     .diseasePanels="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config}"

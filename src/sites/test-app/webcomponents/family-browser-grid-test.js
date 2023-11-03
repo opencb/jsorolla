@@ -62,7 +62,7 @@ class FamilyBrowserGridTest extends LitElement {
     }
 
     #init() {
-        this.TOOL_ID = "FAMILY_BROWSER";
+        this.COMPONENT_ID = "family-browser";
         this._ready = false;
         this.data = [];
         this._config = {};
@@ -100,7 +100,7 @@ class FamilyBrowserGridTest extends LitElement {
 
     onSettingsUpdate() {
         this._config = {
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         };
         this.opencgaSessionObserver();
     }
@@ -156,6 +156,7 @@ class FamilyBrowserGridTest extends LitElement {
                 Catalog Browser Grid (${this.testFile})
             </h2>
             <family-grid
+                .toolId="${this.COMPONENT_ID}"
                 .families="${this.families}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"

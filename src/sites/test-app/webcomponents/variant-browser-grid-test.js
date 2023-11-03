@@ -53,7 +53,7 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     #init() {
-        this.TOOL_ID = "VARIANT_BROWSER";
+        this.COMPONENT_ID = "variant-browser";
         this.isLoading = false;
         this.variants = [];
         this._dataFormConfig = DATA_FORM_EXAMPLE;
@@ -116,7 +116,7 @@ class VariantBrowserGridTest extends LitElement {
     onSettingsUpdate() {
         this._config = {
             ...this._config,
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         };
         this.opencgaSessionObserver();
     }
@@ -131,6 +131,7 @@ class VariantBrowserGridTest extends LitElement {
             </h2>
 
             <variant-browser-grid
+                .toolId="${this.COMPONENT_ID}"
                 .variants="${this.variants}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"

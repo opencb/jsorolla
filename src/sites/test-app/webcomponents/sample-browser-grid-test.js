@@ -52,7 +52,7 @@ class SampleBrowserGridTest extends LitElement {
     }
 
     #init() {
-        this.TOOL_ID = "SAMPLE_BROWSER";
+        this.COMPONENT_ID = "sample-browser";
         this._ready = false;
         this.FILES = [
             "samples-platinum.json",
@@ -103,7 +103,7 @@ class SampleBrowserGridTest extends LitElement {
 
     onSettingsUpdate() {
         this._config = {
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.TOOL_ID]?.grid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         };
         this.propertyObserver();
     }
@@ -166,6 +166,7 @@ class SampleBrowserGridTest extends LitElement {
                     Sample Browser Grid (${this.FILES[0]})
                 </h2>
                 <sample-grid
+                    .toolId="${this.COMPONENT_ID}"
                     .samples="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config}"
