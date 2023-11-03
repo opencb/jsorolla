@@ -38,7 +38,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     static get properties() {
         return {
-            componentId: {
+            toolId: {
                 type: String,
             },
             opencgaSession: {
@@ -89,7 +89,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: this.componentId,
+            toolId: this.toolId,
             resource: "CLINICAL_ANALYSIS",
             columns: this._getDefaultColumns(),
             create: {
