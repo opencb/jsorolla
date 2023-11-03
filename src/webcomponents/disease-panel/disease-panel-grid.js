@@ -40,6 +40,9 @@ export default class DiseasePanelGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -68,6 +71,7 @@ export default class DiseasePanelGrid extends LitElement {
 
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
@@ -89,7 +93,7 @@ export default class DiseasePanelGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: "DISEASE_PANEL_BROWSER",
+            toolId: this.toolId,
             resource: "DISEASE_PANEL",
             columns: this._getDefaultColumns(),
             create: {
