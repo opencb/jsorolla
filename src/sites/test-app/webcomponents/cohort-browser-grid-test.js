@@ -58,6 +58,7 @@ class CohortBrowserGridTest extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "cohort-browser";
         this.isLoading = false;
         this.data = [];
         this._config = {};
@@ -93,7 +94,9 @@ class CohortBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this._config = {...this.opencgaSession?.user?.configs?.IVA?.cohortBrowser?.grid};
+        this._config = {
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
+        };
         this.opencgaSessionObserver();
     }
 
@@ -163,6 +166,7 @@ class CohortBrowserGridTest extends LitElement {
                 Catalog Browser Grid (${this.testFile})
             </h2>
             <cohort-grid
+                .toolId="${this.COMPONENT_ID}"
                 .cohorts="${this.cohorts}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"

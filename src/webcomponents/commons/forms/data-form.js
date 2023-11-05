@@ -1006,7 +1006,7 @@ export default class DataForm extends LitElement {
         }
 
         const content = html`
-            <span>
+            <span class="${element.display?.className}" style="${element.display?.style}">
                 ${UtilsNew.renderHTML(this.applyTemplate(element.display.template, data, this._getDefaultValue(element, section), element))}
             </span>
         `;
@@ -1182,7 +1182,7 @@ export default class DataForm extends LitElement {
                                             content = elem.display?.render(this.getValue(elem.field, row));
                                             break;
                                         default:
-                                            content = this.getValue(elem.field, row, elem.defaultValue, elem.format ?? elem.display);
+                                            content = this.getValue(elem.field, row, this._getDefaultValue(element, section), elem.display);
                                     }
 
                                     return html`

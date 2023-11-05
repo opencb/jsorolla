@@ -214,8 +214,8 @@ context("Cohort Browser Grid", () => {
                 });
         });
 
-        it("should hidden columns [Date,Type]",() => {
-            const columns = ["Cohort ID","Date","Type"];
+        it("should hidden columns [Cohort ID,Creation Date]",() => {
+            const columns = ["Cohort ID","Creation Date"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");
 
@@ -301,10 +301,10 @@ context("Cohort Browser Grid", () => {
         });
 
         it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Cohort ID")
+            BrowserTest.getColumnIndexByHeader("Cohort ID");
             cy.get("@indexColumn")
                 .then((indexColumn) => {
-                    const indexRow = 2
+                    const indexRow = 2;
                     // eslint-disable-next-line cypress/unsafe-to-chain-command
                     cy.get(`tbody tr`)
                         .eq(indexRow)
@@ -312,7 +312,7 @@ context("Cohort Browser Grid", () => {
                         .find("td")
                         .eq(indexColumn)
                         .invoke("text")
-                        .as("textRow")
+                        .as("textRow");
                     });
 
             cy.get("@textRow")
@@ -321,7 +321,7 @@ context("Cohort Browser Grid", () => {
                         .invoke("text")
                         .then((text) => {
                             const textTab = text.trim().split(" ");
-                            expect(textRow).to.equal(textTab[1].trim());
+                            expect(textRow.trim()).to.equal(textTab[1].trim());
                         });
                 });
         });

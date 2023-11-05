@@ -20,8 +20,6 @@ import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/file/file-grid.js";
 import "../../../webcomponents/file/file-detail.js";
-// import "../../../webcomponents/file/file-create.js";
-// import "../../../webcomponents/file/file-update.js";
 
 
 class FileBrowserGridTest extends LitElement {
@@ -57,6 +55,7 @@ class FileBrowserGridTest extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "file-browser";
         this.isLoading = false;
         this.data = [];
         this._config = {};
@@ -101,7 +100,9 @@ class FileBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this._config = {...this.opencgaSession?.user?.configs?.IVA?.fileBrowser?.grid};
+        this._config = {
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
+        };
         this.opencgaSessionObserver();
     }
 
@@ -116,6 +117,7 @@ class FileBrowserGridTest extends LitElement {
                 Catalog Browser Grid (${this.testFile})
             </h2>
             <file-grid
+                .toolId="${this.COMPONENT_ID}"
                 .files="${this.files}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"

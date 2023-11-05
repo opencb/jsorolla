@@ -22,7 +22,7 @@ import "../../../webcomponents/individual/individual-grid.js";
 import "../../../webcomponents/individual/individual-detail.js";
 import "../../../webcomponents/individual/individual-view.js";
 import "../../../webcomponents/commons/json-viewer.js";
-import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils";
+import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils.js";
 import "../../../webcomponents/individual/individual-update.js";
 import "../../../webcomponents/individual/individual-create.js";
 
@@ -58,6 +58,7 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "individual-browser";
         this._ready = false;
         this.FILES = [
             "individuals-platinum.json",
@@ -65,27 +66,7 @@ class IndividualBrowserGridTest extends LitElement {
         this._data = [];
         this._selectedInstance = {};
 
-        this.configGrid = {
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            multiSelection: false,
-            showSelectCheckbox: false,
-            // FIXME: temporarily moved here
-            showColumns: false, // To clean-up?
-            showDownload: false, // To clean-up?
-            showExport: true,
-            showSettings: true,
-            showNew: true,
-            showCreate: true,
-            // FIXME\
-            toolbar: {
-                showColumns: true,
-                showDownload: false,
-                showExport: false,
-                showSettings: false,
-                exportTabs: ["download", "link", "code"]
-            },
-        };
+        this._config = {};
     }
 
     update(changedProperties) {
@@ -102,7 +83,7 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     propertyObserver() {
-        if (this.opencgaSession?.cellbaseClient && this.testDataVersion) {
+        if (this.opencgaSession && this.testDataVersion) {
 
             const promises = this.FILES.map(file => {
                 return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
@@ -126,8 +107,11 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this.configGrid = {...this.configGrid, ...this.opencgaSession?.user?.configs?.IVA?.individualBrowser?.grid};
-        this.propertyObserver();
+        this._config = {
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
+        };
+        // this.propertyObserver();
+        this.requestUpdate();
     }
 
     getDefaultTabsConfig() {
@@ -181,9 +165,10 @@ class IndividualBrowserGridTest extends LitElement {
                     Individual Browser Grid (${this.FILES[0]})
                 </h2>
                 <individual-grid
+                    .toolId="${this.COMPONENT_ID}"
                     .individuals="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
-                    .config="${this.configGrid}"
+                    .config="${this._config}"
                     @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${this.selectInstance}">
                 </individual-grid>

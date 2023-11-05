@@ -247,7 +247,7 @@ export default class FamilyView extends LitElement {
                             type: "list",
                             display: {
                                 contentLayout: "vertical",
-                                render: disorder => CatalogGridFormatter.disorderFormatter(disorder),
+                                format: disorder => CatalogGridFormatter.disorderFormatter(disorder),
                                 defaultValue: "N/A"
                             }
                         },
@@ -295,7 +295,8 @@ export default class FamilyView extends LitElement {
                 {
                     title: "Family Members",
                     display: {
-                        visible: family => family?.id
+                        visible: family => family?.id,
+                        defaultValue: "-"
                     },
                     elements: [
                         {
@@ -303,7 +304,6 @@ export default class FamilyView extends LitElement {
                             field: "members",
                             type: "table",
                             display: {
-                                // layout: "horizontal",
                                 defaultValue: "-",
                                 columns: [
                                     {
@@ -339,8 +339,7 @@ export default class FamilyView extends LitElement {
                                         type: "list",
                                         // formatter: values => values?.length ? `${values.map(d => d.id).join(", ")}` : "-",
                                         display: {
-                                            defaultValue: "-",
-                                            format: disorder => CatalogGridFormatter.disorderFormatter(disorder)
+                                            format: disorder => CatalogGridFormatter.disorderFormatter([disorder])
                                         }
                                     },
                                     {

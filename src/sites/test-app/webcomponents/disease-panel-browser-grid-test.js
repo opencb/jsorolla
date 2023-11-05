@@ -23,7 +23,7 @@ import "../../../webcomponents/disease-panel/disease-panel-detail.js";
 import "../../../webcomponents/disease-panel/disease-panel-create.js";
 import "../../../webcomponents/disease-panel/disease-panel-update.js";
 
-import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils";
+import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils.js";
 
 
 class DiseasePanelBrowserGridTest extends LitElement {
@@ -53,6 +53,7 @@ class DiseasePanelBrowserGridTest extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "disease-panel-browser";
         this._ready = false;
         this.FILES = [
             "disease-panels-platinum.json",
@@ -60,7 +61,7 @@ class DiseasePanelBrowserGridTest extends LitElement {
         this._data = [];
         this._selectedInstance = {};
 
-        this.configGrid = {
+        this._config = {
             pageSize: 10,
             pageList: [10, 25, 50],
             multiSelection: false,
@@ -90,7 +91,7 @@ class DiseasePanelBrowserGridTest extends LitElement {
     }
 
     propertyObserver() {
-        if (this.opencgaSession?.cellbaseClient && this.testDataVersion) {
+        if (this.opencgaSession && this.testDataVersion) {
             const promises = this.FILES.map(file => {
                 return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
             });
@@ -113,39 +114,12 @@ class DiseasePanelBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this.configGrid = {...this.configGrid, ...this.opencgaSession?.user?.configs?.IVA?.diseasePanelBrowser?.grid};
-        this.propertyObserver();
-    }
-
-
-    getDefaultTabsConfig() {
-        return {
-            title: "Disease Panel",
-            showTitle: true,
-            items: [
-                {
-                    id: "disease-panel-view",
-                    name: "Summary",
-                    active: true,
-                    render: (diseasePanel, _active, opencgaSession) => html`
-                        <disease-panel-summary
-                            .diseasePanel="${diseasePanel}"
-                            .opencgaSession="${opencgaSession}">
-                        </disease-panel-summary>
-                    `,
-                },
-                {
-                    id: "json-view",
-                    name: "JSON Data",
-                    render: (diseasePanel, active) => html`
-                        <json-viewer
-                                .data="${diseasePanel}"
-                                .active="${active}">
-                        </json-viewer>
-                    `,
-                },
-            ]
+        this._config = {
+            ...this._config,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         };
+
+        this.propertyObserver();
     }
 
     mutate() {
@@ -175,9 +149,10 @@ class DiseasePanelBrowserGridTest extends LitElement {
                     Disease Panel Browser Grid (${this.FILES[0]})
                 </h2>
                 <disease-panel-grid
+                    .toolId="${this.COMPONENT_ID}"
                     .diseasePanels="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
-                    .config="${this.configGrid}"
+                    .config="${this._config}"
                     @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${e => this.selectInstance(e)}">
                 </disease-panel-grid>
@@ -188,6 +163,36 @@ class DiseasePanelBrowserGridTest extends LitElement {
                 </disease-panel-detail>
             </div>
         `;
+    }
+
+    getDefaultTabsConfig() {
+        return {
+            title: "Disease Panel",
+            showTitle: true,
+            items: [
+                {
+                    id: "disease-panel-view",
+                    name: "Summary",
+                    active: true,
+                    render: (diseasePanel, _active, opencgaSession) => html`
+                        <disease-panel-summary
+                            .diseasePanel="${diseasePanel}"
+                            .opencgaSession="${opencgaSession}">
+                        </disease-panel-summary>
+                    `,
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (diseasePanel, active) => html`
+                        <json-viewer
+                                .data="${diseasePanel}"
+                                .active="${active}">
+                        </json-viewer>
+                    `,
+                },
+            ]
+        };
     }
 
 }

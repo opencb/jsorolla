@@ -24,6 +24,8 @@ import "../commons/filters/catalog-search-autocomplete.js";
 import "../study/annotationset/annotation-set-view.js";
 import "../loading-spinner.js";
 import PdfBuilder, {stylePdf} from "../../core/pdf-builder.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter";
+
 export default class SampleView extends LitElement {
 
     constructor() {
@@ -281,14 +283,18 @@ export default class SampleView extends LitElement {
                             display: {
                                 // showPDF: false,
                                 contentLayout: "bullets",
-                                render: phenotype => {
-                                    let id = phenotype?.id;
-                                    if (phenotype?.id?.startsWith("HP:")) {
-                                        id = `<a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
-                                        ${phenotype.id}</a>`;
-                                    }
-                                    return phenotype?.name ? `${phenotype.name} (${id})` : `${id}`;
-                                },
+                                // render: phenotype => {
+                                //     let id = phenotype?.id;
+                                //     if (phenotype?.id?.startsWith("HP:")) {
+                                //         id = html`
+                                //             <a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
+                                //                 ${phenotype.id}
+                                //             </a>
+                                //         `;
+                                //     }
+                                //     return phenotype?.name ? html`${phenotype.name} (${id})}` : html`${id}`;
+                                // },
+                                format: phenotype => UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype])),
                             },
                         },
                         /*

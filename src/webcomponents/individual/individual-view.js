@@ -251,7 +251,7 @@ export default class IndividualView extends LitElement {
                             display: {
                                 contentLayout: "vertical",
                                 // render: disorder => CatalogGridFormatter.disorderFormatter(disorder),
-                                format: disorder => CatalogGridFormatter.disorderFormatter(disorder),
+                                format: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
                                 defaultValue: "N/A",
                             },
                         },
@@ -267,19 +267,29 @@ export default class IndividualView extends LitElement {
                                 //     return phenotype;
                                 // }),
                                 // render: phenotype => {
-                                format: phenotype => {
-                                    let id = phenotype.id;
-                                    if (phenotype.id.startsWith("HP:")) {
-                                        id = `
-                                            <a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">
-                                                ${phenotype.id}
-                                            </a>
-                                        `;
-                                    }
-                                    return `${phenotype.name} (${id})`;
-                                },
+                                //     let id = phenotype.id;
+                                //     if (phenotype.id.startsWith("HP:")) {
+                                //         id = html`
+                                //             <a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">
+                                //                 ${phenotype.id}
+                                //             </a>
+                                //         `;
+                                //     }
+                                //     return html`${phenotype.name} (${id})`;
+                                // },
+                                format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
                                 defaultValue: "N/A",
                             },
+                        },
+                        {
+                            title: "Date of Birth",
+                            field: "dateOfBirth",
+                            type: "custom",
+                            display: {
+                                render: dateOfBirth => {
+                                    return dateOfBirth ? moment(dateOfBirth, "YYYYMMDDHHmmss").format("D MMM YYYY") : "-";
+                                }
+                            }
                         },
                         {
                             title: "Life Status",

@@ -44,7 +44,7 @@ export default class Cohort {
 
     info(cohorts, params) {
         if (cohorts === "ALL") {
-            return UtilsNew.importJSONFile(`./test-data/2.11/cohorts-1000G.json`)
+            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/cohorts-1000G.json`)
                 .then(data => ({
                     responses: [{results: [data[0]]}]
                 }));
