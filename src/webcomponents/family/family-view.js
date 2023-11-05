@@ -234,7 +234,7 @@ export default class FamilyView extends LitElement {
                             title: "Family ID",
                             type: "custom",
                             display: {
-                                render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
+                                render: data => `<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
                             }
                         },
                         {
@@ -247,7 +247,7 @@ export default class FamilyView extends LitElement {
                             type: "list",
                             display: {
                                 contentLayout: "vertical",
-                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder)),
+                                render: disorder => CatalogGridFormatter.disorderFormatter(disorder),
                                 defaultValue: "N/A"
                             }
                         },
@@ -256,14 +256,15 @@ export default class FamilyView extends LitElement {
                             field: "phenotypes",
                             type: "list",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("phenotypes"),
-                                contentLayout: "bullets",
-                                render: phenotype => {
+                                visible: !this.settings?.hiddenFields?.includes("phenotypes"),
+                                contentLayout: "vertical",
+                                // render: phenotype => {
+                                format: phenotype => {
                                     let id = phenotype.id;
                                     if (phenotype.id.startsWith("HP:")) {
-                                        id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
+                                        id = `<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
                                     }
-                                    return html`${phenotype.name} (${id})`;
+                                    return `${phenotype.name} (${id})`;
                                 },
                                 defaultValue: "N/A"
                             }
@@ -275,10 +276,11 @@ export default class FamilyView extends LitElement {
                         {
                             title: "Creation Date",
                             field: "creationDate",
-                            type: "custom",
+                            // type: "custom",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("creationDate"),
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
+                                visible: !this.settings?.hiddenFields?.includes("creationDate"),
+                                // render: field => `${UtilsNew.dateFormatter(field)}`,
+                                format: field => `${UtilsNew.dateFormatter(field)}`,
                             }
                         },
                         {
@@ -301,55 +303,77 @@ export default class FamilyView extends LitElement {
                             field: "members",
                             type: "table",
                             display: {
-                                layout: "horizontal",
+                                // layout: "horizontal",
+                                defaultValue: "-",
                                 columns: [
                                     {
                                         title: "Individual ID",
-                                        field: "id"
+                                        field: "id",
+                                        display: {
+                                            style: {
+                                                "font-weight": "bold"
+                                            }
+                                        }
                                     },
                                     {
                                         title: "Sex",
                                         field: "sex",
-                                        formatter: value => value?.id || value || "Not specified",
+                                        // formatter: value => value?.id || value || "Not specified",
+                                        display: {
+                                            format: sex => sex.id
+                                        }
                                     },
                                     {
                                         title: "Father ID",
                                         field: "father.id",
-                                        formatter: value => value ?? "-"
+                                        // formatter: value => value ?? "-"
                                     },
                                     {
                                         title: "Mother ID",
                                         field: "mother.id",
-                                        formatter: value => value ?? "-"
+                                        // formatter: value => value ?? "-"
                                     },
                                     {
                                         title: "Disorders",
                                         field: "disorders",
-                                        formatter: values => values?.length ? `${values.map(d => d.id).join(", ")}` : "-",
+                                        type: "list",
+                                        // formatter: values => values?.length ? `${values.map(d => d.id).join(", ")}` : "-",
+                                        display: {
+                                            defaultValue: "-",
+                                            format: disorder => CatalogGridFormatter.disorderFormatter(disorder)
+                                        }
                                     },
                                     {
                                         title: "Phenotypes",
                                         field: "phenotypes",
-                                        formatter: values => values?.length ? `${values.map(d => d.id).join(", ")}` : "-",
-                                    },
-                                    {
-                                        title: "Life Status",
-                                        field: "lifeStatus",
+                                        type: "list",
+                                        // formatter: values => values?.length ? `${values.map(d => d.id).join(", ")}` : "-",
+                                        display: {
+                                            format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype])
+                                        }
                                     }
                                 ]
                             }
                         },
+                        // {
+                        //     title: "Pedigree",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: () => html`
+                        //             <image-viewer
+                        //                 .data="${this.family?.pedigreeGraph?.base64}">
+                        //             </image-viewer>
+                        //         `,
+                        //     }
+                        // },
                         {
                             title: "Pedigree",
-                            type: "custom",
+                            type: "image",
+                            field: "pedigreeGraph.base64",
                             display: {
-                                render: () => html`
-                                    <image-viewer
-                                        .data="${this.family?.pedigreeGraph?.base64}">
-                                    </image-viewer>
-                                `,
+                                visible: !this.settings?.hiddenFields?.includes("pedigreeGraph.base64"),
                             }
-                        }
+                        },
                     ]
                 }
             ]

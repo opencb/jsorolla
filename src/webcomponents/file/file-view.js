@@ -108,6 +108,7 @@ export default class FileView extends LitElement {
                 .info(this.fileId, params)
                 .then(response => {
                     this.file = response.responses[0].results[0];
+                    // images = await UtilsNew.xyz(aaa)
                 })
                 .catch(reason => {
                     this.file = {};
@@ -209,15 +210,12 @@ export default class FileView extends LitElement {
                             field: "size",
                             type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.getDiskUsage(field)}`
+                                render: field => `${UtilsNew.getDiskUsage(field)}`
                             },
                         },
                         {
-                            title: "Format (Bioformat)",
-                            type: "complex",
-                            display: {
-                                template: "${format} (${bioformat})",
-                            },
+                            title: "Format",
+                            field: "format",
                         },
                         {
                             title: "Tags",
@@ -232,7 +230,7 @@ export default class FileView extends LitElement {
                             field: "creationDate",
                             type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
+                                render: field => `${UtilsNew.dateFormatter(field)}`,
                             },
                         },
                         {
@@ -240,7 +238,7 @@ export default class FileView extends LitElement {
                             field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => field ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-",
+                                render: field => field ? `${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-",
                             },
                         },
                         {
@@ -250,7 +248,7 @@ export default class FileView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => {
-                                    return field?.id ? html`${field.id} (${UtilsNew.dateFormatter(field.date)})` : "-";
+                                    return field?.id ? `${field.id} (${UtilsNew.dateFormatter(field.date)})` : "-";
                                 }
                             },
                         },

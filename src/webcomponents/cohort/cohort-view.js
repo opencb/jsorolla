@@ -271,30 +271,30 @@ export default class CohortView extends LitElement {
                                         id: "sample",
                                         title: "Samples ID",
                                         field: "id",
-                                        width: "*",
-                                        sortable: true,
+                                        // width: "*",
+                                        // sortable: true,
                                     },
                                     {
                                         id: "somatic",
                                         title: "Somatic",
                                         field: "somatic",
-                                        sortable: true,
-                                        width: "*",
+                                        // sortable: true,
+                                        // width: "*",
                                         formatter: value => value ? "true" : "false",
                                     },
                                     {
                                         id: "phenotypes",
                                         title: "Phenotypes",
                                         field: "phenotypes",
-                                        sortable: true,
-                                        width: "*",
+                                        // sortable: true,
+                                        // width: "*",
                                         formatter: (value, row) => {
                                             return row?.phenotypes?.length > 0 ? row.phenotypes.map(d => d.id).join(", ") : "-";
                                         }
                                     }
                                 ],
-                                pagination: true,
-                                search: true,
+                                // pagination: true,
+                                // search: true,
                             },
                         }
                     ],

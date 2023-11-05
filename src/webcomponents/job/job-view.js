@@ -192,7 +192,7 @@ export default class JobView extends LitElement {
                             name: "Status",
                             type: "custom",
                             display: {
-                                render: job => UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job.internal.status, true))
+                                render: job => UtilsNew.jobStatusFormatter(job.internal.status, true)
                             }
                         },
                         {
@@ -205,8 +205,8 @@ export default class JobView extends LitElement {
                             type: "list",
                             display: {
                                 separator: "",
-                                render: tag => {
-                                    return html`<span class="badge badge-pill badge-primary">${tag}</span>`;
+                                format: tag => {
+                                    return `<span class="badge badge-pill badge-primary">${tag}</span>`;
                                 }
                             },
                             defaultValue: "-"
@@ -215,7 +215,7 @@ export default class JobView extends LitElement {
                             name: "Submitted Date",
                             type: "custom",
                             display: {
-                                render: job => html`${UtilsNew.dateFormatter(job.creationDate, "D MMM YYYY, h:mm:ss a")}`
+                                render: job => `${UtilsNew.dateFormatter(job.creationDate, "D MMM YYYY, h:mm:ss a")}`
                             }
                         },
                         {
@@ -237,8 +237,8 @@ export default class JobView extends LitElement {
                                 render: job => {
                                     if (job.execution) {
                                         const start = job.execution.start ? moment(job.execution.start).format("D MMM YYYY, h:mm:ss a") : "-";
-                                        const end = job.execution.end ? html`- ${moment(job.execution.end).format("D MMM YYYY, h:mm:ss a")}` : "-";
-                                        return html`${start} - ${end}`;
+                                        const end = job.execution.end ? `- ${moment(job.execution.end).format("D MMM YYYY, h:mm:ss a")}` : "-";
+                                        return `${start} - ${end}`;
                                     } else {
                                         return "-";
                                     }
@@ -251,18 +251,19 @@ export default class JobView extends LitElement {
                             display: {
                                 render: job => {
                                     if (job.params) {
-                                        return Object.entries(job.params).map(([param, value]) => html`
-                                            <div>
-                                                <label>${param}</label>:
-                                                ${value && typeof value === "object" ? html`
-                                                    <ul>
-                                                        ${Object.keys(value).map(key => html`
-                                                            <li><b>${key}</b>: ${value[key] || "-"}</li>
-                                                        `)}
-                                                    </ul>
-                                                ` : (value || "-")}
-                                            </div>
-                                        `);
+                                        return Object.entries(job.params)
+                                            .map(([param, value]) => `
+                                                <div>
+                                                    <label>${param}</label>:
+                                                    ${value && typeof value === "object" ? `
+                                                        <ul>
+                                                            ${Object.keys(value).map(key => `
+                                                                <li><b>${key}</b>: ${value[key] || "-"}</li>
+                                                            `)}
+                                                        </ul>
+                                                    ` : (value || "-")}
+                                                </div>
+                                            `);
                                     } else {
                                         return "-";
                                     }
@@ -291,7 +292,7 @@ export default class JobView extends LitElement {
                                     // CAUTION: Temporary patch for managing outputFiles array of nulls.
                                     //  See details in: https://app.clickup.com/t/36631768/TASK-1704
                                     if (job.output.length > 0 && job.output.every(jobOut => jobOut === null)) {
-                                        return html`
+                                        return `
                                             <div class="alert alert-danger" role="alert">
                                                 <i class="fas fa-1x fa-exclamation-circle align-middle">
                                                     The output files are not accessible at the moment. We are working on fixing this issue.
@@ -312,26 +313,28 @@ export default class JobView extends LitElement {
                                         return "No output files yet";
                                     }
 
-                                    return html`${outputFiles.map(file => {
-                                        const url = [
-                                            this.opencgaSession.server.host,
-                                            "/webservices/rest/",
-                                            this.opencgaSession.server.version,
-                                            "/files/",
-                                            file.id,
-                                            "/download?study=",
-                                            this.opencgaSession.study.fqn,
-                                            "&sid=",
-                                            this.opencgaSession.token,
-                                        ];
-                                        return html`
+                                    return `${outputFiles
+                                        .map(file => {
+                                            const url = [
+                                                this.opencgaSession.server.host,
+                                                "/webservices/rest/",
+                                                this.opencgaSession.server.version,
+                                                "/files/",
+                                                file.id,
+                                                "/download?study=",
+                                                this.opencgaSession.study.fqn,
+                                                "&sid=",
+                                                this.opencgaSession.token,
+                                            ];
+                                            return `
                                             <div>
                                                 <span style="margin-right: 10px">${file.name} ${file.size > 0 ? `(${UtilsNew.getDiskUsage(file.size)})` : ""}</span>
                                                 <a href="${url.join("")}" target="_blank">
                                                     <i class="fas fa-download icon-padding"></i>
                                                 </a>
                                             </div>`;
-                                    })}`;
+                                        })
+                                        .join("")}`;
                                 },
                             },
                         },
@@ -387,7 +390,6 @@ export default class JobView extends LitElement {
                                         field: "internal.status.name"
                                     }
                                 ],
-                                border: true,
                             },
                         },
                     ],
