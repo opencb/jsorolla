@@ -335,7 +335,7 @@ class IndividualBrowserGridTest extends LitElement {
                     {
                         id: "json-view",
                         name: "JSON Data",
-                        render: (individual, active, opencgaSession) => html`
+                        render: (individual, active) => html`
                             <json-viewer
                                 .data="${individual}"
                                 .active="${active}">
