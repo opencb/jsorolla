@@ -669,8 +669,8 @@ class TestApp extends LitElement {
                     <div class="content" id="file-browser-grid">
                         <file-browser-grid-test
                             testFile="files-chinese"
-                            testDataVersion="${this.testDataVersion || ""}"
-                            .opencgaSession="${this.opencgaSession || {}}"
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
                         </file-browser-grid-test>
                     </div>
@@ -680,7 +680,7 @@ class TestApp extends LitElement {
                     <div class="content" id="individual-browser-grid">
                         <individual-browser-grid-test
                             testFile="individuals-platinum"
-                            testDataVersion="${this.testDataVersion || ""}"
+                            testDataVersion="${this.testDataVersion}"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
                         </individual-browser-grid-test>
@@ -691,8 +691,8 @@ class TestApp extends LitElement {
                     <div class="content" id="family-browser-grid">
                         <family-browser-grid-test
                             testFile="families-platinum"
-                            testDataVersion="${this.testDataVersion || ""}"
-                            .opencgaSession="${this.opencgaSession || {}}"
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
                         </family-browser-grid-test>
                     </div>
@@ -702,8 +702,8 @@ class TestApp extends LitElement {
                     <div class="content" id="cohort-browser-grid">
                         <cohort-browser-grid-test
                             testFile="cohorts-1000G"
-                            testDataVersion="${this.testDataVersion || ""}"
-                            .opencgaSession="${this.opencgaSession || {}}"
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
                         </cohort-browser-grid-test>
                     </div>
@@ -724,8 +724,8 @@ class TestApp extends LitElement {
                     <div class="content" id="job-browser-grid">
                         <job-browser-grid-test
                             testFile="job-1000G"
-                            testDataVersion="${this.testDataVersion || ""}"
-                            .opencgaSession="${this.opencgaSession || {}}"
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
                         </job-browser-grid-test>
                     </div>
@@ -735,8 +735,8 @@ class TestApp extends LitElement {
                     <div class="content" id="disease-panel-browser-grid">
                         <disease-panel-browser-grid-test
                             testFile="disease-panels-platinum"
-                            testDataVersion="${this.testDataVersion || ""}"
-                            .opencgaSession="${this.opencgaSession || {}}"
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
                         </disease-panel-browser-grid-test>
                     </div>
