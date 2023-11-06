@@ -17,7 +17,6 @@
 
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/file/file-grid.js";
 import "../../../webcomponents/file/file-detail.js";
 
@@ -35,101 +34,101 @@ class FileBrowserGridTest extends LitElement {
 
     static get properties() {
         return {
-            testFile: {
-                type: String
-            },
             opencgaSession: {
                 type: Object
             },
             testDataVersion: {
                 type: String
             },
-            config: {
-                type: Object
-            },
-            _selectRow: {
-                type: Object,
-                state: true
-            },
         };
     }
 
     #init() {
         this.COMPONENT_ID = "file-browser";
-        this.isLoading = false;
-        this.data = [];
-        this._config = {};
-    }
-
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
+        this.FILES = [
+            "files-chinese.json",
+        ];
+        this._data = null;
+        this._selectedRow = null;
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("testFile") &&
-            changedProperties.has("testDataVersion") &&
-            changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("testDataVersion") || changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+
         super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
-        this.#setLoading(true);
-        UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testFile}.json`)
-            .then(content => {
-                this.files = content;
-                this.mutate();
-            })
-            .catch(err => {
-                console.log(err);
-            })
-            .finally(() => {
-                this.#setLoading(false);
+        if (this.opencgaSession && this.testDataVersion) {
+            const allPromises = this.FILES.map(file => {
+                return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
             });
-    }
 
+            Promise.all(allPromises)
+                .then(data => {
+                    this._data = data[0];
+                    this._selectedRow = this._data[0];
+                    this.mutate();
+                    this.requestUpdate();
+                })
+                .catch(err => {
+                    console.error(err);
+                });
+        }
+    }
 
     mutate() {
         return null;
     }
 
-    selectRow(e) {
-        this._selectRow = {...e.detail.row};
+    onSelectRow(e) {
+        this._selectedRow = e.detail.row;
+        this.requestUpdate();
     }
 
     onSettingsUpdate() {
-        this._config = {
+        this._config.grid = {
+            ...this._config.grid,
             ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         };
-        this.opencgaSessionObserver();
+        this.requestUpdate();
     }
 
-
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+        if (!this._data) {
+            return "Loading...";
         }
 
         return html`
-            <h2 style="font-weight: bold;">
-                Catalog Browser Grid (${this.testFile})
-            </h2>
-            <file-grid
-                .toolId="${this.COMPONENT_ID}"
-                .files="${this.files}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}"
-                @settingsUpdate="${() => this.onSettingsUpdate()}"
-                @selectrow="${e => this.selectRow(e)}">
-            </file-grid>
-            <file-detail
-                .file="${this._selectRow}"
-                .opencgaSession="${this.opencgaSession}">
-            </file-detail>
-
+            <div data-cy="file-browser">
+                <h2 style="font-weight: bold;">
+                    File Browser (${this.FILES[0]})
+                </h2>
+                <file-grid
+                    .toolId="${this.COMPONENT_ID}"
+                    .files="${this._data}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config.grid}"
+                    @settingsUpdate="${() => this.onSettingsUpdate()}"
+                    @selectrow="${e => this.onSelectRow(e)}">
+                </file-grid>
+                <file-detail
+                    .file="${this._selectedRow}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config.detail}">
+                </file-detail>
+            </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            grid: {},
+            detail: {},
+        };
     }
 
 }
