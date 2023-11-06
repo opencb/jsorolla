@@ -106,22 +106,24 @@ class CohortBrowserGridTest extends LitElement {
         }
 
         return html`
-            <h2 style="font-weight: bold;">
-                Catalog Browser Grid (${this.FILES[0]})
-            </h2>
-            <cohort-grid
-                .toolId="${this.COMPONENT_ID}"
-                .cohorts="${this._data}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config.grid}"
-                @settingsUpdate="${() => this.onSettingsUpdate()}"
-                @selectrow="${e => this.onSelectRow(e)}">
-            </cohort-grid>
-            <cohort-detail
-                .cohort="${this._selectedRow}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config.detail}">
-            </cohort-detail>
+            <div data-cy="cohort-browser">
+                <h2 style="font-weight: bold;">
+                    Cohort Browser Grid (${this.FILES[0]})
+                </h2>
+                <cohort-grid
+                    .toolId="${this.COMPONENT_ID}"
+                    .cohorts="${this._data}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config.grid}"
+                    @settingsUpdate="${() => this.onSettingsUpdate()}"
+                    @selectrow="${e => this.onSelectRow(e)}">
+                </cohort-grid>
+                <cohort-detail
+                    .cohort="${this._selectedRow}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config.detail}">
+                </cohort-detail>
+            </div>
         `;
     }
 

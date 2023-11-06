@@ -105,7 +105,7 @@ class JobBrowserGridTest extends LitElement {
         return html`
             <div data-cy="job-browser">
                 <h2 style="font-weight: bold;">
-                    Job Browser (${this.FILES[0]})
+                    Job Browser Grid (${this.FILES[0]})
                 </h2>
                 <job-grid
                     .toolId="${this.COMPONENT_ID}"

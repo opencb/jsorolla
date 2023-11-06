@@ -105,7 +105,7 @@ class FileBrowserGridTest extends LitElement {
         return html`
             <div data-cy="file-browser">
                 <h2 style="font-weight: bold;">
-                    File Browser (${this.FILES[0]})
+                    File Browser Grid (${this.FILES[0]})
                 </h2>
                 <file-grid
                     .toolId="${this.COMPONENT_ID}"

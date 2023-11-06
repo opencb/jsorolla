@@ -108,7 +108,7 @@ class FamilyBrowserGridTest extends LitElement {
         return html`
             <div data-cy="family-browser">
                 <h2 style="font-weight: bold;">
-                    Catalog Browser Grid (${this.FILES[0]})
+                    Family Browser Grid (${this.FILES[0]})
                 </h2>
                 <family-grid
                     .toolId="${this.COMPONENT_ID}"
