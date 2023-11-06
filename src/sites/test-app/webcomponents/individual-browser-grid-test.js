@@ -17,7 +17,6 @@
 
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/individual/individual-grid.js";
 import "../../../webcomponents/individual/individual-detail.js";
 import "../../../webcomponents/individual/individual-view.js";
@@ -54,17 +53,10 @@ class IndividualBrowserGridTest extends LitElement {
         this.FILES = [
             "individuals-platinum.json",
         ];
-        this._data = [];
+        this._data = null;
         this._selectedInstance = {};
 
         this._config = {};
-        this.isLoading = false;
-
-    }
-
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
     }
 
     update(changedProperties) {
@@ -81,7 +73,6 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     propertyObserver() {
-        this.#setLoading(true);
         if (this.opencgaSession && this.testDataVersion) {
             const promises = this.FILES.map(file => {
                 return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
@@ -98,8 +89,6 @@ class IndividualBrowserGridTest extends LitElement {
                 })
                 .catch(error => {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-                }).finally(() => {
-                    this.#setLoading(false);
                 });
         }
     }
@@ -322,6 +311,7 @@ class IndividualBrowserGridTest extends LitElement {
                 position: 7,
                 variableSetId: "risk_assessment",
                 variables: ["date_risk_assessment"]
+
             }
         ];
 
@@ -333,8 +323,8 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+        if (!this._data) {
+            return html`Processing`;
         }
 
         return html`
