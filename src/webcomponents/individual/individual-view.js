@@ -178,6 +178,30 @@ export default class IndividualView extends LitElement {
                     collapsed: false,
                     display: {
                         visible: individual => individual?.id,
+                        // layout: [
+                        //     {
+                        //         id: "name",
+                        //         className: ""
+                        //     },
+                        //     {
+                        //         id: "",
+                        //         className: "row",
+                        //         elements: [
+                        //             {
+                        //                 id: "father",
+                        //                 className: "col-md-6"
+                        //             },
+                        //             {
+                        //                 id: "mother",
+                        //                 className: "col-md-6"
+                        //             }
+                        //         ]
+                        //     },
+                        //     {
+                        //         id: "sex",
+                        //         className: ""
+                        //     },
+                        // ]
                     },
                     elements: [
                         {
@@ -200,20 +224,24 @@ export default class IndividualView extends LitElement {
                             },
                         },
                         {
+                            id: "name",
                             title: "Name",
                             field: "name",
                         },
                         {
+                            id: "father",
                             title: "Father ID",
                             field: "father.id",
                             // type: "basic",
                         },
                         {
+                            id: "mother",
                             title: "Mother ID",
                             field: "mother.id",
                             // type: "basic",
                         },
                         {
+                            id: "sex",
                             title: "Reported Sex (Karyotypic)",
                             // type: "custom",
                             type: "complex",

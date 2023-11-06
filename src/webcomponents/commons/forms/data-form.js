@@ -31,7 +31,7 @@ import "../data-table.js";
 
 export default class DataForm extends LitElement {
 
-    static re = /(?<arrayFieldName>[a-zA-Z.]+)\[\].(?<index>[0-9]+).(?<field>[a-zA-Z.]+)/;
+    static ARRAY_FIELD_REGULAR_EXPRESSION = /(?<arrayFieldName>[a-zA-Z.]+)\[\].(?<index>[0-9]+).(?<field>[a-zA-Z.]+)/;
 
     static NOTIFICATION_TYPES = {
         error: "alert alert-danger",
@@ -133,15 +133,16 @@ export default class DataForm extends LitElement {
             // Check if 'format' exists
             if (value && display?.format) {
                 // check if response is actually an HTML
-                value = UtilsNew.renderHTML(display.format(value));
+                // value = UtilsNew.renderHTML(display.format(value));
+                value = display.format(value);
             }
 
             // Needed for handling falsy values
             if (value !== undefined && value !== "") {
                 if (display) {
-                    if (display.classes || display.style) {
+                    if (display.className || display.classes || display.style) {
                         const style = this._parseStyleField(display.style);
-                        value = html`<span class="${display.classes}" style="${style}">${value}</span>`;
+                        value = html`<span class="${display.className || display.classes}" style="${style}">${value}</span>`;
                     }
                     if (display.link) {
                         value = html`<a href="${display.link.replace(field.toUpperCase(), value)}" target="_blank">${value}</a>`;
@@ -234,15 +235,17 @@ export default class DataForm extends LitElement {
         return element?.display?.defaultValue ?? section?.display?.defaultValue ?? this.config?.display?.defaultValue ?? "";
     }
 
-    _getErrorMessage(element, section) {
-        const text = element?.display?.errorMessage ?? section?.display?.errorMessage ?? this.config?.display?.errorMessage ?? "Error: No valid data found";
-        return html`<div><em>${text}</em></div>`;
+    _getDefaultErrorMessage(element, section) {
+        // const text = element?.display?.errorMessage ?? section?.display?.errorMessage ?? this.config?.display?.errorMessage ?? "Error: No valid data found";
+        // return html`<div><em>${text}</em></div>`;
+        return element?.display?.errorMessage ?? section?.display?.errorMessage ?? this.config?.display?.errorMessage ?? "Error: No valid data found";
     }
 
     /**
      * Check if visible field is defined and not null, be careful since 'visible' can be a 'boolean' or a 'function'.
      * @param value
      * @param defaultValue
+     * @param element
      * @returns {boolean} Default value is 'true' so it is visible.
      * @private
      */
@@ -255,7 +258,7 @@ export default class DataForm extends LitElement {
                 if (typeof value === "function") {
                     // example: phenotypes[].1.description
                     if (element?.field?.includes("[].")) {
-                        const match = element.field.match(DataForm.re);
+                        const match = element.field.match(DataForm.ARRAY_FIELD_REGULAR_EXPRESSION);
                         if (match) {
                             const itemArray = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
                             _value = value(this.data, itemArray);
@@ -273,12 +276,16 @@ export default class DataForm extends LitElement {
         return _value;
     }
 
-    _getWidth(element) {
-        return element?.display?.width ?? this.config?.display?.defaultWidth ?? null;
-    }
-
     _getSectionWidth(section) {
         return section?.display?.width ?? this.config?.display?.width ?? 12;
+    }
+
+    _getDefaultLayout(element, section) {
+        return element?.display?.defaultLayout ?? section?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
+    }
+
+    _getElementWidth(element, section) {
+        return element?.display?.width ?? section?.display?.width ?? this.config?.display?.width ?? null;
     }
 
     _getElementTitleWidth(element, section) {
@@ -328,10 +335,6 @@ export default class DataForm extends LitElement {
         return element?.display?.errorIcon ?? section?.display?.errorIcon ?? this.config?.display?.errorIcon ?? "fas fa-times-circle";
     }
 
-    _getDefaultLayout(element, section) {
-        return element?.display?.defaultLayout ?? section?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
-    }
-
     _getVisibleSections() {
         return this.config.sections
             .filter(section => section.elements[0].type !== "notification" || section.elements.length > 1)
@@ -347,7 +350,7 @@ export default class DataForm extends LitElement {
             } else {
                 // 2. Check if field is part of a new ADDED object-list, example:  'phenotypes[].1'  (no fields)
                 if (element.field.includes("[]")) {
-                    const match = element.field.match(DataForm.re);
+                    const match = element.field.match(DataForm.ARRAY_FIELD_REGULAR_EXPRESSION);
                     return !!this.updateParams[match?.groups?.arrayFieldName + "[]." + match?.groups?.index]?.after?.[match?.groups?.field];
                 } else {
                     // 3. To display object-list root elements check if the prefix exists, example: 'phenotypes'
@@ -395,7 +398,7 @@ export default class DataForm extends LitElement {
             // When an object-list, get the item being validated.
             let item;
             if (element.field.includes("[]")) {
-                const match = element.field.match(DataForm.re);
+                const match = element.field.match(DataForm.ARRAY_FIELD_REGULAR_EXPRESSION);
                 if (match) {
                     item = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
                 }
@@ -416,7 +419,7 @@ export default class DataForm extends LitElement {
     renderData() {
         // WARNING: display.classes is deprecated, use display.className instead
         const className = this.config?.display?.className ?? this.config?.display?.classes ?? "";
-        const style = this.config?.display?.style ?? "";
+        const style = this._parseStyleField(this.config?.display?.style);
         const layout = this.config?.display?.defaultLayout || "";
         const layoutClassName = (layout === "horizontal") ? "form-horizontal" : "";
 
@@ -426,44 +429,54 @@ export default class DataForm extends LitElement {
             // Render all sections but display only active section
             return html`
                 <div class="${layoutClassName} ${className}" style="${style}">
-                    ${this._getVisibleSections().map((section, index) => html`
-                        <div style="display:${this.activeSection === index ? "block": "none"}">
-                            ${this._createSection(section)}
-                        </div>
-                    `)}
+                    ${this._getVisibleSections()
+                        .map((section, index) => html`
+                            <div style="display:${this.activeSection === index ? "block": "none"}">
+                                ${this._createSection(section)}
+                            </div>
+                        `)}
                 </div>
             `;
         } else {
+            // Check if a custom layout has been provided. We render each section in the right layout region
             if (this.config?.display?.layout && Array.isArray(this.config.display.layout)) {
                 // Render with a specific layout
                 return html`
                     <div class="${className}" style="${style}">
-                        ${this.config?.display.layout.map(section => {
-                            const sectionClassName = section.className ?? section.classes ?? "";
-                            const sectionStyle = section.style ?? "";
+                        ${this.config?.display.layout
+                            .map(section => {
+                                const sectionClassName = section.className ?? section.classes ?? "";
+                                const sectionStyle = section.style ?? "";
 
-                            if (section.id) {
-                                return html`
-                                    <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
-                                        ${this._createSection(this.config.sections.find(s => s.id === section.id))}
-                                    </div>
-                                `;
-                            } else {
-                                return html`
-                                    <div class="${sectionClassName}" style="${sectionStyle}">
-                                        ${(section.sections || []).map(subsection => {
-                                            const subsectionClassName = subsection.className ?? subsection.classes ?? "";
-                                            const subsectionStyle = subsection.style ?? "";
-                                            return subsection.id && html`
-                                                <div class="${layoutClassName} ${subsectionClassName}" style="${subsectionStyle}">
-                                                    ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
-                                                </div>
-                                            `;
-                                        })}
-                                    </div>
-                                `;
-                            }
-                        })}
+                                if (section.id) {
+                                    return html`
+                                        <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
+                                            ${this._createSection(this.config.sections.find(s => s.id === section.id))}
+                                        </div>
+                                    `;
+                                } else {
+                                    // this section contains nested subsections: 'sections'
+                                    return html`
+                                        <div class="${sectionClassName}" style="${sectionStyle}">
+                                            ${(section.sections || [])
+                                                .map(subsection => {
+                                                    const subsectionClassName = subsection.className ?? subsection.classes ?? "";
+                                                    const subsectionStyle = this._parseStyleField(subsection.style);
+                                                    if (subsection.id) {
+                                                        return html`
+                                                            <div class="${layoutClassName} ${subsectionClassName}" style="${subsectionStyle}">
+                                                                ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
+                                                            </div>
+                                                        `;
+                                                    } else {
+                                                        return nothing;
+                                                    }
+                                                })
+                                            }
+                                        </div>
+                                    `;
+                                }
+                            })}
                     </div>
                 `;
             } else {
@@ -495,10 +508,61 @@ export default class DataForm extends LitElement {
 
         // Section description values
         const description = section.description ?? section.text ?? null;
-        const descriptionClassName = section.display?.descriptionClassName ?? section.display?.textClass ?? "";
+        const descriptionClassName = section.display?.descriptionClassName ?? "help-block";
         const descriptionStyle = section.display?.descriptionStyle ?? section.display?.textStyle ?? "";
 
-        const buttonsSectionVisible = this._getBooleanValue(section.display?.buttonsVisible ?? false);
+        const buttonsVisible = this._getBooleanValue(section.display?.buttonsVisible ?? false);
+
+        let content;
+        // Check if a custom layout has been provided
+        if (section.display?.layout && Array.isArray(section.display.layout)) {
+            // Render with a specific layout
+            content = html`
+                <div class="${sectionClassName}" style="${sectionStyle}">
+                    ${section.display.layout
+                        .map(element => {
+                            const elementClassName = element.className ?? element.classes ?? "";
+                            const elementStyle = element.style ?? "";
+
+                            if (element.id) {
+                                return html`
+                                    <div class="${elementClassName}" style="${elementStyle}">
+                                        ${this._createElement(section.elements.find(s => s.id === element.id))}
+                                    </div>
+                                `;
+                            } else {
+                                // this section contains nested subsections: 'sections'
+                                return html`
+                                    <div class="${elementClassName}" style="${elementStyle}">
+                                        ${(element.elements || [])
+                                            .map(subelement => {
+                                                const subsectionClassName = subelement.className ?? subelement.classes ?? "";
+                                                const subsectionStyle = this._parseStyleField(subelement.style);
+                                                if (subelement.id) {
+                                                    return html`
+                                                        <div class="${subsectionClassName}" style="${subsectionStyle}">
+                                                            ${this._createElement(section.elements.find(s => s.id === subelement.id))}
+                                                        </div>
+                                                    `;
+                                                } else {
+                                                    return nothing;
+                                                }
+                                            })
+                                        }
+                                    </div>
+                                `;
+                            }
+                        })}
+                </div>
+            `;
+        } else {
+            // Otherwise render vertically
+            content = html`
+                <div class="${sectionClassName}" style="${sectionStyle}">
+                    ${section.elements.map(element => this._createElement(element, section))}
+                </div>
+            `;
+        }
 
         return html`
             <div class="row" style="margin-bottom: 12px;">
@@ -515,12 +579,10 @@ export default class DataForm extends LitElement {
                             </div>
                         </div>
                     ` : null}
-                    <div class="${sectionClassName}" style="${sectionStyle}">
-                        ${section.elements.map(element => this._createElement(element, section))}
-                    </div>
+                    ${content}
                 </div>
             </div>
-            ${buttonsSectionVisible ? this.renderButtons(null, section?.id) : null}
+            ${buttonsVisible ? this.renderButtons(null, section?.id) : null}
         `;
     }
 
@@ -618,15 +680,14 @@ export default class DataForm extends LitElement {
             }
         }
 
-        // Only nested in 'object' and 'object-list', in these cases we do not want to create
-        // the rest of the HTML
+        // Only nested in 'object' and 'object-list', in these cases we do not want to create the rest of the HTML
         if (element?.display?.nested) {
             return content;
         }
 
         // Initialize element values
         const layout = this._getDefaultLayout(element, section);
-        const width = this._getWidth(element) || 12;
+        const width = this._getElementWidth(element, section) || 12;
 
         // Initialize container values
         const elementContainerClassName = element.display?.containerClassName ?? "";
@@ -832,6 +893,7 @@ export default class DataForm extends LitElement {
         // TODO to be fixed.
         if (element.field === "FILTER") {
             value = value === "PASS";
+            // eslint-disable-next-line no-param-reassign
             element.text = "Include only PASS variants";
         }
 
@@ -946,7 +1008,7 @@ export default class DataForm extends LitElement {
                     if (typeof element.allowedValues === "function") {
                         let item;
                         if (element.field?.includes("[]")) {
-                            const match = element.field.match(DataForm.re);
+                            const match = element.field.match(DataForm.ARRAY_FIELD_REGULAR_EXPRESSION);
                             if (match) {
                                 item = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
                             }
@@ -1099,13 +1161,13 @@ export default class DataForm extends LitElement {
 
     _createTableElement(element, section) {
         // Get valid parameters
-        let array = this.getValue(element.field, null, element.defaultValue);
+        let array = this.getValue(element.field);
         const tableClassName = element.display?.className || "";
         const tableStyle = this._parseStyleField(element.display?.style) || "";
         const headerClassName = element.display?.headerClassName || "";
         const headerStyle = this._parseStyleField(element.display?.headerStyle) || "";
         const headerVisible = this._getBooleanValue(element.display?.headerVisible, true);
-        const errorMessage = this._getErrorMessage(element);
+        const errorMessage = this._getDefaultErrorMessage(element, section);
         const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
 
         // 1. Check field exists, and it is an array. Also, check 'columns' is defined
@@ -1267,7 +1329,7 @@ export default class DataForm extends LitElement {
             `;
             return this._createElementTemplate(element, null, content);
         } else {
-            const message = this._getErrorMessage(element);
+            const message = this._getDefaultErrorMessage(element);
             const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
             return this._createElementTemplate(element, null, null, {
                 message: message,
@@ -1357,7 +1419,7 @@ export default class DataForm extends LitElement {
         // When an object-list, get the item being validated.
         let item;
         if (element.field?.includes("[]")) {
-            const match = element.field.match(DataForm.re);
+            const match = element.field.match(DataForm.ARRAY_FIELD_REGULAR_EXPRESSION);
             if (match) {
                 item = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
             }
@@ -1372,7 +1434,7 @@ export default class DataForm extends LitElement {
         if (content) {
             return this._createElementTemplate(element, data, content);
         } else {
-            const message = this._getErrorMessage(element);
+            const message = this._getDefaultErrorMessage(element);
             const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
             return this._createElementTemplate(element, null, null, {
                 message: message,
@@ -1703,7 +1765,7 @@ export default class DataForm extends LitElement {
         if (typeof element.save === "function") {
             let currentValue;
             if (element.field.includes("[]")) {
-                const match = element.field.match(DataForm.re);
+                const match = element.field.match(DataForm.ARRAY_FIELD_REGULAR_EXPRESSION);
                 if (match) {
                     currentValue = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
                 }
