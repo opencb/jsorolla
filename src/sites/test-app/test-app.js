@@ -713,8 +713,8 @@ class TestApp extends LitElement {
                     <div class="content" id="sample-browser-grid">
                         <sample-browser-grid-test
                             testFile="samples-platinum"
-                            testDataVersion="${this.testDataVersion || ""}"
-                            .opencgaSession="${this.opencgaSession || {}}"
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
                         </sample-browser-grid-test>
                     </div>
