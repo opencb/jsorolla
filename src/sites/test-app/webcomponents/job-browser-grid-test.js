@@ -17,7 +17,6 @@
 
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/job/job-grid.js";
 import "../../../webcomponents/job/job-detail.js";
 
@@ -35,96 +34,101 @@ class JobBrowserGridTest extends LitElement {
 
     static get properties() {
         return {
-            testFile: {
-                type: String
-            },
             opencgaSession: {
                 type: Object
             },
             testDataVersion: {
                 type: String
             },
-            config: {
-                type: Object
-            },
-            _selectRow: {
-                type: Object,
-                state: true
-            },
         };
     }
 
     #init() {
         this.COMPONENT_ID = "job-browser";
-        this.isLoading = false;
-        this.data = [];
-        this._config = {};
-    }
-
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
+        this.FILES = [
+            "job-1000G.json",
+        ];
+        this._data = null;
+        this._selectedRow = null;
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("testFile") &&
-            changedProperties.has("testDataVersion") &&
-            changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("testDataVersion") || changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+
         super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
-        this.#setLoading(true);
-        UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testFile}.json`)
-            .then(content => {
-                this.jobs = content;
-                this.mutate();
-            })
-            .catch(err => {
-                console.log(err);
-            })
-            .finally(() => {
-                this.#setLoading(false);
+        if (this.opencgaSession && this.testDataVersion) {
+            const allPromises = this.FILES.map(file => {
+                return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
             });
+
+            Promise.all(allPromises)
+                .then(data => {
+                    this._data = data[0];
+                    this._selectedRow = this._data[0];
+                    this.mutate();
+                    this.requestUpdate();
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        }
     }
 
     mutate() {
         return null;
     }
 
-    selectRow(e) {
-        this._selectRow = {...e.detail.row};
+    onSelectRow(e) {
+        this._selectedRow = e.detail.row;
+        this.requestUpdate();
     }
 
     onSettingsUpdate() {
-        this._config = {...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid};
-        this.opencgaSessionObserver();
+        this._config.grid = {
+            ...this._config.grid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
+        };
+        this.requestUpdate();
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+        if (!this._data) {
+            return "Loading...";
         }
 
         return html`
-            <h2 style="font-weight: bold;">
-                Catalog Browser Grid (${this.testFile})
-            </h2>
-            <job-grid
-                .toolId="${this.COMPONENT_ID}"
-                .jobs="${this.jobs}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}"
-                @settingsUpdate="${() => this.onSettingsUpdate()}"
-                @selectrow="${e => this.selectRow(e)}">
-            </job-grid>
-            <job-detail
-                .job="${this._selectRow}"
-                .opencgaSession="${this.opencgaSession}">
-            </job-detail>
+            <div data-cy="job-browser">
+                <h2 style="font-weight: bold;">
+                    Job Browser (${this.FILES[0]})
+                </h2>
+                <job-grid
+                    .toolId="${this.COMPONENT_ID}"
+                    .jobs="${this._data}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config.grid}"
+                    @settingsUpdate="${() => this.onSettingsUpdate()}"
+                    @selectrow="${e => this.onSelectRow(e)}">
+                </job-grid>
+                <job-detail
+                    .job="${this._selectedRow}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config.detail}">
+                </job-detail>
+            </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            grid: {},
+            detail: {},
+        };
     }
 
 }
