@@ -171,6 +171,7 @@ context("Individual Browser Grid", () => {
         });
     });
 
+    // MODAL SETTINGS
     context("Modal Setting", () => {
 
         it("should move modal setting", () => {
@@ -289,6 +290,7 @@ context("Individual Browser Grid", () => {
             });
         });
 
+        // 2. Data completeness in the grid
         context("data completeness", () => {
             let creationDateIndex = null;
 
@@ -343,6 +345,7 @@ context("Individual Browser Grid", () => {
 
         });
 
+        // 3. Data format
         context("data format", () => {
             beforeEach(() => {
                 cy.get("@grid")
@@ -352,6 +355,7 @@ context("Individual Browser Grid", () => {
 
         });
 
+        // 4. Extensions
         context("extension", () => {
             it("should display 'Extra Column' column", () => {
                 cy.get("thead th")
@@ -360,8 +364,67 @@ context("Individual Browser Grid", () => {
             });
         });
 
+        // 5. Annotations
+        context("annotations", () => {
+            const annotations = [
+                {
+                    title: "Cardiology Tests",
+                    position: 6,
+                    variables: ["ecg_test", "echo_test"]
+                },
+                {
+                    title: "Risk Assessment",
+                    position: 7,
+                    variables: ["date_risk_assessment"]
+                }
+            ];
+
+            beforeEach(() => {
+                cy.get("@grid")
+                    .find("table")
+                    .as("table");
+            });
+
+            // 5.1 Render each varSet title as column header
+            it("should render enabled varSet column titles", () => {
+                cy.wrap(annotations).each(annotation => {
+                    cy.get("@table")
+                        .contains("thead tr th", annotation.title);
+                });
+            });
+            // 5.2 Render each varSet column at the position configured in position
+            it("should have varSet index configured equal to index displayed on Risk Assessment", () => {
+                cy.wrap(annotations).each(annotation => {
+                    cy.get("@table")
+                        .contains("thead tr th", annotation.title)
+                        .invoke("index")
+                        .then(i => {
+                            // 1. Test index column configured equals column index rendered
+                            expect(i-1).equal(annotation.position);
+                        });
+                    });
+                });
+        // 5.3 Render variables correctly
+            it("should have varSet index configured equal to index displayed on Risk Assessment", () => {
+            cy.wrap(annotations).each(annotation => {
+                cy.get("@table")
+                    .contains("thead tr th", annotation.title)
+                    .invoke("index")
+                    .then(i => {
+                        // 1. Test index column configured equals column index rendered
+                        cy.get("tbody tr").first()
+                            .find(`td:nth-child(${i+1})`).then(cell => {
+                            const text = cell.text();
+                            expect(text).contains(annotation.variables[0]);
+
+                        });
+                    });
+            });
+        });
+        });
     });
 
+    // DETAIL TABS
     context("Detail", () => {
 
         beforeEach(() => {

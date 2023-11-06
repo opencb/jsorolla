@@ -46,20 +46,11 @@ class IndividualBrowserGridTest extends LitElement {
             testDataVersion: {
                 type: String
             },
-            _ready: {
-                type: Boolean,
-                state: true,
-            },
-            _selectRow: {
-                type: Object,
-                state: true
-            },
         };
     }
 
     #init() {
         this.COMPONENT_ID = "individual-browser";
-        this._ready = false;
         this.FILES = [
             "individuals-platinum.json",
         ];
@@ -67,6 +58,13 @@ class IndividualBrowserGridTest extends LitElement {
         this._selectedInstance = {};
 
         this._config = {};
+        this.isLoading = false;
+
+    }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     update(changedProperties) {
@@ -83,8 +81,8 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     propertyObserver() {
+        this.#setLoading(true);
         if (this.opencgaSession && this.testDataVersion) {
-
             const promises = this.FILES.map(file => {
                 return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
             });
@@ -101,7 +99,7 @@ class IndividualBrowserGridTest extends LitElement {
                 .catch(error => {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
                 }).finally(() => {
-                    this._ready = true;
+                    this.#setLoading(false);
                 });
         }
     }
@@ -146,7 +144,187 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     mutate() {
-        return null;
+        // return null;
+        // Mutation 1: The first individual has annotations with the variable sets defined for the study
+        this._data[0].annotationSets = [
+            {
+                id: "cardiology_tests_checklist_annotationset",
+                name: "cariodology_tests_checklist_annotationset",
+                variableSetId: "cardiology_tests_checklist",
+                annotations: {
+                    ecg_exercise_test: "YES",
+                    electrophysiological_study: "YES",
+                    echo_test: "NO",
+                    ecg_test: "YES"
+                },
+                creationDate: "20231006101625",
+                release: 1,
+                attributes: []
+            },
+            {
+                id: "risk_assessment_annotationset",
+                name: "risk_assessment_annotationset",
+                variableSetId: "risk_assessment",
+                annotations: {
+                    date_risk_assessment: "20-05-2022",
+                    risk_score: 7,
+                    vf_cardiac_arrest_events: "NO",
+                    sdc_iad_family_history: "UNKNOWN",
+                },
+                creationDate: "20231006101625",
+                release: 1,
+                attributes: []
+            },
+        ];
+        // Mutation 2: This study has some variableSets defined
+        this.opencgaSession.study.variableSets = [
+            {
+                "id": "cardiology_test_checklist",
+                "name": "Individual cardiology test checklist variableSet name",
+                "unique": true,
+                "confidential": false,
+                "internal": false,
+                "description": "Individual cardiology test checklist variableSet descriptino",
+                "variables": [
+                    {
+                        "id": "echo_test",
+                        "name": "echo_test variable name",
+                        "category": "",
+                        "type": "CATEGORICAL",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": ["YES", "NO", "UNKNOWN"],
+                        "rank": 2,
+                        "dependsOn": "",
+                        "description": "echo_test variable description",
+                        "attributes": {}
+                    },
+                    {
+                        "id": "ecg_test",
+                        "name": "ecg_test variable name",
+                        "category": "",
+                        "type": "CATEGORICAL",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": ["YES", "NO", "UNKNOWN"],
+                        "rank": 2,
+                        "dependsOn": "",
+                        "description": "ecg_test variable description",
+                        "attributes": {}
+                    },
+                    {
+                        "id": "ecg_exercise_test",
+                        "name": "ecg_exercise_test variable name",
+                        "category": "",
+                        "type": "CATEGORICAL",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": ["YES", "NO", "UNKNOWN"],
+                        "rank": 2,
+                        "dependsOn": "",
+                        "description": "ecg_exercise_test variable description",
+                        "attributes": {}
+                    },
+                    {
+                        "id": "electrophysiological_study",
+                        "name": "electrophysiological_study variable name",
+                        "category": "",
+                        "type": "CATEGORICAL",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": ["YES", "NO", "UNKNOWN"],
+                        "rank": 2,
+                        "dependsOn": "",
+                        "description": "electrophysiological_study variable description",
+                        "attributes": {}
+                    },
+
+                ],
+
+            },
+            {
+                "id": "risk_assessment",
+                "name": "Risk assessment variableSet name",
+                "unique": true,
+                "confidential": false,
+                "internal": false,
+                "description": "Risk assessment variableSet description",
+                "variables": [
+                    {
+                        "id": "date_risk_assessment",
+                        "name": "date_risk_assessment variable name",
+                        "category": "",
+                        "type": "DATE",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": [],
+                        "rank": 2,
+                        "dependsOn": "",
+                        "description": "date_risk_assessment variable description",
+                        "attributes": {}
+                    },
+                    {
+                        "id": "risk_score",
+                        "name": "risk_score variable name",
+                        "category": "",
+                        "type": "INTEGER",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": [],
+                        "rank": 2,
+                        "dependsOn": "",
+                        "description": "risk_score variable description",
+                        "attributes": {}
+                    },
+                    {
+                        "id": "vf_cardiac_arrest_events",
+                        "name": "vf_cardiac_arrest_events variable name",
+                        "category": "",
+                        "type": "CATEGORICAL",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": ["YES", "NO", "UNKNOWN"],
+                        "rank": 2,
+                        "dependsOn": "",
+                        "description": "vf_cardiac_arrest_events variable description",
+                        "attributes": {}
+                    },
+                    {
+                        "id": "sdc_iad_family_history",
+                        "name": "sdc_iad_family_history variable name",
+                        "category": "",
+                        "type": "CATEGORICAL",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": ["YES", "NO", "UNKNOWN"],
+                        "rank": 2,
+                        "dependsOn": "",
+                        "description": "sdc_iad_family_history variable description",
+                        "attributes": {}
+                    },
+
+                ],
+
+            },
+        ];
+
+        // Mutation 3: annotation columns enabled through the admin interface in filter.result.grid
+        // See example of use in browser.settings.js, INDIVIDUAL_BROWSER
+        this._config.annotations = [
+            {
+                title: "Cardiology Tests",
+                position: 6,
+                variableSetId: "cardiology_tests_checklist",
+                variables: ["ecg_test", "echo_test"]
+            },
+            {
+                title: "Risk Assessment",
+                position: 7,
+                variableSetId: "risk_assessment",
+                variables: ["date_risk_assessment"]
+            }
+        ];
+
     }
 
     selectInstance(e) {
@@ -155,8 +333,8 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     render() {
-        if (!this._ready) {
-            return html `Processing`;
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
         }
 
         return html`

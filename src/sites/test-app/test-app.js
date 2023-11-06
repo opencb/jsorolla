@@ -215,7 +215,8 @@ class TestApp extends LitElement {
         //         this.opencgaSession = content;
         //         this.requestUpdate();
         //     });
-        this.opencgaSession = {};
+        // this.opencgaSession = {};
+        this.opencgaSession = null;
         this.initProjectMock();
     }
 
@@ -680,7 +681,7 @@ class TestApp extends LitElement {
                         <individual-browser-grid-test
                             testFile="individuals-platinum"
                             testDataVersion="${this.testDataVersion || ""}"
-                            .opencgaSession="${this.opencgaSession || {}}"
+                            .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
                         </individual-browser-grid-test>
                     </div>
