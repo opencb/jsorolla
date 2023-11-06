@@ -290,49 +290,34 @@ context("Cohort Browser Grid", () => {
                 .find("li")
                 .contains("New Catalog Tab")
                 .click()
-                .should('be.visible');
+                .should("be.visible");
         });
     });
 
     context("detail tab", () => {
         it("should render", () => {
-            cy.get(browserDetail)
+            cy.get("detail-tabs")
                 .should("be.visible");
         });
 
-        it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Cohort ID");
-            cy.get("@indexColumn")
-                .then((indexColumn) => {
-                    const indexRow = 2;
-                    // eslint-disable-next-line cypress/unsafe-to-chain-command
-                    cy.get(`tbody tr`)
-                        .eq(indexRow)
-                        .click() // select the row
-                        .find("td")
-                        .eq(indexColumn)
-                        .invoke("text")
-                        .as("textRow");
-                    });
-
-            cy.get("@textRow")
-                .then((textRow) => {
-                    cy.get("detail-tabs > div.panel")
-                        .invoke("text")
-                        .then((text) => {
-                            const textTab = text.trim().split(" ");
-                            expect(textRow.trim()).to.equal(textTab[1].trim());
-                        });
-                });
+        it("should display info from the selected row", () => {
+            const cohort = "FIN";
+            cy.get(`tbody tr[data-uniqueid="${cohort}"]`)
+                .find(`td:first`)
+                .trigger("click");
+        
+            cy.get(`detail-tabs h3`)
+                .should("contain.text", `Cohort ${cohort}`);
         });
 
         it("should display 'JSON Data' Tab", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get(`detail-tabs > div.detail-tabs > ul`)
                 .find("li")
                 .contains("JSON Data")
-                .click()
-                .should('be.visible');
+                .trigger("click");
+            
+            cy.get("json-viewer")
+                .should("be.visible");
         });
     });
 });
