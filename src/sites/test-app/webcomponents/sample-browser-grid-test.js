@@ -44,23 +44,18 @@ class SampleBrowserGridTest extends LitElement {
             testDataVersion: {
                 type: String
             },
-            _ready: {
-                type: Boolean,
-                state: true,
-            }
         };
     }
 
     #init() {
         this.COMPONENT_ID = "sample-browser";
-        this._ready = false;
         this.FILES = [
             "samples-platinum.json",
         ];
-        this._data = [];
+        this._data = null;
         this._selectedInstance = {};
 
-        this._config = {};
+        this._config = this.getDefaultConfig();
     }
 
     // TODO: The Sample Browser Test needs to test two things:
@@ -79,7 +74,6 @@ class SampleBrowserGridTest extends LitElement {
 
     propertyObserver() {
         if (this.opencgaSession && this.testDataVersion) {
-
             const promises = this.FILES.map(file => {
                 return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
             });
@@ -95,48 +89,8 @@ class SampleBrowserGridTest extends LitElement {
                 })
                 .catch(error => {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-                }).finally(() => {
-                    this._ready = true;
                 });
         }
-    }
-
-    onSettingsUpdate() {
-        this._config = {
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
-        };
-        this.propertyObserver();
-    }
-
-    getDefaultTabsConfig() {
-        return {
-            title: "Sample",
-            showTitle: true,
-            items: [
-                {
-                    id: "sample-view",
-                    name: "Overview",
-                    active: true,
-                    render: (sample, active, opencgaSession) => html`
-                                <sample-view
-                                    .sample="${sample}"
-                                    .active="${active}"
-                                    .opencgaSession="${opencgaSession}">
-                                </sample-view>
-                            `,
-                },
-                {
-                    id: "json-view",
-                    name: "JSON Data",
-                    render: (sample, active) => html`
-                        <json-viewer
-                            .data="${sample}"
-                            .active="${active}">
-                        </json-viewer>
-                    `,
-                }
-            ]
-        };
     }
 
     mutate() {
@@ -150,14 +104,22 @@ class SampleBrowserGridTest extends LitElement {
         this._data = [...this._data];
     }
 
-    selectInstance(e) {
+    onSettingsUpdate() {
+        this._config.grid = {
+            ...this._config.grid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
+        };
+        this.requestUpdate();
+    }
+
+    onSelectRow(e) {
         this._selectedInstance = e.detail.row;
         this.requestUpdate();
     }
 
     render() {
-        if (!this._ready) {
-            return html `Processing`;
+        if (!this._data) {
+            return html`Processing...`;
         }
 
         return html`
@@ -169,17 +131,51 @@ class SampleBrowserGridTest extends LitElement {
                     .toolId="${this.COMPONENT_ID}"
                     .samples="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config}"
+                    .config="${this._config?.grid}"
                     @settingsUpdate="${() => this.onSettingsUpdate()}"
-                    @selectrow="${this.selectInstance}">
+                    @selectrow="${e => this.onSelectRow(e)}">
                 </sample-grid>
                 <sample-detail
                     .sample="${this._selectedInstance}"
                     .opencgaSession="${this.opencgaSession}"
-                    .config="${this.getDefaultTabsConfig()}">
+                    .config="${this._config?.detail}">
                 </sample-detail>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            grid: {},
+            detail: {
+                title: "Sample",
+                showTitle: true,
+                items: [
+                    {
+                        id: "sample-view",
+                        name: "Overview",
+                        active: true,
+                        render: (sample, active, opencgaSession) => html`
+                            <sample-view
+                                .sample="${sample}"
+                                .active="${active}"
+                                .opencgaSession="${opencgaSession}">
+                            </sample-view>
+                        `,
+                    },
+                    {
+                        id: "json-view",
+                        name: "JSON Data",
+                        render: (sample, active) => html`
+                            <json-viewer
+                                .data="${sample}"
+                                .active="${active}">
+                            </json-viewer>
+                        `,
+                    }
+                ],
+            },
+        };
     }
 
 }
