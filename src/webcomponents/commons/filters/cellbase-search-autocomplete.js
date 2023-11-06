@@ -179,7 +179,10 @@ export default class CellbaseSearchAutocomplete extends LitElement {
         if (this.resource) {
             this.resource.toUpperCase();
         }
-        this._config = this.getDefaultConfig();
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
     }
 
     configObserver() {

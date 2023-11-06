@@ -20,7 +20,6 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../commons/utils/lit-utils";
 import "../commons/filters/cellbase-search-autocomplete.js";
-import UtilsNew from "../../core/utils-new";
 
 export default class DiseasePanelCreate extends LitElement {
 

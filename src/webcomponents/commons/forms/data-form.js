@@ -1627,6 +1627,7 @@ export default class DataForm extends LitElement {
             const match = field.match(DataForm.re);
             return !!(match && typeof this.dataAutocomplete?.[match?.groups?.arrayFieldName]?.[match?.groups?.index]?.[match?.groups?.field] !== "undefined");
         }
+        return false;
     }
 
     onObjectChange(element, object, objectListEvent) {
@@ -1696,14 +1697,9 @@ export default class DataForm extends LitElement {
                     break;
             }
         }
-        this.dispatchEvent(new CustomEvent("fieldChange", {
-            detail: {
-                ...eventDetail,
-                data: this.data,
-            },
-            bubbles: true,
-            composed: true
-        }));
+        LitUtils.dispatchCustomEvent(this, "fieldChange", null, {
+            data: this.data,
+        }, null, {bubbles: true, composed: true});
     }
 
     onFilterChange(element, value, objectListEvent) {
