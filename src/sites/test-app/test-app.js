@@ -668,10 +668,8 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["file-browser-grid"] ? html`
                     <div class="content" id="file-browser-grid">
                         <file-browser-grid-test
-                            testFile="files-chinese"
-                            testDataVersion="${this.testDataVersion || ""}"
-                            .opencgaSession="${this.opencgaSession || {}}"
-                            .config="${this.config}">
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}">
                         </file-browser-grid-test>
                     </div>
                 ` : nothing}
@@ -679,10 +677,8 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["individual-browser-grid"] ? html`
                     <div class="content" id="individual-browser-grid">
                         <individual-browser-grid-test
-                            testFile="individuals-platinum"
-                            testDataVersion="${this.testDataVersion || ""}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this.config}">
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}">
                         </individual-browser-grid-test>
                     </div>
                 ` : nothing}
@@ -690,10 +686,8 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["family-browser-grid"] ? html`
                     <div class="content" id="family-browser-grid">
                         <family-browser-grid-test
-                            testFile="families-platinum"
-                            testDataVersion="${this.testDataVersion || ""}"
-                            .opencgaSession="${this.opencgaSession || {}}"
-                            .config="${this.config}">
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}">
                         </family-browser-grid-test>
                     </div>
                 ` : nothing}
@@ -701,10 +695,8 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["cohort-browser-grid"] ? html`
                     <div class="content" id="cohort-browser-grid">
                         <cohort-browser-grid-test
-                            testFile="cohorts-1000G"
-                            testDataVersion="${this.testDataVersion || ""}"
-                            .opencgaSession="${this.opencgaSession || {}}"
-                            .config="${this.config}">
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}">
                         </cohort-browser-grid-test>
                     </div>
                 ` : nothing}
@@ -712,10 +704,8 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["sample-browser-grid"] ? html`
                     <div class="content" id="sample-browser-grid">
                         <sample-browser-grid-test
-                            testFile="samples-platinum"
-                            testDataVersion="${this.testDataVersion || ""}"
-                            .opencgaSession="${this.opencgaSession || {}}"
-                            .config="${this.config}">
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}">
                         </sample-browser-grid-test>
                     </div>
                 ` : nothing}
@@ -723,10 +713,8 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["job-browser-grid"] ? html`
                     <div class="content" id="job-browser-grid">
                         <job-browser-grid-test
-                            testFile="job-1000G"
-                            testDataVersion="${this.testDataVersion || ""}"
-                            .opencgaSession="${this.opencgaSession || {}}"
-                            .config="${this.config}">
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}">
                         </job-browser-grid-test>
                     </div>
                 ` : nothing}
@@ -734,10 +722,8 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["disease-panel-browser-grid"] ? html`
                     <div class="content" id="disease-panel-browser-grid">
                         <disease-panel-browser-grid-test
-                            testFile="disease-panels-platinum"
-                            testDataVersion="${this.testDataVersion || ""}"
-                            .opencgaSession="${this.opencgaSession || {}}"
-                            .config="${this.config}">
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}">
                         </disease-panel-browser-grid-test>
                     </div>
                 ` : nothing}

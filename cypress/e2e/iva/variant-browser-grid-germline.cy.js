@@ -69,7 +69,7 @@ context("Variant Browser Grid Germline", () => {
                 });
         });
 
-        it("should hidden columns [Type,Consequence Type,Gene]",() => {
+        it("should hide columns [Type,Consequence Type,Gene]",() => {
             const columns = ["Type","Consequence Type","Gene"];
             cy.get("variant-browser-grid thead th")
                 .as("headerColumns");

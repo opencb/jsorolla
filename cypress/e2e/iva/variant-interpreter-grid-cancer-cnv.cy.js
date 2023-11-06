@@ -64,7 +64,7 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                 });
         });
 
-        it("should hidden columns [Type,Role in Cancer,Cohort Stats]",() => {
+        it("should hide columns [Type,Role in Cancer,Cohort Stats]",() => {
             const columns = ["Type","Role in Cancer","Cohort Stats"];
             cy.get("variant-interpreter-grid thead th").as("headerColumns");
             columns.forEach(col => {

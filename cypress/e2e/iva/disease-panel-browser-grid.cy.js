@@ -210,7 +210,7 @@ context("Disease Panel Browser Grid", () => {
                 });
         });
 
-        it("should hidden columns [Disorders,Source,Extra column]",() => {
+        it("should hide columns [Disorders,Source,Extra column]",() => {
             const columns = ["Disorders","Source","Extra column"];
             cy.get("disease-panel-grid thead th")
                 .as("headerColumns");
@@ -345,42 +345,23 @@ context("Disease Panel Browser Grid", () => {
         });
 
         it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Panel");
-            cy.get("@indexColumn")
-                .then(indexColumn => {
-                    const indexRow = 2;
-                    // eslint-disable-next-line cypress/unsafe-to-chain-command
-                    cy.get("tbody tr")
-                        .eq(indexRow)
-                        .click() // select the row
-                        .find("td")
-                        .eq(indexColumn)
-                        .invoke("text")
-                        .as("textRow");
-                });
-
-            cy.get("@textRow")
-                .then((textRow) => {
-                    const textRowTrimmed = textRow.trim();
-                    const lastLineMatch = textRowTrimmed.match(/(?:^|\n)([^\n]+)$/);
-                    const id = lastLineMatch ? lastLineMatch[1].trim() : textRowTrimmed;
-                    cy.get("detail-tabs > div.panel")
-                        .invoke("text")
-                        .then((text) => {
-                            const textTab = text.trim().split(" ");
-                            expect(id).to.equal(textTab[2].trim());
-                        });
-                });
+            const panel = "Familial_non_syndromic_congenital_heart_disease-PanelAppId-212";
+            cy.get(`tbody tr[data-uniqueid="${panel}"]`)
+                .find(`td:first`)
+                .trigger("click");
+        
+            cy.get(`detail-tabs h3`)
+                .should("contain.text", `Disease Panel ${panel}`);
         });
 
         it("should display 'JSON Data' Tab", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@detail")
                 .find("li")
                 .contains("JSON Data")
-                .click()
+                .trigger("click");
+            
+            cy.get("json-viewer")
                 .should("be.visible");
         });
     });
-
 });

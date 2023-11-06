@@ -21,7 +21,6 @@ import "../../../webcomponents/individual/individual-grid.js";
 import "../../../webcomponents/individual/individual-detail.js";
 import "../../../webcomponents/individual/individual-view.js";
 import "../../../webcomponents/commons/json-viewer.js";
-import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils.js";
 import "../../../webcomponents/individual/individual-update.js";
 import "../../../webcomponents/individual/individual-create.js";
 
@@ -54,17 +53,12 @@ class IndividualBrowserGridTest extends LitElement {
             "individuals-platinum.json",
         ];
         this._data = null;
-        this._selectedInstance = {};
+        this._selectedRow = {};
 
-        this._config = {};
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        /* if (changedProperties.has("testFile") &&
-            changedProperties.has("testDataVersion") &&
-            changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        } */
         if (changedProperties.has("testDataVersion") || changedProperties.has("opencgaSession")) {
             this.propertyObserver();
         }
@@ -82,54 +76,15 @@ class IndividualBrowserGridTest extends LitElement {
             Promise.all(promises)
                 .then(data => {
                     this._data = data[0];
-                    this._selectedInstance = this._data[0];
+                    this._selectedRow = this._data[0];
                     // Mutate data and update
                     this.mutate();
                     this.requestUpdate();
                 })
                 .catch(error => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                    console.error(error);
                 });
         }
-    }
-
-    onSettingsUpdate() {
-        this._config = {
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
-        };
-        // this.propertyObserver();
-        this.requestUpdate();
-    }
-
-    getDefaultTabsConfig() {
-        return {
-            title: "Individual",
-            showTitle: true,
-            items: [
-                {
-                    id: "individual-view",
-                    name: "Overview",
-                    active: true,
-                    render: (individual, active, opencgaSession) => html`
-                        <individual-view
-                            .individual="${individual}"
-                            .active="${active}"
-                            .opencgaSession="${opencgaSession}">
-                        </individual-view>
-                    `,
-                },
-                {
-                    id: "json-view",
-                    name: "JSON Data",
-                    render: (individual, active, opencgaSession) => html`
-                        <json-viewer
-                            .data="${individual}"
-                            .active="${active}">
-                        </json-viewer>
-                    `,
-                }
-            ]
-        };
     }
 
     mutate() {
@@ -299,7 +254,7 @@ class IndividualBrowserGridTest extends LitElement {
 
         // Mutation 3: annotation columns enabled through the admin interface in filter.result.grid
         // See example of use in browser.settings.js, INDIVIDUAL_BROWSER
-        this._config.annotations = [
+        this._config.grid.annotations = [
             {
                 title: "Cardiology Tests",
                 position: 6,
@@ -317,8 +272,16 @@ class IndividualBrowserGridTest extends LitElement {
 
     }
 
-    selectInstance(e) {
-        this._selectedInstance = e.detail.row;
+    onSettingsUpdate() {
+        this._config.grid = {
+            ...this._config.grid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
+        };
+        this.requestUpdate();
+    }
+
+    onSelectRow(e) {
+        this._selectedRow = e.detail.row;
         this.requestUpdate();
     }
 
@@ -336,17 +299,51 @@ class IndividualBrowserGridTest extends LitElement {
                     .toolId="${this.COMPONENT_ID}"
                     .individuals="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config}"
+                    .config="${this._config.grid}"
                     @settingsUpdate="${() => this.onSettingsUpdate()}"
-                    @selectrow="${this.selectInstance}">
+                    @selectrow="${e => this.onSelectRow(e)}">
                 </individual-grid>
                 <individual-detail
-                    .individual="${this._selectedInstance}"
+                    .individual="${this._selectedRow}"
                     .opencgaSession="${this.opencgaSession}"
-                    .config="${this.getDefaultTabsConfig()}">
+                    .config="${this._config.detail}">
                 </individual-detail>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            grid: {},
+            detail: {
+                title: "Individual",
+                showTitle: true,
+                items: [
+                    {
+                        id: "individual-view",
+                        name: "Overview",
+                        active: true,
+                        render: (individual, active, opencgaSession) => html`
+                            <individual-view
+                                .individual="${individual}"
+                                .active="${active}"
+                                .opencgaSession="${opencgaSession}">
+                            </individual-view>
+                        `,
+                    },
+                    {
+                        id: "json-view",
+                        name: "JSON Data",
+                        render: (individual, active) => html`
+                            <json-viewer
+                                .data="${individual}"
+                                .active="${active}">
+                            </json-viewer>
+                        `,
+                    }
+                ],
+            },
+        };
     }
 
 }

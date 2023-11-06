@@ -151,7 +151,7 @@ context("Job Browser Grid", () => {
                 });
         });
 
-        it("should hidden columns [Status,Output Files,Runtime]",() => {
+        it("should hide columns [Status,Output Files,Runtime]",() => {
             const columns = ["Status","Output Files","Runtime"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");
@@ -243,48 +243,30 @@ context("Job Browser Grid", () => {
         });
     });
 
-    context("detail tab",{tags: "@shortTask"}, () => {
+    context("detail tabs", {tags: "@shortTask"}, () => {
         it("should render", () => {
             cy.get(browserDetail)
                 .should("be.visible");
         });
 
-        it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Job ID");
-            cy.get("@indexColumn")
-                .then((indexColumn) => {
-                    const indexRow = 2;
-                    // eslint-disable-next-line cypress/unsafe-to-chain-command
-                    cy.get(`tbody tr`)
-                        .eq(indexRow)
-                        .click() // select the row
-                        .find("td")
-                        .eq(indexColumn)
-                        .invoke("text")
-                        .as("textRow");
-                    });
-
-            cy.get("@textRow")
-            .then((textRow) => {
-                cy.get("detail-tabs > div.panel")
-                    .invoke("text")
-                    .then((text) => {
-                        const textRowTrimmed = textRow.trim();
-                        const firstLineMatch = textRowTrimmed.match(/^([^\n]+)/);
-                        const id = firstLineMatch ? firstLineMatch[1].trim() : textRowTrimmed;
-
-                        const textTab = text.trim().split(" ");
-                        expect(id).to.equal(textTab[1].trim());
-                    });
-            });
+        it("should display info from the selected row", () => {
+            const job = "pedigree-graph-init.20230530144950.FWjipG";
+            cy.get(`tbody tr[data-uniqueid="${job}"]`)
+                .find(`td`)
+                .eq(1)
+                .trigger("click");
+        
+            cy.get(`detail-tabs h3`)
+                .should("contain.text", `Job ${job}`);
         });
 
         it("should display 'Logs' Tab", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get(`detail-tabs > div.detail-tabs > ul`)
                 .find("li")
                 .contains("Logs")
-                .click()
+                .trigger("click");
+            
+            cy.get("job-detail-log")
                 .should("be.visible");
         });
     });

@@ -69,7 +69,7 @@ context("Variant Browser Grid Cancer", () => {
                 });
         });
 
-        it("should hidden columns [Variant,Gene,Type]",() => {
+        it("should hide columns [Variant,Gene,Type]",() => {
             const columns = ["Variant","Gene","Type"];
             cy.get("variant-browser-grid thead th")
                 .as("headerColumns");
