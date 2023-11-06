@@ -54,7 +54,7 @@ class IndividualBrowserGridTest extends LitElement {
             "individuals-platinum.json",
         ];
         this._data = null;
-        this._selectedInstance = {};
+        this._selectedRow = {};
 
         this._config = this.getDefaultConfig();
     }
@@ -77,7 +77,7 @@ class IndividualBrowserGridTest extends LitElement {
             Promise.all(promises)
                 .then(data => {
                     this._data = data[0];
-                    this._selectedInstance = this._data[0];
+                    this._selectedRow = this._data[0];
                     // Mutate data and update
                     this.mutate();
                     this.requestUpdate();
@@ -282,7 +282,7 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     onSelectRow(e) {
-        this._selectedInstance = e.detail.row;
+        this._selectedRow = e.detail.row;
         this.requestUpdate();
     }
 
@@ -305,7 +305,7 @@ class IndividualBrowserGridTest extends LitElement {
                     @selectrow="${e => this.onSelectRow(e)}">
                 </individual-grid>
                 <individual-detail
-                    .individual="${this._selectedInstance}"
+                    .individual="${this._selectedRow}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config.detail}">
                 </individual-detail>

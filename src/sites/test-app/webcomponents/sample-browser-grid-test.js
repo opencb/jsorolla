@@ -53,7 +53,7 @@ class SampleBrowserGridTest extends LitElement {
             "samples-platinum.json",
         ];
         this._data = null;
-        this._selectedInstance = {};
+        this._selectedRow = {};
 
         this._config = this.getDefaultConfig();
     }
@@ -82,7 +82,7 @@ class SampleBrowserGridTest extends LitElement {
             Promise.all(promises)
                 .then(data => {
                     this._data = data[0];
-                    this._selectedInstance = this._data[0];
+                    this._selectedRow = this._data[0];
                     // Mutate data and update
                     this.mutate();
                     this.requestUpdate();
@@ -113,7 +113,7 @@ class SampleBrowserGridTest extends LitElement {
     }
 
     onSelectRow(e) {
-        this._selectedInstance = e.detail.row;
+        this._selectedRow = e.detail.row;
         this.requestUpdate();
     }
 
@@ -136,7 +136,7 @@ class SampleBrowserGridTest extends LitElement {
                     @selectrow="${e => this.onSelectRow(e)}">
                 </sample-grid>
                 <sample-detail
-                    .sample="${this._selectedInstance}"
+                    .sample="${this._selectedRow}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config?.detail}">
                 </sample-detail>
