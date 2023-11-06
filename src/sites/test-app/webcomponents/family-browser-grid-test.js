@@ -17,7 +17,6 @@
 
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/family/family-grid.js";
 import "../../../webcomponents/family/family-detail.js";
 import "../../../webcomponents/family/family-view.js";
@@ -38,137 +37,129 @@ class FamilyBrowserGridTest extends LitElement {
 
     static get properties() {
         return {
-            testFile: {
-                type: String
-            },
             opencgaSession: {
                 type: Object
             },
             testDataVersion: {
                 type: String
             },
-            config: {
-                type: Object
-            },
-            _selectRow: {
-                type: Object,
-                state: true
-            },
-            _ready: {
-                type: Boolean,
-                state: true
-            }
         };
     }
 
     #init() {
         this.COMPONENT_ID = "family-browser";
-        this._ready = false;
-        this.data = [];
-        this._config = {};
+        this.FILES = [
+            "families-platinum.json",
+        ];
+        this._data = null;
+        this._selectedRow = null;
+        this._config = this.getDefaultConfig();
     }
 
-
     update(changedProperties) {
-        if (changedProperties.has("testFile") &&
-            changedProperties.has("testDataVersion") &&
-            changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("testDataVersion") || changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+
         super.update(changedProperties);
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-
     opencgaSessionObserver() {
-        this.#setLoading(true);
-        UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testFile}.json`)
-            .then(content => {
-                this.families = content;
-                this.mutate();
-            })
-            .catch(err => {
-                console.log(err);
-            })
-            .finally(() => {
-                this.#setLoading(false);
+        if (this.opencgaSession && this.testDataVersion) {
+            const allPromises = this.FILES.map(file => {
+                return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
             });
-    }
 
-    onSettingsUpdate() {
-        this._config = {
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
-        };
-        this.opencgaSessionObserver();
-    }
-
-    getDefaultTabsConfig() {
-        return {
-            title: "Family",
-            showTitle: true,
-            items: [
-                {
-                    id: "family-view",
-                    name: "Overview",
-                    active: true,
-                    // visible:
-                    render: (family, active, opencgaSession) => html`
-                        <family-view
-                            .opencgaSession="${opencgaSession}"
-                            .family="${family}"
-                            @settingsUpdate="${() => this.onSettingsUpdate()}"
-                            .settings="${{}}">
-                        </family-view>
-                    `,
-                },
-                {
-                    id: "json-view",
-                    name: "JSON Data",
-                    render: (family, active, opencgaSession) => html`
-                        <json-viewer
-                            .data="${family}"
-                            .active="${active}">
-                        </json-viewer>
-                    `,
-                }
-            ]
-        };
+            Promise.all(allPromises)
+                .then(data => {
+                    this._data = data[0];
+                    this._selectedRow = this._data[0];
+                    this.mutate();
+                    this.requestUpdate();
+                })
+                .catch(err => {
+                    console.error(err);
+                });
+        }
     }
 
     mutate() {
         return null;
     }
 
-    selectRow(e) {
-        this._selectRow = {...e.detail.row};
+    onSettingsUpdate() {
+        this._config.grid = {
+            ...this._config.grid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
+        };
+        this.requestUpdate();
+    }
+
+    onSelectRow(e) {
+        this._selectedRow = e.detail.row;
+        this.requestUpdate();
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+        if (!this._data) {
+            return "Loading...";
         }
 
         return html`
-            <h2 style="font-weight: bold;">
-                Catalog Browser Grid (${this.testFile})
-            </h2>
-            <family-grid
-                .toolId="${this.COMPONENT_ID}"
-                .families="${this.families}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}"
-                @settingsUpdate="${() => this.onSettingsUpdate()}"
-                @selectrow="${e => this.selectRow(e)}">
-            </family-grid>
-            <family-detail
-                .family="${this._selectRow}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this.getDefaultTabsConfig()}">
-            </family-detail>
+            <div data-cy="family-browser">
+                <h2 style="font-weight: bold;">
+                    Catalog Browser Grid (${this.FILES[0]})
+                </h2>
+                <family-grid
+                    .toolId="${this.COMPONENT_ID}"
+                    .families="${this._data}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config.grid}"
+                    @settingsUpdate="${() => this.onSettingsUpdate()}"
+                    @selectrow="${e => this.onSelectRow(e)}">
+                </family-grid>
+                <family-detail
+                    .family="${this._selectedRow}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config.detail}">
+                </family-detail>
+            </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            grid: {},
+            detail: {
+                title: "Family",
+                showTitle: true,
+                items: [
+                    {
+                        id: "family-view",
+                        name: "Overview",
+                        active: true,
+                        render: (family, active, opencgaSession) => html`
+                            <family-view
+                                .opencgaSession="${opencgaSession}"
+                                .family="${family}"
+                                @settingsUpdate="${() => this.onSettingsUpdate()}"
+                                .settings="${{}}">
+                            </family-view>
+                        `,
+                    },
+                    {
+                        id: "json-view",
+                        name: "JSON Data",
+                        render: (family, active) => html`
+                            <json-viewer
+                                .data="${family}"
+                                .active="${active}">
+                            </json-viewer>
+                        `,
+                    }
+                ],
+            },
+        };
     }
 
 }
