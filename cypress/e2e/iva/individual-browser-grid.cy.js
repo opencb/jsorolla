@@ -393,7 +393,7 @@ context("Individual Browser Grid", () => {
                 });
             });
             // 5.2 Render each varSet column at the position configured in position
-            it("should have varSet index configured equal to index displayed on Risk Assessment", () => {
+            it("should have varSet position configured equal to the index of the corresponding column", () => {
                 cy.wrap(annotations).each(annotation => {
                     cy.get("@table")
                         .contains("thead tr th", annotation.title)
@@ -405,22 +405,21 @@ context("Individual Browser Grid", () => {
                     });
                 });
         // 5.3 Render variables correctly
-            it("should have varSet index configured equal to index displayed on Risk Assessment", () => {
+            it("should render annotations configured", () => {
             cy.wrap(annotations).each(annotation => {
                 cy.get("@table")
                     .contains("thead tr th", annotation.title)
                     .invoke("index")
                     .then(i => {
                         // 1. Test index column configured equals column index rendered
-                        cy.get("tbody tr").first()
-                            .find(`td:nth-child(${i+1})`).then(cell => {
-                            const text = cell.text();
-                            expect(text).contains(annotation.variables[0]);
-
+                        cy.get("tbody tr")
+                            .first()
+                            .find("td")
+                            .eq(i)
+                            .should("contain.text", annotation.variables[0]);
                         });
-                    });
+                });
             });
-        });
         });
     });
 
