@@ -151,7 +151,7 @@ context("File Browser Grid", () => {
                 });
         });
 
-        it("should hidden columns [Name,Format]",() => {
+        it("should hide columns [Name,Format]",() => {
             const columns = ["Name","Format"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");

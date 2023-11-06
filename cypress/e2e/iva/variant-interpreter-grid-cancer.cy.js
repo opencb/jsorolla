@@ -68,7 +68,7 @@ context("Variant Interpreter Grid Cancer", () => {
                 });
         });
 
-        it("should hidden columns [Type,Consequence Type,Gene]",() => {
+        it("should hide columns [Type,Consequence Type,Gene]",() => {
             const columns = ["Consequence Type","Gene"];
             cy.get("variant-interpreter-grid thead th")
                 .as("headerColumns");

@@ -211,7 +211,7 @@ context("Family Browser Grid", () => {
                 });
         });
 
-        it("should hidden columns [Case ID,Phenotypes]",() => {
+        it("should hide columns [Case ID,Phenotypes]",() => {
             const columns = ["Case ID","Phenotypes"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");

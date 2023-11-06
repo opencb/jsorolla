@@ -151,7 +151,7 @@ context("Job Browser Grid", () => {
                 });
         });
 
-        it("should hidden columns [Status,Output Files,Runtime]",() => {
+        it("should hide columns [Status,Output Files,Runtime]",() => {
             const columns = ["Status","Output Files","Runtime"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");

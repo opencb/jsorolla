@@ -212,7 +212,7 @@ context("Individual Browser Grid", () => {
                 });
         });
 
-        it("should hidden columns [Disorders,Case ID,Ethnicity]",() => {
+        it("should hide columns [Disorders,Case ID,Ethnicity]",() => {
             const columns = ["Disorders","Case ID","Ethnicity"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");

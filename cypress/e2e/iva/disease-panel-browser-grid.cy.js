@@ -210,7 +210,7 @@ context("Disease Panel Browser Grid", () => {
                 });
         });
 
-        it("should hidden columns [Disorders,Source,Extra column]",() => {
+        it("should hide columns [Disorders,Source,Extra column]",() => {
             const columns = ["Disorders","Source","Extra column"];
             cy.get("disease-panel-grid thead th")
                 .as("headerColumns");

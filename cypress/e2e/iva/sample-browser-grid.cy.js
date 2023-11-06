@@ -214,7 +214,7 @@ context("Sample Browser Grid", () => {
                 });
         });
 
-        it("should hidden columns [Collection Method,Preparation Method]",() => {
+        it("should hide columns [Collection Method,Preparation Method]",() => {
             const columns = ["Collection Method", "Preparation Method"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");
