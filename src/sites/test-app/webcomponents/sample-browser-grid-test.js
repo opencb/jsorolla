@@ -20,7 +20,6 @@ import UtilsNew from "../../../core/utils-new.js";
 
 import "../../../webcomponents/sample/sample-grid.js";
 import "../../../webcomponents/sample/sample-detail.js";
-import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils.js";
 import "../../../webcomponents/sample/sample-update.js";
 import "../../../webcomponents/sample/sample-create.js";
 
@@ -88,7 +87,7 @@ class SampleBrowserGridTest extends LitElement {
                     this.requestUpdate();
                 })
                 .catch(error => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                    console.error(error);
                 });
         }
     }

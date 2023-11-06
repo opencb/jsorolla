@@ -21,7 +21,6 @@ import "../../../webcomponents/individual/individual-grid.js";
 import "../../../webcomponents/individual/individual-detail.js";
 import "../../../webcomponents/individual/individual-view.js";
 import "../../../webcomponents/commons/json-viewer.js";
-import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils.js";
 import "../../../webcomponents/individual/individual-update.js";
 import "../../../webcomponents/individual/individual-create.js";
 
@@ -83,7 +82,7 @@ class IndividualBrowserGridTest extends LitElement {
                     this.requestUpdate();
                 })
                 .catch(error => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                    console.error(error);
                 });
         }
     }
