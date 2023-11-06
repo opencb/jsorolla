@@ -701,10 +701,8 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["cohort-browser-grid"] ? html`
                     <div class="content" id="cohort-browser-grid">
                         <cohort-browser-grid-test
-                            testFile="cohorts-1000G"
                             testDataVersion="${this.testDataVersion}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this.config}">
+                            .opencgaSession="${this.opencgaSession}">
                         </cohort-browser-grid-test>
                     </div>
                 ` : nothing}
