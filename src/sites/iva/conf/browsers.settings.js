@@ -718,7 +718,25 @@ const INTERPRETER_SETTINGS = {
                 ],
             },
             {
-                id: "methods"
+                id: "methods",
+                items: [
+                    {
+                        type: "SINGLE",
+                        methods: [
+                            {id: "exomiser"},
+                        ],
+                    },
+                    {
+                        type: "FAMILY",
+                        methods: [
+                            {id: "exomiser"},
+                        ],
+                    },
+                    {
+                        type: "CANCER",
+                        methods: [],
+                    },
+                ],
             },
             {
                 id: "variant-browser",
