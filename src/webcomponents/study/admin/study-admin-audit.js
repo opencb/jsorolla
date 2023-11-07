@@ -293,54 +293,66 @@ export default class StudyAdminAudit extends LitElement {
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "userId") ? html`
                         <!-- User ID -->
                         <div class="col-12">
-                            <select-field-filter
-                                .opencgaSession="${this.opencgaSession}"
+                            <select-field-filter2
                                 .data="${this.sortedUserIds || []}"
-                                .config=${this._config}
+                                .config=${{
+                                    ...this._config,
+                                    placeholder: "User: All",
+                                    liveSearch: false,
+                                    tags: false
+                                }}
                                 .value="${this.query?.userId}"
-                                placeholder="${"User: All"}"
-                                multiple
                                 @filterChange="${e => this.onFilterChange("userId", e.detail.value)}">
-                            </select-field-filter>
+                            </select-field-filter2>
                         </div>
                     `: nothing}
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "action") ? html`
                         <!-- TODO: Action build autocomplete-->
                         <div class="col-12">
-                            <select-field-filter
-                                .opencgaSession="${this.opencgaSession}"
+                            <select-field-filter2
                                 .data="${this.actionValues}"
-                                .config=${this._config}
+                                .config=${{
+                                    ...this._config,
+                                    placeholder: "Action: All",
+                                    liveSearch: false,
+                                    tags: false
+                                }}
                                 .value="${this.query?.action}"
-                                placeholder="${"Action: All"}"
-                                multiple
                                 @filterChange="${e => this.onFilterChange("action", e.detail.value)}">
-                            </select-field-filter>
+                            </select-field-filter2>
                         </div>
                     ` : nothing}
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "resource") ? html`
                         <!-- Resource -->
                         <div class="col-12">
-                            <select-field-filter
+                            <select-field-filter2
                                 .data="${this.resourceTypeValues}"
                                 .value=${this.query?.resource}
-                                placeholder="${"Resource: All"}"
+                                .config=${{
+                                    placeholder: "Resource: All",
+                                    liveSearch: false,
+                                    tags: false
+                                }}
                                 @filterChange="${e => this.onFilterChange("resource", e.detail.value)}">
-                            </select-field-filter>
+                            </select-field-filter2>
                         </div>
                     ` : nothing}
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "status") ? html`
                         <!-- Status -->
                         <div class="col-12">
-                            <select-field-filter
+                            <select-field-filter2
                                 .data="${this.statusTypeValues}"
                                 .value=${this.query?.status}
-                                placeholder="${"Status: All"}"
+                                .config=${{
+                                    placeholder: "Status: All",
+                                    liveSearch: false,
+                                    tags: false
+                                }}
                                 @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
-                            </select-field-filter>
+                            </select-field-filter2>
                         </div>
                     ` : nothing}
 

@@ -527,8 +527,8 @@ export default class StudyAdmin extends LitElement {
                             visibility: "private",
                             render: (opencgaSession, study) => html`
                                 <study-admin-audit
-                                        .opencgaSession="${opencgaSession}"
-                                        .study="${study}">
+                                    .opencgaSession="${opencgaSession}"
+                                    .study="${study}">
                                 </study-admin-audit>`,
                         },
                         // {
