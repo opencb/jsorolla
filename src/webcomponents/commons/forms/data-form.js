@@ -606,37 +606,11 @@ export default class DataForm extends LitElement {
         } else {
             // Other 'type' are rendered by specific functions
             switch (element.type) {
+                // View elements
                 case "text":
                 case "title":
                 case "notification":
                     content = this._createTextElement(element);
-                    break;
-                case "input-text":
-                    content = this._createInputElement(element, "text", section);
-                    break;
-                case "input-num":
-                    content = this._createInputElement(element, "number", section);
-                    break;
-                case "input-password":
-                    content = this._createInputElement(element, "password", section);
-                    break;
-                case "input-number":
-                    content = this._createInputNumberElement(element, section);
-                    break;
-                case "input-date":
-                    content = this._createInputDateElement(element, section);
-                    break;
-                case "checkbox":
-                    content = this._createCheckboxElement(element);
-                    break;
-                case "toggle-switch":
-                    content = this._createToggleSwitchElement(element);
-                    break;
-                case "toggle-buttons":
-                    content = this._createToggleButtonsElement(element);
-                    break;
-                case "select":
-                    content = this._createInputSelectElement(element);
                     break;
                 case "complex":
                     content = this._createComplexElement(element, this.data, section);
@@ -657,17 +631,46 @@ export default class DataForm extends LitElement {
                 case "json":
                     content = this._createJsonElement(element);
                     break;
-                case "json-editor":
-                    content = this._createJsonEditorElement(element);
-                    break;
                 case "tree":
                     content = this._createTreeElement(element);
+                    break;
+                case "download":
+                    content = this._createDownloadElement(element);
                     break;
                 case "custom":
                     content = html`${this._createCustomElement(element)}`;
                     break;
-                case "download":
-                    content = this._createDownloadElement(element);
+
+                // Form controls and editors
+                case "input-text":
+                    content = this._createInputElement(element, "text", section);
+                    break;
+                case "input-num":
+                    content = this._createInputElement(element, "number", section);
+                    break;
+                case "input-password":
+                    content = this._createInputElement(element, "password", section);
+                    break;
+                case "input-number":
+                    content = this._createInputNumberElement(element, section);
+                    break;
+                case "input-date":
+                    content = this._createInputDateElement(element, section);
+                    break;
+                case "checkbox":
+                    content = this._createCheckboxElement(element);
+                    break;
+                case "select":
+                    content = this._createInputSelectElement(element);
+                    break;
+                case "toggle-switch":
+                    content = this._createToggleSwitchElement(element);
+                    break;
+                case "toggle-buttons":
+                    content = this._createToggleButtonsElement(element);
+                    break;
+                case "json-editor":
+                    content = this._createJsonEditorElement(element);
                     break;
                 case "object":
                     content = this._createObjectElement(element);
