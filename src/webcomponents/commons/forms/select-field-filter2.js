@@ -82,20 +82,7 @@ export default class SelectFieldFilter2 extends LitElement {
         if (this.data) {
             const options = [];
             this.select.empty();
-            this.data.forEach(item => {
-            // if exist children options
-                if (item?.fields && item?.fields.length > 0) {
-                    options.push({
-                        text: item.id,
-                        children: item.fields.map(opt => ({id: opt.id, text: opt.name}))
-                    });
-                } else {
-                    options.push({
-                    id: item.id,
-                    text: item.name,
-                });
-                }
-            });
+            this.data.forEach(item => options.push(this.getOptions(item)));
             const selectConfig = {
                 theme: "bootstrap-5",
                 dropdownParent: document.querySelector(`#${this._prefix}`).parentElement,
@@ -139,14 +126,14 @@ export default class SelectFieldFilter2 extends LitElement {
             }
 
             // This hides the search field for basic select2 tags.
-            if (!this.config?.liveSearch && !this.config?.tags) {
-                this.querySelector("span.select2-search select2-search--dropdown").style.display = "none";
+            const searchElm = this.querySelector("span.select2-search select2-search--dropdown");
+            if (!this.config?.liveSearch && !this.config?.tags && searchElm !== null) {
+                searchElm.style.display = "none";
             }
         }
     }
 
     customAdapter() {
-
         $.fn.select2.amd.define("CustomSelectionAdapter", [
             "select2/utils",
             "select2/selection/multiple",
@@ -233,7 +220,6 @@ export default class SelectFieldFilter2 extends LitElement {
 
             return adapter;
         });
-
     }
 
     optionsFormatter(item) {
@@ -272,6 +258,24 @@ export default class SelectFieldFilter2 extends LitElement {
             _data = data?.map(({name, ...props}) => ({...props, text: name}));
             console.log("Output transform: ", _data);
         }
+    }
+
+    getOptions(item) {
+        if (!UtilsNew.isObject(item)) {
+            return item;
+        }
+
+        if (item.fields && item.fields.length > 0) {
+            return {
+                text: item.id,
+                children: item.fields.map(opt => ({id: opt.id, text: opt.name}))
+            };
+        }
+
+        return {
+            id: item.id,
+            text: item.name
+        };
     }
 
     filterChange(e) {
@@ -376,7 +380,8 @@ export default class SelectFieldFilter2 extends LitElement {
             maxItems: 0, // maxOptions
             disabled: false,
             placeholder: "Select option(s)",
-            freeTag: false
+            freeTag: false,
+            tags: true
         };
     }
 
