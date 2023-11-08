@@ -81,9 +81,11 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         this.files = [];
         this.filesByCaller = {};
 
-        this.query = {
-            region: "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y",
-        };
+        // Nacho (08/11/2023): commented as part of the fix TASK-5244
+        // this.query = {
+        //     region: "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y",
+        // };
+        this.query = null;
 
         this.queries = {};
         this.circosPlot = null;
@@ -186,6 +188,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
 
                         // Update query with default 'fileData' parameters
                         this.query = {
+                            region: "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y",
                             ...this.query,
                             fileData: fileDataFilters.join(","),
                         };
