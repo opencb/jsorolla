@@ -134,7 +134,7 @@ export default class DataForm extends LitElement {
             if (value && display?.format) {
                 // check if response is actually an HTML
                 // value = UtilsNew.renderHTML(display.format(value));
-                value = display.format(value);
+                value = display.format(value, object);
             }
 
             // Needed for handling falsy values
@@ -189,7 +189,7 @@ export default class DataForm extends LitElement {
             //          },
             //     },
             if (element?.display?.format?.[match]) {
-                value = element?.display?.format?.[match](value);
+                value = element?.display?.format?.[match](value, object);
             }
             if (element?.display?.style?.[match]) {
                 const style = this._parseStyleField(element?.display?.style?.[match]);
@@ -1120,9 +1120,9 @@ export default class DataForm extends LitElement {
         if (element.display?.format || element.display?.render) {
             // NOTE: 'element.display.render' is now deprecated, use 'format' instead
             if (element.display?.format) {
-                values = array.map(item => element.display.format(item));
+                values = array.map(item => element.display.format(item, data));
             } else {
-                values = array.map(item => element.display.render(item));
+                values = array.map(item => element.display.render(item, data));
             }
         } else {
             if (element.display?.template) {

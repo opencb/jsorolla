@@ -20,8 +20,12 @@ import {html, LitElement} from "lit";
 
 import {DATA_FORM_EXAMPLE} from "../conf/data-form.js";
 import UtilsNew from "../../../core/utils-new.js";
+import "../../../webcomponents/commons/forms/data-form.js";
 import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/variant/variant-browser-grid.js";
+import Types from "../../../webcomponents/commons/types";
+import CatalogGridFormatter from "../../../webcomponents/commons/catalog-grid-formatter";
+import VariantTableFormatter from "../../../webcomponents/variant/variant-table-formatter";
 
 
 class VariantBrowserGridTest extends LitElement {
@@ -125,10 +129,16 @@ class VariantBrowserGridTest extends LitElement {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }
+
         return html`
             <h2 style="font-weight: bold;">
                 Variant Browser (${this.testVariantFile?.split("-")?.at(-1)})
             </h2>
+
+            <data-form
+                .data="${{variants: this.variants.slice(0, 10)}}"
+                .config="${this.getDefaultConfig()}">
+            </data-form>
 
             <variant-browser-grid
                 .toolId="${this.COMPONENT_ID}"
@@ -139,6 +149,70 @@ class VariantBrowserGridTest extends LitElement {
                 .populationFrequencies="${this.config.populationFrequencies}">
             </variant-browser-grid>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            title: "Summary",
+            icon: "",
+            display: {
+                collapsable: true,
+                titleVisible: false,
+                titleWidth: 2,
+                defaultValue: "-",
+                defaultLayout: "horizontal",
+                buttonsVisible: false,
+            },
+            sections: [
+                {
+                    title: "Variants",
+                    display: {
+                    },
+                    elements: [
+                        {
+                            title: "List of Variants",
+                            field: "variants",
+                            type: "table",
+                            display: {
+                                className: "",
+                                style: "",
+                                headerClassName: "",
+                                headerStyle: "",
+                                headerVisible: true,
+                                // filter: array => array.filter(item => item.somatic),
+                                // transform: array => array.map(item => {
+                                //     item.somatic = true;
+                                //     return item;
+                                // }),
+                                defaultValue: "-",
+                                columns: [
+                                    VariantTableFormatter.variantFormatter(),
+                                    VariantTableFormatter.geneFormatter()
+                                    // {
+                                    //     title: "Somatic",
+                                    //     type: "custom",
+                                    //     field: "somatic",
+                                    //     // formatter: value => value ? "true" : "false",
+                                    //     display: {
+                                    //         render: somatic => somatic ? "true" : "false",
+                                    //         style: {
+                                    //             color: "red"
+                                    //         }
+                                    //     }
+                                    // },
+                                    // {
+                                    //     title: "Phenotypes",
+                                    //     field: "phenotypes",
+                                    //     type: "list"
+                                    //     // formatter: value => value?.length ? `${value.map(d => d.id).join(", ")}` : "-",
+                                    // },
+                                ],
+                            },
+                        },
+                    ],
+                },
+            ],
+        };
     }
 
 }
