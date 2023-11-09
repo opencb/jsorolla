@@ -67,7 +67,7 @@ export default class VariantUtils {
                 "gene",
                 "type",
                 // Adding SAMPLES (includeSample=all in VB and Case samples in Sample VB)
-                ...samples.map(sample => sample.id),
+                ...samples.map(sample => sample.id || sample),
                 "consequenceType",
                 "deleteriousness.SIFT",
                 "deleteriousness.polyphen",
