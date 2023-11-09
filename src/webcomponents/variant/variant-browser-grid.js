@@ -136,11 +136,14 @@ export default class VariantBrowserGrid extends LitElement {
             ...this.getDefaultConfig(),
             ...this.config,
         };
+
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Config for the grid toolbar
         this.toolbarSetting = {
+            showCreate: false,
             showExport: true,
+            showSettings: true,
             exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
             showColumns: false,
             ...this._config,
@@ -155,7 +158,6 @@ export default class VariantBrowserGrid extends LitElement {
             showInterpreterConfig: true,
             columns: this._getDefaultColumns()
         };
-
     }
 
     onColumnChange(e) {
@@ -796,7 +798,7 @@ export default class VariantBrowserGrid extends LitElement {
                                         </a>
                                     </li>
                                     <li data-cy="varsome-variant-link">
-                                        <a target="_blank" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} 
+                                        <a target="_blank" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""}
                                             href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Varsome
                                         </a>
@@ -806,14 +808,14 @@ export default class VariantBrowserGrid extends LitElement {
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> 
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
                                             CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
                                         </a>
                                     </li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> 
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
                                             CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
                                         </a>
                                     </li>
@@ -1062,16 +1064,21 @@ export default class VariantBrowserGrid extends LitElement {
 
     getDefaultConfig() {
         return {
+            // Bootstrap Grid config
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showExport: false,
             detailView: true,
             detailFormatter: this.detailFormatter,
+            // multiSelection: false,
+
+            // Custom config
             showToolbar: true,
+            showCreate: false,
+            showExport: true,
+            showSettings: true,
             showSelectCheckbox: false,
             showActions: true,
-            multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 15,
 

@@ -684,7 +684,7 @@ export default class VariantBrowser extends LitElement {
                             name: "Consequence Type",
                             render: (variant, active) => html`
                                 <variant-consequence-type-view
-                                    .consequenceTypes="${variant.annotation.consequenceTypes}"
+                                    .consequenceTypes="${variant?.annotation?.consequenceTypes}"
                                     .active="${active}">
                                 </variant-consequence-type-view>
                             `,
@@ -694,7 +694,7 @@ export default class VariantBrowser extends LitElement {
                             name: "Population Frequencies",
                             render: (variant, active) => html`
                                 <cellbase-population-frequency-grid
-                                    .populationFrequencies="${variant.annotation.populationFrequencies}"
+                                    .populationFrequencies="${variant?.annotation?.populationFrequencies}"
                                     .active="${active}">
                                 </cellbase-population-frequency-grid>
                             `,
@@ -704,8 +704,8 @@ export default class VariantBrowser extends LitElement {
                             name: "Clinical",
                             render: variant => html`
                                 <variant-annotation-clinical-view
-                                    .traitAssociation="${variant.annotation.traitAssociation}"
-                                    .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                                    .traitAssociation="${variant?.annotation?.traitAssociation}"
+                                    .geneTraitAssociation="${variant?.annotation?.geneTraitAssociation}">
                                 </variant-annotation-clinical-view>
                             `,
                         },
@@ -748,7 +748,10 @@ export default class VariantBrowser extends LitElement {
                             id: "json-view",
                             name: "JSON Data",
                             render: (variant, active) => html`
-                                <json-viewer .data="${variant}" .active="${active}"></json-viewer>
+                                <json-viewer
+                                    .data="${variant}"
+                                    .active="${active}">
+                                </json-viewer>
                             `,
                         }
                         // TODO Think about Neeworks
