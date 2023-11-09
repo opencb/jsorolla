@@ -41,6 +41,9 @@ export default class SelectFieldFilter2 extends LitElement {
             data: {
                 type: Object
             },
+            classes: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -55,9 +58,12 @@ export default class SelectFieldFilter2 extends LitElement {
 
     firstUpdated() {
         this.select = $("#" + this._prefix);
-        if (!this._config?.tags) {
+        if (this._config?.multiple) {
             this.customAdapter();
         }
+        // if (!this._config?.tags) {
+        //     this.customAdapter();
+        // }
     }
 
     update(changedProperties) {
@@ -76,29 +82,50 @@ export default class SelectFieldFilter2 extends LitElement {
             // TODO: Figure out why this does not execute when config.tags are false.
             this.loadValueSelected();
         }
+
+        // if (changedProperties.has("config")) {
+
+        //     if (this.select?.data("select2")?.$selection && this.config?.classes) {
+        //         this.select.data("select2").$selection.addClass(this.config?.classes);
+        //     } else {
+        //         this.select.data("select2").$selection.removeClass("");
+        //     }
+        // }
+
+        if (typeof this.select.data("select2")?.$selection !== "undefined" && changedProperties.has("classes")) {
+            // For update select style
+            if (this.classes === "selection-updated") {
+                this.select.data("select2").$selection.addClass(this.classes);
+            } else {
+                this.select.data("select2").$selection.removeClass("selection-updated");
+            }
+        }
     }
 
     loadData() {
-        if (this.data) {
+        if (this.data?.length > 0) {
             const options = [];
             this.select.empty();
             this.data.forEach(item => options.push(this.getOptions(item)));
+
             const selectConfig = {
+                ...this._config,
                 theme: "bootstrap-5",
                 dropdownParent: document.querySelector(`#${this._prefix}`).parentElement,
-                selectionCssClass: "select2--small",
-                multiple: this._config?.multiple,
-                placeholder: this._config?.placeholder,
-                disabled: false,
+                selectionCssClass: this._config?.selectionClass ? this.config?.selectionClass : "",
+                multiple: this._config?.multiple ?? false,
+                placeholder: this._config.placeholder ?? "Select an option",
+                allowClear: true,
+                disabled: this._config?.disabled ?? false,
                 width: "80%",
                 data: options,
                 tokenSeparator: this._config?.separator,
-                closeOnSelect: false,
+                closeOnSelect: !this._config?.multiple,
                 templateResult: e => this.optionsFormatter(e),
-                ...this._config,
+                ...this._config?.liveSearch ? {} : {minimumResultsForSearch: Infinity}, // To hide search box
             };
 
-            if (!this._config?.tags) {
+            if (this._config?.multiple) {
                 const searchBox = {dropdownAdapter: $.fn.select2.amd.require("CustomDropdownAdapter")};
                 const selectAdapter = {
                     templateSelection: data => {
@@ -122,13 +149,11 @@ export default class SelectFieldFilter2 extends LitElement {
                 this.select.select2({...selectConfig})
                     .on("select2:select", e => this.filterChange(e))
                     .on("select2:unselect", e => this.filterChange(e));
-
             }
 
-            // This hides the search field for basic select2 tags.
-            const searchElm = this.querySelector("span.select2-search select2-search--dropdown");
-            if (!this.config?.liveSearch && !this.config?.tags && searchElm !== null) {
-                searchElm.style.display = "none";
+            // Clear select
+            if (UtilsNew.isEmpty(this.value)) {
+                this.select.val(null).trigger("change");
             }
         }
     }
@@ -262,19 +287,22 @@ export default class SelectFieldFilter2 extends LitElement {
 
     getOptions(item) {
         if (!UtilsNew.isObject(item)) {
-            return item;
+            return {
+                id: item,
+                text: item
+            };
         }
 
         if (item.fields && item.fields.length > 0) {
             return {
                 text: item.id,
-                children: item.fields.map(opt => ({id: opt.id, text: opt.name}))
+                children: item.fields.map(opt => ({id: opt.id, text: opt?.name || opt?.id}))
             };
         }
 
         return {
             id: item.id,
-            text: item.name
+            text: item?.name || item?.id
         };
     }
 
@@ -369,6 +397,7 @@ export default class SelectFieldFilter2 extends LitElement {
             title: "",
             separator: [","],
             multiple: true,
+            selectionClass: "",
             all: false,
             required: false,
             liveSearch: true,
@@ -381,7 +410,7 @@ export default class SelectFieldFilter2 extends LitElement {
             disabled: false,
             placeholder: "Select option(s)",
             freeTag: false,
-            tags: true
+            tags: false
         };
     }
 
