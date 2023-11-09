@@ -83,16 +83,18 @@ export default class ClinicalStatusFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter
+            <select-field-filter2
                 .data="${this.uniqueStatuses}"
-                .value=${this.status}
-                .placeholder="${this.placeholder}"
-                .multiple="${this.multiple}"
-                .forceSelection="${this.forceSelection}"
+                .value="${this.status}"
+                .config="${{
+                    placeholder: this.placeholder,
+                    multiple: this.multiple,
+                    liveSearch: false,
+                    disabled: this.disabled,
+                }}"
                 .classes="${this.classes}"
-                .disabled="${this.disabled}"
                 @filterChange="${e => this.filterChange(e)}">
-            </select-field-filter>
+            </select-field-filter2>
 
             <!-- Only show description when one single values is expected -->
             ${!this.multiple && this.statusObject?.description ? html`
