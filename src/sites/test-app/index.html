@@ -157,6 +157,10 @@
     <!-- /build -->
     <!-- LitElement assets -->
     <!-- build:void[] -->
+    <script type="text/javascript">
+        // We need to initialize IVA_EXTENSIONS as an empty array
+        window.IVA_EXTENSIONS = [];
+    </script>
     <script src="{{ TEST_APP_EXTENSIONS_PATH }}/extensions.js"></script>
     <script type="module" src="./test-app.js"></script>
     <!-- /build -->
