@@ -11,7 +11,10 @@ export default {
     // @param {string} type - the extension type (e.g. "tool")
     // @return {array} extensions - an array with the extesions of the specified type
     getByType(type) {
-        return (window?.IVA_EXTENSIONS?.extensions || []).filter(extension => extension.type === type);
+        return (window?.IVA_EXTENSIONS || [])
+            .map(source => source?.extensions || [])
+            .flat()
+            .filter(extension => extension.type === type);
     },
 
     // Gets a list of detail tabs generated from the extensions for the specified component
