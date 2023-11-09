@@ -299,7 +299,6 @@ export default class StudyAdminAudit extends LitElement {
                                     ...this._config,
                                     placeholder: "User: All",
                                     liveSearch: false,
-                                    tags: false
                                 }}
                                 .value="${this.query?.userId}"
                                 @filterChange="${e => this.onFilterChange("userId", e.detail.value)}">
@@ -316,7 +315,6 @@ export default class StudyAdminAudit extends LitElement {
                                     ...this._config,
                                     placeholder: "Action: All",
                                     liveSearch: false,
-                                    tags: false
                                 }}
                                 .value="${this.query?.action}"
                                 @filterChange="${e => this.onFilterChange("action", e.detail.value)}">
@@ -333,7 +331,6 @@ export default class StudyAdminAudit extends LitElement {
                                 .config=${{
                                     placeholder: "Resource: All",
                                     liveSearch: false,
-                                    tags: false
                                 }}
                                 @filterChange="${e => this.onFilterChange("resource", e.detail.value)}">
                             </select-field-filter2>
@@ -349,7 +346,6 @@ export default class StudyAdminAudit extends LitElement {
                                 .config=${{
                                     placeholder: "Status: All",
                                     liveSearch: false,
-                                    tags: false
                                 }}
                                 @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
                             </select-field-filter2>
