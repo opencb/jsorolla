@@ -14,310 +14,56 @@
  * limitations under the License.
  */
 
-import VariantFormatter from "./variant-formatter.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter";
-import CustomActions from "../commons/custom-actions.js";
 
 
-export default class VariantGridFormatter {
+export default class VariantFormatter {
 
-    // DEPRECATED: use new consequenceTypes.impact instead
-    static assignColors(consequenceTypes, proteinSubstitutionScores) {
-        let result = {};
-        if (consequenceTypes) {
-            const consequenceTypeToColor = {};
-            const consequenceTypeToImpact = {};
-            for (const category of consequenceTypes.categories) {
-                if (category.terms) {
-                    for (const term of category.terms) {
-                        consequenceTypeToColor[term.name] = consequenceTypes.style[term.impact];
-                        consequenceTypeToImpact[term.name] = term.impact;
-                    }
-                } else {
-                    if (category.id && category.name) {
-                        consequenceTypeToColor[category.name] = consequenceTypes[category.impact];
-                        consequenceTypeToImpact[category.name] = category.impact;
-                    }
-                }
-            }
-            result = {
-                consequenceTypeToColor: consequenceTypeToColor,
-                consequenceTypeToImpact: consequenceTypeToImpact
-            };
-        }
+    static variantIdFormatter(id, variant) {
+        let ref = variant.reference ? variant.reference : "-";
+        let alt = variant.alternate ? variant.alternate : "-";
 
-        if (proteinSubstitutionScores) {
-            const pssColor = new Map();
-            for (const i in proteinSubstitutionScores) {
-                if (Object.prototype.hasOwnProperty.call(proteinSubstitutionScores, i)) {
+        // Check size
+        const maxAlleleLength = 20;
+        ref = (ref.length > maxAlleleLength) ? ref.substring(0, 4) + "..." + ref.substring(ref.length - 4) : ref;
+        alt = (alt.length > maxAlleleLength) ? alt.substring(0, 4) + "..." + alt.substring(alt.length - 4) : alt;
 
-                    const obj = proteinSubstitutionScores[i];
-                    Object.keys(obj).forEach(key => {
-                        pssColor.set(key, obj[key]);
-                    });
-                }
-            }
-            result.pssColor = pssColor;
-        }
-        return result;
+        // Ww need to escape < and > symbols from <INS>, <DEL>, ...
+        alt = alt.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+        return `${variant.chromosome}:${variant.start} ${ref}/${alt}`;
     }
 
-    static variantIdFormatter(id, variant, index, assembly, config = {}) {
-        if (!variant) {
-            return;
-        }
-
-        // let ref = variant.reference ? variant.reference : "-";
-        // let alt = variant.alternate ? variant.alternate : "-";
-        //
-        // // Check size
-        // const maxAlleleLength = config?.alleleStringLengthMax ? config.alleleStringLengthMax : 20;
-        // ref = (ref.length > maxAlleleLength) ? ref.substring(0, 4) + "..." + ref.substring(ref.length - 4) : ref;
-        // alt = (alt.length > maxAlleleLength) ? alt.substring(0, 4) + "..." + alt.substring(alt.length - 4) : alt;
-        //
-        // // Ww need to escape < and > symbols from <INS>, <DEL>, ...
-        // alt = alt.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-        const variantId = VariantFormatter.variantIdFormatter(id, variant);
-
-        // Create links for tooltip
-        let tooltipText = "";
-        const variantRegion = variant.chromosome + ":" + variant.start + "-" + variant.end;
-        // 1. Add Decipher only if variant is a SNV or we have the original call. INDELS cannot be linked in the Variant Browser
-        if (variant.id || variant.studies[0]?.files[0]?.call?.variantId) {
-            const variantId = variant.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || variant.id;
-            tooltipText += `
-                <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Links</div>
-                <div style="padding: 5px">
-                    <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "decipher")}">
-                        Decipher
-                    </a>
-                </div>
-                <div style="padding: 5px" data-cy="varsome-variant-link">
-                    <a target="_blank" ${variant.type === "COPY_NUMBER" ? `class="${"disabled"}"` : `href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "varsome", assembly)}"`}>
-                        Varsome ${variant.type === "COPY_NUMBER" ? "<small>(Disabled)</small>" : ""}
-                    </a>
-                </div>
-            `;
-        }
-        // 2. Add links to external browsers
-        tooltipText += `
-            <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Genome Browsers</div>
-            <div style="padding: 5px">
-                <a target="_blank" href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "ensembl_genome_browser", assembly)}">
-                    Ensembl Genome Browser
-                </a>
-            </div>
-            <div style="padding: 5px">
-                <a target="_blank" href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "ucsc_genome_browser")}">
-                    UCSC Genome Browser
-                </a>
-            </div>
-        `;
-
-        // const snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
-        const snpId = VariantFormatter.snpFormatter(id, variant, index, assembly);
-        let snpHtml;
-        if (snpId) {
-            if (assembly.toUpperCase() === "GRCH37") {
-                snpHtml = "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
-            } else {
-                snpHtml = "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
-            }
-        }
-
-        // Add highlight icons
-        let iconHighlights = [];
-        if (config?.highlights?.length > 0) {
-            iconHighlights = config.highlights
-                .filter(h => h.active)
-                .map(highlight => {
-                    if (CustomActions.get(highlight).execute(variant, highlight) && highlight.style?.icon) {
-                        const description = highlight.description || highlight.name || "";
-                        const icon = highlight.style.icon;
-                        const color = highlight.style.iconColor || "";
-
-                        return `<i title="${description}" class="fas fa-${icon}" style="color:${color};margin-left:4px;"></i>`;
-                    }
-                });
-        }
-
-        return `
-            <div style="margin:5px 0px;white-space:nowrap;">
-                <a tooltip-title='Links' tooltip-text='${tooltipText}'>
-                    ${variantId}
-                </a>
-                ${iconHighlights.join("")}
-            </div>
-            ${snpHtml ? `<div style="margin: 5px 0px">${snpHtml}</div>` : ""}
-        `;
-    }
-
-    // static snpFormatter(value, row, index, assembly) {
-    //     // We try first to read SNP ID from the 'names' of the variant (this identifier comes from the file).
-    //     // If this ID is not a "rs..." then we search the rs in the CellBase XRef annotations.
-    //     // This field is in annotation.xref when source: "dbSNP".
-    //     let snpId = "";
-    //     if (row.names && row.names.length > 0) {
-    //         for (const name of row.names) {
-    //             if (name.startsWith("rs")) {
-    //                 snpId = name;
-    //                 break;
-    //             }
-    //         }
-    //     } else {
-    //         if (row.annotation) {
-    //             if (row.annotation.id && row.annotation.id.startsWith("rs")) {
-    //                 snpId = row.annotation.id;
-    //             } else {
-    //                 if (row.annotation.xrefs) {
-    //                     for (const xref of row.annotation.xrefs) {
-    //                         if (xref.source === "dbSNP") {
-    //                             snpId = xref.id;
-    //                             break;
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //
-    //     if (snpId) {
-    //         if (assembly.toUpperCase() === "GRCH37") {
-    //             return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
-    //         } else {
-    //             return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
-    //         }
-    //     }
-    //     return snpId;
-    // }
-
-    static geneFormatter(variant, index, query, opencgaSession, gridCtSettings) {
-        // FIXME
-        if (!variant.annotation) {
-            variant.annotation = {
-                consequenceTypes: []
-            };
-        }
-        const {selectedConsequenceTypes, notSelectedConsequenceTypes} =
-            VariantGridFormatter._consequenceTypeDetailFormatterFilter(variant.annotation.consequenceTypes, gridCtSettings);
-
-        // Keep a map of genes and the SO accessions and names
-        const geneHasQueryCt = new Set();
-        if (query?.ct) {
-            const consequenceTypes = new Set();
-            for (const ct of query.ct.split(",")) {
-                consequenceTypes.add(ct);
-            }
-
-            for (const ct of selectedConsequenceTypes) {
-                if (ct.sequenceOntologyTerms.some(so => consequenceTypes.has(so.name))) {
-                    geneHasQueryCt.add(ct.geneName);
+    static snpFormatter(value, row) {
+        // We try first to read SNP ID from the 'names' of the variant (this identifier comes from the file).
+        // If this ID is not a "rs..." then we search the rs in the CellBase XRef annotations.
+        // This field is in annotation.xref when source: "dbSNP".
+        let snpId = "";
+        if (row.names && row.names.length > 0) {
+            for (const name of row.names) {
+                if (name.startsWith("rs")) {
+                    snpId = name;
+                    break;
                 }
             }
-        }
-
-        if (variant?.annotation?.consequenceTypes?.length > 0) {
-            const visited = {};
-            const geneLinks = [];
-            const geneWithCtLinks = [];
-            for (let i = 0; i < variant.annotation.consequenceTypes.length; i++) {
-                const geneName = variant.annotation.consequenceTypes[i].geneName;
-
-                // We process Genes just one time
-                if (geneName && !visited[geneName]) {
-                    let geneViewMenuLink = "";
-                    if (opencgaSession.project && opencgaSession.study) {
-                        geneViewMenuLink = `<div style='padding: 5px'>
-                                                <a style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a>
-                                            </div>`;
-                    }
-
-                    const tooltipText = `
-                        ${geneViewMenuLink}
-                        ${this.getGeneTooltip(geneName, this.opencgaSession?.project?.organism?.assembly)}
-                    `;
-
-                    // If query.ct exists
-                    if (query?.ct) {
-                        // If gene contains one of the query.ct
-                        if (geneHasQueryCt.has(geneName)) {
-                            geneWithCtLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;">
-                                                        ${geneName}
-                                                  </a>`);
-                        } else {
-                            geneLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;color: darkgray;font-style: italic">
-                                                    ${geneName}
-                                            </a>`);
-                        }
-                    } else {
-                        // No query.ct passed
-                        geneLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px">
-                                                ${geneName}
-                                        </a>`);
-                    }
-                    visited[geneName] = true;
-                }
-            }
-
-            // Do not write more than 4 genes per line, this could be easily configurable
-            let resultHtml = "";
-            const maxDisplayedGenes = 10;
-            const allGenes = geneWithCtLinks.concat(geneLinks);
-
-            if (allGenes.length <= maxDisplayedGenes) {
-                resultHtml = allGenes.join(",");
-            } else {
-                resultHtml = `
-                    <div data-role="genes-list" data-variant-index="${index}">
-                        ${allGenes.slice(0, maxDisplayedGenes).join(",")}
-                        <span data-role="genes-list-extra" style="display:none">
-                            ,${allGenes.slice(maxDisplayedGenes).join(",")}
-                        </span>
-                        <div style="margin-top:8px;">
-                            <a data-role="genes-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
-                                ... show more genes (${(allGenes.length - maxDisplayedGenes)})
-                            </a>
-                            <a data-role="genes-list-hide" style="cursor:pointer;font-size:13px;font-weight:bold;display:none;">
-                                show less genes
-                            </a>
-                        </div>
-                    </div>
-                `;
-            }
-            return resultHtml || "-";
         } else {
-            return "-";
+            if (row.annotation) {
+                if (row.annotation.id && row.annotation.id.startsWith("rs")) {
+                    snpId = row.annotation.id;
+                } else {
+                    if (row.annotation.xrefs) {
+                        for (const xref of row.annotation.xrefs) {
+                            if (xref.source === "dbSNP") {
+                                snpId = xref.id;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }
-    }
 
-    static getGeneTooltip(geneName, assembly) {
-        return `
-            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>External Links</div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", assembly)}'>Ensembl</a>
-            </div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
-            </div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
-            </div>
-            <div style='padding: 5px' data-cy='varsome-gene-link'>
-                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "varsome", assembly)}'>Varsome</a>
-            </div>
-
-            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>Clinical Resources</div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
-            </div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", assembly)}'>COSMIC</a>
-            </div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
-            </div>
-        `;
+        return snpId;
     }
 
     static hgvsFormatter(variant, gridConfig) {

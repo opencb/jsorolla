@@ -186,7 +186,7 @@ class VariantBrowserGridTest extends LitElement {
                                 // }),
                                 defaultValue: "-",
                                 columns: [
-                                    VariantTableFormatter.variantFormatter(),
+                                    VariantTableFormatter.variantIdFormatter(),
                                     VariantTableFormatter.geneFormatter()
                                     // {
                                     //     title: "Somatic",
