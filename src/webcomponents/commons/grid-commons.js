@@ -305,7 +305,7 @@ export default class GridCommons {
                     title: annotation.title || "Custom Annotation",
                     field: "annotationSets",
                     formatter: annotationSets => formatter(annotationSets, annotation.variableSetId, annotation.variables),
-                    halign: gridConfig.header.horizontalAlign,
+                    halign: gridConfig.header?.horizontalAlign || "center",
                     visible: true,
                     excludeFromSettings: true,
                     // visible: this.gridCommons.isColumnVisible("annotations")
