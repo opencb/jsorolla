@@ -216,7 +216,6 @@ export default class DiseasePanelFilter extends LitElement {
                         .value=${this.panel}
                         .classes="${this.classes}"
                         .config="${{
-                            tags: false,
                             multiple: this.multiple,
                             separator: "\n"
                         }}"
@@ -259,7 +258,6 @@ export default class DiseasePanelFilter extends LitElement {
                         .data="${this.panelFeatureTypes}"
                         .value=${this.panelFeatureType}
                         .config=${{
-                            tags: false,
                             disabled: this.genes.length === 0 || this.disabled
                         }}
                         @filterChange="${e => this.filterChange(e, "panelFeatureType")}">
@@ -274,7 +272,6 @@ export default class DiseasePanelFilter extends LitElement {
                         .data="${MODE_OF_INHERITANCE}"
                         .value=${this.panelModeOfInheritance}
                         .config=${{
-                            tags: false,
                             disabled: this.genes?.length === 0 || this.disabled
                         }}
                         @filterChange="${e => this.filterChange(e, "panelModeOfInheritance")}">
@@ -289,7 +286,6 @@ export default class DiseasePanelFilter extends LitElement {
                         .data="${DISEASE_PANEL_CONFIDENCE}"
                         .value=${this.panelConfidence}
                         .config=${{
-                            tags: false,
                             disabled: this.genes?.length === 0 || this.disabled
                         }}
                         @filterChange="${e => this.filterChange(e, "panelConfidence")}">
@@ -304,7 +300,6 @@ export default class DiseasePanelFilter extends LitElement {
                         .data="${ROLE_IN_CANCER}"
                         .value=${this.panelRoleInCancer}
                         .config=${{
-                            tags: false,
                             disabled: this.genes?.length === 0 || this.disabled
                         }}
                         @filterChange="${e => this.filterChange(e, "panelRoleInCancer")}">
