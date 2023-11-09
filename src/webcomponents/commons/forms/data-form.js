@@ -1698,6 +1698,7 @@ export default class DataForm extends LitElement {
             }
         }
         LitUtils.dispatchCustomEvent(this, "fieldChange", null, {
+            ...eventDetail,
             data: this.data,
         }, null, {bubbles: true, composed: true});
     }
