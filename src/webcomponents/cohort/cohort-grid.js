@@ -221,7 +221,7 @@ export default class CohortGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        include: "id,creationDate,status,type,numSamples",
+                        include: "id,creationDate,status,type,numSamples,annotationSets",
                         ...this.query
                     };
                     // Store the current filters
