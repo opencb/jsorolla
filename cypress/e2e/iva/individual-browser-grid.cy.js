@@ -111,6 +111,49 @@ context("Individual Browser Grid", () => {
         });
     });
 
+    // MODAL CREATE AUTOCOMPLETE
+    context("Modal Create Autocomplete", () => {
+        beforeEach(() => {
+            // eslint-disable-next-line cypress/unsafe-to-chain-command
+            cy.get("@container")
+                .find(`button[data-action="create"]`)
+                .click();
+            cy.get("@container")
+                .find(`div[data-cy="modal-create"]`)
+                .as("modal-create");
+        });
+
+        it("should autocomplete on searching and selecting one result", () => {
+            // eslint-disable-next-line cypress/unsafe-to-chain-command
+            cy.get("@modal-create")
+                .contains("ul.nav.nav-tabs > li", "Phenotypes")
+                .click();
+            cy.get("@modal-create")
+                .contains("button", "Add Item")
+                .click();
+            cy.get("cellbase-search-autocomplete")
+                .find("select-token-filter .select2-container")
+                .click();
+            cy.get("cellbase-search-autocomplete")
+                .find("input.select2-search__field")
+                .type("gli");
+            cy.get("cellbase-search-autocomplete")
+                .find("span.select2-results li")
+                .first()
+                .click();
+            cy.get("cellbase-search-autocomplete")
+                .find("span.select2-selection__rendered")
+                .should("contain.text", "Glioblastoma multiforme");
+            cy.get("@modal-create")
+                .find(`input[placeholder="Add phenotype ID......"]`)
+                .then(element => {
+                    expect(element.val()).equal("HP:0012174");
+                    cy.wrap(element).should("be.disabled");
+                });
+
+        });
+    });
+
     // MODAL UPDATE
     context("Modal Update", () => {
         beforeEach(() => {
@@ -352,7 +395,6 @@ context("Individual Browser Grid", () => {
                     .find(`tbody tr[data-index="0"]`)
                     .as("row");
             });
-
         });
 
         // 4. Extensions
@@ -442,7 +484,7 @@ context("Individual Browser Grid", () => {
                 .find(`td`)
                 .eq(1)
                 .trigger("click");
-        
+
             cy.get(`detail-tabs h3`)
                 .should("contain.text", `Individual ${individual}`);
         });
@@ -452,7 +494,7 @@ context("Individual Browser Grid", () => {
                 .find("li")
                 .contains("JSON Data")
                 .trigger("click");
-            
+
             cy.get("json-viewer")
                 .should("be.visible");
         });
