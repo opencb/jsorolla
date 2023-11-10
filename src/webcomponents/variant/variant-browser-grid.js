@@ -42,6 +42,9 @@ export default class VariantBrowserGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -99,7 +102,7 @@ export default class VariantBrowserGrid extends LitElement {
             this.configObserver();
             this.renderVariants();
         }
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("config") || changedProperties.has("toolId")) {
             this.configObserver();
             this.requestUpdate();
             this.renderVariants();
@@ -149,13 +152,12 @@ export default class VariantBrowserGrid extends LitElement {
         };
 
         this.toolbarConfig = {
-            toolId: "variantBrowser",
+            toolId: this.toolId,
             resource: "VARIANT",
             disableCreate: true,
             showInterpreterConfig: true,
             columns: this._getDefaultColumns()
         };
-
     }
 
     onColumnChange(e) {
@@ -796,7 +798,7 @@ export default class VariantBrowserGrid extends LitElement {
                                         </a>
                                     </li>
                                     <li data-cy="varsome-variant-link">
-                                        <a target="_blank" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} 
+                                        <a target="_blank" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""}
                                             href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Varsome
                                         </a>
@@ -806,14 +808,14 @@ export default class VariantBrowserGrid extends LitElement {
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> 
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
                                             CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
                                         </a>
                                     </li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> 
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
                                             CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
                                         </a>
                                     </li>

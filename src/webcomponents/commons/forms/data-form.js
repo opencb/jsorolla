@@ -658,6 +658,8 @@ export default class DataForm extends LitElement {
             `;
         }
 
+        // ${typeof content === "string" ? UtilsNew.renderHTML(content) : content}
+        // content.replace(/(<([^>]+)>)/ig, '')
         return html`
             <div class="${hasErrorMessages ? "has-error" : nothing}">
                 <div data-testid="${this.config.test?.active ? `${this.config.test.prefix || "test"}-${element.field}` : nothing}">
@@ -946,7 +948,7 @@ export default class DataForm extends LitElement {
             return html`<span class="text-danger">No template provided</span>`;
         }
         const content = html`
-            <span>
+            <span class="${element.display.classes}" style="${element.display.style}">
                 ${UtilsNew.renderHTML(this.applyTemplate(element.display.template, data, null, this._getDefaultValue(element)))}
             </span>
         `;

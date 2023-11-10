@@ -70,7 +70,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     #init() {
-        this.COMPONENT_ID = this.toolId + "-grid";
+        this.COMPONENT_ID = "";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
@@ -186,69 +186,6 @@ export default class VariantInterpreterGrid extends LitElement {
     onColumnChange(e) {
         this.gridCommons.onColumnChange(e);
     }
-
-    // FIXME Temporary code to check which variants are being interpreted or have been reported
-    // This should be implemented by OpenCGA
-    // fillReportedVariants(variants) {
-    //     // Prepare queried variants to contain the interpretations
-    //     this.queriedVariants = {};
-    //     return this.opencgaSession.opencgaClient.clinical().searchInterpretation({
-    //         primaryFindings: variants.map(variant => variant.id).join(","),
-    //         study: this.opencgaSession.study.fqn,
-    //     })
-    //         .then(interpretationSearchResponse => {
-    //             const interpretations = interpretationSearchResponse.responses[0]?.results;
-    //             if (interpretations?.length > 0) {
-    //                 variants.forEach(variant => this.queriedVariants[variant.id] = {...variant});
-    //
-    //                 // Add interpretations to the variants to be returned
-    //                 for (const interpretation of interpretations) {
-    //                     for (const variant of interpretation.primaryFindings) {
-    //                         if (this.queriedVariants[variant.id]) {
-    //                             if (!this.queriedVariants[variant.id].interpretations) {
-    //                                 this.queriedVariants[variant.id].interpretations = [];
-    //                             }
-    //                             this.queriedVariants[variant.id].interpretations.push(interpretation);
-    //                         }
-    //                     }
-    //                 }
-    //
-    //                 // Calculate stats
-    //                 for (const v of variants) {
-    //                     const variant = this.queriedVariants[v.id];
-    //                     if (variant.interpretations) {
-    //                         variant.interpretationStats = {
-    //                             status: {},
-    //                             tier: {},
-    //                             clinicalSignificance: {},
-    //                         };
-    //                         for (const interpretation of variant.interpretations) {
-    //                             interpretation?.primaryFindings
-    //                                 ?.filter(primaryFinding => primaryFinding.id === variant.id)
-    //                                 .forEach(primaryFinding => {
-    //                                     // Status stats
-    //                                     if (!variant.interpretationStats.status[primaryFinding.status]) {
-    //                                         variant.interpretationStats.status[primaryFinding.status] = 0;
-    //                                     }
-    //                                     variant.interpretationStats.status[primaryFinding.status]++;
-    //
-    //                                     // Tier stats
-    //                                     primaryFinding.evidences
-    //                                         .filter(evidence => evidence.review.tier)
-    //                                         .forEach(evidence => {
-    //                                             if (!variant.interpretationStats.tier[evidence.review.tier]) {
-    //                                                 variant.interpretationStats.tier[evidence.review.tier] = 0;
-    //                                             }
-    //                                             variant.interpretationStats.tier[evidence.review.tier]++;
-    //                                         });
-    //                                 });
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //             return this.queriedVariants;
-    //         });
-    // }
 
     renderVariants() {
         if (this._config.renderLocal) {

@@ -220,18 +220,16 @@ export class OpenCGAClientMock {
         return this.users().configs(this._config.userId, "IVA");
     }
 
-    updateUserConfigs(data) {
-        // TODO remove this nasty nested bug fix
-        if (data?.IVA) {
-            delete data.IVA;
-        }
-        const userIvaConfig = this.users().updateConfigs(this._config.userId, {
-            id: "IVA",
-            configuration: {
-                ...data
-            }
-        });
-        return userIvaConfig;
+    // Nacho (22/10/2023): This method needs a config ID and VALUE now,
+    // different sites or apps may need to store configurations.
+    updateUserConfig(id, newConfig) {
+        return this.users()
+            .updateConfigs(this._config.userId, {
+                id: id,
+                configuration: {
+                    ...newConfig
+                }
+            });
     }
 
 }
