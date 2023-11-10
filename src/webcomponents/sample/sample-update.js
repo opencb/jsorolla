@@ -335,7 +335,7 @@ export default class SampleUpdate extends LitElement {
                                     field: "collection.from[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add phenotype ID...",
+                                        placeholder: "Add collection ID...",
                                     },
                                 },
                                 {
@@ -414,7 +414,18 @@ export default class SampleUpdate extends LitElement {
                                 showResetListButton: true,
                                 view: phenotype => html`
                                     <div>${phenotype.id} - ${phenotype?.name}</div>
-                                    <div class="help-block">${phenotype?.description}</div>`,
+                                `,
+                                search: {
+                                    title: "Autocomplete",
+                                    button: false,
+                                    render: (currentData, dataFormFilterChange) => html`
+                                        <cellbase-search-autocomplete
+                                            .resource="${"PHENOTYPE"}"
+                                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.data)}">
+                                        </cellbase-search-autocomplete>
+                                    `,
+                                },
                             },
                             elements: [
                                 {

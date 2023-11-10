@@ -269,6 +269,7 @@ export class CellBaseClient {
 
         const url = this._createRestUrl(host, version, species, category, subcategory, ids, resource, params);
         const k = this.generateKey({...params, species, category, subcategory, resource, params});
+        // FIXME: add try-catch-finally (see opencga-rest-input.js)
         return this.restClient.call(url, options, k);
     }
 
