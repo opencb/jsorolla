@@ -259,21 +259,25 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "visited":
                 case "job_priority":
                     content = html`
-                        <select-field-filter
+                        <select-field-filter2
                             .value="${this.preparedQuery[subsection.id]}"
                             .data="${subsection.allowedValues}"
-                            ?multiple="${subsection?.multiple}"
+                            .config="${{
+                                multiple: subsection?.multiple
+                            }}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                        </select-field-filter>
+                        </select-field-filter2>
                     `;
                     break;
                 case "path":
                     content = html`
-                        <text-field-filter
-                            placeholder="${subsection.placeholder}"
+                        <text-field-filter2
                             .value="${this.preparedQuery[subsection.id]}"
+                            .config="${{
+                                placeholder: subsection?.placeholder
+                            }}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                        </text-field-filter>
+                        </text-field-filter2>
                     `;
                     break;
                 case "annotations":
