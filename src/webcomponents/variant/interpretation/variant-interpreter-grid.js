@@ -1563,6 +1563,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
                             <h3>Review Variant</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         ${this.variantReview ? html`
                             <clinical-interpretation-variant-review
