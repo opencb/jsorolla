@@ -224,7 +224,7 @@ export default class DiseasePanelFilter extends LitElement {
                 </div>
 
             ${this.showSelectedPanels && this.panel?.length > 0 ? html`
-                <div class="help-block small" style="padding: 0 0 0 5px">
+                <div class="text-secondary small" style="padding: 0 0 0 5px">
                     Selected panels:
                     ${this.panel.split(",").map(p => html`
                         <div style="padding: 0 0 0 10px; font-style: italic">${p}</div>
@@ -257,9 +257,7 @@ export default class DiseasePanelFilter extends LitElement {
                     <select-field-filter2
                         .data="${this.panelFeatureTypes}"
                         .value=${this.panelFeatureType}
-                        .config=${{
-                            disabled: this.genes.length === 0 || this.disabled
-                        }}
+                        .config=${{disabled: this.genes?.length === 0 || this.disabled}}
                         @filterChange="${e => this.filterChange(e, "panelFeatureType")}">
                     </select-field-filter2>
                 </div>
