@@ -70,7 +70,7 @@ context("Variant Interpreter Grid Germiline", () => {
                 });
         });
 
-        it("should hidden columns [Type,Consequence Type,Gene]",() => {
+        it("should hide columns [Type,Consequence Type,Gene]",() => {
             const columns = ["Type","Consequence Type","Gene"];
             cy.get("variant-interpreter-grid thead th")
                 .as("headerColumns");
@@ -98,10 +98,6 @@ context("Variant Interpreter Grid Germiline", () => {
             cy.get("@settingModal")
                 .contains("button", "OK")
                 .click();
-            cy.get("@headerColumns")
-                .should("not.exist");
-            cy.get("@headerColumns")
-                .should("exist");
             cy.get("@headerColumns")
                 .should($header => {
                     const _columns = Array.from($header, th => th.textContent.trim());

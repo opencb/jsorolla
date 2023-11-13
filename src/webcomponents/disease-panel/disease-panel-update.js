@@ -325,21 +325,18 @@ export default class DiseasePanelUpdate extends LitElement {
                             },
                             elements: [
                                 {
-                                    title: "Gene",
+                                    title: "Gene Name",
                                     field: "genes[].name",
                                     type: "custom",
                                     display: {
                                         placeholder: "Add gene...",
-                                        render: (data, dataFormFilterChange) => {
-                                            return html `
-                                                <feature-filter
-                                                    .query="${{gene: data}}"
-                                                    .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                                    .config="${{multiple: false}}"
-                                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                                </feature-filter>
-                                            `;
-                                        },
+                                        render: (data, dataFormFilterChange) => html`
+                                            <cellbase-search-autocomplete
+                                                .resource="${"GENE"}"
+                                                .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                                @filterChange="${e => dataFormFilterChange(e.detail.data.name)}">
+                                            </cellbase-search-autocomplete>
+                                        `,
                                     }
                                 },
                                 {

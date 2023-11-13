@@ -82,6 +82,7 @@ window.IVA_EXTENSIONS.push({
                 "individual-grid",
                 "job-grid",
                 "sample-grid",
+                "disease-panel-grid",
             ],
             maintainer: "",
             version: "",
@@ -97,34 +98,6 @@ window.IVA_EXTENSIONS.push({
                         formatter: (value, row, index) => `Row ${index}`,
                     },
                 },
-            ],
-        },
-        {
-            id: "catalog-columns-multiple",
-            name: "Catalog Columns",
-            description: "Example columns for Catalog Grids",
-            type: "column",
-            components: [
-                "disease-panel-grid",
-            ],
-            maintainer: "",
-            version: "",
-            compatibleWith: "",
-            columns: [
-                [
-                    {
-                        // position: 0,
-                        config: {
-                            id: "new-column-1",
-                            title: "Extra column",
-                            field: "",
-                            align: "center",
-                            rowspan: 2,
-                            colspan: 1,
-                            formatter: (value, row, index) => `Row ${index}`,
-                        },
-                    },
-                ],
             ],
         },
         {
