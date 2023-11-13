@@ -16,7 +16,6 @@
  */
 
 import {html, LitElement} from "lit";
-import UtilsTest from "../../../../cypress/support/utils-test.js";
 import UtilsNew from "../../../core/utils-new.js";
 
 import "../../../webcomponents/variant/interpretation/variant-interpreter-grid.js";
@@ -158,7 +157,10 @@ class VariantInterpreterGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this.configVariantInterpreterGrid = {...this.configVariantInterpreterGrid, ...this.opencgaSession?.user?.configs?.IVA?.variantInterpreterBrowser?.grid};
+        this.configVariantInterpreterGrid = {
+            ...this.configVariantInterpreterGrid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.variantInterpreterBrowser?.grid
+        };
         this.opencgaSessionObserver();
     }
 

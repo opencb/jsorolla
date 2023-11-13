@@ -38,7 +38,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     static get properties() {
         return {
-            componentId: {
+            toolId: {
                 type: String,
             },
             opencgaSession: {
@@ -65,7 +65,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+        if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
@@ -89,7 +92,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: this.componentId,
+            toolId: this.toolId,
             resource: "CLINICAL_ANALYSIS",
             columns: this._getDefaultColumns(),
             create: {
@@ -633,7 +636,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 formatter: (value, row) => {
                     const panelHtml = row.panels?.length > 0 ? CatalogGridFormatter.panelFormatter(row.panels) : "-";
                     return `
-                        <div>${CatalogGridFormatter.disorderFormatter(value, row)}</div>
+                        <div>${CatalogGridFormatter.disorderFormatter([value], row)}</div>
                         <div style="margin: 5px 0">${panelHtml}</div>
                     `;
                 },

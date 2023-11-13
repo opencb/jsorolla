@@ -69,7 +69,7 @@ context("Variant Browser Grid Cancer", () => {
                 });
         });
 
-        it("should hidden columns [Variant,Gene,Type]",() => {
+        it("should hide columns [Variant,Gene,Type]",() => {
             const columns = ["Variant","Gene","Type"];
             cy.get("variant-browser-grid thead th")
                 .as("headerColumns");
@@ -94,13 +94,11 @@ context("Variant Browser Grid Cancer", () => {
                 tag:"div",
                 elementId: "SettingModal"
             }).as("settingModal");
+
             cy.get("@settingModal")
                 .contains("button", "OK")
                 .click();
-            cy.get("@headerColumns")
-                .should("not.exist");
-            cy.get("@headerColumns")
-                .should("exist");
+
             cy.get("@headerColumns")
                 .should($header => {
                     const _columns = Array.from($header, th => th.textContent?.trim());

@@ -156,12 +156,18 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         }
 
         // Check for user configuration
-        if (this.toolId && this.opencgaSession.user?.configs?.IVA?.[this.toolId]?.grid) {
-            this._config.filter.result.grid = {
-                ...this._config.filter.result.grid,
-                ...this.opencgaSession.user.configs.IVA[this.toolId].grid,
-            };
-        }
+        // if (this.toolId && this.opencgaSession.user?.configs?.IVA?.[this.toolId]?.grid) {
+        //     this._config.filter.result.grid = {
+        //         ...this._config.filter.result.grid,
+        //         ...this.opencgaSession.user.configs.IVA[this.toolId].grid,
+        //     };
+        // }
+        // Apply User grid configuration. Only 'pageSize', 'columns', 'geneSet', 'consequenceType' and 'populationFrequenciesConfig' are set
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.toolId]?.grid
+        });
+
         // FIXME For old users
         if (typeof this._config.filter.result.grid?.highlights === "string") {
             this._config.filter.result.grid.highlights = this.settings.table.highlights;

@@ -23,6 +23,7 @@ import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../study/annotationset/annotation-set-view.js";
 import "../loading-spinner.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter";
 
 export default class SampleView extends LitElement {
 
@@ -215,7 +216,7 @@ export default class SampleView extends LitElement {
                             field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => html`${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
+                                render: field => `${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
                             },
                         },
                         {
@@ -223,7 +224,7 @@ export default class SampleView extends LitElement {
                             field: "creationDate",
                             type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
+                                render: field => `${UtilsNew.dateFormatter(field)}`,
                             },
                         },
                         {
@@ -248,17 +249,18 @@ export default class SampleView extends LitElement {
                             display: {
                                 defaultValue: "N/A",
                                 contentLayout: "bullets",
-                                render: phenotype => {
-                                    let id = phenotype?.id;
-                                    if (phenotype?.id?.startsWith("HP:")) {
-                                        id = html`
-                                            <a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
-                                                ${phenotype.id}
-                                            </a>
-                                        `;
-                                    }
-                                    return phenotype?.name ? html`${phenotype.name} (${id})}` : html`${id}`;
-                                },
+                                // render: phenotype => {
+                                //     let id = phenotype?.id;
+                                //     if (phenotype?.id?.startsWith("HP:")) {
+                                //         id = html`
+                                //             <a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
+                                //                 ${phenotype.id}
+                                //             </a>
+                                //         `;
+                                //     }
+                                //     return phenotype?.name ? html`${phenotype.name} (${id})}` : html`${id}`;
+                                // },
+                                render: phenotype => UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype])),
                             },
                         },
                         /*

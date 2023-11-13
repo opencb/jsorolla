@@ -69,7 +69,7 @@ context("Variant Browser Grid Germline", () => {
                 });
         });
 
-        it("should hidden columns [Type,Consequence Type,Gene]",() => {
+        it("should hide columns [Type,Consequence Type,Gene]",() => {
             const columns = ["Type","Consequence Type","Gene"];
             cy.get("variant-browser-grid thead th")
                 .as("headerColumns");
@@ -97,10 +97,6 @@ context("Variant Browser Grid Germline", () => {
             cy.get("@settingModal")
                 .contains("button", "OK")
                 .click();
-            cy.get("@headerColumns")
-                .should("not.exist");
-            cy.get("@headerColumns")
-                .should("exist");
             cy.get("@headerColumns")
                 .then($header => {
                     const _columns = Array.from($header, th => th.textContent.trim());

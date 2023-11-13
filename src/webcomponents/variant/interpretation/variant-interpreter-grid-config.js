@@ -68,19 +68,29 @@ export default class VariantInterpreterGridConfig extends LitElement {
             let lastSubColumn = 0;
             for (const gridColumn of this.gridColumns[0]) {
                 if (gridColumn.rowspan === 2) {
-                    this.selectColumnData.push({id: gridColumn.id, name: gridColumn.columnTitle || gridColumn.title});
-                    if (typeof gridColumn.visible === "undefined" || gridColumn.visible) {
-                        this.selectedColumns.push(gridColumn.id);
+                    if (!gridColumn.excludeFromSettings) {
+                        this.selectColumnData.push({
+                            id: gridColumn.id,
+                            name: gridColumn.columnTitle || gridColumn.title,
+                        });
+                        if (typeof gridColumn.visible === "undefined" || gridColumn.visible) {
+                            this.selectedColumns.push(gridColumn.id);
+                        }
                     }
                 } else {
                     const option = {id: gridColumn.id, name: gridColumn.columnTitle || gridColumn.title, fields: []};
                     for (let i = lastSubColumn; i < lastSubColumn + gridColumn.colspan; i++) {
-                        option.fields.push({id: this.gridColumns[1][i].id, name: this.gridColumns[1][i].title});
+                        if (!this.gridColumns[1][i].excludeFromSettings) {
+                            option.fields.push({
+                                id: this.gridColumns[1][i].id,
+                                name: this.gridColumns[1][i].title,
+                            });
+                        }
                         if (typeof this.gridColumns[1][i].visible === "undefined" || this.gridColumns[1][i].visible) {
                             this.selectedColumns.push(this.gridColumns[1][i].id);
                         }
                     }
-                    if (option.fields[0].id) {
+                    if (option.fields[0]?.id) {
                         this.selectColumnData.push(option);
                     }
                     lastSubColumn += gridColumn.colspan;
@@ -96,9 +106,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 break;
             case "genotype.type":
                 this.config.genotype.type = e.detail.value;
-                break;
-            case "showHgvs":
-                this.config.showHgvs = e.detail.value;
                 break;
             case "geneSet.ensembl":
             case "geneSet.refseq":
@@ -142,16 +149,32 @@ export default class VariantInterpreterGridConfig extends LitElement {
     }
 
     async onSubmit() {
-        const newGridConfig = {...this.config};
+        // const newGridConfig = {...this.config};
+        //
+        // // Remove highlights and copies configuration from new config
+        // if (newGridConfig._highlights) {
+        //     delete newGridConfig._highlights;
+        // }
 
-        // Remove highlights and copies configuration from new config
-        if (newGridConfig._highlights) {
-            delete newGridConfig._highlights;
-        }
-
-        // Update user configuration
         try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.toolId, newGridConfig);
+            // Update user configuration
+            await OpencgaCatalogUtils
+                .updateGridConfig(
+                    "IVA",
+                    this.opencgaSession,
+                    this.toolId,
+                    {
+                        // All Variant Grids
+                        pageSize: this.config.pageSize,
+                        columns: this.config.columns,
+                        geneSet: this.config.geneSet,
+                        consequenceType: this.config.consequenceType,
+                        populationFrequenciesConfig: this.config.populationFrequenciesConfig,
+                        highlights: this.config.highlights,
+                        // Only Variant Interpreter Grids
+                        genotype: this.config.genotype,
+                    }
+                );
             LitUtils.dispatchCustomEvent(this, "settingsUpdate");
 
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -278,15 +301,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 width: 6,
                             }
                         },
-                        {
-                            title: "Show HGVS column",
-                            field: "showHgvs",
-                            type: "checkbox",
-                            text: "Show HGVS",
-                            display: {
-                                width: 6,
-                            }
-                        }
                     ]
                 },
                 {

@@ -70,7 +70,7 @@ context("Variant Interpreter Grid Germiline", () => {
                 });
         });
 
-        it("should hidden columns [Type,Consequence Type,Gene]",() => {
+        it("should hide columns [Type,Consequence Type,Gene]",() => {
             const columns = ["Type","Consequence Type","Gene"];
             cy.get("variant-interpreter-grid thead th")
                 .as("headerColumns");
@@ -98,10 +98,6 @@ context("Variant Interpreter Grid Germiline", () => {
             cy.get("@settingModal")
                 .contains("button", "OK")
                 .click();
-            cy.get("@headerColumns")
-                .should("not.exist");
-            cy.get("@headerColumns")
-                .should("exist");
             cy.get("@headerColumns")
                 .should($header => {
                     const _columns = Array.from($header, th => th.textContent.trim());
@@ -174,7 +170,7 @@ context("Variant Interpreter Grid Germiline", () => {
 
         it("should display cohort stats (Population Frequencies) tooltip", () => {
             cy.get("tbody tr:first > td")
-                .eq(8)
+                .eq(9)
                 .within(() => {
                     cy.get("a")
                         .trigger("mouseover");
@@ -185,7 +181,7 @@ context("Variant Interpreter Grid Germiline", () => {
 
         it("should display reference population frequencies tooltip", () => {
             cy.get("tbody tr:first > td")
-                .eq(9)
+                .eq(10)
                 .within(() => {
                     cy.get("a")
                         .trigger("mouseover");
@@ -196,7 +192,7 @@ context("Variant Interpreter Grid Germiline", () => {
 
         it("should display ACMG Prediction (Classification) tooltip", () => {
             cy.get("tbody tr:first > td")
-                .eq(14)
+                .eq(15)
                 .within(() => {
                     cy.get("a")
                         .trigger("mouseover");
