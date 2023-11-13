@@ -74,10 +74,10 @@ export default class NumberFieldFilter extends LitElement {
         };
         this.defaultComparators = [
             {id: "<", name: "<"},
-            {id: "<=", name: "&#8804;"},
+            {id: "<=", name: "<="},
             {id: "=", name: "="},
             {id: ">", name: ">"},
-            {id: ">=", name: "&#8805;"},
+            {id: ">=", name: ">="},
         ];
     }
 
@@ -147,23 +147,29 @@ export default class NumberFieldFilter extends LitElement {
 
                 ${this._config.comparator ? html`
                     <div class="col-md-${this._config.layout[1]}">
-                        <select-field-filter
+                        <select-field-filter2
                             .data="${this._config.values}"
                             .value="${this.state.comparator}"
-                            ?forceSelection="${this._config.comparatorForceSelection}"
+                            .config="${{
+                                multiple: !this._config.comparatorForceSelection,
+                                liveSearch: false
+                            }}"
                             @filterChange="${e => this.filterChange(e, "comparator", e.detail.value)}">
-                        </select-field-filter>
+                        </select-field-filter2>
                     </div>` : nothing
                 }
 
                 ${this.allowedValues?.length > 0 ? html`
                     <div class="col-md-${this._config.layout[2]}">
-                        <select-field-filter
+                        <select-field-filter2
                             .data="${this.allowedValues}"
                             .value="${this.state.value ?? ""}"
-                            placeholder="Select ..."
+                            .config="${{
+                                placeholder: "Select ...",
+                                liveSearch: false,
+                            }}"
                             @filterChange="${e => this.filterChange(e, "value", e.detail.value)}">
-                        </select-field-filter>
+                        </select-field-filter2>
                     </div>` : html`
                     <div class="col-md-${this._config.layout[2]}">
                         <input  type="${this.type ?? "number"}"
