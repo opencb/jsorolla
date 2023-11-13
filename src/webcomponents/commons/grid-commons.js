@@ -18,7 +18,6 @@ import UtilsNew from "../../core/utils-new.js";
 import CustomActions from "./custom-actions.js";
 import ExtensionsManager from "../extensions-manager.js";
 
-
 export default class GridCommons {
 
     static GRID_ICONS_PREFIX = "fas";
@@ -297,6 +296,25 @@ export default class GridCommons {
                 }
             });
         return rowStyle;
+    }
+
+    addColumnsFromAnnotations(columns, formatter, gridConfig) {
+        if (gridConfig?.annotations?.length > 0) {
+            for (const annotation of gridConfig.annotations) {
+                const column = {
+                    id: "annotations",
+                    title: annotation.title || "Custom Annotation",
+                    field: "annotationSets",
+                    formatter: annotationSets => formatter(annotationSets, annotation.variableSetId, annotation.variables),
+                    halign: gridConfig.header?.horizontalAlign || "center",
+                    visible: true,
+                    excludeFromSettings: true,
+                    // visible: this.gridCommons.isColumnVisible("annotations")
+                };
+                columns.splice(annotation.position, 0, column);
+            }
+        }
+        return columns;
     }
 
     async prepareDataForExtensions(componentId, opencgaSession, query, rows) {

@@ -230,6 +230,29 @@ export default class BioinfoUtils {
         return `https://panelapp.genomicsengland.co.uk/panels/${panelAppId}/`;
     }
 
+    static getOntologyLink(ontologyTermId) {
+        if (ontologyTermId.includes(":")) {
+            const [source, id] = ontologyTermId?.split(":");
+            switch (source?.toUpperCase()) {
+                case "HP":
+                    return this.getHpoLink(ontologyTermId);
+                case "SO":
+                    return this.getSequenceOntologyLink(ontologyTermId);
+                case "OMIM":
+                    return this.getOmimOntologyLink(id);
+                case "ORPHA":
+                    return this.getOrphanetLink(id);
+                case "MONDO":
+                    // MONDO ontology does not have a specific URL
+                    return this.getOboLink(ontologyTermId);
+                default:
+                    return ontologyTermId;
+            }
+        } else {
+            return ontologyTermId;
+        }
+    }
+
     static getOboLink(ontologyId) {
         const ontologyShort = ontologyId.replace(":", "_");
         return `http://purl.obolibrary.org/obo/${ontologyShort}`;
@@ -243,4 +266,11 @@ export default class BioinfoUtils {
         return `http://www.sequenceontology.org/browser/current_svn/term/${soTerm}`;
     }
 
+    static getOmimOntologyLink(soTerm) {
+        return `https://omim.org/entry/${soTerm}"`;
+    }
+
+    static getOrphanetLink(orphaId) {
+        return `https://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=${orphaId}`;
+    }
 }
