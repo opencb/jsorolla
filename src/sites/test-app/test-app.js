@@ -46,6 +46,7 @@ import "./webcomponents/cohort-browser-grid-test.js";
 import "./webcomponents/job-browser-grid-test.js";
 import "./webcomponents/disease-panel-browser-grid-test.js";
 
+import "./webcomponents/interpreter/variant-interpreter-rd-grid-test.js";
 
 import "./webcomponents/genome-browser-test.js";
 import "./webcomponents/protein-lollipop-test.js";
@@ -123,6 +124,8 @@ class TestApp extends LitElement {
             "protein-lollipop",
             "pedigree",
             "mutational-signatures",
+
+            "variant-interpreter-rd-grid",
         ];
 
         for (const component of components) {
@@ -768,6 +771,16 @@ class TestApp extends LitElement {
                     </div>
                 ` : null}
 
+                ${this.config.enabledComponents["variant-interpreter-rd-grid"] ? html`
+                    <div style="padding:2%" class="content" id="variant-interpreter-rd-grid">
+                        <variant-interpreter-rd-grid-test
+                            .testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config}">
+                        </variant-interpreter-rd-grid-test>
+                    </div>
+                ` : null}
+
                 ${this.config.enabledComponents["variant-interpreter-grid-germline"] ? html`
                     <div style="padding:2%" class="content" id="variant-interpreter-grid">
                         <variant-interpreter-grid-test
@@ -779,7 +792,6 @@ class TestApp extends LitElement {
                         </variant-interpreter-grid-test>
                     </div>
                 ` : null}
-
 
                 ${this.config.enabledComponents["variant-interpreter-grid-cancer"] ? html`
                     <div style="padding:2%" class="content" id="variant-interpreter-grid">
