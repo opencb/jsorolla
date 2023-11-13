@@ -74,7 +74,8 @@ export default class SelectFieldFilter2 extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("data")) {
+        if (changedProperties.has("data") || changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
             this.loadData();
         }
 
@@ -82,15 +83,6 @@ export default class SelectFieldFilter2 extends LitElement {
             // TODO: Figure out why this does not execute when config.tags are false.
             this.loadValueSelected();
         }
-
-        // if (changedProperties.has("config")) {
-
-        //     if (this.select?.data("select2")?.$selection && this.config?.classes) {
-        //         this.select.data("select2").$selection.addClass(this.config?.classes);
-        //     } else {
-        //         this.select.data("select2").$selection.removeClass("");
-        //     }
-        // }
 
         if (typeof this.select.data("select2")?.$selection !== "undefined" && changedProperties.has("classes")) {
             // For update select style
@@ -114,7 +106,7 @@ export default class SelectFieldFilter2 extends LitElement {
                 dropdownParent: document.querySelector(`#${this._prefix}`).parentElement,
                 selectionCssClass: this._config?.selectionClass ? this.config?.selectionClass : "",
                 multiple: this._config?.multiple ?? false,
-                placeholder: this._config.placeholder ?? "Select an option",
+                placeholder: this._config?.placeholder ?? "Select an option",
                 allowClear: true,
                 disabled: this._config?.disabled ?? false,
                 width: "80%",
