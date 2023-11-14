@@ -349,6 +349,9 @@ class VariantInterpreter extends LitElement {
                         ${this.renderReportTab()}
                     </div>
                 `;
+            } else if (typeof tool.render === "function") {
+                // This tool comes from an extension
+                return tool.render(this.opencgaSession, this.clinicalAnalysis, this.onClinicalAnalysisUpdate);
             }
         }
         // This tool is not visible
