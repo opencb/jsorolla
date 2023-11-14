@@ -5,6 +5,7 @@ export default {
         DETAIL_TAB: "detail_tab",
         TOOL: "tool",
         COLUMN: "column",
+        INTERPRETATION_TOOL: "interpretation_tool",
     },
 
     // Allows to get a list with all extensions of the specified type
@@ -82,5 +83,28 @@ export default {
             });
 
         return columns;
+    },
+
+    // Injects tools in the variant interpreter
+    injectInterpretationTools(tools) {
+        this.getByType(this.TYPES.INTERPRETATION_TOOL)
+            .forEach(extension => {
+                const position = extension.position ?? tools.length;
+                tools.splice(position, 0, {
+                    id: extension.id,
+                    title: extension.name,
+                    description: extension.description || "",
+                    icon: extension.icon || "fa fa-chart-bar",
+                    render: (opencgaSession, clinicalAnalysis, onUpdate) => {
+                        return extension.render({
+                            html: html,
+                            opencgaSession: opencgaSession,
+                            clinicalAnalysis: clinicalAnalysis,
+                            onClinicalAnalysisUpdate: onUpdate,
+                        });
+                    },
+                });
+            });
+        return tools;
     }
 };
