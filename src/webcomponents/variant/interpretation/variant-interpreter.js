@@ -71,7 +71,9 @@ class VariantInterpreter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.activeTab = {};
         this.clinicalAnalysisManager = null;
+
         this._config = this.getDefaultConfig();
+        this.#updateInterpreterTools();
     }
 
     update(changedProperties) {
@@ -98,8 +100,7 @@ class VariantInterpreter extends LitElement {
         this._config = this.getDefaultConfig();
         this._config.tools = UtilsNew.mergeArray(this._config.tools, this.settings?.tools, false, true);
 
-        // Inject interpreter tools from extensions
-        this._config.tools = ExtensionsManager.injectInterpretationTools(this._config.tools);
+        this.#updateInterpreterTools();
 
         this.requestUpdate();
     }
@@ -140,6 +141,11 @@ class VariantInterpreter extends LitElement {
         if (this.clinicalAnalysis) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
+    }
+
+    #updateInterpreterTools() {
+        // Inject interpreter tools from extensions
+        this._config.tools = ExtensionsManager.injectInterpretationTools(this._config.tools);
     }
 
     onClickSection(e) {
