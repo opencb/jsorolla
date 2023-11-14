@@ -245,7 +245,7 @@ export default class CustomWelcome extends LitElement {
     render() {
         const welcomePage = this.getWelcomePageConfig();
 
-        if (!UtilsNew.isNotEmptyArray(this.opencgaSession.projects) ||
+        if (!UtilsNew.isNotEmptyArray(this.opencgaSession?.projects) ||
             this.opencgaSession.projects.every(p => !UtilsNew.isNotEmptyArray(p.studies))) {
             return html`
                 <div class="guard-page">
