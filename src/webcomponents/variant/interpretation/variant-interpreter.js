@@ -71,11 +71,7 @@ class VariantInterpreter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.activeTab = {};
         this.clinicalAnalysisManager = null;
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
