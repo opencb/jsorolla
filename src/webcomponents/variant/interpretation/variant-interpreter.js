@@ -465,7 +465,7 @@ class VariantInterpreter extends LitElement {
     }
 
     render() {
-        // Check Project exists
+        // Check if project exists
         if (!this.opencgaSession || !this.opencgaSession.study) {
             return html`
                 <div class="guard-page">
@@ -484,24 +484,17 @@ class VariantInterpreter extends LitElement {
                         .rhs="${this.renderToolbarRightContent()}">
                     </tool-header>
                 ` : html`
-                    <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>
+                    <tool-header
+                        .title="${this._config.title}"
+                        icon="${this._config.icon}">
+                    </tool-header>
                 `}
 
                 <div class="col-md-10 col-md-offset-1">
                     <nav class="navbar" style="margin-bottom: 5px; border-radius: 0">
                         <div class="container-fluid">
-                            <!-- Brand and toggle get grouped for better mobile display -->
-                            <div class="navbar-header">
-                                <!--
-                                <a class="navbar-brand" href="#home" @click="\${this.changeTool}">
-                                    <b>\${this._config.title} <sup>\${this._config.version}</sup></b>
-                                </a>
-                            -->
-                            </div>
-                            <div>
-                                <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
-                                    ${(this._config?.tools || []).map(item => this.renderToolStep(item))}
-                                </div>
+                            <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
+                                ${(this._config?.tools || []).map(item => this.renderToolStep(item))}
                             </div>
                         </div>
                     </nav>
