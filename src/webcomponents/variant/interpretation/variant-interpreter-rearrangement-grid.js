@@ -932,7 +932,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
-
                             <h3>Review Variant</h3>
                         </div>
                         ${this.variantsReview ? html`
