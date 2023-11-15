@@ -69,7 +69,7 @@ class VariantInterpreter extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.activeTab = {};
+        this.activeTool = "";
         this.clinicalAnalysisManager = null;
 
         this._config = this.getDefaultConfig();
@@ -110,7 +110,7 @@ class VariantInterpreter extends LitElement {
             // With each property change we must update config and create the columns again. No extra checks are needed.
             // this._config = {...this.getDefaultConfig(), ...this.config};
             this.clinicalAnalysis = null;
-            this._changeView(this._config?.tools[0].id);
+            this.#changeActiveTool(this._config?.tools[0].id);
             this.requestUpdate();
 
             // To delete
@@ -148,25 +148,16 @@ class VariantInterpreter extends LitElement {
         this._config.tools = ExtensionsManager.injectInterpretationTools(this._config.tools);
     }
 
-    onClickSection(e) {
-        e.preventDefault();
-        if (e.currentTarget?.dataset?.view && !e.currentTarget.className.split(" ").includes("disabled")) {
-            this._changeView(e.currentTarget.dataset.view);
-        }
+    #changeActiveTool(toolId) {
+        this.activeTool = toolId;
+        this.requestUpdate();
     }
 
-    _changeView(tabId) {
-        $(".variant-interpreter-step", this).removeClass("active");
-        // $(".clinical-portal-content", this).removeClass("active");
-        for (const tab in this.activeTab) {
-            if (Object.prototype.hasOwnProperty.call(this.activeTab, tab)) {
-                this.activeTab[tab] = false;
-            }
+    onClickSection(e) {
+        e.preventDefault();
+        if (e.currentTarget?.dataset?.tool && !e.currentTarget.className.split(" ").includes("disabled")) {
+            this.#changeActiveTool(e.currentTarget.dataset.tool);
         }
-        $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
-        $("#" + tabId, this).addClass("active");
-        this.activeTab[tabId] = true;
-        this.requestUpdate();
     }
 
     onClinicalAnalysisUpdate() {
@@ -277,12 +268,12 @@ class VariantInterpreter extends LitElement {
     renderToolStep(item) {
         if (typeof item.visible === "undefined" || !!item.visible) {
             const isDisabled = !this.clinicalAnalysis && item.id !== "select" || item.disabled;
-            const isActive = this.activeTab[item.id];
+            const isActive = this.activeTool === item.id;
             return html`
                 <a
                     class="icon-wrapper variant-interpreter-step ${isDisabled ? "disabled" : ""} ${isActive ? "active" : ""}"
                     href="javascript: void 0"
-                    data-view="${item.id}"
+                    data-tool="${item.id}"
                     @click="${this.onClickSection}">
                     <div class="interpreter-hi-icon ${item.icon}"></div>
                     <p>${item.title}</p>
@@ -295,7 +286,7 @@ class VariantInterpreter extends LitElement {
     }
 
     renderTool(tool) {
-        if (this.activeTab[tool.id]) {
+        if (this.activeTool === tool.id) {
             if (tool.id === "select") {
                 return html`
                     <div id="${this._prefix}select" class="clinical-portal-content">
