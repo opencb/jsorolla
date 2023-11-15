@@ -288,84 +288,87 @@ class VariantInterpreter extends LitElement {
 
     renderTool(tool) {
         if (this.activeTool === tool.id) {
-            if (tool.id === "select") {
-                return html`
-                    <div id="${this._prefix}select" class="clinical-portal-content">
-                        <variant-interpreter-landing
-                            .opencgaSession="${this.opencgaSession}"
-                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .config="${tool}"
-                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
-                            @selectClinicalAnalysis="${this.onClinicalAnalysis}">
-                        </variant-interpreter-landing>
-                    </div>
-                `;
-            } else if (tool.id === "qc") {
-                return html`
-                    <div id="${this._prefix}qc" class="clinical-portal-content">
-                        <variant-interpreter-qc
-                            .opencgaSession="${this.opencgaSession}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .settings="${tool}"
-                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                        </variant-interpreter-qc>
-                    </div>
-                `;
-            } else if (tool.id === "custom-analysis") {
-                return html`
-                    <div id="${this._prefix}customAnalysis" class="clinical-portal-content">
-                        ${this.renderCustomAnalysisTab()}
-                    </div>
-                `;
-            } else if (tool.id === "methods") {
-                return html`
-                    <div id="${this._prefix}methods" class="clinical-portal-content">
-                        <variant-interpreter-methods
-                            .opencgaSession="${this.opencgaSession}"
-                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .settings="${tool}">
-                        </variant-interpreter-methods>
-                    </div>
-                `;
-            } else if (tool.id === "variant-browser") {
-                return html`
-                    <div id="${this._prefix}variant-browser" class="clinical-portal-content">
-                        <variant-interpreter-browser
-                            .opencgaSession="${this.opencgaSession}"
-                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .settings="${tool}"
-                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                        </variant-interpreter-browser>
-                    </div>
-                `;
-            } else if (tool.id === "review") {
-                return html`
-                    <div id="${this._prefix}review" class="clinical-portal-content">
-                        <variant-interpreter-review
-                            .opencgaSession="${this.opencgaSession}"
-                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .populationFrequencies="${this._config.populationFrequencies}"
-                            .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
-                            .consequenceTypes="${this._config.consequenceTypes}"
-                            .settings="${this._config?.tools?.find(t => t.id === "variant-browser")}"
-                            @gene="${this.geneSelected}"
-                            @samplechange="${this.onSampleChange}"
-                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                        </variant-interpreter-review>
-                    </div>
-                `;
-            } else if (tool.id === "report") {
-                return html`
-                    <div id="${this._prefix}report" >
-                        ${this.renderReportTab()}
-                    </div>
-                `;
-            } else if (typeof tool.render === "function") {
-                // This tool comes from an extension
-                return tool.render(this.opencgaSession, this.clinicalAnalysis, this.onClinicalAnalysisUpdate);
+            switch (tool.id) {
+                case "select":
+                    return html`
+                        <div id="${this._prefix}select" class="clinical-portal-content">
+                            <variant-interpreter-landing
+                                .opencgaSession="${this.opencgaSession}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .config="${tool}"
+                                @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
+                                @selectClinicalAnalysis="${this.onClinicalAnalysis}">
+                            </variant-interpreter-landing>
+                        </div>
+                    `;
+                case "qc":
+                    return html`
+                        <div id="${this._prefix}qc" class="clinical-portal-content">
+                            <variant-interpreter-qc
+                                .opencgaSession="${this.opencgaSession}"
+                                .cellbaseClient="${this.cellbaseClient}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .settings="${tool}"
+                                @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                            </variant-interpreter-qc>
+                        </div>
+                    `;
+                case "cusom-analysis":
+                    return html`
+                        <div id="${this._prefix}customAnalysis" class="clinical-portal-content">
+                            ${this.renderCustomAnalysisTab()}
+                        </div>
+                    `;
+                case "methods":
+                    return html`
+                        <div id="${this._prefix}methods" class="clinical-portal-content">
+                            <variant-interpreter-methods
+                                .opencgaSession="${this.opencgaSession}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .settings="${tool}">
+                            </variant-interpreter-methods>
+                        </div>
+                    `;
+                case "variant-browser":
+                    return html`
+                        <div id="${this._prefix}variant-browser" class="clinical-portal-content">
+                            <variant-interpreter-browser
+                                .opencgaSession="${this.opencgaSession}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .cellbaseClient="${this.cellbaseClient}"
+                                .settings="${tool}"
+                                @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                            </variant-interpreter-browser>
+                        </div>
+                    `;
+                case "review":
+                    return html`
+                        <div id="${this._prefix}review" class="clinical-portal-content">
+                            <variant-interpreter-review
+                                .opencgaSession="${this.opencgaSession}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .cellbaseClient="${this.cellbaseClient}"
+                                .populationFrequencies="${this._config.populationFrequencies}"
+                                .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
+                                .consequenceTypes="${this._config.consequenceTypes}"
+                                .settings="${this._config?.tools?.find(t => t.id === "variant-browser")}"
+                                @gene="${this.geneSelected}"
+                                @samplechange="${this.onSampleChange}"
+                                @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                            </variant-interpreter-review>
+                        </div>
+                    `;
+                case "report":
+                    return html`
+                        <div id="${this._prefix}report" >
+                            ${this.renderReportTab()}
+                        </div>
+                    `;
+                default:
+                    // Check if a render function has been provided
+                    if (typeof tool.render === "function") {
+                        return tool.render(this.opencgaSession, this.clinicalAnalysis, this.onClinicalAnalysisUpdate);
+                    }
             }
         }
         // This tool is not visible
