@@ -179,11 +179,12 @@ class VariantInterpreter extends LitElement {
     }
 
     onClinicalAnalysisRefresh = () => {
-        this.onClinicalAnalysisUpdate().then(() => {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
-                message: "Clinical analysis refreshed",
+        this.onClinicalAnalysisUpdate()
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
+                    message: "Clinical analysis refreshed",
+                });
             });
-        });
     }
 
     onClinicalAnalysisLock = () => {
