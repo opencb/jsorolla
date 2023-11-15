@@ -915,17 +915,19 @@ export default class DataForm extends LitElement {
         const disabled = this._getBooleanValue(element?.display?.disabled, false, element);
         const content = html`
             <div class="">
-                <select-field-filter
+                <select-field-filter2
                     .data="${allowedValues}"
-                    ?multiple="${element.multiple}"
-                    ?all="${element.all}"
-                    .maxOptions="${element.maxOptions || false}"
-                    ?disabled="${disabled}"
-                    ?required="${element.required}"
+                    .config="${{
+                        multiple: element.multiple,
+                        all: element.all,
+                        maxOptions: element.maxOptions,
+                        disabled: disabled,
+                        required: element.required,
+                    }}"
                     .value="${defaultValue}"
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
                     @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
-                </select-field-filter>
+                </select-field-filter2>
             </div>
         `;
 
