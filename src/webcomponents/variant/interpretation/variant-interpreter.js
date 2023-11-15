@@ -360,6 +360,90 @@ class VariantInterpreter extends LitElement {
         return null;
     }
 
+    renderToolbarTitle() {
+        return `
+            ${this._config.title}
+            <span class="inverse">
+                Case ${this.clinicalAnalysis?.id}
+                ${this.clinicalAnalysis?.locked ? "<span class=\"fa fa-lock icon-padding\"></span>" : ""}
+            </span>
+        `;
+    }
+
+    renderToolbarRightContent() {
+        return html`
+            <div style="align-items:center;display:flex;">
+                ${this.clinicalAnalysis?.interpretation ? html`
+                    <div align="center" style="margin-right:3rem;">
+                        <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
+                            ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock icon-padding"></span>` : ""}
+                            <strong>${this.clinicalAnalysis.interpretation.id}</strong>
+                        </div>
+                        ${this.clinicalAnalysis.interpretation?.method?.name ? html`
+                            <div style="font-size:0.875em;">
+                                <strong>${this.clinicalAnalysis.interpretation.method.name}</strong> 
+                            </div>
+                        ` : null}
+                        <div class="text-muted">
+                            Primary Findings: <strong>${this.clinicalAnalysis.interpretation?.primaryFindings?.length ?? 0}</strong>
+                        </div>
+                    </div>
+                ` : null}
+                <div class="dropdown">
+                    <button class="btn btn-default btn-lg" data-toggle="dropdown">
+                        <i class="fa fa-toolbox" aria-hidden="true"></i>
+                        <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
+                            <li>
+                                <a style="background-color:white!important;">
+                                    <strong>Change interpretation</strong>
+                                </a>
+                            </li>
+                            ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
+                                <li>
+                                    <a style="cursor:pointer;padding-left: 25px" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
+                                        ${item.id}
+                                        <i class="fa ${item.locked ? "fa-lock" : "fa-unlock"} icon-padding" style="padding-left: 5px"></i>
+                                    </a>
+                                </li>
+                            `)}
+                            <li role="separator" class="divider"></li>
+                        ` : null}
+                        <li>
+                            <a style="background-color:white!important;">
+                                <strong>Case Actions</strong>
+                            </a>
+                        </li>
+                        <li>
+                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisLock}">
+                                <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} icon-padding"></i>
+                                ${this.clinicalAnalysis.locked ? "Case Unlock" : "Case Lock"}
+                            </a>
+                        </li>
+                        <li>
+                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisRefresh}">
+                                <i class="fa fa-sync icon-padding"></i> Refresh
+                            </a>
+                        </li>
+                        <li>
+                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisDownload}">
+                                <i class="fa fa-download icon-padding"></i> Download
+                            </a>
+                        </li>
+                        <li>
+                            <a style="padding-left: 25px" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                                <i class="fa fa-times icon-padding"></i> Close
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        `;
+    }
+
     render() {
         // Check Project exists
         if (!this.opencgaSession || !this.opencgaSession.study) {
@@ -376,84 +460,8 @@ class VariantInterpreter extends LitElement {
                 ${this.clinicalAnalysis?.id ? html`
                     <tool-header
                         icon="${this._config.icon}"
-                        .title="${`
-                        ${this._config.title}
-                        <span class="inverse">
-                            Case ${this.clinicalAnalysis?.id}
-                            ${this.clinicalAnalysis?.locked ? "<span class=\"fa fa-lock icon-padding\"></span>" : ""}
-                        </span>
-                    `}"
-                        .rhs="${html`
-                            <div style="align-items:center;display:flex;">
-                                ${this.clinicalAnalysis?.interpretation ? html`
-                                    <div align="center" style="margin-right:3rem;">
-                                        <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
-                                            ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock icon-padding"></span>` : ""}
-                                            <strong>${this.clinicalAnalysis.interpretation.id}</strong>
-                                        </div>
-                                        ${this.clinicalAnalysis.interpretation?.method?.name ? html`
-                                            <div style="font-size:0.875em;">
-                                                <strong>${this.clinicalAnalysis.interpretation.method.name}</strong> 
-                                            </div>
-                                        ` : null}
-                                        <div class="text-muted">
-                                            Primary Findings: <strong>${this.clinicalAnalysis.interpretation?.primaryFindings?.length ?? 0}</strong>
-                                        </div>
-                                    </div>
-                                ` : null}
-                                <div class="dropdown">
-                                    <button class="btn btn-default btn-lg" data-toggle="dropdown">
-                                        <i class="fa fa-toolbox" aria-hidden="true"></i>
-                                        <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
-                                        <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-right">
-                                        ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
-                                            <li>
-                                                <a style="background-color:white!important;">
-                                                    <strong>Change interpretation</strong>
-                                                </a>
-                                            </li>
-                                            ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
-                                                <li>
-                                                    <a style="cursor:pointer;padding-left: 25px" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
-                                                        ${item.id}
-                                                        <i class="fa ${item.locked ? "fa-lock" : "fa-unlock"} icon-padding" style="padding-left: 5px"></i>
-                                                    </a>
-                                                </li>
-                                            `)}
-                                            <li role="separator" class="divider"></li>
-                                        ` : null}
-                                        <li>
-                                            <a style="background-color:white!important;">
-                                                <strong>Case Actions</strong>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisLock}">
-                                                <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} icon-padding"></i>
-                                                ${this.clinicalAnalysis.locked ? "Case Unlock" : "Case Lock"}
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisRefresh}">
-                                                <i class="fa fa-sync icon-padding"></i> Refresh
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisDownload}">
-                                                <i class="fa fa-download icon-padding"></i> Download
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a style="padding-left: 25px" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
-                                                <i class="fa fa-times icon-padding"></i> Close
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        `}">
+                        .title="${this.renderToolbarTitle()}"
+                        .rhs="${this.renderToolbarRightContent()}">
                     </tool-header>
                 ` : html`
                     <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>
