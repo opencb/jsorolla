@@ -54,6 +54,7 @@ export default class SelectFieldFilter2 extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.data = [];
         this.classes = "";
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     firstUpdated() {
@@ -61,9 +62,6 @@ export default class SelectFieldFilter2 extends LitElement {
         if (this._config?.multiple) {
             this.customAdapter();
         }
-        // if (!this._config?.tags) {
-        //     this.customAdapter();
-        // }
     }
 
     update(changedProperties) {
@@ -81,6 +79,7 @@ export default class SelectFieldFilter2 extends LitElement {
 
         if (changedProperties.has("value")) {
             // TODO: Figure out why this does not execute when config.tags are false.
+
             this.loadValueSelected();
         }
 
@@ -95,6 +94,7 @@ export default class SelectFieldFilter2 extends LitElement {
     }
 
     loadData() {
+
         if (this.data?.length > 0) {
             const options = [];
             this.select.empty();
@@ -141,6 +141,11 @@ export default class SelectFieldFilter2 extends LitElement {
                 this.select.select2({...selectConfig})
                     .on("select2:select", e => this.filterChange(e))
                     .on("select2:unselect", e => this.filterChange(e));
+
+                if (this.value) {
+                    // temporal solution for now to load selected values
+                    this.loadValueSelected();
+                }
             }
 
             // Clear select
@@ -287,7 +292,7 @@ export default class SelectFieldFilter2 extends LitElement {
 
         if (item.fields && item.fields.length > 0) {
             return {
-                text: item.id,
+                text: item?.id || item?.name,
                 children: item.fields.map(opt => ({id: opt.id, text: opt?.name || opt?.id}))
             };
         }
