@@ -95,13 +95,8 @@ export default {
                     title: extension.name,
                     description: extension.description || "",
                     icon: extension.icon || "fa fa-chart-bar",
-                    render: (opencgaSession, clinicalAnalysis, onUpdate) => {
-                        return extension.render({
-                            html: html,
-                            opencgaSession: opencgaSession,
-                            clinicalAnalysis: clinicalAnalysis,
-                            onClinicalAnalysisUpdate: onUpdate,
-                        });
+                    render: params => {
+                        return extension.render({html, ...params});
                     },
                 });
             });
