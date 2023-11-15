@@ -367,7 +367,11 @@ class VariantInterpreter extends LitElement {
                 default:
                     // Check if a render function has been provided
                     if (typeof tool.render === "function") {
-                        return tool.render(this.opencgaSession, this.clinicalAnalysis, this.onClinicalAnalysisUpdate);
+                        return tool.render({
+                            opencgaSession: this.opencgaSession,
+                            clinicalAnalysis: this.clinicalAnalysis,
+                            onClinicalAnalysisUpdate: () => this.onClinicalAnalysisUpdate(),
+                        });
                     }
             }
         }
