@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/filters/consequence-type-select-filter.js";
-
+import "../commons/forms/select-field-filter2.js";
 
 export default class FacetFilter extends LitElement {
 
@@ -135,7 +135,6 @@ export default class FacetFilter extends LitElement {
         UtilsNew.initTooltip(this);
     }
 
-
     // Extracts facet field name, value and function (Avg or Percentile) from default list (or saved facet, in future)
     parseFacet(str) {
         const fnMatch = [...str.matchAll(/(avg|min|max|unique|hll|percentile|sumsq)\((\w+)\)/gi)];
@@ -225,7 +224,6 @@ export default class FacetFilter extends LitElement {
     //     this.selectedFacet = {...this.selectedFacet};
     //     this.requestUpdate();
     // }
-
 
     onFacetValueChange(e) {
         const id = e.target.dataset.id;
@@ -337,11 +335,14 @@ export default class FacetFilter extends LitElement {
                         <i class="fas fa-arrow-alt-circle-down"></i> Nested Facet (optional)
                     </a>
                     <div class="collapse ${this.selectedFacet[facet.id].nested ? "in" : ""}" id="${facet.id}_nested">
-                        <select-field-filter
+                        <select-field-filter2
                             .data="${this.config.sections.map(section => ({...section, fields: section.fields.map(item => ({...item, disabled: item.id === facet.id}))}))}"
                             .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null}
+                            .config="${{
+                                multiple: false,
+                            }}"
                             @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}">
-                        </select-field-filter>
+                        </select-field-filter2>
                         <div class="pt-1 pb-2">
                             ${this.renderNestedField(this.selectedFacet[facet.id].nested, facet.id)}
                         </div>
@@ -357,9 +358,9 @@ export default class FacetFilter extends LitElement {
                     <div class="row">
                         <div class="col-md-12">
                             <consequence-type-select-filter
-                                    .ct="${this.preparedQuery.ct}"
-                                    .config="${this.consequenceTypes || CONSEQUENCE_TYPES}"
-                                    @filterChange="${e => this.onFacetChange(e, facet.id)}">
+                                .ct="${this.preparedQuery.ct}"
+                                .config="${this.consequenceTypes || CONSEQUENCE_TYPES}"
+                                @filterChange="${e => this.onFacetChange(e, facet.id)}">
                             </consequence-type-select-filter>
                         </div>
                     </div>
@@ -370,14 +371,16 @@ export default class FacetFilter extends LitElement {
                 return html`
                     <div class="row">
                         <div class="col-md-12">
-                            <select-field-filter
-                                ?multiple="${facet.multiple === undefined || facet.multiple}"
+                            <select-field-filter2
                                 .data="${facet.allowedValues}"
                                 .value="${value ?? facet.defaultValue ?? ""}"
+                                .config="${{
+                                    multiple: facet.multiple === undefined || facet.multiple,
+                                }}"
                                 id="${facet.id}_Select"
                                 data-id="${facet.id}"
                                 @filterChange="${e => this.onFacetChange(e, facet.id)}">
-                            </select-field-filter>
+                            </select-field-filter2>
                         </div>
                     </div>
                     ${renderNestedFieldWrapper(facet)}
@@ -415,13 +418,13 @@ export default class FacetFilter extends LitElement {
                             <!-- this.fncs -->
                         <div class="col-4">
                             <div class="col">
-                                <select-field-filter
+                                <select-field-filter2
                                     .data="${this.selectFns || {}}"
                                     .value="${facet.fn ?? "range"}"
                                     id="${this._prefix}${facet.id}_FnSelect"
                                     data-facet="${facet.id}"
                                     @filterChange="${this.onFacetFnChange}">
-                                </select-field-filter>
+                                </select-field-filter2>
                             </div>
                         </div>
                     </div>
@@ -484,14 +487,16 @@ export default class FacetFilter extends LitElement {
                     [...facet.value.matchAll(/\[([^\s]+)]/gim)][0] : "";
                 return html`
                     <div class="col-md-12">
-                        <select-field-filter
-                                ?multiple="${facet.multiple === undefined || facet.multiple}"
-                                .data="${facet.allowedValues}"
-                                .value="${value}"
-                                id="${facet.id}_NestedSelect"
-                                data-parent-facet="${parent}"
-                                @filterChange="${this.onNestedFacetSelectChange}">
-                        </select-field-filter>
+                        <select-field-filter2
+                            .data="${facet.allowedValues}"
+                            .value="${value}"
+                            .config="${{
+                                multiple: facet.multiple === undefined || facet.multiple
+                            }}"
+                            id="${facet.id}_NestedSelect"
+                            data-parent-facet="${parent}"
+                            @filterChange="${this.onNestedFacetSelectChange}">
+                        </select-field-filter2>
                     </div>
                 `;
             case "number":
@@ -528,14 +533,16 @@ export default class FacetFilter extends LitElement {
                             .value="\${num_value || ""}"  @input="\${this.onNestedFacetValueChange}"  />-->
                         </div>
                         <div class="col-md-4">
-                            <select-field-filter
-                                .disabled="${false}"
+                            <select-field-filter2
                                 .data="${this.selectFns || {}}"
                                 .value="${facet.fn ?? "range"}"
+                                .config="${{
+                                    disabled: false
+                                }}"
                                 id="${parent}_NestedFnSelect"
                                 data-parent-facet="${parent}"
                                 @filterChange="${this.onNestedFacetFnChange}">
-                            </select-field-filter>
+                            </select-field-filter2>
                         </div>
                     </div>
                 `;
@@ -573,19 +580,17 @@ export default class FacetFilter extends LitElement {
         }
     }
 
-
     render() {
         return this.config ? html`
             <div class="mb-3 cy-facet-selector">
                 <label class="form-label fw-bold">
                     Select a Term or Range Facet
                 </label>
-                <select-field-filter
-                        multiple
-                        .data="${this.config.sections}"
-                        .value=${Object.keys(this.selectedFacet).join(",")}
-                        @filterChange="${this.onFacetFieldChange}">
-                </select-field-filter>
+                <select-field-filter2
+                    .data="${this.config.sections}"
+                    .value=${Object.keys(this.selectedFacet).join(",")}
+                    @filterChange="${this.onFacetFieldChange}">
+                </select-field-filter2>
                 <div class="text-center">
                     <div>- or -</div>
                     <button class="btn btn-light btn-small cy-default-facets-button" @click="${this.addDefaultFacet}">
