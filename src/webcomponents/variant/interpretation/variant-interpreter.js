@@ -274,6 +274,26 @@ class VariantInterpreter extends LitElement {
         }
     }
 
+    renderToolStep(item) {
+        if (typeof item.visible === "undefined" || !!item.visible) {
+            const isDisabled = !this.clinicalAnalysis && item.id !== "select" || item.disabled;
+            const isActive = this.activeTab[item.id];
+            return html`
+                <a
+                    class="icon-wrapper variant-interpreter-step ${isDisabled ? "disabled" : ""} ${isActive ? "active" : ""}"
+                    href="javascript: void 0"
+                    data-view="${item.id}"
+                    @click="${this.onClickSection}">
+                    <div class="interpreter-hi-icon ${item.icon}"></div>
+                    <p>${item.title}</p>
+                    <span class="smaller"></span>
+                </a>
+            `;
+        }
+        // Tool step not visible
+        return null;
+    }
+
     renderTool(tool) {
         if (this.activeTab[tool.id]) {
             if (tool.id === "select") {
@@ -480,17 +500,7 @@ class VariantInterpreter extends LitElement {
                             </div>
                             <div>
                                 <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
-                                    ${this._config?.tools?.map(item => html`
-                                        ${(typeof item.visible === "undefined" || !!item.visible) ? html`
-                                            <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
-                                               href="javascript: void 0" data-view="${item.id}"
-                                               @click="${this.onClickSection}">
-                                                <div class="interpreter-hi-icon ${item.icon}"></div>
-                                                <p>${item.title}</p>
-                                                <span class="smaller"></span>
-                                            </a>
-                                        ` : ""}
-                                    `)}
+                                    ${(this._config?.tools || []).map(item => this.renderToolStep(item))}
                                 </div>
                             </div>
                         </div>
