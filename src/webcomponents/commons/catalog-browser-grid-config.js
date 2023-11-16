@@ -203,7 +203,8 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                             .data="${this.config.pageList}"
                                             .value="${this.config.pageSize}"
                                             .config="${{
-                                                multiple: false
+                                                multiple: false,
+                                                liveSearch: false,
                                             }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                         </select-field-filter2>
@@ -231,7 +232,6 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                             .value="${this.selectedColumns?.join(",")}"
                                             .config="${{
                                                 title: "Columns",
-                                                tags: false,
                                                 liveSearch: false,
                                             }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">

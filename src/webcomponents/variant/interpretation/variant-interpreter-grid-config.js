@@ -19,6 +19,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "../../commons/forms/data-form.js";
+import "../../commons/forms/select-field-filter2.js";
 
 export default class VariantInterpreterGridConfig extends LitElement {
 
@@ -217,13 +218,16 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 containerStyle: "margin: 5px 5px 5px 0px",
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
-                                        <select-field-filter
+                                        <select-field-filter2
                                             .data="${this.config?.pageList}"
                                             .value="${this.config?.pageSize}"
-                                            .multiple="${false}"
+                                            .config="${{
+                                                liveSearch: false,
+                                                multiple: false
+                                            }}"
                                             .classes="${"btn-sm"}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </select-field-filter>
+                                        </select-field-filter2>
                                     `;
                                 }
                             }
@@ -248,8 +252,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                             .value="${this.selectedColumns?.join(",")}"
                                             .config="${{
                                                 title: "Columns",
-                                                tags: false,
-                                                liveSearch: false
+                                                liveSearch: false,
                                             }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                         </select-field-filter2>
