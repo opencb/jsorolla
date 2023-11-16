@@ -78,8 +78,6 @@ export default class SelectFieldFilter2 extends LitElement {
         }
 
         if (changedProperties.has("value")) {
-            // TODO: Figure out why this does not execute when config.tags are false.
-
             this.loadValueSelected();
         }
 
@@ -94,13 +92,14 @@ export default class SelectFieldFilter2 extends LitElement {
     }
 
     loadData() {
+        if (!this.data || this.data.length === 0) {
+            return;
+        }
 
-        if (this.data?.length > 0) {
-            const options = [];
-            this.select.empty();
-            this.data.forEach(item => options.push(this.getOptions(item)));
+        this.select.empty();
+        const options = this.data.map(item => this.getOptions(item));
 
-            const selectConfig = {
+        const selectConfig = {
                 ...this._config,
                 theme: "bootstrap-5",
                 dropdownParent: document.querySelector(`#${this._prefix}`).parentElement,
@@ -117,42 +116,30 @@ export default class SelectFieldFilter2 extends LitElement {
                 ...this._config?.liveSearch ? {} : {minimumResultsForSearch: Infinity}, // To hide search box
             };
 
-            if (this._config?.multiple) {
-                const searchBox = {dropdownAdapter: $.fn.select2.amd.require("CustomDropdownAdapter")};
-                const selectAdapter = {
+        const searchBox = this._config?.liveSearch && this._config?.multiple ? {dropdownAdapter: $.fn.select2.amd.require("CustomDropdownAdapter")} : {};
+        const selectAdapter = this._config?.multiple ? {
                     templateSelection: data => {
                         return `Selected ${data.selected.length} out of ${data.all.length}`;
                     },
                     // Make selection-box similar to single select
                     selectionAdapter: $.fn.select2.amd.require("CustomSelectionAdapter"),
-                    ...this._config.liveSearch ? searchBox : {}
-                };
+                    ...searchBox
+                } : {};
 
-                this.select.select2({...selectConfig, ...selectAdapter})
-                    .on("select2:select", e => this.filterChange(e))
-                    .on("select2:unselect", e => this.filterChange(e));
+        this.select.select2({...selectConfig, ...selectAdapter})
+            .on("select2:select", e => this.filterChange(e))
+            .on("select2:unselect", e => this.filterChange(e));
 
-                if (this.value) {
-                    // temporal solution for now to load selected values
-                    this.loadValueSelected();
-                }
-
-            } else {
-                this.select.select2({...selectConfig})
-                    .on("select2:select", e => this.filterChange(e))
-                    .on("select2:unselect", e => this.filterChange(e));
-
-                if (this.value) {
-                    // temporal solution for now to load selected values
-                    this.loadValueSelected();
-                }
-            }
-
-            // Clear select
-            if (UtilsNew.isEmpty(this.value)) {
-                this.select.val(null).trigger("change");
-            }
+        if (this.value) {
+            // temporal solution for now to load selected values
+            this.loadValueSelected();
         }
+
+        // Clear select
+        if (UtilsNew.isEmpty(this.value)) {
+            this.select.val(null).trigger("change");
+        }
+
     }
 
     customAdapter() {
