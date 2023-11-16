@@ -16,9 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../forms/select-field-filter.js";
+import "../forms/select-field-filter2.js";
 import "../forms/number-field-filter.js";
-
 
 export default class PopulationFrequencyFilter extends LitElement {
 
@@ -267,23 +266,25 @@ export default class PopulationFrequencyFilter extends LitElement {
                                         <div>${popFreq.id}</div>
                                     </div>
                                     <div class="col-md-5">
-                                        <select-field-filter
+                                        <select-field-filter2
                                             .data="${this._config.comparators}"
                                             .value="${this.state[study.id + ":" + popFreq.id]?.comparator}"
                                             @filterChange="${e => {
                                                 this.filterSelectChange(e, study.id + ":" + popFreq.id, "comparator");
                                             }}">
-                                        </select-field-filter>
+                                        </select-field-filter2>
                                     </div>
                                     <div class="col-md-5">
-                                        <select-field-filter
+                                        <select-field-filter2
                                             .data="${allowedFrequenciesArray}"
                                             .value="${this.state[study.id + ":" + popFreq.id]?.value}"
-                                            placeholder="Frequency ..."
+                                            .config="${{
+                                                placeholder: "Frequency ..."
+                                            }}"
                                             @filterChange="${e => {
                                                 this.filterSelectChange(e, study.id + ":" + popFreq.id, "value");
                                             }}">
-                                        </select-field-filter>
+                                        </select-field-filter2>
                                     </div>
                                 </div>
                             `)}
