@@ -199,13 +199,14 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                 containerStyle: "margin: 5px 5px 5px 0px",
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
-                                        <select-field-filter
+                                        <select-field-filter2
                                             .data="${this.config.pageList}"
                                             .value="${this.config.pageSize}"
-                                            .multiple="${false}"
-                                            .classes="${"btn-sm"}"
+                                            .config="${{
+                                                multiple: false
+                                            }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </select-field-filter>
+                                        </select-field-filter2>
                                     `;
                                 }
                             }
