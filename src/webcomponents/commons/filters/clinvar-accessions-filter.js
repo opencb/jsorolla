@@ -113,19 +113,21 @@ export default class ClinvarAccessionsFilter extends LitElement {
     render() {
         return html`
             <div class="form-group">
-                <select-field-filter multiple
-                                     .data="${Object.entries(this._config.clinicalSignificanceValues).map(([code, label]) => ({id: code, name: label}))}"
-                                     .value=${this.clinicalSignificance} @filterChange="${e => this.filterChange(e, "clinicalSignificance")}">
-                </select-field-filter>
+                <select-field-filter2
+                    .data="${Object.entries(this._config.clinicalSignificanceValues).map(([code, label]) => ({id: code, name: label}))}"
+                    .value=${this.clinicalSignificance}
+                    @filterChange="${e => this.filterChange(e, "clinicalSignificance")}">
+                </select-field-filter2>
             </div>
             ${this._config.clinvar ? html`
                 <div class="form-group">
-                    <textarea id="${this._prefix}ClinVarTextarea"
-                              class="form-control clearable ${this._prefix}FilterTextInput"
-                              rows="3"
-                              name="clinvar"
-                              placeholder="${this.placeholder}"
-                              @keyup="${e => this.filterChange(e, "clinvar")}">
+                    <textarea
+                        id="${this._prefix}ClinVarTextarea"
+                        class="form-control clearable ${this._prefix}FilterTextInput"
+                        rows="3"
+                        name="clinvar"
+                        placeholder="${this.placeholder}"
+                        @keyup="${e => this.filterChange(e, "clinvar")}">
                     </textarea>
                 </div>` : null
         }`;
