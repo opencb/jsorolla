@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import "../../commons/forms/select-field-filter.js";
+import "../../commons/forms/select-field-filter2.js";
 
 export default class ClinicalStatusFilter extends LitElement {
 
