@@ -78,7 +78,7 @@ export default class UserLogin extends LitElement {
                         if (response.getEvents?.("ERROR")?.length) {
                             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                         } else {
-                            const token = response.getResult(0).token;
+                            const token = response?.getResult?.(0)?.token;
                             const decoded = jwt_decode(token);
                             const dateExpired = new Date(decoded.exp * 1000);
                             const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
