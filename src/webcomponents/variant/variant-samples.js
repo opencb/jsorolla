@@ -54,9 +54,11 @@ export default class VariantSamples extends LitElement {
         this.active = false;
         this.gridId = this._prefix + "SampleTable";
         this.toolbarConfig = {
-            showColumns: true,
-            showExport: false,
-            showDownload: true
+            showCreate: false,
+            showExport: true,
+            showSettings: false,
+            showColumns: false,
+            showDownload: false,
         };
     }
 
@@ -349,7 +351,10 @@ export default class VariantSamples extends LitElement {
 
     async onDownload(e) {
         try {
-            this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+            this.toolbarConfig = {
+                ...this.toolbarConfig,
+                downloading: true
+            };
             this.requestUpdate();
             await this.updateComplete;
             // batch size for sample query
@@ -374,7 +379,7 @@ export default class VariantSamples extends LitElement {
                         this.sexFormatter(sample?.attributes?.OPENCGA_INDIVIDUAL),
                         sample?.attributes?.OPENCGA_INDIVIDUAL?.phenotypes?.map(p => p.id) ?? "-",
                         sample?.attributes?.OPENCGA_INDIVIDUAL?.disorders?.map(d => d.id) ?? "-",
-                        sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS?.id ?? "-"
+                        sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS?.map(d => d.id) ?? "-",
                     ].join("\t");
                 });
                 if (e.detail.option.toLowerCase() === "tab") {
@@ -389,7 +394,10 @@ export default class VariantSamples extends LitElement {
         } catch (e) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
         }
-        this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+        this.toolbarConfig = {
+            ...this.toolbarConfig,
+            downloading: false
+        };
         this.requestUpdate();
     }
 
@@ -398,7 +406,6 @@ export default class VariantSamples extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [10, 25, 50],
-            showExport: false
         };
     }
 
@@ -418,6 +425,7 @@ export default class VariantSamples extends LitElement {
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
+                    @export="${this.onDownload}"
                     @sharelink="${this.onShare}">
                 </opencb-grid-toolbar>
                 <div>

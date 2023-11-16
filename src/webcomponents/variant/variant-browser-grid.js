@@ -143,9 +143,6 @@ export default class VariantBrowserGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarSetting = {
-            showExport: true,
-            exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
-            showColumns: false,
             ...this._config,
             // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
             // gridColumns: this._getDefaultColumns() // original column structure
@@ -195,7 +192,6 @@ export default class VariantBrowserGrid extends LitElement {
                 paginationVAlign: "both",
                 formatShowingRows: (pageFrom, pageTo, totalRows) =>
                     this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, this.totalRowsNotTruncated, this.isApproximateCount),
-                showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
                 formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
@@ -337,7 +333,6 @@ export default class VariantBrowserGrid extends LitElement {
             pageList: this._config.pageList,
             paginationVAlign: "both",
             formatShowingRows: this.gridCommons.formatShowingRows,
-            showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: this._config.detailFormatter,
             formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
@@ -1022,6 +1017,7 @@ export default class VariantBrowserGrid extends LitElement {
         this.opencgaSession.opencgaClient.variants().query(filters)
             .then(response => {
                 const results = response.getResults();
+
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
                     const dataString = VariantUtils.jsonToTabConvert(results, this.populationFrequencies.studies, this.samples, this._config.nucleotideGenotype, e.detail.exportFields);
@@ -1067,28 +1063,35 @@ export default class VariantBrowserGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showExport: false,
             detailView: true,
             detailFormatter: this.detailFormatter,
-            showToolbar: true,
             showSelectCheckbox: false,
-            showActions: true,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 15,
-
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
 
+            showToolbar: true,
+            showActions: true,
+
+            showCreate: false,
+            showExport: true,
+            showSettings: true,
+            showDownload: false,
+            showColumns: false,
+            exportTabs: ["download", "link", "code"],
+            annotations: [],
             highlights: [],
-            activeHighlights: [],
+            copies: [], // Only in RD BROWSER SETTINGS
 
             geneSet: {
                 ensembl: true,
                 refseq: true,
             },
+            // Fixme: check this code
             consequenceType: {
                 maneTranscript: true,
                 gencodeBasicTranscript: true,
@@ -1098,7 +1101,6 @@ export default class VariantBrowserGrid extends LitElement {
                 ensemblTslTranscript: false,
                 proteinCodingTranscript: false,
                 highImpactConsequenceTypeTranscript: false,
-
                 showNegativeConsequenceTypes: true
             },
             populationFrequenciesConfig: {

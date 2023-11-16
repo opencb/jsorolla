@@ -123,24 +123,20 @@ export default class VariantBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
 
         // Apply Study grid configuration
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
 
-        // Grid configuration
+        // Grid configuration and take out toolbar admin/user settings to grid level.
         if (this.settings?.table) {
+            const {toolbar, ...otherTableProps} = this.settings.table;
             this._config.filter.result.grid = {
                 ...this._config.filter.result.grid,
-                ...this.settings.table,
-            };
-        }
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {
-                ...this._config.filter.result.grid.toolbar,
-                ...this.settings.table.toolbar,
+                ...otherTableProps,
+                ...toolbar,
             };
         }
 
