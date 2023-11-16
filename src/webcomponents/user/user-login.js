@@ -15,9 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import {RestResponse} from "../../core/clients/rest-response.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import UtilsNew from "../../core/utils-new.js";
 
 
 export default class UserLogin extends LitElement {
@@ -74,10 +74,10 @@ export default class UserLogin extends LitElement {
             this.requestUpdate(); // Remove errors
             this.opencgaSession.opencgaClient.login(user, password)
                 .then(response => {
-                    if (response instanceof RestResponse) {
+                    if (response && !UtilsNew.isError(response)) {
                         if (response.getEvents?.("ERROR")?.length) {
                             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                        } else if (response) {
+                        } else {
                             const token = response.getResult(0).token;
                             const decoded = jwt_decode(token);
                             const dateExpired = new Date(decoded.exp * 1000);
@@ -92,6 +92,8 @@ export default class UserLogin extends LitElement {
                                 message: `Welcome back, <b>${user}</b>. Your session is valid until ${validTimeSessionId}`,
                             });
                         }
+                    } else if (response) {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     } else {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                             title: "Generic Server Error",
