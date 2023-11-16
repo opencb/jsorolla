@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import {guardPage} from "../../commons/html-utils.js";
 import "../../commons/opencga-active-filters.js";
-import "../../commons/forms/select-field-filter.js";
 import "../../loading-spinner.js";
 import "../../commons/tool-header.js";
 import "./rga-gene-view.js";

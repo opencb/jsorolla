@@ -21,7 +21,6 @@ import {guardPage} from "./html-utils.js";
 import "./opencga-browser-filter.js";
 import "./opencga-facet-result-view.js";
 import "./opencga-active-filters.js";
-import "./forms/select-field-filter.js";
 import "./opencb-facet-results.js";
 import "./facet-filter.js";
 import "../loading-spinner.js";
