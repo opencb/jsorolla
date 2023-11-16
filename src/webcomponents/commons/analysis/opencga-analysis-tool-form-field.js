@@ -22,6 +22,7 @@ import "../filters/population-frequency-filter.js";
 import "../filters/clinvar-accessions-filter.js";
 import "../forms/checkbox-field-filter.js";
 import "../filters/catalog-search-autocomplete.js";
+import "../forms/select-field-filter2.js";
 
 export default class OpencgaAnalysisToolFormField extends LitElement {
 
@@ -69,14 +70,16 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
         switch (fieldConfig.type) {
             case "category":
                 return html`
-                    <select-field-filter
-                        ?multiple="${fieldConfig.multiple}"
-                        ?disabled="${this.config.disabled}"
-                        ?required="${this.config.required}"
+                    <select-field-filter2
                         .data="${fieldConfig.allowedValues}"
                         .value="${fieldConfig.defaultValue}"
+                        .config="${{
+                            multiple: fieldConfig.multiple,
+                            disabled: fieldConfig.disabled,
+                            required: fieldConfig.required
+                        }}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </select-field-filter>
+                    </select-field-filter2>
                 `;
             case "string":
                 return html`
