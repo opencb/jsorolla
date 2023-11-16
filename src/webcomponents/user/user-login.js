@@ -93,8 +93,13 @@ export default class UserLogin extends LitElement {
                             });
                         }
                     } else if (response) {
+                        // Sometimes response is an instance of an Error, for example when the connection is lost before submitting the login.
+                        // In this case we will display the returned error instead of displaying a 'Generic Server Error' message.
+                        // TODO: check why this error is not captured in the 'catch'
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     } else {
+                        // This is a very strange situation when the response object is empty.
+                        // In this case, as we do not have any error message we need to use this generic server error message.
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                             title: "Generic Server Error",
                             message: "Unexpected response format. Please check your host is up and running.",
