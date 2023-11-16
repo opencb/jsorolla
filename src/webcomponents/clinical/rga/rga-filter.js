@@ -27,7 +27,6 @@ import "../../commons/filters/clinvar-accessions-filter.js";
 import "../../commons/filters/population-frequency-filter.js";
 import "../../commons/filters/region-filter.js";
 
-
 export default class RgaFilter extends LitElement {
 
     constructor() {
@@ -55,7 +54,6 @@ export default class RgaFilter extends LitElement {
             },
         };
     }
-
 
     _init() {
         // super.ready();

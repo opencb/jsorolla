@@ -69,24 +69,24 @@ export default class SomaticFilter extends LitElement {
             <div id="${this._prefix}-somatic">
                 <div class="form-check">
                     <input class="form-check-input ${this._prefix}FilterRadio" id="${this._prefix}-somatic-option-none"
-                           type="radio" name="${this._prefix}-somatic-options" value="none"
-                           @change="${this.filterChange}" checked>
+                        type="radio" name="${this._prefix}-somatic-options" value="none"
+                        @change="${this.filterChange}" checked>
                     <label class="form-check-label" for="${this._prefix}-somatic-option-none">
                         <span>None</span>
                     </label>
                 </div>
                 <div class="form-check">
                     <input class="${this._prefix}FilterRadio form-check-input" id="${this._prefix}-somatic-option-true"
-                           type="radio" name="${this._prefix}-somatic-options" value="True"
-                           @change="${this.filterChange}">
+                        type="radio" name="${this._prefix}-somatic-options" value="True"
+                        @change="${this.filterChange}">
                     <label class="form-check-label" for="${this._prefix}-somatic-option-true">
                         <span>True</span>
                     </label>
                 </div>
                 <div class="form-check">
                     <input class="${this._prefix}FilterRadio form-check-input" id="${this._prefix}-somatic-option-false"
-                           type="radio" name="${this._prefix}-somatic-options" value="False"
-                           @change="${this.filterChange}">
+                        type="radio" name="${this._prefix}-somatic-options" value="False"
+                        @change="${this.filterChange}">
                     <label class="form-check-label" for="${this._prefix}-somatic-option-false">
                         <span>False</span>
                     </label>
