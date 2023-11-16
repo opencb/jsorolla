@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utils-new";
 import NotificationUtils from "./utils/notification-utils";
 import LitUtils from "./utils/lit-utils";
 import "./tool-settings-preview.js";
-
+import "./forms/select-field-filter2.js";
 
 export default class ToolSettingsEditor extends LitElement {
 
@@ -97,7 +97,6 @@ export default class ToolSettingsEditor extends LitElement {
         }
     }
 
-
     // --- EVENTS ---
     onStudyToolSettingsChange(e, field) {
         switch (field) {
@@ -127,18 +126,18 @@ export default class ToolSettingsEditor extends LitElement {
 
     renderSelect() {
         return html `
-            <select-field-filter
+            <select-field-filter2
                 .data="${Object.keys(this.toolSettings)}"
                 .value="${this._toolName}"
-                .multiple=${false}
-                .forceSelection=${true}
+                .config="${{
+                    multiple: false
+                }}"
                 @filterChange="${this.onToolChange}">
-            </select-field-filter>
+            </select-field-filter2>
         `;
     }
 
     // --- RENDER ---
-
     render() {
         return html `
             <div class="card d-flex flex-column mt-3" id="tool-settings-editor-card">
