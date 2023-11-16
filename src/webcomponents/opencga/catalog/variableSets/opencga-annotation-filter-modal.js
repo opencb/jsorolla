@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../../../core/utils-new.js";
-import "./../../../commons/forms/select-field-filter.js";
+import "./../../../commons/forms/select-field-filter2.js";
 
 export default class OpencgaAnnotationFilterModal extends LitElement {
 
@@ -267,16 +266,18 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
                                 </a> ${variable.id}
                             </label>
-                            <select-field-filter
-                                multiple
+                            <select-field-filter2
                                 .data="${variable?.allowedKeys}"
-                                value=${this.variableMap?.[variableSet.id]?.[variable.id] ?? []}
+                                .value="${this.variableMap?.[variableSet.id]?.[variable.id] ?? []}"
+                                .config="${{
+                                    liveSearch: false
+                                }}"
                                 @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}">
-                            </select-field-filter>
+                            </select-field-filter2>
                             <!-- form-inline -->
                             <div class="row row-cols-lg-auto g-1 align-items-center">
                                 ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {
-                    return html`
+                                    return html`
                                         <div class="col-md-3">
                                             <label class="form-label fw-bold" for="${variable.id}Input">${key}</label>
                                             <input class="form-control" type="text" placeholder="${key}" id="${variable.id}Input"
@@ -285,7 +286,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                                 @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
                                         </div>
                                         `;
-                })
+                                })
                                 }
                             </div>
                         </div>
@@ -314,15 +315,17 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
                                 </a> ${variable.id}
                             </label>
-                            <select-field-filter
-                                multiple
+                            <select-field-filter2
                                 .data="${variable?.allowedKeys}"
-                                value=${this.variableMap?.[variableSet.id]?.[variable.id] ?? []}
+                                .value=${this.variableMap?.[variableSet.id]?.[variable.id] ?? []}
+                                .config="${{
+                                    liveSearch: false
+                                }}"
                                 @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}">
-                            </select-field-filter>
+                            </select-field-filter2>
                             <div class="row">
                                 ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {
-                    return html`
+                                    return html`
                                         <div class="col-md-3">
                                             <label class="form-label fw-bold"  for="${variable.id}Input">
                                                 ${key}
@@ -346,8 +349,8 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                                 </div>
                                             </div>
                                         </div>
-                                    `;
-                })
+                                        `;
+                                    })
                                 }
                             </div>
                         </div>
