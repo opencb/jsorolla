@@ -16,7 +16,6 @@
 
 import {LitElement, html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils.js";
-import "../forms/select-field-filter.js";
 import "../forms/select-field-filter2.js";
 import "../forms/toggle-switch.js";
 import "../forms/toggle-radio.js";

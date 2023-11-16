@@ -16,8 +16,7 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
-import UtilsNew from "../../../core/utils-new.js";
-import "../forms/select-field-filter.js";
+import "../forms/select-field-filter2.js";
 
 export default class AcmgFilter extends LitElement {
 

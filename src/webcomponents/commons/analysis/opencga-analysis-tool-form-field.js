@@ -16,13 +16,12 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../forms/select-field-filter.js";
+import "../forms/select-field-filter2.js";
 import "../forms/text-field-filter.js";
 import "../filters/population-frequency-filter.js";
 import "../filters/clinvar-accessions-filter.js";
 import "../forms/checkbox-field-filter.js";
 import "../filters/catalog-search-autocomplete.js";
-import "../forms/select-field-filter2.js";
 
 export default class OpencgaAnalysisToolFormField extends LitElement {
 

@@ -21,7 +21,6 @@ import Pedigree from "../../core/visualisation/pedigree.js";
 import "../commons/view/pedigree-view.js";
 import "../commons/forms/select-field-filter.js";
 
-
 /**
  * @deprecated
  */
