@@ -81,11 +81,11 @@ export default class ClinicalAnalysisBrowser extends LitElement {
 
         if (this.settings?.table) {
             const {toolbar, ...otherTableProps} = this.settings.table;
-            this._config.filter.result.grid = {
+            UtilsNew.setObjectValue(this._config, "filter.result.grid", {
                 ...this._config.filter.result.grid,
                 ...otherTableProps,
                 ...toolbar,
-            };
+            });
         }
 
         // Apply user configuration

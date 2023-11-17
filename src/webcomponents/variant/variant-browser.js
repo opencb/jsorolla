@@ -133,11 +133,11 @@ export default class VariantBrowser extends LitElement {
         // Grid configuration and take out toolbar admin/user settings to grid level.
         if (this.settings?.table) {
             const {toolbar, ...otherTableProps} = this.settings.table;
-            this._config.filter.result.grid = {
+            UtilsNew.setObjectValue(this._config, "filter.result.grid", {
                 ...this._config.filter.result.grid,
                 ...otherTableProps,
                 ...toolbar,
-            };
+            });
         }
 
         // Apply User grid configuration. Only 'pageSize', 'columns', 'geneSet', 'consequenceType' and 'populationFrequenciesConfig' are set
