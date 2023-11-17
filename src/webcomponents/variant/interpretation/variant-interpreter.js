@@ -97,12 +97,12 @@ class VariantInterpreter extends LitElement {
     }
 
     settingsObserver() {
+        // 1. Restore configuration from default config
         this._config = this.getDefaultConfig();
-        this._config.tools = UtilsNew.mergeArray(this._config.tools, this.settings?.tools, false, true);
-
+        // 2. Merge with interpreter tools from extensions
         this.#updateInterpreterTools();
-
-        this.requestUpdate();
+        // 3. Use settings to decide which tools are visible
+        this._config.tools = UtilsNew.mergeArray(this._config.tools, this.settings?.tools, false, true);
     }
 
     opencgaSessionObserver() {
