@@ -1065,7 +1065,7 @@ export default class VariantBrowserGrid extends LitElement {
             pageSize: 10,
             pageList: [5, 10, 25],
             detailView: true,
-            // detailFormatter: this.detailFormatter,
+            detailFormatter: this.detailFormatter,
             showSelectCheckbox: false,
             multiSelection: false,
             nucleotideGenotype: true,
