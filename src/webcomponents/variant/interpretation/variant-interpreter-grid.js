@@ -160,17 +160,15 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     configObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         this.toolbarSetting = {
-            showExport: true,
-            exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
-            // ...this._config,
-            // it comes from external settings
-            showColumns: false,
-            showSettings: true,
             ...this._config,
+            showCreate: false,
             // columns: defaultColumns[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
             // gridColumns: defaultColumns, // original column structure
         };
@@ -232,7 +230,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 pageList: this._config.pageList,
                 paginationVAlign: "both",
                 formatShowingRows: (pageFrom, pageTo, totalRows) => this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
-                showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: (value, row) => this.detailFormatter(value, row),
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
@@ -407,7 +404,6 @@ export default class VariantInterpreterGrid extends LitElement {
             pageList: this._config.pageList,
             paginationVAlign: "both",
             formatShowingRows: this.gridCommons.formatShowingRows,
-            showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: (value, row) => this.detailFormatter(value, row),
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
@@ -1535,28 +1531,34 @@ export default class VariantInterpreterGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showExport: false,
             detailView: true,
-            showReview: true,
-            showSettings: true,
             showSelectCheckbox: false,
-            showActions: true,
-            showEditReview: true,
-            showType: true,
-            showGenomeBrowserLink: true,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom"
+            },
+
+            showReview: true,
+            showEditReview: true,
+            showType: true,
+            showGenomeBrowserLink: true,
+
+            showToolbar: true,
+            showActions: true,
+
+            showCreate: false,
+            showExport: true,
+            showSettings: true,
+            exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
+
 
             hideType: false,
             hidePopulationFrequencies: false,
             hideClinicalInfo: false,
             showHgvs: false,
-
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
 
             quality: {
                 qual: 30,

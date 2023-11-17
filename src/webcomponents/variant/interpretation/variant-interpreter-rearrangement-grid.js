@@ -127,7 +127,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
             this.toolbarSetting = {
                 ...this._config,
-                ...this._config.toolbar, // it comes from external settings
             };
 
             this.toolbarConfig = {
