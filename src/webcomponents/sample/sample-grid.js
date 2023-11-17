@@ -88,7 +88,6 @@ export default class SampleGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarSetting = {
-            // buttons: ["columns", "download"],
             ...this._config,
         };
 
@@ -172,7 +171,6 @@ export default class SampleGrid extends LitElement {
                 pageList: this._config.pageList,
                 paginationVAlign: "both",
                 formatShowingRows: this.gridCommons.formatShowingRows,
-                showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
                 gridContext: this,
@@ -290,7 +288,6 @@ export default class SampleGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
-            showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             gridContext: this,
@@ -576,15 +573,18 @@ export default class SampleGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
+            multiSelection: false,
+            showSelectCheckbox: false,
+            detailFormatter: null, // function with the detail formatter
+            detailView: false,
+
             showToolbar: true,
+            showActions: true,
+
             showCreate: true,
             showExport: true,
             showSettings: true,
-            showActions: true,
-            showSelectCheckbox: true,
-            detailView: false,
-            detailFormatter: null, // function with the detail formatter
-            multiSelection: false,
+            exportTabs: ["download", "link", "code"],
         };
     }
 

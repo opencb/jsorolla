@@ -469,20 +469,22 @@ export default class CohortGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showToolbar: true,
-            showCreate: true,
-            showExport: true,
-            showSettings: true,
-            showActions: true,
+            multiSelection: false,
+            showSelectCheckbox: false,
             detailView: false,
             detailFormatter: null, // function with the detail formatter
-            multiSelection: false,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
-            // It comes from external settings, and it is used in _getDefaultColumns()
-            // columns: []
+
+            showToolbar: true,
+            showActions: true,
+
+            showCreate: true,
+            showExport: true,
+            showSettings: true,
+            exportTabs: ["download", "link", "code"],
         };
     }
 

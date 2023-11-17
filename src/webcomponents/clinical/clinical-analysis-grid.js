@@ -86,7 +86,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
         this.toolbarSetting = {
             ...this._config,
             newButtonLink: "#clinical-analysis-create/",
-            showCreate: true,
             // columns: this._getDefaultColumns().filter(col => col.field && (!col.visible || col.visible === true))
         };
 
@@ -878,7 +877,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     `;
                 }
             })}
-
         `;
     }
 
@@ -888,23 +886,27 @@ export default class ClinicalAnalysisGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showToolbar: true,
-            showCreate: true,
-            showExport: false,
-            showReviewCase: true,
-            showInterpretation: true,
-            showReport: true,
-            showSettings: true,
-            showActions: true,
-            detailView: false,
-            // detailFormatter: this.detailFormatter, // function with the detail formatter
             showSelectCheckbox: false,
+            multiSelection: false,
+            detailView: false,
+            // detailFormatter: this.detailFormatter
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
-            // It comes from external settings, and it is used in _getDefaultColumns()
-            // columns: []
+
+            showToolbar: true,
+            showActions: true,
+
+            showCreate: true,
+            showExport: true,
+            showSettings: true,
+            exportTabs: ["download", "link", "code"],
+            highlights: [],
+
+            showReviewCase: true,
+            showInterpretation: true,
+            showReport: true,
         };
     }
 

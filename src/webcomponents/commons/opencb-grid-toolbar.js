@@ -65,13 +65,14 @@ export default class OpencbGridToolbar extends LitElement {
         if (changedProperties.has("settings")) {
             this._settings = {
                 ...this.getDefaultSettings(),
-                ...this.settings};
+                ...this.settings,
+            };
         }
 
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
-                ...this.config
+                ...this.config,
             };
         }
 
@@ -185,7 +186,6 @@ export default class OpencbGridToolbar extends LitElement {
                                 </div>
                             ` : nothing}
 
-                            <!-- && this._config? !== undefined-->
                             ${this._settings?.showSettings ? html`
                                 <div class="btn-group">
                                     <button data-action="settings" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
@@ -215,8 +215,10 @@ export default class OpencbGridToolbar extends LitElement {
         return {
             // label: "records",
             showCreate: true,
-            showDownload: true,
+            showExport: true,
             showSettings: true,
+            showDownload: false,
+            showColumns: false,
             download: ["Tab", "JSON"],
             buttons: ["columns", "download"],
         };

@@ -93,7 +93,6 @@ export default class JobGrid extends LitElement {
 
         this.toolbarSetting = {
             ...this._config,
-            // columns: this._getDefaultColumns().filter(col => col.field)
         };
 
         // Config for the grid toolbar
@@ -683,22 +682,26 @@ export default class JobGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showToolbar: true,
-            showCreate: true,
-            showExport: true,
-            showSettings: true,
-            showRefresh: true,
-            showActions: true,
-            detailView: true,
-            detailFormatter: this.detailFormatter,
             showSelectCheckbox: false,
             multiSelection: false,
-            nucleotideGenotype: true,
-            alleleStringLengthMax: 15,
+            detailView: true,
+            detailFormatter: this.detailFormatter,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
+
+            showToolbar: true,
+            showActions: true,
+
+            showCreate: false,
+            showExport: true,
+            showSettings: true,
+            showRefresh: true,
+            exportTabs: ["download", "link", "code"],
+
+            nucleotideGenotype: true,
+            alleleStringLengthMax: 15,
             autorefreshTiming: 60000,
         };
     }

@@ -701,19 +701,21 @@ export default class IndividualGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showToolbar: true,
-            showCreate: true,
-            showExport: true,
-            showSettings: true,
-            showActions: true,
-            showSelectCheckbox: true,
-            detailView: true,
-            detailFormatter: this.detailFormatter, // function with the detail formatter
             multiSelection: false,
+            showSelectCheckbox: false,
+            detailFormatter: this.detailFormatter, // function with the detail formatter
+            detailView: true,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
+            showToolbar: true,
+            showActions: true,
+
+            showCreate: true,
+            showExport: true,
+            showSettings: true,
+            exportTabs: ["download", "link", "code"],
         };
     }
 

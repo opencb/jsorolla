@@ -87,7 +87,6 @@ export default class OpencgaFileGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarSetting = {
-            // buttons: ["download"],
             ...this._config,
         };
 
@@ -526,15 +525,19 @@ export default class OpencgaFileGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showToolbar: true,
-            showCreate: true,
-            showExport: true,
-            showSettings: true,
-            showActions: true,
             showSelectCheckbox: false,
+            multiSelection: false,
             detailView: false,
             detailFormatter: null, // function with the detail formatter
-            multiSelection: false,
+
+            showToolbar: true,
+            showActions: true,
+
+            showCreate: false,
+            showExport: true,
+            showSettings: true,
+            exportTabs: ["download", "link", "code"],
+
             skipExtensions: false,
         };
     }
