@@ -1926,7 +1926,7 @@ export default class DataForm extends LitElement {
         }
     }
 
-    renderContentAsForm() {
+    renderContentAsForm(dismiss) {
         // Buttons values
         const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
         const buttonsLayout = this._getButtonsLayout();
@@ -1955,13 +1955,13 @@ export default class DataForm extends LitElement {
             }
 
             <!-- Render buttons -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
 
             <!-- Render data form -->
             ${this.data ? this.renderData() : null}
 
             <!-- Render buttons -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : null}
 
             <!-- PREVIEW modal -->
             <div class="modal fade" id="${this._prefix}PreviewDataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}PreviewDataModalLabel"
@@ -1987,7 +1987,7 @@ export default class DataForm extends LitElement {
         `;
     }
 
-    renderContentAsTabs() {
+    renderContentAsTabs(dismiss) {
         // Buttons values
         const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
         const buttonsLayout = this._getButtonsLayout();
@@ -2000,7 +2000,7 @@ export default class DataForm extends LitElement {
             ${notificationHtml}
 
             <!-- Render buttons UPPER, above the tabs -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "UPPER" ? this.renderButtons(null, this.activeSection) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "UPPER" ? this.renderButtons(dismiss, this.activeSection) : null}
 
             <!-- Render tabs -->
             <div>
@@ -2019,7 +2019,7 @@ export default class DataForm extends LitElement {
                 </ul>
             </div>
             <!-- Render buttons at the TOP -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null, this.activeSection) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss, this.activeSection) : null}
 
             <!-- Render data form -->
             <div style="margin-top:24px;">
@@ -2027,11 +2027,11 @@ export default class DataForm extends LitElement {
             </div>
 
             <!-- Render buttons at the BOTTOM -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : null}
         `;
     }
 
-    renderContentAsPills() {
+    renderContentAsPills(dismiss) {
         // Buttons values
         const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
         const buttonsLayout = this._getButtonsLayout();
@@ -2041,7 +2041,7 @@ export default class DataForm extends LitElement {
         return html`
             ${notificationHtml}
 
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
             <div class="row">
                 <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
                     <ul class="nav nav-pills nav-stacked">
@@ -2061,22 +2061,22 @@ export default class DataForm extends LitElement {
                     ${this.renderData()}
                 </div>
             </div>
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : null}
         `;
     }
 
-    renderContent(type) {
+    renderContent(type, dismiss = "") {
         let result;
         switch (type?.toUpperCase()) {
             case "FORM":
             default:
-                result = this.renderContentAsForm();
+                result = this.renderContentAsForm(dismiss);
                 break;
             case "TABS":
-                result = this.renderContentAsTabs();
+                result = this.renderContentAsTabs(dismiss);
                 break;
             case "PILLS":
-                result = this.renderContentAsPills();
+                result = this.renderContentAsPills(dismiss);
                 break;
         }
         return result;
@@ -2149,7 +2149,7 @@ export default class DataForm extends LitElement {
                             </div>
                             <div class="modal-body">
                                 <div class="container-fluid">
-                                    ${this.renderContent(type)}
+                                    ${this.renderContent(type, "modal")}
                                 </div>
                             </div>
                             ${modalButtonsVisible ? html`
