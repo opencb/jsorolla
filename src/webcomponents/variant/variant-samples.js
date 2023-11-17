@@ -422,7 +422,7 @@ export default class VariantSamples extends LitElement {
                     </div>
                 ` : null}
                 <opencb-grid-toolbar
-                    .config="${this.toolbarConfig}"
+                    .settings="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
