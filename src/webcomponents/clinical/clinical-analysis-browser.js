@@ -80,13 +80,11 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         }
 
         if (this.settings?.table) {
+            const {toolbar, ...otherTableProps} = this.settings.table;
             this._config.filter.result.grid = {
                 ...this._config.filter.result.grid,
-                ...this.settings.table,
-                toolbar: {
-                    ...this._config.filter.result.grid.toolbar,
-                    ...(this.settings.table.toolbar || {}),
-                },
+                ...otherTableProps,
+                ...toolbar,
             };
         }
 
@@ -95,14 +93,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         });
-
-
-        // if (this.opencgaSession.user?.configs?.IVA?.clinicalAnalysisBrowserCatalog?.grid) {
-        //     this._config.filter.result.grid = {
-        //         ...this._config.filter.result.grid,
-        //         ...this.opencgaSession.user.configs.IVA.clinicalAnalysisBrowserCatalog.grid,
-        //     };
-        // }
 
         this.requestUpdate();
     }
@@ -248,9 +238,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                         detailView: false,
                         multiSelection: false,
                         showActions: true,
-                        toolbar: {
-                            showCreate: false,
-                        },
+                        showCreate: false,
                     }
                 },
                 detail: {
