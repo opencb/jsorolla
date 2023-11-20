@@ -370,6 +370,7 @@ class VariantInterpreter extends LitElement {
                         return tool.render({
                             opencgaSession: this.opencgaSession,
                             clinicalAnalysis: this.clinicalAnalysis,
+                            config: tool,
                             onClinicalAnalysisUpdate: () => this.onClinicalAnalysisUpdate(),
                         });
                     }
