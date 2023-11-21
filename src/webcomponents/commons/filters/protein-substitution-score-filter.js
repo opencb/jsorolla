@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
+import "../forms/select-field-filter2.js";
 
 export default class ProteinSubstitutionScoreFilter extends LitElement {
 
@@ -78,7 +79,6 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
             polyphen: false
         };
     }
-
 
     update(changedProperties) {
         if (changedProperties.has("proteinSubstitution")) {
@@ -174,19 +174,24 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                 <label class="form-label">SIFT</label>
                 <div class="row g-1">
                     <div class="col-md-4 control-label score-select">
-                        <select-field-filter
-                                forceSelection="true"
-                                .data="${this.siftKeys}"
-                                .value=${this.state["sift"].type}
-                                @filterChange="${e => this.proteinfilterChange("sift", {type: e.detail.value})}"></select-field-filter>
+                        <select-field-filter2
+                            .data="${this.siftKeys}"
+                            .value="${this.state["sift"].type}"
+                            .config="${{
+                                liveSearch: false,
+                            }}"
+                            @filterChange="${e => this.proteinfilterChange("sift", {type: e.detail.value})}">
+                        </select-field-filter2>
                     </div>
                     <div class="col-md-3 score-comparator">
-                        <select-field-filter
-                                forceSelection="true"
-                                .data="${this.defaultComparators}"
-                                .value="${this.state["sift"].comparator}"
-                                @filterChange="${e => this.proteinfilterChange("sift", {comparator: e.detail.value})}" .disabled="${this.state["sift"].type !== "score"}">
-                        </select-field-filter>
+                        <select-field-filter2
+                            .data="${this.defaultComparators}"
+                            .value="${this.state["sift"].comparator}"
+                            .config="${{
+                                liveSearch: false,
+                            }}"
+                            @filterChange="${e => this.proteinfilterChange("sift", {comparator: e.detail.value})}" .disabled="${this.state["sift"].type !== "score"}">
+                        </select-field-filter2>
                     </div>
                     <div class="col-md-5 score-value">
                         <input type="number" min="0" max="1" step="0.001" class="FilterTextInput form-control"
@@ -204,20 +209,24 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                 <label class="form-label">Polyphen</label>
                 <div class="row g-1">
                     <div class="col-md-4 control-label score-select">
-                        <select-field-filter
-                            forceSelection
+                        <select-field-filter2
                             .data="${this.polyphenKeys}"
                             .value=${this.state["polyphen"].type}
+                            .config="${{
+                                liveSearch: false,
+                            }}"
                             @filterChange="${e => this.proteinfilterChange("polyphen", {type: e.detail.value})}">
-                        </select-field-filter>
+                        </select-field-filter2>
                     </div>
                     <div class="col-md-3 score-comparator">
-                        <select-field-filter
-                            forceselection
+                        <select-field-filter2
                             .data="${this.defaultComparators}"
                             .value="${this.state["polyphen"].comparator}"
+                            .config="${{
+                                liveSearch: false,
+                            }}"
                             @filterChange="${e => this.proteinfilterChange("polyphen", {comparator: e.detail.value})}" .disabled="${this.state["polyphen"].type !== "score"}">
-                        </select-field-filter>
+                        </select-field-filter2>
                     </div>
                     <div class="col-md-5 score-value">
                         <input type="number" min="0" max="1" step="0.001" class="FilterTextInput form-control"
