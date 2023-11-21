@@ -60,6 +60,20 @@ const SUITE = {
             {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
         ]
     },
+    aboutPage: {
+        display: {
+            showTitle: true,
+            titleStyle: "",
+            titleClass: "",
+            tableStyle: "",
+        },
+        favicon: "img/zetta-favicon.png",
+        linkTitle: "About link title",
+        title: "Custom page title",
+        content: session => `
+                    Session version: ${session?.about?.Version}
+                `,
+    },
     userMenu: [
         {id: "account", name: "Your Profile", url: "#account", icon: "fa fa-user", visibility: "private"},
         // {id: "projects", name: "Projects", url: "#projects", icon: "fa fa-database", visibility: "private"},
@@ -173,6 +187,48 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
+                            id: "sample-browser-grid",
+                            name: "Sample browser Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
+                            id: "individual-browser-grid",
+                            name: "Individual browser Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
+                            id: "family-browser-grid",
+                            name: "Family browser Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
+                            id: "cohort-browser-grid",
+                            name: "Cohort browser Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
+                            id: "file-browser-grid",
+                            name: "File browser Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
+                            id: "job-browser-grid",
+                            name: "Job browser Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
+                            id: "disease-panel-browser-grid",
+                            name: "Disease Panel browser Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
                             id: "opencga-update",
                             name: "opencga-update Test",
                             description: "",
@@ -255,8 +311,8 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            id: "lollipop",
-                            name: "Lollipop Test",
+                            id: "protein-lollipop",
+                            name: "Protein Lollipop Test",
                             description: "",
                             visibility: "public"
                         },

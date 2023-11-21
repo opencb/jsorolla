@@ -49,7 +49,7 @@ export default class OpenCGAParentClass {
         }
 
         // Enable credentials
-        _options.includeCredentials = !!this._config.sso;
+        _options.includeCredentials = !!this._config?.sso?.active;
 
         // console.log(`OpenCGA client calling to ${url}`);
         // if the URL query fails we try with next host
@@ -83,7 +83,7 @@ export default class OpenCGAParentClass {
         }
 
         // Enable credentials
-        _options.includeCredentials = !!this._config.sso;
+        _options.includeCredentials = !!this._config?.sso?.active;
 
         return this.restClient.call(url, _options, k);
     }
@@ -106,7 +106,7 @@ export default class OpenCGAParentClass {
         // _options.body = _params.body;
 
         // Enable credentials
-        _options.includeCredentials = !!this._config.sso;
+        _options.includeCredentials = !!this._config?.sso?.active;
 
         return this.restClient.call(url, _options, k);
     }

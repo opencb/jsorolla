@@ -45,6 +45,9 @@ export default class OpencgaUpdate extends LitElement {
             componentId: {
                 type: String,
             },
+            active: {
+                type: Boolean,
+            },
             opencgaSession: {
                 type: Object,
             },
@@ -58,6 +61,7 @@ export default class OpencgaUpdate extends LitElement {
         this.resource = "";
         this.component = {};
         this.componentId = "";
+        this.active = true;
         this.params = {};
         this.updateCustomisation = [];
 
@@ -85,7 +89,7 @@ export default class OpencgaUpdate extends LitElement {
         if (changedProperties.has("component")) {
             this.componentObserver();
         }
-        if (changedProperties.has("componentId")) {
+        if (changedProperties.has("componentId") || (changedProperties.has("active") && this.active)) {
             this.componentIdObserver();
         }
         if (changedProperties.has("resource")) {
@@ -107,7 +111,7 @@ export default class OpencgaUpdate extends LitElement {
     }
 
     componentIdObserver() {
-        if (this.componentId && this.opencgaSession) {
+        if (this.componentId && this.opencgaSession && this.active) {
             this.#initComponent();
 
             const params = {
@@ -152,33 +156,34 @@ export default class OpencgaUpdate extends LitElement {
             ...this.config,
         };
 
-        // We add, only once, one new section on the top to notify a pending update.
-        if (this._config.sections) {
-            if (this._config.sections[0]?.elements[0]?.type !== "notification") {
-                this._config.sections.unshift({
-                    elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updatedFields),
-                                notificationType: "warning",
-                            }
-                        }
-                    ]
-                });
-            }
+        if (!this._config?.notification) {
+            this.#initConfigNotification();
         }
+    }
+
+    #initConfigNotification() {
+        // const resourceLabel = this.#getResourceName("label");
+        this._config.notification = {
+            title: "",
+            // Todo Vero 20230525: Discuss with bioinfo/webteam how to display changes.
+            //  I leave the previous message for now
+            // text: () => {
+            //     return `${resourceLabel} updated: ` + Object.keys(this.updatedFields).join(", ");
+            // },
+            text: "Some changes have been done in the form. Not saved, changes will be lost",
+            type: "notification",
+            display: {
+                visible: () => UtilsNew.isNotEmpty(this.updatedFields),
+                notificationType: "warning",
+            },
+        };
     }
 
     initOriginalObjects() {
         this._component = UtilsNew.objectClone(this.component);
         this.updatedFields = {};
         // this.componentId = "";
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
+        this.configObserver();
     }
 
     #initComponent() {
@@ -216,6 +221,7 @@ export default class OpencgaUpdate extends LitElement {
                 case "COHORT":
                     this.endpoint = this.opencgaSession.opencgaClient.cohorts();
                     this.resourceInfoParams = {};
+                    this.updateCustomisation = ["status.date"];
                     this.resourceUpdateParams = {
                         samplesAction: "SET",
                         annotationSetsAction: "SET",
@@ -345,6 +351,7 @@ export default class OpencgaUpdate extends LitElement {
         // Notify to parent components in case the want to perform any other action, for instance, get the gene info in the disease panels.
         LitUtils.dispatchCustomEvent(this, "componentFieldChange", e.detail.value, {
             component: this._component,
+            updatedFields: this.updatedFields,
             action: e.detail.action,
             param: param,
         });
@@ -367,6 +374,8 @@ export default class OpencgaUpdate extends LitElement {
     }
 
     // Display a button to back sample browser.
+    // CAUTION Note 20230531 Vero: if the Catalog Management from the Admin App gets definitely disabled and deprecated,
+    //  this code should be removed.
     onShowBtnSampleBrowser() {
         const query = {
             xref: this.sampleId
@@ -441,7 +450,7 @@ export default class OpencgaUpdate extends LitElement {
                 </div>
             `;
         }
-        // FIXME 20221222 Vero: To enable a generic window.location.hash for component
+
         return html `
             <!-- $this._config?.display?.showBtnSampleBrowser ? this.onShowBtnSampleBrowser() : nothing} -->
             <data-form
@@ -459,7 +468,6 @@ export default class OpencgaUpdate extends LitElement {
     getDefaultConfig() {
         return Types.dataFormConfig({
             icon: "fas fa-edit",
-            type: this._config?.type || "form",
             buttons: {
                 // previewText: "Preview",
                 clearText: "Discard Changes",

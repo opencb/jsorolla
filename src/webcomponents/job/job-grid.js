@@ -22,6 +22,7 @@ import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
+import ModalUtils from "../commons/modal/modal-utils";
 
 export default class JobGrid extends LitElement {
 
@@ -37,6 +38,9 @@ export default class JobGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -60,23 +64,20 @@ export default class JobGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "job-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "JobBrowserGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this.autoRefresh = false;
         this.eventNotifyName = "messageevent";
-        this._config = {...this.getDefaultConfig()};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+        if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
@@ -84,13 +85,103 @@ export default class JobGrid extends LitElement {
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.toolbarConfig = {
-            ...this.config.toolbar,
-            resource: "JOB",
-            columns: this._getDefaultColumns().filter(col => col.field)
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
         };
-        this.renderRemoteTable();
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
+        this.toolbarSetting = {
+            ...this._config,
+            // columns: this._getDefaultColumns().filter(col => col.field)
+        };
+
+        // Config for the grid toolbar
+        this.toolbarConfig = {
+            ...this.config?.toolbar,
+            toolId: this.toolId,
+            resource: "JOB",
+            columns: this._getDefaultColumns(),
+            create: {
+                display: {
+                    modalTitle: "Job Create",
+                    modalDraggable: true,
+                    disabled: true,
+                    disabledTooltip: "This operation will be implemented soon. Thanks for your patience.",
+                    modalCyDataName: "modal-create",
+                },
+                render: () => html `
+                    <job-create
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </job-create>`
+            },
+            // Uncomment in case we need to change defaults
+            // export: {
+            //     display: {
+            //         modalTitle: "Job Export",
+            //     },
+            //     render: () => html`
+            //         <opencga-export
+            //             .config="${this._config}"
+            //             .query=${this.query}
+            //             .opencgaSession="${this.opencgaSession}"
+            //             @export="${this.onExport}"
+            //             @changeExportField="${this.onChangeExportField}">
+            //         </opencga-export>`
+            // },
+            // settings: {
+            //     display: {
+            //         modalTitle: "Job Settings",
+            //     },
+            //     render: () => html `
+            //         <catalog-browser-grid-config
+            //             .opencgaSession="${this.opencgaSession}"
+            //             .gridColumns="${this._columns}"
+            //             .config="${this._config}"
+            //             @configChange="${this.onGridConfigChange}">
+            //         </catalog-browser-grid-config>`
+            // }
+
+        };
+        this.requestUpdate();
+        this.renderTable();
+    }
+
+    renderTable() {
+        if (this.jobs?.length > 0) {
+            this.renderLocalTable();
+        } else {
+            this.renderRemoteTable();
+        }
+        this.requestUpdate();
+    }
+
+    renderLocalTable() {
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            columns: this._getDefaultColumns(),
+            data: this.jobs,
+            sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
+            // Set table properties, these are read from config property
+            uniqueId: "id",
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: this.detailFormatter,
+            gridContext: this,
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onPostBody: data => {
+                // We call onLoadSuccess to select first row
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+            }
+        });
     }
 
     renderRemoteTable() {
@@ -110,10 +201,11 @@ export default class JobGrid extends LitElement {
             //     this._jobs = [];
             // }
 
+            this._columns = this._getDefaultColumns();
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: this._getDefaultColumns(),
+                columns: this._columns,
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
@@ -151,7 +243,7 @@ export default class JobGrid extends LitElement {
                         order: -1,
                         limit: params.data.limit || this.table.bootstrapTable("getOptions").pageSize,
                         skip: params.data.offset || 0,
-                        include: "id,userId,tool,priority,tags,creationDate,visited,dependsOn,outDir,internal,execution,params,input,output",
+                        include: "id,userId,tool,priority,tags,creationDate,visited,dependsOn,outDir,internal,execution,params,input,output,annotationSets",
                         ...this.query
                     };
 
@@ -231,6 +323,10 @@ export default class JobGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
+    onRefresh() {
+        this.table.bootstrapTable("refresh");
+    }
+
     detailFormatter(value, row) {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
@@ -287,9 +383,15 @@ export default class JobGrid extends LitElement {
         return result;
     }
 
-    onActionClick(e, _, row) {
+    async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "edit":
+                this.jobUpdateId = row.id;
+                this.requestUpdate();
+                await this.updateComplete;
+                ModalUtils.show(`${this._prefix}UpdateModal`);
+                break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
@@ -300,54 +402,113 @@ export default class JobGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        let _columns = [
+        this._columns = [
             {
                 id: "id",
                 title: "Job ID",
-                field: "id"
+                field: "id",
+                formatter: (id, row) => {
+                    return `
+                        <div>
+                            <span style="font-weight: bold; margin: 5px 0">${id}</span>
+                            ${row.outDir?.path ? `<span class="help-block" style="margin: 5px 0">/${row.outDir.path.replace(id, "").replace("//", "/")}</span>` : ""}
+                        </div>`;
+                },
+                visible: this.gridCommons.isColumnVisible("id")
             },
             {
                 id: "toolId",
-                title: "Analysis Tool ID",
-                field: "tool.id"
+                title: "Tool ID",
+                field: "tool.id",
+                formatter: (toolId, row) => {
+                    return `
+                        <div>
+                            <span style="margin: 5px 0">${toolId}</span>
+                            ${row.tool?.type ? `<span class="help-block" style="margin: 5px 0">${row.tool.type}</span>` : ""}
+                        </div>`;
+                },
+                visible: this.gridCommons.isColumnVisible("toolId")
             },
             {
-                id: "status",
-                title: "Status",
-                field: "internal.status",
-                formatter: status => UtilsNew.jobStatusFormatter(status)
-            },
-            {
-                id: "priority",
-                title: "Priority",
-                field: "priority"
-            },
-            {
-                id: "dependsOn",
-                title: "Depends On",
-                field: "dependsOn",
-                formatter: dependsOn => dependsOn.length > 0 ? `
-                    <div class="tooltip-div">
-                        <a tooltip-title="Dependencies" tooltip-text="${dependsOn.map(job => `<p>${job.id}</p>`).join("<br>")}">
-                            ${dependsOn.length} job${dependsOn.length > 1 ? "s" : ""}
-                        </a>
-                    </div>` : "-"
+                id: "params",
+                title: "Parameters",
+                field: "params",
+                formatter: params => {
+                    let html = "-";
+                    if (UtilsNew.isNotEmpty(params)) {
+                        html = "<div>";
+                        for (const key of Object.keys(params)) {
+                            let nestedObject = "";
+                            if (typeof params[key] === "object") {
+                                for (const subKey of Object.keys(params[key])) {
+                                    nestedObject += `
+                                        <div style="white-space: nowrap">
+                                            <span style="margin: 2px 0; font-weight: bold">${subKey}:</span> ${params[key][subKey]}
+                                        </div>
+                                    `;
+                                }
+                            }
+                            html += `
+                                <div style="white-space: nowrap">
+                                ${nestedObject ? `
+                                    <div><span style="margin: 2px 0; font-weight: bold">${key}:</span></div>
+                                    <div style="padding-left: 10px">
+                                        ${nestedObject}
+                                    </div>` :
+                                    `<span style="margin: 2px 0; font-weight: bold">${key}:</span> ${params[key]}`}
+                                </div>`;
+                        }
+                        html += "</div>";
+                    }
+                    return html;
+                },
+                visible: this.gridCommons.isColumnVisible("params")
             },
             {
                 id: "output",
                 title: "Output Files",
                 field: "output",
-                formatter: outputFiles => {
-                    if (outputFiles?.length > 0) {
-                        const fileIds = outputFiles?.map(file => file);
-                        return CatalogGridFormatter.fileFormatter(fileIds, null, "name");
-                    } else {
-                        return "-";
+                formatter: outputFiles => CatalogGridFormatter.fileFormatter(outputFiles, null, "name"),
+                visible: this.gridCommons.isColumnVisible("output")
+            },
+            // {
+            //     id: "priority",
+            //     title: "Priority",
+            //     field: "priority",
+            //     visible: this.gridCommons.isColumnVisible("priority")
+            // },
+            {
+                id: "dependsOn",
+                title: "Depends On",
+                field: "dependsOn",
+                formatter: dependsOn => {
+                    let html = "-";
+                    if (dependsOn?.length > 0) {
+                        html = `<div style="white-space: nowrap">`;
+                        for (let i = 0; i < dependsOn.length; i++) {
+                            // Display first 3 files
+                            if (i < 3) {
+                                html += `<div style="margin: 2px 0"><span>${dependsOn[i].id}</span></div>`;
+                            } else {
+                                html += `<a tooltip-title="jOBS" tooltip-text='${dependsOn.map(job => `<p>${job.id}</p>`).join("<br>")}'>... view all jobs (${dependsOn.length})</a>`;
+                                break;
+                            }
+                        }
+                        html += "</div>";
                     }
-                }
+                    return html;
+                },
+                visible: this.gridCommons.isColumnVisible("dependsOn")
             },
             {
-                id: "execution",
+                id: "status",
+                title: "Status",
+                field: "internal.status",
+                formatter: status => UtilsNew.jobStatusFormatter(status),
+                visible: this.gridCommons.isColumnVisible("status")
+            },
+            {
+                id: "executionR",
                 title: "Runtime",
                 field: "execution",
                 formatter: execution => {
@@ -356,34 +517,29 @@ export default class JobGrid extends LitElement {
                         const f = moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
                         return `<a tooltip-title="Runtime"  tooltip-text="${f}"> ${duration.humanize()} </a>`;
                     }
-                }
+                },
+                visible: this.gridCommons.isColumnVisible("executionR")
             },
             {
-                id: "execution",
+                id: "executionD",
                 title: "Start/End Date",
                 field: "execution",
                 formatter: execution => execution?.start ?
                     moment(execution.start).format("D MMM YYYY, h:mm:ss a") + " / " + (execution?.end ? moment(execution.end).format("D MMM YYYY, h:mm:ss a") : "-") :
-                    "-"
+                    "-",
+                visible: this.gridCommons.isColumnVisible("executionD")
             },
             {
                 id: "creationDate",
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
+                visible: this.gridCommons.isColumnVisible("creationDate")
             },
-            {
-                id: "state",
-                field: "state",
-                checkbox: true,
-                class: "cursor-pointer",
-                eligible: false,
-                visible: this._config.showSelectCheckbox
-            }
         ];
 
         if (this.opencgaSession && this._config.showActions) {
-            _columns.push({
+            this._columns.push({
                 id: "actions",
                 title: "Actions",
                 field: "actions",
@@ -407,8 +563,7 @@ export default class JobGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
-                                    href='#sampleUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
+                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
@@ -427,8 +582,9 @@ export default class JobGrid extends LitElement {
             });
         }
 
-        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-        return _columns;
+        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+        return this._columns;
     }
 
     async onDownload(e) {
@@ -485,19 +641,40 @@ export default class JobGrid extends LitElement {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
-                    .config="${this.toolbarConfig}"
-                    .query="${this.query}"
+                    .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
-                    .rightToolbar="${this.getRightToolbar()}"
+                    .settings="${this.toolbarSetting}"
+                    .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}">
+                    @export="${this.onDownload}"
+                    @refresh="${this.onRefresh}"
+                    @actionClick="${e => this.onActionClick(e)}"
+                    @jobCreate="${this.renderRemoteTable}">
                 </opencb-grid-toolbar>` : nothing
             }
 
             <div>
                 <table id="${this.gridId}"></table>
             </div>
+
+            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+                display: {
+                    modalTitle: "Job Update",
+                    modalDraggable: true,
+                },
+                render: active => {
+                    return html `
+                        <job-update
+                            .jobId="${this.jobUpdateId}"
+                            .active="${active}"
+                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </job-update>
+                    `;
+                }
+            })}
+
         `;
     }
 
@@ -505,16 +682,19 @@ export default class JobGrid extends LitElement {
         return {
             pagination: true,
             pageSize: 10,
-            pageList: [10, 25, 50],
-            showExport: false,
+            pageList: [5, 10, 25],
+            showToolbar: true,
+            showCreate: true,
+            showExport: true,
+            showSettings: true,
+            showRefresh: true,
+            showActions: true,
             detailView: true,
             detailFormatter: this.detailFormatter,
             showSelectCheckbox: false,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 15,
-            showToolbar: true,
-            showActions: true,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"

@@ -51,21 +51,21 @@ export default class TrackListPanel {
 
     #initDom() {
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}" class="">
+            <div id="${this.prefix}" class="" data-cy="gb-tracklist">
                 <div style="display:flex;justify-content:space-between;">
-                    <div id="${this.prefix}Title" style="font-weight:bold;width:150px;cursor:pointer;">
+                    <div id="${this.prefix}Title" style="font-weight:bold;width:150px;cursor:pointer;" data-cy="gb-tracklist-title">
                         ${this.config?.title || ""}
                     </div>
-                    <div id="${this.prefix}WindowSize" class="small text-muted" style="font-weight:bold;"></div>
+                    <div id="${this.prefix}WindowSize" class="small text-muted" style="font-weight:bold;" data-cy="gb-tracklist-size"></div>
                     <div id="${this.prefix}Collapse" align="right" style="width:150px;cursor:pointer;">
                         <span id="${this.prefix}CollapseIcon" class="fas fa-minus"></span>
                     </div>
                 </div>
                 <div id="${this.prefix}TLHeader" class="unselectable" style="margin-top:8px;">
                     <div id="${this.prefix}Position" class="small text-primary" style="display:flex;justify-content:space-between;">
-                        <div id="${this.prefix}PositionLeft"></div>
-                        <div id="${this.prefix}PositionCenter"></div>
-                        <div id="${this.prefix}PositionRight"></div>
+                        <div id="${this.prefix}PositionLeft" data-cy="gb-tracklist-position-left"></div>
+                        <div id="${this.prefix}PositionCenter" data-cy="gb-tracklist-position-center"></div>
+                        <div id="${this.prefix}PositionRight" data-cy="gb-tracklist-position-right"></div>
                     </div>
                 </div>
                 <div id="${this.prefix}TLPanel" style="position:relative;width:100%;">

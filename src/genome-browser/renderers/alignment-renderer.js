@@ -16,8 +16,12 @@ export default class AlignmentRenderer extends Renderer {
         const parentHeight = options.svgCanvasFeatures.parentElement.clientHeight;
         const coverageHeight = regionSize < this.config.alignmentsMaxRegionSize ? 50 : parentHeight;
 
-        const coverageParent = SVG.addChild(options.svgCanvasFeatures, "g", {});
-        const alignmentsParent = SVG.addChild(options.svgCanvasFeatures, "g", {});
+        const coverageParent = SVG.addChild(options.svgCanvasFeatures, "g", {
+            "data-cy": "gb-coverage",
+        });
+        const alignmentsParent = SVG.addChild(options.svgCanvasFeatures, "g", {
+            "data-cy": "gb-alignments",
+        });
 
         // Render coverage data
         coverage.forEach(item => {
@@ -281,6 +285,14 @@ export default class AlignmentRenderer extends Renderer {
             ends.push(read.alignment.position.position + length - 1);
         });
 
+        // Generate alignments group
+        const group = SVG.addChild(parent, "g", {
+            "data-cy": "gb-alignment",
+            "data-alignment-id": alignments[0].id,
+            "data-alignment-start": Math.min.apply(null, starts),
+            "data-alignment-end": Math.max.apply(null, ends),
+        });
+
         // transform to pixel position
         const alignmentStart = GenomeBrowserUtils.getFeatureX(Math.min.apply(null, starts), options);
         const alignmentEnd = GenomeBrowserUtils.getFeatureX(Math.max.apply(null, ends), options);
@@ -336,7 +348,11 @@ export default class AlignmentRenderer extends Renderer {
                     const readOpacity = this.getValueFromConfig("opacity", [read, alignments, this.config.minMappingQuality]);
 
                     // Render this read
-                    const readElement = SVG.addChild(parent, "path", {
+                    const readElement = SVG.addChild(group, "path", {
+                        "data-cy": "gb-alignment-read",
+                        "data-read-index": index,
+                        "data-read-start": starts[index],
+                        "data-read-end": ends[index],
                         "d": points.join(" "),
                         "stroke": "black",
                         "stroke-width": 0.5,
@@ -379,7 +395,8 @@ export default class AlignmentRenderer extends Renderer {
 
                 // Check for rendering connectors points
                 if (connectorsPoints.length > 0) {
-                    SVG.addChild(parent, "path", {
+                    SVG.addChild(group, "path", {
+                        "data-cy": "gb-alignment-connector",
                         "d": connectorsPoints.join(" "),
                         "stroke": "black",
                         "stroke-width": 0.5,

@@ -314,6 +314,8 @@ export default class SignatureView extends LitElement {
             xAxis: {
                 categories: categories,
                 labels: {
+                    // xAxis labels are disabled in SBS mode
+                    enabled: mode !== "SBS",
                     rotation: -90,
                     formatter: data => {
                         if (mode === "SBS") {

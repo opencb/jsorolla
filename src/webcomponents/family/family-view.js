@@ -247,7 +247,7 @@ export default class FamilyView extends LitElement {
                             type: "list",
                             display: {
                                 contentLayout: "vertical",
-                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder)),
+                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder])),
                                 defaultValue: "N/A"
                             }
                         },
@@ -310,41 +310,27 @@ export default class FamilyView extends LitElement {
                                     {
                                         title: "Sex",
                                         field: "sex",
-                                        type: "custom",
-                                        display: {
-                                            render: sex => sex?.id || sex || "Not specified",
-                                        },
+                                        formatter: value => value?.id || value || "Not specified",
                                     },
                                     {
                                         title: "Father ID",
                                         field: "father.id",
-                                        display: {
-                                            defaultValue: "-",
-                                        },
+                                        formatter: value => value ?? "-"
                                     },
                                     {
                                         title: "Mother ID",
                                         field: "mother.id",
-                                        display: {
-                                            defaultValue: "-",
-                                        },
+                                        formatter: value => value ?? "-"
                                     },
                                     {
                                         title: "Disorders",
                                         field: "disorders",
-                                        type: "custom",
-                                        display: {
-                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-",
-                                        }
+                                        formatter: values => values?.length ? `${values.map(d => d.id).join(", ")}` : "-",
                                     },
                                     {
                                         title: "Phenotypes",
                                         field: "phenotypes",
-                                        type: "custom",
-                                        display: {
-                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-",
-                                            defaultValue: "-",
-                                        }
+                                        formatter: values => values?.length ? `${values.map(d => d.id).join(", ")}` : "-",
                                     },
                                     {
                                         title: "Life Status",

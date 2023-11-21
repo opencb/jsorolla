@@ -34,11 +34,11 @@ export default class SampleUpdate extends LitElement {
 
     static get properties() {
         return {
-            sample: {
-                type: Object
-            },
             sampleId: {
                 type: String
+            },
+            active: {
+                type: Boolean,
             },
             opencgaSession: {
                 type: Object
@@ -50,9 +50,10 @@ export default class SampleUpdate extends LitElement {
     }
 
     #init() {
-        this.sample = {};
+        this._sample = {};
         this.sampleId = "";
         this.displayConfig = {};
+        this.updatedFields = {};
 
         this._config = this.getDefaultConfig();
     }
@@ -67,24 +68,28 @@ export default class SampleUpdate extends LitElement {
 
     // This observer fetches the object fetched from the server.
     // Uncomment when using 'onComponentFieldChange' to post-process data-from manipulation.
-    // onComponentIdObserver(e) {
-    //     this.sample = e.detail.value;
-    //     this._config = this.getDefaultConfig();
-    // }
+    onComponentIdObserver(e) {
+        this._sample = UtilsNew.objectClone(e.detail.value);
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
+    }
 
     // Uncomment to post-process data-from manipulation
     // onComponentFieldChange(e) {
-    //     // e.detail?.component
+    //     debugger
+    //     this.updatedFields = e.detail?.updatedFields || {};
+    //     this.requestUpdate();
     // }
 
     render() {
         return html `
             <opencga-update
                 .resource="${"SAMPLE"}"
-                .component="${this.sample}"
                 .componentId="${this.sampleId}"
                 .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}">
+                .active="${this.active}"
+                .config="${this._config}"
+                @componentIdObserver="${e => this.onComponentIdObserver(e)}">
             </opencga-update>
         `;
     }
@@ -101,8 +106,10 @@ export default class SampleUpdate extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a short ID...",
-                                helpMessage: this.sample.creationDate ? "Created on " + UtilsNew.dateFormatter(this.sample.creationDate) : "No creation date",
+                                placeholder: "Add a sample ID...",
+                                helpMessage: (fieldValue, sample) => {
+                                    return sample.creationDate ? "Created on " + UtilsNew.dateFormatter(sample.creationDate) : "No creation date";
+                                },
                                 disabled: true,
                             },
                         },
@@ -328,11 +335,11 @@ export default class SampleUpdate extends LitElement {
                                     field: "collection.from[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add phenotype ID...",
+                                        placeholder: "Add collection ID...",
                                     },
                                 },
                                 {
-                                    title: "name",
+                                    title: "Name",
                                     field: "collection.from[].name",
                                     type: "input-text",
                                     display: {
@@ -407,7 +414,18 @@ export default class SampleUpdate extends LitElement {
                                 showResetListButton: true,
                                 view: phenotype => html`
                                     <div>${phenotype.id} - ${phenotype?.name}</div>
-                                    <div class="help-block">${phenotype?.description}</div>`,
+                                `,
+                                search: {
+                                    title: "Autocomplete",
+                                    button: false,
+                                    render: (currentData, dataFormFilterChange) => html`
+                                        <cellbase-search-autocomplete
+                                            .resource="${"PHENOTYPE"}"
+                                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.data)}">
+                                        </cellbase-search-autocomplete>
+                                    `,
+                                },
                             },
                             elements: [
                                 {
@@ -437,8 +455,7 @@ export default class SampleUpdate extends LitElement {
                                 {
                                     title: "Age of onset",
                                     field: "phenotypes[].ageOfOnset",
-                                    type: "input-num",
-                                    allowedValues: [0],
+                                    type: "input-text",
                                     display: {
                                         placeholder: "Add an age of onset..."
                                     },

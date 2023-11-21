@@ -375,14 +375,16 @@ export default class JobView extends LitElement {
                                 defaultValue: "No Job dependencies",
                                 columns: [
                                     {
-                                        name: "Job ID", field: "id"
+                                        title: "Job ID",
+                                        field: "id"
                                     },
                                     {
-                                        name: "Name", field: "uuid"
+                                        title: "Name",
+                                        field: "uuid"
                                     },
                                     {
-                                        name: "Status", field: "internal.status.name"
-                                        // format: ${UtilsNew.renderHTML(this.statusFormatter(status.name))}
+                                        title: "Status",
+                                        field: "internal.status.name"
                                     }
                                 ],
                                 border: true,

@@ -43,12 +43,6 @@ export default class FamilyBrowser extends LitElement {
             query: {
                 type: Object
             },
-            /* facetQuery: {
-                type: Object
-            },
-            selectedFacet: {
-                type: Object
-            },*/
             settings: {
                 type: Object
             }
@@ -56,33 +50,14 @@ export default class FamilyBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "fb" + UtilsNew.randomString(6);
-
-        // These are for making the queries to server
-        /* this.facetFields = [];
-        this.facetRanges = [];
-
-        this.facetFieldsName = [];
-        this.facetRangeFields = [];
-
-        this.facets = new Set();
-        this.facetFilters = [];
-
-        this.facetActive = true;
-        this.selectedFacet = {};
-        this.selectedFacetFormatted = {};
-        this.errorState = false;*/
-
+        this.COMPONENT_ID = "family-browser";
         this._config = this.getDefaultConfig();
     }
 
-    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
-    // is executed twice in case there is external settings
     update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -93,27 +68,46 @@ export default class FamilyBrowser extends LitElement {
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-        if (this.settings?.table) {
-            this._config.filter.result.grid = {
-                ...this._config.filter.result.grid,
-                ...this.settings.table,
-            };
-        }
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {
-                ...this._config.filter.result.grid.toolbar,
-                ...this.settings.table.toolbar,
-            };
-        }
+
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config?.filter?.result.grid,
+            ...this.settings.table
+        });
+
+        UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
+            ...this._config.filter?.result?.grid?.toolbar,
+            ...this.settings.table?.toolbar
+        });
+
+        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
+        });
+
+        this.requestUpdate();
+    }
+
+    onSettingsUpdate() {
+        this.settingsObserver();
+    }
+
+    onFamilyUpdate() {
+        this.settingsObserver();
     }
 
     render() {
+        if (!this.opencgaSession) {
+            return html`<div>Not valid session</div>`;
+        }
+
         return html`
             <opencga-browser
                 resource="FAMILY"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @familyUpdate="${this.onFamilyUpdate}">
             </opencga-browser>
         `;
     }
@@ -130,12 +124,15 @@ export default class FamilyBrowser extends LitElement {
                     active: true,
                     render: params => html `
                         <family-grid
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .query="${params.executedQuery}"
                             .config="${params.config.filter.result.grid}"
                             .active="${true}"
                             .eventNotifyName="${params.eventNotifyName}"
-                            @selectrow="${e => params.onClickRow(e, "family")}">
+                            @selectrow="${e => params.onClickRow(e, "family")}"
+                            @familyUpdate="${e => params.onComponentUpdate(e, "family")}"
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </family-grid>
                         <family-detail
                             .opencgaSession="${params.opencgaSession}"
@@ -158,11 +155,6 @@ export default class FamilyBrowser extends LitElement {
                         </opencb-facet-results>
                     `,
                 }
-                /*
-                {
-                    id: "comparator-tab",
-                    name: "Comparator"
-                }*/
             ],
             filter: {
                 searchButton: false,
@@ -186,20 +178,20 @@ export default class FamilyBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "phenotypes",
-                                name: "Phenotype",
-                                placeholder: "Full-text search, e.g. *melanoma*",
-                                description: ""
-                            },
-                            {
                                 id: "disorders",
                                 name: "Disorders",
                                 placeholder: "Intellectual disability,Arthrogryposis...",
                                 description: ""
                             },
                             {
+                                id: "phenotypes",
+                                name: "Phenotype",
+                                placeholder: "Full-text search, e.g. *melanoma*",
+                                description: ""
+                            },
+                            {
                                 id: "date",
-                                name: "Date",
+                                name: "Creation Date",
                                 description: ""
                             },
                             {
@@ -210,17 +202,7 @@ export default class FamilyBrowser extends LitElement {
                         ]
                     }
                 ],
-                examples: [
-                    {
-                        id: "Full",
-                        query: {
-                            id: "lp",
-                            members: "hg",
-                            phenotypes: "melanoma",
-                            creationDate: "2020"
-                        }
-                    }
-                ],
+                examples: [],
                 activeFilters: {
                     complexFields: [
                         {id: "annotation", separator: ";"},
@@ -229,7 +211,7 @@ export default class FamilyBrowser extends LitElement {
                 result: {
                     grid: {
                         pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageList: [5, 10, 25],
                         detailView: true,
                         multiSelection: false,
                         showSelectCheckbox: false
@@ -243,7 +225,6 @@ export default class FamilyBrowser extends LitElement {
                             id: "family-view",
                             name: "Overview",
                             active: true,
-                            // visible:
                             render: (family, active, opencgaSession) => html`
                                 <family-view
                                     .opencgaSession="${opencgaSession}"
@@ -265,7 +246,7 @@ export default class FamilyBrowser extends LitElement {
                         {
                             id: "json-view",
                             name: "JSON Data",
-                            render: (family, active, opencgaSession) => html`
+                            render: (family, active) => html`
                                 <json-viewer
                                     .data="${family}"
                                     .active="${active}">

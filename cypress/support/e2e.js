@@ -18,10 +18,12 @@ import "./commands";
 import "./variant/variantCommands";
 import "cypress-mochawesome-reporter/register";
 import "cypress-wait-until"
-// import "@cypress/code-coverage/support";
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+import registerCypressGrep from '@cypress/grep/src/support'
+registerCypressGrep()
 
 // It'll be use soon
 Cypress.on("uncaught:exception", (err, runnable) => {

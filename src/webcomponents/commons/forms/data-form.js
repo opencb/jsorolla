@@ -27,6 +27,7 @@ import "../../download-button.js";
 import "../forms/text-field-filter.js";
 import "./toggle-switch.js";
 import "./toggle-buttons.js";
+import "../data-table.js";
 
 export default class DataForm extends LitElement {
 
@@ -82,6 +83,8 @@ export default class DataForm extends LitElement {
 
         // We need to initialise 'data' in case undefined value is passed
         this.data = {};
+        // Maintains a data model of the data that has been filled out using the search autocomplete
+        this.dataAutocomplete = {};
     }
 
     update(changedProperties) {
@@ -174,7 +177,7 @@ export default class DataForm extends LitElement {
     // FIXME To be removed when deprecating old config.buttons.top property
     _getButtonsLayout() {
         const layout = this.config.display?.buttonsLayout || "";
-        if (!layout || (layout !== "bottom" && layout !== "top")) {
+        if (!layout || (layout !== "bottom" && layout !== "top" && layout !== "upper")) {
             return this.config?.buttons?.top ? "top" : "bottom";
         }
 
@@ -261,7 +264,12 @@ export default class DataForm extends LitElement {
     }
 
     _getHelpMessage(element) {
-        return element.display?.helpMessage ?? element.display?.help?.text ?? null;
+        if (typeof element.display?.helpMessage === "function") {
+            const fieldValue = element.field ? this.getValue(element.field) : null;
+            return element.display.helpMessage(fieldValue, this.data);
+        } else {
+            return element.display?.helpMessage ?? element.display?.help?.text ?? null;
+        }
     }
 
     _getHelpMode(element) {
@@ -368,7 +376,9 @@ export default class DataForm extends LitElement {
         const layout = this.config?.display?.defaultLayout || "";
         const layoutClassName = (layout === "horizontal") ? "form-horizontal" : "";
 
-        if (this.config.type === "tabs" || this.config.type === "pills") {
+        // if (this.config.type === "tabs" || this.config.type === "pills") {
+        if (this.config.type === "tabs" || this.config.display.type === "tabs" ||
+            this.config.type === "pills" || this.config.display.type === "pills") {
             // Render all sections but display only active section
             return html`
                 <div class="${layoutClassName} ${className}" style="${style}">
@@ -648,6 +658,8 @@ export default class DataForm extends LitElement {
             `;
         }
 
+        // ${typeof content === "string" ? UtilsNew.renderHTML(content) : content}
+        // content.replace(/(<([^>]+)>)/ig, '')
         return html`
             <div class="${hasErrorMessages ? "has-error" : nothing}">
                 <div data-testid="${this.config.test?.active ? `${this.config.test.prefix || "test"}-${element.field}` : nothing}">
@@ -671,7 +683,7 @@ export default class DataForm extends LitElement {
     }
 
     _createTextElement(element) {
-        const value= element.text;
+        const value = typeof element.text === "function" ? element.text() : element.text;
         const textClass = element.display?.textClassName ?? "";
         const textStyle = element.display?.textStyle ?? "";
         const notificationClass = element.type === "notification" ? DataForm.NOTIFICATION_TYPES[element?.display?.notificationType] || "alert alert-info" : "";
@@ -936,7 +948,7 @@ export default class DataForm extends LitElement {
             return html`<span class="text-danger">No template provided</span>`;
         }
         const content = html`
-            <span>
+            <span class="${element.display.classes}" style="${element.display.style}">
                 ${UtilsNew.renderHTML(this.applyTemplate(element.display.template, data, null, this._getDefaultValue(element)))}
             </span>
         `;
@@ -1065,48 +1077,19 @@ export default class DataForm extends LitElement {
             });
         }
 
-        const content = html`
-            <table class="table ${tableClassName}" style="${tableStyle}">
-                ${headerVisible ? html`
-                    <thead>
-                    <tr>
-                        ${element.display.columns.map(elem => html`
-                            <th scope="col">${elem.title || elem.name}</th>
-                        `)}
-                    </tr>
-                    </thead>` : null}
-                <tbody>
-                ${array
-                    .map(row => html`
-                        <tr scope="row">
-                            ${element.display.columns
-                                .map(elem => {
-                                    const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
-                                    const elemStyle = elem.display?.style ?? "";
-                                    let content = null;
+        const config = {
+            pagination: element.display?.pagination ?? false,
+            search: element.display?.search ?? false,
+            searchAlign: element.display?.searchAlign ?? "right",
+            showHeader: element.display?.showHeader ?? true,
+        };
 
-                                    // Check the element type
-                                    switch (elem.type) {
-                                        case "complex":
-                                            content = this._createComplexElement(elem, row);
-                                            break;
-                                        case "custom":
-                                            content = elem.display?.render && elem.display.render(this.getValue(elem.field, row));
-                                            break;
-                                        default:
-                                            content = this.getValue(elem.field, row, elem.defaultValue, elem.format);
-                                    }
-
-                                    return html`
-                                        <td class="${elemClassName}" style="${elemStyle}">
-                                            ${content}
-                                        </td>
-                                    `;
-                                })}
-                        </tr>
-                    `)}
-                </tbody>
-            </table>
+        const content = html `
+            <data-table
+                .data="${array}"
+                .columns="${element.display.columns}"
+                .config="${config}">
+            </data-table>
         `;
         return this._createElementTemplate(element, null, content);
     }
@@ -1276,6 +1259,30 @@ export default class DataForm extends LitElement {
     _createObjectElement(element) {
         const isDisabled = this._getBooleanValue(element.display?.disabled, false, element);
         const contents = [];
+
+        if (element.display?.search && typeof element.display.search === "object") {
+            // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
+            const data = this.data[element.field][element.index];
+            const searchContent = html `
+                <div class="row form-group" style="margin-left: 0;margin-right: 0">
+                    <!-- 1. Render the title -->
+                    ${element.display.title ? html`
+                        <div>
+                            <label class="control-label" style="padding-top: 0;">
+                                ${element.display.title}
+                            </label>
+                        </div>
+                    ` : null}
+                    <!-- 2. Todo: Render an icon -->
+                    <!-- 3. Render -->
+                    <div>
+                    ${element.display.search.render(data, object => this.onObjectChange(element, object, {action: "AUTOCOMPLETE"}))}
+                    </div>
+                </div>
+            `;
+            contents.push(searchContent);
+        }
+
         for (const childElement of element.elements) {
             // 1. Check if this filed is visible
             const isVisible = this._getBooleanValue(childElement.display?.visible, true, childElement);
@@ -1288,6 +1295,10 @@ export default class DataForm extends LitElement {
                 ...childElement.display,
                 nested: true
             };
+
+            if (!UtilsNew.isEmpty(this.dataAutocomplete) && this._isFieldAutocomplete(childElement.field)) {
+                childElement.display.disabled = true;
+            }
 
             // 2.1 If parent is disabled then we must overwrite disabled field
             if (isDisabled) {
@@ -1369,6 +1380,10 @@ export default class DataForm extends LitElement {
                                 const _element = JSON.parse(JSON.stringify(element));
                                 // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
                                 // items have a virtual element associated, this will allow to get the proper value later.
+                                if (_element.display?.search && typeof element.display?.search?.render === "function") {
+                                    _element.index = index;
+                                    _element.display.search.render = element.display.search.render;
+                                }
                                 for (let i = 0; i< _element.elements.length; i++) {
                                     // This support object nested
                                     const [left, right] = _element.elements[i].field.split("[].");
@@ -1397,6 +1412,7 @@ export default class DataForm extends LitElement {
                                     }
                                 }
                                 return html`
+                                    <!--VIEW-->
                                     <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
                                         <div>
                                             ${element.display.view(item)}
@@ -1418,6 +1434,7 @@ export default class DataForm extends LitElement {
                                             }
                                         </div>
                                     </div>
+                                    <!--FORM-->
                                     <div id="${element?.field}_${index}"
                                          style="border-left: 2px solid #0c2f4c; margin-left: 10px; padding-left: 12px; display: ${index === this.editOpen ? "block" : "none"}">
                                         ${this._createObjectElement(_element)}
@@ -1479,7 +1496,7 @@ export default class DataForm extends LitElement {
                             </button>`: nothing
                         }
                         ${this._getBooleanValue(element.display.showResetListButton, false) ? html`
-                            <button type="button" class="btn btn-sm btn-primary" title="Discord changes in this list"
+                            <button type="button" class="btn btn-sm btn-primary" title="Discard changes in this list"
                                     ?disabled="${isDisabled}"
                                     @click="${e => this.#resetObjectList(e, element)}">
                                 <i aria-hidden="true" class="fas fa-undo icon-padding"></i>
@@ -1524,6 +1541,10 @@ export default class DataForm extends LitElement {
             index: index,
         };
         this.onFilterChange(element, null, event);
+
+        if (!UtilsNew.isEmpty(this.dataAutocomplete)) {
+            this.onObjectChange(element, null, event);
+        }
     }
 
     #toggleObjectListCollapse(element, collapsed) {
@@ -1537,6 +1558,9 @@ export default class DataForm extends LitElement {
             action: "RESET",
         };
         this.onFilterChange(element, null, event);
+        if (!UtilsNew.isEmpty(this.dataAutocomplete)) {
+            this.onObjectChange(element, null, event);
+        }
     }
 
     #addToObjectList(e, element) {
@@ -1597,6 +1621,88 @@ export default class DataForm extends LitElement {
         } else {
             return value;
         }
+    }
+
+    _isFieldAutocomplete(field) {
+        // example: phenotypes[].1.description
+        if (field?.includes("[].")) {
+            const match = field.match(DataForm.re);
+            return !!(match && typeof this.dataAutocomplete?.[match?.groups?.arrayFieldName]?.[match?.groups?.index]?.[match?.groups?.field] !== "undefined");
+        }
+        return false;
+    }
+
+    onObjectChange(element, object, objectListEvent) {
+        let eventDetail = {};
+        // Check field exists
+        if (!element.field) {
+            return;
+        }
+        // Process the value to save it correctly.
+        object = this.parseValue(element, object);
+        let param = "";
+
+        // 1. Check if AUTOCOMPLETE, REMOVE, RESET has been clicked, this happens in 'object-list'
+        if (objectListEvent) {
+            switch (objectListEvent.action) {
+                case "AUTOCOMPLETE":
+                    // 1. Update the data model
+                    const props = `${element.field}.${element.index}`;
+                    UtilsNew.setObjectValue(this.data, props, object);
+
+                    // 2. Update data autocomplete model
+                    // If the object has inputs already filled  and undefined in cellbase, do not overwrite them.
+                    const newElement = {};
+                    const data = this.data[element.field][element.index];
+                    Object.entries(object).forEach(([key, value]) => {
+                        if (typeof value !== "undefined" || typeof data[key] !== "undefined") {
+                            newElement[key] = value ?? data[key];
+                        }
+                    });
+                    if (!this.dataAutocomplete[element.field]) {
+                        this.dataAutocomplete[element.field] = [];
+                    }
+                    this.dataAutocomplete[element.field][element.index] = newElement;
+
+                    // 3. Set event detail
+                    param = `${element.field}[].${element.index}`;
+                    eventDetail = {
+                        index: element.index,
+                        param: param,
+                        value: object,
+                        action: objectListEvent.action,
+                    };
+                    break;
+                case "CLOSE":
+                    break;
+                case "REMOVE":
+                    // 1. Remove element from the autocomplete data model
+                    this.dataAutocomplete[element.field].splice(objectListEvent.index, 1);
+                    // 2. Set event detail
+                    param = `${element.field}[].${objectListEvent.index}`;
+                    eventDetail = {
+                        param: param,
+                        value: object,
+                        index: objectListEvent.index,
+                        action: objectListEvent.action
+                    };
+                    break;
+                case "RESET":
+                    // 2. Delete field from autocomplete data model
+                    delete this.dataAutocomplete[element.field];
+                    param = `${element.field}[]`;
+                    eventDetail = {
+                        param: param,
+                        value: object,
+                        action: objectListEvent.action
+                    };
+                    break;
+            }
+        }
+        LitUtils.dispatchCustomEvent(this, "fieldChange", null, {
+            ...eventDetail,
+            data: this.data,
+        }, null, {bubbles: true, composed: true});
     }
 
     onFilterChange(element, value, objectListEvent) {
@@ -1706,6 +1812,7 @@ export default class DataForm extends LitElement {
     onClear(e) {
         this.formSubmitted = false;
         this.showGlobalValidationError = false;
+        this.dataAutocomplete = {};
         LitUtils.dispatchCustomEvent(this, "clear", null, {}, null);
     }
 
@@ -1810,149 +1917,29 @@ export default class DataForm extends LitElement {
         `;
     }
 
-    render() {
-        // Check configuration
-        if (!this.config) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-exclamation fa-5x"></i>
-                    <h3>No valid configuration provided. Please check configuration:</h3>
-                    <div style="padding: 10px">
-                        <pre>${JSON.stringify(this.config, null, 2)}</pre>
-                    </div>
-                </div>
-            `;
+    getFormNotificationHtml() {
+        if (this.config?.notification) {
+            const visible = this._getBooleanValue(this.config.notification.display?.visible, false);
+            return visible ? this._createTextElement(this.config.notification) : nothing;
+        } else {
+            return nothing;
         }
+    }
 
-        // Global values
-        const type = this._getType(); // Get form type
-        const icon = this.config?.icon ?? "fas fa-info-circle";
-
-        // Title values
-        const titleClassName = this.config.display?.titleClassName ?? this.config.display?.title?.class ?? "";
-        const titleStyle = this.config.display?.titleStyle ?? this.config.display?.title?.style ?? "";
-        const titleVisible = this._getBooleanValue(this.config.display?.titleVisible ?? this.config.display?.showTitle, true);
-
+    renderContentAsForm(dismiss) {
         // Buttons values
         const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
         const buttonsLayout = this._getButtonsLayout();
 
-        // Check for card type
-        if (type === "card") {
-            return html`
-                <div class="row">
-                    <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#${this._prefix}Help">
-                        <i class="${icon} icon-padding" aria-hidden="true"></i>
-                        ${this.config.title}
-                    </button>
-                    <div class="">
-                        <div id="${this._prefix}Help" class="collapse">
-                            <div class="well">
-                                ${this.renderData()}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+        const titleClassName = this.config.display?.titleClassName ?? this.config.display?.title?.class ?? "";
+        const titleStyle = this.config.display?.titleStyle ?? this.config.display?.title?.style ?? "";
+        const titleVisible = this._getBooleanValue(this.config.display?.titleVisible ?? this.config.display?.showTitle, true);
 
-        // Check for modal type
-        if (type === "modal") {
-            const modalBtnClassName = this.config.display?.modalButtonClassName ?? this.config.display?.mode?.buttonClass ?? "";
-            const modalBtnStyle = this.config.display?.modalButtonStyle ?? this.config.display?.mode?.buttonStyle ?? "";
-            const modalWidth = this.config.display?.modalWidth ?? this.config.display?.mode?.width ?? "768px";
-            const isDisabled = this._getBooleanValue(this.config.display?.modalDisabled, false);
+        const notificationHtml = this.getFormNotificationHtml();
 
-            return html`
-                <button type="button"
-                        title="${this.config.description}"
-                        class="btn ${modalBtnClassName} ${isDisabled ? "disabled" : ""}"
-                        style="${modalBtnStyle}"
-                        data-toggle="modal"
-                        ?disabled="${isDisabled}"
-                        data-target="#${this._prefix}DataModal">
-                    <i class="${icon} icon-padding" aria-hidden="true"></i>
-                    ${this.config.title}
-                </button>
-
-                <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}DataModalLabel"
-                     aria-hidden="true">
-                    <div class="modal-dialog" style="width: ${modalWidth}">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title ${titleClassName}" style="${titleStyle}">${this.config.title}</h4>
-                            </div>
-                            <div class="modal-body">
-                                <div class="container-fluid">
-                                    ${this.renderData()}
-                                </div>
-                            </div>
-                            ${buttonsVisible ? html`
-                                <div class="modal-footer">
-                                    ${this.renderButtons("modal")}
-                                </div>
-                            ` : null}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Check for tabs style
-        if (type === "tabs") {
-            return html`
-                <div>
-                    <ul class="nav nav-tabs">
-                        ${this._getVisibleSections()
-                            .map((section, index) => {
-                                const active = index === this.activeSection;
-                                return html`
-                                    <li role="presentation" class="${active ? "active" : ""}">
-                                        <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                            ${section.title || ""}
-                                        </a>
-                                    </li>
-                                `;
-                            })}
-                    </ul>
-                    ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null, this.activeSection) : null}
-                </div>
-                <div style="margin-top:24px;">
-                    ${this.renderData()}
-                </div>
-                ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
-            `;
-        }
-
-        // Check for pills style
-        if (type === "pills") {
-            return html`
-                ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
-                <div class="row">
-                    <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
-                        <ul class="nav nav-pills nav-stacked">
-                            ${this._getVisibleSections().map((section, index) => {
-                                const active = index === this.activeSection;
-                                return html`
-                                    <li role="presentation" class="${active ? "active" : ""}">
-                                        <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                            ${section.title || ""}
-                                        </a>
-                                    </li>
-                                `;
-                            })}
-                        </ul>
-                    </div>
-                    <div class="col-md-9">
-                        ${this.renderData()}
-                    </div>
-                </div>
-                ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
-            `;
-        }
-
-        // Default form style
         return html`
+            ${notificationHtml}
+
             <!-- Header -->
             ${this.config.title && titleVisible ? html`
                 <div style="display: flex; margin-bottom: 12px;">
@@ -1968,13 +1955,13 @@ export default class DataForm extends LitElement {
             }
 
             <!-- Render buttons -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
 
             <!-- Render data form -->
             ${this.data ? this.renderData() : null}
 
             <!-- Render buttons -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : null}
 
             <!-- PREVIEW modal -->
             <div class="modal fade" id="${this._prefix}PreviewDataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}PreviewDataModalLabel"
@@ -1998,6 +1985,203 @@ export default class DataForm extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    renderContentAsTabs(dismiss) {
+        // Buttons values
+        const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
+        const buttonsLayout = this._getButtonsLayout();
+
+        const notificationHtml = this.getFormNotificationHtml();
+
+        // NOTE: the buttons can be rendered at three different positions:
+        // UPPER (above tabs) | TOP (below tabs) | BOTTOM (below data)
+        return html`
+            ${notificationHtml}
+
+            <!-- Render buttons UPPER, above the tabs -->
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "UPPER" ? this.renderButtons(dismiss, this.activeSection) : null}
+
+            <!-- Render tabs -->
+            <div>
+                <ul class="nav nav-tabs">
+                    ${this._getVisibleSections()
+                        .map((section, index) => {
+                            const active = index === this.activeSection;
+                            return html`
+                                <li role="presentation" class="${active ? "active" : ""}">
+                                    <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                        ${section.title || ""}
+                                    </a>
+                                </li>
+                            `;
+                        })}
+                </ul>
+            </div>
+            <!-- Render buttons at the TOP -->
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss, this.activeSection) : null}
+
+            <!-- Render data form -->
+            <div style="margin-top:24px;">
+                ${this.renderData()}
+            </div>
+
+            <!-- Render buttons at the BOTTOM -->
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : null}
+        `;
+    }
+
+    renderContentAsPills(dismiss) {
+        // Buttons values
+        const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
+        const buttonsLayout = this._getButtonsLayout();
+
+        const notificationHtml = this.getFormNotificationHtml();
+
+        return html`
+            ${notificationHtml}
+
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
+            <div class="row">
+                <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
+                    <ul class="nav nav-pills nav-stacked">
+                        ${this._getVisibleSections().map((section, index) => {
+                            const active = index === this.activeSection;
+                            return html`
+                                <li role="presentation" class="${active ? "active" : ""}">
+                                    <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                        ${section.title || ""}
+                                    </a>
+                                </li>
+                            `;
+                        })}
+                    </ul>
+                </div>
+                <div class="col-md-9">
+                    ${this.renderData()}
+                </div>
+            </div>
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : null}
+        `;
+    }
+
+    renderContent(type, dismiss = "") {
+        let result;
+        switch (type?.toUpperCase()) {
+            case "FORM":
+            default:
+                result = this.renderContentAsForm(dismiss);
+                break;
+            case "TABS":
+                result = this.renderContentAsTabs(dismiss);
+                break;
+            case "PILLS":
+                result = this.renderContentAsPills(dismiss);
+                break;
+        }
+        return result;
+    }
+
+    render() {
+        // Check configuration
+        if (!this.config) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-exclamation fa-5x"></i>
+                    <h3>No valid configuration provided. Please check configuration:</h3>
+                    <div style="padding: 10px">
+                        <pre>${JSON.stringify(this.config, null, 2)}</pre>
+                    </div>
+                </div>
+            `;
+        }
+
+        // General values 'mode' and 'type' determine how the page/form is displayed and rendered.
+        // 'mode' allowed values: page (default), modal, card
+        const mode = this.config.mode || this.config.display.mode || "page";
+        // 'type' allowed values: form (default), tabs, pills
+        const type = this.config.type || this.config.display.type || "form";
+
+        // 1. 'mode === page', render a normal web page.
+        if (mode === "page" || !mode) {
+            return this.renderContent(type);
+        }
+
+        // 2. Check for modal type
+        if (mode === "modal") {
+            // Parse modal parameters, all of them must start with prefix 'modal'
+            const showModalButton = this.config.display?.showModalButton || true;
+            const modalId = this.config.display?.modalId || `${this._prefix}DataModal`;
+            const modalWidth = this.config.display?.modalWidth || "768px";
+            const modalTitle = this.config.display?.modalTitle || "";
+            const modalTitleHeader = this.config.display?.modalTitleHeader || "h4";
+            const modalTitleClassName = this.config.display?.modalTitleClassName || "";
+            const modalTitleStyle = this.config.display?.modalTitleStyle || "";
+            const modalBtnName = this.config.display?.modalButtonName || "Open ...";
+            const modalBtnDescription = this.config.display?.modalButtonDescription || "";
+            const modalBtnClassName = this.config.display?.modalButtonClassName || "btn-link btn-lg";
+            const modalBtnStyle = this.config.display?.modalButtonStyle || "";
+            const modalBtnIcon = this.config.display?.modalButtonIcon || "";
+            const modalButtonsVisible = this._getBooleanValue(this.config.display?.modalButtonsVisible, true);
+            const modalDisabled = this._getBooleanValue(this.config.display?.modalDisabled, false);
+
+            return html `
+                ${showModalButton ? html `
+                    <button type="button"
+                            title="${modalBtnDescription}"
+                            class="btn ${modalBtnClassName}"
+                            style="${modalBtnStyle}"
+                            ?disabled="${modalDisabled}"
+                            data-toggle="modal"
+                            data-target="${`#${modalId}`}">
+                        ${modalBtnIcon ? html`<i class="${modalBtnIcon} icon-padding" aria-hidden="true"></i>` : nothing}
+                        ${modalBtnName}
+                    </button>
+                ` : nothing
+                }
+                <div class="modal fade" id="${modalId}" tabindex="-1" role="dialog"
+                     aria-labelledby="${this._prefix}DataModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" style="width: ${modalWidth}">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                ${this._getTitleHeader(modalTitleHeader, modalTitle, "modal-title " + modalTitleClassName, modalTitleStyle)}
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    ${this.renderContent(type, "modal")}
+                                </div>
+                            </div>
+                            ${modalButtonsVisible ? html`
+                                <div class="modal-footer">
+                                    ${this.renderButtons("modal")}
+                                </div>
+                            ` : nothing}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 3. Check for card type
+        if (mode === "card") {
+            const icon = this.config?.icon || "fas fa-info-circle";
+            return html`
+                <div class="row">
+                    <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#${this._prefix}Help">
+                        <i class="${icon} icon-padding" aria-hidden="true"></i>
+                        ${this.config.title}
+                    </button>
+                    <div class="">
+                        <div id="${this._prefix}Help" class="collapse">
+                            <div class="well">
+                                ${this.renderContent(type)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
     }
 
 }

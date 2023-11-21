@@ -78,7 +78,6 @@ export default class CohortCreate extends LitElement {
     }
 
     onFieldChange(e, field) {
-        const param = field || e.detail.param;
         this.cohort = {...this.cohort};
         this.requestUpdate();
     }
@@ -140,20 +139,11 @@ export default class CohortCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            type: "form",
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => Object.keys(this.cohort).length > 0,
-                                notificationType: "warning",
-                            },
-                        },
                         {
                             title: "Cohort ID",
                             field: "id",
@@ -247,11 +237,7 @@ export default class CohortCreate extends LitElement {
                 //                 width: 12,
                 //                 style: "padding-left: 0px",
                 //                 render: cohort => html`
-                //                     <annotation-set-update
-                //                         .annotationSets="${cohort?.annotationSets}"
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         @changeAnnotationSets="${e => this.onFieldChange(e, "annotationSets")}">
-                //                     </annotation-set-update>
+
                 //                 `
                 //             }
                 //         }

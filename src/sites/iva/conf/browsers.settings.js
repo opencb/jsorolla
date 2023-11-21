@@ -15,16 +15,34 @@ const CATALOG_SETTINGS = {
         },
         table: {
             toolbar: {
-                showColumns: true,
+                showSettings: true,
+                showColumns: false,
                 showDownload: false,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
             },
             // It is supported either columns[] or hiddenColumns[].
-            columns: ["id", "samples", "father", "mother", "disorders", "phenotypes", "caseId", "sex", "ethnicity", "dateOfBirth", "creationDate", "actions"]
+            columns: ["id", "samples", "father", "mother", "disorders", "phenotypes", "caseId", "sex", "ethnicity", "dateOfBirth", "creationDate", "actions"],
+
+            // Annotations Example:
+            // annotations: [
+            //     {
+            //         title: "Cardiology Tests",
+            //         position: 3,
+            //         variableSetId: "cardiology_tests_checklist",
+            //         variables: ["ecg_test", "echo_test"]
+            //     },
+            //     {
+            //         title: "Risk Assessment",
+            //         position: 5,
+            //         variableSetId: "risk_assessment",
+            //         variables: ["vf_cardiac_arrest_events"]
+            //     }
+            // ]
+
         },
         // merge criterium: uses this array as filter for internal 1D array.
-        details: ["individual-view", "clinical-analysis-grid", "individual-inferred-sex", "individual-mendelian-error", "json-view"]
+        details: ["individual-view", "clinical-analysis-grid", "individual-inferred-sex", "individual-mendelian-error", "json-view"],
     },
     COHORT_BROWSER: {
         /**
@@ -44,7 +62,8 @@ const CATALOG_SETTINGS = {
         table: {
             // merge criterium: spread operator
             toolbar: {
-                showColumns: true,
+                showSettings: true,
+                showColumns: false,
                 showDownload: false,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
@@ -75,7 +94,8 @@ const CATALOG_SETTINGS = {
         table: {
             // merge criterium: spread operator
             toolbar: {
-                showColumns: true,
+                showSettings: true,
+                showColumns: false,
                 showDownload: false,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
@@ -105,7 +125,8 @@ const CATALOG_SETTINGS = {
         table: {
             // merge criterium: spread operator
             toolbar: {
-                showColumns: true,
+                showSettings: true,
+                showColumns: false,
                 showDownload: false,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
@@ -136,7 +157,8 @@ const CATALOG_SETTINGS = {
         table: {
             // merge criterium: spread operator
             toolbar: {
-                showColumns: true,
+                showSettings: true,
+                showColumns: false,
                 showDownload: false,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
@@ -167,7 +189,8 @@ const CATALOG_SETTINGS = {
         table: {
             // merge criterium: spread operator
             toolbar: {
-                showColumns: true,
+                showSettings: true,
+                showColumns: false,
                 showDownload: false,
                 showExport: true,
                 exportTabs: ["download", "link", "code"],
@@ -239,7 +262,8 @@ const CATALOG_SETTINGS = {
         table: {
             // merge criterium: spread operator
             toolbar: {
-                showColumns: true,
+                showSettings: true,
+                showColumns: false,
                 showExport: true,
                 showDownload: false
                 // columns list for the dropdown will be added in grid components based on settings.table.columns
@@ -287,7 +311,8 @@ const CATALOG_SETTINGS = {
         table: {
             // Merge criteria: spread operator
             toolbar: {
-                showColumns: true,
+                showSettings: true,
+                showColumns: false,
                 showDownload: false,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
@@ -314,7 +339,8 @@ const CATALOG_SETTINGS = {
         table: {
             // merge criterium: spread operator
             toolbar: {
-                showColumns: true,
+                showSettings: true,
+                showColumns: false,
                 showDownload: false,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
@@ -352,7 +378,8 @@ const CATALOG_SETTINGS = {
         table: {
             // merge criterium: spread operator
             toolbar: {
-                showColumns: true,
+                showSettings: true,
+                showColumns: false,
                 showCreate: false,
                 showExport: true,
                 showDownload: false,

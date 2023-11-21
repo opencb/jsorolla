@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/opencga-browser.js";
 import "./clinical-analysis-view.js";
 import "./clinical-analysis-grid.js";
@@ -52,12 +54,11 @@ export default class ClinicalAnalysisBrowser extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "clinical-analysis-browser";
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
     }
 
-    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
-    // is executed twice in case there is external settings
     update(changedProperties) {
         if (changedProperties.has("settings") || changedProperties.has("config")) {
             this.settingsObserver();
@@ -88,6 +89,30 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                 },
             };
         }
+
+        // Apply user configuration
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
+        });
+
+
+        // if (this.opencgaSession.user?.configs?.IVA?.clinicalAnalysisBrowserCatalog?.grid) {
+        //     this._config.filter.result.grid = {
+        //         ...this._config.filter.result.grid,
+        //         ...this.opencgaSession.user.configs.IVA.clinicalAnalysisBrowserCatalog.grid,
+        //     };
+        // }
+
+        this.requestUpdate();
+    }
+
+    onSettingsUpdate() {
+        this.settingsObserver();
+    }
+
+    onClinicalAnalysisUpdate() {
+        this.settingsObserver();
     }
 
     render() {
@@ -100,7 +125,8 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                 resource="CLINICAL_ANALYSIS"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
             </opencga-browser>
         `;
     }
@@ -118,13 +144,16 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                     active: true,
                     render: params => html `
                         <clinical-analysis-grid
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .query="${params.executedQuery}"
                             .active="${params.active}"
                             @selectanalysis="${params.onSelectClinicalAnalysis}"
-                            @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}">
+                            @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}"
+                            @clinicalAnalysisUpdate="${e => params.onComponentUpdate(e, "clinicalAnalysis")}"
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </clinical-analysis-grid>
                         <clinical-analysis-detail
                             .opencgaSession="${params.opencgaSession}"
@@ -140,6 +169,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                     active: false,
                     render: params => html`
                         <clinical-analysis-group
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.result.grid}"
                             .query="${params.executedQuery}"
@@ -214,7 +244,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                     grid: {
                         readOnlyMode: false,
                         pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageList: [5, 10, 25],
                         detailView: false,
                         multiSelection: false,
                         showActions: true,
