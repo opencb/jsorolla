@@ -22,7 +22,7 @@ context("File Browser Grid", () => {
     const browserDetail = "file-detail";
 
     beforeEach(() => {
-        cy.visit("#file-browser-grid")
+        cy.visit("#file-browser-grid");
         cy.waitUntil(() => {
             return cy.get(browserGrid)
                 .should("be.visible");
@@ -151,8 +151,8 @@ context("File Browser Grid", () => {
                 });
         });
 
-        it("should hidden columns [Directory,Format,Bioformat]",() => {
-            const columns = ["Directory","Format","Bioformat"];
+        it("should hide columns [Name,Format]",() => {
+            const columns = ["Name","Format"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");
 
@@ -229,7 +229,7 @@ context("File Browser Grid", () => {
         it("should display 'Extra Column' column", () => {
             cy.get("thead th")
                 .contains("Extra column")
-                .should('be.visible');
+                .should("be.visible");
         });
 
         it("should display 'New Catalog Tab' Tab", () => {
@@ -238,10 +238,9 @@ context("File Browser Grid", () => {
                 .find("li")
                 .contains("New Catalog Tab")
                 .click()
-                .should('be.visible');
+                .should("be.visible");
         });
     });
-
 
     context("detail tab", () => {
         it("should render", () => {
@@ -249,39 +248,24 @@ context("File Browser Grid", () => {
                 .should("be.visible");
         });
 
-        it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Name")
-            cy.get("@indexColumn")
-                .then((indexColumn) => {
-                    const indexRow = 2
-                    // eslint-disable-next-line cypress/unsafe-to-chain-command
-                    cy.get(`tbody tr`)
-                        .eq(indexRow)
-                        .click() // select the row
-                        .find("td")
-                        .eq(indexColumn)
-                        .invoke("text")
-                        .as("textRow")
-                    });
-
-            cy.get("@textRow")
-                .then((textRow) => {
-                    cy.get("detail-tabs > div.panel")
-                        .invoke("text")
-                        .then((text) => {
-                            const textTab = text.split(":");
-                            expect(textRow).to.equal(textTab[1].trim());
-                        });
-                });
+        it("should display info from the selected row", () => {
+            const file = "chinese:HG007_GRCh38_1_22_v4.2.1_benchmark.vcf.gz";
+            cy.get(`tbody tr[data-uniqueid="${file}"]`)
+                .find(`td:first`)
+                .trigger("click");
+        
+            cy.get(`detail-tabs h3`)
+                .should("contain.text", `File ${file}`);
         });
 
         it("should display 'Preview' Tab", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get(`detail-tabs > div.detail-tabs > ul`)
                 .find("li")
                 .contains("Preview")
-                .click()
-                .should('be.visible');
+                .trigger("click");
+            
+            cy.get("file-preview")
+                .should("be.visible");
         });
     });
 });

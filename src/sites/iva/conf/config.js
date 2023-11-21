@@ -23,7 +23,7 @@ const hosts = [
     },
     {
         id: "test",
-        url: "https://ws.opencb.org/opencga-test"
+        url: "https://demo.app.zettagenomics.com/opencga"
     },
     {
         id: "reference",

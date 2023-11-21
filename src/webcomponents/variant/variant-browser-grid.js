@@ -42,6 +42,9 @@ export default class VariantBrowserGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -99,7 +102,7 @@ export default class VariantBrowserGrid extends LitElement {
             this.configObserver();
             this.renderVariants();
         }
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("config") || changedProperties.has("toolId")) {
             this.configObserver();
             this.requestUpdate();
             this.renderVariants();
@@ -152,7 +155,7 @@ export default class VariantBrowserGrid extends LitElement {
         };
 
         this.toolbarConfig = {
-            toolId: "variantBrowser",
+            toolId: this.toolId,
             resource: "VARIANT",
             disableCreate: true,
             showInterpreterConfig: true,

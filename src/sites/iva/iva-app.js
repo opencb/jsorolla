@@ -659,34 +659,34 @@ class IvaApp extends LitElement {
         window.clearInterval(this.intervalCheckSession);
     }
 
-    async saveLastStudy(newStudy) {
-        const userConfig = await this.opencgaClient.updateUserConfigs({
-            ...this.opencgaSession.user.configs.IVA,
-            lastStudy: newStudy.fqn
-        });
-        this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
-    }
+    // async saveLastStudy(newStudy) {
+    //     const userConfig = await this.opencgaClient.updateUserConfig({
+    //         ...this.opencgaSession.user.configs.IVA,
+    //         lastStudy: newStudy.fqn
+    //     });
+    //     this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
+    // }
 
-    onUrlChange(e) {
-        let hashFrag = e.detail.id;
-        if (UtilsNew.isNotUndefined(this.opencgaSession.project) && UtilsNew.isNotEmpty(this.opencgaSession.project.alias)) {
-
-            hashFrag += "/" + this.opencgaSession.project.alias;
-            if (UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
-                hashFrag += "/" + this.opencgaSession.study.alias;
-            }
-        }
-
-        const myQueryParams = [];
-        for (const key in e.detail.query) {
-            myQueryParams.push(key + "=" + e.detail.query[key]);
-        }
-        if (myQueryParams.length > 0) {
-            hashFrag += `?${myQueryParams.join("&")}`;
-        }
-
-        window.location.hash = hashFrag;
-    }
+    // onUrlChange(e) {
+    //     let hashFrag = e.detail.id;
+    //     if (UtilsNew.isNotUndefined(this.opencgaSession.project) && UtilsNew.isNotEmpty(this.opencgaSession.project.alias)) {
+    //
+    //         hashFrag += "/" + this.opencgaSession.project.alias;
+    //         if (UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
+    //             hashFrag += "/" + this.opencgaSession.study.alias;
+    //         }
+    //     }
+    //
+    //     const myQueryParams = [];
+    //     for (const key in e.detail.query) {
+    //         myQueryParams.push(key + "=" + e.detail.query[key]);
+    //     }
+    //     if (myQueryParams.length > 0) {
+    //         hashFrag += `?${myQueryParams.join("&")}`;
+    //     }
+    //
+    //     window.location.hash = hashFrag;
+    // }
 
     // TODO: we should move this code to an OpenCGA Utils
     checkSessionActive() {
@@ -951,7 +951,7 @@ class IvaApp extends LitElement {
 
         if (studyFound) {
             // Update the lastStudy in config iff has changed
-            this.opencgaClient.updateUserConfigs({...this.opencgaSession.user.configs, lastStudy: studyFqn});
+            this.opencgaClient.updateUserConfig("IVA", {...this.opencgaSession.user.configs["IVA"], lastStudy: studyFqn});
 
             // Refresh the session and update cellbase
             this.opencgaSession = {...this.opencgaSession};

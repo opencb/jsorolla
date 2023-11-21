@@ -54,6 +54,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "clinical-analysis-browser";
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
     }
@@ -92,7 +93,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         // Apply user configuration
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.[this._config.componentId]?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         });
 
 
@@ -143,7 +144,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                     active: true,
                     render: params => html `
                         <clinical-analysis-grid
-                            .componentId="${this._config.componentId}"
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
@@ -168,6 +169,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                     active: false,
                     render: params => html`
                         <clinical-analysis-group
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.result.grid}"
                             .query="${params.executedQuery}"
