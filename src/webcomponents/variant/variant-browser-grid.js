@@ -139,6 +139,7 @@ export default class VariantBrowserGrid extends LitElement {
             ...this.getDefaultConfig(),
             ...this.config,
         };
+
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Config for the grid toolbar
@@ -1018,7 +1019,6 @@ export default class VariantBrowserGrid extends LitElement {
         this.opencgaSession.opencgaClient.variants().query(filters)
             .then(response => {
                 const results = response.getResults();
-
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
                     const dataString = VariantUtils.jsonToTabConvert(results, this.populationFrequencies.studies, this.samples, this._config.nucleotideGenotype, e.detail.exportFields);
@@ -1061,6 +1061,7 @@ export default class VariantBrowserGrid extends LitElement {
 
     getDefaultConfig() {
         return {
+            // Bootstrap Grid config
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
@@ -1083,7 +1084,7 @@ export default class VariantBrowserGrid extends LitElement {
             showSettings: true,
             showDownload: false,
             showColumns: false,
-            exportTabs: ["download", "link", "code"],
+            exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
             annotations: [],
             highlights: [],
 

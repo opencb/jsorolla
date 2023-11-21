@@ -1528,6 +1528,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
     getDefaultConfig() {
         return {
+            // Bootstrap Grid config
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],

@@ -199,15 +199,15 @@ export default class OpencbGridToolbar extends LitElement {
             </div>
 
             <!-- Add modals-->
-            ${this._settings?.showExport && this._config?.export ? ModalUtils.create(this, `${this._prefix}ExportModal`, this._config.export) : nothing}
-
-            ${this._settings?.showSettings && this._config?.settings ? ModalUtils.create(this, `${this._prefix}SettingModal`, this._config.settings) : nothing}
-
             ${(this._config?.create &&
             (this._settings.showCreate || this._settings.showNew) &&
             OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`)) ?
             ModalUtils.create(this, `${this._prefix}CreateModal`, this._config.create) :
             nothing}
+
+            ${this._settings?.showExport && this._config?.export ? ModalUtils.create(this, `${this._prefix}ExportModal`, this._config.export) : nothing}
+
+            ${this._settings?.showSettings && this._config?.settings ? ModalUtils.create(this, `${this._prefix}SettingModal`, this._config.settings) : nothing}
         `;
     }
 
@@ -217,10 +217,8 @@ export default class OpencbGridToolbar extends LitElement {
             showCreate: true,
             showExport: true,
             showSettings: true,
-            showDownload: false,
-            showColumns: false,
-            download: ["Tab", "JSON"],
-            buttons: ["columns", "download"],
+            // download: ["Tab", "JSON"],
+            // buttons: ["columns", "download"],
         };
     }
 
