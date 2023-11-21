@@ -84,14 +84,12 @@ export default class VariantTableFormatter {
         };
     }
 
-
     static geneFormatter() {
         return {
             title: "Gene ID",
-            field: "id",
-            type: "basic",
+            type: "list",
             display: {
-                format: (id, variant) => {
+                getData: variant => {
                     if (variant?.annotation?.consequenceTypes?.length > 0) {
                         const visited = {};
                         const genes = [];
@@ -105,9 +103,9 @@ export default class VariantTableFormatter {
                                 visited[geneName] = true;
                             }
                         }
-                        return genes.join(", ");
+                        return genes;
                     } else {
-                        return "-";
+                        return [];
                     }
                 },
                 // style: {
@@ -117,30 +115,38 @@ export default class VariantTableFormatter {
         };
     }
 
+    static hgvsFormatter(gridConfig) {
+        return {
+            title: "HGVS",
+            type: "list",
+            display: {
+                defaultValue: "-",
+                getData: variant => {
+                    BioinfoUtils.sort(variant.annotation?.consequenceTypes, v => v.geneName);
+                    const showArrayIndexes = VariantTableFormatter._consequenceTypeDetailFormatterFilter(variant.annotation?.consequenceTypes, gridConfig).indexes;
 
-    static hgvsFormatter(variant, gridConfig) {
-        BioinfoUtils.sort(variant.annotation?.consequenceTypes, v => v.geneName);
-        const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(variant.annotation?.consequenceTypes, gridConfig).indexes;
+                    if (showArrayIndexes?.length > 0 && variant.annotation.hgvs?.length > 0) {
+                        const results = [];
+                        for (const index of showArrayIndexes) {
+                            const consequenceType = variant.annotation.consequenceTypes[index];
+                            const transcriptHgvs = variant.annotation?.hgvs?.find(hgvs => hgvs.startsWith(consequenceType.transcriptId));
+                            const proteinHgvs = variant.annotation?.hgvs?.find(hgvs => hgvs.startsWith(consequenceType.proteinVariantAnnotation?.proteinId));
 
-        if (showArrayIndexes?.length > 0 && variant.annotation.hgvs?.length > 0) {
-            const results = [];
-            for (const index of showArrayIndexes) {
-                const consequenceType = variant.annotation.consequenceTypes[index];
-                const hgvsTranscriptIndex = variant.annotation.hgvs.findIndex(hgvs => hgvs.startsWith(consequenceType.transcriptId));
-                const hgvsProteingIndex = variant.annotation.hgvs.findIndex(hgvs => hgvs.startsWith(consequenceType.proteinVariantAnnotation?.proteinId));
-                if (hgvsTranscriptIndex > -1 || hgvsProteingIndex > -1) {
-                    results.push(`
-                        <div style="margin: 5px 0">
-                            ${VariantGridFormatter.getHgvsLink(consequenceType.transcriptId, variant.annotation.hgvs) || "-"}
-                        </div>
-                        <div style="margin: 5px 0">
-                            ${VariantGridFormatter.getHgvsLink(consequenceType.proteinVariantAnnotation?.proteinId, variant.annotation.hgvs) || "-"}
-                        </div>
-                    `);
-                }
-            }
-            return results.join("<hr style='margin: 5px'>");
-        }
+                            if (transcriptHgvs || proteinHgvs) {
+                                results.push(transcriptHgvs);
+                                proteinHgvs ? results.push(proteinHgvs) : results.push("-");
+                            }
+                        }
+                        return results;
+                    }
+                },
+                separator: hgvs => hgvs.includes("p.") || hgvs === "-" ? "---" : ""
+                // separator: "<hr>"
+                // style: {
+                //     "font-weight": "bold",
+                // }
+            },
+        };
     }
 
     static vcfFormatter(value, row, field, type = "INFO") {
@@ -152,167 +158,105 @@ export default class VariantTableFormatter {
         }
     }
 
-    static typeFormatter(value, row) {
-        if (row) {
-            let type = row.type;
-            let color = "";
-            switch (row.type) {
-                case "SNP": // Deprecated
-                    type = "SNV";
-                    color = "black";
-                    break;
-                case "INDEL":
-                case "CNV": // Deprecated
-                case "COPY_NUMBER":
-                case "COPY_NUMBER_GAIN":
-                case "COPY_NUMBER_LOSS":
-                case "MNV":
-                    color = "darkorange";
-                    break;
-                case "SV":
-                case "INSERTION":
-                case "DELETION":
-                case "DUPLICATION":
-                case "TANDEM_DUPLICATION":
-                case "BREAKEND":
-                    color = "red";
-                    break;
-                default:
-                    color = "black";
-                    break;
-            }
-            return `<span style="color: ${color}">${type}</span>`;
-        } else {
-            return "-";
-        }
-    }
-
-    static consequenceTypeFormatter(value, row, ctQuery, gridCtSettings) {
-        if (row?.annotation && row.annotation.consequenceTypes?.length > 0) {
-            let {selectedConsequenceTypes, notSelectedConsequenceTypes, indexes} =
-                VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, gridCtSettings);
-
-            // If CT is passed in the query then we must make and AND with the selected transcript by the user.
-            // This means that only the selectedConsequenceTypes that ARE ALSO IN THE CT QUERY are displayed.
-            if (ctQuery) {
-                const consequenceTypes = new Set();
-                for (const ct of ctQuery.split(",")) {
-                    consequenceTypes.add(ct);
-                }
-
-                const newSelectedConsequenceTypes = [];
-                for (const ct of selectedConsequenceTypes) {
-                    if (ct.sequenceOntologyTerms.some(so => consequenceTypes.has(so.name))) {
-                        newSelectedConsequenceTypes.push(ct);
-                    } else {
-                        notSelectedConsequenceTypes.push(ct);
-                    }
-                }
-                selectedConsequenceTypes = newSelectedConsequenceTypes;
-            }
-
-            const positiveConsequenceTypes = [];
-            const negativeConsequenceTypes = [];
-            const soVisited = new Set();
-            for (const ct of selectedConsequenceTypes) {
-                for (const so of ct.sequenceOntologyTerms) {
-                    if (!soVisited.has(so?.name)) {
-                        positiveConsequenceTypes.push(`<span style="color: ${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black"}">${so.name}</span>`);
-                        soVisited.add(so.name);
-                    }
-                }
-            }
-
-            // Print negative SO, if not printed as positive
-            let negativeConsequenceTypesText = "";
-            if (gridCtSettings.consequenceType.showNegativeConsequenceTypes) {
-                for (const ct of notSelectedConsequenceTypes) {
-                    for (const so of ct.sequenceOntologyTerms) {
-                        if (!soVisited.has(so.name)) {
-                            negativeConsequenceTypes.push(`<div style="color: ${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black"}; margin: 5px">${so.name}</div>`);
-                            soVisited.add(so.name);
+    static typeFormatter() {
+        return {
+            title: "Type",
+            field: "type",
+            type: "basic",
+            display: {
+                defaultValue: "-",
+                style: {
+                    color: type => {
+                        let color = "";
+                        switch (type) {
+                            case "SNP": // Deprecated
+                                // eslint-disable-next-line no-param-reassign
+                                type = "SNV";
+                                color = "black";
+                                break;
+                            case "INDEL":
+                            case "CNV": // Deprecated
+                            case "COPY_NUMBER":
+                            case "COPY_NUMBER_GAIN":
+                            case "COPY_NUMBER_LOSS":
+                            case "MNV":
+                                color = "darkorange";
+                                break;
+                            case "SV":
+                            case "INSERTION":
+                            case "DELETION":
+                            case "DUPLICATION":
+                            case "TANDEM_DUPLICATION":
+                            case "BREAKEND":
+                                color = "red";
+                                break;
+                            default:
+                                color = "black";
+                                break;
                         }
-                    }
-                }
-
-                if (negativeConsequenceTypes.length > 0) {
-                    negativeConsequenceTypesText = `<a tooltip-title="Terms Filtered" tooltip-text='${negativeConsequenceTypes.join("")}'>
-                                                        <span style="color: darkgray;font-style: italic">${negativeConsequenceTypes.length} terms filtered</span>
-                                                    </a>`;
+                        return color;
+                    },
                 }
             }
-
-            return `
-                <div>
-                    ${positiveConsequenceTypes.join("<br>")}
-                </div>
-                <div>
-                    ${negativeConsequenceTypesText}
-                </div>`;
-        }
-        return "-";
+        };
     }
 
-    /* Usage:
-        columns: [
-            {
-                title: "", classes: "", style: "",
-                columns: [      // nested column
-                    {
-                        title: "", classes: "", style: ""
-                    }
-                ]
-            }
-        ]
+    static consequenceTypeFormatter(ctQuery, gridSettings) {
+        return {
+            title: "Consequence Type",
+            type: "list",
+            display: {
+                defaultValue: "-",
+                contentLayout: "vertical",
+                getData: variant => {
+                    if (variant.annotation?.consequenceTypes?.length > 0) {
+                        let {selectedConsequenceTypes, notSelectedConsequenceTypes, indexes} =
+                            VariantTableFormatter._consequenceTypeDetailFormatterFilter(variant.annotation.consequenceTypes, gridSettings);
 
-        rows: [
-            {values: ["", ""], classes: "", style: ""}
-        ]
-     */
-    static renderTable(id, columns, rows, config) {
-        if (!rows || rows.length === 0) {
-            return `<span>${config?.defaultMessage ? config.defaultMessage : "No data found"}</span>`;
-        }
+                        // If CT is passed in the query then we must make and AND with the selected transcript by the user.
+                        // This means that only the selectedConsequenceTypes that ARE ALSO IN THE CT QUERY are displayed.
+                        if (ctQuery) {
+                            const consequenceTypes = new Set();
+                            for (const ct of ctQuery.split(",")) {
+                                consequenceTypes.add(ct);
+                            }
 
-        let tr = "";
-        const nestedColumnIndex = columns.findIndex(col => col.columns?.length > 0);
-        if (nestedColumnIndex > -1) {
-            let thTop = "";
-            let thBottom = "";
-            for (const column of columns) {
-                if (column.columns?.length > 0) {
-                    thTop += `<th rowspan="1" colspan="${column.columns.length}" class="${column.classes ?? ""}" style="text-align: center; ${column.style ?? ""}">${column.title}</th>`;
-                    for (const bottomColumn of column.columns) {
-                        thBottom += `<th rowspan="1">${bottomColumn.title}</th>`;
+                            const newSelectedConsequenceTypes = [];
+                            for (const ct of selectedConsequenceTypes) {
+                                if (ct.sequenceOntologyTerms.some(so => consequenceTypes.has(so.name))) {
+                                    newSelectedConsequenceTypes.push(ct);
+                                } else {
+                                    notSelectedConsequenceTypes.push(ct);
+                                }
+                            }
+                            selectedConsequenceTypes = newSelectedConsequenceTypes;
+                        }
+
+                        const positiveConsequenceTypes = [];
+                        const soVisited = new Set();
+                        for (const ct of selectedConsequenceTypes) {
+                            for (const so of ct.sequenceOntologyTerms) {
+                                if (!soVisited.has(so?.name)) {
+                                    // positiveConsequenceTypes.push(`<span style="color: ${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black"}">${so.name}</span>`);
+                                    positiveConsequenceTypes.push(so.name);
+                                    soVisited.add(so.name);
+                                }
+                            }
+                        }
+
+                        return positiveConsequenceTypes;
                     }
-                } else {
-                    thTop += `<th rowspan="2" class="${column.classes ?? ""}" style="${column.style ?? ""}">${column.title}</th>`;
+                },
+                style: {
+                    // "font-weight": "bold",
+                    "color": so => {
+                        return CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so]] || "black";
+                    },
                 }
             }
-            tr += `<tr>${thTop}</tr>`;
-            tr += `<tr>${thBottom}</tr>`;
-        } else {
-            const th = columns.map(column => `<th>${column.title}</th>`).join("");
-            tr = `<tr>${th}</tr>`;
-        }
-
-        let html = `<table id="${id ? id : null}" class="table ${config?.classes ? config.classes : "table-hover table-no-bordered"}">
-                        <thead>
-                            ${tr}
-                        </thead>
-                        <tbody>`;
-        // Render rows
-        for (const row of rows) {
-            let td = "";
-            for (const value of row.values) {
-                td += `<td>${value}</td>`;
-            }
-            html += `<tr class="${row.classes ?? ""}" style="${row.style ?? ""}">${td}</tr>`;
-        }
-        html += "</tbody></table>";
-
-        return html;
+        };
     }
+
 
     static _consequenceTypeDetailFormatterFilter(cts, filter) {
         const selectedConsequenceTypes = [];
@@ -391,294 +335,211 @@ export default class VariantTableFormatter {
         };
     }
 
-    static getHgvsLink(id, hgvsArray) {
-        if (!id) {
-            return;
-        }
-
-        let hgvs = hgvsArray?.find(hgvs => hgvs.startsWith(id));
-        if (hgvs) {
-            if (hgvs.includes("(")) {
-                const split = hgvs.split(new RegExp("[()]"));
-                hgvs = split[0] + split[2];
-            }
-
-            const split = hgvs.split(":");
-            let link;
-            if (hgvs.includes(":c.")) {
-                link = BioinfoUtils.getTranscriptLink(split[0]);
-            }
-            if (hgvs.includes(":p.")) {
-                link = BioinfoUtils.getProteinLink(split[0]);
-            }
-
-            return `<a href=${link} target="_blank">${split[0]}</a>:<span style="font-weight:bold">${split[1]}</span>`;
-        } else {
-            if (id.startsWith("ENST") || id.startsWith("NM_") || id.startsWith("NR_")) {
-                return `<a href=${BioinfoUtils.getTranscriptLink(id)} target="_blank">${id}</a>`;
-            } else {
-                return `<a href=${BioinfoUtils.getProteinLink(id)} target="_blank">${id}</a>`;
-            }
-        }
+    static siftFormatter() {
+        return {
+            title: "SIFT",
+            field: "annotation",
+            type: "basic",
+            display: {
+                defaultValue: "-",
+                format: (annotation, variant) => VariantFormatter.siftPproteinScoreFormatter(annotation, variant),
+                style: {
+                    color: value => value !== "-" ? PROTEIN_SUBSTITUTION_SCORE.style.sift[value]: "black"
+                }
+            },
+        };
     }
 
-    static toggleDetailConsequenceType(e) {
-        const id = e.target.dataset.id;
-        const elements = document.getElementsByClassName(this._prefix + id + "Filtered");
-        for (const element of elements) {
-            if (element.style.display === "none") {
-                element.style.display = "";
-            } else {
-                element.style.display = "none";
-            }
-        }
+    static polyphenFormatter() {
+        return {
+            title: "Polyphen",
+            field: "annotation",
+            type: "basic",
+            display: {
+                defaultValue: "-",
+                format: (annotation, variant) => VariantFormatter.polyphenProteinScoreFormatter(annotation, variant),
+                style: {
+                    color: value => value !== "-" ? PROTEIN_SUBSTITUTION_SCORE.style.polyphen[value] : "black"
+                }
+            },
+        };
     }
 
-    static consequenceTypeDetailFormatter(value, row, variantGrid, query, filter, assembly) {
-        if (row?.annotation?.consequenceTypes && row.annotation.consequenceTypes.length > 0) {
-            // Sort and group CTs by Gene name
-            BioinfoUtils.sort(row.annotation.consequenceTypes, v => v.geneName);
-
-            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, filter).indexes;
-            let message = "";
-            if (filter) {
-                // Create two different divs to 'show all' or 'apply filter' title
-                message = `<div class="${variantGrid._prefix}${row.id}Filtered">
-                                Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of
-                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types,
-                                <a id="${variantGrid._prefix}${row.id}ShowCt" data-id="${row.id}" style="cursor: pointer">show all...</a>
-                            </div>
-                            <div class="${variantGrid._prefix}${row.id}Filtered" style="display: none">
-                                Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of
-                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types,
-                                <a id="${variantGrid._prefix}${row.id}HideCt" data-id="${row.id}" style="cursor: pointer">apply filters...</a>
-                            </div>
-                            `;
+    static revelFormatter() {
+        return {
+            title: "Revel",
+            field: "annotation",
+            type: "basic",
+            display: {
+                defaultValue: "-",
+                format: (annotation, variant) => VariantFormatter.revelProteinScoreFormatter(annotation, variant),
+                style: {
+                    color: value => value > 0.5 ? "darkorange" : "black"
+                }
             }
+        };
+    }
 
-            let ctHtml = `<div style="padding-bottom: 5px">
-                              ${message}
-                          </div>
-                          <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
-                              <thead>
-                                  <tr>
-                                      <th rowspan="2">Gene</th>
-                                      <th rowspan="2">Transcript</th>
-                                      <th rowspan="2">Consequence Type</th>
-                                      <th rowspan="2">Transcript Flags</th>
-                                      <th rowspan="1" colspan="4" style="text-align: center; padding-top: 5px; padding-right: 2px">Transcript Variant Annotation</th>
-                                      <th rowspan="1" colspan="4" style="text-align: center; padding-top: 5px">Protein Variant Annotation</th>
-                                  </tr>
-                                  <tr style="margin: 5px">
-                                      <th rowspan="1" style="padding-top: 5px">cDNA / CDS</th>
-                                      <th rowspan="1">Codon</th>
-                                      <th rowspan="1" style="">Exon (%)</th>
-                                      <th rowspan="1" style="padding-right: 20px">SpliceAI</th>
-                                      <th rowspan="1">UniProt Acc</th>
-                                      <th rowspan="1">Position</th>
-                                      <th rowspan="1">Ref/Alt</th>
-                                      <th rowspan="1">Domains</th>
-                                  </tr>
-                              </thead>
-                              <tbody>`;
-
-            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                const ct = row.annotation.consequenceTypes[i];
-
-                // Keep backward compatibility with old ensemblGeneId and ensemblTranscriptId
-                const source = ct.source || "ensembl";
-                const geneId = ct.geneId || ct.ensemblGeneId;
-                const transcriptId = ct.transcriptId || ct.ensemblTranscriptId;
-                const geneIdLink = `${BioinfoUtils.getGeneLink(geneId, source, assembly)}`;
-                const ensemblTranscriptIdLink = `${BioinfoUtils.getTranscriptLink(transcriptId, source, assembly)}`;
-
-                // Prepare data info for columns
-                const geneName = ct.geneName ? `<a href="${BioinfoUtils.getGeneNameLink(ct.geneName)}" target="_blank">${ct.geneName}</a>` : "-";
-
-                const geneIdLinkHtml = geneId ? `<a href="${geneIdLink}" target="_blank">${geneId}</a>` : "";
-                const geneHtml = `
-                    <div>${geneName}</div>
-                    <div style="margin: 5px 0px">${geneIdLinkHtml}</div>
-                `;
-
-                const transcriptIdHtml = `
-                    <div>
-                        <span>${ct.biotype ? ct.biotype : "-"}</span>
-                    </div>
-                    <div style="margin: 5px 0px">
-                        <span>
-                            ${transcriptId ? `
-                                <div style="margin: 5px 0px">
-                                    ${VariantGridFormatter.getHgvsLink(transcriptId, row.annotation.hgvs) || ""}
-                                </div>
-                                <div style="margin: 5px 0px">
-                                    ${VariantGridFormatter.getHgvsLink(ct?.proteinVariantAnnotation?.proteinId, row.annotation.hgvs) || ""}
-                                </div>` : ""
+    static caddScaledFormatter() {
+        return {
+            title: "CADD",
+            field: "annotation",
+            type: "basic",
+            display: {
+                defaultValue: "-",
+                format: (annotation, variant) => VariantFormatter.caddScaledFormatter(annotation, variant),
+                style: {
+                    color: value => value < 15 ? "red" : "black",
                 }
-                        </span>
-                    </div>`;
+            }
+        };
+    }
 
-                const soArray = [];
-                for (const so of ct.sequenceOntologyTerms) {
-                    const color = CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black";
-                    const soUrl = `${BioinfoUtils.getSequenceOntologyLink(so.accession)}`;
-                    const soTitle = `Go to Sequence Ontology ${so.accession} term`;
-                    soArray.push(`
-                        <div style="color: ${color}; margin-bottom: 5px">
-                            <span style="padding-right: 5px">${so.name}</span>
-                            <a title="${soTitle}" href="${soUrl}" target="_blank">
-                                <i class="fas fa-external-link-alt"></i>
-                            </a>
-                        </div>
-                    `);
-                }
-
-                let transcriptFlags = ["-"];
-                if (transcriptId && (ct.transcriptFlags?.length > 0 || ct.transcriptAnnotationFlags?.length > 0)) {
-                    transcriptFlags = ct.transcriptFlags ?
-                        ct.transcriptFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`) :
-                        ct.transcriptAnnotationFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`);
-                }
-
-                let exons = ["-"];
-                if (ct.exonOverlap && ct.exonOverlap.length > 0) {
-                    exons = ct.exonOverlap.map(exon => `
-                        <div>
-                            <span>${exon.number}</span>
-                        </div>
-                        ${exon?.percentage ? `
-                            <div>
-                                <span class="help-block" style="margin: 2px 0px">${exon?.percentage.toFixed(2) ?? "-"}%</span>
-                            </div>` :
-                        ""}
-                    `);
-                }
-
-                let spliceAIScore = "-";
-                if (ct.spliceScores?.length > 0) {
-                    const spliceAi = ct.spliceScores.find(ss => ss.source.toUpperCase() === "SPLICEAI");
-                    if (spliceAi) {
-                        const keys = ["DS_AG", "DS_AL", "DS_DG", "DS_DL"];
-                        const max = Math.max(spliceAi.scores["DS_AG"], spliceAi.scores["DS_AL"], spliceAi.scores["DS_DG"], spliceAi.scores["DS_DL"]);
-                        const index = [spliceAi.scores[keys[0]], spliceAi.scores[keys[1]], spliceAi.scores[keys[2]], spliceAi.scores[keys[3]]].findIndex(e => e === max);
-
-                        const color = (max >= 0.8) ? "red" : (max >= 0.5) ? "darkorange" : "black";
-                        spliceAIScore = `
-                            <div>
-                                <span style="color: ${color}">${max} (${keys[index]})</span>
-                            </div>
-                        `;
-                    }
-                }
-
-                const pva = ct.proteinVariantAnnotation ? ct.proteinVariantAnnotation : {};
-                let uniprotAccession = "-";
-                if (pva.uniprotAccession) {
-                    uniprotAccession = `
-                        <div style="margin: 5px 0px">
-                            <span><a href="${BioinfoUtils.getUniprotLink(pva.uniprotAccession)}" target="_blank">${pva.uniprotAccession}</a></span>
-                        </div>
-                        ${pva.uniprotVariantId ? `
-                            <div>
-                                <span class="help-block" style="margin: 0px">${pva.uniprotVariantId}</span>
-                            </div>` :
-                        ""}
-                    `;
-                }
-
-                let domains = `<a class="ct-protein-domain-tooltip" tooltip-title='Info' tooltip-text='No protein domains found' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                                    <i class='fa fa-times' style='color: gray'></i>
-                               </a>`;
-                if (pva.features) {
-                    let tooltipText = "";
-                    const visited = new Set();
-                    for (const feature of pva.features) {
-                        if (feature.id && !visited.has(feature.id)) {
-                            visited.add(feature.id);
-                            tooltipText += `
-                                <div>
-                                    <span style="font-weight: bold; margin: 5px">${feature.id}</span><span class="help-block" style="margin: 5px">${feature.description}</span>
-                                </div>
-                            `;
+    static spliceAIFormatter() {
+        return {
+            title: "SpliceAI",
+            field: "annotation",
+            type: "basic",
+            display: {
+                defaultValue: "--",
+                format: annotation => {
+                    if (annotation.consequenceTypes?.length > 0) {
+                        let dscore = 0;
+                        let transcriptId;
+                        for (const ct of annotation.consequenceTypes) {
+                            if (ct.spliceScores?.length > 0) {
+                                const spliceAi = ct.spliceScores.find(ss => ss.source.toUpperCase() === "SPLICEAI");
+                                if (spliceAi) {
+                                    const max = Math.max(spliceAi.scores["DS_AG"], spliceAi.scores["DS_AL"], spliceAi.scores["DS_DG"], spliceAi.scores["DS_DL"]);
+                                    if (max > dscore) {
+                                        dscore = max;
+                                        transcriptId = ct.transcriptId;
+                                    }
+                                }
+                            }
                         }
+                        return dscore;
                     }
-                    domains = `<a class="ct-protein-domain-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                                    <i class='fa fa-check' style='color: green'></i>
-                               </a>`;
-                }
-
-                // Create the table row
-                const hideClass = showArrayIndexes.includes(i) ? "" : `${variantGrid._prefix}${row.id}Filtered`;
-                const displayStyle = showArrayIndexes.includes(i) ? "" : "display: none";
-                ctHtml += `<tr class="detail-view-row ${hideClass}" style="${displayStyle}">
-                                <td>${geneHtml}</td>
-                                <td>${transcriptIdHtml}</td>
-                                <td>${soArray.join("")}</td>
-                                <td>${transcriptFlags.join("")}</td>
-
-                                <td>${ct.cdnaPosition || "-"} / ${ct.cdsPosition || "-"}</td>
-                                <td>${ct.codon || "-"}</td>
-                                <td>${exons.join("<br>")}</td>
-                                <td>${spliceAIScore}</td>
-
-                                <td>${uniprotAccession}</td>
-                                <td>${pva.position !== undefined ? pva.position : "-"}</td>
-                                <td>${pva.reference !== undefined ? pva.reference + "/" + pva.alternate : "-"}</td>
-                                <td>${domains}</td>
-                           </tr>`;
-            }
-            ctHtml += "</tbody></table>";
-            return ctHtml;
-        }
-        return "-";
-    }
-
-    static caddScaledFormatter(value, row, index) {
-        if (row && row.type !== "INDEL" && row.annotation?.functionalScore?.length > 0) {
-            for (const functionalScore of row.annotation.functionalScore) {
-                if (functionalScore.source === "cadd_scaled") {
-                    const value = Number(functionalScore.score).toFixed(2);
-                    if (value < 15) {
-                        return value;
-                    } else {
-                        return "<span style=\"color: red\">" + value + "</span>";
-                    }
+                },
+                style: {
+                    color: dscore => (dscore >= 0.8) ? "red" : (dscore >= 0.5) ? "darkorange" : "black",
                 }
             }
-        } else {
-            return "-";
-        }
+        };
     }
 
-    static spliceAIFormatter(value, row) {
-        if (row.annotation.consequenceTypes?.length > 0) {
-            // We need to find the max Delta Score:
-            //      Delta score of a variant, defined as the maximum of (DS_AG, DS_AL, DS_DG, DS_DL),
-            //      ranges from 0 to 1 and can be interpreted as the probability of the variant being splice-altering.
-            let dscore = 0;
-            let transcriptId;
-            for (const ct of row.annotation.consequenceTypes) {
-                if (ct.spliceScores?.length > 0) {
-                    const spliceAi = ct.spliceScores.find(ss => ss.source.toUpperCase() === "SPLICEAI");
-                    if (spliceAi) {
-                        const max = Math.max(spliceAi.scores["DS_AG"], spliceAi.scores["DS_AL"], spliceAi.scores["DS_DG"], spliceAi.scores["DS_DL"]);
-                        if (max > dscore) {
-                            dscore = max;
-                            transcriptId = ct.transcriptId;
+    static conservationFormatter(source) {
+        return {
+            title: source,
+            field: "annotation",
+            type: "basic",
+            display: {
+                defaultValue: "-",
+                format: annotation => {
+                    if (annotation?.conservation?.length > 0) {
+                        for (const conservation of annotation.conservation) {
+                            if (conservation.source?.toLowerCase() === source.toLowerCase()) {
+                                return Number(conservation.score).toFixed(3);
+                            }
                         }
                     }
                 }
             }
+        };
+    }
 
-            const color = (dscore >= 0.8) ? "red" : (dscore >= 0.5) ? "darkorange" : "black";
-            return `
-                <div>
-                    <span title="${transcriptId || "not found"}" style="color: ${color}">${dscore}</span>
-                </div>
-            `;
-        } else {
-            return "-";
-        }
+    static populationFrequencyFormatter() {
+        return {
+            title: "Population Frequency",
+            field: "annotation",
+            type: "table",
+            display: {
+                columns: [
+                    {
+                        title: "",
+                        field: "chromosome",
+                        display: {
+                            style: {
+                                height: "10px",
+                                width: "6px",
+                                background: "blue",
+                            }
+                        }
+                    },
+                    {
+                        title: "",
+                        field: "reference",
+                        display: {
+                            style: {
+                                height: "10px",
+                                width: "6px",
+                                background: "red",
+                            }
+                        }
+                    },
+                    {
+                        title: "",
+                        field: "alternate",
+                        display: {
+                            style: {
+                                height: "10px",
+                                width: "6px",
+                                background: "green",
+                            }
+                        }
+                    }
+                ],
+                style: {
+                    height: "10px"
+                }
+            }
+        };
+    }
+
+    static clinvarFormatter() {
+        return {
+            title: "ClinVar",
+            type: "list",
+            display: {
+                defaultValue: "-",
+                contentLayout: "vertical",
+                getData: variant => {
+                    return VariantFormatter.clinicalTraitAssociationFormatter(variant, "clinvar");
+                },
+                template: "${trait.id} - ${clinicalSignificance}",
+                style: {
+                    clinicalSignificance: {
+                        color: (id, trait) => trait.color
+                    }
+                },
+                link: {
+                    "trait.id": (id, trait) => trait.trait.url
+                }
+            }
+        };
+    }
+
+    static cosmicFormatter() {
+        return {
+            title: "Cosmic",
+            type: "list",
+            display: {
+                defaultValue: "-",
+                contentLayout: "vertical",
+                getData: variant => {
+                    return VariantFormatter.clinicalTraitAssociationFormatter(variant, "cosmic");
+                },
+                template: "${id} - ${histologies}",
+                style: {
+                    // clinicalSignificance: {
+                    //     color: (id, trait) => trait.color
+                    // }
+                },
+                link: {
+                    id: id => BioinfoUtils.getCosmicVariantLink(id)
+                }
+            }
+        };
     }
 
     static populationFrequenciesInfoTooltipContent(populationFrequencies) {
@@ -696,7 +557,7 @@ export default class VariantTableFormatter {
                 <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>`;
     }
 
-    // Creates the colored table with one row and as many columns as populations.
+// Creates the colored table with one row and as many columns as populations.
     static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
         const tooltipRows = (populations || []).map(population => {
             const popFreq = populationFrequenciesMap.get(population) || null;

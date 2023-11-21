@@ -103,71 +103,66 @@ export default class DataForm extends LitElement {
         this.data = this.data ?? {};
     }
 
-    getValue(field, object, defaultValue, display) {
-        let value = object;
+    getValue(field, object = this.data, defaultValue, display) {
+        let value;
         if (field) {
-            const _object = object ? object : this.data;
             // If field contains [] means the element type is object-list,
             // we need to get the value from the array, information is encoded as:
-            //  phenotypes[].1.id: field id from second item of phenotypes
+            //   phenotypes[].1.id: field id from second item of phenotypes
             if (field.includes("[]")) {
                 const [parentItemArray, right] = field.split("[].");
                 if (right?.includes(".")) {
                     const [itemIndex, ...itemFieldIds] = right.split(".");
-                    // support object nested
+                    // Support nested object
                     if (itemFieldIds.length === 1) {
-                        value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]];
+                        value = UtilsNew.getObjectValue(object, parentItemArray, "")[itemIndex][itemFieldIds[0]];
                     } else {
-                        value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
+                        value = UtilsNew.getObjectValue(object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
                     }
                 } else {
                     // FIXME this should never be reached
-                    console.error("this should never be reached");
-                    // value = this.objectListItems[parentItemArray]?.[right];
+                    console.error("This should never be reached");
                 }
             } else {
                 // Optional chaining is needed when "res" is undefined
-                value = field.split(".").reduce((res, prop) => res?.[prop], _object);
+                value = field.split(".").reduce((res, prop) => res?.[prop], object);
             }
 
-            // Check if 'format' exists
-            if (value && display?.format) {
-                // check if response is actually an HTML
-                // value = UtilsNew.renderHTML(display.format(value));
-                value = display.format(value, object);
-            }
-
-            // Needed for handling falsy values
-            if (value !== undefined && value !== "") {
-                if (display) {
-                    if (display.className || display.classes || display.style) {
-                        const style = this._parseStyleField(display.style);
-                        value = html`<span class="${display.className || display.classes}" style="${style}">${value}</span>`;
-                    }
-                    if (display.link) {
-                        value = html`<a href="${display.link.replace(field.toUpperCase(), value)}" target="_blank">${value}</a>`;
-                    }
-                    if (display.decimals && !isNaN(value)) {
-                        value = value.toFixed(display.decimals);
-                    }
+            // If 'value' exists we must apply the functions, DO NOT change the order
+            if (value) {
+                if (display?.format) {
+                    // Check if response is actually an HTML
+                    // value = UtilsNew.renderHTML(display.format(value));
+                    value = display.format(value, object);
+                }
+                if (display?.link) {
+                    const href = display.link.replace(field.toUpperCase(), value);
+                    value = html`<a href="${href}" target="_blank">${value}</a>`;
+                }
+                if (display?.className || display?.classes || display?.style) {
+                    const style = this._parseStyleField(display.style, value, object);
+                    value = html`<span class="${display.className || display.classes}" style="${style}">${value}</span>`;
+                }
+                // TODO this should be deprecated, we can use 'format' now
+                if (display?.decimals && !isNaN(value)) {
+                    value = value.toFixed(display.decimals);
                 }
             } else {
                 value = defaultValue;
             }
-        } else if (defaultValue) {
+        } else {
             value = defaultValue;
         }
         return value;
     }
 
-    applyTemplate(template, object, defaultValue, element) {
+    applyTemplate(template, data, defaultValue, element) {
         // Parse template string and find matches groups
         const matches = template
-            .match(/\$\{[a-zA-Z_.\[\]]+\}/g)
+            .match(/\$\{[a-zA-Z_.\[\]]+}/g)
             .map(elem => elem.substring(2, elem.length - 1));
 
         for (const match of matches) {
-            let value = this.getValue(match, object, defaultValue);
             // Check if 'style' has been defined for this match variable, example:
             //     {
             //         title: "Format",
@@ -185,14 +180,22 @@ export default class DataForm extends LitElement {
             //                  bioformat: {
             //                      "color": "green"
             //                  }
+            //              },
+            //              link: {
+            //                  format: (value, data) => https://...
             //              }
             //          },
             //     },
+            let value = this.getValue(match, data, defaultValue);
             if (element?.display?.format?.[match]) {
-                value = element?.display?.format?.[match](value, object);
+                value = element?.display?.format?.[match](value, data);
+            }
+            if (element?.display?.link?.[match]) {
+                const href = element?.display?.link?.[match](value, data);
+                value = `<a href="${href}" target="_blank">${value}</a>`;
             }
             if (element?.display?.style?.[match]) {
-                const style = this._parseStyleField(element?.display?.style?.[match]);
+                const style = this._parseStyleField(element.display.style[match], value, data);
                 value = `<span style="${style}">${value}</span>`;
             }
             // eslint-disable-next-line no-param-reassign
@@ -203,12 +206,21 @@ export default class DataForm extends LitElement {
     }
 
     // Convert a 'string' or 'object' field to the HTML style string, ie. "font-weight: bold;color:red"
-    _parseStyleField(elementStyle) {
+    _parseStyleField(elementStyle, value, data = this.data) {
         let style = elementStyle || "";
         if (elementStyle && typeof elementStyle === "object") {
-            style = Object.entries(elementStyle)
-                .map(([k, v]) => `${k}: ${v}`)
-                .join(";");
+            const styles = [];
+            for (const [k, v] of Object.entries(elementStyle)) {
+                if (typeof v === "string") {
+                    styles.push(`${k}: ${v}`);
+                } else {
+                    if (typeof v === "function" && value) {
+                        const value2 = v(value, data);
+                        styles.push(`${k}: ${value2}`);
+                    }
+                }
+            }
+            style = styles.join(";");
         }
         return style;
     }
@@ -619,7 +631,7 @@ export default class DataForm extends LitElement {
                     content = this._createListElement(element, this.data, section);
                     break;
                 case "table":
-                    content = this._createTableElement(element, section);
+                    content = this._createTableElement(element, this.data, section);
                     break;
                 case "image":
                     content = this._createImageElement(element);
@@ -629,7 +641,7 @@ export default class DataForm extends LitElement {
                     content = this._createPlotElement(element);
                     break;
                 case "json":
-                    content = this._createJsonElement(element);
+                    content = this._createJsonElement(element, section);
                     break;
                 case "tree":
                     content = this._createTreeElement(element);
@@ -1081,13 +1093,18 @@ export default class DataForm extends LitElement {
 
     _createListElement(element, data = this.data, section) {
         // Get values
-        let array = this.getValue(element.field, data);
+        let array;
+        if (element.field) {
+            array = this.getValue(element.field, data);
+        } else {
+            array = element.display.getData(data);
+        }
         const contentLayout = element.display?.contentLayout || "vertical";
 
         // 1. Check array and layout exist
         if (!Array.isArray(array)) {
             return this._createElementTemplate(element, null, null, {
-                message: `Field '${element.field}' is not an array`,
+                message: this._getDefaultValue(element, section) ?? `Field '${element.field}' is not an array`,
                 className: "text-danger"
             });
         }
@@ -1110,11 +1127,11 @@ export default class DataForm extends LitElement {
         if (array.length === 0) {
             // If empty we just print the defaultValue, this is not an error
             return this._createElementTemplate(element, null, null, {
-                message: this._getDefaultValue(element, section),
+                message: this._getDefaultValue(element, section) ?? "Empty array",
             });
         }
 
-        // 4. Initialise values with array, this is valid for scalars, or when 'template' and 'format' do not exist
+        // 4. Format list elements. Initialise values with array, this is valid for scalars, or when 'template' and 'format' do not exist
         // Apply the template to all Array elements and store them in 'values'
         let values = array;
         if (element.display?.format || element.display?.render) {
@@ -1131,28 +1148,72 @@ export default class DataForm extends LitElement {
             }
         }
 
-        // 5. Render element values
+        // 5. Precompute styles
+        const styles = {};
+        if (element.display?.style) {
+            if (typeof element.display.style === "string") {
+                // All elements will have the same style
+                array.forEach(item => styles[item] = element.display.style);
+            } else {
+                // It is an object, we must find the right style for each element
+                for (const item of array) {
+                    // This call already checks if style is a function
+                    styles[item] = this._parseStyleField(element.display?.style, item, data);
+                }
+            }
+        }
+
+        // 6. Precompute separators
+        const separators = {};
+        if (element.display?.separator) {
+            // Last element cannot add a separator, so we iterate until length -1
+            for (let i = 0; i < array.length - 1; i++) {
+                let separator = null;
+                if (typeof element.display.separator === "string") {
+                    separator = element.display.separator;
+                } else {
+                    separator = element.display.separator(array[i], i, array, data);
+                }
+                if (separator) {
+                    separators[array[i]] = separator.includes("---") ? "<hr>" : separator;
+                }
+            }
+        }
+
+        // 7. Render element values
         let content = this._getDefaultValue(element, section);
+        // const separator = element?.display?.separator;
         switch (contentLayout) {
             case "horizontal":
-                const separator = element?.display?.separator ?? ", ";
                 content = `
                     ${values
-                    .map(elem => `<span>${elem}</span>`)
-                    .join(`<span>${separator}</span>`)
+                    .map((elem, index) => `
+                        <span style="${styles[elem]}">${elem}</span>
+                        <span>${index < array.length - 1 ? separators[elem] ?? ", " : ""}</span>
+                    `)
+                    .join(``)
                 }`;
                 break;
             case "vertical":
                 content = `
                     ${values
-                    .map(elem => `<div>${elem}</div>`)
+                    .map(elem => `
+                        <div><span style="${styles[elem]}">${elem}</span></div>
+                        ${separators[elem] ? `<div>${separators[elem]}</div>` : ""}
+                    `)
                     .join("")
                 }`;
                 break;
             case "bullets":
                 content = `
                     <ul class="pad-left-15">
-                        ${values.map(elem => `<li>${elem}</li>`).join("")}
+                        ${values
+                    .map(elem => `
+                        <li><span style="${styles[elem]}">${elem}</span></li>
+                         ${separators[elem] ? `<div>${separators[elem]}</div>` : ""}
+                    `)
+                    .join("")
+                }
                     </ul>
                 `;
                 break;
@@ -1162,9 +1223,15 @@ export default class DataForm extends LitElement {
     }
 
 
-    _createTableElement(element, section) {
-        // Get valid parameters
-        let array = this.getValue(element.field);
+    _createTableElement(element, data = this.data, section) {
+        // Get array values
+        let array;
+        if (element.field) {
+            array = this.getValue(element.field, data);
+        } else {
+            array = element.display.getData(data);
+        }
+
         const tableClassName = element.display?.className || "";
         const tableStyle = this._parseStyleField(element.display?.style) || "";
         const headerClassName = element.display?.headerClassName || "";
@@ -1212,50 +1279,77 @@ export default class DataForm extends LitElement {
             });
         }
 
+        // 4. Check for double columns
+        const supraColumns = [];
+        const subColumns = [];
+        const columns = [];
+        for (const column of element.display.columns) {
+            // Add first level columns as supra columns
+            supraColumns.push(column);
+            if (column.display?.columns) {
+                // Add nested columns as sub columns for the table header
+                subColumns.push(...column.display.columns);
+                // Add nested columns as real data columns
+                columns.push(...column.display.columns);
+            } else {
+                // When no sub columns are found then just add the data column
+                columns.push(column);
+            }
+        }
+
+        // 5. Render the table
         const content = html`
             <table class="table ${tableClassName}" style="${tableStyle}">
                 ${headerVisible ? html`
                     <thead class="${headerClassName}" style="${headerStyle}">
-                    <tr>
-                        ${element.display.columns.map(elem => html`
-                            <th scope="col">${elem.title || elem.name}</th>
-                        `)}
-                    </tr>
+                    ${supraColumns.length > 0 ? html`
+                        <tr>
+                            ${supraColumns.map(elem => html`
+                                <th scope="col" rowspan="${subColumns.length && !elem.display?.columns?.length ? "2" : "1"}" colspan="${elem.display?.columns?.length || "1"}">${elem.title || elem.name}</th>
+                            `)}
+                        </tr>
+                    ` : nothing}
+                    ${subColumns.length > 0 ? html`
+                        <tr>
+                            ${subColumns.map(elem => html`
+                                <th scope="col" rowspan="1" colspan="1">${elem.title || elem.name}</th>`
+                            )}
+                        </tr>
+                    ` : nothing}
                     </thead>` : nothing}
                 <tbody>
                 ${array
                     .map(row => html`
                         <tr scope="row">
-                            ${element.display.columns
-                                .map(elem => {
-                                    const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
-                                    const elemStyle = this._parseStyleField(elem.display?.style);
+                            ${columns.map(elem => {
+                                const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
+                                const elemStyle = this._parseStyleField(elem.display?.style);
 
-                                    // Check the element type
-                                    let content;
-                                    switch (elem.type) {
-                                        case "complex":
-                                            content = this._createComplexElement(elem, row);
-                                            break;
-                                        case "list":
-                                            content = this._createListElement(elem, row, section);
-                                            break;
-                                        case "image":
-                                            content = this._createImageElement(elem);
-                                            break;
-                                        case "custom":
-                                            content = elem.display?.render(this.getValue(elem.field, row));
-                                            break;
-                                        default:
-                                            content = this.getValue(elem.field, row, this._getDefaultValue(element, section), elem.display);
-                                    }
+                                // Check the element type
+                                let content;
+                                switch (elem.type) {
+                                    case "complex":
+                                        content = this._createComplexElement(elem, row);
+                                        break;
+                                    case "list":
+                                        content = this._createListElement(elem, row, section);
+                                        break;
+                                    case "image":
+                                        content = this._createImageElement(elem);
+                                        break;
+                                    case "custom":
+                                        content = elem.display?.render(this.getValue(elem.field, row));
+                                        break;
+                                    default:
+                                        content = this.getValue(elem.field, row, this._getDefaultValue(element, section), elem.display);
+                                }
 
-                                    return html`
-                                        <td class="${elemClassName}" style="${elemStyle}">
-                                            ${content}
-                                        </td>
-                                    `;
-                                })}
+                                return html`
+                                    <td class="${elemClassName}" style="${elemStyle}">
+                                        ${content}
+                                    </td>
+                                `;
+                            })}
                         </tr>
                     `)}
                 </tbody>
@@ -1280,7 +1374,7 @@ export default class DataForm extends LitElement {
     }
 
     _createImageElement(element) {
-        const value = (element.display?.image) ? element.display.image(this.data) : this.getValue(element.field);
+        const value = (element.field) ? this.getValue(element.field) : element.display?.getData(this.data);
         const content = html`
             <image-viewer
                 .data="${value}">
@@ -1341,8 +1435,8 @@ export default class DataForm extends LitElement {
         }
     }
 
-    _createJsonElement(element) {
-        const json = this.getValue(element.field, this.data, this._getDefaultValue(element));
+    _createJsonElement(element, section) {
+        const json = this.getValue(element.field, this.data, this._getDefaultValue(element, section));
         let content = "";
         (json.length || UtilsNew.isObject(json)) ?
             content = html`
@@ -1553,12 +1647,13 @@ export default class DataForm extends LitElement {
                                 // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
                                 // items have a virtual element associated, this will allow to get the proper value later.
                                 for (let i = 0; i< _element.elements.length; i++) {
-                                    // This support object nested
+                                    // This support nested object
                                     const [left, right] = _element.elements[i].field.split("[].");
                                     _element.elements[i].field = left + "[]." + index + "." + right;
                                     if (_element.elements[i].type === "custom") {
                                         _element.elements[i].display.render = element.elements[i].display.render;
                                     }
+                                    // Copy JSON stringify and parse ignores functions, we need to copy them
                                     if (_element.elements[i].type === "select" && typeof element.elements[i].allowedValues === "function") {
                                         _element.elements[i].allowedValues = element.elements[i].allowedValues;
                                     }
@@ -1568,10 +1663,6 @@ export default class DataForm extends LitElement {
                                     if (typeof element.elements[i]?.save === "function") {
                                         _element.elements[i].save = element.elements[i].save;
                                     }
-                                    // if (typeof element.elements[i]?.validation?.message === "function") {
-                                    //     _element.elements[i].validation.message = element.elements[i].validation.message;
-                                    // }
-                                    // Copy JSON stringify and parse ignores functions, we need to copy them
                                     if (typeof element.elements[i]?.display?.disabled === "function") {
                                         _element.elements[i].display.disabled = element.elements[i].display.disabled;
                                     }

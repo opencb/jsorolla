@@ -152,6 +152,31 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     getDefaultConfig() {
+        const gridConfig = {
+            ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.rearrangements]?.grid || {}),
+            somatic: false,
+            geneSet: {
+                ensembl: true,
+                refseq: false,
+            },
+            consequenceType: {
+                maneTranscript: true,
+                gencodeBasicTranscript: true,
+                ensemblCanonicalTranscript: true,
+                refseqTranscript: true,
+                ccdsTranscript: false,
+                ensemblTslTranscript: false,
+                proteinCodingTranscript: false,
+                highImpactConsequenceTypeTranscript: false,
+
+                showNegativeConsequenceTypes: true
+            },
+            populationFrequenciesConfig: {
+                displayMode: "FREQUENCY_BOX"
+            },
+            variantTypes: ["SNV"],
+        };
+
         return {
             title: "Summary",
             icon: "",
@@ -174,6 +199,7 @@ class VariantBrowserGridTest extends LitElement {
                             field: "variants",
                             type: "table",
                             display: {
+                                defaultLayout: "vertical",
                                 className: "",
                                 style: "",
                                 headerClassName: "",
@@ -187,25 +213,42 @@ class VariantBrowserGridTest extends LitElement {
                                 defaultValue: "-",
                                 columns: [
                                     VariantTableFormatter.variantIdFormatter(),
-                                    VariantTableFormatter.geneFormatter()
-                                    // {
-                                    //     title: "Somatic",
-                                    //     type: "custom",
-                                    //     field: "somatic",
-                                    //     // formatter: value => value ? "true" : "false",
-                                    //     display: {
-                                    //         render: somatic => somatic ? "true" : "false",
-                                    //         style: {
-                                    //             color: "red"
-                                    //         }
-                                    //     }
-                                    // },
-                                    // {
-                                    //     title: "Phenotypes",
-                                    //     field: "phenotypes",
-                                    //     type: "list"
-                                    //     // formatter: value => value?.length ? `${value.map(d => d.id).join(", ")}` : "-",
-                                    // },
+                                    VariantTableFormatter.geneFormatter(),
+                                    VariantTableFormatter.hgvsFormatter(gridConfig),
+                                    VariantTableFormatter.typeFormatter(),
+                                    VariantTableFormatter.consequenceTypeFormatter("", gridConfig),
+                                    {
+                                        title: "Deleteriousness",
+                                        display: {
+                                            columns: [
+                                                VariantTableFormatter.siftFormatter(),
+                                                VariantTableFormatter.polyphenFormatter(),
+                                                VariantTableFormatter.revelFormatter(),
+                                                VariantTableFormatter.caddScaledFormatter(),
+                                                VariantTableFormatter.spliceAIFormatter(),
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        title: "Conservation",
+                                        display: {
+                                            columns: [
+                                                VariantTableFormatter.conservationFormatter("PhyloP"),
+                                                VariantTableFormatter.conservationFormatter("PhastCons"),
+                                                VariantTableFormatter.conservationFormatter("GERP"),
+                                            ]
+                                        }
+                                    },
+                                    // VariantTableFormatter.populationFrequencyFormatter(),
+                                    {
+                                        title: "Clinical",
+                                        display: {
+                                            columns: [
+                                                VariantTableFormatter.clinvarFormatter(),
+                                                VariantTableFormatter.cosmicFormatter(),
+                                            ]
+                                        }
+                                    }
                                 ],
                             },
                         },
