@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "./select-field-filter.js";
+import "./select-field-filter2.js";
 
 export default class NumberFieldFilter extends LitElement {
 
