@@ -488,7 +488,15 @@ class SampleVariantStatsView extends LitElement {
                             <div class="form-group">
                                 <label class="col-md-2">Select Variant Stat</label>
                                 <div class="col-md-2">
-                                    <select-field-filter forceSelection .data="${this.statsSelect}" .value=${this.variantStats.id} @filterChange="${this.statChange}"></select-field-filter>
+                                    <select-field-filter2
+                                        .data="${this.statsSelect}"
+                                        .value=${this.variantStats.id}
+                                        .config="${{
+                                            liveSearch: false,
+                                            multiple: false
+                                        }}"
+                                        @filterChange="${this.statChange}">
+                                    </select-field-filter2>
                                 </div>
                             </div>
                         </div>
