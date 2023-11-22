@@ -245,20 +245,22 @@ export default class CustomLanding extends LitElement {
                     ` : null}
                     <!-- Landing login -->
                     <div class="landing-login">
-                        ${this.opencgaSession?.opencgaClient?._config?.sso ? html`
+                        ${this.opencgaSession?.opencgaClient?._config?.sso?.active ? html`
                             <div>
-                                <a class="btn-group" role="group" href="${this.getSSOUrl()}">
-                                    <button type="button" class="btn btn-primary btn-lg" style="">
-                                        <i class="fas fa-user"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-lg">
-                                        <strong style="color:white;">Login with SSO</strong>
-                                    </button>
-                                </a>
-                            </div>
-                            <div class="landing-login-sso-helper">
-                                By clicking on the <b>Login with SSO</b> button you will be redirected to your SSO login
-                                page.
+                                <div align="center">
+                                    <a class="btn-group" role="group" href="${this.getSSOUrl()}">
+                                        <button type="button" class="btn btn-primary btn-lg" style="">
+                                            <i class="fas fa-user"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-lg">
+                                            <strong style="color:white;">Login with SSO</strong>
+                                        </button>
+                                    </a>
+                                </div>
+                                <div class="landing-login-sso-helper">
+                                    By clicking on the <b>Login with SSO</b> button you will be redirected to your SSO login
+                                    page.
+                                </div>
                             </div>
                         ` : html`
                             <user-login

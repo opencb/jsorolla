@@ -260,9 +260,9 @@ class ApiApp extends LitElement {
                 console.error(e);
                 this.notificationManager.error("Error creating session", e.message);
             }).finally(() => {
-                this.signingIn = false;
-                this.requestUpdate();
-            });
+            this.signingIn = false;
+            this.requestUpdate();
+        });
     }
 
     // TODO turn this into a Promise
@@ -341,35 +341,6 @@ class ApiApp extends LitElement {
         this.app = this.getActiveAppConfig();
         window.location.hash = "home";
         window.clearInterval(this.intervalCheckSession);
-    }
-
-    async saveLastStudy(newStudy) {
-        const userConfig = await this.opencgaClient.updateUserConfigs({
-            ...this.opencgaSession.user.configs.IVA,
-            lastStudy: newStudy.fqn
-        });
-        this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
-    }
-
-    onUrlChange(e) {
-        let hashFrag = e.detail.id;
-        if (UtilsNew.isNotUndefined(this.opencgaSession.project) && UtilsNew.isNotEmpty(this.opencgaSession.project.alias)) {
-
-            hashFrag += "/" + this.opencgaSession.project.alias;
-            if (UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
-                hashFrag += "/" + this.opencgaSession.study.alias;
-            }
-        }
-
-        const myQueryParams = [];
-        for (const key in e.detail.query) {
-            myQueryParams.push(key + "=" + e.detail.query[key]);
-        }
-        if (myQueryParams.length > 0) {
-            hashFrag += `?${myQueryParams.join("&")}`;
-        }
-
-        window.location.hash = hashFrag;
     }
 
     checkSessionActive() {
@@ -572,7 +543,7 @@ class ApiApp extends LitElement {
 
         if (studyFound) {
             // Update the lastStudy in config iff has changed
-            this.opencgaClient.updateUserConfigs({...this.opencgaSession.user.configs, lastStudy: studyFqn});
+            this.opencgaClient.updateUserConfig("IVA", {...this.opencgaSession.user.configs["IVA"], lastStudy: studyFqn});
 
             // Refresh the session
             this.opencgaSession = {...this.opencgaSession};

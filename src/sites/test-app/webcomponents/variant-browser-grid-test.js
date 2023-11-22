@@ -53,25 +53,12 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "variant-browser";
         this.isLoading = false;
         this.variants = [];
         this._dataFormConfig = DATA_FORM_EXAMPLE;
 
-        this.configVariantGrid = {
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            multiSelection: false,
-            showSelectCheckbox: false,
-            toolbar: {
-                // showNew: true,
-                showColumns: true,
-                showDownload: false,
-                showExport: false,
-                showSettings: false,
-                exportTabs: ["download", "link", "code"]
-                // columns list for the dropdown will be added in grid webcomponents based on settings.table.columns
-            },
-        };
+        this._config = {};
     }
 
     #setLoading(value) {
@@ -127,7 +114,10 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this.configVariantGrid = {...this.configVariantGrid, ...this.opencgaSession?.user?.configs?.IVA?.variantBrowser?.grid};
+        this._config = {
+            ...this._config,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
+        };
         this.opencgaSessionObserver();
     }
 
@@ -140,30 +130,11 @@ class VariantBrowserGridTest extends LitElement {
                 Variant Browser (${this.testVariantFile?.split("-")?.at(-1)})
             </h2>
 
-            <!--
-        <div>
-            <button class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""}`}"
-                type="button" @click="${() => this.mutate()}">
-                    <i class="fas fa-sync"></i>
-                    <strong>Mutate 1: missing variants</strong>
-            </button>
-            <button type="button" class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""}`}"
-                @click="${() => this.mutate("sdsad")}">
-                    <i class="fas fa-sync"></i>
-                    <strong>Mutate 2: other case</strong>
-            </button>
-            <button type="button" class="${`btn btn-success ${this.activeTab === "genome-tab" ? "active" : ""}`}"
-                @click="${() => this.mutate("sadasd")}">
-                    <i class="fas fa-sync"></i>
-                    <strong>Mutate 3: worse case</strong>
-            </button>
-        </div>
-        -->
-
             <variant-browser-grid
+                .toolId="${this.COMPONENT_ID}"
                 .variants="${this.variants}"
                 .opencgaSession="${this.opencgaSession}"
-                .config="${this.configVariantGrid}"
+                .config="${this._config}"
                 @settingsUpdate="${() => this.onSettingsUpdate()}"
                 .populationFrequencies="${this.config.populationFrequencies}">
             </variant-browser-grid>

@@ -47,12 +47,6 @@ export default class JobBrowser extends LitElement {
             query: {
                 type: Object,
             },
-            /* facetQuery: {
-                type: Object
-            },
-            selectedFacet: {
-                type: Object
-            },*/
             settings: {
                 type: Object,
             },
@@ -60,53 +54,39 @@ export default class JobBrowser extends LitElement {
     }
 
     _init() {
+        this.COMPONENT_ID = "job-browser";
         this._config = this.getDefaultConfig();
     }
 
-    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
-    // is executed twice in case there is external settings
     update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
-
         super.update(changedProperties);
     }
 
     settingsObserver() {
         this._config = this.getDefaultConfig();
-        // merge filter list, canned filters, detail tabs
+
+        // Apply Study settings
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-        // if (this.settings?.table) {
-        //     this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
-        // }
 
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config?.filter?.result.grid,
             ...this.settings.table
         });
 
-        // if (this.settings?.table?.toolbar) {
-        //     this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        // }
-
         UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
             ...this._config.filter?.result?.grid?.toolbar,
             ...this.settings.table?.toolbar
         });
 
-        // if (this.opencgaSession.user?.configs?.IVA?.jobBrowserCatalog?.grid) {
-        //     this._config.filter.result.grid = {
-        //         ...this._config.filter.result.grid,
-        //         ...this.opencgaSession.user.configs.IVA.jobBrowserCatalog.grid,
-        //     };
-        // }
-        // Apply user configuration
+        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.jobBrowser?.grid
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
 
         this.requestUpdate();
@@ -150,6 +130,7 @@ export default class JobBrowser extends LitElement {
                     active: true,
                     render: params => html`
                         <job-grid
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.result.grid}"
                             .query="${params.executedQuery}"

@@ -226,7 +226,7 @@ class ClinicalInterpretationEditor extends LitElement {
                             field: "disorder",
                             type: "custom",
                             display: {
-                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder))
+                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder]))
                             }
                         },
                         {
@@ -327,7 +327,13 @@ class ClinicalInterpretationEditor extends LitElement {
 
     _updateOrDeleteComments(notify) {
         if (this.commentsUpdate?.updated?.length > 0) {
-            this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id, {comments: this.commentsUpdate.updated}, {commentsAction: "REPLACE", study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.clinical()
+                .updateInterpretation(
+                    this.clinicalAnalysis.id,
+                    this.clinicalAnalysis.interpretation.id,
+                    {comments: this.commentsUpdate.updated},
+                    {commentsAction: "REPLACE", study: this.opencgaSession.study.fqn}
+                )
                 .then(response => {
                     if (notify && this.commentsUpdate?.deleted?.length === 0) {
                         this._postUpdate(response);
@@ -338,7 +344,13 @@ class ClinicalInterpretationEditor extends LitElement {
                 });
         }
         if (this.commentsUpdate?.deleted?.length > 0) {
-            this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id, {comments: this.commentsUpdate.deleted}, {commentsAction: "REMOVE", study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.clinical()
+                .updateInterpretation(
+                    this.clinicalAnalysis.id,
+                    this.clinicalAnalysis.interpretation.id,
+                    {comments: this.commentsUpdate.deleted},
+                    {commentsAction: "REMOVE", study: this.opencgaSession.study.fqn}
+                )
                 .then(response => {
                     if (notify) {
                         this._postUpdate(response);

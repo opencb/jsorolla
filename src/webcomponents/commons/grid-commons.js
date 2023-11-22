@@ -275,9 +275,9 @@ export default class GridCommons {
         }
     }
 
-    isColumnVisible(colName) {
+    isColumnVisible(colName, parentName) {
         if (this.config.columns?.length > 0) {
-            return this.config.columns.includes(colName);
+            return this.config.columns.includes(colName) || this.config.columns.includes(parentName);
         } else {
             // Columns are visible by default.
             return true;
@@ -299,6 +299,25 @@ export default class GridCommons {
                 }
             });
         return rowStyle;
+    }
+
+    addColumnsFromAnnotations(columns, formatter, gridConfig) {
+        if (gridConfig?.annotations?.length > 0) {
+            for (const annotation of gridConfig.annotations) {
+                const column = {
+                    id: "annotations",
+                    title: annotation.title || "Custom Annotation",
+                    field: "annotationSets",
+                    formatter: annotationSets => formatter(annotationSets, annotation.variableSetId, annotation.variables),
+                    halign: gridConfig.header?.horizontalAlign || "center",
+                    visible: true,
+                    excludeFromSettings: true,
+                    // visible: this.gridCommons.isColumnVisible("annotations")
+                };
+                columns.splice(annotation.position, 0, column);
+            }
+        }
+        return columns;
     }
 
     addColumnsFromExtensions(columns, componentId) {

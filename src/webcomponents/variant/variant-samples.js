@@ -333,7 +333,7 @@ export default class VariantSamples extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: disorders => {
-                        const result = disorders?.map(disorder => CatalogGridFormatter.disorderFormatter(disorder)).join("<br>");
+                        const result = disorders?.map(disorder => CatalogGridFormatter.disorderFormatter([disorder])).join("<br>");
                         return result ? result : "-";
                     },
                     halign: "center"

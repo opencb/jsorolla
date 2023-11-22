@@ -15,9 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import {RestResponse} from "../../core/clients/rest-response.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import UtilsNew from "../../core/utils-new.js";
 
 export default class UserLogin extends LitElement {
 
@@ -73,11 +73,11 @@ export default class UserLogin extends LitElement {
             this.requestUpdate(); // Remove errors
             this.opencgaSession.opencgaClient.login(user, password)
                 .then(response => {
-                    if (response instanceof RestResponse) {
+                    if (response && !UtilsNew.isError(response)) {
                         if (response.getEvents?.("ERROR")?.length) {
                             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                        } else if (response) {
-                            const token = response.getResult(0).token;
+                        } else {
+                            const token = response?.getResult?.(0)?.token;
                             const decoded = jwt_decode(token);
                             const dateExpired = new Date(decoded.exp * 1000);
                             const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
@@ -91,7 +91,14 @@ export default class UserLogin extends LitElement {
                                 message: `Welcome back, <b>${user}</b>. Your session is valid until ${validTimeSessionId}`,
                             });
                         }
+                    } else if (response) {
+                        // Sometimes response is an instance of an Error, for example when the connection is lost before submitting the login.
+                        // In this case we will display the returned error instead of displaying a 'Generic Server Error' message.
+                        // TODO: check why this error is not captured in the 'catch'
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     } else {
+                        // This is a very strange situation when the response object is empty.
+                        // In this case, as we do not have any error message we need to use this generic server error message.
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                             title: "Generic Server Error",
                             message: "Unexpected response format. Please check your host is up and running.",

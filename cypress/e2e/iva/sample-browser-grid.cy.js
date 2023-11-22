@@ -214,7 +214,7 @@ context("Sample Browser Grid", () => {
                 });
         });
 
-        it("should hidden columns [Collection Method,Preparation Method]",() => {
+        it("should hide columns [Collection Method,Preparation Method]",() => {
             const columns = ["Collection Method", "Preparation Method"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");
@@ -300,24 +300,25 @@ context("Sample Browser Grid", () => {
 
             it("should move modal setting", () => {
                 cy.get("button[data-action='settings']")
-                    .click()
+                    .click();
 
                 BrowserTest.getElementByComponent({
                     selector: 'sample-grid opencb-grid-toolbar',
                     tag:'div',
                     elementId: 'SettingModal'
-                }).as("settingModal")
+                }).as("settingModal");
 
                 cy.get("@settingModal")
                     .then(($modal) => {
                         const startPosition = $modal.offset();
                         cy.log("start Position:", startPosition);
                         // Drag the modal to a new position using Cypress's drag command
+                        // eslint-disable-next-line cypress/unsafe-to-chain-command
                         cy.get("@settingModal")
                             .find('.modal-header')
                             .trigger('mousedown', { which: 1 }) // Trigger mouse down event
                             .trigger('mousemove', { clientX: 100, clientY: 100 }) // Move the mouse
-                            .trigger('mouseup') // Release the mouse
+                            .trigger('mouseup'); // Release the mouse
 
                         // Get the final position of the modal
                         cy.get(`@settingModal`)
@@ -359,7 +360,7 @@ context("Sample Browser Grid", () => {
                     .then(i => {
                         creationDateIndex = i + 1;
                         cy.get("@body")
-                            .find(`td:nth-child(${i})`)
+                            .find(`td:nth-child(${creationDateIndex})`)
                             .each(td => {
                                 cy.wrap(td)
                                     .should("not.be.empty");
@@ -371,7 +372,7 @@ context("Sample Browser Grid", () => {
                 cy.get("@body")
                     .find(`td:nth-child(${creationDateIndex})`)
                     .each(td => {
-                        const regExp = /^(([0-9])|([0-2][0-9])|([3][0-1])) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/
+                        const regExp = /^(([0-9])|([0-2][0-9])|([3][0-1])) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/;
                         expect(td.text()).to.match(regExp);
                     });
             });
@@ -400,14 +401,12 @@ context("Sample Browser Grid", () => {
             it("should display 'Extra Column' column", () => {
                 cy.get("thead th")
                     .contains("Extra column")
-                    .should('be.visible')
-            })
-        })
-
+                    .should("be.visible");
+            });
+        });
     });
 
     context("Detail", () => {
-
         beforeEach(() => {
             cy.get("@container")
                 .find(`div[data-cy="sb-detail"]`)
@@ -419,40 +418,24 @@ context("Sample Browser Grid", () => {
                 .should("be.visible");
         });
 
-        it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Sample ID")
-            cy.get("@indexColumn")
-                .then(indexColumn => {
-                    const indexRow = 2
-                    // eslint-disable-next-line cypress/unsafe-to-chain-command
-                    cy.get(`tbody tr`)
-                        .eq(indexRow)
-                        .click() // select the row
-                        .find("td")
-                        .eq(indexColumn)
-                        .invoke("text")
-                        .as("textRow")
-                });
+        it("should display info from the selected row", () => {
+            const sample = "NA12889";
+            cy.get(`tbody tr[data-uniqueid="${sample}"]`)
+                .find(`td:first`)
+                .trigger("click");
 
-            cy.get("@textRow")
-                .then((textRow) => {
-                    cy.get("detail-tabs > div > h3")
-                        .invoke("text")
-                        .then((text) => {
-                            const textTab = text.trim().split(" ");
-                            expect(textRow).to.equal(textTab[1].trim());
-                        });
-                });
+            cy.get(`detail-tabs h3`)
+                .should("contain.text", `Sample ${sample}`);
         });
 
         it("should display 'JSON Data' Tab", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@detail")
                 .find("li")
                 .contains("JSON Data")
-                .click()
-                .should('be.visible');
+                .trigger("click");
+
+            cy.get("json-viewer")
+                .should("be.visible");
         });
     });
-
 });

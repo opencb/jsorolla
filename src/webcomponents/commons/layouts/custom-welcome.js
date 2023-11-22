@@ -194,7 +194,7 @@ export default class CustomWelcome extends LitElement {
     render() {
         const welcomePage = this.getWelcomePageConfig();
 
-        if (!UtilsNew.isNotEmptyArray(this.opencgaSession.projects) ||
+        if (!UtilsNew.isNotEmptyArray(this.opencgaSession?.projects) ||
             this.opencgaSession.projects.every(p => !UtilsNew.isNotEmptyArray(p.studies))) {
             return guardPage("You don't have projects or/and studies. Please contact the admin");
         }

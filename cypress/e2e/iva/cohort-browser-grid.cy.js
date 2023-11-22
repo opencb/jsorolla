@@ -214,8 +214,8 @@ context("Cohort Browser Grid", () => {
                 });
         });
 
-        it("should hidden columns [Date,Type]",() => {
-            const columns = ["Cohort ID","Date","Type"];
+        it("should hide columns [Cohort ID,Creation Date]",() => {
+            const columns = ["Cohort ID","Creation Date"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");
 
@@ -281,7 +281,7 @@ context("Cohort Browser Grid", () => {
         it("should display 'Extra Column' column", () => {
             cy.get("thead th")
                 .contains("Extra column")
-                .should('be.visible');
+                .should("be.visible");
         });
 
         it("should display 'New Catalog Tab' Tab", () => {
@@ -291,56 +291,34 @@ context("Cohort Browser Grid", () => {
                 .contains("New Catalog Tab")
                 .as("catalogTab")
                 .click()
-            cy.get("@catalogTab")
-                .should('be.visible')
+                .should("be.visible");
         });
     });
 
     context("detail tab", () => {
         it("should render", () => {
-            cy.get(browserDetail)
+            cy.get("detail-tabs")
                 .should("be.visible");
         });
 
-        it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Cohort ID")
-            cy.get("@indexColumn")
-                .then((indexColumn) => {
-                    const indexRow = 2
-                    // eslint-disable-next-line cypress/unsafe-to-chain-command
-                    cy.get(`tbody tr`)
-                        .eq(indexRow)
-                        .as("selectRow")
-                        .click() // select the row
+        it("should display info from the selected row", () => {
+            const cohort = "FIN";
+            cy.get(`tbody tr[data-uniqueid="${cohort}"]`)
+                .find(`td:first`)
+                .trigger("click");
 
-                    cy.get("@selectRow")
-                        .find("td")
-                        .eq(indexColumn)
-                        .invoke("text")
-                        .as("textRow")
-                    });
-
-            cy.get("@textRow")
-                .then((textRow) => {
-                    cy.get("detail-tabs > div > h3")
-                        .invoke("text")
-                        .then((text) => {
-                            const textTab = text.trim().split(" ");
-                            expect(textRow).to.equal(textTab[1].trim());
-                        });
-                });
+            cy.get(`detail-tabs h3`)
+                .should("contain.text", `Cohort ${cohort}`);
         });
 
         it("should display 'JSON Data' Tab", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get(`detail-tabs > div.detail-tabs > ul`)
                 .find("li")
                 .contains("JSON Data")
-                .as("jsonTab")
-                .click()
+                .trigger("click");
 
-            cy.get("@jsonTab")
-                .should('be.visible');
+            cy.get("json-viewer")
+                .should("be.visible");
         });
     });
 });

@@ -217,7 +217,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             field: "disorder",
                             type: "custom",
                             display: {
-                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder)),
+                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder])),
                             }
                         },
                         {

@@ -38,6 +38,9 @@ export default class JobGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -72,6 +75,7 @@ export default class JobGrid extends LitElement {
 
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
@@ -88,14 +92,14 @@ export default class JobGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         this.toolbarSetting = {
-            ...this.config,
+            ...this._config,
             // columns: this._getDefaultColumns().filter(col => col.field)
         };
 
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this.config?.toolbar,
-            toolId: "jobBrowser",
+            toolId: this.toolId,
             resource: "JOB",
             columns: this._getDefaultColumns(),
             create: {
@@ -244,7 +248,7 @@ export default class JobGrid extends LitElement {
                         order: -1,
                         limit: params.data.limit || this.table.bootstrapTable("getOptions").pageSize,
                         skip: params.data.offset || 0,
-                        include: "id,userId,tool,priority,tags,creationDate,visited,dependsOn,outDir,internal,execution,params,input,output",
+                        include: "id,userId,tool,priority,tags,creationDate,visited,dependsOn,outDir,internal,execution,params,input,output,annotationSets",
                         ...this.query
                     };
 
@@ -322,6 +326,10 @@ export default class JobGrid extends LitElement {
 
     onColumnChange(e) {
         this.gridCommons.onColumnChange(e);
+    }
+
+    onRefresh() {
+        this.table.bootstrapTable("refresh");
     }
 
     detailFormatter(value, row) {
@@ -404,13 +412,98 @@ export default class JobGrid extends LitElement {
                 id: "id",
                 title: "Job ID",
                 field: "id",
+                formatter: (id, row) => {
+                    return `
+                        <div>
+                            <span style="font-weight: bold; margin: 5px 0">${id}</span>
+                            ${row.outDir?.path ? `<span class="help-block" style="margin: 5px 0">/${row.outDir.path.replace(id, "").replace("//", "/")}</span>` : ""}
+                        </div>`;
+                },
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
                 id: "toolId",
-                title: "Analysis Tool ID",
+                title: "Tool ID",
                 field: "tool.id",
+                formatter: (toolId, row) => {
+                    return `
+                        <div>
+                            <span style="margin: 5px 0">${toolId}</span>
+                            ${row.tool?.type ? `<span class="help-block" style="margin: 5px 0">${row.tool.type}</span>` : ""}
+                        </div>`;
+                },
                 visible: this.gridCommons.isColumnVisible("toolId")
+            },
+            {
+                id: "params",
+                title: "Parameters",
+                field: "params",
+                formatter: params => {
+                    let html = "-";
+                    if (UtilsNew.isNotEmpty(params)) {
+                        html = "<div>";
+                        for (const key of Object.keys(params)) {
+                            let nestedObject = "";
+                            if (typeof params[key] === "object") {
+                                for (const subKey of Object.keys(params[key])) {
+                                    nestedObject += `
+                                        <div style="white-space: nowrap">
+                                            <span style="margin: 2px 0; font-weight: bold">${subKey}:</span> ${params[key][subKey]}
+                                        </div>
+                                    `;
+                                }
+                            }
+                            html += `
+                                <div style="white-space: nowrap">
+                                ${nestedObject ? `
+                                    <div><span style="margin: 2px 0; font-weight: bold">${key}:</span></div>
+                                    <div style="padding-left: 10px">
+                                        ${nestedObject}
+                                    </div>` :
+                                    `<span style="margin: 2px 0; font-weight: bold">${key}:</span> ${params[key]}`}
+                                </div>`;
+                        }
+                        html += "</div>";
+                    }
+                    return html;
+                },
+                visible: this.gridCommons.isColumnVisible("params")
+            },
+            {
+                id: "output",
+                title: "Output Files",
+                field: "output",
+                formatter: outputFiles => CatalogGridFormatter.fileFormatter(outputFiles, null, "name"),
+                visible: this.gridCommons.isColumnVisible("output")
+            },
+            // {
+            //     id: "priority",
+            //     title: "Priority",
+            //     field: "priority",
+            //     visible: this.gridCommons.isColumnVisible("priority")
+            // },
+            {
+                id: "dependsOn",
+                title: "Depends On",
+                field: "dependsOn",
+                formatter: dependsOn => {
+                    let html = "-";
+                    if (dependsOn?.length > 0) {
+                        html = `<div style="white-space: nowrap">`;
+                        for (let i = 0; i < dependsOn.length; i++) {
+                            // Display first 3 files
+                            if (i < 3) {
+                                html += `<div style="margin: 2px 0"><span>${dependsOn[i].id}</span></div>`;
+                            } else {
+                                html += `<a tooltip-title="jOBS" tooltip-text='${dependsOn.map(job => `<p>${job.id}</p>`).join("<br>")}'>... view all jobs (${dependsOn.length})</a>`;
+                                break;
+                            }
+                        }
+                        html += "</div>";
+                    }
+                    return html;
+                },
+                visible: this.gridCommons.isColumnVisible("dependsOn")
             },
             {
                 id: "status",
@@ -418,39 +511,6 @@ export default class JobGrid extends LitElement {
                 field: "internal.status",
                 formatter: status => UtilsNew.jobStatusFormatter(status),
                 visible: this.gridCommons.isColumnVisible("status")
-            },
-            {
-                id: "priority",
-                title: "Priority",
-                field: "priority",
-                visible: this.gridCommons.isColumnVisible("priority")
-            },
-            {
-                id: "dependsOn",
-                title: "Depends On",
-                field: "dependsOn",
-                formatter: dependsOn => dependsOn.length > 0 ? `
-                    <div class="tooltip-div">
-                        <a tooltip-title="Dependencies" tooltip-text="${dependsOn.map(job => `<p>${job.id}</p>`).join("<br>")}">
-                            ${dependsOn.length} job${dependsOn.length > 1 ? "s" : ""}
-                        </a>
-                    </div>
-                ` : "-",
-                visible: this.gridCommons.isColumnVisible("dependsOn")
-            },
-            {
-                id: "output",
-                title: "Output Files",
-                field: "output",
-                formatter: outputFiles => {
-                    if (outputFiles?.length > 0) {
-                        const fileIds = outputFiles?.map(file => file);
-                        return CatalogGridFormatter.fileFormatter(fileIds, null, "name");
-                    } else {
-                        return "-";
-                    }
-                },
-                visible: this.gridCommons.isColumnVisible("output")
             },
             {
                 id: "executionR",
@@ -594,6 +654,7 @@ export default class JobGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
+                    @refresh="${this.onRefresh}"
                     @actionClick="${e => this.onActionClick(e)}"
                     @jobCreate="${this.renderRemoteTable}">
                 </opencb-grid-toolbar>` : nothing
@@ -633,6 +694,7 @@ export default class JobGrid extends LitElement {
             showCreate: true,
             showExport: true,
             showSettings: true,
+            showRefresh: true,
             showActions: true,
             detailView: true,
             detailFormatter: this.detailFormatter,

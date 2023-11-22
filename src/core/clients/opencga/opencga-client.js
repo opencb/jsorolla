@@ -32,6 +32,7 @@ import User from "./api/User.js";
 import Variant from "./api/Variant.js";
 import VariantOperation from "./api/VariantOperation.js";
 import {CellBaseClient} from "../cellbase/cellbase-client";
+import UtilsNew from "../../utils-new";
 
 
 export class OpenCGAClient {
@@ -57,7 +58,10 @@ export class OpenCGAClient {
                 prefix: ""
                 // expirationTime: ""
             },
-            sso: false,
+            sso: {
+                active: false,
+                cookie: "JSESSIONID",
+            },
         };
     }
 
@@ -80,7 +84,7 @@ export class OpenCGAClient {
             console.error(e);
             // Josemi NOTE 20230324 Terrible hack to prevent displaying OpenCGA host not available error
             // when iva starts, as the /meta/about is restricted when SSO is enabled
-            if (!this._config.sso) {
+            if (!this._config?.sso?.active) {
                 globalEvent("signingInError", {value: "Opencga host not available."});
                 globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
             }
@@ -167,14 +171,6 @@ export class OpenCGAClient {
         return this.clients.get("meta");
     }
 
-    admin() {
-        if (!this.clients.has("admin")) {
-            this.clients.set("admin", new Admin(this._config));
-        }
-        return this.clients.get("admin");
-    }
-
-    // Analysis
     alignments() {
         if (!this.clients.has("alignments")) {
             this.clients.set("alignments", new Alignment(this._config));
@@ -208,6 +204,13 @@ export class OpenCGAClient {
             this.clients.set("ga4gh", new GA4GH(this._config));
         }
         return this.clients.get("ga4gh");
+    }
+
+    admin() {
+        if (!this.clients.has("admin")) {
+            this.clients.set("admin", new Admin(this._config));
+        }
+        return this.clients.get("admin");
     }
 
     /*
@@ -247,6 +250,8 @@ export class OpenCGAClient {
                 return this.clinical();
             case "META":
                 return this.meta();
+            case "ADMIN":
+                return this.admin();
             default:
                 throw new Error("Resource not recognized");
         }
@@ -254,7 +259,8 @@ export class OpenCGAClient {
 
     async login(userId, password) {
         try {
-            const restResponse = await this.users().login({user: userId, password: password});
+            const restResponse = await this.users()
+                .login({user: userId, password: password});
 
             // TODO remove userId and token from config and move it to session
             this._config.userId = userId;
@@ -262,10 +268,9 @@ export class OpenCGAClient {
 
             // Check if cookies being used
             if (this._config.cookies.active) {
-                this.setCookies(userId, this._config.token);
+                this.#setCookies(userId, this._config.token);
             }
             this.clients.forEach(client => client.setToken(this._config.token));
-            // this.createSession();
             return restResponse;
         } catch (restResponse) {
             console.error(restResponse);
@@ -273,33 +278,24 @@ export class OpenCGAClient {
         }
     }
 
-    setCookies(userId, token) {
-        if (userId && token) {
-            // eslint-disable-next-line no-undef
-            Cookies.set(this._config.cookies.prefix + "_userId", userId, {secure: true});
-            // eslint-disable-next-line no-undef
-            Cookies.set(this._config.cookies.prefix + "_sid", this._config.token, {secure: true});
-        } else {
-            // eslint-disable-next-line no-undef
-            Cookies.expire(this._config.cookies.prefix + "_userId");
-            // eslint-disable-next-line no-undef
-            Cookies.expire(this._config.cookies.prefix + "_sid");
-        }
-    }
-
-    // refresh only works if cookies are enabled
+    // Refresh only works if cookies are enabled
     async refresh() {
         const userId = this._config.userId;
-        const response = await this.users().login({refreshToken: this._config.token});
+        const response = await this.users()
+            .login({refreshToken: this._config.token});
         this._config.token = response.getResult(0).token;
 
-        await this.updateUserConfigs({
-            lastAccess: new Date().getTime()
-        });
+        // Nacho (22/10/2023): We should not update 'lastAccess' date when token is updated automatically
+        // await this.updateUserConfig({
+        //     lastAccess: new Date().getTime()
+        // });
 
+        // Update cookie with the new token
         if (this._config.cookies.active) {
-            this.setCookies(userId, this._config.token);
+            this.#setCookies(userId, this._config.token);
         }
+
+        // Update existing clients with the new token
         this.clients.forEach(client => client.setToken(this._config.token));
         return response;
     }
@@ -312,9 +308,23 @@ export class OpenCGAClient {
 
         // Remove cookies
         if (this._config.cookies.active) {
-            this.setCookies();
+            this.#setCookies();
         }
         return Promise.resolve();
+    }
+
+    #setCookies(userId, token) {
+        if (userId && token) {
+            // eslint-disable-next-line no-undef
+            Cookies.set(this._config.cookies.prefix + "_userId", userId, {secure: true});
+            // eslint-disable-next-line no-undef
+            Cookies.set(this._config.cookies.prefix + "_sid", this._config.token, {secure: true});
+        } else {
+            // eslint-disable-next-line no-undef
+            Cookies.expire(this._config.cookies.prefix + "_userId");
+            // eslint-disable-next-line no-undef
+            Cookies.expire(this._config.cookies.prefix + "_sid");
+        }
     }
 
     // Creates and return an anonymous session object, it is a sync function.
@@ -339,14 +349,12 @@ export class OpenCGAClient {
      * opencgaClient object itself.
      * @returns {Promise<any>}
      */
-    // TODO urgent refactor
     createSession() {
         const _this = this;
         return new Promise((resolve, reject) => {
             // check that a session exists
             // TODO should we check the session has not expired?
             if (_this._config.token) {
-                // _this._notifySessionEvent("signingIn", "Fetching User data");
                 _this.users().info(_this._config.userId)
                     .then(async response => {
                         console.log("Creating session");
@@ -363,8 +371,7 @@ export class OpenCGAClient {
                                 // serverVersion: _this._config.serverVersion,
                             };
                             session.opencgaClient = _this;
-                            // _this._notifySessionEvent("signingIn", "Updating User config");
-                            const userConfig = await this.updateUserConfigs({
+                            const userConfig = await this.updateUserConfig("IVA", {
                                 ...session.user.configs.IVA,
                                 lastAccess: new Date().getTime()
                             });
@@ -379,7 +386,6 @@ export class OpenCGAClient {
 
                         // Fetch authorised Projects and Studies
                         console.log("Fetching projects and studies");
-                        // _this._notifySessionEvent("signingIn", "Fetching Projects and Studies");
                         _this.projects()
                             .search({limit: 100})
                             .then(async function (response) {
@@ -398,7 +404,6 @@ export class OpenCGAClient {
                                                 for (const study of project.studies) {
                                                     // We need to store the user permission for the all the studies fetched
                                                     console.log("Fetching user permissions");
-                                                    // _this._notifySessionEvent("signingIn", "Fetching User permissions");
 
                                                     let acl = null;
                                                     const admins = study.groups.find(g => g.id === "@admins");
@@ -411,7 +416,6 @@ export class OpenCGAClient {
 
                                                     // Fetch all the cohort
                                                     console.log("Fetching cohorts");
-                                                    // _this._notifySessionEvent("signingIn", "Fetching Cohorts");
                                                     const cohortsResponse = await _this.cohorts()
                                                         .search({study: study.fqn, exclude: "samples", limit: 100});
                                                     study.cohorts = cohortsResponse.responses[0].results
@@ -453,7 +457,7 @@ export class OpenCGAClient {
                                                     version: project.cellbase.version.startsWith("v") ? project.cellbase.version : "v" + project.cellbase.version,
                                                     species: "hsapiens",
                                                 });
-                                                // https://ws.zettagenomics.com/cellbase/webservices/rest/v5.1/meta/hsapiens/dataReleases
+                                                // Call to: https://ws.zettagenomics.com/cellbase/webservices/rest/v5.1/meta/hsapiens/dataReleases
                                                 const promise = cellbaseClient.getMeta("dataReleases");
                                                 cellbaseSourcesPromises.push(promise);
                                                 indexesMap.push(i);
@@ -474,7 +478,6 @@ export class OpenCGAClient {
 
                                         // Fetch the Disease Panels for each Study
                                         console.log("Fetching disease panels");
-                                        // _this._notifySessionEvent("signingIn", "Fetching Disease Panels");
                                         const panelPromises = [];
                                         for (const study of studies) {
                                             const promise = _this.panels().search({
@@ -514,29 +517,6 @@ export class OpenCGAClient {
         });
     }
 
-    // async _fetchCellBaseSources(project) {
-    //     if (project.cellbase?.url && project.cellbase.version !== "v5" && project.cellbase.version !== "v4") {
-    //         const cellbaseClient = new CellBaseClient({
-    //             host: project.cellbase.url,
-    //             version: project.cellbase.version.startsWith("v") ? project.cellbase.version : "v" + project.cellbase.version,
-    //             species: "hsapiens",
-    //         });
-    //         console.log(project.cellbase)
-    //         // https://ws.zettagenomics.com/cellbase/webservices/rest/v5.1/meta/hsapiens/dataReleases
-    //         return cellbaseClient.getMeta("dataReleases");
-    //     }
-    // }
-
-    _notifySessionEvent(id, message) {
-        globalThis.dispatchEvent(new CustomEvent(id,
-            {
-                detail: {
-                    value: message
-                }
-            }
-        ));
-    }
-
     getConfig() {
         return this._config;
     }
@@ -554,22 +534,18 @@ export class OpenCGAClient {
         return this.users().configs(this._config.userId, "IVA");
     }
 
-    updateUserConfigs(data) {
-        // TODO remove this nasty nested bug fix
-        if (data?.IVA) {
-            delete data.IVA;
-        }
-        const userIvaConfig = this.users().updateConfigs(this._config.userId, {
-            id: "IVA",
-            configuration: {
-                ...data
-            }
-        });
-        // Update opencgaSession object
-        // if (opencgaSession?.user?.configs) {
-        //     opencgaSession.user.configs.IVA = userIvaConfig.responses[0].results[0];
-        // }
-        return userIvaConfig;
+    // Nacho (22/10/2023): This method needs a config ID and VALUE now,
+    // different sites or apps may need to store configurations.
+    updateUserConfig(id, newConfig) {
+        return this.users()
+            .updateConfigs(this._config.userId, {
+                id: id,
+                configuration: {
+                    ...newConfig,
+                    date: UtilsNew.getDatetime(),
+                    version: "v2"
+                }
+            });
     }
 
 }

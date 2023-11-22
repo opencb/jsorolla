@@ -104,6 +104,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             "genes": "genes.id",
             "categories": "categories.name",
             "source": "source.name",
+            "format": "format",
             "tags": "tags",
             "sex": "sex.id",
             "karyotypicSex": "karyotypicSex",
@@ -234,6 +235,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "tool":
                 case "categories":
                 case "genes":
+                case "format":
                 case "tags":
                 case "source":
                 case "sex":
@@ -253,7 +255,6 @@ export default class OpencgaBrowserFilter extends LitElement {
                     break;
                 case "affectationStatus":
                 case "lifeStatus":
-                case "format":
                 case "bioformat":
                 case "internalVariantIndexStatus":
                 case "internalStatus":
