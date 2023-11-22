@@ -26,6 +26,7 @@ import "../../commons/filters/consequence-type-select-filter.js";
 import "../../commons/filters/clinvar-accessions-filter.js";
 import "../../commons/filters/population-frequency-filter.js";
 import "../../commons/filters/region-filter.js";
+import "../../commons/forms/select-field-filter2.js";
 
 export default class RgaFilter extends LitElement {
 
@@ -222,8 +223,14 @@ export default class RgaFilter extends LitElement {
                 break;
             case "knockoutType":
                 content = html`
-                    <select-field-filter multiple .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}"
-                                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
+                    <select-field-filter2
+                        .data="${subsection.allowedValues}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .config="${{
+                            liveSearch: false
+                        }}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </select-field-filter2>`;
                 break;
             case "probandOnly":
                 content = html`
