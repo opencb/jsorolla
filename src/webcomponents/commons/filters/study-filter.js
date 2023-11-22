@@ -18,7 +18,6 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 import {guardPage} from "../html-utils.js";
-import "../forms/select-field-filter.js";
 
 export default class StudyFilter extends LitElement {
 

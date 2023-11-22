@@ -16,7 +16,6 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../forms/select-field-filter.js";
 import Types from "../types.js";
 import "./data-form.js";
 import LitUtils from "../utils/lit-utils.js";
