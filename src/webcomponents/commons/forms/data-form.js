@@ -1093,16 +1093,16 @@ export default class DataForm extends LitElement {
 
     _createListElement(element, data = this.data, section) {
         // Get values
-        let array;
+        let values;
         if (element.field) {
-            array = this.getValue(element.field, data);
+            values = this.getValue(element.field, data);
         } else {
-            array = element.display.getData(data);
+            values = element.display.getData(data);
         }
         const contentLayout = element.display?.contentLayout || "vertical";
 
         // 1. Check array and layout exist
-        if (!Array.isArray(array)) {
+        if (!Array.isArray(values)) {
             return this._createElementTemplate(element, null, null, {
                 message: this._getDefaultValue(element, section) ?? `Field '${element.field}' is not an array`,
                 className: "text-danger"
@@ -1117,14 +1117,14 @@ export default class DataForm extends LitElement {
 
         // 2. Apply 'filter' and 'transform' functions if defined
         if (typeof element.display?.filter === "function") {
-            array = element.display.filter(array);
+            values = element.display.filter(values);
         }
         if (typeof element.display?.transform === "function") {
-            array = element.display.transform(array);
+            values = element.display.transform(values);
         }
 
         // 3. Check length of the array. This MUST be done after filtering
-        if (array.length === 0) {
+        if (values.length === 0) {
             // If empty we just print the defaultValue, this is not an error
             return this._createElementTemplate(element, null, null, {
                 message: this._getDefaultValue(element, section) ?? "Empty array",
@@ -1133,17 +1133,16 @@ export default class DataForm extends LitElement {
 
         // 4. Format list elements. Initialise values with array, this is valid for scalars, or when 'template' and 'format' do not exist
         // Apply the template to all Array elements and store them in 'values'
-        let values = array;
         if (element.display?.format || element.display?.render) {
             // NOTE: 'element.display.render' is now deprecated, use 'format' instead
             if (element.display?.format) {
-                values = array.map(item => element.display.format(item, data));
+                values = values.map(item => element.display.format(item, data));
             } else {
-                values = array.map(item => element.display.render(item, data));
+                values = values.map(item => element.display.render(item, data));
             }
         } else {
             if (element.display?.template) {
-                values = array
+                values = values
                     .map(item => this.applyTemplate(element.display.template, item, this._getDefaultValue(element, section), element));
             }
         }
@@ -1153,10 +1152,10 @@ export default class DataForm extends LitElement {
         if (element.display?.style) {
             if (typeof element.display.style === "string") {
                 // All elements will have the same style
-                array.forEach(item => styles[item] = element.display.style);
+                values.forEach(item => styles[item] = element.display.style);
             } else {
                 // It is an object, we must find the right style for each element
-                for (const item of array) {
+                for (const item of values) {
                     // This call already checks if style is a function
                     styles[item] = this._parseStyleField(element.display?.style, item, data);
                 }
@@ -1167,29 +1166,29 @@ export default class DataForm extends LitElement {
         const separators = {};
         if (element.display?.separator) {
             // Last element cannot add a separator, so we iterate until length -1
-            for (let i = 0; i < array.length - 1; i++) {
+            for (let i = 0; i < values.length - 1; i++) {
                 let separator = null;
                 if (typeof element.display.separator === "string") {
                     separator = element.display.separator;
                 } else {
-                    separator = element.display.separator(array[i], i, array, data);
+                    separator = element.display.separator(values[i], i, values, data);
                 }
-                if (separator) {
-                    separators[array[i]] = separator.includes("---") ? "<hr>" : separator;
-                }
+                // if (separator) {
+                //     separators[values[i]] = separator.includes("---") ? "<hr>" : separator;
+                // }
+                separators[i] = separator.includes("---") ? "<hr>" : separator;
             }
         }
 
         // 7. Render element values
         let content = this._getDefaultValue(element, section);
-        // const separator = element?.display?.separator;
         switch (contentLayout) {
             case "horizontal":
                 content = `
                     ${values
                     .map((elem, index) => `
                         <span style="${styles[elem]}">${elem}</span>
-                        <span>${index < array.length - 1 ? separators[elem] ?? ", " : ""}</span>
+                        <span>${index < values.length - 1 ? separators[index] ?? ", " : ""}</span>
                     `)
                     .join(``)
                 }`;
@@ -1197,9 +1196,9 @@ export default class DataForm extends LitElement {
             case "vertical":
                 content = `
                     ${values
-                    .map(elem => `
+                    .map((elem, index) => `
                         <div><span style="${styles[elem]}">${elem}</span></div>
-                        ${separators[elem] ? `<div>${separators[elem]}</div>` : ""}
+                        ${separators[index] ? `<div>${separators[index]}</div>` : ""}
                     `)
                     .join("")
                 }`;
@@ -1208,12 +1207,12 @@ export default class DataForm extends LitElement {
                 content = `
                     <ul class="pad-left-15">
                         ${values
-                    .map(elem => `
-                        <li><span style="${styles[elem]}">${elem}</span></li>
-                         ${separators[elem] ? `<div>${separators[elem]}</div>` : ""}
-                    `)
-                    .join("")
-                }
+                        .map((elem, index) => `
+                            <li><span style="${styles[elem]}">${elem}</span></li>
+                             ${separators[index] ? `<div>${separators[index]}</div>` : ""}
+                        `)
+                        .join("")
+                        }
                     </ul>
                 `;
                 break;
