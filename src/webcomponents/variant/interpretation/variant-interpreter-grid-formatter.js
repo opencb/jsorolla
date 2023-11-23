@@ -1070,16 +1070,16 @@ export default class VariantInterpreterGridFormatter {
                     `;
                 });
                 return `
-                    <div data-role="exon-overlaps-list">
+                    <div data-role="gene-feature-overlaps-list">
                         ${displayedOverlaps.slice(0, maxDisplayedOverlaps).join(separator)}
-                        <div data-role="exon-overlaps-list-extra" style="display:none">
+                        <div data-role="gene-feature-overlaps-list-extra" style="display:none">
                             ${displayedOverlaps.slice(maxDisplayedOverlaps).join(separator)}
                         </div>
                         <div style="margin-top:8px;display:${overlaps.length > maxDisplayedOverlaps ? "block" : "none"}">
-                            <a data-role="exon-overlaps-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
+                            <a data-role="gene-feature-overlaps-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
                                 ... show more (${(overlaps.length - maxDisplayedOverlaps)})
                             </a>
-                            <a data-role="exon-overlaps-list-hide" style="cursor:pointer;font-size:13px;font-weight:bold;display:none;">
+                            <a data-role="gene-feature-overlaps-list-hide" style="cursor:pointer;font-size:13px;font-weight:bold;display:none;">
                                 show less
                             </a>
                         </div>

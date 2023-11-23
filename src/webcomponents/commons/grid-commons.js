@@ -181,8 +181,7 @@ export default class GridCommons {
             }
 
             // Add events for displaying genes and roles list
-            // const gridElement = document.querySelector(`#${this.gridId}`);
-            ["genes", "roles", "exon-overlaps"].forEach(key => {
+            ["genes", "roles", "gene-feature-overlaps"].forEach(key => {
                 Array.from(document.querySelectorAll(`#${this.gridId} div[data-role="${key}-list"]`)).forEach(el => {
                     const extraList = el.querySelector(`[data-role="${key}-list-extra"]`);
                     const showLink = el.querySelector(`[data-role="${key}-list-show"]`);
