@@ -15,6 +15,8 @@
  */
 
 import UtilsNew from "../../core/utils-new.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
+import VariantGridFormatter from "./variant-grid-formatter.js";
 
 
 export default class VariantUtils {
@@ -73,6 +75,7 @@ export default class VariantUtils {
                 "deleteriousness.polyphen",
                 "deleteriousness.revel",
                 "deleteriousness.cadd",
+                "deleteriousness.spliceai",
                 "conservation.phylop",
                 "conservation.phastCons",
                 "conservation.gerp",
@@ -155,7 +158,7 @@ export default class VariantUtils {
                     for (let j = 0; j < v.annotation.consequenceTypes.length; j++) {
                         const cT = v.annotation.consequenceTypes[j];
                         // gene
-                        if (cT?.geneName !== "") {
+                        if (typeof cT?.geneName === "string" && ct?.geneName !== "") {
                             genes.add(cT.geneName);
                         }
 
@@ -361,6 +364,13 @@ export default class VariantUtils {
             if (flatFieldList.includes("conservation.gerp")) {
                 dataToTsv["conservation.gerp"] = gerp;
             }
+            if (flatFieldList.includes("deleteriousness.spliceai")) {
+                dataToTsv["deleteriousness.spliceai"] = this.getSpliceAI(v);
+            }
+
+            if (flatFieldList.includes("hgvs")) {
+                dataToTsv["hgvs"] = this.gethgvsValues(v);
+            }
 
             // Allele stats (VB)
             // frequencies.cohort (SVB)
@@ -526,6 +536,83 @@ export default class VariantUtils {
             }
         }
         return res;
+    }
+
+    static gethgvsValues(variant) {
+
+        BioinfoUtils.sort(variant.annotation?.consequenceTypes, v => v.geneName);
+        const gridConfig = {
+            geneSet: {
+                ensembl: true,
+                refseq: true,
+            },
+            consequenceType: {
+                // all: false,
+                maneTranscript: true,
+                gencodeBasicTranscript: false,
+                ensemblCanonicalTranscript: true,
+                refseqTranscript: true,
+                ccdsTranscript: false,
+                ensemblTslTranscript: false,
+                proteinCodingTranscript: false,
+                highImpactConsequenceTypeTranscript: false,
+                showNegativeConsequenceTypes: true
+            }
+        };
+        const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(variant.annotation?.consequenceTypes, gridConfig).indexes;
+
+        if (showArrayIndexes?.length > 0 && variant.annotation.hgvs?.length > 0) {
+            const results = [];
+            for (const index of showArrayIndexes) {
+                const consequenceType = variant.annotation.consequenceTypes[index];
+                const hgvsTranscriptIndex = variant.annotation.hgvs.findIndex(hgvs => hgvs.startsWith(consequenceType.transcriptId));
+                const hgvsProteingIndex = variant.annotation.hgvs.findIndex(hgvs => hgvs.startsWith(consequenceType.proteinVariantAnnotation?.proteinId));
+                if (hgvsTranscriptIndex > -1 || hgvsProteingIndex > -1) {
+                    results.push(`${this.getHgvs(consequenceType.transcriptId, variant.annotation.hgvs) || "-"} ${this.getHgvs(consequenceType.proteinVariantAnnotation?.proteinId, variant.annotation.hgvs) || "-"}`);
+                }
+            }
+            return results.join();
+        }
+    }
+
+    static getHgvs(id, hgvsArray) {
+        if (!id) {
+            return;
+        }
+
+        let hgvs = hgvsArray?.find(hgvs => hgvs.startsWith(id));
+        if (hgvs) {
+            if (hgvs.includes("(")) {
+                const split = hgvs.split(new RegExp("[()]"));
+                hgvs = split[0] + split[2];
+            }
+            const split = hgvs.split(":");
+            return `${split[0]}:${split[1]}`;
+
+        }
+        return id;
+    }
+
+    static getSpliceAI(variant) {
+        if (variant.annotation.consequenceTypes?.length > 0) {
+            // We need to find the max Delta Score:
+            //      Delta score of a variant, defined as the maximum of (DS_AG, DS_AL, DS_DG, DS_DL),
+            //      ranges from 0 to 1 and can be interpreted as the probability of the variant being splice-altering.
+            let dscore = 0;
+            for (const ct of variant.annotation.consequenceTypes) {
+                if (ct.spliceScores?.length > 0) {
+                    const spliceAi = ct.spliceScores.find(ss => ss.source.toUpperCase() === "SPLICEAI");
+                    if (spliceAi) {
+                        const max = Math.max(spliceAi.scores["DS_AG"], spliceAi.scores["DS_AL"], spliceAi.scores["DS_DG"], spliceAi.scores["DS_DL"]);
+                        if (max > dscore) {
+                            dscore = max;
+                        }
+                    }
+                }
+            }
+            return dscore;
+        }
+        return "-";
     }
 
     static removeUnlockQuery(lockedFields, preparedQuery, executedQuery) {
