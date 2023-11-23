@@ -456,7 +456,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
                             active: true,
                             render: variant => html`
                                 <cellbase-variant-annotation-summary
-                                    .variantAnnotation="${variant.annotation}"
+                                    .variantAnnotation="${variant?.annotation}"
                                     .consequenceTypes="${CONSEQUENCE_TYPES}"
                                     .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
                                     .assembly=${this.opencgaSession.project.organism.assembly}>
@@ -513,7 +513,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
                             name: "Beacon",
                             render: (variant, active, opencgaSession) => html`
                                 <variant-beacon-network
-                                    .variant="${variant.id}"
+                                    .variant="${variant?.id}"
                                     .assembly="${opencgaSession.project.organism.assembly}"
                                     .config="${this.beaconConfig}"
                                     .active="${active}">
