@@ -164,12 +164,12 @@ export default class VariantInterpreterGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         this.toolbarSetting = {
+            showCreate: false,
             showExport: true,
+            showSettings: true,
             exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
-            // ...this._config,
             // it comes from external settings
             showColumns: false,
-            showSettings: true,
             ...this._config,
             // columns: defaultColumns[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
             // gridColumns: defaultColumns, // original column structure
@@ -178,6 +178,7 @@ export default class VariantInterpreterGrid extends LitElement {
         this.toolbarConfig = {
             toolId: this.toolId,
             resource: "CLINICAL_VARIANT",
+            disableCreate: true,
             showInterpreterConfig: true,
             columns: this._getDefaultColumns()
         };
@@ -409,7 +410,7 @@ export default class VariantInterpreterGrid extends LitElement {
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: (value, row) => this.detailFormatter(value, row),
+            detailFormatter: this._config.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
@@ -1532,13 +1533,20 @@ export default class VariantInterpreterGrid extends LitElement {
 
     getDefaultConfig() {
         return {
+            // Bootstrap Grid config
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showExport: false,
             detailView: true,
-            showReview: true,
+            detailFormatter: this.detailFormatter,
+            // multiSelection: false,
+
+            // Custom config
+            showToolbar: true,
+            showCreate: false,
+            showExport: true,
             showSettings: true,
+            showReview: true,
             showSelectCheckbox: false,
             showActions: true,
             showEditReview: true,

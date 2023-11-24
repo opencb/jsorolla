@@ -545,17 +545,17 @@ class VariantInterpreterBrowserRd extends LitElement {
                 ],
                 result: {
                     grid: {
-                        pagination: true,
-                        pageSize: 10,
-                        pageList: [5, 10, 25],
-                        showExport: false,
-                        detailView: true,
-                        showReview: true,
-                        showActions: true,
+                        // pagination: true,
+                        // pageSize: 10,
+                        // pageList: [5, 10, 25],
+                        // showExport: false,
+                        // detailView: true,
+                        // showReview: true,
+                        // showActions: true,
                         showSelectCheckbox: true,
-                        multiSelection: false,
-                        nucleotideGenotype: true,
-                        alleleStringLengthMax: 10,
+                        // multiSelection: false,
+                        // nucleotideGenotype: true,
+                        // alleleStringLengthMax: 10,
 
                         header: {
                             horizontalAlign: "center",

@@ -139,11 +139,14 @@ export default class VariantBrowserGrid extends LitElement {
             ...this.getDefaultConfig(),
             ...this.config,
         };
+
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Config for the grid toolbar
         this.toolbarSetting = {
+            showCreate: false,
             showExport: true,
+            showSettings: true,
             exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
             showColumns: false,
             ...this._config,
@@ -1064,16 +1067,21 @@ export default class VariantBrowserGrid extends LitElement {
 
     getDefaultConfig() {
         return {
+            // Bootstrap Grid config
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showExport: false,
             detailView: true,
             detailFormatter: this.detailFormatter,
+            // multiSelection: false,
+
+            // Custom config
             showToolbar: true,
+            showCreate: false,
+            showExport: true,
+            showSettings: true,
             showSelectCheckbox: false,
             showActions: true,
-            multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 15,
 
