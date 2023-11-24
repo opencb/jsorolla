@@ -256,12 +256,6 @@ export default class IndividualBrowser extends LitElement {
                         showSelectCheckbox: false
                     }
                 },
-                gridComparator: {
-                    pageSize: 5,
-                    pageList: [5, 10],
-                    detailView: true,
-                    multiSelection: true
-                },
                 detail: {
                     title: "Individual",
                     showTitle: true,

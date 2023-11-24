@@ -262,13 +262,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
             // TODO recheck (they come from clinical-analysis-browser and used in opencga-clinical-analysis-filter and opencga-clinical-analysis-grid now they have been moved in config)
             analyses: [],
             analysis: {},
-
-            gridComparator: {
-                pageSize: 5,
-                pageList: [5, 10],
-                detailView: true,
-                multiSelection: true
-            }
         };
     }
 
