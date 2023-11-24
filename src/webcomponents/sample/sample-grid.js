@@ -172,7 +172,6 @@ export default class SampleGrid extends LitElement {
                 paginationVAlign: "both",
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
@@ -289,7 +288,6 @@ export default class SampleGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -575,7 +573,6 @@ export default class SampleGrid extends LitElement {
             pageList: [5, 10, 25],
             multiSelection: false,
             showSelectCheckbox: false,
-            detailFormatter: null, // function with the detail formatter
             detailView: false,
 
             showToolbar: true,

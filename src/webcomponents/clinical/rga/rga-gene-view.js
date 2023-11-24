@@ -124,7 +124,6 @@ export default class RgaGeneView extends LitElement {
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this._config.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
                 const _filters = {

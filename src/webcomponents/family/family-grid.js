@@ -170,7 +170,7 @@ export default class FamilyGrid extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
+                detailFormatter: this.detailFormatter,
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {

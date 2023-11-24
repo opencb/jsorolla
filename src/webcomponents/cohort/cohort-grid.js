@@ -164,7 +164,6 @@ export default class CohortGrid extends LitElement {
             pageList: this._config.pageList,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -209,7 +208,6 @@ export default class CohortGrid extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     const sort = this.table.bootstrapTable("getOptions").sortName ? {
@@ -472,7 +470,6 @@ export default class CohortGrid extends LitElement {
             multiSelection: false,
             showSelectCheckbox: false,
             detailView: false,
-            detailFormatter: null, // function with the detail formatter
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"

@@ -227,7 +227,7 @@ export default class JobGrid extends LitElement {
                 },
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter.bind(this),
+                detailFormatter: this.detailFormatter,
                 sortName: "Creation",
                 sortOrder: "asc",
                 gridContext: this,
@@ -685,7 +685,6 @@ export default class JobGrid extends LitElement {
             showSelectCheckbox: false,
             multiSelection: false,
             detailView: true,
-            detailFormatter: this.detailFormatter,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"

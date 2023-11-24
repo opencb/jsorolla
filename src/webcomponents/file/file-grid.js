@@ -148,7 +148,6 @@ export default class OpencgaFileGrid extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
@@ -236,7 +235,6 @@ export default class OpencgaFileGrid extends LitElement {
             pageList: this._config.pageList,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -528,7 +526,6 @@ export default class OpencgaFileGrid extends LitElement {
             showSelectCheckbox: false,
             multiSelection: false,
             detailView: false,
-            detailFormatter: null, // function with the detail formatter
 
             showToolbar: true,
             showActions: true,

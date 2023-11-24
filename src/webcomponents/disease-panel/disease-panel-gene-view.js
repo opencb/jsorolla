@@ -99,7 +99,6 @@ export default class DiseasePanelGeneView extends LitElement {
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             // onPageChange: (page, size) => {
@@ -260,7 +259,6 @@ export default class DiseasePanelGeneView extends LitElement {
             pageList: [5, 10, 25],
             showExport: false,
             detailView: false,
-            detailFormatter: null, // function with the detail formatter
             multiSelection: false,
             showToolbar: false,
             header: {

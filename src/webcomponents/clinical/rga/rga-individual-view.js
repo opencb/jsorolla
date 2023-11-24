@@ -152,7 +152,6 @@ export default class RgaIndividualView extends LitElement {
             formatShowingRows: (pageFrom, pageTo, totalRows) => this.formatShowingRows(pageFrom, pageTo, totalRows),
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this._config.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
                 const _filters = {

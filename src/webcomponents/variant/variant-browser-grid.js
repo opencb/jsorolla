@@ -195,7 +195,7 @@ export default class VariantBrowserGrid extends LitElement {
                 formatShowingRows: (pageFrom, pageTo, totalRows) =>
                     this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, this.totalRowsNotTruncated, this.isApproximateCount),
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
+                detailFormatter: this.detailFormatter,
                 formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
                 // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
                 variantGrid: this,
@@ -336,7 +336,7 @@ export default class VariantBrowserGrid extends LitElement {
             paginationVAlign: "both",
             formatShowingRows: this.gridCommons.formatShowingRows,
             detailView: this._config.detailView,
-            detailFormatter: this._config.detailFormatter,
+            detailFormatter: this.detailFormatter,
             formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
             // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
             variantGrid: this,
@@ -1066,7 +1066,6 @@ export default class VariantBrowserGrid extends LitElement {
             pageSize: 10,
             pageList: [5, 10, 25],
             detailView: true,
-            detailFormatter: this.detailFormatter,
             showSelectCheckbox: false,
             multiSelection: false,
             nucleotideGenotype: true,

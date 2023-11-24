@@ -889,7 +889,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
             showSelectCheckbox: false,
             multiSelection: false,
             detailView: false,
-            // detailFormatter: this.detailFormatter
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"

@@ -174,7 +174,7 @@ export default class IndividualGrid extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
+                detailFormatter: this.detailFormatter,
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
@@ -703,7 +703,6 @@ export default class IndividualGrid extends LitElement {
             pageList: [5, 10, 25],
             multiSelection: false,
             showSelectCheckbox: false,
-            detailFormatter: this.detailFormatter, // function with the detail formatter
             detailView: true,
             header: {
                 horizontalAlign: "center",
