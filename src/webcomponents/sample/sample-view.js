@@ -23,7 +23,7 @@ import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../study/annotationset/annotation-set-view.js";
 import "../loading-spinner.js";
-import PdfBuilder, {stylePdf} from "../../core/pdf-builder.js";
+import PdfBuilder, {stylePdf} from "../commons/forms/pdf-builder";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter";
 
 export default class SampleView extends LitElement {

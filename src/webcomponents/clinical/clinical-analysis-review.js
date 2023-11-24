@@ -21,7 +21,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "./clinical-analysis-manager.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import PdfBuilder, {stylePdf} from "../../core/pdf-builder.js";
+// import PdfBuilder, {stylePdf} from "../../core/pdf-builder.js";
 import "./clinical-analysis-summary.js";
 import "../variant/interpretation/variant-interpreter-grid.js";
 import "../disease-panel/disease-panel-grid.js";

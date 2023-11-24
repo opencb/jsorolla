@@ -1,85 +1,28 @@
-import UtilsNew from "./utils-new";
+
+import UtilsNew from "../../../core/utils-new.js";
 
 
 export default class PdfBuilder {
 
-    defaultStyles = {
-        h1: {
-            fontSize: 24,
-            bold: true,
-        },
-        h2: {
-            fontSize: 20,
-            bold: true,
-        },
-        h3: {
-            fontSize: 18,
-            bold: true,
-        },
-        h4: {
-            fontSize: 16,
-            bold: true,
-        },
-        subheader: {
-            fontSize: 14,
-            bold: true,
-        },
-        body: {
-            fontSize: 12,
-        },
-        label: {
-            fontSize: 12,
-            bold: true
-        },
-        caption: {
-            fontSize: 8
-        },
-        note: {
-            fontSize: 10
-        }
-    };
-
-    defaultTableLayout = {
-        headerVerticalBlueLine: {
-            // top & bottom
-            hLineWidth: function () {
-                return 0;
-            },
-            // left & right
-            vLineWidth: function (i, node) {
-                // i == 0 mean no draw line on start
-                // i == node.table.body.length no draw the last line
-                if (i === node.table.body.length) {
-                    return 0;
-                }
-                // it will draw a line if i == 0
-                return i === 0 ? 2 : 0;
-            },
-            vLineColor: function (i) {
-                return i === 0 ? "#0c2f4c" : "";
-            },
-            fillColor: function () {
-                return "#f3f3f3";
-            }
-        },
-    };
-
-    constructor(data, docDefinition) {
-        this.#init(data, docDefinition);
+    constructor(data, dataFormConfig, pdfConfig) {
+        this.#init(data, dataFormConfig, pdfConfig);
     }
 
     // docDefinition Config
-    #init(data, dataFormConfig) {
+    #init(data, dataFormConfig, pdfConfig) {
         this.data = data ?? {};
-        this.docDefinitionConfig = dataFormConfig;
+        this.dataFormConfig = dataFormConfig;
+        this.pdfConfig = {...this.getDefaultConfig(), ...pdfConfig};
+
         this.docDefinition = {
-            pageSize: "A4",
-            styles: {...this.defaultStyles, ...dataFormConfig?.styles},
-            defaultStyle: {
-                fontSize: 10
-            },
-            watermark: {...dataFormConfig?.displayDoc.watermark},
-            content: [this.#creatTextElement(dataFormConfig?.displayDoc?.headerTitle), dataFormConfig?.sections ? this.#transformData() : []]
+            // pageSize: "A4",
+            // styles: {...this.pdfConfig?.styles, ...pdfConfig?.styles},
+            // defaultStyle: {
+            //     ...this.pdfConfig?.defaultStyle
+            // },
+            // watermark: {...dataFormConfig?.displayDoc.watermark},
+            ...this.pdfConfig,
+            content: []
         };
     }
 
@@ -99,12 +42,66 @@ export default class PdfBuilder {
         return new Promise((resolve, reject) => {
             pdfMake.createPdf(this.doc, this.table)
                 .getBlob(result =>{
-                    resolve(result);
-                },
-                err =>{
-                    reject(err);
-                });
+                        resolve(result);
+                    },
+                    err =>{
+                        reject(err);
+                    });
         });
+    }
+
+    render() {
+        const style = this._parseStyleField(this.config?.display?.style);
+
+        // if (this.config?.display?.layout && Array.isArray(this.config.display.layout)) {
+        //     // Render with a specific layout
+        //     return html`
+        //             <div class="${className}" style="${style}">
+        //                 ${this.config?.display.layout
+        //         .map(section => {
+        //             const sectionClassName = section.className ?? section.classes ?? "";
+        //             const sectionStyle = section.style ?? "";
+        //
+        //             if (section.id) {
+        //                 return html`
+        //                                 <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
+        //                                     ${this._createSection(this.config.sections.find(s => s.id === section.id))}
+        //                                 </div>
+        //                             `;
+        //             } else {
+        //                 // this section contains nested subsections: 'sections'
+        //                 return html`
+        //                                 <div class="${sectionClassName}" style="${sectionStyle}">
+        //                                     ${(section.sections || [])
+        //                     .map(subsection => {
+        //                         const subsectionClassName = subsection.className ?? subsection.classes ?? "";
+        //                         const subsectionStyle = this._parseStyleField(subsection.style);
+        //                         if (subsection.id) {
+        //                             return html`
+        //                                                     <div class="${layoutClassName} ${subsectionClassName}" style="${subsectionStyle}">
+        //                                                         ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
+        //                                                     </div>
+        //                                                 `;
+        //                         } else {
+        //                             return nothing;
+        //                         }
+        //                     })
+        //                 }
+        //                                 </div>
+        //                             `;
+        //             }
+        //         })}
+        //             </div>
+        //         `;
+        // } else {
+        //     // Render without layout
+        //     return html`
+        //             <div class="${layoutClassName} ${className}" style="${style}">
+        //                 ${this.config.sections.map(section => this._createSection(section))}
+        //             </div>
+        //         `;
+        // }
+
     }
 
     #getBooleanValue(value, defaultValue) {
@@ -136,7 +133,7 @@ export default class PdfBuilder {
      * @param {string} field -
      * @param {string} defaultValue --
      * @returns {Any} return style
-    */
+     */
     #getValue(field, defaultValue) {
         const _value = UtilsNew.getObjectValue(this.data, field, defaultValue);
         if (typeof _value === "boolean") {
@@ -368,6 +365,73 @@ export default class PdfBuilder {
         return htmlToPdfmake(container, {...defaultHtmlStyle});
     }
 
+    getDefaultConfig() {
+        return {
+            defaultStyle: {
+                fontSize: 10,
+            },
+            styles: {
+                h1: {
+                    fontSize: 24,
+                    bold: true,
+                },
+                h2: {
+                    fontSize: 20,
+                    bold: true,
+                },
+                h3: {
+                    fontSize: 18,
+                    bold: true,
+                },
+                h4: {
+                    fontSize: 16,
+                    bold: true,
+                },
+                subheader: {
+                    fontSize: 14,
+                    bold: true,
+                },
+                body: {
+                    fontSize: 12,
+                },
+                label: {
+                    fontSize: 12,
+                    bold: true
+                },
+                caption: {
+                    fontSize: 8
+                },
+                note: {
+                    fontSize: 10
+                }
+            },
+            defaultTableLayout: {
+                headerVerticalBlueLine: {
+                    // top & bottom
+                    hLineWidth: function () {
+                        return 0;
+                    },
+                    // left & right
+                    vLineWidth: function (i, node) {
+                        // i == 0 mean no draw line on start
+                        // i == node.table.body.length no draw the last line
+                        if (i === node.table.body.length) {
+                            return 0;
+                        }
+                        // it will draw a line if i == 0
+                        return i === 0 ? 2 : 0;
+                    },
+                    vLineColor: function (i) {
+                        return i === 0 ? "#0c2f4c" : "";
+                    },
+                    fillColor: function () {
+                        return "#f3f3f3";
+                    }
+                }
+            }
+        };
+    }
+
 }
 
 // https://pdfmake.github.io/docs/0.1/document-definition-object/styling/#style-properties
@@ -391,7 +455,7 @@ export default class PdfBuilder {
 /**
  * @param {Style} style - Define the style config you want to use for the element
  * @returns {Style} return style
-*/
+ */
 export function stylePdf(style) {
     return {...style};
 }

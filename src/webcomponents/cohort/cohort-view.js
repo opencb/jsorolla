@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import Types from "../commons/types.js";
-import PdfBuilder, {stylePdf} from "../../core/pdf-builder.js";
+import PdfBuilder, {stylePdf} from "../commons/forms/pdf-builder.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
 import "../study/annotationset/annotation-set-view.js";
