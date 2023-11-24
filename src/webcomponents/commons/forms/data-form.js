@@ -1108,7 +1108,7 @@ export default class DataForm extends LitElement {
                 className: "text-danger"
             });
         }
-        if (contentLayout !== "horizontal" && contentLayout !== "vertical" && contentLayout !== "bullets") {
+        if (contentLayout !== "horizontal" && contentLayout !== "vertical" && contentLayout !== "bullets" && contentLayout !== "numbers") {
             return this._createElementTemplate(element, null, null, {
                 message: "Content layout must be 'horizontal', 'vertical' or 'bullets'",
                 className: "text-danger"
@@ -1214,6 +1214,19 @@ export default class DataForm extends LitElement {
                         .join("")
                         }
                     </ul>
+                `;
+                break;
+            case "numbers":
+                content = `
+                    <ol class="pad-left-15">
+                        ${values
+                    .map((elem, index) => `
+                            <li><span style="${styles[elem]}">${elem}</span></li>
+                             ${separators[index] ? `<div>${separators[index]}</div>` : ""}
+                        `)
+                    .join("")
+                }
+                    </ol>
                 `;
                 break;
         }
