@@ -1070,10 +1070,6 @@ export default class VariantBrowserGrid extends LitElement {
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 15,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
 
             showToolbar: true,
             showActions: true,

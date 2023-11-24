@@ -319,10 +319,6 @@ export default class GeneCoverageGrid extends LitElement {
             nucleotideGenotype: true,
             alleleStringLengthMax: 15,
             showToolbar: true,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            }
         };
     }
 

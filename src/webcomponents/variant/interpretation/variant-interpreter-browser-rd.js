@@ -557,11 +557,6 @@ class VariantInterpreterBrowserRd extends LitElement {
                         // nucleotideGenotype: true,
                         // alleleStringLengthMax: 10,
 
-                        header: {
-                            horizontalAlign: "center",
-                            verticalAlign: "bottom"
-                        },
-
                         quality: {
                             qual: 30,
                             dp: 20

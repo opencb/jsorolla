@@ -51,9 +51,14 @@ export default class DiseasePanelGeneView extends LitElement {
         this.genePanels = {};
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "GenePanelBrowserGrid";
-        this.displayConfigDefault = {};
         this._config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     // connectedCallback() {
@@ -163,7 +168,7 @@ export default class DiseasePanelGeneView extends LitElement {
                     title: "Gene",
                     field: "name",
                     formatter: (value, row) => this.geneFormatter(row, this.opencgaSession),
-                    halign: this._config.header.horizontalAlign
+                    halign: this.displayConfigDefault.header.horizontalAlign
                 },
                 {
                     id: "modesOfInheritance",
@@ -200,7 +205,7 @@ export default class DiseasePanelGeneView extends LitElement {
                             return "-";
                         }
                     },
-                    halign: this._config.header.horizontalAlign
+                    halign: this.displayConfigDefault.header.horizontalAlign
                 },
                 {
                     id: "phenotypes",
@@ -261,10 +266,6 @@ export default class DiseasePanelGeneView extends LitElement {
             detailView: false,
             multiSelection: false,
             showToolbar: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            }
         };
     }
 

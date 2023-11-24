@@ -83,6 +83,14 @@ export default class VariantInterpreterGrid extends LitElement {
         this._rows = [];
         this.queriedVariants = {};
         this.review = false;
+
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
+
     }
 
     firstUpdated() {
@@ -571,7 +579,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                     rowspan: 1,
                                     colspan: 1,
                                     formatter: this.vcfDataFormatter,
-                                    halign: "center",
+                                    halign: this.displayConfigDefault.header.horizontalAlign,
                                     visible: this.gridCommons.isColumnVisible(columnId, "VCF_Data"),
                                 });
                             }
@@ -601,7 +609,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
-                    halign: "center",
+                    halign: this.displayConfigDefault.header.horizontalAlign,
                     // sortable: true
                     visible: this.gridCommons.isColumnVisible("id"),
                 },
@@ -612,7 +620,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: VariantGridFormatter.typeFormatter.bind(this),
-                    halign: "center",
+                    halign: this.displayConfigDefault.header.horizontalAlign,
                     visible: !this._config.hideType && this.gridCommons.isColumnVisible("type"),
                 },
                 {
@@ -622,7 +630,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession, this._config),
-                    halign: "center",
+                    halign: this.displayConfigDefault.header.horizontalAlign,
                     visible: this.gridCommons.isColumnVisible("gene"),
                 },
                 {
@@ -631,7 +639,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => VariantGridFormatter.hgvsFormatter(row, this._config),
-                    halign: "center",
+                    halign: this.displayConfigDefault.header.horizontalAlign,
                     visible: this.gridCommons.isColumnVisible("hgvs"),
                 },
                 {
@@ -641,7 +649,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, this?.query?.ct, this._config),
-                    halign: "center",
+                    halign: this.displayConfigDefault.header.horizontalAlign,
                     visible: this.gridCommons.isColumnVisible("consequenceType"),
                 },
                 {
@@ -663,7 +671,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: VariantInterpreterGridFormatter.roleInCancerFormatter.bind(this),
-                    halign: "center",
+                    halign: this.displayConfigDefault.header.horizontalAlign,
                     visible: this.clinicalAnalysis.type?.toUpperCase() === "CANCER" && this.gridCommons.isColumnVisible("evidences"),
                     excludeFromSettings: !(this.clinicalAnalysis.type?.toUpperCase() === "CANCER"),
                 },
@@ -672,7 +680,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     title: "VCF File Data: " + vcfDataColumnNames.join(", "),
                     rowspan: 1,
                     colspan: vcfDataColumns?.length,
-                    halign: "center",
+                    halign: this.displayConfigDefault.header.horizontalAlign,
                 },
                 {
                     id: "cohort",
@@ -722,7 +730,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     title: "Methods",
                     rowspan: 1,
                     colspan: 1,
-                    halign: "center",
+                    halign: this.displayConfigDefault.header.horizontalAlign,
                 },
                 {
                     id: "interpretation",
@@ -737,7 +745,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "interpretation",
                     rowspan: 1,
                     colspan: 4,
-                    halign: "center"
+                    halign: this.displayConfigDefault.header.horizontalAlign,
                 },
                 {
                     id: "actions",
@@ -879,7 +887,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     formatter: (value, row) => VariantGridFormatter.caddScaledFormatter(value, row),
                     align: "right",
-                    halign: "center",
+                    halign: this.displayConfigDefault.header.horizontalAlign,
                     visible: this.gridCommons.isColumnVisible("cadd", "deleteriousness"),
                 },
                 {
@@ -890,7 +898,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     formatter: (value, row) => VariantGridFormatter.spliceAIFormatter(value, row),
                     align: "right",
-                    halign: "center",
+                    halign: this.displayConfigDefault.header.horizontalAlign,
                     visible: this.gridCommons.isColumnVisible("spliceai", "deleteriousness"),
                 },
                 ...vcfDataColumns,
@@ -1537,10 +1545,6 @@ export default class VariantInterpreterGrid extends LitElement {
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
 
             showReview: true,
             showEditReview: true,

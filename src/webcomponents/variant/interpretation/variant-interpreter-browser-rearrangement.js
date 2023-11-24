@@ -429,11 +429,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         // multiSelection: false,
                         // nucleotideGenotype: true,
                         alleleStringLengthMax: 25,
-                        header: {
-                            horizontalAlign: "center",
-                            verticalAlign: "bottom"
-                        },
-
                         isRearrangement: true,
                         quality: {
                             qual: 30,

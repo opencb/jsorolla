@@ -71,6 +71,12 @@ export default class JobGrid extends LitElement {
         this.autoRefresh = false;
         this.eventNotifyName = "messageevent";
         this._config = this.getDefaultConfig();
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     updated(changedProperties) {
@@ -685,10 +691,6 @@ export default class JobGrid extends LitElement {
             showSelectCheckbox: false,
             multiSelection: false,
             detailView: true,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
 
             showToolbar: true,
             showActions: true,

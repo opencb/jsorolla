@@ -65,6 +65,12 @@ export default class CohortGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     updated(changedProperties) {
@@ -298,7 +304,7 @@ export default class CohortGrid extends LitElement {
                             ${cohort.name ? `<span class="help-block" style="margin: 5px 0">${cohort.name}</span>` : ""}
                         </div>`;
                 },
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
@@ -306,7 +312,7 @@ export default class CohortGrid extends LitElement {
                 title: "Number of Samples",
                 field: "numSamples",
                 // formatter: (value, row) => row.numSamples ?? 0,
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("numSamples")
             },
             {
@@ -314,7 +320,7 @@ export default class CohortGrid extends LitElement {
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
@@ -470,10 +476,6 @@ export default class CohortGrid extends LitElement {
             multiSelection: false,
             showSelectCheckbox: false,
             detailView: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
 
             showToolbar: true,
             showActions: true,

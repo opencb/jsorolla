@@ -320,7 +320,6 @@ export default class OpencgaFileGrid extends LitElement {
                     }
                     return html;
                 },
-                // halign: this._config.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("sampleIds")
             },
             {

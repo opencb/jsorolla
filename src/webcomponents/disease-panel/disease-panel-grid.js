@@ -67,6 +67,12 @@ export default class DiseasePanelGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     updated(changedProperties) {
@@ -374,7 +380,7 @@ export default class DiseasePanelGrid extends LitElement {
                             <div style="margin: 5px 0">${idLinkHtml}</div>
                         </div>`;
                 },
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("name")
             },
             // {
@@ -392,7 +398,7 @@ export default class DiseasePanelGrid extends LitElement {
             //         }
             //         return row?.id ?? "-";
             //     },
-            //     halign: this._config.header.horizontalAlign,
+            //     halign: this.displayConfigDefault.header.horizontalAlign,
             //     visible: this.gridCommons.isColumnVisible("id")
             // },
             {
@@ -400,7 +406,7 @@ export default class DiseasePanelGrid extends LitElement {
                 title: "Disorders",
                 field: "disorders",
                 formatter: disorders => CatalogGridFormatter.disorderFormatter(disorders),
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("disorders")
             },
             {
@@ -455,7 +461,7 @@ export default class DiseasePanelGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 formatter: (value, row) => `
                     <div class="dropdown" style="display: flex; justify-content: center;">
                         <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
@@ -590,10 +596,6 @@ export default class DiseasePanelGrid extends LitElement {
             showSelectCheckbox: false,
             multiSelection: false,
             detailView: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
 
             showToolbar: true,
             showActions: true,

@@ -47,9 +47,14 @@ export default class DiseasePanelRegionView extends LitElement {
         this.regions = {};
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "GenePanelBrowserGrid";
-        this.displayConfigDefault = {};
         this._config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     // connectedCallback() {
@@ -128,7 +133,7 @@ export default class DiseasePanelRegionView extends LitElement {
                     title: "Region",
                     field: "name",
                     formatter: (value, row) => `${row.id}`,
-                    halign: this._config.header.horizontalAlign,
+                    halign: this.displayConfigDefault.header.horizontalAlign,
                 },
                 {
                     id: "modesOfInheritance",
@@ -165,7 +170,7 @@ export default class DiseasePanelRegionView extends LitElement {
                             return "-";
                         }
                     },
-                    halign: this._config.header.horizontalAlign,
+                    halign: this.displayConfigDefault.header.horizontalAlign,
                 },
                 {
                     id: "phenotypes",
@@ -225,10 +230,6 @@ export default class DiseasePanelRegionView extends LitElement {
             detailView: false,
             multiSelection: false,
             showToolbar: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            }
         };
     }
 

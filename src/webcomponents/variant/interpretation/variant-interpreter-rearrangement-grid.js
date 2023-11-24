@@ -986,11 +986,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             // genotype: {
             //     type: "VCF_CALL"
             // },
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
-
             quality: {
                 qual: 30,
                 dp: 20
