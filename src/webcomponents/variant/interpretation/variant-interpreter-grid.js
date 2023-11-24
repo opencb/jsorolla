@@ -1563,7 +1563,6 @@ export default class VariantInterpreterGrid extends LitElement {
             hideType: false,
             hidePopulationFrequencies: false,
             hideClinicalInfo: false,
-            showHgvs: false,
 
             quality: {
                 qual: 30,
