@@ -1077,8 +1077,6 @@ export default class VariantBrowserGrid extends LitElement {
             showCreate: false,
             showExport: true,
             showSettings: true,
-            showDownload: false,
-            showColumns: false,
             exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
             annotations: [],
             highlights: [],

@@ -271,8 +271,6 @@ export default class JobBrowser extends LitElement {
                         showSelectCheckbox: false,
 
                         showNew: true,
-                        showColumns: true,
-                        showDownload: false,
                         showExport: true,
                         exportTabs: ["download", "link", "code"]
                         // columns list for the dropdown will be added in grid components based on settings.table.columns

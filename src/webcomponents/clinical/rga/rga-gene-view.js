@@ -91,9 +91,7 @@ export default class RgaGeneView extends LitElement {
                     field: "variantStats.count,variantStats.numHomAlt,variantStats.numCompHet"
                 }
             ],
-            showColumns: true,
             showExport: false,
-            showDownload: true
         };
         this.requestUpdate();
         this.renderTable();

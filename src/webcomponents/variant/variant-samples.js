@@ -57,8 +57,6 @@ export default class VariantSamples extends LitElement {
             showCreate: false,
             showExport: true,
             showSettings: false,
-            showColumns: false,
-            showDownload: false,
         };
     }
 

@@ -119,9 +119,7 @@ export default class RgaIndividualView extends LitElement {
                     field: "attributes.OPENCGA_CLINICAL_ANALYSIS"
                 }
             ],
-            showColumns: true,
             showExport: false,
-            showDownload: true
         };
 
         this.renderTable();

@@ -135,9 +135,7 @@ export default class RgaVariantView extends LitElement {
                     field: "individualStats.missingParents.numCompHet"
                 }
             ],
-            showColumns: true,
             showExport: false,
-            showDownload: true
         };
     }
 
