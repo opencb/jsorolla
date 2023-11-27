@@ -32,7 +32,7 @@
     "no-unused-vars": ["warn", { "varsIgnorePattern": "^[A-Za-z]+$" }],
     "no-use-before-define": ["error", { "classes": false }],
     "padded-blocks": ["error", { "classes": "always" }],
-    "quotes": ["warn", "double"],
+    "quotes": ["warn", "double", {"allowTemplateLiterals": true}],
     "comma-dangle": ["error", "only-multiline"],
     "arrow-parens": ["error","as-needed"],
     "no-invalid-this": 0,

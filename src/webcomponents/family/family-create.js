@@ -127,20 +127,12 @@ export default class FamilyCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            type: "form",
+            // type: "form",
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => Object.keys(this.family).length > 0,
-                                notificationType: "warning",
-                            }
-                        },
                         {
                             title: "Family ID",
                             field: "id",
@@ -164,6 +156,7 @@ export default class FamilyCreate extends LitElement {
                             title: "Members",
                             field: "members",
                             type: "custom",
+                            required: true,
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 helpMessage: "Individual Ids",
@@ -243,11 +236,6 @@ export default class FamilyCreate extends LitElement {
                 //                 width: 12,
                 //                 style: "padding-left: 0px",
                 //                 render: family => html`
-                //                     <annotation-set-update
-                //                         .annotationSets="${family?.annotationSets}"
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         @changeAnnotationSets="${e => this.onFieldChange(e, "annotationSets")}">
-                //                     </annotation-set-update>
                 //                 `
                 //             }
                 //         }

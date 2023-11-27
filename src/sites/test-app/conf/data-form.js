@@ -30,6 +30,9 @@ export const DATA_FORM_EXAMPLE = {
         prefix: "test1",
         active: true,
     },
+    display: {
+        mode: "page",
+    },
     sections: [
         {
             title: "Input Text Field",
@@ -419,18 +422,18 @@ export const DATA_FORM_EXAMPLE = {
                     field: "inputTable",
                     type: "table",
                     display: {
-                        headerVisible: false,
+                        showHeader: false,
                         columns: [
                             {
                                 field: "inputColumn1",
                             },
                             {
                                 field: "inputColumn2",
-                                defaultValue: "false",
+                                formatter: value => value ?? "false",
                             },
                             {
                                 field: "inputColumn3",
-                                defaultValue: "-",
+                                formatter: value => value ?? "-",
                             },
                         ],
                     },

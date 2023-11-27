@@ -124,7 +124,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
             id: "clinical-interpretation",
             title: "Edit Interpretation " + this.clinicalInterpretation.id,
             // icon: "fas fa-edit",
-            type: this.mode,
+            mode: this.mode,
             description: "Update an interpretation",
             display: this.displayConfig,
             sections: [

@@ -19,8 +19,7 @@ import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../commons/utils/lit-utils";
-import "../commons/filters/catalog-search-autocomplete.js";
-
+import "../commons/filters/cellbase-search-autocomplete.js";
 
 export default class DiseasePanelCreate extends LitElement {
 
@@ -41,7 +40,10 @@ export default class DiseasePanelCreate extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
+            displayConfig: {
+                type: Object
+            },
         };
     }
 
@@ -65,12 +67,32 @@ export default class DiseasePanelCreate extends LitElement {
             //     }
             // ]
         };
+        this.isLoading = false;
+        // NOTE Vero 20231025: Probably not needed.
         this.annotatedGenes = {};
-
+        this.displayConfigDefault = {
+            style: "margin: 10px",
+            buttonOkText: "Create",
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+        };
         this._config = this.getDefaultConfig();
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig
+            };
+            this._config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
+    }
+
     onFieldChange(e) {
+        // CAUTION 20232310 Vero: I have added the Autocomplete search, so the query  would not be necessary
+        //  for "Add Item" but required for "Add Batch". Think about how to take advantage of autocomplete. Discuss with Nacho.
         // Get gene.name and coordinates
         if (e.detail?.data?.genes?.length > 0) {
             for (const gene of e.detail.data.genes) {
@@ -152,9 +174,18 @@ export default class DiseasePanelCreate extends LitElement {
     }
 
     onClear() {
-        this.diseasePanel = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
+        // this.diseasePanel = {};
+        // this._config = {...this.getDefaultConfig(), ...this.config};
+        // this.requestUpdate();
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Clear disease panel",
+            message: "Are you sure to clear?",
+            ok: () => {
+                this.diseasePanel = {};
+                this._config = this.getDefaultConfig();
+                this.requestUpdate();
+            },
+        });
     }
 
     onSubmit(e) {
@@ -177,6 +208,10 @@ export default class DiseasePanelCreate extends LitElement {
     }
 
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         return html`
             <data-form
                 .data="${this.diseasePanel}"
@@ -190,27 +225,12 @@ export default class DiseasePanelCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            type: "form",
-            display: {
-                buttonsVisible: true,
-                buttonOkText: "Create",
-                titleWidth: 3,
-                width: "8",
-                defaultValue: "",
-                defaultLayout: "horizontal",
-            },
+            // type: "form",
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => Object.keys(this.diseasePanel).length > 0,
-                                notificationType: "warning",
-                            }
-                        },
                         {
                             title: "Disease Panel ID",
                             field: "id",
@@ -248,7 +268,7 @@ export default class DiseasePanelCreate extends LitElement {
                                     field: "disorders[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add variant ID...",
+                                        placeholder: "Add disorder ID...",
                                     }
                                 },
                                 {
@@ -348,21 +368,18 @@ export default class DiseasePanelCreate extends LitElement {
                             },
                             elements: [
                                 {
-                                    title: "Gene",
+                                    title: "Gene Name",
                                     field: "genes[].name",
                                     type: "custom",
                                     display: {
-                                        placeholder: "Add gene...",
-                                        render: (data, dataFormFilterChange) => {
-                                            return html `
-                                                <feature-filter
-                                                    .query="${{gene: data}}"
-                                                    .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                                    .config="${{multiple: false}}"
-                                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                                </feature-filter>
-                                            `;
-                                        },
+                                        placeholder: "Add gene name...",
+                                        render: (data, dataFormFilterChange) => html`
+                                            <cellbase-search-autocomplete
+                                                .resource="${"GENE"}"
+                                                .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                                @filterChange="${e => dataFormFilterChange(e.detail.data.name)}">
+                                            </cellbase-search-autocomplete>
+                                        `,
                                     }
                                 },
                                 {

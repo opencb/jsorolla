@@ -17,6 +17,10 @@ export default class UtilsNew {
         return "warning";
     }
 
+    static isError(obj) {
+        return obj && Object.prototype.toString.call(obj) === "[object Error]";
+    }
+
     static isUndefined(obj) {
         return typeof obj === "undefined";
     }
@@ -210,8 +214,7 @@ export default class UtilsNew {
             ];
         }, true);
 
-        modalHeader.addEventListener("mouseup", e => {
-            e.preventDefault();
+        modalHeader.addEventListener("mouseup", () => {
             isDown = false;
         }, true);
 

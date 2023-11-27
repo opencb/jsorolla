@@ -49,12 +49,6 @@ export default class IndividualBrowser extends LitElement {
             query: {
                 type: Object
             },
-            /* facetQuery: {
-                type: Object
-            },
-            selectedFacet: {
-                type: Object
-            },*/
             settings: {
                 type: Object
             }
@@ -62,18 +56,10 @@ export default class IndividualBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
-
+        this.COMPONENT_ID = "individual-browser";
         this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
-    // is executed twice in case there is external settings
     update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
@@ -82,27 +68,54 @@ export default class IndividualBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
-        // merge filter list, canned filters, detail tabs
+        this._config = this.getDefaultConfig();
+
+        // Apply Study grid configuration
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-        if (this.settings?.table) {
-            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
-        }
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        }
+
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config?.filter?.result.grid,
+            ...this.settings.table
+        });
+
+        UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
+            ...this._config.filter?.result?.grid?.toolbar,
+            ...this.settings.table?.toolbar
+        });
+
+        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
+        });
+
+        this.requestUpdate();
+    }
+
+    onSettingsUpdate() {
+        this.settingsObserver();
+    }
+
+    onIndividualUpdate() {
+        this.settingsObserver();
     }
 
     render() {
-        return this.opencgaSession && this._config ? html`
+        if (!this.opencgaSession) {
+            return html`<div>Not valid session</div>`;
+        }
+
+        return html`
             <opencga-browser
                 resource="INDIVIDUAL"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}">
-            </opencga-browser>` : "";
+                .config="${this._config}"
+                @individualUpdate="${this.onIndividualUpdate}">
+            </opencga-browser>
+        `;
     }
 
     getDefaultConfig() {
@@ -117,12 +130,15 @@ export default class IndividualBrowser extends LitElement {
                     active: true,
                     render: params => html`
                         <individual-grid
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .query="${params.executedQuery}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "individual")}">
+                            @selectrow="${e => params.onClickRow(e, "individual")}"
+                            @individualUpdate="${e => params.onComponentUpdate(e, "individual")}"
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </individual-grid>
                         <individual-detail
                             .opencgaSession="${params.opencgaSession}"
@@ -143,11 +159,6 @@ export default class IndividualBrowser extends LitElement {
                             .data="${params.facetResults}">
                         </opencb-facet-results>`
                 }
-                /*
-                {
-                    id: "comparator-tab",
-                    name: "Comparator"
-                }*/
             ],
             filter: {
                 searchButton: false,
@@ -185,16 +196,16 @@ export default class IndividualBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "phenotypes",
-                                name: "Phenotype",
-                                placeholder: "Full-text search, e.g. *melanoma*",
+                                id: "disorders",
+                                name: "Disorder",
+                                placeholder: "Intellectual disability,Arthrogryposis...",
                                 multiple: true,
                                 description: ""
                             },
                             {
-                                id: "disorders",
-                                name: "Disorder",
-                                placeholder: "Intellectual disability,Arthrogryposis...",
+                                id: "phenotypes",
+                                name: "Phenotype",
+                                placeholder: "Full-text search, e.g. *melanoma*",
                                 multiple: true,
                                 description: ""
                             },
@@ -215,13 +226,6 @@ export default class IndividualBrowser extends LitElement {
                                 name: "Ethnicity",
                                 type: "string",
                                 placeholder: "White caucasian,asiatic...",
-                                description: ""
-                            },
-                            {
-                                id: "lifeStatus",
-                                name: "Life Status",
-                                allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
-                                multiple: true,
                                 description: ""
                             },
                             {
@@ -246,7 +250,7 @@ export default class IndividualBrowser extends LitElement {
                 result: {
                     grid: {
                         pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageList: [5, 10, 25],
                         detailView: true,
                         multiSelection: false,
                         showSelectCheckbox: false
@@ -313,7 +317,7 @@ export default class IndividualBrowser extends LitElement {
                         {
                             id: "json-view",
                             name: "JSON Data",
-                            render: (individual, active, opencgaSession) => html`
+                            render: (individual, active) => html`
                                 <json-viewer
                                     .data="${individual}"
                                     .active="${active}">

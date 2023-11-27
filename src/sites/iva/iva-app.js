@@ -31,7 +31,6 @@ import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
 import NotificationManager from "../../core/notification-manager.js";
 
-import AnalysisRegistry from "../../webcomponents/variant/analysis/analysis-registry.js";
 import "../../webcomponents/clinical/clinical-analysis-browser.js";
 import "../../webcomponents/clinical/clinical-analysis-portal.js";
 import "../../webcomponents/variant/variant-browser.js";
@@ -101,6 +100,7 @@ import "../../webcomponents/commons/layouts/custom-landing.js";
 
 import "../../webcomponents/clinical/rga/rga-browser.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
+import ExtensionsManager from "../../webcomponents/extensions-manager.js";
 
 class IvaApp extends LitElement {
 
@@ -230,13 +230,19 @@ class IvaApp extends LitElement {
             // Admin
             "study-admin",
             "study-admin-iva",
-            "catalog-admin",
+            // "catalog-admin",
             "study-variant-admin",
             "opencga-admin",
             "variants-admin",
             "projects-admin",
             // REST-API
-            "rest-api"];
+            "rest-api",
+        ];
+
+        // Add custom tools
+        ExtensionsManager
+            .getTools()
+            .forEach(tool => components.push(tool.id));
 
         for (const component of components) {
             _config.enabledComponents[component] = false;
@@ -375,7 +381,10 @@ class IvaApp extends LitElement {
                     active: true,
                     prefix: opencgaPrefix,
                 },
-                sso: opencgaSsoActive,
+                sso: {
+                    active: opencgaSsoActive,
+                    cookie: opencgaSsoCookie,
+                },
             });
 
             this.reactomeClient = new ReactomeClient();
@@ -632,13 +641,14 @@ class IvaApp extends LitElement {
         await this.opencgaClient.logout();
 
         // Check if sso is active: we will redirect to 'meta/sso/logout' endpoint
-        if (this.opencgaClient?._config?.sso) {
+        if (this.opencgaClient?._config?.sso?.active) {
             // eslint-disable-next-line no-undef
-            Cookies.expire("JSESSIONID");
+            Cookies.expire(this.opencgaClient._config.sso.cookie);
 
             const config = this.opencgaClient._config;
             const ivaUrl = window.location;
             window.location = `${config.host}/webservices/rest/${config.version}/meta/sso/logout?url=${ivaUrl}`;
+            return;
         }
 
         this._createOpencgaSessionFromConfig();
@@ -649,34 +659,34 @@ class IvaApp extends LitElement {
         window.clearInterval(this.intervalCheckSession);
     }
 
-    async saveLastStudy(newStudy) {
-        const userConfig = await this.opencgaClient.updateUserConfigs({
-            ...this.opencgaSession.user.configs.IVA,
-            lastStudy: newStudy.fqn
-        });
-        this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
-    }
+    // async saveLastStudy(newStudy) {
+    //     const userConfig = await this.opencgaClient.updateUserConfig({
+    //         ...this.opencgaSession.user.configs.IVA,
+    //         lastStudy: newStudy.fqn
+    //     });
+    //     this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
+    // }
 
-    onUrlChange(e) {
-        let hashFrag = e.detail.id;
-        if (UtilsNew.isNotUndefined(this.opencgaSession.project) && UtilsNew.isNotEmpty(this.opencgaSession.project.alias)) {
-
-            hashFrag += "/" + this.opencgaSession.project.alias;
-            if (UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
-                hashFrag += "/" + this.opencgaSession.study.alias;
-            }
-        }
-
-        const myQueryParams = [];
-        for (const key in e.detail.query) {
-            myQueryParams.push(key + "=" + e.detail.query[key]);
-        }
-        if (myQueryParams.length > 0) {
-            hashFrag += `?${myQueryParams.join("&")}`;
-        }
-
-        window.location.hash = hashFrag;
-    }
+    // onUrlChange(e) {
+    //     let hashFrag = e.detail.id;
+    //     if (UtilsNew.isNotUndefined(this.opencgaSession.project) && UtilsNew.isNotEmpty(this.opencgaSession.project.alias)) {
+    //
+    //         hashFrag += "/" + this.opencgaSession.project.alias;
+    //         if (UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
+    //             hashFrag += "/" + this.opencgaSession.study.alias;
+    //         }
+    //     }
+    //
+    //     const myQueryParams = [];
+    //     for (const key in e.detail.query) {
+    //         myQueryParams.push(key + "=" + e.detail.query[key]);
+    //     }
+    //     if (myQueryParams.length > 0) {
+    //         hashFrag += `?${myQueryParams.join("&")}`;
+    //     }
+    //
+    //     window.location.hash = hashFrag;
+    // }
 
     // TODO: we should move this code to an OpenCGA Utils
     checkSessionActive() {
@@ -942,7 +952,7 @@ class IvaApp extends LitElement {
 
         if (studyFound) {
             // Update the lastStudy in config iff has changed
-            this.opencgaClient.updateUserConfigs({...this.opencgaSession.user.configs, lastStudy: studyFqn});
+            this.opencgaClient.updateUserConfig("IVA", {...this.opencgaSession.user.configs["IVA"], lastStudy: studyFqn});
 
             // This is a terrible hack to exit interpreter when we change the current study
             if (this.tool === "#interpreter") {
@@ -1274,7 +1284,6 @@ class IvaApp extends LitElement {
             }
 
             <!-- This is where main IVA application is rendered -->
-            ${console.log("Enabled components", Object.keys(this.config.enabledComponents).filter(key => this.config.enabledComponents[key])) }
             <div class="container-fluid" style="min-height:calc(100vh - 100px);">
                 ${this.config.enabledComponents.home ? html`
                     <div class="content" id="home">
@@ -1318,7 +1327,8 @@ class IvaApp extends LitElement {
                 ${this.config.enabledComponents?.aboutzetta ? html`
                     <div class="content" id="faq">
                         <custom-page
-                            .page="${this.config.aboutPage}">
+                            .page="${this.config.aboutPage}"
+                            .opencgaSession="${this.opencgaSession}">
                         </custom-page>
                     </div>
                 ` : null}
@@ -1685,7 +1695,7 @@ class IvaApp extends LitElement {
                 <cohort-browser
                     .opencgaSession="${this.opencgaSession}"
                     .query="${this.queries.cohort}"
-                    .settigns="${this.settings.COHORT_BROWSER}"
+                    .settings="${this.settings.COHORT_BROWSER}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "cohort")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "cohort")}">
                 </cohort-browser>
@@ -1697,6 +1707,7 @@ class IvaApp extends LitElement {
                 <clinical-analysis-browser
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.settings.CLINICAL_ANALYSIS_BROWSER}"
+                    .config="${{componentId: "clinicalAnalysisBrowserCatalog"}}"
                     .query="${this.queries["clinical-analysis"]}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "clinical-analysis")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "clinical-analysis")}">
@@ -2057,6 +2068,14 @@ class IvaApp extends LitElement {
                         <rest-api .opencgaSession="${this.opencgaSession}"></rest-api>
                     </div>
                 ` : null}
+
+                ${ExtensionsManager.getTools().map(tool => html`
+                    ${this.config.enabledComponents[tool.id] ? html`
+                        <div class="content">
+                            ${tool.render(this.opencgaSession)}
+                        </div>
+                    ` : null}
+                `)}
             </div>
 
             <custom-footer

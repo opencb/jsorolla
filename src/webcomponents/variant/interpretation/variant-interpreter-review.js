@@ -117,8 +117,11 @@ export default class VariantInterpreterReview extends LitElement {
                     const displayConfig = {
                         titleVisible: false,
                         width: 8,
+                        modalButtonClassName: "btn-default btn-sm",
+                        buttonsLayout: "top",
                         buttonsWidth: 8,
                     };
+
                     return html`
                         <div class="col-md-10 col-md-offset-1">
                             <tool-header
@@ -186,7 +189,7 @@ export default class VariantInterpreterReview extends LitElement {
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .clinicalVariants="${variants || []}"
                                         .active="${active}"
-                                        .toolId="${"variantInterpreterCancerSNV"}"
+                                        .toolId="${"variant-interpreter-cancer-snv"}"
                                         .gridConfig="${gridConfig}"
                                         .settings="${this.settings.browsers["CANCER_SNV"]}">
                                     </variant-interpreter-review-primary>
@@ -225,7 +228,7 @@ export default class VariantInterpreterReview extends LitElement {
                                             .clinicalAnalysis="${clinicalAnalysis}"
                                             .clinicalVariants="${variants || []}"
                                             .active="${active}"
-                                            .toolId="${"variantInterpreterCancerCNV"}"
+                                            .toolId="${"variant-interpreter-cancer-cnv"}"
                                             .gridConfig="${gridConfig}"
                                             .settings="${this.settings.browsers["CANCER_CNV"]}">
                                         </variant-interpreter-review-primary>
@@ -266,7 +269,7 @@ export default class VariantInterpreterReview extends LitElement {
                                             .clinicalAnalysis="${clinicalAnalysis}"
                                             .clinicalVariants="${variants || []}"
                                             .active="${active}"
-                                            .toolId="${"variantInterpreterRearrangement"}"
+                                            .toolId="${"variant-interpreter-rearrangement"}"
                                             .gridConfig="${gridConfig}"
                                             .settings="${this.settings.browsers["REARRANGEMENT"]}">
                                         </variant-interpreter-review-primary>
@@ -307,7 +310,7 @@ export default class VariantInterpreterReview extends LitElement {
                                             .clinicalAnalysis="${clinicalAnalysis}"
                                             .clinicalVariants="${variants || []}"
                                             .active="${active}"
-                                            .toolId="${"variantInterpreterRD"}"
+                                            .toolId="${"variant-interpreter-rd"}"
                                             .gridConfig="${gridConfig}"
                                             .settings="${this.settings.browsers["RD"]}">
                                         </variant-interpreter-review-primary>
@@ -347,7 +350,7 @@ export default class VariantInterpreterReview extends LitElement {
                                             .clinicalAnalysis="${clinicalAnalysis}"
                                             .clinicalVariants="${variants || []}"
                                             .active="${active}"
-                                            .toolId="${"variantInterpreterRearrangement"}"
+                                            .toolId="${"variant-interpreter-rearrangement"}"
                                             .gridConfig="${gridConfig}"
                                             .settings="${this.settings.browsers["REARRANGEMENT"]}">
                                         </variant-interpreter-review-primary>
@@ -385,7 +388,7 @@ export default class VariantInterpreterReview extends LitElement {
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .clinicalVariants="${variants}"
                                     .active="${active}"
-                                    .toolId="${"variantInterpreterRD"}"
+                                    .toolId="${"variant-interpreter-rd"}"
                                     .gridConfig="${gridConfig}"
                                     .settings="${this.settings.browsers["RD"]}">
                                 </variant-interpreter-review-primary>

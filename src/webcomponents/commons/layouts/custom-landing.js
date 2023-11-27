@@ -45,6 +45,7 @@ export default class CustomLanding extends LitElement {
     }
 
     render() {
+        const ukcaSection = this.config?.landingPage?.organisation?.ukca || {};
         return html`
             <style>
                 .landing-wrapper {
@@ -91,6 +92,24 @@ export default class CustomLanding extends LitElement {
                 .landing-wrapper > .landing-company > .landing-title {
                     color: #f2f4f6;
                 }
+
+                .landing-wrapper > .landing-company > .landing-ukca {
+                    display: flex;
+                    align-items: flex-end;
+                    flex:0;
+                }
+                .landing-wrapper > .landing-company > .landing-ukca > .landing-ukca-logo {
+                    flex: 0;
+                }
+                .landing-wrapper > .landing-company > .landing-ukca > .landing-ukca-description {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-self: stretch;
+                    justify-content: space-around;
+                }
+
+
                 .landing-wrapper > .landing > .landing-title {
                     flex:0;
                     margin: 0;
@@ -117,8 +136,6 @@ export default class CustomLanding extends LitElement {
                     align-items: flex-end;
                     margin-bottom: 0;
                 }
-
-
 
                 .landing-logo > img {
                     margin: 1em;
@@ -152,7 +169,7 @@ export default class CustomLanding extends LitElement {
             </style>
             <div class="landing-wrapper">
                 <div class="landing-company">
-                    <!-- Landing logo section -->
+                    <!-- Landing company section -->
                     ${this.config?.landingPage?.organisation?.logo?.img ? html`
                         <div class="landing-logo ${this.config.landingPage?.organisation?.display?.logoClass}"
                              style="${this.config.landingPage?.organisation?.display?.logoStyle}">
@@ -169,6 +186,36 @@ export default class CustomLanding extends LitElement {
                         <div class="landing-title ${this.config.landingPage?.organisation?.display?.titleClass}"
                              style="${this.config.landingPage?.organisation?.display?.titleStyle}">
                             ${this.config.landingPage?.organisation?.title}
+                        </div>
+                    ` : null}
+                    <!-- Landing ukca margin section -->
+                    ${ukcaSection?.enabled ? html`
+                        <div class="landing-ukca">
+                            <div class="landing-ukca-logo">
+                                <div class="${ukcaSection.display?.logoClass}">
+                                    ${ukcaSection?.logo?.link ? html `
+                                        <a href="${ukcaSection?.logo?.link}" target="_blank">
+                                            <img height="${ukcaSection?.logo?.height || "100px"}"
+                                                 src="${ukcaSection?.logo?.img}"
+                                                 style="${ukcaSection?.display?.logoStyle || "padding: 1em; margin-right: 30px; background-color: white"}"/>
+                                        </a>
+                                    `: html `
+                                        <img height="${ukcaSection?.logo?.height || "100px"}"
+                                             src="${ukcaSection?.logo?.img}"
+                                             style="${ukcaSection?.display?.logoStyle || "padding: 1em; margin-right: 30px; background-color: white"}"/>
+                                    `}
+                                </div>
+                            </div>
+                            <div class="landing-ukca-description">
+                                <div class="landing-ukca-title ${ukcaSection?.display?.titleClass}"
+                                     style="${ukcaSection?.display?.titleStyle || "color: #f2f4f6; font-size:20px"}">
+                                    ${ukcaSection?.title}
+                                </div>
+                                <div class="landing-ukca-content ${ukcaSection?.display?.contentClass}"
+                                     style="${ukcaSection?.display?.contentStyle || "color: #8d9ab8"}">
+                                    ${ukcaSection?.content || ""}
+                                </div>
+                            </div>
                         </div>
                     ` : null}
                 </div>
@@ -195,20 +242,22 @@ export default class CustomLanding extends LitElement {
                     ` : null}
                     <!-- Landing login -->
                     <div class="landing-login">
-                        ${this.opencgaSession?.opencgaClient?._config?.sso ? html`
+                        ${this.opencgaSession?.opencgaClient?._config?.sso?.active ? html`
                             <div>
-                                <a class="btn-group" role="group" href="${this.getSSOUrl()}">
-                                    <button type="button" class="btn btn-primary btn-lg" style="">
-                                        <i class="fas fa-user"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-lg">
-                                        <strong style="color:white;">Login with SSO</strong>
-                                    </button>
-                                </a>
-                            </div>
-                            <div class="landing-login-sso-helper">
-                                By clicking on the <b>Login with SSO</b> button you will be redirected to your SSO login
-                                page.
+                                <div align="center">
+                                    <a class="btn-group" role="group" href="${this.getSSOUrl()}">
+                                        <button type="button" class="btn btn-primary btn-lg" style="">
+                                            <i class="fas fa-user"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-lg">
+                                            <strong style="color:white;">Login with SSO</strong>
+                                        </button>
+                                    </a>
+                                </div>
+                                <div class="landing-login-sso-helper">
+                                    By clicking on the <b>Login with SSO</b> button you will be redirected to your SSO login
+                                    page.
+                                </div>
                             </div>
                         ` : html`
                             <user-login
@@ -217,7 +266,6 @@ export default class CustomLanding extends LitElement {
                         `}
                     </div>
                 </div>
-
             </div>
         `;
     }

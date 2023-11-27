@@ -528,13 +528,11 @@ class SteinerReport extends LitElement {
                             type: "table",
                             display: {
                                 style: "width:auto",
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {
                                         field: "field",
-                                        display: {
-                                            style: "font-weight: bold",
-                                        },
+                                        formatter: value => `<span style="font-weight:bold">${value}</span>`
                                     },
                                     {
                                         field: "value",
@@ -557,7 +555,7 @@ class SteinerReport extends LitElement {
                             type: "table",
                             display: {
                                 style: "width:auto",
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {field: "field"},
                                     {field: "value"},
@@ -570,7 +568,7 @@ class SteinerReport extends LitElement {
                             type: "table",
                             display: {
                                 style: "width:auto",
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {field: "field"},
                                     {field: "value"},
@@ -583,7 +581,7 @@ class SteinerReport extends LitElement {
                             type: "table",
                             display: {
                                 style: "width:auto",
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {field: "field"},
                                     {field: "value"},
@@ -596,7 +594,7 @@ class SteinerReport extends LitElement {
                             type: "table",
                             display: {
                                 style: "width:auto",
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {field: "field"},
                                     {field: "value"},
@@ -612,7 +610,7 @@ class SteinerReport extends LitElement {
                                 transform: somaticCallingInfo => somaticCallingInfo.sort((a, b) => {
                                     return a.rank - b.rank;
                                 }),
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {field: "type"},
                                     {field: "name"},
@@ -629,7 +627,7 @@ class SteinerReport extends LitElement {
                                 transform: data => data.sort((a, b) => {
                                     return a.rank - b.rank;
                                 }),
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {field: "type"},
                                     {field: "caller"},
@@ -646,7 +644,7 @@ class SteinerReport extends LitElement {
                                 transform: germlineCallingInfo => germlineCallingInfo.sort((a, b) => {
                                     return a.rank - b.rank;
                                 }),
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {field: "type"},
                                     {field: "name"},
@@ -802,7 +800,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1);
 
                                     const gridConfig = {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.snv]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: false,
                                         variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
@@ -834,7 +832,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1);
 
                                     const gridConfig = {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.rearrangements]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: false,
                                         variantTypes: ["BREAKEND"],
@@ -882,7 +880,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => v.confidence?.value === "HIGH");
 
                                     return this.renderSomaticVariantsGrid(filteredVariants, {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.snv]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: true,
                                         variantTypes: ["SNV", "INDEL"],
@@ -905,7 +903,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => v.confidence?.value === "HIGH");
 
                                     return this.renderSomaticRearrangementVariantsGrid(filteredVariants, {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.rearrangements]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: true,
                                         variantTypes: ["BREAKEND"],
@@ -928,7 +926,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => v.confidence?.value === "HIGH");
 
                                     return this.renderSomaticVariantsGrid(filteredVariants, {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.cnv]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.cnv]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: true,
                                         variantTypes: ["COPY_NUMBER", "CNV"],
@@ -960,7 +958,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => !v.confidence?.value || v.confidence?.value !== "HIGH");
 
                                     return this.renderSomaticVariantsGrid(filteredVariants, {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.snv]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: true,
                                         variantTypes: ["SNV", "INDEL"],
@@ -981,7 +979,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => !v.confidence?.value || v.confidence?.value !== "HIGH");
 
                                     return this.renderSomaticRearrangementVariantsGrid(filteredVariants, {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.rearrangements]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: true,
                                         variantTypes: ["BREAKEND"],
@@ -1002,7 +1000,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => !v.confidence?.value || v.confidence?.value !== "HIGH");
 
                                     return this.renderSomaticVariantsGrid(filteredVariants, {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.cnv]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.cnv]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: true,
                                         variantTypes: ["COPY_NUMBER", "CNV"],

@@ -10,5 +10,4 @@ jobs:
     uses: ./.github/workflows/test.yml
     with:
       test_profile: runShortTests,runMediumTests,runLongTests
-      report_context: development
     secrets: inherit

@@ -27,6 +27,22 @@ const OPENCGA_INDIVIDUAL_BROWSER_SETTINGS = {
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
         // It is supported either columns[] or hiddenColumns[].
         columns: ["id", "samples", "father", "mother", "disorders", "phenotypes", "caseId", "sex", "ethnicity", "dateOfBirth", "creationDate", "actions"]
+
+        // Example:
+        // annotations: [
+        //     {
+        //         title: "Cardiology Tests",
+        //         position: 3,
+        //         variableSetId: "cardiology_tests_checklist",
+        //         variables: ["ecg_test", "echo_test"]
+        //     },
+        //     {
+        //         title: "Risk Assessment",
+        //         position: 5,
+        //         variableSetId: "risk_assessment",
+        //         variables: ["vf_cardiac_arrest_events"]
+        //     }
+        // ]
     },
     // merge criterium: uses this array as filter for internal 1D array.
     details: ["individual-view", "clinical-analysis-grid", "individual-inferred-sex", "individual-mendelian-error", "json-view"]

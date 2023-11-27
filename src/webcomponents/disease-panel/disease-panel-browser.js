@@ -56,7 +56,8 @@ export default class DiseasePanelBrowser extends LitElement {
     }
 
     _init() {
-        this._config = this.getDefautlConfig();
+        this.COMPONENT_ID = "disease-panel-browser";
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
@@ -68,27 +69,39 @@ export default class DiseasePanelBrowser extends LitElement {
 
     settingsObserver() {
         this._config = {
-            ...this.getDefautlConfig(),
+            ...this.getDefaultConfig(),
             ...(this.config || {}),
         };
 
+        // Apply Study settings
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
 
-        if (this.settings?.table) {
-            this._config.filter.result.grid = {
-                ...this._config.filter.result.grid,
-                ...this.settings.table,
-            };
-        }
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config?.filter?.result.grid,
+            ...this.settings?.table
+        });
 
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {
-                ...this._config.filter.result.grid.toolbar,
-                ...this.settings.table.toolbar,
-            };
-        }
+        UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
+            ...this._config.filter?.result?.grid?.toolbar,
+            ...this.settings?.table?.toolbar
+        });
+
+        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
+        });
+
+        this.requestUpdate();
+    }
+
+    onSettingsUpdate() {
+        this.settingsObserver();
+    }
+    onDiseasePanelUpdate() {
+        this.settingsObserver();
     }
 
     render() {
@@ -98,12 +111,13 @@ export default class DiseasePanelBrowser extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .cellbaseClient="${this.cellbaseClient}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @diseasePanelUpdate="${this.onDiseasePanelUpdate}">
             </opencga-browser>
         `;
     }
 
-    getDefautlConfig() {
+    getDefaultConfig() {
         return {
             title: "Disease Panel Browser",
             icon: "fab fa-searchengin",
@@ -115,13 +129,16 @@ export default class DiseasePanelBrowser extends LitElement {
                     active: true,
                     render: params => html`
                         <disease-panel-grid
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .query="${params.executedQuery}"
                             .search="${params.executedQuery}"
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "diseasePanel")}">
+                            @selectrow="${e => params.onClickRow(e, "diseasePanel")}"
+                            @diseasePanelUpdate="${e => params.onComponentUpdate(e, "diseasePanel")}"
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </disease-panel-grid>
                         <disease-panel-detail
                             .opencgaSession="${params.opencgaSession}"
@@ -207,11 +224,6 @@ export default class DiseasePanelBrowser extends LitElement {
                                 field: "tags",
                                 resource: "DISEASE_PANEL"
                             },
-                            // {
-                            //     id: "date",
-                            //     name: "Date",
-                            //     description: ""
-                            // }
                         ]
                     }
                 ],
@@ -219,7 +231,7 @@ export default class DiseasePanelBrowser extends LitElement {
                 result: {
                     grid: {
                         pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageList: [5, 10, 25],
                         multiSelection: false,
                         showSelectCheckbox: false
                     }
