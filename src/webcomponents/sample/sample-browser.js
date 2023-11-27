@@ -78,6 +78,7 @@ export default class SampleBrowser extends LitElement {
                 ...toolbar,
             });
         }
+        // this._config = UtilsNew.mergeTableSetting(this._config, this.settings);
 
         // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {

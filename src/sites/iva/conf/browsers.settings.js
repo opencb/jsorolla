@@ -124,6 +124,8 @@ const CATALOG_SETTINGS = {
         },
         table: {
             // merge criterium: spread operator
+            pageSize: 10,
+            pageList: [10, 25],
             toolbar: {
                 showSettings: true,
                 showColumns: false,

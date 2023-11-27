@@ -171,7 +171,7 @@ export default class SampleGrid extends LitElement {
                 pageList: this._config.pageList,
                 paginationVAlign: "both",
                 formatShowingRows: this.gridCommons.formatShowingRows,
-                detailView: this._config.detailView,
+                detailView: !!this.detailFormatter,
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
@@ -573,7 +573,7 @@ export default class SampleGrid extends LitElement {
             pageList: [5, 10, 25],
             multiSelection: false,
             showSelectCheckbox: false,
-            detailView: false,
+            // detailView: true,
 
             showToolbar: true,
             showActions: true,
@@ -582,6 +582,15 @@ export default class SampleGrid extends LitElement {
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],
+
+            // toolbar: {
+            //     showSettings: true,
+            //     showColumns: false,
+            //     showDownload: false,
+            //     showExport: true,
+            //     exportTabs: ["download", "link", "code"]
+            //     // columns list for the dropdown will be added in grid components based on settings.table.columns
+            // },
         };
     }
 

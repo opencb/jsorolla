@@ -552,7 +552,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                     align: "center",
-                    nucleotideGenotype: true,
+                    // nucleotideGenotype: true,
                     visible: this.gridCommons.isColumnVisible(this.samples[i].id, "samples"),
                 });
             }
@@ -764,7 +764,7 @@ export default class VariantBrowserGrid extends LitElement {
                     title: "Select",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: this.checkFormatter.bind(this),
+                    formatter: (value, row) => this.checkFormatter(value, row),
                     align: "center",
                     events: {
                         "click input": this.onCheck.bind(this)
@@ -1021,7 +1021,7 @@ export default class VariantBrowserGrid extends LitElement {
                 const results = response.getResults();
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
-                    const dataString = VariantUtils.jsonToTabConvert(results, this.populationFrequencies.studies, this.samples, this._config.nucleotideGenotype, e.detail.exportFields);
+                    const dataString = VariantUtils.jsonToTabConvert(results, this.populationFrequencies.studies, this.samples, this._config?.genotype?.type?.toUpperCase() === "ALLELES", e.detail.exportFields);
                     UtilsNew.downloadData(dataString, "variants_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                 } else {
                     UtilsNew.downloadData(JSON.stringify(results), "variants_" + this.opencgaSession.study.id + ".json", "application/json");
@@ -1068,7 +1068,11 @@ export default class VariantBrowserGrid extends LitElement {
             detailView: true,
             showSelectCheckbox: false,
             multiSelection: false,
-            nucleotideGenotype: true,
+            // nucleotideGenotype: true,
+            genotype: {
+                type: "VCF_CALL"
+            },
+
             alleleStringLengthMax: 15,
 
             showToolbar: true,
