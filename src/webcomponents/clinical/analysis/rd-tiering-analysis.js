@@ -165,7 +165,7 @@ export default class RdTieringAnalysis extends LitElement {
                                 // Get the list of disease panels for the dropdown
                                 let diseasePanels = [];
                                 if (casePanelLock) {
-                                    for (const panelId of panels.split(",")) {
+                                    for (const panelId of (panels || "").split(",")) {
                                         const diseasePanel = this.opencgaSession.study?.panels?.find(p => p.id === panelId);
                                         if (diseasePanel) {
                                             diseasePanels.push(diseasePanel);
@@ -177,7 +177,7 @@ export default class RdTieringAnalysis extends LitElement {
                                 return html`
                                     <select-field-filter
                                         .data="${diseasePanels}"
-                                        .value=${panels}
+                                        .value=${panels || ""}
                                         .liveSearch=${diseasePanels?.length > 5}
                                         .multiple="${true}"
                                         .disabled="${casePanelLock}"
