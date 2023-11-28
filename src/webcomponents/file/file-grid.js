@@ -529,7 +529,7 @@ export default class OpencgaFileGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            showCreate: false,
+            showCreate: true,
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],

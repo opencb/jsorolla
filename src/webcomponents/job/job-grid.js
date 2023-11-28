@@ -695,7 +695,7 @@ export default class JobGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            showCreate: false,
+            showCreate: true,
             showExport: true,
             showSettings: true,
             showRefresh: true,
