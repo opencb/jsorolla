@@ -611,6 +611,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         return VariantInterpreterGridFormatter.geneFeatureOverlapFormatter(rows[0], this.opencgaSession);
                     },
                     halign: "center",
+                    valign: "top",
                     visible: this.gridCommons.isColumnVisible("geneFeatureOverlapVariant1"),
                 },
                 {
@@ -622,6 +623,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         return VariantInterpreterGridFormatter.geneFeatureOverlapFormatter(rows[1], this.opencgaSession);
                     },
                     halign: "center",
+                    valign: "top",
                     visible: this.gridCommons.isColumnVisible("geneFeatureOverlapVariant2"),
                 },
                 ...vcfDataColumns.vcf1,
