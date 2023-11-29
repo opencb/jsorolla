@@ -1073,6 +1073,7 @@ export default class VariantInterpreterGridFormatter {
                     <div data-role="gene-feature-overlaps-list">
                         ${displayedOverlaps.slice(0, maxDisplayedOverlaps).join(separator)}
                         <div data-role="gene-feature-overlaps-list-extra" style="display:none">
+                            ${separator}
                             ${displayedOverlaps.slice(maxDisplayedOverlaps).join(separator)}
                         </div>
                         <div style="margin-top:8px;display:${overlaps.length > maxDisplayedOverlaps ? "block" : "none"}">
