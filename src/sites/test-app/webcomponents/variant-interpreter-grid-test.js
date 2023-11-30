@@ -66,7 +66,6 @@ class VariantInterpreterGridTest extends LitElement {
             showReview: true,
             showActions: true,
             showSelectCheckbox: true,
-            multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
 

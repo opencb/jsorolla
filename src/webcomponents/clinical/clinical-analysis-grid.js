@@ -892,7 +892,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
             pageSize: 10,
             pageList: [5, 10, 25],
             showSelectCheckbox: false,
-            multiSelection: false,
 
             showToolbar: true,
             showActions: true,

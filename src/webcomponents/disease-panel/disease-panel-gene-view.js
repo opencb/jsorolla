@@ -263,7 +263,6 @@ export default class DiseasePanelGeneView extends LitElement {
             pageSize: 5,
             pageList: [5, 10, 25],
             showExport: false,
-            multiSelection: false,
             showToolbar: false,
         };
     }

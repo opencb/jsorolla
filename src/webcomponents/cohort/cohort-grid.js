@@ -285,6 +285,7 @@ export default class CohortGrid extends LitElement {
     }
 
     _getDefaultColumns() {
+        // 1. Default columns
         this._columns = [
             {
                 id: "id",
@@ -317,11 +318,11 @@ export default class CohortGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
-
+        // 2. Annotations
         if (this._config.annotations?.length > 0) {
             this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
-
+        // 3. Actions
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
                 id: "actions",
@@ -349,25 +350,15 @@ export default class CohortGrid extends LitElement {
                             </li>
                         </ul>
                     </div>`,
-                // valign: "middle",
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
                 visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
-
-        if (this._config.multiSelection) {
-            this._columns.unshift({
-                field: "state",
-                checkbox: true,
-                class: "cursor-pointer",
-                eligible: false
-            });
-        }
-
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        // 4. Extensions
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+
         return this._columns;
     }
 
@@ -466,7 +457,6 @@ export default class CohortGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            multiSelection: false,
             showSelectCheckbox: false,
 
             showToolbar: true,

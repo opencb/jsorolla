@@ -235,9 +235,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                         readOnlyMode: false,
                         pageSize: 10,
                         pageList: [5, 10, 25],
-                        multiSelection: false,
-                        showActions: true,
-                        showCreate: false,
                     }
                 },
                 detail: {

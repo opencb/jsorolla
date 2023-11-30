@@ -210,13 +210,7 @@ export default class SampleBrowser extends LitElement {
                     grid: {
                         pageSize: 10,
                         pageList: [5, 10, 25],
-                        multiSelection: false,
                         showSelectCheckbox: false,
-                        showToolbar: true,
-                        showCreate: true,
-                        showExport: true,
-                        showSettings: true,
-                        exportTabs: ["download", "link", "code"]
                     }
                 },
                 detail: {

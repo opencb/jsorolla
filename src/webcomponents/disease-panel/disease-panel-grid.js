@@ -353,6 +353,7 @@ export default class DiseasePanelGrid extends LitElement {
     }
 
     _getDefaultColumns() {
+        // 1. Default columns
         this._columns = [
             {
                 id: "name",
@@ -447,7 +448,11 @@ export default class DiseasePanelGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("source")
             },
         ];
-
+        // 2. Annotations
+        if (this._config.annotations?.length > 0) {
+            this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
+        }
+        // 3. Actions
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
                 id: "actions",
@@ -497,8 +502,9 @@ export default class DiseasePanelGrid extends LitElement {
                 visible: !this._config.columns?.hidden?.includes("actions"),
             });
         }
-
+        // 4. Extensions
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+
         return this._columns;
     }
 
@@ -586,7 +592,6 @@ export default class DiseasePanelGrid extends LitElement {
             pageSize: 10,
             pageList: [5, 10, 25],
             showSelectCheckbox: false,
-            multiSelection: false,
 
             showToolbar: true,
             showActions: true,

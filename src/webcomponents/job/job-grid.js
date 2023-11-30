@@ -391,6 +391,7 @@ export default class JobGrid extends LitElement {
     }
 
     _getDefaultColumns() {
+        // 1. Default columns
         this._columns = [
             {
                 id: "id",
@@ -524,7 +525,11 @@ export default class JobGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
-
+        // 2. Annotations
+        if (this._config.annotations?.length > 0) {
+            this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
+        }
+        // 3. Actions
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
                 id: "actions",
@@ -568,9 +573,9 @@ export default class JobGrid extends LitElement {
                 visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
-
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        // 4. Extensions
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+
         return this._columns;
     }
 
@@ -671,7 +676,6 @@ export default class JobGrid extends LitElement {
             pageSize: 10,
             pageList: [5, 10, 25],
             showSelectCheckbox: false,
-            multiSelection: false,
 
             showToolbar: true,
             showActions: true,

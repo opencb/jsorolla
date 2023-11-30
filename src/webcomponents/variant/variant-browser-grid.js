@@ -145,7 +145,6 @@ export default class VariantBrowserGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarSetting = {
             ...this._config,
-            showCreate: false, // Caution: Ignore a possible admin configuration change to showCreate: true.
             // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
             // gridColumns: this._getDefaultColumns() // original column structure
         };
@@ -615,6 +614,7 @@ export default class VariantBrowserGrid extends LitElement {
             }
         }
 
+        // 1. Default columns
         this._columns = [
             [
                 {
@@ -961,11 +961,9 @@ export default class VariantBrowserGrid extends LitElement {
                 },
             ]
         ];
-
-        // Inject columns for extensions
+        // 2. Extensions: Inject columns for extensions
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns);
 
-        // this._columns = UtilsNew.mergeTable(this._columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         return this._columns;
     }
 
@@ -1057,7 +1055,6 @@ export default class VariantBrowserGrid extends LitElement {
             pageSize: 10,
             pageList: [5, 10, 25],
             showSelectCheckbox: false,
-            multiSelection: false,
             // nucleotideGenotype: true,
             genotype: {
                 type: "VCF_CALL"

@@ -1522,7 +1522,6 @@ export default class VariantInterpreterGrid extends LitElement {
             pageSize: 10,
             pageList: [5, 10, 25],
             showSelectCheckbox: false,
-            multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
 

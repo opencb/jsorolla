@@ -548,11 +548,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                         // pagination: true,
                         // pageSize: 10,
                         // pageList: [5, 10, 25],
-                        // showExport: false,
-                        // showReview: true,
-                        // showActions: true,
                         showSelectCheckbox: true,
-                        // multiSelection: false,
                         // nucleotideGenotype: true,
                         // alleleStringLengthMax: 10,
 

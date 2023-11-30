@@ -609,7 +609,6 @@ export default class RgaVariantView extends LitElement {
             pageSize: 10,
             pageList: [10, 25, 50],
             showExport: false,
-            multiSelection: false,
             populationFrequencies: [
                 "GNOMAD_EXOMES:ALL",
                 "GNOMAD_GENOMES:ALL",

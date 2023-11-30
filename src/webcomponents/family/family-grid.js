@@ -293,18 +293,11 @@ export default class FamilyGrid extends LitElement {
         `;
 
         if (UtilsNew.isNotEmptyArray(row.members)) {
-            let tableCheckboxHeader = "";
-
-            if (this._config.multiSelection) {
-                tableCheckboxHeader = "<th>Select</th>";
-            }
-
             result += `
                 <div style="width: 90%;padding-left: 20px">
                     <table class="table table-hover table-no-bordered">
                         <thead>
                             <tr class="table-header">
-                                ${tableCheckboxHeader}
                                 <th>ID</th>
                                 <th>Sex</th>
                                 <th>Father</th>
@@ -320,25 +313,6 @@ export default class FamilyGrid extends LitElement {
             `;
 
             for (const member of row.members) {
-                let tableCheckboxRow = "";
-                // If parent row is checked and there is only one samlpe then it must be selected
-                if (this._config.multiSelection) {
-                    let checkedStr = "";
-                    for (const family of this.families) {
-                        if (family.id === row.id && row.members.length === 1) {
-                            // TODO check member has been checked before, we need to store them
-                            checkedStr = "checked";
-                            break;
-                        }
-                    }
-
-                    tableCheckboxRow = `
-                        <td>
-                            <input id='${this.prefix}${member.id}Checkbox' type='checkbox' ${checkedStr}>
-                        </td>
-                    `;
-                }
-
                 const father = (UtilsNew.isNotEmpty(member.father.id)) ? member.father.id : "-";
                 const mother = (UtilsNew.isNotEmpty(member.mother.id)) ? member.mother.id : "-";
                 const affectation = (UtilsNew.isNotEmpty(member.affectationStatus)) ? member.affectationStatus : "-";
@@ -348,7 +322,6 @@ export default class FamilyGrid extends LitElement {
 
                 result += `
                     <tr class="detail-view-row">
-                        ${tableCheckboxRow}
                         <td>${member.id}</td>
                         <td>${member.sex?.id || member.sex || "Not specified"}</td>
                         <td>${father}</td>
@@ -392,7 +365,8 @@ export default class FamilyGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        // Check column visibility
+        // 1. Default columns
+        // Check columns' visibility
         this._columns = [
             {
                 id: "id",
@@ -465,11 +439,11 @@ export default class FamilyGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
-
+        // 2. Annotations
         if (this._config.annotations?.length > 0) {
             this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
-
+        // 3. Actions
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
                 id: "actions",
@@ -531,9 +505,9 @@ export default class FamilyGrid extends LitElement {
                 visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
-
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        // 4. Extensions
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+
         return this._columns;
     }
 
@@ -621,7 +595,6 @@ export default class FamilyGrid extends LitElement {
             pageSize: 10,
             pageList: [5, 10, 25],
             showSelectCheckbox: false,
-            multiSelection: false,
 
             showToolbar: true,
             showActions: true,

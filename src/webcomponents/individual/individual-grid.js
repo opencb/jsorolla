@@ -307,18 +307,11 @@ export default class IndividualGrid extends LitElement {
                     <h5 style="font-weight: bold">Samples</h5>
         `;
         if (UtilsNew.isNotEmptyArray(row.samples)) {
-            let tableCheckboxHeader = "";
-
-            if (this._config && this._config.multiSelection) {
-                tableCheckboxHeader = "<th>Select</th>";
-            }
-
             result += `
                 <div style="width: 90%;padding-left: 20px">
                     <table class="table table-hover table-no-bordered">
                         <thead>
                             <tr class="table-header">
-                                ${tableCheckboxHeader}
                                 <th>Sample ID</th>
                                 <th>Source</th>
                                 <th>Collection Method</th>
@@ -332,25 +325,6 @@ export default class IndividualGrid extends LitElement {
             `;
 
             for (const sample of row.samples) {
-                let tableCheckboxRow = "";
-                // If parent row is checked and there is only one sample then it must be selected
-                if (this._config.multiSelection) {
-                    let checkedStr = "";
-                    for (const individual of this.individuals) {
-                        if (individual.id === row.id && row.samples.length === 1) {
-                            // TODO check sample has been checked before, we need to store them
-                            checkedStr = "checked";
-                            break;
-                        }
-                    }
-
-                    tableCheckboxRow = `
-                        <td>
-                            <input id='${this.prefix}${sample.id}Checkbox' type='checkbox' ${checkedStr}>
-                        </td>
-                    `;
-                }
-
                 const source = sample.source?.name || sample.source?.id || "-";
                 const collectionMethod = sample.collection?.method || "-";
                 const preparationMethod = sample.processing?.preparationMethod || "-";
@@ -359,7 +333,6 @@ export default class IndividualGrid extends LitElement {
 
                 result += `
                     <tr class="detail-view-row">
-                        ${tableCheckboxRow}
                         <td>${sample.id}</td>
                         <td>${source}</td>
                         <td>${collectionMethod}</td>
@@ -409,6 +382,7 @@ export default class IndividualGrid extends LitElement {
     }
 
     _getDefaultColumns() {
+        // 1. Default columns
         this._columns = [
             {
                 id: "id",
@@ -527,25 +501,27 @@ export default class IndividualGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
-
+        // 2. Annotations
         // Example of custom annotation configuration:
-        // this._config.annotations = [
-        //     {
-        //         title: "Cardiology Tests",
-        //         position: 6,
-        //         variableSetId: "cardiology_tests_checklist",
-        //         variables: ["ecg_test", "echo_test"]
-        //     },
-        //     {
-        //         title: "Risk Assessment",
-        //         position: 7,
-        //         variableSetId: "risk_assessment",
-        //     }
-        // ];
+        /*
+        this._config.annotations = [
+            {
+                title: "Cardiology Tests",
+                position: 6,
+                variableSetId: "cardiology_tests_checklist",
+                variables: ["ecg_test", "echo_test"]
+            },
+            {
+                title: "Risk Assessment",
+                position: 7,
+                variableSetId: "risk_assessment",
+            }
+        ];
+        */
         if (this._config.annotations?.length > 0) {
             this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
-
+        // 3. Actions
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
                 id: "actions",
@@ -607,9 +583,9 @@ export default class IndividualGrid extends LitElement {
                 visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
-
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        // 4. Extensions
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+
         return this._columns;
     }
 
