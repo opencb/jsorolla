@@ -195,7 +195,6 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             return;
         }
         const variantRegion = this.variantAnnotation.chromosome + ":" + this.variantAnnotation.start + "-" + this.variantAnnotation.start;
-
         const variantId = this.variantAnnotation.id ? this.variantAnnotation.id : `${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}:${this.variantAnnotation.reference}:${this.variantAnnotation.alternate}`;
 
         return html`

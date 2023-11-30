@@ -445,7 +445,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 },
                 detail: {
                     title: variants => {
-                        return `Selected Variants: ${variants[0].id} - ${variants[1].id}`;
+                        return `Selected Variants: ${variants?.[0]?.id} - ${variants?.[1]?.id}`;
                     },
                     showTitle: true,
                     items: [
@@ -468,7 +468,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                             name: "Variant 1 JSON Data",
                             render: (variants, active) => html`
                                 <json-viewer
-                                    .data="${variants[0]}"
+                                    .data="${variants?.[0]}"
                                     .active="${active}">
                                 </json-viewer>
                             `,
@@ -478,7 +478,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                             name: "Variant 2 JSON Data",
                             render: (variants, active) => html`
                                 <json-viewer
-                                    .data="${variants[1]}"
+                                    .data="${variants?.[1]}"
                                     .active="${active}">
                                 </json-viewer>
                             `,
