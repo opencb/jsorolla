@@ -142,8 +142,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 paginationVAlign: "both",
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                gridContext: this,
+                detailView: !!this.detailFormatter,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     let response = null;
@@ -894,7 +893,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
             pageList: [5, 10, 25],
             showSelectCheckbox: false,
             multiSelection: false,
-            detailView: false,
 
             showToolbar: true,
             showActions: true,

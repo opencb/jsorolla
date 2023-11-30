@@ -417,7 +417,6 @@ class VariantInterpreterBrowserCNV extends LitElement {
                         // pageSize: 10,
                         // pageList: [5, 10, 25],
                         // showExport: false,
-                        // detailView: true,
                         // showReview: false,
                         // showActions: true,
                         showSelectCheckbox: true,

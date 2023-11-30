@@ -175,9 +175,8 @@ export default class FamilyGrid extends LitElement {
                 paginationVAlign: "both",
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                detailFormatter: this.detailFormatter,
-                gridContext: this,
+                detailView: !!this.detailFormatter,
+                detailFormatter: (value, row) => this.detailFormatter(value, row),
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     const sort = this.table.bootstrapTable("getOptions").sortName ? {
@@ -240,36 +239,18 @@ export default class FamilyGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element, field) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onDblClickRow: (row, element) => {
+                    this.detailFormatter ?
+                        this.table.bootstrapTable("toggleDetailView", element[0].dataset.index) :
+                        nothing;
                 },
-                onCheck: (row, $element) => {
-                    this.gridCommons.onCheck(row.id, row);
-                },
-                onCheckAll: rows => {
-                    this.gridCommons.onCheckAll(rows);
-                },
-                onUncheck: (row, $element) => {
-                    this.gridCommons.onUncheck(row.id, row);
-                },
-                onUncheckAll: rows => {
-                    this.gridCommons.onUncheckAll(rows);
-                },
-                onLoadSuccess: data => {
-                    this.gridCommons.onLoadSuccess(data, 1);
-                },
+                onCheck: row => this.gridCommons.onCheck(row.id, row),
+                onCheckAll: rows => this.gridCommons.onCheckAll(rows),
+                onUncheck: row => this.gridCommons.onUncheck(row.id, row),
+                onUncheckAll: rows => this.gridCommons.onUncheckAll(rows),
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPostBody: data => {
-                }
             });
         }
     }
@@ -289,11 +270,10 @@ export default class FamilyGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
-            gridContext: this,
+            detailView: !!this.detailFormatter,
+            detailFormatter: (value, row) => this.detailFormatter(value, row),
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
@@ -315,7 +295,7 @@ export default class FamilyGrid extends LitElement {
         if (UtilsNew.isNotEmptyArray(row.members)) {
             let tableCheckboxHeader = "";
 
-            if (this.gridContext._config.multiSelection) {
+            if (this._config.multiSelection) {
                 tableCheckboxHeader = "<th>Select</th>";
             }
 
@@ -342,9 +322,9 @@ export default class FamilyGrid extends LitElement {
             for (const member of row.members) {
                 let tableCheckboxRow = "";
                 // If parent row is checked and there is only one samlpe then it must be selected
-                if (this.gridContext._config.multiSelection) {
+                if (this._config.multiSelection) {
                     let checkedStr = "";
-                    for (const family of this.gridContext.families) {
+                    for (const family of this.families) {
                         if (family.id === row.id && row.members.length === 1) {
                             // TODO check member has been checked before, we need to store them
                             checkedStr = "checked";
@@ -354,7 +334,7 @@ export default class FamilyGrid extends LitElement {
 
                     tableCheckboxRow = `
                         <td>
-                            <input id='${this.gridContext.prefix}${member.id}Checkbox' type='checkbox' ${checkedStr}>
+                            <input id='${this.prefix}${member.id}Checkbox' type='checkbox' ${checkedStr}>
                         </td>
                     `;
                 }
@@ -642,8 +622,6 @@ export default class FamilyGrid extends LitElement {
             pageList: [5, 10, 25],
             showSelectCheckbox: false,
             multiSelection: false,
-            detailFormatter: this.detailFormatter, // function with the detail formatter
-            detailView: true,
 
             showToolbar: true,
             showActions: true,

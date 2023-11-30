@@ -134,10 +134,10 @@ export default class PermissionBrowserGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             showExport: this._config.showExport,
-            detailView: this._config.detailView,
+            detailView: !!this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
@@ -156,7 +156,7 @@ export default class PermissionBrowserGrid extends LitElement {
     }
 
 
-    async onCheck(e, value, row, group, context) {
+    async onCheck(e, value, row, group) {
         console.log("Row selected:", e.currentTarget.checked, group, row.id);
         // Row selected: true @test WRITE_INDIVIDUALS
         const isChecked = e.currentTarget.checked;
@@ -256,7 +256,6 @@ export default class PermissionBrowserGrid extends LitElement {
             pageSize: 25,
             pageList: [25, 50],
             showExport: false,
-            detailView: false,
             multiSelection: false,
             showSelectCheckbox: true,
             showToolbar: true,

@@ -152,7 +152,6 @@ export default class RgaVariantAllelePairs extends LitElement {
             pagination: this._config.pagination,
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
-            gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
                 try {
@@ -176,14 +175,14 @@ export default class RgaVariantAllelePairs extends LitElement {
                     params.error(e);
                 }
             },
-            onClickRow: (row, selectedElement, field) => {
+            onClickRow: row => {
                 console.log(row);
             },
-            onLoadSuccess: data => {
+            onLoadSuccess: () => {
                 // this is not triggered in case of static data
             },
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-            onPostBody: data => UtilsNew.initTooltip(this)
+            onPostBody: () => UtilsNew.initTooltip(this)
         });
     }
 
@@ -287,7 +286,7 @@ export default class RgaVariantAllelePairs extends LitElement {
         }
     }
 
-    consequenceTypeFormatter(value, row) {
+    consequenceTypeFormatter(value) {
         if (value) {
             const CTs = value.filter(ct => ~this._config.consequenceTypes.indexOf(ct.name));
             const filteredCTs = value.filter(ct => !~this._config.consequenceTypes.indexOf(ct.name));

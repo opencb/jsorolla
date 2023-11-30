@@ -403,7 +403,6 @@ class SteinerReport extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [10, 25, 50],
-            detailView: true,
             showReview: true,
             showEditReview: false,
             showActions: false,

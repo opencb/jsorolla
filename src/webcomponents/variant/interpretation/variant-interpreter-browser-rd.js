@@ -549,7 +549,6 @@ class VariantInterpreterBrowserRd extends LitElement {
                         // pageSize: 10,
                         // pageList: [5, 10, 25],
                         // showExport: false,
-                        // detailView: true,
                         // showReview: true,
                         // showActions: true,
                         showSelectCheckbox: true,

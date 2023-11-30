@@ -179,9 +179,8 @@ export default class IndividualGrid extends LitElement {
                 paginationVAlign: "both",
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                detailFormatter: this.detailFormatter,
-                gridContext: this,
+                detailView: !!this.detailFormatter,
+                detailFormatter: (value, row) => this.detailFormatter(value, row),
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     const sort = this.table.bootstrapTable("getOptions").sortName ? {
@@ -247,15 +246,9 @@ export default class IndividualGrid extends LitElement {
                 },
                 onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onDblClickRow: (row, element) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
+                    this.detailFormatter ?
+                        this.table.bootstrapTable("toggleDetailView", element[0].dataset.index) :
+                        nothing;
                 },
                 onCheck: row => {
                     this.gridCommons.onCheck(row.id, row);
@@ -292,9 +285,8 @@ export default class IndividualGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
-            gridContext: this,
+            detailView: !!this.detailFormatter,
+            detailFormatter: (value, row) => this.detailFormatter(value, row),
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
@@ -314,11 +306,10 @@ export default class IndividualGrid extends LitElement {
                 <div class='col-md-12'>
                     <h5 style="font-weight: bold">Samples</h5>
         `;
-
         if (UtilsNew.isNotEmptyArray(row.samples)) {
             let tableCheckboxHeader = "";
 
-            if (this.gridContext._config && this.gridContext._config.multiSelection) {
+            if (this._config && this._config.multiSelection) {
                 tableCheckboxHeader = "<th>Select</th>";
             }
 
@@ -343,9 +334,9 @@ export default class IndividualGrid extends LitElement {
             for (const sample of row.samples) {
                 let tableCheckboxRow = "";
                 // If parent row is checked and there is only one sample then it must be selected
-                if (this.gridContext._config.multiSelection) {
+                if (this._config.multiSelection) {
                     let checkedStr = "";
-                    for (const individual of this.gridContext.individuals) {
+                    for (const individual of this.individuals) {
                         if (individual.id === row.id && row.samples.length === 1) {
                             // TODO check sample has been checked before, we need to store them
                             checkedStr = "checked";
@@ -355,7 +346,7 @@ export default class IndividualGrid extends LitElement {
 
                     tableCheckboxRow = `
                         <td>
-                            <input id='${this.gridContext.prefix}${sample.id}Checkbox' type='checkbox' ${checkedStr}>
+                            <input id='${this.prefix}${sample.id}Checkbox' type='checkbox' ${checkedStr}>
                         </td>
                     `;
                 }
@@ -688,16 +679,14 @@ export default class IndividualGrid extends LitElement {
                     modalDraggable: true,
                     modalCyDataName: "modal-update",
                 },
-                render: active => {
-                    return html `
-                        <individual-update
-                            .individualId="${this.individualUpdateId}"
-                            .active="${active}"
-                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </individual-update>
-                    `;
-                }
+                render: active => html `
+                    <individual-update
+                        .individualId="${this.individualUpdateId}"
+                        .active="${active}"
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </individual-update>
+                `,
             })}
         `;
     }
@@ -707,9 +696,7 @@ export default class IndividualGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            multiSelection: false,
             showSelectCheckbox: false,
-            detailView: true,
             showToolbar: true,
             showActions: true,
 

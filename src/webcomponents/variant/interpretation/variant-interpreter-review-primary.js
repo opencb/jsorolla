@@ -349,7 +349,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     pageList: [10, 25, 50],
                     showExport: true,
                     exportFilename: exportFilename,
-                    detailView: true,
                     showReview: true,
                     showActions: true,
                     showGenomeBrowserLink: false,

@@ -114,7 +114,6 @@ export default class RgaVariantIndividual extends LitElement {
             pagination: true,
             paginationVAlign: "both",
             formatShowingRows: (pageFrom, pageTo, totalRows) => this.formatShowingRows(pageFrom, pageTo, totalRows),
-            gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
                 try {
@@ -176,10 +175,10 @@ export default class RgaVariantIndividual extends LitElement {
                 this.requestUpdate();
                 return result.response;
             },
-            onClickRow: (row, selectedElement, field) => {
+            onClickRow: row => {
                 console.log(row);
             },
-            onLoadSuccess: data => {
+            onLoadSuccess: () => {
                 // this is not triggered in case of static data
             },
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
@@ -224,7 +223,6 @@ export default class RgaVariantIndividual extends LitElement {
             pagination: true,
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
-            gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
                 try {

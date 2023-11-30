@@ -37,7 +37,7 @@ export default class VariantConsequenceTypeView extends LitElement {
             active: {
                 type: Boolean
             }
-        }
+        };
     }
 
     _init() {
@@ -53,11 +53,11 @@ export default class VariantConsequenceTypeView extends LitElement {
     }
 
     _getConsequenceTypeColorMap() {
-        let consequenceTypeToColor = {};
+        const consequenceTypeToColor = {};
         if (CONSEQUENCE_TYPES) {
-            for (let categoryIndex in CONSEQUENCE_TYPES.categories) {
-                let terms = CONSEQUENCE_TYPES.categories[categoryIndex].terms;
-                for (let termIndex in terms) {
+            for (const categoryIndex in CONSEQUENCE_TYPES.categories) {
+                const terms = CONSEQUENCE_TYPES.categories[categoryIndex].terms;
+                for (const termIndex in terms) {
                     consequenceTypeToColor[terms[termIndex].name] = CONSEQUENCE_TYPES.style[terms[termIndex].impact];
                 }
             }
@@ -75,8 +75,8 @@ export default class VariantConsequenceTypeView extends LitElement {
         if (row.transcriptId) {
             let exonOverlap = "NA";
             if (row.exonOverlap) {
-                let exons = [];
-                for (let exon in row.exonOverlap) {
+                const exons = [];
+                for (const exon in row.exonOverlap) {
                     exons.push(`${row.exonOverlap[exon].number} (${row.exonOverlap[exon].percentage})`);
                 }
                 exonOverlap = exons.join(", ");
@@ -96,13 +96,13 @@ export default class VariantConsequenceTypeView extends LitElement {
         detailHtml += `<div style='padding: 20px 0px 10px 25px'><h4>Protein Annotation</h4></div>
                             <div style='padding: 0px 40px'>`;
         if (row.proteinVariantAnnotation) {
-            let protAnnot = row.proteinVariantAnnotation;
-            let uniprotAcc = protAnnot.uniprotAccession ? `<a href="https://www.uniprot.org/uniprot/${protAnnot.uniprotAccession}" target="_blank">${protAnnot.uniprotAccession}</a>` : "NA";
-            let keywords = protAnnot.keywords ? protAnnot.keywords.join(", ") : "NA";
+            const protAnnot = row.proteinVariantAnnotation;
+            const uniprotAcc = protAnnot.uniprotAccession ? `<a href="https://www.uniprot.org/uniprot/${protAnnot.uniprotAccession}" target="_blank">${protAnnot.uniprotAccession}</a>` : "NA";
+            const keywords = protAnnot.keywords ? protAnnot.keywords.join(", ") : "NA";
             let domains = "NA";
             if (protAnnot.features && protAnnot.features.length) {
-                let _domains = [];
-                for (let domainIndex in protAnnot.features) {
+                const _domains = [];
+                for (const domainIndex in protAnnot.features) {
                     _domains.push(protAnnot.features[domainIndex].id);
                 }
                 domains = `${_domains.join(", ")} (check all protein domains at <a href="https://www.ebi.ac.uk/interpro/protein/reviewed/${protAnnot.uniprotAccession}" target="_blank">InterPro</a>)`;
@@ -121,7 +121,7 @@ export default class VariantConsequenceTypeView extends LitElement {
         return result;
     }
 
-    geneNameFormatter(value, row, index) {
+    geneNameFormatter(value) {
         if (value) {
             return `<a href="https://www.genenames.org/tools/search/#!/all?query=${value}" target="_blank">${value}</a>`;
         } else {
@@ -129,7 +129,7 @@ export default class VariantConsequenceTypeView extends LitElement {
         }
     }
 
-    ensemblGeneFormatter(value, row, index) {
+    ensemblGeneFormatter(value) {
         if (value) {
             return `<a href="https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${value}" target="_blank">${value}</a>`;
         } else {
@@ -137,7 +137,7 @@ export default class VariantConsequenceTypeView extends LitElement {
         }
     }
 
-    ensemblTranscriptFormatter(value, row, index) {
+    ensemblTranscriptFormatter(value) {
         if (value) {
             return `<a href="https://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${value}" target="_blank">${value}</a>`;
         } else {
@@ -145,7 +145,7 @@ export default class VariantConsequenceTypeView extends LitElement {
         }
     }
 
-    transcriptFlagFormatter(value, row, index) {
+    transcriptFlagFormatter(value, row) {
         if (row.transcriptId) {
             return row.transcriptFlags && row.transcriptFlags.length ? row.transcriptFlags.join(", ") : "NA";
         } else {
@@ -153,13 +153,13 @@ export default class VariantConsequenceTypeView extends LitElement {
         }
     }
 
-    consequenceTypeFormatter(values, row, index) {
+    consequenceTypeFormatter(values) {
         if (values) {
-            let result = [];
-            for (let soTerm of values) {
-                let color = this._consequenceTypeColorMap && this._consequenceTypeColorMap[soTerm.name]
-                    ? this._consequenceTypeColorMap[soTerm.name]
-                    : "black";
+            const result = [];
+            for (const soTerm of values) {
+                const color = this._consequenceTypeColorMap && this._consequenceTypeColorMap[soTerm.name] ?
+                    this._consequenceTypeColorMap[soTerm.name] :
+                    "black";
                 result.push(`<span style="color: ${color}">${soTerm.name}</span>&nbsp;(<a href="http://www.sequenceontology.org/browser/current_svn/term/${soTerm.accession}" target="_blank">${soTerm.accession}</a>)`);
             }
             return result.join("<br>");
@@ -168,7 +168,7 @@ export default class VariantConsequenceTypeView extends LitElement {
         }
     }
 
-    uniprotAccessionFormatter(value, row, index) {
+    uniprotAccessionFormatter(value) {
         if (value && value.uniprotAccession) {
             return `<a href="https://www.uniprot.org/uniprot/${value.uniprotAccession}" target="_blank">${value.uniprotAccession}</a>`;
         } else {
@@ -176,7 +176,7 @@ export default class VariantConsequenceTypeView extends LitElement {
         }
     }
 
-    proteinAlleleFormatter(value, row, index) {
+    proteinAlleleFormatter(value) {
         if (value && value.reference && value.alternate) {
             return value.reference + "/" + value.alternate;
         } else {
@@ -184,11 +184,11 @@ export default class VariantConsequenceTypeView extends LitElement {
         }
     }
 
-    siftScoreFormatter(value, row, index) {
+    siftScoreFormatter(value) {
         if (value) {
-            for (let i in value) {
+            for (const i in value) {
                 if (value[i].source === "sift") {
-                    let color = PROTEIN_SUBSTITUTION_SCORE.style.sift[value[i].description];
+                    const color = PROTEIN_SUBSTITUTION_SCORE.style.sift[value[i].description];
                     return `<span title="${value[i].score}" style="color: ${color}">${value[i].description}</span>`;
                 }
             }
@@ -197,11 +197,11 @@ export default class VariantConsequenceTypeView extends LitElement {
         }
     }
 
-    polyphenScoreFormatter(value, row, index) {
+    polyphenScoreFormatter(value) {
         if (value) {
-            for (let i in value) {
+            for (const i in value) {
                 if (value[i].source === "polyphen") {
-                    let color = PROTEIN_SUBSTITUTION_SCORE.style.polyphen[value[i].description];
+                    const color = PROTEIN_SUBSTITUTION_SCORE.style.polyphen[value[i].description];
                     return `<span title="${value[i].score}" style="color: ${color}">${value[i].description}</span>`;
                 }
             }
@@ -217,8 +217,8 @@ export default class VariantConsequenceTypeView extends LitElement {
             data: this.consequenceTypes,
             pagination: true,
             showExport: true,
-            detailView: true,
-            detailFormatter: this.detailFormatter,
+            detailView: !!this.detailFormatter,
+            detailFormatter: (value, row) => this.detailFormatter(value, row),
             columns: [
                 [
                     {

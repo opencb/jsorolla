@@ -169,8 +169,7 @@ export default class CohortGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            gridContext: this,
+            detailView: !!this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
@@ -213,7 +212,7 @@ export default class CohortGrid extends LitElement {
                 paginationVAlign: "both",
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
-                detailView: this._config.detailView,
+                detailView: !!this.detailFormatter,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     const sort = this.table.bootstrapTable("getOptions").sortName ? {
@@ -244,15 +243,9 @@ export default class CohortGrid extends LitElement {
                 },
                 onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onDblClickRow: (row, element) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            $(PolymerUtils.getElementById(this._prefix + "CohortBrowserGrid")).bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            $(PolymerUtils.getElementById(this._prefix + "CohortBrowserGrid")).bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
+                    this.detailFormatter ?
+                        this.table.bootstrapTable("toggleDetailView", element[0].dataset.index) :
+                        nothing;
                 },
                 onCheck: row => {
                     this.gridCommons.onCheck(row.id, row);
@@ -475,7 +468,6 @@ export default class CohortGrid extends LitElement {
             pageList: [5, 10, 25],
             multiSelection: false,
             showSelectCheckbox: false,
-            detailView: false,
 
             showToolbar: true,
             showActions: true,

@@ -180,8 +180,7 @@ export default class DiseasePanelGrid extends LitElement {
                 paginationVAlign: "both",
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                gridContext: this,
+                detailView: !!this.detailFormatter,
                 formatLoadingMessage: () => String.raw`<div><loading-spinner></loading-spinner></div>`,
                 ajax: async params => {
                     this.filters = {
@@ -208,15 +207,9 @@ export default class DiseasePanelGrid extends LitElement {
                 },
                 onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onDblClickRow: (row, element) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
+                    this.detailFormatter ?
+                        this.table.bootstrapTable("toggleDetailView", element[0].dataset.index) :
+                        nothing;
                 },
                 onCheck: row => {
                     this.gridCommons.onCheck(row.id, row);
@@ -263,8 +256,7 @@ export default class DiseasePanelGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            gridContext: this,
+            detailView: !!this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
@@ -438,7 +430,7 @@ export default class DiseasePanelGrid extends LitElement {
                 formatter: (value, row) => {
                     if (row?.source) {
                         const {id, author, project, version} = row.source;
-                        let projectAndVersion = "";
+                        let projectAndVersion;
                         if (project?.toUpperCase() === "PANELAPP") {
                             projectAndVersion = `
                             <a href="https://panelapp.genomicsengland.co.uk/api/v1/panels/${id}/?version=${version}" target="_blank">
@@ -462,7 +454,7 @@ export default class DiseasePanelGrid extends LitElement {
                 title: "Actions",
                 field: "actions",
                 halign: this.displayConfigDefault.header.horizontalAlign,
-                formatter: (value, row) => `
+                formatter: () => `
                     <div class="dropdown" style="display: flex; justify-content: center;">
                         <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
                             <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
@@ -595,7 +587,6 @@ export default class DiseasePanelGrid extends LitElement {
             pageList: [5, 10, 25],
             showSelectCheckbox: false,
             multiSelection: false,
-            detailView: false,
 
             showToolbar: true,
             showActions: true,

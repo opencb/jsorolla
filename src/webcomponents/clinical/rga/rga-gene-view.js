@@ -17,8 +17,6 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import GridCommons from "../../commons/grid-commons.js";
-import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class RgaGeneView extends LitElement {
@@ -48,29 +46,22 @@ export default class RgaGeneView extends LitElement {
             }
         };
     }
-
     _init() {
         this._prefix = "rga-g-" + UtilsNew.randomString(6) + "_";
         this.gridId = this._prefix + "RgaGeneBrowserGrid";
         this.prevQuery = {};
         this._query = {};
     }
-
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
-
-    firstUpdated(_changedProperties) {
-    }
-
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") || changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
     }
-
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign(this.getDefaultConfig(), this.config);
@@ -96,7 +87,6 @@ export default class RgaGeneView extends LitElement {
         this.requestUpdate();
         this.renderTable();
     }
-
     renderTable() {
         this._query = {...this.query, study: this.opencgaSession.study.fqn};
         // Checks if the component is not visible or the query hasn't changed (NOT the latter anymore)
@@ -121,7 +111,7 @@ export default class RgaGeneView extends LitElement {
             paginationVAlign: "both",
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
-            detailView: this._config.detailView,
+            detailView: !!this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
                 const _filters = {
@@ -160,12 +150,12 @@ export default class RgaGeneView extends LitElement {
                 const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                 return result.response;
             },
-            onClickRow: (row, selectedElement, field) => {
+            onClickRow: (row, selectedElement) => {
                 console.log(row);
                 // console.log("variant facet", this.restResponse.getResult(1).buckets.find(gene => gene.value === row.value))
                 this.gridCommons.onClickRow(row.id, row, selectedElement);
             },
-            onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
+            onCheck: row => this.gridCommons.onCheck(row.id, row),
             onLoadSuccess: data => {
                 this.gridCommons.onLoadSuccess(data, 1);
             },
@@ -312,7 +302,7 @@ export default class RgaGeneView extends LitElement {
         ];
     }
 
-    async updateTotalIndividual(id, field) {
+    async updateTotalIndividual(id) {
         console.log("id", id);
         this.table.bootstrapTable("updateCellByUniqueId", {id: id, field: "name", value: "loading"});
         const totalIndividualMap = await this.getIndividualInfo(id);

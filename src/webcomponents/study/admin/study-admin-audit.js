@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import GridCommons from "../../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
@@ -103,7 +103,7 @@ export default class StudyAdminAudit extends LitElement {
                     this.groupsMap.set(group.id, group.users);
                 }
             } else {
-                for (const group of response.responses[0].results) {
+                for (const group of resp.responses[0].results) {
                     this.groupsMap.set(group.id, group.userIds.map(u => {
                         return {id: u, name: u};
                     }));
@@ -141,9 +141,8 @@ export default class StudyAdminAudit extends LitElement {
                 // paginationVAlign: "both",
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                detailFormatter: this.detailFormatter,
-                gridContext: this,
+                detailView: !!this.detailFormatter,
+                detailFormatter: (value, row) => this.detailFormatter(value, row),
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     const query = {
@@ -168,23 +167,17 @@ export default class StudyAdminAudit extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element, field) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onDblClickRow: (row, element) => {
+                    this.detailFormatter ?
+                        this.table.bootstrapTable("toggleDetailView", element[0].dataset.index) :
+                        nothing;
                 },
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPostBody: data => {
+                onPostBody: () => {
                     // Add tooltips?
                 }
             });
@@ -264,7 +257,6 @@ export default class StudyAdminAudit extends LitElement {
             pageSize: 10,
             pageList: [10, 25, 50],
             showExport: false,
-            detailView: true,
             multiSelection: false,
             showSelectCheckbox: true,
             showToolbar: true,
@@ -272,7 +264,7 @@ export default class StudyAdminAudit extends LitElement {
         };
     }
 
-    clear(e) {
+    clear() {
         this.query = {};
     }
 
@@ -286,7 +278,7 @@ export default class StudyAdminAudit extends LitElement {
         }
 
         return html`
-            <div class="pull-left" style="margin: 10px 0px">
+            <div class="pull-left" style="margin: 10px 0">
                 <div class="lhs">
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "userId") ? html`
@@ -353,7 +345,7 @@ export default class StudyAdminAudit extends LitElement {
                 </div>
             </div>
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow" style="margin: 20px 0px">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow" style="margin: 20px 0">
                 <table id="${this._prefix}AuditBrowserGrid"></table>
             </div>
 

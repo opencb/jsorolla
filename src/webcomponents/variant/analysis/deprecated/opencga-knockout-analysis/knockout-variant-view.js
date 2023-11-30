@@ -78,10 +78,6 @@ export default class KnockoutVariantView extends LitElement {
         };
     }
 
-    firstUpdated(_changedProperties) {
-        // this.renderTable();
-    }
-
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             // this.renderTable();
@@ -213,7 +209,6 @@ export default class KnockoutVariantView extends LitElement {
             pagination: true,
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
-            gridContext: this,
             ajax: params => {
                 this.opencgaSession.opencgaClient.variants().queryKnockoutIndividual({job: this.jobId, study: this.opencgaSession.study.fqn})
                     .then(restResponse => {
@@ -226,13 +221,13 @@ export default class KnockoutVariantView extends LitElement {
                     });
             },
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            onClickRow: (row, selectedElement, field) => {
+            onClickRow: (row, selectedElement) => {
                 console.log(row);
                 this.variant = row;
                 this.gridCommons.onClickRow(row.id, row, selectedElement);
                 this.requestUpdate();
             },
-            onLoadSuccess: data => {
+            onLoadSuccess: () => {
                 // this is not triggered in case of static data
             },
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
@@ -277,20 +272,16 @@ export default class KnockoutVariantView extends LitElement {
                     id: "individual-view",
                     name: "Individuals",
                     active: true,
-                    render: (variant, active, opencgaSession) => {
-                        return html`
-                            <knockout-variant-individual .variant="${variant}"></knockout-variant-individual>
-                        `;
-                    }
+                    render: variant => html`
+                        <knockout-variant-individual .variant="${variant}"></knockout-variant-individual>
+                    `,
                 },
                 {
                     id: "allele-view",
                     name: "Allele Pairs",
-                    render: (variant, active, opencgaSession) => {
-                        return html`
-                            <knockout-variant-allele-pairs .variant="${variant}"></knockout-variant-allele-pairs>
-                        `;
-                    }
+                    render: variant => html`
+                        <knockout-variant-allele-pairs .variant="${variant}"></knockout-variant-allele-pairs>
+                    `,
                 },
                 {
                     id: "clinvar-view",

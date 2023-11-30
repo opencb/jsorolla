@@ -422,7 +422,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         // pageSize: 10,
                         // pageList: [5, 10, 25],
                         // showExport: true,
-                        // detailView: true,
                         // showReview: false,
                         // showActions: true,
                         showSelectCheckbox: true,

@@ -70,7 +70,7 @@ export default class GeneCoverageGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
-    firstUpdated(_changedProperties) {
+    firstUpdated() {
         this._initTableColumns();
         // this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
         this.table = this.querySelector("#" + this.gridId);
@@ -107,10 +107,9 @@ export default class GeneCoverageGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            gridContext: this,
+            detailView: !!this.detailFormatter,
             formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPageChange: (page, size) => {
                 const result = this.gridCommons.onPageChange(page, size);
                 this.from = result.from || this.from;
@@ -143,7 +142,7 @@ export default class GeneCoverageGrid extends LitElement {
                     pageSize: this._config.pageSize,
                     pageList: this._config.pageList,
                     showExport: this._config.showExport,
-                    // detailView: this._config.detailView,
+                    detailView: !!this.detailFormatter,
                     formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                     ajax: params => {
                         this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, this.geneIds, {study: this.opencgaSession.study.fqn})
@@ -156,10 +155,10 @@ export default class GeneCoverageGrid extends LitElement {
                                 params.error(e);
                             });
                     },
-                    onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                    onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
+                    onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                    onCheck: row => this.gridCommons.onCheck(row.id, row),
                     onCheckAll: rows => this.gridCommons.onCheckAll(rows),
-                    onUncheck: (row, $element) => this.gridCommons.onUncheck(row.id, row),
+                    onUncheck: row => this.gridCommons.onUncheck(row.id, row),
                     onUncheckAll: rows => this.gridCommons.onUncheckAll(rows),
                     onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1, "id"),
                     onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
@@ -168,7 +167,7 @@ export default class GeneCoverageGrid extends LitElement {
                         this.from = result.from || this.from;
                         this.to = result.to || this.to;
                     },
-                    onPostBody: data => {
+                    onPostBody: () => {
                         // We call onLoadSuccess to select first row
                         // this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 0);
                     }
@@ -296,7 +295,7 @@ export default class GeneCoverageGrid extends LitElement {
         // Check if user clicked in Tab or JSON format
         if (e.detail.option.toLowerCase() === "tab") {
             const dataString = [
-                ["transcript Id", "> 1x", "> 5x", "> 10x", "> 15x", "> 20x", "> 25x", "> 30x", "> 40x", "> 50x", "> 60x", , "> 75x", , "> 100x"].join("\t"),
+                ["transcript Id", "> 1x", "> 5x", "> 10x", "> 15x", "> 20x", "> 25x", "> 30x", "> 40x", "> 50x", "> 60x", "> 75x", "> 100x"].join("\t"),
                 ...results.map(_ => [
                     _.id,
                     ..._.depths
@@ -313,7 +312,6 @@ export default class GeneCoverageGrid extends LitElement {
             pageSize: 10,
             pageList: [10, 25, 50],
             showExport: false,
-            detailView: false,
             showSelectCheckbox: false,
             multiSelection: false,
             nucleotideGenotype: true,

@@ -149,7 +149,7 @@ export default class RgaIndividualView extends LitElement {
             paginationVAlign: "both",
             formatShowingRows: (pageFrom, pageTo, totalRows) => this.formatShowingRows(pageFrom, pageTo, totalRows),
             showExport: this._config.showExport,
-            detailView: this._config.detailView,
+            detailView: !!this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
                 const _filters = {
@@ -229,13 +229,13 @@ export default class RgaIndividualView extends LitElement {
                 const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                 return result.response;
             },
-            onClickRow: (row, selectedElement, field) => {
+            onClickRow: (row, selectedElement) => {
                 console.log(row);
                 this.individual = row;
                 this.gridCommons.onClickRow(row.id, row, selectedElement);
                 this.requestUpdate();
             },
-            onLoadSuccess: data => {
+            onLoadSuccess: () => {
                 // this is not triggered in case of static data
             },
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
@@ -280,7 +280,7 @@ export default class RgaIndividualView extends LitElement {
         }
     }
 
-    geneFormatter(value, row) {
+    geneFormatter(value) {
         if (value) {
             const genes = value.join(", ");
             if (value.length > 20) {

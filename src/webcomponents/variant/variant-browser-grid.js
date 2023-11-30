@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import VariantGridFormatter from "./variant-grid-formatter.js";
 import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter.js";
@@ -194,11 +194,9 @@ export default class VariantBrowserGrid extends LitElement {
                 paginationVAlign: "both",
                 formatShowingRows: (pageFrom, pageTo, totalRows) =>
                     this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, this.totalRowsNotTruncated, this.isApproximateCount),
-                detailView: this._config.detailView,
-                detailFormatter: this.detailFormatter,
+                detailView: !!this.detailFormatter,
+                detailFormatter: (value, row) => this.detailFormatter(value, row),
                 formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
-                // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
-                variantGrid: this,
                 ajax: params => {
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
                     this.filters = {
@@ -289,15 +287,9 @@ export default class VariantBrowserGrid extends LitElement {
                     this.gridCommons.onClickRow(row.id, row, selectedElement);
                 },
                 onDblClickRow: (row, element) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            $("#" + this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            $("#" + this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
+                    this.detailFormatter ?
+                        this.table.bootstrapTable("toggleDetailView", element[0].dataset.index) :
+                        nothing;
                 },
                 onLoadSuccess: data => {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
@@ -335,11 +327,10 @@ export default class VariantBrowserGrid extends LitElement {
             pageList: this._config.pageList,
             paginationVAlign: "both",
             formatShowingRows: this.gridCommons.formatShowingRows,
-            detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
+            detailView: !!this.detailFormatter,
+            detailFormatter: (value, row) => this.detailFormatter(value, row),
             formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
             // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
-            variantGrid: this,
             onClickRow: (row, $element) => {
                 this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                 $(".success").removeClass("success");
@@ -363,7 +354,7 @@ export default class VariantBrowserGrid extends LitElement {
         });
     }
 
-    detailFormatter(index, row, a) {
+    detailFormatter(index, row) {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
 
@@ -371,7 +362,7 @@ export default class VariantBrowserGrid extends LitElement {
             detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Consequence Types</h4></div>";
             detailHtml += "<div style='padding: 5px 40px'>";
             detailHtml += VariantGridFormatter
-                .consequenceTypeDetailFormatter(index, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
+                .consequenceTypeDetailFormatter(index, row, this, this.query, this._config, this.opencgaSession.project.organism.assembly);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
@@ -383,7 +374,7 @@ export default class VariantBrowserGrid extends LitElement {
         return result;
     }
 
-    siftPproteinScoreFormatter(value, row, index) {
+    siftPproteinScoreFormatter(value, row) {
         let min = 10;
         let description = "";
         if (row && row.annotation?.consequenceTypes?.length > 0) {
@@ -406,7 +397,7 @@ export default class VariantBrowserGrid extends LitElement {
         return "-";
     }
 
-    polyphenProteinScoreFormatter(value, row, index) {
+    polyphenProteinScoreFormatter(value, row) {
         let max = 0;
         let description = "";
         if (row && row.annotation?.consequenceTypes?.length > 0) {
@@ -429,7 +420,7 @@ export default class VariantBrowserGrid extends LitElement {
         return "-";
     }
 
-    revelProteinScoreFormatter(value, row, index) {
+    revelProteinScoreFormatter(value, row) {
         let max = 0;
         if (row && row.annotation?.consequenceTypes?.length > 0) {
             for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
@@ -450,7 +441,7 @@ export default class VariantBrowserGrid extends LitElement {
         return "-";
     }
 
-    conservationFormatter(value, row, index) {
+    conservationFormatter(value, row) {
         if (row?.annotation?.conservation?.length > 0) {
             for (const conservation of row.annotation.conservation) {
                 if (conservation.source === this.field) {
@@ -1065,7 +1056,6 @@ export default class VariantBrowserGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            detailView: true,
             showSelectCheckbox: false,
             multiSelection: false,
             // nucleotideGenotype: true,

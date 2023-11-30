@@ -251,7 +251,6 @@ export default class IndividualBrowser extends LitElement {
                     grid: {
                         pageSize: 10,
                         pageList: [5, 10, 25],
-                        detailView: true,
                         multiSelection: false,
                         showSelectCheckbox: false
                     }

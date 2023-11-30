@@ -216,7 +216,6 @@ export default class ClinicalInterpretationManager extends LitElement {
             uniqueId: "id",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
-            gridContext: this,
             sidePagination: "local",
             pagination: true,
             formatNoMatches: () => "No previous versions",

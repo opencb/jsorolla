@@ -396,7 +396,7 @@ export default class RgaVariantView extends LitElement {
         return Object.keys(dbSNPs).map(dbSNP => `<span>${dbSNP})</span>`).join(", ");
     }*/
 
-    consequenceTypeFormatter(value, row) {
+    consequenceTypeFormatter(value) {
         if (value) {
             const CTs = value.filter(ct => ~this._config.consequenceTypes.indexOf(ct.name));
             const filteredCTs = value.filter(ct => !~this._config.consequenceTypes.indexOf(ct.name));
@@ -486,7 +486,6 @@ export default class RgaVariantView extends LitElement {
             pagination: this._config.pagination,
             paginationVAlign: "both",
             formatShowingRows: (pageFrom, pageTo, totalRows) => this.formatShowingRows(pageFrom, pageTo, totalRows),
-            gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: params => {
                 const _filters = {
@@ -524,13 +523,13 @@ export default class RgaVariantView extends LitElement {
                 const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                 return result.response;
             },
-            onClickRow: (row, selectedElement, field) => {
+            onClickRow: (row, selectedElement) => {
                 console.log(row);
                 this.variant = row;
                 this.gridCommons.onClickRow(row.id, row, selectedElement);
                 this.requestUpdate();
             },
-            onLoadSuccess: data => {
+            onLoadSuccess: () => {
                 // this is not triggered in case of static data
             },
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
@@ -610,7 +609,6 @@ export default class RgaVariantView extends LitElement {
             pageSize: 10,
             pageList: [10, 25, 50],
             showExport: false,
-            detailView: false,
             multiSelection: false,
             populationFrequencies: [
                 "GNOMAD_EXOMES:ALL",

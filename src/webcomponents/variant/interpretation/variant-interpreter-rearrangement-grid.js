@@ -242,13 +242,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 formatShowingRows: (pageFrom, pageTo, totalRows) =>
                     this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
                 showExport: this._config.showExport,
-                // detailView: this._config.detailView,
-                // detailFormatter: this.detailFormatter,
+                detailView: !!this.detailFormatter,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
-                // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
-                variantGrid: this,
-
                 ajax: params => {
                     // Make a deep clone object to manipulate the query sent to OpenCGA
                     const internalQuery = JSON.parse(JSON.stringify(this.query));
@@ -289,7 +284,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onLoadSuccess: data => {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
@@ -323,14 +318,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             paginationVAlign: "both",
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
-            // detailView: this._config.detailView,
-            // detailFormatter: this.detailFormatter,
+            detailView: !!this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
-            // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
-            variantGrid: this,
-
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 this._rows = data;
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
@@ -342,36 +332,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     /*
      *  GRID FORMATTERS
      */
-    detailFormatter(value, row, a) {
-        let result = "<div class='row' style='padding-bottom: 20px'>";
-        let detailHtml = "";
-        if (row && row.annotation) {
-            // if (this.variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
-            //     detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Variant Allele Frequency</h4></div>";
-            //     detailHtml += "<div style='padding: 5px 40px'>";
-            //     detailHtml += VariantInterpreterGridFormatter.variantAlleleFrequencyDetailFormatter(value, row, this.variantGrid);
-            //     detailHtml += "</div>";
-            // }
-
-            detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Molecular Consequence</h4></div>";
-            detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantInterpreterGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid.review, this.variantGrid._config);
-            detailHtml += "</div>";
-
-            detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
-            detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
-            detailHtml += "</div>";
-
-            detailHtml += "<div style='padding: 20px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
-            detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantGridFormatter.clinicalTableDetail(value, row);
-            detailHtml += "</div>";
-        }
-        result += detailHtml + "</div>";
-        return result;
-    }
-
     vcfDataFormatter(value, row, field) {
         if (row?.studies?.length > 0) {
             let source = "FILE";
@@ -399,29 +359,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             console.error("This should never happen: row.studies[] is not valid");
         }
         return "-";
-    }
-
-    // DEPRECATED
-    pathogeniticyFormatter(value, row, index) {
-        // TODO we must call to PathDB to get the frequency of each variant, next code is just an example
-        return `
-            <div class="col-md-12" style="padding: 0px">
-                <form class="form-horizontal">
-                    <div class="col-md-12" style="padding: 0px">
-                        <form class="form-horizontal">
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
-                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
-                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
-                            </div>
-                        </form>
-                    </div>
-                </form>
-            </div>
-        `;
     }
 
     _getDefaultColumns() {
@@ -876,7 +813,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         }
     }
 
-    onConfigClick(e) {
+    onConfigClick() {
         $("#" + this._prefix + "ConfigModal").modal("show");
     }
 
@@ -911,7 +848,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.requestUpdate();
     }
 
-    onCancelVariant(e) {
+    onCancelVariant() {
         this.variantsReview = null;
         this.requestUpdate();
         // this._variantChanged = null;
@@ -1004,7 +941,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             pageList: [5, 10, 25],
             showExport: true,
             showSettings: true,
-            detailView: true,
             showReview: true,
             showEditReview: true,
             showSelectCheckbox: false,

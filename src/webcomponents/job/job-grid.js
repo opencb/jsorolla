@@ -177,9 +177,8 @@ export default class JobGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
-            gridContext: this,
+            detailView: !!this.detailFormatter,
+            detailFormatter: (value, row) => this.detailFormatter(value, row),
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
@@ -232,11 +231,10 @@ export default class JobGrid extends LitElement {
                     return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows) + this.autoRefreshMsg();
                 },
                 showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                detailFormatter: this.detailFormatter,
+                detailView: !!this.detailFormatter,
+                detailFormatter: (value, row) => this.detailFormatter(value, row),
                 sortName: "Creation",
                 sortOrder: "asc",
-                gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     document.getElementById(this._prefix + "refreshIcon").style.visibility = "visible";
@@ -266,30 +264,16 @@ export default class JobGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, this.table.bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element, field) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onDblClickRow: (row, element) => {
+                    this.detailFormatter ?
+                        this.table.bootstrapTable("toggleDetailView", element[0].dataset.index) :
+                        nothing;
                 },
-                onCheck: (row, $element) => {
-                    this.gridCommons.onCheck(row.id, row);
-                },
-                onCheckAll: rows => {
-                    this.gridCommons.onCheckAll(rows);
-                },
-                onUncheck: (row, $element) => {
-                    this.gridCommons.onUncheck(row.id, row);
-                },
-                onUncheckAll: rows => {
-                    this.gridCommons.onUncheckAll(rows);
-                },
+                onCheck: row => this.gridCommons.onCheck(row.id, row),
+                onCheckAll: rows => this.gridCommons.onCheckAll(rows),
+                onUncheck: row => this.gridCommons.onUncheck(row.id, row),
+                onUncheckAll: rows => this.gridCommons.onUncheckAll(rows),
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
                     this.enableAutoRefresh();
@@ -338,7 +322,7 @@ export default class JobGrid extends LitElement {
 
         if (row) {
             // Job Dependencies section
-            detailHtml = "<div style='padding: 10px 0px 10px 25px'><h4>Job Dependencies</h4></div>";
+            detailHtml = "<div style='padding: 10px 0 10px 25px'><h4>Job Dependencies</h4></div>";
             detailHtml += "<div style='padding: 5px 40px'>";
             if (row.dependsOn && row.dependsOn.length > 0) {
                 detailHtml += `
@@ -378,7 +362,7 @@ export default class JobGrid extends LitElement {
             detailHtml += "</div>";
 
             // Input Files section
-            detailHtml += "<div style='padding: 10px 0px 10px 25px'><h4>Input Files</h4></div>";
+            detailHtml += "<div style='padding: 10px 0 10px 25px'><h4>Input Files</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
             detailHtml += "To be implemented";
             detailHtml += "</div>";
@@ -412,26 +396,24 @@ export default class JobGrid extends LitElement {
                 id: "id",
                 title: "Job ID",
                 field: "id",
-                formatter: (id, row) => {
-                    return `
-                        <div>
-                            <span style="font-weight: bold; margin: 5px 0">${id}</span>
-                            ${row.outDir?.path ? `<span class="help-block" style="margin: 5px 0">/${row.outDir.path.replace(id, "").replace("//", "/")}</span>` : ""}
-                        </div>`;
-                },
+                formatter: (id, row) => `
+                    <div>
+                        <span style="font-weight: bold; margin: 5px 0">${id}</span>
+                        ${row.outDir?.path ? `<span class="help-block" style="margin: 5px 0">/${row.outDir.path.replace(id, "").replace("//", "/")}</span>` : ""}
+                    </div>
+                `,
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
                 id: "toolId",
                 title: "Tool ID",
                 field: "tool.id",
-                formatter: (toolId, row) => {
-                    return `
-                        <div>
-                            <span style="margin: 5px 0">${toolId}</span>
-                            ${row.tool?.type ? `<span class="help-block" style="margin: 5px 0">${row.tool.type}</span>` : ""}
-                        </div>`;
-                },
+                formatter: (toolId, row) => `
+                    <div>
+                        <span style="margin: 5px 0">${toolId}</span>
+                        ${row.tool?.type ? `<span class="help-block" style="margin: 5px 0">${row.tool.type}</span>` : ""}
+                    </div>
+                `,
                 visible: this.gridCommons.isColumnVisible("toolId")
             },
             {
@@ -548,7 +530,7 @@ export default class JobGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
-                formatter: (value, row) => `
+                formatter: () => `
                     <div class="dropdown">
                         <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
                             <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
@@ -690,7 +672,6 @@ export default class JobGrid extends LitElement {
             pageList: [5, 10, 25],
             showSelectCheckbox: false,
             multiSelection: false,
-            detailView: true,
 
             showToolbar: true,
             showActions: true,

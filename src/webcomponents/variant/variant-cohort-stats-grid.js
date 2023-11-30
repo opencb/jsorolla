@@ -75,10 +75,10 @@ class VariantCohortStatsGrid extends LitElement {
                 pageSize: _this._config.pageSize,
                 pageList: _this._config.pageList,
                 formatLoadingMessage: () =>"<loading-spinner></loading-spinner>",
-
-                onLoadError: function(status, res) {
+                onLoadError: function (status, res) {
                     console.log(status);
                     console.log(res);
+                    // eslint-disable-next-line no-console
                     console.trace();
                 }
             });
@@ -86,22 +86,22 @@ class VariantCohortStatsGrid extends LitElement {
     }
 
     // FIXME numSamples is coming son to data model, remove this formatter
-    numSamplesFormatter(value, row, index) {
+    numSamplesFormatter(value, row) {
         let total = 0;
-        for (let genotype of Object.keys(row.genotypeCount)) {
+        for (const genotype of Object.keys(row.genotypeCount)) {
             total += row.genotypeCount[genotype];
         }
         return total;
     }
 
-    filterFormatter(value, row, index) {
+    filterFormatter(value, row) {
         let content = "";
-        for (let filter of Object.keys(row.filterFreq)) {
+        for (const filter of Object.keys(row.filterFreq)) {
             let fixedFreq = row.filterFreq[filter];
             if (fixedFreq !== 0 && fixedFreq !== 1) {
                 fixedFreq = Number(fixedFreq).toFixed(4);
             }
-            let s = `<span style="padding-right: 20px">${filter}</span><span>${fixedFreq} (${row.filterCount[filter]})</span><br>`;
+            const s = `<span style="padding-right: 20px">${filter}</span><span>${fixedFreq} (${row.filterCount[filter]})</span><br>`;
             // PASS must be the first element
             if (filter === "PASS") {
                 content = s + content;
@@ -112,11 +112,11 @@ class VariantCohortStatsGrid extends LitElement {
         return content;
     }
 
-    idFormatter(value, row, index) {
+    idFormatter(value) {
         return `<span style="font-weight: bold">${value}</span>`;
     }
 
-    statsFormatter(value, row, index) {
+    statsFormatter(value, row) {
         let freq, count;
         switch (this.field) {
             case "maf":
@@ -144,21 +144,21 @@ class VariantCohortStatsGrid extends LitElement {
                 count = row.genotypeCount["1/1"];
                 break;
         }
-        let fixedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toFixed(4) : freq;
+        const fixedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toFixed(4) : freq;
         return `${fixedFreq} (${count})`;
     }
 
-    othersFormatter(value, row, index) {
+    othersFormatter(value, row) {
         let str = "";
-        for (let genotype of Object.keys(row.genotypeFreq)) {
+        for (const genotype of Object.keys(row.genotypeFreq)) {
             if (genotype !== "0/0" && genotype !== "0/1" && genotype !== "1/1") {
-                let freq = row.genotypeFreq[genotype];
-                let count = row.genotypeCount[genotype];
-                let fixedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toFixed(4) : freq;
+                const freq = row.genotypeFreq[genotype];
+                const count = row.genotypeCount[genotype];
+                const fixedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toFixed(4) : freq;
                 str += `${fixedFreq} (${count})<br>`;
             }
         }
-        return str !== "" ? str:  "NA";
+        return str !== "" ? str : "NA";
     }
 
     _createDefaultColumns() {
@@ -284,6 +284,7 @@ class VariantCohortStatsGrid extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("variant-cohort-stats-grid", VariantCohortStatsGrid);

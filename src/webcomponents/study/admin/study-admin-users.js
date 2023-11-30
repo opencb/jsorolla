@@ -136,17 +136,15 @@ export default class StudyAdminUsers extends LitElement {
             sidePagination: "local",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
-
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             showExport: this._config.showExport,
-            detailView: this._config.detailView,
+            detailView: !!this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
@@ -165,7 +163,7 @@ export default class StudyAdminUsers extends LitElement {
         }
     }
 
-    async onCheck(e, value, row, group, context) {
+    async onCheck(e, value, row, group) {
         console.log("Row selected:", e.currentTarget.checked, group, row.id);
         const isChecked = e.currentTarget.checked;
         const messageAlert = isChecked? `Added user:${row.id} to the group:${group} correctly`:`Removed user:${row.id} to the group:${group} correctly `;
@@ -229,7 +227,7 @@ export default class StudyAdminUsers extends LitElement {
                 {
                     title: "User Name",
                     field: "name",
-                    formatter: (value, row) => {
+                    formatter: value => {
                         return value === this.owner ? `<span style="font-weight: bold">${value} (owner)</span>` : value;
                     },
                     rowspan: 2,
@@ -251,7 +249,7 @@ export default class StudyAdminUsers extends LitElement {
                 {
                     title: "Created on",
                     field: "account.creationDate",
-                    formatter: (value, row) => {
+                    formatter: value => {
                         return value ? UtilsNew.dateFormatter(value) : "NA";
                     },
                     rowspan: 2,
@@ -271,7 +269,7 @@ export default class StudyAdminUsers extends LitElement {
                             <i class="fas fa-trash-alt"></i>
                         </a>`,
                     events: {
-                        "click .removeUser": (e, value, row, index) => this.onRemoveUserTest(e, row)
+                        "click .removeUser": (e, value, row) => this.onRemoveUserTest(e, row)
                     },
                     rowspan: 2,
                     colspan: 1,
@@ -290,7 +288,6 @@ export default class StudyAdminUsers extends LitElement {
             pageSize: 10,
             pageList: [10, 25, 50],
             showExport: false,
-            detailView: false,
             multiSelection: false,
             showSelectCheckbox: true,
             showToolbar: true,
@@ -327,14 +324,14 @@ export default class StudyAdminUsers extends LitElement {
         this.requestUpdate();
     }
 
-    onUserAdd(e) {
+    onUserAdd() {
         if (this.groupsMap.get("@members").includes(this.addUserId)) {
             console.log("User already exists in the study");
             return;
         }
 
         this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members", {users: [this.addUserId]}, {action: "ADD"})
-            .then(res => {
+            .then(() => {
                 this.addUserId = "";
                 this.requestUpdate();
 
@@ -352,7 +349,6 @@ export default class StudyAdminUsers extends LitElement {
             })
             .catch(err => {
                 console.error(err);
-                params.error(err);
             });
     }
 
@@ -392,14 +388,14 @@ export default class StudyAdminUsers extends LitElement {
         });
     }
 
-    onUserRemove(e) {
+    onUserRemove() {
         const userIds = [];
         for (const userId of this.removeUserSet.keys()) {
             userIds.push(userId);
         }
 
         this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members", {users: userIds}, {action: "REMOVE"})
-            .then(res => {
+            .then(() => {
                 this.removeUserSet = new Set();
                 this.requestUpdate();
 
@@ -417,7 +413,6 @@ export default class StudyAdminUsers extends LitElement {
             })
             .catch(err => {
                 console.error(err);
-                params.error(err);
             });
     }
 
@@ -430,9 +425,9 @@ export default class StudyAdminUsers extends LitElement {
         this.requestUpdate();
     }
 
-    onGroupAdd(e) {
+    onGroupAdd() {
         this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, {id: this.addGroupId}, {action: "ADD"})
-            .then(res => {
+            .then(() => {
                 this.addGroupId = "";
                 this.requestUpdate();
                 // this.notifyStudyUpdateRequest();
@@ -444,8 +439,6 @@ export default class StudyAdminUsers extends LitElement {
             })
             .catch(error => {
                 console.error(error);
-                params.error(error);
-
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                     message: `Error creating group: ${error.message || error}`,
                 });
@@ -464,7 +457,7 @@ export default class StudyAdminUsers extends LitElement {
         this.requestUpdate();
     }
 
-    async onGroupRemove(e) {
+    async onGroupRemove() {
         // The service only accepts string value, not an array.
         const message = {
             success: [],

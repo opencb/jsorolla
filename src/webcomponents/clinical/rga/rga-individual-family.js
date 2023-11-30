@@ -18,9 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./../../commons/view/detail-tabs.js";
 import GridCommons from "../../commons/grid-commons.js";
-import VariantInterpreterGridFormatter from "../../variant/interpretation/variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class RgaIndividualFamily extends LitElement {
@@ -161,7 +159,7 @@ export default class RgaIndividualFamily extends LitElement {
             paginationVAlign: "both",
             formatShowingRows: (pageFrom, pageTo, totalRows) => this.formatShowingRows(pageFrom, pageTo, totalRows),
             showExport: this._config.showExport,
-            detailView: this._config.detailView,
+            detailView: !!this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
                 const _filters = {
@@ -202,12 +200,12 @@ export default class RgaIndividualFamily extends LitElement {
                 const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                 return result.response;
             },
-            onClickRow: (row, selectedElement, field) => {
+            onClickRow: (row, selectedElement) => {
                 console.log(row);
                 // console.log("variant facet", this.restResponse.getResult(1).buckets.find(gene => gene.value === row.value))
                 this.gridCommons.onClickRow(row.id, row, selectedElement);
             },
-            onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
+            onCheck: row => this.gridCommons.onCheck(row.id, row),
             onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
         });
@@ -341,7 +339,6 @@ export default class RgaIndividualFamily extends LitElement {
             // pageList: this._config.pageList,
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
-            gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
                 try {

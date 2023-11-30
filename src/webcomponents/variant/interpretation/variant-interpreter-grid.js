@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
@@ -238,13 +238,9 @@ export default class VariantInterpreterGrid extends LitElement {
                 pageList: this._config.pageList,
                 paginationVAlign: "both",
                 formatShowingRows: (pageFrom, pageTo, totalRows) => this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
-                detailView: this._config.detailView,
+                detailView: !!this.detailFormatter,
                 detailFormatter: (value, row) => this.detailFormatter(value, row),
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
-                // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
-                variantGrid: this,
-
                 ajax: params => {
                     // Make a deep clone object to manipulate the query sent to OpenCGA
                     const internalQuery = JSON.parse(JSON.stringify(this.query));
@@ -334,15 +330,9 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onDblClickRow: (row, element) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            $("#" + this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            $("#" + this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
+                    this.detailFormatter ?
+                        this.table.bootstrapTable("toggleDetailView", element[0].dataset.index) :
+                        nothing;
                 },
                 onLoadSuccess: data => {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
@@ -412,24 +402,15 @@ export default class VariantInterpreterGrid extends LitElement {
             pageList: this._config.pageList,
             paginationVAlign: "both",
             formatShowingRows: this.gridCommons.formatShowingRows,
-            detailView: this._config.detailView,
+            detailView: !!this.detailFormatter,
             detailFormatter: (value, row) => this.detailFormatter(value, row),
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
-            variantGrid: this,
-
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onDblClickRow: (row, element) => {
-                // We detail view is active we expand the row automatically.
-                // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                if (this._config.detailView) {
-                    if (element[0].innerHTML.includes("fa-plus")) {
-                        $("#" + this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
-                    } else {
-                        $("#" + this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
-                    }
-                }
+                this.detailFormatter ?
+                    this.table.bootstrapTable("toggleDetailView", element[0].dataset.index) :
+                    nothing;
             },
             onExpandRow: (index, row) => {
                 // Automatically select this row after clicking on "+" icons
@@ -648,7 +629,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, this?.query?.ct, this._config),
+                    formatter: (value, row) => VariantGridFormatter.consequenceTypeFormatter(value, row, this?.query?.ct, this._config),
                     halign: this.displayConfigDefault.header.horizontalAlign,
                     visible: this.gridCommons.isColumnVisible("consequenceType"),
                 },
@@ -1285,7 +1266,7 @@ export default class VariantInterpreterGrid extends LitElement {
         LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
     }
 
-    onConfigClick(e) {
+    onConfigClick() {
         $("#" + this._prefix + "ConfigModal").modal("show");
     }
 
@@ -1540,7 +1521,6 @@ export default class VariantInterpreterGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            detailView: true,
             showSelectCheckbox: false,
             multiSelection: false,
             nucleotideGenotype: true,
