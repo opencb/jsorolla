@@ -64,6 +64,12 @@ export default class IndividualGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     updated(changedProperties) {
@@ -174,7 +180,7 @@ export default class IndividualGrid extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
+                detailFormatter: this.detailFormatter,
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
@@ -430,7 +436,7 @@ export default class IndividualGrid extends LitElement {
                         </div>`;
                 },
                 sortable: true,
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
@@ -452,7 +458,7 @@ export default class IndividualGrid extends LitElement {
                     }
                     return html;
                 },
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("samples")
             },
             {
@@ -460,7 +466,7 @@ export default class IndividualGrid extends LitElement {
                 title: "Father",
                 field: "father.id",
                 formatter: fatherId => fatherId || "-",
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("father")
             },
             {
@@ -468,7 +474,7 @@ export default class IndividualGrid extends LitElement {
                 title: "Mother",
                 field: "mother.id",
                 formatter: motherId => motherId || "-",
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("mother")
             },
             {
@@ -476,7 +482,7 @@ export default class IndividualGrid extends LitElement {
                 title: "Disorders",
                 field: "disorders",
                 formatter: CatalogGridFormatter.disorderFormatter,
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("disorders")
             },
             {
@@ -484,7 +490,7 @@ export default class IndividualGrid extends LitElement {
                 title: "Phenotypes",
                 field: "phenotypes",
                 formatter: CatalogGridFormatter.phenotypesFormatter,
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("phenotypes")
             },
             // {
@@ -492,7 +498,7 @@ export default class IndividualGrid extends LitElement {
             //     title: "Sex (Karyotypic)",
             //     field: "sex",
             //     formatter: this.sexFormatter,
-            //     halign: this._config.header.horizontalAlign,
+            //     halign: this.displayConfigDefault.header.horizontalAlign,
             //     visible: this.gridCommons.isColumnVisible("sex")
             // },
             {
@@ -500,7 +506,7 @@ export default class IndividualGrid extends LitElement {
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
@@ -508,7 +514,7 @@ export default class IndividualGrid extends LitElement {
                 title: "Ethnicity",
                 field: "ethnicity",
                 formatter: (ethnicity, row) => ethnicity?.id || row.population?.name || "-",
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("ethnicity")
             },
             // {
@@ -517,7 +523,7 @@ export default class IndividualGrid extends LitElement {
             //     field: "dateOfBirth",
             //     sortable: true,
             //     formatter: CatalogGridFormatter.dateFormatter,
-            //     halign: this._config.header.horizontalAlign,
+            //     halign: this.displayConfigDefault.header.horizontalAlign,
             //     visible: this.gridCommons.isColumnVisible("dateOfBirth")
             // },
             {
@@ -526,7 +532,7 @@ export default class IndividualGrid extends LitElement {
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
                 sortable: true,
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
@@ -701,19 +707,16 @@ export default class IndividualGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
+            multiSelection: false,
+            showSelectCheckbox: false,
+            detailView: true,
             showToolbar: true,
+            showActions: true,
+
             showCreate: true,
             showExport: true,
             showSettings: true,
-            showActions: true,
-            showSelectCheckbox: true,
-            detailView: true,
-            detailFormatter: this.detailFormatter, // function with the detail formatter
-            multiSelection: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
+            exportTabs: ["download", "link", "code"],
         };
     }
 

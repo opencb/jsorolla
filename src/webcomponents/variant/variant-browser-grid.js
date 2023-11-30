@@ -144,12 +144,8 @@ export default class VariantBrowserGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarSetting = {
-            showCreate: false,
-            showExport: true,
-            showSettings: true,
-            exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
-            showColumns: false,
             ...this._config,
+            showCreate: false, // Caution: Ignore a possible admin configuration change to showCreate: true.
             // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
             // gridColumns: this._getDefaultColumns() // original column structure
         };
@@ -198,9 +194,8 @@ export default class VariantBrowserGrid extends LitElement {
                 paginationVAlign: "both",
                 formatShowingRows: (pageFrom, pageTo, totalRows) =>
                     this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, this.totalRowsNotTruncated, this.isApproximateCount),
-                showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
+                detailFormatter: this.detailFormatter,
                 formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
                 // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
                 variantGrid: this,
@@ -340,9 +335,8 @@ export default class VariantBrowserGrid extends LitElement {
             pageList: this._config.pageList,
             paginationVAlign: "both",
             formatShowingRows: this.gridCommons.formatShowingRows,
-            showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this._config.detailFormatter,
+            detailFormatter: this.detailFormatter,
             formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
             // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
             variantGrid: this,
@@ -558,7 +552,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                     align: "center",
-                    nucleotideGenotype: true,
+                    // nucleotideGenotype: true,
                     visible: this.gridCommons.isColumnVisible(this.samples[i].id, "samples"),
                 });
             }
@@ -770,7 +764,7 @@ export default class VariantBrowserGrid extends LitElement {
                     title: "Select",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: this.checkFormatter.bind(this),
+                    formatter: (value, row) => this.checkFormatter(value, row),
                     align: "center",
                     events: {
                         "click input": this.onCheck.bind(this)
@@ -1027,7 +1021,7 @@ export default class VariantBrowserGrid extends LitElement {
                 const results = response.getResults();
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
-                    const dataString = VariantUtils.jsonToTabConvert(results, this.populationFrequencies.studies, this.samples, this._config.nucleotideGenotype, e.detail.exportFields);
+                    const dataString = VariantUtils.jsonToTabConvert(results, this.populationFrequencies.studies, this.samples, this._config?.genotype?.type?.toUpperCase() === "ALLELES", e.detail.exportFields);
                     UtilsNew.downloadData(dataString, "variants_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                 } else {
                     UtilsNew.downloadData(JSON.stringify(results), "variants_" + this.opencgaSession.study.id + ".json", "application/json");
@@ -1072,31 +1066,30 @@ export default class VariantBrowserGrid extends LitElement {
             pageSize: 10,
             pageList: [5, 10, 25],
             detailView: true,
-            detailFormatter: this.detailFormatter,
-            // multiSelection: false,
+            showSelectCheckbox: false,
+            multiSelection: false,
+            // nucleotideGenotype: true,
+            genotype: {
+                type: "VCF_CALL"
+            },
 
-            // Custom config
+            alleleStringLengthMax: 15,
+
             showToolbar: true,
+            showActions: true,
+
             showCreate: false,
             showExport: true,
             showSettings: true,
-            showSelectCheckbox: false,
-            showActions: true,
-            nucleotideGenotype: true,
-            alleleStringLengthMax: 15,
-
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
-
+            exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
+            annotations: [],
             highlights: [],
-            activeHighlights: [],
 
             geneSet: {
                 ensembl: true,
                 refseq: true,
             },
+            // Fixme: check this code
             consequenceType: {
                 maneTranscript: true,
                 gencodeBasicTranscript: true,
@@ -1106,7 +1099,6 @@ export default class VariantBrowserGrid extends LitElement {
                 ensemblTslTranscript: false,
                 proteinCodingTranscript: false,
                 highImpactConsequenceTypeTranscript: false,
-
                 showNegativeConsequenceTypes: true
             },
             populationFrequenciesConfig: {

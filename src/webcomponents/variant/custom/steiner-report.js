@@ -403,11 +403,12 @@ class SteinerReport extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [10, 25, 50],
-            showExport: false,
             detailView: true,
             showReview: true,
             showEditReview: false,
             showActions: false,
+
+            showExport: false,
             showSettings: false,
             showColumns: false,
             showDownload: false,
@@ -419,22 +420,12 @@ class SteinerReport extends LitElement {
 
             renderLocal: false,
 
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom",
-            },
-
             quality: {
                 qual: 30,
                 dp: 20,
             },
             evidences: {
                 showSelectCheckbox: false,
-            },
-            toolbar: {
-                showColumns: false,
-                showDownload: false,
-                showExport: false,
             },
         };
 

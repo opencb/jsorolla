@@ -361,11 +361,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
 
                     renderLocal: false,
 
-                    header: {
-                        horizontalAlign: "center",
-                        verticalAlign: "bottom"
-                    },
-
                     quality: {
                         qual: 30,
                         dp: 20

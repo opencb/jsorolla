@@ -127,7 +127,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
             this.toolbarSetting = {
                 ...this._config,
-                ...this._config.toolbar, // it comes from external settings
             };
 
             this.toolbarConfig = {
@@ -1018,11 +1017,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             // genotype: {
             //     type: "VCF_CALL"
             // },
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
-
             quality: {
                 qual: 30,
                 dp: 20

@@ -255,7 +255,7 @@ context("Job Browser Grid", () => {
                 .find(`td`)
                 .eq(1)
                 .trigger("click");
-        
+
             cy.get(`detail-tabs h3`)
                 .should("contain.text", `Job ${job}`);
         });
@@ -265,7 +265,7 @@ context("Job Browser Grid", () => {
                 .find("li")
                 .contains("Logs")
                 .trigger("click");
-            
+
             cy.get("job-detail-log")
                 .should("be.visible");
         });
