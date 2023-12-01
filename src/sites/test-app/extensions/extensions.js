@@ -1,4 +1,4 @@
-window.IVA_EXTENSIONS = {
+window.IVA_EXTENSIONS.push({
     id: "opencb",
     name: "OpenCB",
     description: "",
@@ -125,4 +125,4 @@ window.IVA_EXTENSIONS = {
             },
         },
     ],
-};
+});
