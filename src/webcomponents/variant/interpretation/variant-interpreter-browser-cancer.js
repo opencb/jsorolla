@@ -546,10 +546,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             type: "VAF"
                         },
 
-                        header: {
-                            horizontalAlign: "center",
-                            verticalAlign: "bottom"
-                        },
                         quality: {
                             qual: 30,
                             dp: 20
