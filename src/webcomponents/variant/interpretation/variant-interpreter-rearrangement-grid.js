@@ -945,7 +945,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             showEditReview: true,
             showSelectCheckbox: false,
             showActions: false,
-            nucleotideGenotype: true,
 
             alleleStringLengthMax: 50,
 

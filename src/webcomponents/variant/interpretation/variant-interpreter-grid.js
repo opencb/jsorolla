@@ -1080,7 +1080,6 @@ export default class VariantInterpreterGrid extends LitElement {
                         colspan: 1,
                         formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                         align: "center",
-                        nucleotideGenotype: true,
                         visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
                     });
                 }
@@ -1129,7 +1128,6 @@ export default class VariantInterpreterGrid extends LitElement {
                         colspan: 1,
                         formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                         align: "center",
-                        nucleotideGenotype: true,
                         visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
                     });
                 }
@@ -1215,7 +1213,8 @@ export default class VariantInterpreterGrid extends LitElement {
             if (e.detail.option.toLowerCase() === "tab") {
                 // List of samples for generating the TSV file
                 const samples = this.clinicalVariants[0].studies[0].samples.map(sample => sample.sampleId);
-                const dataString = VariantUtils.jsonToTabConvert(this.clinicalVariants, POPULATION_FREQUENCIES.studies, samples, this._config.nucleotideGenotype, e.detail.exportFields);
+                // const dataString = VariantUtils.jsonToTabConvert(this.clinicalVariants, POPULATION_FREQUENCIES.studies, samples, this._config.nucleotideGenotype, e.detail.exportFields);
+                const dataString = VariantUtils.jsonToTabConvert(this.clinicalVariants, POPULATION_FREQUENCIES.studies, samples, this._config?.genotype?.type?.toUpperCase() === "ALLELES", e.detail.exportFields);
                 UtilsNew.downloadData(dataString, filename + ".tsv", "text/plain");
             } else {
                 UtilsNew.downloadData(JSON.stringify(this.clinicalVariants, null, "\t"), filename + ".json", "application/json");
@@ -1237,7 +1236,8 @@ export default class VariantInterpreterGrid extends LitElement {
                         const samples = this.query.sample.split(";").map(sample => ({
                             id: sample.split(":")[0],
                         }));
-                        const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, samples, this._config.nucleotideGenotype, e.detail.exportFields);
+                        // const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, samples, this._config.nucleotideGenotype, e.detail.exportFields);
+                        const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, samples, this._config?.genotype?.type?.toUpperCase() === "ALLELES", e.detail.exportFields);
                         UtilsNew.downloadData(dataString, filename + ".tsv", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(results, null, "\t"), filename + ".json", "application/json");
@@ -1522,7 +1522,6 @@ export default class VariantInterpreterGrid extends LitElement {
             pageSize: 10,
             pageList: [5, 10, 25],
             showSelectCheckbox: false,
-            nucleotideGenotype: true,
             alleleStringLengthMax: 10,
 
             showReview: true,
@@ -1537,7 +1536,6 @@ export default class VariantInterpreterGrid extends LitElement {
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
-
 
             hideType: false,
             hidePopulationFrequencies: false,

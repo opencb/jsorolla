@@ -413,7 +413,6 @@ class SteinerReport extends LitElement {
             showDownload: false,
 
             showSelectCheckbox: false,
-            nucleotideGenotype: true,
             alleleStringLengthMax: 10,
 
             renderLocal: false,

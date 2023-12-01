@@ -686,7 +686,6 @@ export default class JobGrid extends LitElement {
             showRefresh: true,
             exportTabs: ["download", "link", "code"],
 
-            nucleotideGenotype: true,
             alleleStringLengthMax: 15,
             autorefreshTiming: 60000,
         };

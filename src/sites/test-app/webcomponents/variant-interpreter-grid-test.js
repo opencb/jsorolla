@@ -66,8 +66,11 @@ class VariantInterpreterGridTest extends LitElement {
             showReview: true,
             showActions: true,
             showSelectCheckbox: true,
-            nucleotideGenotype: true,
             alleleStringLengthMax: 10,
+
+            genotype: {
+                type: "VAF"
+            },
 
             quality: {
                 qual: 30,

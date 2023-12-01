@@ -535,7 +535,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         // pageList: [5, 10, 25],
                         // showReview: false,
                         showSelectCheckbox: true,
-                        // nucleotideGenotype: true,
                         // alleleStringLengthMax: 10,
 
                         genotype: {

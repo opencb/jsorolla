@@ -542,7 +542,6 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                     align: "center",
-                    // nucleotideGenotype: true,
                     visible: this.gridCommons.isColumnVisible(this.samples[i].id, "samples"),
                 });
             }
@@ -1055,7 +1054,7 @@ export default class VariantBrowserGrid extends LitElement {
             pageSize: 10,
             pageList: [5, 10, 25],
             showSelectCheckbox: false,
-            // nucleotideGenotype: true,
+
             genotype: {
                 type: "VCF_CALL"
             },

@@ -347,18 +347,19 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     pagination: true,
                     pageSize: 10,
                     pageList: [10, 25, 50],
-                    showExport: true,
-                    exportFilename: exportFilename,
+
+                    showSelectCheckbox: true,
+
                     showReview: true,
                     showActions: true,
                     showGenomeBrowserLink: false,
 
-                    showSelectCheckbox: true,
-                    nucleotideGenotype: true,
-                    alleleStringLengthMax: 10,
+                    showExport: true,
+                    exportFilename: exportFilename,
 
                     renderLocal: false,
 
+                    alleleStringLengthMax: 10,
                     quality: {
                         qual: 30,
                         dp: 20

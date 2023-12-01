@@ -549,7 +549,6 @@ class VariantInterpreterBrowserRd extends LitElement {
                         // pageSize: 10,
                         // pageList: [5, 10, 25],
                         showSelectCheckbox: true,
-                        // nucleotideGenotype: true,
                         // alleleStringLengthMax: 10,
 
                         quality: {
