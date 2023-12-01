@@ -67,6 +67,7 @@ export default class IndividualView extends LitElement {
             defaultValue: "-",
             defaultLayout: "horizontal",
             buttonsVisible: false,
+            pdf: true
         };
         this._config = this.getDefaultConfig();
     }

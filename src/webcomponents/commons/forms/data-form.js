@@ -28,6 +28,7 @@ import "../forms/text-field-filter.js";
 import "./toggle-switch.js";
 import "./toggle-buttons.js";
 import "../data-table.js";
+import PdfBuilder from "./pdf-builder.js";
 
 export default class DataForm extends LitElement {
 
@@ -2017,9 +2018,9 @@ export default class DataForm extends LitElement {
         LitUtils.dispatchCustomEvent(this, "submit", section, {}, null);
     }
 
-    onCustomEvent(e, eventName, data) {
-        LitUtils.dispatchCustomEvent(this, eventName, data);
-    }
+    // onCustomEvent(e, eventName, data) {
+    //     LitUtils.dispatchCustomEvent(this, eventName, data);
+    // }
 
     onSectionChange(e) {
         e.preventDefault();
@@ -2105,6 +2106,11 @@ export default class DataForm extends LitElement {
         }
     }
 
+    onDownloadPdf() {
+        const pdfDocument = new PdfBuilder(this.data, this.config);
+        pdfDocument.exportToPdf();
+    }
+
     renderContentAsForm() {
         // Buttons values
         const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
@@ -2132,6 +2138,12 @@ export default class DataForm extends LitElement {
                     }
                 </div>` : null
             }
+
+            <button class="btn btn-primary" style="margin-bottom:14px; display: ${this.config.display?.pdf === true ? "block": "none"}"
+                    @click="${this.onDownloadPdf}">
+                <i class="fas fa-file-pdf"></i>
+                Export PDF (Beta)
+            </button>
 
             <!-- Render buttons -->
             ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
