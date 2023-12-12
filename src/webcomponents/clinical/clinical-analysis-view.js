@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
@@ -293,9 +293,12 @@ export default class ClinicalAnalysisView extends LitElement {
                         },
                         {
                             title: "Assigned To",
-                            field: "analyst.id",
+                            field: "analysts",
+                            type: "list",
                             display: {
+                                contentLayout: "bullets",
                                 visible: !this._config?.hiddenFields?.includes("analyst.assignee") && !this._config?.hiddenFields?.includes("analyst.id"),
+                                render: analyst => html`${analyst.id}`,
                             },
                         },
                         {
@@ -397,6 +400,18 @@ export default class ClinicalAnalysisView extends LitElement {
                                     {
                                         title: "ID",
                                         field: "id",
+                                        formatter: (sampleId, sample) => {
+                                            let somaticHtml = "";
+                                            if (typeof sample.somatic !== "undefined") {
+                                                somaticHtml = sample.somatic ? "Somatic" : "Germline";
+                                            }
+                                            return `
+                                                <div>
+                                                    <span style="font-weight: bold; margin: 5px 0">${sampleId}</span>
+                                                    ${somaticHtml ? `<span class="help-block" style="margin: 5px 0">${somaticHtml}</span>` : nothing}
+                                                </div>
+                                            `;
+                                        },
                                     },
                                     {
                                         title: "Files",
@@ -413,10 +428,6 @@ export default class ClinicalAnalysisView extends LitElement {
                                         title: "Preparation Method",
                                         field: "processing.preparationMethod",
                                         formatter: (value, row) => value ?? "-"
-                                    },
-                                    {
-                                        title: "Somatic",
-                                        field: "somatic",
                                     },
                                     {
                                         title: "Creation Date",
