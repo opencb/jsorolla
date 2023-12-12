@@ -266,10 +266,10 @@ export default class OpencgaUpdate extends LitElement {
                                 params.disorder= {id: params.disorder.id};
                             }
                             // Note 20221220 Vero: It is possible to unasign the analyst
-                            if (params.analyst) {
-                                // eslint-disable-next-line no-param-reassign
-                                params.analyst= {id: params.analyst.id};
-                            }
+                            // if (params.analyst) {
+                            //     // eslint-disable-next-line no-param-reassign
+                            //     params.analyst= {id: params.analyst.id};
+                            // }
                             if (params.comments) {
                                 // eslint-disable-next-line no-param-reassign
                                 params.comments = params.comments
@@ -310,12 +310,13 @@ export default class OpencgaUpdate extends LitElement {
                                         tags: UtilsNew.commaSeparatedArray(comment.tags),
                                     }));
                             }
-                            if (params.analyst?.id) {
-                                // eslint-disable-next-line no-param-reassign
-                                params.analyst = {
-                                    id: params.analyst.id,
-                                };
-                            }
+                            // if (params.analyst?.id) {
+                            //     // Fixme: to delete
+                            //     // eslint-disable-next-line no-param-reassign
+                            //     params.analyst = {
+                            //         id: params.analyst.id,
+                            //     };
+                            // }
                         },
                     ];
                     break;

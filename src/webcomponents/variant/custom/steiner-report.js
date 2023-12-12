@@ -159,7 +159,9 @@ class SteinerReport extends LitElement {
                 //     return item.status.toUpperCase() === "REPORTED";
                 // }),
                 primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings,
-                analyst: this.clinicalAnalysis.analyst.name,
+                analysts: (this.clinicalAnalysis.analysts || [])
+                    .map(analyst=> analyst.name)
+                    .join(", "),
                 signedBy: "",
                 discussion: "",
                 hrdetects: [],
@@ -1189,7 +1191,7 @@ class SteinerReport extends LitElement {
                         },
                         {
                             title: "Analysed by",
-                            field: "analyst",
+                            field: "analysts",
                         },
                         {
                             title: "Signed off by",
