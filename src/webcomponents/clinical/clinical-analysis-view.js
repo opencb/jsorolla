@@ -298,7 +298,7 @@ export default class ClinicalAnalysisView extends LitElement {
                             display: {
                                 contentLayout: "bullets",
                                 visible: !this._config?.hiddenFields?.includes("analyst.assignee") && !this._config?.hiddenFields?.includes("analyst.id"),
-                                render: analyst => html`${analyst.id}`,
+                                render: analyst => analyst.id,
                             },
                         },
                         {

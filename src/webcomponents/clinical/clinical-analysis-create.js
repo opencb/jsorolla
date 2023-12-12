@@ -57,6 +57,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
     _init() {
         this.clinicalAnalysis = {};
+        this._users = [];
+
         this.displayConfigDefault = {
             style: "margin: 10px",
             buttonsWidth: 8,
@@ -386,11 +388,11 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 render: (panels, dataFormFilterChange) => {
                                     const handlePanelsFilterChange = e => {
                                         // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const panelList = e.detail.value
                                             ?.split(",")
                                             .filter(panelId => panelId)
                                             .map(panelId => ({id: panelId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(panelList);
                                     };
                                     return html`
                                         <disease-panel-filter
@@ -423,12 +425,11 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             display: {
                                 render: (flags, dataFormFilterChange) => {
                                     const handleFlagsFilterChange = e => {
-                                        // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const flagList = e.detail.value
                                             ?.split(",")
                                             .filter(flagId => flagId)
                                             .map(flagId => ({id: flagId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(flagList);
                                     };
                                     return html`
                                         <clinical-flag-filter
@@ -760,12 +761,11 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             display: {
                                 render: (analysts, dataFormFilterChange) => {
                                     const handleAnalystsFilterChange = e => {
-                                        // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const analystList = e.detail.value
                                             ?.split(",")
                                             .filter(analystId => analystId)
                                             .map(analystId => ({id: analystId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(analystList);
                                     };
                                     return html`
                                         <clinical-analyst-filter

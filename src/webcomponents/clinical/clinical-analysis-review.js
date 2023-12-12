@@ -532,7 +532,7 @@ export default class ClinicalAnalysisReview extends LitElement {
                             type: "list",
                             display: {
                                 contentLayout: "bullets",
-                                render: analyst => html`${analyst.name}`,
+                                render: analyst => analyst.name,
                             },
                         },
                         {

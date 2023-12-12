@@ -58,6 +58,8 @@ export default class ClinicalAnalysisUpdate extends LitElement {
     #init() {
         this.clinicalAnalysis = {};
         this.clinicalAnalysisId = "";
+        this._users = [];
+
         this.buttonsDisabled = false;
 
         this.displayConfig = {
@@ -318,12 +320,11 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                 render: (analysts, dataFormFilterChange, updateParams, clinicalAnalysis) => {
                                     const handleAnalystsFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
-                                        // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const analystList = e.detail.value
                                             ?.split(",")
                                             .filter(analystId => analystId)
                                             .map(analystId => ({id: analystId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(analystList);
                                     };
 
                                     return html `
@@ -430,11 +431,11 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                     const handleFlagsFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
                                         // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const flagList = e.detail.value
                                             ?.split(",")
                                             .filter(flagId => flagId)
                                             .map(flagId => ({id: flagId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(flagList);
                                     };
 
                                     return html `
