@@ -248,6 +248,7 @@ export default class OpencgaUpdate extends LitElement {
                     this.resourceUpdateParams = {
                         flagsAction: "SET",
                         panelsAction: "SET",
+                        analystsAction: "SET",
                     };
                     this.updateCustomisation = [
                         params => {
@@ -310,13 +311,12 @@ export default class OpencgaUpdate extends LitElement {
                                         tags: UtilsNew.commaSeparatedArray(comment.tags),
                                     }));
                             }
-                            // if (params.analyst?.id) {
-                            //     // Fixme: to delete
-                            //     // eslint-disable-next-line no-param-reassign
-                            //     params.analyst = {
-                            //         id: params.analyst.id,
-                            //     };
-                            // }
+                            if (params.analyst?.id) {
+                                // eslint-disable-next-line no-param-reassign
+                                params.analyst = {
+                                    id: params.analyst.id,
+                                };
+                            }
                         },
                     ];
                     break;
