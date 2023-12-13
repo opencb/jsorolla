@@ -953,6 +953,11 @@ class IvaApp extends LitElement {
             // Update the lastStudy in config iff has changed
             this.opencgaClient.updateUserConfig("IVA", {...this.opencgaSession.user.configs["IVA"], lastStudy: studyFqn});
 
+            // This is a terrible hack to exit interpreter when we change the current study
+            if (this.tool === "#interpreter") {
+                window.location.hash = "#clinicalAnalysisPortal";
+            }
+
             // Refresh the session and update cellbase
             this.opencgaSession = {...this.opencgaSession};
             this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[SETTINGS_NAME].settings);
