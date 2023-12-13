@@ -826,7 +826,7 @@ class IvaApp extends LitElement {
         const [hashTool, hashProject, hashStudy, feature] = arr;
 
         // Stopping the recursive call
-        if (hashTool !== this.tool || hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
+        if (hashTool === "#interpreter" || hashTool !== this.tool || hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
             if (arr.length > 1) {
                 // Field 'project' is being observed, just in case Polymer triggers
                 // an unnecessary event we can check they are really different
