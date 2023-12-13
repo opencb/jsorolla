@@ -794,7 +794,7 @@ class IvaApp extends LitElement {
             }
         }
 
-        if (window.location.hash === hashFrag) {
+        if (window.location.hash === hashFrag || hashFrag === "#interpreter") {
             this.hashFragmentListener(this);
         } else {
             window.location.hash = hashFrag;
