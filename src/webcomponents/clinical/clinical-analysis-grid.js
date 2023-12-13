@@ -391,6 +391,27 @@ export default class ClinicalAnalysisGrid extends LitElement {
         `;
     }
 
+    analystsFormatter(analysts) {
+        let html = "-";
+        if (!analysts?.length) {
+            return html;
+        }
+
+        if (analysts?.length > 0) {
+            html = "<div>";
+            analysts.forEach(analyst => {
+                if (analyst?.id) {
+                    html += `
+                        <div style="margin: 2px 0; white-space: nowrap">
+                            <span data-cy="analyst-id">${analyst.id}</span>
+                        </div>`;
+                }
+            });
+            html += "</div>";
+        }
+        return html;
+    }
+
     removeRowTable(clinicalAnalysisId) {
         const data = this.table.bootstrapTable("getData");
         this.table.bootstrapTable("remove", {
@@ -684,14 +705,15 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("priority")
             },
             {
-                id: "Analyst",
-                title: "Analyst",
-                field: "analyst.id",
-                align: "center",
+                id: "analysts",
+                title: "Analysts",
+                field: "analysts",
+                formatter: value => this.analystsFormatter(value),
                 halign: this.displayConfigDefault.header.horizontalAlign,
                 valign: "middle",
-                visible: this.gridCommons.isColumnVisible("Analyst")
+                visible: this.gridCommons.isColumnVisible("analysts")
             },
+
             {
                 id: "dates",
                 title: "Due / Creation Date",
@@ -731,7 +753,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     const lockActionIcon = row.locked ? "fa-unlock" : "fa-lock";
                     const lockActionText = row.locked ? "Unlock" : "Lock";
 
-                    const isOwnOrIsLocked = row.locked || this.opencgaSession?.user?.id !== row.analyst?.id ? "disabled" : "";
+                    const isOwnOrIsLocked = row.locked || !row.analysts?.some(analyst => analyst.id === this.opencgaSession?.user?.id) ? "disabled" : "";
 
                     // Generate actions dropdown
                     return `
@@ -834,7 +856,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         row.interpretation?.id ? [`${row.interpretation.id} (primary)`, ...(row.secondaryInterpretations || []).map(s => s.id)].join(", ") : "-",
                         row.status?.id ?? "-",
                         row.priority?.id ?? "-",
-                        row.analyst?.id ?? "-",
+                        (row.analysts || []).map(analyst => analyst.id).join(", ") ?? "-",
                         row.creationDate ? CatalogGridFormatter.dateFormatter(row.creationDate) : "-"
                     ].join("\t")),
                 ];

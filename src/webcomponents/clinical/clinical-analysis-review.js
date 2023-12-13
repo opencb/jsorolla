@@ -528,7 +528,12 @@ export default class ClinicalAnalysisReview extends LitElement {
                         },
                         {
                             title: "Analysed by",
-                            field: "analyst.name",
+                            field: "analysts",
+                            type: "list",
+                            display: {
+                                contentLayout: "bullets",
+                                render: analyst => analyst.name,
+                            },
                         },
                         {
                             title: "Signed off by",

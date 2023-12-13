@@ -162,16 +162,18 @@ export default class ClinicalAnalysisGroup extends LitElement {
             showToolbar: false,
             showCreate: false,
             groups: [
-                {
-                    id: "analyst",
-                    distinctField: "analyst.id",
-                    queryField: "analystId",
-                    display: {
-                        title: "Analyst",
-                        icon: "fa-user-circle",
-                        emptyTitle: "Unassigned",
-                    },
-                },
+                // Note 20231211 Vero:
+                // To fix analyst as array after discuss with Nacho if and how makes sense to group by analyst
+                // {
+                //     id: "analyst",
+                //     distinctField: "analyst.id",
+                //     queryField: "analystId",
+                //     display: {
+                //         title: "Analyst",
+                //         icon: "fa-user-circle",
+                //         emptyTitle: "Unassigned",
+                //     },
+                // },
                 {
                     id: "status",
                     title: "Status",
