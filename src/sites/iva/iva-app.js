@@ -277,9 +277,9 @@ class IvaApp extends LitElement {
         }
 
         // Go to the page that tool has
-        if (window.location.hash !== this.tool) {
-            window.location.hash = this.tool;
-        }
+        // if (window.location.hash !== this.tool) {
+        //     window.location.hash = this.tool;
+        // }
 
         // Other initialisations
         // This manages the sample selected in each tool for updating the breadcrumb
