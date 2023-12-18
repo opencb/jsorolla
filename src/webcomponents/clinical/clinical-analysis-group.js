@@ -164,7 +164,7 @@ export default class ClinicalAnalysisGroup extends LitElement {
             groups: [
                 {
                     id: "analyst",
-                    distinctField: "analyst.id",
+                    distinctField: "analysts.id",
                     queryField: "analystId",
                     display: {
                         title: "Analyst",

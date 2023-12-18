@@ -58,6 +58,8 @@ export default class ClinicalAnalysisUpdate extends LitElement {
     #init() {
         this.clinicalAnalysis = {};
         this.clinicalAnalysisId = "";
+        this._users = [];
+
         this.buttonsDisabled = false;
 
         this.displayConfig = {
@@ -117,7 +119,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
     }
 
     opencgaSessionObserver() {
-        this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
+        this._users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
     }
 
     onComponentFieldChange(e) {
@@ -140,7 +142,6 @@ export default class ClinicalAnalysisUpdate extends LitElement {
         return html`
             <opencga-update
                 .resource="${"CLINICAL_ANALYSIS"}"
-                .component="${this.clinicalAnalysis}"
                 .componentId="${this.clinicalAnalysisId}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
@@ -311,13 +312,31 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Analyst",
-                            field: "analyst.id",
-                            type: "select",
-                            // defaultValue: this.clinicalAnalysis?.analyst?.id ?? this.clinicalAnalysis?.analyst?.assignee,
-                            allowedValues: () => this.users,
+                            title: "Analysts",
+                            field: "analysts",
+                            type: "custom",
                             display: {
-                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
+                                render: (analysts, dataFormFilterChange, updateParams, clinicalAnalysis) => {
+                                    const handleAnalystsFilterChange = e => {
+                                        // We need to convert value from a string wth commas to an array of IDs
+                                        const analystList = e.detail.value
+                                            ?.split(",")
+                                            .filter(analystId => analystId)
+                                            .map(analystId => ({id: analystId}));
+                                        dataFormFilterChange(analystList);
+                                    };
+
+                                    return html `
+                                        <clinical-analyst-filter
+                                            .analyst="${analysts?.map(f => f.id).join(",")}"
+                                            .analysts="${this._users}"
+                                            .multiple=${true}
+                                            .classes="${updateParams?.analysts ? "selection-updated" : ""}"
+                                            .disabled="${!!clinicalAnalysis?.locked}"
+                                            @filterChange="${e => handleAnalystsFilterChange(e)}">
+                                        </clinical-analyst-filter>
+                                    `;
+                                }
                             }
                         },
                         {
@@ -411,11 +430,11 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                     const handleFlagsFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
                                         // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const flagList = e.detail.value
                                             ?.split(",")
                                             .filter(flagId => flagId)
                                             .map(flagId => ({id: flagId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(flagList);
                                     };
 
                                     return html `

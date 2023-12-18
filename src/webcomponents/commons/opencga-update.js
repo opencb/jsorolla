@@ -248,6 +248,7 @@ export default class OpencgaUpdate extends LitElement {
                     this.resourceUpdateParams = {
                         flagsAction: "SET",
                         panelsAction: "SET",
+                        analystsAction: "SET",
                     };
                     this.updateCustomisation = [
                         params => {
@@ -266,10 +267,10 @@ export default class OpencgaUpdate extends LitElement {
                                 params.disorder= {id: params.disorder.id};
                             }
                             // Note 20221220 Vero: It is possible to unasign the analyst
-                            if (params.analyst) {
-                                // eslint-disable-next-line no-param-reassign
-                                params.analyst= {id: params.analyst.id};
-                            }
+                            // if (params.analyst) {
+                            //     // eslint-disable-next-line no-param-reassign
+                            //     params.analyst= {id: params.analyst.id};
+                            // }
                             if (params.comments) {
                                 // eslint-disable-next-line no-param-reassign
                                 params.comments = params.comments
