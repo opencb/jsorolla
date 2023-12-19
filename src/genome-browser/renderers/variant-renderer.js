@@ -5,7 +5,7 @@ import LollipopLayout from "../../core/visualisation/lollipop-layout.js";
 
 export default class VariantRenderer extends Renderer {
 
-    #getVariantOpaictyByQuality(variant, sample) {
+    #getVariantOpacityByQuality(variant, sample) {
         const quality = this.config.quality;
         const study = variant.studies?.[0];
         if (quality && typeof quality === "object") {
@@ -244,7 +244,7 @@ export default class VariantRenderer extends Renderer {
                     // "stroke-opacity": 0.7,
                     "fill": sampleGenotypeColor,
                     "cursor": "pointer",
-                    "opacity": this.#getVariantOpaictyByQuality(feature, sampleData),
+                    "opacity": this.#getVariantOpacityByQuality(feature, sampleData),
                 });
 
                 if (sampleGenotypeTooltipText) {
