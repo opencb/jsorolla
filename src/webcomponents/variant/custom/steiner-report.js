@@ -411,8 +411,6 @@ class SteinerReport extends LitElement {
 
             showExport: false,
             showSettings: false,
-            showColumns: false,
-            showDownload: false,
 
             showSelectCheckbox: false,
             alleleStringLengthMax: 10,
