@@ -230,7 +230,6 @@ export default class CohortBrowser extends LitElement {
                                     <sample-grid
                                         .opencgaSession="${opencgaSession}"
                                         .query="${{cohortIds: cohort.id}}"
-                                        .config="${{showSelectCheckbox: false}}"
                                         .active="${active}">
                                     </sample-grid>
                                 `;
@@ -239,7 +238,7 @@ export default class CohortBrowser extends LitElement {
                         {
                             id: "json-view",
                             name: "JSON Data",
-                            render: (cohort, active, opencgaSession) => {
+                            render: (cohort, active) => {
                                 return html`
                                     <json-viewer
                                         .data="${cohort}"

@@ -288,7 +288,6 @@ export default class StudyAdminUsers extends LitElement {
             pageSize: 10,
             pageList: [10, 25, 50],
             showExport: false,
-            showSelectCheckbox: true,
             showToolbar: true,
             showActions: true
         };

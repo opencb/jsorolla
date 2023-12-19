@@ -210,7 +210,6 @@ export default class SampleBrowser extends LitElement {
                     grid: {
                         pageSize: 10,
                         pageList: [5, 10, 25],
-                        showSelectCheckbox: false,
                     }
                 },
                 detail: {
@@ -275,7 +274,7 @@ export default class SampleBrowser extends LitElement {
                         {
                             id: "json-view",
                             name: "JSON Data",
-                            render: (sample, active, opencgaSession) => html`
+                            render: (sample, active) => html`
                                 <json-viewer
                                     .data="${sample}"
                                     .active="${active}">

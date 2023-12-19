@@ -434,21 +434,20 @@ export default class CohortGrid extends LitElement {
             </div>
 
             ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-                display: {
-                    modalTitle: `Cohort Update: ${this.cohortUpdateId}`,
-                    modalDraggable: true,
-                },
-                render: active => {
-                    return html `
-                        <cohort-update
-                            .cohortId="${this.cohortUpdateId}"
-                            .active="${active}"
-                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </cohort-update>
-                    `;
-                }
-            })}
+            display: {
+                modalTitle: `Cohort Update: ${this.cohortUpdateId}`,
+                modalDraggable: true,
+            },
+            render: active => {
+                return html `
+                    <cohort-update
+                        .cohortId="${this.cohortUpdateId}"
+                        .active="${active}"
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </cohort-update>
+                `;
+            }})}
         `;
     }
 
@@ -457,7 +456,6 @@ export default class CohortGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showSelectCheckbox: false,
 
             showToolbar: true,
             showActions: true,

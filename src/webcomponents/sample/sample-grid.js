@@ -564,7 +564,6 @@ export default class SampleGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showSelectCheckbox: false,
 
             showToolbar: true,
             showActions: true,

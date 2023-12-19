@@ -130,7 +130,6 @@ class DiseasePanelBrowserGridTest extends LitElement {
             grid: {
                 pageSize: 10,
                 pageList: [10, 25, 50],
-                showSelectCheckbox: false,
                 toolbar: {
                     showColumns: true,
                     showDownload: false,
