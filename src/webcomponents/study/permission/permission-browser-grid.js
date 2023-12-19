@@ -256,7 +256,6 @@ export default class PermissionBrowserGrid extends LitElement {
             pageSize: 25,
             pageList: [25, 50],
             showExport: false,
-            showSelectCheckbox: true,
             showToolbar: true,
             showActions: true,
         };

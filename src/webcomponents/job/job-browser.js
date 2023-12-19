@@ -267,7 +267,6 @@ export default class JobBrowser extends LitElement {
                     grid: {
                         pageSize: 10,
                         pageList: [5, 10, 25],
-                        showSelectCheckbox: false,
                     }
                 },
                 detail: {

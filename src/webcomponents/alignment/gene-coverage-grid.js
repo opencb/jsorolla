@@ -312,7 +312,6 @@ export default class GeneCoverageGrid extends LitElement {
             pageSize: 10,
             pageList: [10, 25, 50],
             showExport: false,
-            showSelectCheckbox: false,
             alleleStringLengthMax: 15,
             showToolbar: true,
         };
