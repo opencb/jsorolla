@@ -360,10 +360,11 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     renderLocal: false,
 
                     alleleStringLengthMax: 10,
-                    quality: {
-                        qual: 30,
-                        dp: 20
-                    },
+                    // 20231912 Vero: I comment out this code. I believe is not used.
+                    // quality: {
+                    //     qual: 30,
+                    //     dp: 20
+                    // },
                     isRearrangement: false,
                 }
             },

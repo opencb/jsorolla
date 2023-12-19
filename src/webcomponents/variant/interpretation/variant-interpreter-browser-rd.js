@@ -550,11 +550,11 @@ class VariantInterpreterBrowserRd extends LitElement {
                         // pageList: [5, 10, 25],
                         showSelectCheckbox: true,
                         // alleleStringLengthMax: 10,
-
-                        quality: {
-                            qual: 30,
-                            dp: 20
-                        },
+                        // 20231912 Vero: I comment out this code. I believe is not used.
+                        // quality: {
+                        //     qual: 30,
+                        //     dp: 20
+                        // },
                         somatic: false,
                         variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
                     }

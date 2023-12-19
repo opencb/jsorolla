@@ -71,11 +71,11 @@ class VariantInterpreterGridTest extends LitElement {
             genotype: {
                 type: "VAF"
             },
-
-            quality: {
-                qual: 30,
-                dp: 20
-            },
+            // 20231912 Vero: I comment out this code. I believe is not used.
+            // quality: {
+            //     qual: 30,
+            //     dp: 20
+            // },
             somatic: false,
             variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
         };

@@ -1540,11 +1540,11 @@ export default class VariantInterpreterGrid extends LitElement {
             hideType: false,
             hidePopulationFrequencies: false,
             hideClinicalInfo: false,
-
-            quality: {
-                qual: 30,
-                dp: 20
-            },
+            // 20231912 Vero: I comment out this code. I believe is not used.
+            // quality: {
+            //     qual: 30,
+            //     dp: 20
+            // },
             populationFrequencies: [
                 "1000G:ALL",
                 "GNOMAD_GENOMES:ALL",

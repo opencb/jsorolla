@@ -424,10 +424,11 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         showSelectCheckbox: true,
                         alleleStringLengthMax: 25,
                         isRearrangement: true,
-                        quality: {
-                            qual: 30,
-                            dp: 20
-                        },
+                        // 20231912 Vero: I comment out this code. I believe is not used.
+                        // quality: {
+                        //     qual: 30,
+                        //     dp: 20
+                        // },
                         somatic: !!this.somatic,
                         variantTypes: ["BREAKEND"],
                     }
