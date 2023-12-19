@@ -364,9 +364,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         qual: 30,
                         dp: 20
                     },
-                    evidences: {
-                        showSelectCheckbox: true
-                    },
                     isRearrangement: false,
                 }
             },

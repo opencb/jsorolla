@@ -76,9 +76,6 @@ class VariantInterpreterGridTest extends LitElement {
                 qual: 30,
                 dp: 20
             },
-            evidences: {
-                showSelectCheckbox: true
-            },
             somatic: false,
             variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
         };

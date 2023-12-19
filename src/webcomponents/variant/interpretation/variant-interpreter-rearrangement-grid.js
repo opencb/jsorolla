@@ -984,9 +984,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     ]
                 }
             ],
-            evidences: {
-                showSelectCheckbox: true,
-            },
             somatic: false,
             variantTypes: [],
         };

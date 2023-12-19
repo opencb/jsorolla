@@ -423,9 +423,6 @@ class SteinerReport extends LitElement {
                 qual: 30,
                 dp: 20,
             },
-            evidences: {
-                showSelectCheckbox: false,
-            },
         };
 
         return {

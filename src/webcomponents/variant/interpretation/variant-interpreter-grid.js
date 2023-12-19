@@ -1574,10 +1574,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 showNegativeConsequenceTypes: true
             },
 
-            evidences: {
-                showSelectCheckbox: true
-            },
-
             somatic: false,
             variantTypes: [],
         };
