@@ -573,6 +573,8 @@ export default class SampleGrid extends LitElement {
             showSettings: true,
             exportTabs: ["download", "link", "code"],
 
+            skipExtensions: false,
+
             // toolbar: {
             //     showSettings: true,
             //     showExport: true,

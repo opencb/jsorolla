@@ -1075,12 +1075,12 @@ export default class VariantBrowserGrid extends LitElement {
                 ensembl: true,
                 refseq: true,
             },
-            // Fixme: check this code
+
             consequenceType: {
                 maneTranscript: true,
                 gencodeBasicTranscript: true,
                 ensemblCanonicalTranscript: true,
-                refseqTranscript: true,
+                refseqTranscript: true, // Fixme: not considered in variant-interpreter-grid-config?
                 ccdsTranscript: false,
                 ensemblTslTranscript: false,
                 proteinCodingTranscript: false,

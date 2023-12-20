@@ -599,6 +599,8 @@ export default class DiseasePanelGrid extends LitElement {
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],
+
+            skipExtensions: false,
         };
     }
 

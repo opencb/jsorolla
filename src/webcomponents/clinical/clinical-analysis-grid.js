@@ -927,6 +927,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
             showReviewCase: true,
             showInterpretation: true,
             showReport: true,
+
+            skipExtensions: false,
         };
     }
 

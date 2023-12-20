@@ -650,20 +650,19 @@ export default class IndividualGrid extends LitElement {
             </div>
 
             ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-                display: {
-                    modalTitle: `Individual Update: ${this.individualUpdateId}`,
-                    modalDraggable: true,
-                    modalCyDataName: "modal-update",
-                },
-                render: active => html `
-                    <individual-update
-                        .individualId="${this.individualUpdateId}"
-                        .active="${active}"
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </individual-update>
-                `,
-            })}
+            display: {
+                modalTitle: `Individual Update: ${this.individualUpdateId}`,
+                modalDraggable: true,
+                modalCyDataName: "modal-update",
+            },
+            render: active => html `
+                <individual-update
+                    .individualId="${this.individualUpdateId}"
+                    .active="${active}"
+                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                    .opencgaSession="${this.opencgaSession}">
+                </individual-update>
+            `})}
         `;
     }
 
@@ -679,6 +678,8 @@ export default class IndividualGrid extends LitElement {
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],
+
+            skipExtensions: false,
         };
     }
 

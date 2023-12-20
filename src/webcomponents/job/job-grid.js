@@ -687,6 +687,8 @@ export default class JobGrid extends LitElement {
 
             alleleStringLengthMax: 15,
             autorefreshTiming: 60000,
+
+            skipExtensions: false,
         };
     }
 

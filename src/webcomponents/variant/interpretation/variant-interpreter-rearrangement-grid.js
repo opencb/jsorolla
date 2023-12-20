@@ -987,6 +987,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             ],
             somatic: false,
             variantTypes: [],
+
+            skipExtensions: false,
         };
     }
 

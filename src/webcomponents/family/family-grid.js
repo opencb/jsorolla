@@ -602,6 +602,8 @@ export default class FamilyGrid extends LitElement {
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],
+
+            skipExtensions: false,
         };
     }
 

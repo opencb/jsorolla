@@ -1576,6 +1576,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
             somatic: false,
             variantTypes: [],
+
+            skipExtensions: false,
         };
     }
 

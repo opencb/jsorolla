@@ -464,6 +464,8 @@ export default class CohortGrid extends LitElement {
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],
+
+            skipExtensions: false,
         };
     }
 
