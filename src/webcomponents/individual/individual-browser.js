@@ -75,15 +75,15 @@ export default class IndividualBrowser extends LitElement {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
 
-        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
-            ...this._config?.filter?.result.grid,
-            ...this.settings.table
-        });
-
-        UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
-            ...this._config.filter?.result?.grid?.toolbar,
-            ...this.settings.table?.toolbar
-        });
+        // Grid configuration and take out toolbar admin/user settings to grid level.
+        if (this.settings?.table) {
+            const {toolbar, ...otherTableProps} = this.settings.table;
+            UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+                ...this._config.filter.result.grid,
+                ...otherTableProps,
+                ...toolbar,
+            });
+        }
 
         // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
@@ -255,12 +255,6 @@ export default class IndividualBrowser extends LitElement {
                         multiSelection: false,
                         showSelectCheckbox: false
                     }
-                },
-                gridComparator: {
-                    pageSize: 5,
-                    pageList: [5, 10],
-                    detailView: true,
-                    multiSelection: true
                 },
                 detail: {
                     title: "Individual",

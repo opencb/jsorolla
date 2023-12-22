@@ -135,7 +135,6 @@ export default class PermissionBrowserGrid extends LitElement {
             pageList: this._config.pageList,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            // detailFormatter: this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -258,7 +257,6 @@ export default class PermissionBrowserGrid extends LitElement {
             pageList: [25, 50],
             showExport: false,
             detailView: false,
-            detailFormatter: null, // function with the detail formatter
             multiSelection: false,
             showSelectCheckbox: true,
             showToolbar: true,

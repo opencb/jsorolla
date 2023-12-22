@@ -5,13 +5,17 @@ export default {
         DETAIL_TAB: "detail_tab",
         TOOL: "tool",
         COLUMN: "column",
+        INTERPRETATION_TOOL: "interpretation_tool",
     },
 
     // Allows to get a list with all extensions of the specified type
     // @param {string} type - the extension type (e.g. "tool")
     // @return {array} extensions - an array with the extesions of the specified type
     getByType(type) {
-        return (window?.IVA_EXTENSIONS?.extensions || []).filter(extension => extension.type === type);
+        return (window?.IVA_EXTENSIONS || [])
+            .map(source => source?.extensions || [])
+            .flat()
+            .filter(extension => extension.type === type);
     },
 
     // Gets a list of detail tabs generated from the extensions for the specified component
@@ -79,5 +83,23 @@ export default {
             });
 
         return columns;
+    },
+
+    // Injects tools in the variant interpreter
+    injectInterpretationTools(tools) {
+        this.getByType(this.TYPES.INTERPRETATION_TOOL)
+            .forEach(extension => {
+                const position = extension.position ?? tools.length;
+                tools.splice(position, 0, {
+                    id: extension.id,
+                    title: extension.name,
+                    description: extension.description || "",
+                    icon: extension.icon || "fa fa-chart-bar",
+                    render: params => {
+                        return extension.render({html, ...params});
+                    },
+                });
+            });
+        return tools;
     }
 };

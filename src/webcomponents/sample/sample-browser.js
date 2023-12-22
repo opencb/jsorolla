@@ -69,15 +69,16 @@ export default class SampleBrowser extends LitElement {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
 
-        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
-            ...this._config?.filter?.result.grid,
-            ...this.settings.table
-        });
-
-        UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
-            ...this._config.filter?.result?.grid?.toolbar,
-            ...this.settings.table?.toolbar
-        });
+        // Grid configuration and take out toolbar admin/user settings to grid level.
+        if (this.settings?.table) {
+            const {toolbar, ...otherTableProps} = this.settings.table;
+            UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+                ...this._config.filter.result.grid,
+                ...otherTableProps,
+                ...toolbar,
+            });
+        }
+        // this._config = UtilsNew.mergeTableSetting(this._config, this.settings);
 
         // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
@@ -211,13 +212,11 @@ export default class SampleBrowser extends LitElement {
                         pageList: [5, 10, 25],
                         multiSelection: false,
                         showSelectCheckbox: false,
-                        toolbar: {
-                            showToolbar: true,
-                            showCreate: true,
-                            showExport: true,
-                            showSettings: true,
-                            exportTabs: ["download", "link", "code"]
-                        },
+                        showToolbar: true,
+                        showCreate: true,
+                        showExport: true,
+                        showSettings: true,
+                        exportTabs: ["download", "link", "code"]
                     }
                 },
                 detail: {
