@@ -92,9 +92,10 @@ export default class CohortGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Settings for the grid toolbar
+        const {toolbar, ...otherTableProps} = this._config;
         this.toolbarSetting = {
-            // buttons: ["columns", "download"],
-            ...this._config,
+            ...otherTableProps,
+            ...toolbar,
         };
 
         // Config for the grid toolbar
@@ -460,10 +461,13 @@ export default class CohortGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
-            showExport: true,
-            showSettings: true,
-            exportTabs: ["download", "link", "code"],
+            toolbar: {
+                showCreate: true,
+                showSettings: true,
+                showExport: true,
+                exportTabs: ["download", "link", "code"]
+                // columns list for the dropdown will be added in grid components based on settings.table.columns
+            },
 
             skipExtensions: false,
         };
