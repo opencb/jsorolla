@@ -85,9 +85,11 @@ export default class OpencgaFileGrid extends LitElement {
         };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
-        // Config for the grid toolbar
+        // Settings for the grid toolbar
+        const {toolbar, ...otherTableProps} = this._config;
         this.toolbarSetting = {
-            ...this._config,
+            ...otherTableProps,
+            ...toolbar,
         };
 
         this.toolbarConfig = {
@@ -519,10 +521,17 @@ export default class OpencgaFileGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
-            showExport: true,
-            showSettings: true,
-            exportTabs: ["download", "link", "code"],
+            toolbar: {
+                // Note Vero 20240108: It is not possible to create files.
+                // However, it was decided a while ago to display the button "New"
+                // for consistency with the rest of the browsers but disabled
+                // (see L103: this.toolbarConfig.create.display.disabled: true)
+                showCreate: true,
+                showSettings: true,
+                showExport: true,
+                exportTabs: ["download", "link", "code"]
+                // columns list for the dropdown will be added in grid components based on settings.table.columns
+            },
 
             skipExtensions: false,
         };

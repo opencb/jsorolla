@@ -188,17 +188,21 @@ const CATALOG_SETTINGS = {
             examples: []
         },
         table: {
-            // merge criterium: spread operator
+            // Browser parameters per study that an admin can configure.
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25],
+            showToolbar: true,
+            showActions: true,
             toolbar: {
+                showCreate: true, // If true, the  button will be displayed but disabled
                 showSettings: true,
-                showColumns: false,
-                showDownload: false,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
-                // columns list for the dropdown will be added in grid components based on settings.table.columns
             },
+            skipExtensions: false,
             // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
-            // It is supported either columns[] or hiddenColumns[].
+            // Columns list for the dropdown will be added in grid components based on settings.table.columns
             columns: ["name", "directory", "size", "format", "bioformat", "index", "creationDate", "actions"]
         },
         // merge criterium: uses this array as filter for internal 1D array.
