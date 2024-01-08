@@ -14,16 +14,22 @@ const CATALOG_SETTINGS = {
             examples: []
         },
         table: {
+            // Browser parameters per study that an admin can configure.
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25],
+            showToolbar: true,
+            showActions: true,
             toolbar: {
+                showCreate: true,
                 showSettings: true,
-                showColumns: false,
-                showDownload: false,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
+                // columns list for the dropdown will be added in grid components based on settings.table.columns
             },
+            skipExtensions: false,
             // It is supported either columns[] or hiddenColumns[].
             columns: ["id", "samples", "father", "mother", "disorders", "phenotypes", "caseId", "sex", "ethnicity", "dateOfBirth", "creationDate", "actions"],
-
             // Annotations Example:
             // annotations: [
             //     {
