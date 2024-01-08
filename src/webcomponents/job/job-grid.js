@@ -97,8 +97,11 @@ export default class JobGrid extends LitElement {
         };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
+        // Settings for the grid toolbar
+        const {toolbar, ...otherTableProps} = this._config;
         this.toolbarSetting = {
-            ...this._config,
+            ...otherTableProps,
+            ...toolbar,
         };
 
         // Config for the grid toolbar
@@ -679,14 +682,18 @@ export default class JobGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
-            showExport: true,
-            showSettings: true,
-            showRefresh: true,
-            exportTabs: ["download", "link", "code"],
-
-            alleleStringLengthMax: 15,
-            autorefreshTiming: 60000,
+            toolbar: {
+                // Note Vero 20240108: It is not possible to create jobs.
+                // However, it was decided a while ago to display the button "New"
+                // for consistency with the rest of the browsers but disabled
+                // (see L103: this.toolbarConfig.create.display.disabled: true)
+                showCreate: true,
+                showSettings: true,
+                showExport: true,
+                showRefresh: true,
+                autorefreshTiming: 60000,
+                exportTabs: ["download", "link", "code"]
+            },
 
             skipExtensions: false,
         };

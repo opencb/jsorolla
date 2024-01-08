@@ -224,18 +224,22 @@ const CATALOG_SETTINGS = {
             ]
         },
         table: {
-            // merge criterium: spread operator
+            // Browser parameters per study that an admin can configure.
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25],
+            showToolbar: true,
+            showActions: true,
             toolbar: {
+                showCreate: true, // If true, the  button will be displayed but disabled
                 showSettings: true,
-                showColumns: false,
-                showDownload: false,
                 showExport: true,
-                exportTabs: ["download", "link", "code"],
+                showRefresh: true,
                 autorefreshTiming: 60000, // 60s
-                // columns list for the dropdown will be added in grid components based on settings.table.columns
+                exportTabs: ["download", "link", "code"],
             },
+            skipExtensions: false,
             // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
-            // It is supported either columns[] or hiddenColumns[].
             columns: ["id", "toolId", "status", "priority", "dependsOn", "output", "execution", "creationDate", "actions"]
         },
         // merge criterium: uses this array as filter for internal 1D array.
