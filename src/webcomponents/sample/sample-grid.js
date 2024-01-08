@@ -86,7 +86,7 @@ export default class SampleGrid extends LitElement {
         };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
-        // Config for the grid toolbar
+        // Settings for the grid toolbar
         // this.toolbarSetting = {
         //     ...this._config,
         // };

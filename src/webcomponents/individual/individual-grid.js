@@ -90,7 +90,7 @@ export default class IndividualGrid extends LitElement {
         };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
-        // settings for the grid toolbar
+        // Settings for the grid toolbar
         const {toolbar, ...otherTableProps} = this._config;
         this.toolbarSetting = {
             ...otherTableProps,
