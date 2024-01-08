@@ -573,8 +573,6 @@ export default class SampleGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            skipExtensions: false,
-
             toolbar: {
                 showCreate: true,
                 showSettings: true,
@@ -582,6 +580,8 @@ export default class SampleGrid extends LitElement {
                 exportTabs: ["download", "link", "code"]
                 // columns list for the dropdown will be added in grid components based on settings.table.columns
             },
+
+            skipExtensions: false,
         };
     }
 
