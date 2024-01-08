@@ -87,8 +87,13 @@ export default class SampleGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Config for the grid toolbar
+        // this.toolbarSetting = {
+        //     ...this._config,
+        // };
+        const {toolbar, ...otherTableProps} = this._config;
         this.toolbarSetting = {
-            ...this._config,
+            ...otherTableProps,
+            ...toolbar,
         };
 
         this.toolbarConfig = {
@@ -568,19 +573,15 @@ export default class SampleGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
-            showExport: true,
-            showSettings: true,
-            exportTabs: ["download", "link", "code"],
-
             skipExtensions: false,
 
-            // toolbar: {
-            //     showSettings: true,
-            //     showExport: true,
-            //     exportTabs: ["download", "link", "code"]
-            //     // columns list for the dropdown will be added in grid components based on settings.table.columns
-            // },
+            toolbar: {
+                showCreate: true,
+                showSettings: true,
+                showExport: true,
+                exportTabs: ["download", "link", "code"]
+                // columns list for the dropdown will be added in grid components based on settings.table.columns
+            },
         };
     }
 

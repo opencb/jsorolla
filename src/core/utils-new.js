@@ -650,6 +650,28 @@ export default class UtilsNew {
         return {...internal, sections, examples, detail};
     }
 
+    static mergeTableSettings(internal, external, browserId) {
+        // 1. Read settings from keys in browser.settings.js, BROWSER dependent.
+        const allowedSettingsKeys = Object
+            .keys(CATALOG_SETTINGS[browserId].table);
+
+        // 2. Find out allowed settings for the specific browser
+        const allowedExternalSettings = {};
+        Object.entries(external.table)
+            .forEach(([key, value]) => {
+                if (allowedSettingsKeys.includes(key)) {
+                    allowedExternalSettings[key] = UtilsNew.objectClone(value);
+                }
+            });
+
+
+        // 3. From admin settings, merge allowed settings
+        UtilsNew.setObjectValue(internal, "filter.result.grid", {
+            ...internal.filter.result.grid,
+            ...allowedExternalSettings,
+        });
+    }
+
     /**
      * Filters internal array items using external array.
      * It either uses external array as list to add or remove items from the resulting array.

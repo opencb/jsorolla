@@ -70,15 +70,18 @@ export default class SampleBrowser extends LitElement {
         }
 
         // Grid configuration and take out toolbar admin/user settings to grid level.
+        // if (this.settings?.table) {
+        //     const {toolbar, ...otherTableProps} = this.settings.table;
+        //     UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+        //         ...this._config.filter.result.grid,
+        //         ...otherTableProps,
+        //         ...toolbar,
+        //     });
+        // }
+        // BROWSER: Admin browser configuration merged with internal default configuration.
         if (this.settings?.table) {
-            const {toolbar, ...otherTableProps} = this.settings.table;
-            UtilsNew.setObjectValue(this._config, "filter.result.grid", {
-                ...this._config.filter.result.grid,
-                ...otherTableProps,
-                ...toolbar,
-            });
+            UtilsNew.mergeTableSettings(this._config, this.settings, "SAMPLE_BROWSER");
         }
-        // this._config = UtilsNew.mergeTableSetting(this._config, this.settings);
 
         // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
