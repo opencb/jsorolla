@@ -27,7 +27,6 @@ const CATALOG_SETTINGS = {
                 exportTabs: ["download", "link", "code"]
             },
             skipExtensions: false,
-            // It is supported either columns[] or hiddenColumns[].
             // Columns list for the dropdown will be added in grid components based on settings.table.columns
             columns: ["id", "samples", "father", "mother", "disorders", "phenotypes", "caseId", "sex", "ethnicity", "dateOfBirth", "creationDate", "actions"],
             // Annotations Example:
@@ -80,7 +79,6 @@ const CATALOG_SETTINGS = {
             },
             skipExtensions: false,
             // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
-            // It is supported either columns[] or hiddenColumns[].
             // Columns list for the dropdown will be added in grid components based on settings.table.columns
             columns: ["id", "numSamples", "creationDate", "type"]
         },
@@ -103,17 +101,21 @@ const CATALOG_SETTINGS = {
             ]
         },
         table: {
-            // merge criterium: spread operator
+            // Browser parameters per study that an admin can configure.
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25],
+            showToolbar: true,
+            showActions: true,
             toolbar: {
+                showCreate: true,
                 showSettings: true,
-                showColumns: false,
-                showDownload: false,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
-                // columns list for the dropdown will be added in grid components based on settings.table.columns
             },
+            skipExtensions: false,
             // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
-            // It is supported either columns[] or hiddenColumns[].
+            // Columns list for the dropdown will be added in grid components based on settings.table.columns
             columns: ["id", "members", "disorders", "phenotypes", "caseId", "customAnnotation", "creationDate", "actions"]
         },
         // merge criterium: uses this array as filter for internal 1D array.
@@ -148,7 +150,6 @@ const CATALOG_SETTINGS = {
             },
             skipExtensions: false,
             // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
-            // It is supported either columns[] or hiddenColumns[].
             // Columns list for the dropdown will be added in grid components based on settings.table.columns
             columns: ["id", "individualId", "fileIds", "caseId", "collection.method", "processing.preparationMethod", "cellLine", "creationDate", "actions"],
             annotations: [],

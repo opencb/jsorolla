@@ -88,8 +88,10 @@ export default class FamilyGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Settings for the grid toolbar
+        const {toolbar, ...otherTableProps} = this._config;
         this.toolbarSetting = {
-            ...this._config,
+            ...otherTableProps,
+            ...toolbar,
         };
 
         // Config for the grid toolbar
