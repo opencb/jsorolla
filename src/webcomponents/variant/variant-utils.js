@@ -551,7 +551,7 @@ export default class VariantUtils {
                 maneTranscript: true,
                 gencodeBasicTranscript: false,
                 ensemblCanonicalTranscript: true,
-                refseqTranscript: true,
+                refseqTranscript: true, // Fixme: not considered in variant-interpreter-grid-config?
                 ccdsTranscript: false,
                 ensemblTslTranscript: false,
                 proteinCodingTranscript: false,
