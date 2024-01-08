@@ -418,6 +418,7 @@ const CATALOG_SETTINGS = {
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
             },
+            skipExtensions: false,
             // Merge criteria: uses this array as filter for internal 1D/2D array. It handles row/col span.
             // TODO NOTE this refers to clinical-analysis-grid (same list in review-cases.settings)
             // columns: ["caseId", "probandId", "familyId", "disorderId", "interpretation", "action"]
