@@ -142,9 +142,11 @@ export default class VariantBrowserGrid extends LitElement {
 
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
-        // Config for the grid toolbar
+        // Settings for the grid toolbar
+        const {toolbar, ...otherTableProps} = this._config;
         this.toolbarSetting = {
-            ...this._config,
+            ...otherTableProps,
+            ...toolbar,
             // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
             // gridColumns: this._getDefaultColumns() // original column structure
         };
@@ -1064,12 +1066,11 @@ export default class VariantBrowserGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            showCreate: false,
-            showExport: true,
-            showSettings: true,
-            exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
-            annotations: [],
-            highlights: [],
+            toolbar: {
+                showSettings: true,
+                showExport: true,
+                exportTabs: ["download", "export", "link", "code"]
+            },
 
             geneSet: {
                 ensembl: true,
@@ -1087,9 +1088,15 @@ export default class VariantBrowserGrid extends LitElement {
                 highImpactConsequenceTypeTranscript: false,
                 showNegativeConsequenceTypes: true
             },
+
             populationFrequenciesConfig: {
-                displayMode: "FREQUENCY_BOX"
-            }
+                displayMode: "FREQUENCY_BOX", // Options: FREQUENCY_BOX | FREQUENCY_NUMBER
+            },
+
+            annotations: [],
+            highlights: [],
+
+            skipExtensions: false,
         };
     }
 
