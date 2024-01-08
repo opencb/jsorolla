@@ -123,20 +123,39 @@ const CATALOG_SETTINGS = {
             examples: []
         },
         table: {
-            // merge criterium: spread operator
+            // Browser parameters per study that an admin can configure.
+            pagination: true,
             pageSize: 10,
             pageList: [10, 25],
+            showToolbar: true,
+            showActions: true,
             toolbar: {
+                showCreate: true,
                 showSettings: true,
-                showColumns: false,
-                showDownload: false,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
                 // columns list for the dropdown will be added in grid components based on settings.table.columns
             },
+            skipExtensions: false,
             // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
             // It is supported either columns[] or hiddenColumns[].
-            columns: ["id", "individualId", "fileIds", "caseId", "collection.method", "processing.preparationMethod", "cellLine", "creationDate", "actions"]
+            columns: ["id", "individualId", "fileIds", "caseId", "collection.method", "processing.preparationMethod", "cellLine", "creationDate", "actions"],
+            annotations: [],
+            // Annotations Example:
+            // annotations: [
+            //     {
+            //         title: "Cardiology Tests",
+            //         position: 3,
+            //         variableSetId: "cardiology_tests_checklist",
+            //         variables: ["ecg_test", "echo_test"]
+            //     },
+            //     {
+            //         title: "Risk Assessment",
+            //         position: 5,
+            //         variableSetId: "risk_assessment",
+            //         variables: ["vf_cardiac_arrest_events"]
+            //     }
+            // ]
         },
         // merge criterium: uses this array as filter for internal 1D array.
         detail: ["sample-view", "sample-variant-stats-view", "samtools-flags-stats-view", "individual-view", "file-view", "json-view"]
