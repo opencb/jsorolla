@@ -73,19 +73,14 @@ export default class ClinicalAnalysisBrowser extends LitElement {
             ...(this.settings || {}),
             ...(this.config || {}),
         };
-
         // merge filter list, canned filters, detail tabs
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config.filter, this.settings);
         }
 
+        // BROWSER: Admin browser configuration merged with internal default configuration.
         if (this.settings?.table) {
-            const {toolbar, ...otherTableProps} = this.settings.table;
-            UtilsNew.setObjectValue(this._config, "filter.result.grid", {
-                ...this._config.filter.result.grid,
-                ...otherTableProps,
-                ...toolbar,
-            });
+            UtilsNew.mergeTableSettings(this._config, this.settings, this.COMPONENT_ID.toUpperCase().replace(/-/g, "_"));
         }
 
         // Apply user configuration
@@ -232,9 +227,9 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                 ],
                 result: {
                     grid: {
-                        readOnlyMode: false,
                         pageSize: 10,
                         pageList: [5, 10, 25],
+                        readOnlyMode: false,
                     }
                 },
                 detail: {

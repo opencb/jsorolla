@@ -909,7 +909,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     getDefaultConfig() {
         return {
-            readOnlyMode: false, // it hides priority and status selectors even if the user has permissions
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
@@ -918,16 +917,14 @@ export default class ClinicalAnalysisGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
-            showExport: true,
-            showSettings: true,
-            exportTabs: ["download", "link", "code"],
+            toolbar: {
+                showCreate: true,
+                showSettings: true,
+                showExport: true,
+                exportTabs: ["download", "link", "code"]
+            },
+
             highlights: [],
-
-            showReviewCase: true,
-            showInterpretation: true,
-            showReport: true,
-
             skipExtensions: false,
         };
     }

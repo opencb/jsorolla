@@ -405,17 +405,20 @@ const CATALOG_SETTINGS = {
             examples: []
         },
         table: {
-            // merge criterium: spread operator
+            // Browser parameters per study that an admin can configure.
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25],
+            showToolbar: true,
+            showActions: true,
+            readOnlyMode: false, // It hides priority and status selectors even if the user has permissions
             toolbar: {
+                showCreate: true, // If true, the  button will be displayed but disabled
                 showSettings: true,
-                showColumns: false,
-                showDownload: false,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
-                // columns list for the dropdown will be added in grid components based on settings.table.columns
             },
             // Merge criteria: uses this array as filter for internal 1D/2D array. It handles row/col span.
-            // It is supported either columns[] or hiddenColumns[].
             // TODO NOTE this refers to clinical-analysis-grid (same list in review-cases.settings)
             // columns: ["caseId", "probandId", "familyId", "disorderId", "interpretation", "action"]
         },
