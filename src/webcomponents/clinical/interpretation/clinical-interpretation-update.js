@@ -60,6 +60,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
     #init() {
         this.clinicalInterpretation = {};
         this.clinicalInterpretationId = "";
+        this._users = [];
         this.mode = "";
 
         this.displayConfig = {
@@ -103,7 +104,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
     }
 
     opencgaSessionObserver() {
-        this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
+        this._users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
     }
 
     render() {
@@ -153,7 +154,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                             field: "analyst.id",
                             type: "select",
                             defaultValue: this.opencgaSession?.user?.id,
-                            allowedValues: () => this.users,
+                            allowedValues: () => this._users,
                         },
                         {
                             title: "Status",
@@ -185,12 +186,11 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                                     const panelLock = !!this.clinicalAnalysis?.panelLock;
                                     const panelList = panelLock ? this.clinicalAnalysis?.panels : this.opencgaSession.study?.panels;
                                     const handlePanelsFilterChange = e => {
-                                        // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const panelList = e.detail.value
                                             ?.split(",")
                                             .filter(panelId => panelId)
                                             .map(panelId => ({id: panelId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(panelList);
                                     };
                                     return html`
                                         <disease-panel-filter
