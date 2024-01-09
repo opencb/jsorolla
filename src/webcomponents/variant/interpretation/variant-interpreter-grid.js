@@ -174,8 +174,11 @@ export default class VariantInterpreterGrid extends LitElement {
         };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
+        // Settings for the grid toolbar
+        const {toolbar, ...otherTableProps} = this._config;
         this.toolbarSetting = {
-            ...this._config,
+            ...otherTableProps,
+            ...toolbar,
             showCreate: false,
             // columns: defaultColumns[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
             // gridColumns: defaultColumns, // original column structure
@@ -1532,10 +1535,12 @@ export default class VariantInterpreterGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            showCreate: false,
-            showExport: true,
-            showSettings: true,
-            exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
+            toolbar: {
+                showCreate: false,
+                showSettings: true,
+                showExport: true,
+                exportTabs: ["download", "export", "link", "code"]
+            },
 
             hideType: false,
             hidePopulationFrequencies: false,

@@ -125,15 +125,18 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             };
             this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
+            // Settings for the grid toolbar
+            const {toolbar, ...otherTableProps} = this._config;
             this.toolbarSetting = {
-                ...this._config,
+                ...otherTableProps,
+                ...toolbar,
             };
 
             this.toolbarConfig = {
                 toolId: this.toolId,
                 resource: "CLINICAL_VARIANT",
                 showInterpreterConfig: true,
-                columns: this._getDefaultColumns()
+                columns: this._getDefaultColumns(),
             };
             this.requestUpdate();
             this.renderVariants();
@@ -738,7 +741,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
-                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                this.toolbarConfig = {
+                    ...this.toolbarConfig,
+                    downloading: false,
+                };
                 this.requestUpdate();
             });
     }
@@ -939,12 +945,15 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showExport: true,
-            showSettings: true,
             showReview: true,
             showEditReview: true,
             showSelectCheckbox: false,
             showActions: false,
+
+            toolbar: {
+                showExport: true,
+                showSettings: true,
+            },
 
             alleleStringLengthMax: 50,
 

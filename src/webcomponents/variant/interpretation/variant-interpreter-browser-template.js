@@ -147,13 +147,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
 
+        // BROWSER: Admin browser configuration merged with internal default configuration.
         if (this.settings?.table) {
-            const {toolbar, ...otherTableProps} = this.settings.table;
-            UtilsNew.setObjectValue(this._config, "filter.result.grid", {
-                ...this._config.filter.result.grid,
-                ...otherTableProps,
-                ...toolbar,
-            });
+            UtilsNew.mergeTableSettings(this._config, this.settings, "INTERPRETER", this.toolId, this.opencgaSession);
         }
 
         // Apply User grid configuration. Only 'pageSize', 'columns', 'geneSet', 'consequenceType' and 'populationFrequenciesConfig' are set
