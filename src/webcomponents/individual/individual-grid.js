@@ -681,7 +681,6 @@ export default class IndividualGrid extends LitElement {
                 showSettings: true,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
-                // columns list for the dropdown will be added in grid components based on settings.table.columns
             },
 
             skipExtensions: false,
