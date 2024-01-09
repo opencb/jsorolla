@@ -162,12 +162,11 @@ export default class IndividualUpdate extends LitElement {
                                 render: (samples, dataFormFilterChange, updateParams) => {
                                     const handleSamplesFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
-                                        // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const sampleList = e.detail.value
                                             ?.split(",")
                                             .filter(sampleId => sampleId)
                                             .map(sampleId => ({id: sampleId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(sampleList);
                                     };
 
                                     return html`

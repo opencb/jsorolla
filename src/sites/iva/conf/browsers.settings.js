@@ -124,6 +124,8 @@ const CATALOG_SETTINGS = {
         },
         table: {
             // merge criterium: spread operator
+            pageSize: 10,
+            pageList: [10, 25],
             toolbar: {
                 showSettings: true,
                 showColumns: false,
@@ -380,7 +382,7 @@ const CATALOG_SETTINGS = {
             toolbar: {
                 showSettings: true,
                 showColumns: false,
-                showCreate: false,
+                showCreate: true,
                 showExport: true,
                 showDownload: false,
                 // columns list for the dropdown will be added in grid components based on settings.table.columns

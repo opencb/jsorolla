@@ -418,22 +418,17 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 ],
                 result: {
                     grid: {
-                        pagination: true,
-                        pageSize: 10,
-                        pageList: [5, 10, 25],
-                        showExport: true,
-                        detailView: true,
-                        showReview: false,
-                        showActions: true,
+                        // pagination: true,
+                        // pageSize: 10,
+                        // pageList: [5, 10, 25],
+                        // showExport: true,
+                        // detailView: true,
+                        // showReview: false,
+                        // showActions: true,
                         showSelectCheckbox: true,
-                        multiSelection: false,
-                        nucleotideGenotype: true,
+                        // multiSelection: false,
+                        // nucleotideGenotype: true,
                         alleleStringLengthMax: 25,
-                        header: {
-                            horizontalAlign: "center",
-                            verticalAlign: "bottom"
-                        },
-
                         isRearrangement: true,
                         quality: {
                             qual: 30,
@@ -445,7 +440,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 },
                 detail: {
                     title: variants => {
-                        return `Selected Variants: ${variants[0].id} - ${variants[1].id}`;
+                        return `Selected Variants: ${variants?.[0]?.id} - ${variants?.[1]?.id}`;
                     },
                     showTitle: true,
                     items: [
@@ -468,7 +463,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                             name: "Variant 1 JSON Data",
                             render: (variants, active) => html`
                                 <json-viewer
-                                    .data="${variants[0]}"
+                                    .data="${variants?.[0]}"
                                     .active="${active}">
                                 </json-viewer>
                             `,
@@ -478,7 +473,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                             name: "Variant 2 JSON Data",
                             render: (variants, active) => html`
                                 <json-viewer
-                                    .data="${variants[1]}"
+                                    .data="${variants?.[1]}"
                                     .active="${active}">
                                 </json-viewer>
                             `,
