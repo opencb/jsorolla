@@ -15,7 +15,6 @@ const CATALOG_SETTINGS = {
         },
         table: {
             // Browser parameters per study that an admin can configure.
-            pagination: true,
             pageSize: 10,
             pageList: [10, 25],
             showToolbar: true,
@@ -66,7 +65,6 @@ const CATALOG_SETTINGS = {
         },
         table: {
             // Browser parameters per study that an admin can configure.
-            pagination: true,
             pageSize: 10,
             pageList: [10, 25],
             showToolbar: true,
@@ -102,7 +100,6 @@ const CATALOG_SETTINGS = {
         },
         table: {
             // Browser parameters per study that an admin can configure.
-            pagination: true,
             pageSize: 10,
             pageList: [10, 25],
             showToolbar: true,
@@ -137,7 +134,6 @@ const CATALOG_SETTINGS = {
         },
         table: {
             // Browser parameters per study that an admin can configure.
-            pagination: true,
             pageSize: 10,
             pageList: [10, 25],
             showToolbar: true,
@@ -189,7 +185,6 @@ const CATALOG_SETTINGS = {
         },
         table: {
             // Browser parameters per study that an admin can configure.
-            pagination: true,
             pageSize: 10,
             pageList: [10, 25],
             showToolbar: true,
@@ -225,7 +220,6 @@ const CATALOG_SETTINGS = {
         },
         table: {
             // Browser parameters per study that an admin can configure.
-            pagination: true,
             pageSize: 10,
             pageList: [10, 25],
             showToolbar: true,
@@ -302,7 +296,6 @@ const CATALOG_SETTINGS = {
         },
         table: {
             // Browser parameters per study that an admin can configure.
-            pagination: true,
             pageSize: 10,
             pageList: [10, 25],
             showToolbar: true,
@@ -375,7 +368,6 @@ const CATALOG_SETTINGS = {
         },
         table: {
             // Browser parameters per study that an admin can configure.
-            pagination: true,
             pageSize: 10,
             pageList: [10, 25],
             showToolbar: true,
@@ -406,7 +398,6 @@ const CATALOG_SETTINGS = {
         },
         table: {
             // Browser parameters per study that an admin can configure.
-            pagination: true,
             pageSize: 10,
             pageList: [10, 25],
             showToolbar: true,
