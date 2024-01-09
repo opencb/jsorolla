@@ -1,3 +1,4 @@
+import browser from "@babel/plugin-transform-runtime/src/get-runtime-path/browser";
 
 export default class UtilsNew {
 
@@ -650,10 +651,30 @@ export default class UtilsNew {
         return {...internal, sections, examples, detail};
     }
 
-    static mergeTableSettings(internal, external, browserId) {
+    static mergeTableSettings(internal, external, type, id, opencgaSession) {
+        let defaultSettings = {};
+        let defaultSettingsName = "";
+        switch (type) {
+            case "CATALOG":
+                defaultSettingsName = id.replace(/-/g, "_").toUpperCase();
+                defaultSettings = opencgaSession.ivaDefaultSettings
+                    .settings[defaultSettingsName]
+                    .table;
+                break;
+            case "INTERPRETER":
+                defaultSettingsName = id.replace("variant-interpreter-", "").replace(/-/g, "_").toUpperCase();
+                defaultSettings = opencgaSession.ivaDefaultSettings
+                    .settings.VARIANT_INTERPRETER_SETTINGS.tools
+                    .find(tool => tool.id === "variant-browser")
+                    .browsers[defaultSettingsName]
+                    .table;
+                break;
+        }
         // 1. Read settings from keys in browser.settings.js, BROWSER dependent.
+        // const allowedSettingsKeys = Object
+        //     .keys(CATALOG_SETTINGS[browserId].table);
         const allowedSettingsKeys = Object
-            .keys(CATALOG_SETTINGS[browserId].table);
+            .keys(defaultSettings);
 
         // 2. Find out allowed settings for the specific browser
         const allowedExternalSettings = {};
@@ -663,7 +684,6 @@ export default class UtilsNew {
                     allowedExternalSettings[key] = UtilsNew.objectClone(value);
                 }
             });
-
 
         // 3. From admin settings, merge allowed settings
         UtilsNew.setObjectValue(internal, "filter.result.grid", {

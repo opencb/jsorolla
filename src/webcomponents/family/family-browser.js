@@ -71,7 +71,7 @@ export default class FamilyBrowser extends LitElement {
 
         // BROWSER: Admin browser configuration merged with internal default configuration.
         if (this.settings?.table) {
-            UtilsNew.mergeTableSettings(this._config, this.settings, this.COMPONENT_ID.toUpperCase().replace("-", "_"));
+            UtilsNew.mergeTableSettings(this._config, this.settings, "CATALOG", this.COMPONENT_ID, this.opencgaSession);
         }
 
         // Apply User grid configuration. Only 'pageSize' and 'columns' are set
