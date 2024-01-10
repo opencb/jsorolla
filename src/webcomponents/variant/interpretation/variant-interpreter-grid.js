@@ -736,7 +736,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     align: "center",
-                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this),
+                    formatter: (value, row) => {
+                        return VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter(value, row, this._config);
+                    },
                     visible: !this._config.hidePopulationFrequencies && this.gridCommons.isColumnVisible("populationFrequencies"),
                 },
                 {
