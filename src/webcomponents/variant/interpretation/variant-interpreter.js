@@ -277,7 +277,7 @@ class VariantInterpreter extends LitElement {
                         <a
                             class="variant-interpreter-step ${isDisabled ? "disabled" : ""} ${isActive ? "active" : ""}"
                             href="javascript: void 0"
-                            data-view="${item.id}"
+                            data-tool="${item.id}"
                             @click="${this.onClickSection}">
                             <i class="position-relative ${item.icon} fs-2 border border-secondary rounded-circle border-3 p-4"
                                 style="z-index:1;background-color:white">
