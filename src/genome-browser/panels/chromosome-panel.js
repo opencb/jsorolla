@@ -276,6 +276,7 @@ export default class ChromosomePanel {
             const textY = 35;
             const text = SVG.addChild(group, "text", {
                 "data-cy": "gb-chromosome-cytoband-label",
+                "data-chromosome-arm": cytoband.name[0],
                 "x": textX,
                 "y": textY,
                 "font-size": 10,
