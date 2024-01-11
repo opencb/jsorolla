@@ -16,112 +16,112 @@ context("GenomeBrowser", () => {
         });
     });
 
-    // context("render", () => {
-    //     it("should render navigation and status panels", () => {
-    //         cy.get("@container")
-    //             .find(`div[data-cy="gb-navigation"]`)
-    //             .should("exist");
-    //         cy.get("@container")
-    //             .find(`div[data-cy="gb-status"]`)
-    //             .should("exist");
-    //     });
+    context("render", () => {
+        it("should render navigation and status panels", () => {
+            cy.get("@container")
+                .find(`div[data-cy="gb-navigation"]`)
+                .should("exist");
+            cy.get("@container")
+                .find(`div[data-cy="gb-status"]`)
+                .should("exist");
+        });
 
-    //     it("should render inner panels", () => {
-    //         ["karyotype", "chromosome", "tracks"].forEach(name => {
-    //             cy.get("@container")
-    //                 .find(`li[data-cy="gb-${name}"]`)
-    //                 .should("exist");
-    //         });
-    //     });
-    // });
+        it("should render inner panels", () => {
+            ["karyotype", "chromosome", "tracks"].forEach(name => {
+                cy.get("@container")
+                    .find(`li[data-cy="gb-${name}"]`)
+                    .should("exist");
+            });
+        });
+    });
 
-    // context("navigation panel", () => {
-    //     beforeEach(() => {
-    //         cy.get("@container")
-    //             .find(`div[data-cy="gb-navigation"]`)
-    //             .as("navigation");
-    //     });
+    context("navigation panel", () => {
+        beforeEach(() => {
+            cy.get("@container")
+                .find(`div[data-cy="gb-navigation"]`)
+                .as("navigation");
+        });
 
-    //     it("should display the current region in the region input", () => {
-    //         cy.get("@navigation")
-    //             .find(`input[data-cy="gb-region-input"]`)
-    //             .invoke("val")
-    //             .should("equal", `${region.chromosome}:${region.start}-${region.end}`);
-    //     });
+        it("should display the current region in the region input", () => {
+            cy.get("@navigation")
+                .find(`input[data-cy="gb-region-input"]`)
+                .invoke("val")
+                .should("equal", `${region.chromosome}:${region.start}-${region.end}`);
+        });
 
-    //     it("should display the current region size", () => {
-    //         cy.get("@navigation")
-    //             .find(`input[data-cy="gb-window-size"]`)
-    //             .invoke("val")
-    //             .should("equal", `${region.end - region.start + 1}`);
-    //     });
+        it("should display the current region size", () => {
+            cy.get("@navigation")
+                .find(`input[data-cy="gb-window-size"]`)
+                .invoke("val")
+                .should("equal", `${region.end - region.start + 1}`);
+        });
 
-    //     it("should display the features of interest", () => {
-    //         cy.get("@navigation")
-    //             .find(`ul[data-cy="gb-features-list"] > li.dropdown-submenu`)
-    //             .as("features");
-    //         
-    //         cy.get("@features")
-    //             .should("have.length", 2);
+        it("should display the features of interest", () => {
+            cy.get("@navigation")
+                .find(`ul[data-cy="gb-features-list"] > li.dropdown-submenu`)
+                .as("features");
+            
+            cy.get("@features")
+                .should("have.length", 2);
 
-    //         ["Primary Findings", "My genes of interest"].forEach((name, index) => {
-    //             cy.get("@features")
-    //                 .eq(index)
-    //                 .find("a > span")
-    //                 .should("contain.text", name);
-    //         });
-    //     });
-    // });
+            ["Primary Findings", "My genes of interest"].forEach((name, index) => {
+                cy.get("@features")
+                    .eq(index)
+                    .find("a > span")
+                    .should("contain.text", name);
+            });
+        });
+    });
 
-    // context("karyotype panel", () => {
-    //     beforeEach(() => {
-    //         cy.get("@container")
-    //             .find(`li[data-cy="gb-karyotype"]`)
-    //             .as("karyotype");
-    //     });
+    context("karyotype panel", () => {
+        beforeEach(() => {
+            cy.get("@container")
+                .find(`li[data-cy="gb-karyotype"]`)
+                .as("karyotype");
+        });
 
-    //     it("should display the karyotype panel title", () => {
-    //         cy.get("@karyotype")
-    //             .find(`div[data-cy="gb-karyotype-title"]`)
-    //             .should("contain.text", "Karyotype");
-    //     });
+        it("should display the karyotype panel title", () => {
+            cy.get("@karyotype")
+                .find(`div[data-cy="gb-karyotype-title"]`)
+                .should("contain.text", "Karyotype");
+        });
 
-    //     it("should hide the panel content when toggle button is clicked", () => {
-    //         cy.get("@karyotype")
-    //             .find(`div[data-cy="gb-karyotype-content"]`)
-    //             .as("karyotypeContent");
+        it("should hide the panel content when toggle button is clicked", () => {
+            cy.get("@karyotype")
+                .find(`div[data-cy="gb-karyotype-content"]`)
+                .as("karyotypeContent");
 
-    //         cy.get("@karyotypeContent")
-    //             .invoke("css", "display")
-    //             .should("equal", "block");
+            cy.get("@karyotypeContent")
+                .invoke("css", "display")
+                .should("equal", "block");
 
-    //         cy.get("@karyotype")
-    //             .find(`div[data-cy="gb-karyotype-toggle"]`)
-    //             .trigger("click");
+            cy.get("@karyotype")
+                .find(`div[data-cy="gb-karyotype-toggle"]`)
+                .trigger("click");
 
-    //         cy.get("@karyotypeContent")
-    //             .invoke("css", "display")
-    //             .should("equal", "none");
-    //     });
+            cy.get("@karyotypeContent")
+                .invoke("css", "display")
+                .should("equal", "none");
+        });
 
-    //     it("should render the 24 + MT chromosomes", () => {
-    //         cy.get("@karyotype")
-    //             .find("svg > g[data-chr-name]")
-    //             .should("have.length", 25);
-    //     });
+        it("should render the 24 + MT chromosomes", () => {
+            cy.get("@karyotype")
+                .find("svg > g[data-chr-name]")
+                .should("have.length", 25);
+        });
 
-    //     it("should render the name of each chromosome", () => {
-    //         cy.get("@karyotype")
-    //             .find("svg > g[data-chr-name]")
-    //             .each((el, index) => {
-    //                 const name = el.attr("data-chr-name");
-    //                 cy.get("@karyotype")
-    //                     .find("svg > text")
-    //                     .eq(index)
-    //                     .should("contain.text", name);
-    //             });
-    //     });
-    // });
+        it("should render the name of each chromosome", () => {
+            cy.get("@karyotype")
+                .find("svg > g[data-chr-name]")
+                .each((el, index) => {
+                    const name = el.attr("data-chr-name");
+                    cy.get("@karyotype")
+                        .find("svg > text")
+                        .eq(index)
+                        .should("contain.text", name);
+                });
+        });
+    });
 
     context("chromosome panel", () => {
         beforeEach(() => {
