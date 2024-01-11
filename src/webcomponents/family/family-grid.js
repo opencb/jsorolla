@@ -61,6 +61,12 @@ export default class FamilyGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     updated(changedProperties) {
@@ -83,7 +89,6 @@ export default class FamilyGrid extends LitElement {
 
         // Settings for the grid toolbar
         this.toolbarSetting = {
-            // buttons: ["columns", "download"],
             ...this._config,
         };
 
@@ -174,7 +179,7 @@ export default class FamilyGrid extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
+                detailFormatter: this.detailFormatter,
                 gridContext: this,
                 // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 loadingTemplate: () => GridCommons.loadingFormatter(),
@@ -422,7 +427,7 @@ export default class FamilyGrid extends LitElement {
                 field: "id",
                 formatter: familyId => `<div><span style="font-weight: bold">${familyId}</span></div>`,
                 sortable: true,
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
@@ -450,7 +455,7 @@ export default class FamilyGrid extends LitElement {
                     }
                     return html;
                 },
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("members")
             },
             {
@@ -458,7 +463,7 @@ export default class FamilyGrid extends LitElement {
                 title: "Disorders",
                 field: "disorders",
                 formatter: disorders => CatalogGridFormatter.disorderFormatter(disorders),
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("disorders")
             },
             {
@@ -466,7 +471,7 @@ export default class FamilyGrid extends LitElement {
                 title: "Phenotypes",
                 field: "phenotypes",
                 formatter: CatalogGridFormatter.phenotypesFormatter,
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("phenotypes")
             },
             {
@@ -474,7 +479,7 @@ export default class FamilyGrid extends LitElement {
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
@@ -483,7 +488,7 @@ export default class FamilyGrid extends LitElement {
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
                 sortable: true,
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
@@ -644,19 +649,18 @@ export default class FamilyGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
+            showSelectCheckbox: false,
+            multiSelection: false,
+            detailFormatter: this.detailFormatter, // function with the detail formatter
+            detailView: true,
+
             showToolbar: true,
+            showActions: true,
+
             showCreate: true,
             showExport: true,
             showSettings: true,
-            showActions: true,
-            showSelectCheckbox: true,
-            detailView: true,
-            detailFormatter: this.detailFormatter, // function with the detail formatter
-            multiSelection: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
+            exportTabs: ["download", "link", "code"],
         };
     }
 

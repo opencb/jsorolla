@@ -52,10 +52,7 @@ export default class ClinicalAnalysisGroup extends LitElement {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
-                toolbar: {
-                    ...(this.config.toolbar || {}),
-                    showCreate: false, // Hide create button in each grid
-                },
+                showCreate: false, // Caution: force create false independently of admin/default decision.
             };
 
             this.updateGroups();
@@ -125,7 +122,7 @@ export default class ClinicalAnalysisGroup extends LitElement {
         return html`
             <div>
                 <div style="display:flex;">
-                    ${this.config?.toolbar?.showCreate ? html`
+                    ${this.config?.showCreate ? html`
                         <a type="button" href="#clinical-analysis-create/" class="btn btn-light btn-sm text-black">
                             <i class="fas fa-columns icon-padding"></i>
                             <span>New</span>
@@ -163,10 +160,11 @@ export default class ClinicalAnalysisGroup extends LitElement {
     getDefaultConfig() {
         return {
             showToolbar: false,
+            showCreate: false,
             groups: [
                 {
                     id: "analyst",
-                    distinctField: "analyst.id",
+                    distinctField: "analysts.id",
                     queryField: "analystId",
                     display: {
                         title: "Analyst",

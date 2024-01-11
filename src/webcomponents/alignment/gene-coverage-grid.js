@@ -110,7 +110,6 @@ export default class GeneCoverageGrid extends LitElement {
             pageList: this._config.pageList,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
             gridContext: this,
             loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -324,10 +323,6 @@ export default class GeneCoverageGrid extends LitElement {
             nucleotideGenotype: true,
             alleleStringLengthMax: 15,
             showToolbar: true,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            }
         };
     }
 

@@ -87,7 +87,6 @@ export default class OpencgaFileGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarSetting = {
-            // buttons: ["download"],
             ...this._config,
         };
 
@@ -152,7 +151,6 @@ export default class OpencgaFileGrid extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
                 gridContext: this,
                 // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 loadingTemplate: () => GridCommons.loadingFormatter(),
@@ -243,7 +241,6 @@ export default class OpencgaFileGrid extends LitElement {
             pageList: this._config.pageList,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
             gridContext: this,
             // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             loadingTemplate: () => GridCommons.loadingFormatter(),
@@ -330,7 +327,6 @@ export default class OpencgaFileGrid extends LitElement {
                     }
                     return html;
                 },
-                // halign: this._config.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("sampleIds")
             },
             {
@@ -533,15 +529,18 @@ export default class OpencgaFileGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
+            showSelectCheckbox: false,
+            multiSelection: false,
+            detailView: false,
+
             showToolbar: true,
+            showActions: true,
+
             showCreate: true,
             showExport: true,
             showSettings: true,
-            showActions: true,
-            showSelectCheckbox: false,
-            detailView: false,
-            detailFormatter: null, // function with the detail formatter
-            multiSelection: false,
+            exportTabs: ["download", "link", "code"],
+
             skipExtensions: false,
         };
     }

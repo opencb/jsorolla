@@ -27,6 +27,7 @@ import "../commons/filters/catalog-search-autocomplete.js";
 import "../commons/image-viewer.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
+import "./filters/clinical-analyst-filter.js";
 
 export default class ClinicalAnalysisCreate extends LitElement {
 
@@ -56,6 +57,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
     _init() {
         this.clinicalAnalysis = {};
+        this._users = [];
+
         this.displayConfigDefault = {
             style: "margin: 10px",
             buttonsWidth: 8,
@@ -380,11 +383,11 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 render: (panels, dataFormFilterChange) => {
                                     const handlePanelsFilterChange = e => {
                                         // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const panelList = e.detail.value
                                             ?.split(",")
                                             .filter(panelId => panelId)
                                             .map(panelId => ({id: panelId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(panelList);
                                     };
                                     return html`
                                         <disease-panel-filter
@@ -417,21 +420,20 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             display: {
                                 render: (flags, dataFormFilterChange) => {
                                     const handleFlagsFilterChange = e => {
-                                        // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const flagList = e.detail.value
                                             ?.split(",")
                                             .filter(flagId => flagId)
                                             .map(flagId => ({id: flagId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(flagList);
                                     };
                                     return html`
-                                    <clinical-flag-filter
-                                        .flag="${flags?.map(f => f.id).join(",")}"
-                                        .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type?.toUpperCase()]}"
-                                        .multiple=${true}
-                                        @filterChange="${e => handleFlagsFilterChange(e, "flags.id")}">
-                                    </clinical-flag-filter>
-                                `;
+                                        <clinical-flag-filter
+                                            .flag="${flags?.map(f => f.id).join(",")}"
+                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type?.toUpperCase()]}"
+                                            .multiple=${true}
+                                            @filterChange="${e => handleFlagsFilterChange(e, "flags.id")}">
+                                        </clinical-flag-filter>
+                                    `;
                                 },
                             },
                         },
@@ -745,10 +747,29 @@ export default class ClinicalAnalysisCreate extends LitElement {
                         },
                         {
                             title: "Assigned To",
-                            field: "analyst.id",
-                            type: "select",
+                            field: "analysts",
+                            type: "custom",
                             // defaultValue: this.opencgaSession?.user?.id,
-                            allowedValues: "_users",
+                            // allowedValues: "_users",
+                            display: {
+                                render: (analysts, dataFormFilterChange) => {
+                                    const handleAnalystsFilterChange = e => {
+                                        const analystList = e.detail.value
+                                            ?.split(",")
+                                            .filter(analystId => analystId)
+                                            .map(analystId => ({id: analystId}));
+                                        dataFormFilterChange(analystList);
+                                    };
+                                    return html`
+                                        <clinical-analyst-filter
+                                            .analyst="${analysts?.map(f => f.id).join(",")}"
+                                            .analysts="${this._users}"
+                                            .multiple=${true}
+                                            @filterChange="${e => handleAnalystsFilterChange(e, "analyst.id")}">
+                                        </clinical-analyst-filter>
+                                    `;
+                                },
+                            }
                         },
                         {
                             title: "Due Date",

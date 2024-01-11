@@ -193,11 +193,10 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
     }
 
     render() {
-        const variantRegion = this.variantAnnotation.chromosome + ":" + this.variantAnnotation.start + "-" + this.variantAnnotation.start;
         if (this.variantAnnotation === undefined || this.variantAnnotation === "" || this.proteinSubScore === undefined) {
             return;
         }
-
+        const variantRegion = this.variantAnnotation.chromosome + ":" + this.variantAnnotation.start + "-" + this.variantAnnotation.start;
         const variantId = this.variantAnnotation.id ? this.variantAnnotation.id : `${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}:${this.variantAnnotation.reference}:${this.variantAnnotation.alternate}`;
         return html`
             <data-form

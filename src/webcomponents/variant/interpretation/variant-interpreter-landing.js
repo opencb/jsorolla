@@ -136,12 +136,13 @@ class VariantInterpreterLanding extends LitElement {
                             buttonsLayout: "upper",
                             type: "tabs",
                         };
+
                         return html`
                             <div class="col-md-10 offset-md-1">
                                 <tool-header title="Case Manager - ${clinicalAnalysis?.id ?? ""}" class="bg-white pt-3"></tool-header>
                                 <div class="ps-3">
                                     <clinical-analysis-update
-                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .clinicalAnalysisId="${clinicalAnalysis?.id}"
                                         .opencgaSession="${opencgaSession}"
                                         .displayConfig="${displayConfig}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">

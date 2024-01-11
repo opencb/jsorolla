@@ -65,6 +65,12 @@ export default class CohortGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     updated(changedProperties) {
@@ -165,7 +171,6 @@ export default class CohortGrid extends LitElement {
             pageList: this._config.pageList,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
             gridContext: this,
             // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             loadingTemplate: () => GridCommons.loadingFormatter(),
@@ -213,8 +218,6 @@ export default class CohortGrid extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
-                // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     const sort = this.table.bootstrapTable("getOptions").sortName ? {
@@ -305,7 +308,7 @@ export default class CohortGrid extends LitElement {
                             ${cohort.name ? `<span class="help-block" style="margin: 5px 0">${cohort.name}</span>` : ""}
                         </div>`;
                 },
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
@@ -313,7 +316,7 @@ export default class CohortGrid extends LitElement {
                 title: "Number of Samples",
                 field: "numSamples",
                 // formatter: (value, row) => row.numSamples ?? 0,
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("numSamples")
             },
             {
@@ -321,7 +324,7 @@ export default class CohortGrid extends LitElement {
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
@@ -474,20 +477,17 @@ export default class CohortGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
+            multiSelection: false,
+            showSelectCheckbox: false,
+            detailView: false,
+
             showToolbar: true,
+            showActions: true,
+
             showCreate: true,
             showExport: true,
             showSettings: true,
-            showActions: true,
-            detailView: false,
-            detailFormatter: null, // function with the detail formatter
-            multiSelection: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
-            // It comes from external settings, and it is used in _getDefaultColumns()
-            // columns: []
+            exportTabs: ["download", "link", "code"],
         };
     }
 

@@ -119,9 +119,7 @@ export default class RgaIndividualView extends LitElement {
                     field: "attributes.OPENCGA_CLINICAL_ANALYSIS"
                 }
             ],
-            showColumns: true,
             showExport: false,
-            showDownload: true
         };
 
         this.renderTable();
@@ -154,8 +152,6 @@ export default class RgaIndividualView extends LitElement {
             formatShowingRows: (pageFrom, pageTo, totalRows) => this.formatShowingRows(pageFrom, pageTo, totalRows),
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this._config.detailFormatter,
-            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             loadingTemplate: () => GridCommons.loadingFormatter(),
             ajax: async params => {
                 const _filters = {

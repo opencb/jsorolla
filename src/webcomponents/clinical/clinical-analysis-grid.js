@@ -62,6 +62,12 @@ export default class ClinicalAnalysisGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     updated(changedProperties) {
@@ -86,7 +92,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
         this.toolbarSetting = {
             ...this._config,
             newButtonLink: "#clinical-analysis-create/",
-            showCreate: true,
             // columns: this._getDefaultColumns().filter(col => col.field && (!col.visible || col.visible === true))
         };
 
@@ -395,6 +400,27 @@ export default class ClinicalAnalysisGrid extends LitElement {
         `;
     }
 
+    analystsFormatter(analysts) {
+        let html = "-";
+        if (!analysts?.length) {
+            return html;
+        }
+
+        if (analysts?.length > 0) {
+            html = "<div>";
+            analysts.forEach(analyst => {
+                if (analyst?.id) {
+                    html += `
+                        <div style="margin: 2px 0; white-space: nowrap">
+                            <span data-cy="analyst-id">${analyst.id}</span>
+                        </div>`;
+                }
+            });
+            html += "</div>";
+        }
+        return html;
+    }
+
     removeRowTable(clinicalAnalysisId) {
         const data = this.table.bootstrapTable("getData");
         this.table.bootstrapTable("remove", {
@@ -622,7 +648,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 id: "caseId",
                 title: "Case",
                 field: "id",
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => this.caseFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("caseId")
@@ -631,7 +657,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 id: "probandId",
                 title: "Proband (Sample) and Family",
                 field: "proband",
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => this.probandFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("probandId")
@@ -640,7 +666,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 id: "disorderId",
                 title: "Clinical Condition / Panel",
                 field: "disorder",
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => {
                     const panelHtml = row.panels?.length > 0 ? CatalogGridFormatter.panelFormatter(row.panels) : "-";
@@ -655,7 +681,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 id: "interpretation",
                 title: "Interpretation",
                 field: "interpretation",
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => this.interpretationFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("interpretation")
@@ -664,7 +690,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 id: "status",
                 title: "Status",
                 field: "status",
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 valign: "middle",
                 formatter: this.statusFormatter.bind(this),
                 events: {
@@ -678,7 +704,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 title: "Priority",
                 field: "priority",
                 align: "center",
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 valign: "middle",
                 formatter: this.priorityFormatter.bind(this),
                 events: {
@@ -688,19 +714,20 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("priority")
             },
             {
-                id: "Analyst",
-                title: "Analyst",
-                field: "analyst.id",
-                align: "center",
-                halign: this._config.header.horizontalAlign,
+                id: "analysts",
+                title: "Analysts",
+                field: "analysts",
+                formatter: value => this.analystsFormatter(value),
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 valign: "middle",
-                visible: this.gridCommons.isColumnVisible("Analyst")
+                visible: this.gridCommons.isColumnVisible("analysts")
             },
+
             {
                 id: "dates",
                 title: "Due / Creation Date",
                 field: "Dates",
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 valign: "middle",
                 formatter: (field, clinicalAnalysis) => {
                     const dueDateString = UtilsNew.dateFormatter(clinicalAnalysis.dueDate);
@@ -725,7 +752,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => {
                     const session = this.opencgaSession;
@@ -735,7 +762,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     const lockActionIcon = row.locked ? "fa-unlock" : "fa-lock";
                     const lockActionText = row.locked ? "Unlock" : "Lock";
 
-                    const isOwnOrIsLocked = row.locked || this.opencgaSession?.user?.id !== row.analyst?.id ? "disabled" : "";
+                    const isOwnOrIsLocked = row.locked || !row.analysts?.some(analyst => analyst.id === this.opencgaSession?.user?.id) ? "disabled" : "";
 
                     // Generate actions dropdown
                     return `
@@ -838,7 +865,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         row.interpretation?.id ? [`${row.interpretation.id} (primary)`, ...(row.secondaryInterpretations || []).map(s => s.id)].join(", ") : "-",
                         row.status?.id ?? "-",
                         row.priority?.id ?? "-",
-                        row.analyst?.id ?? "-",
+                        (row.analysts || []).map(analyst => analyst.id).join(", ") ?? "-",
                         row.creationDate ? CatalogGridFormatter.dateFormatter(row.creationDate) : "-"
                     ].join("\t")),
                 ];
@@ -888,7 +915,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     `;
                 }
             })}
-
         `;
     }
 
@@ -898,23 +924,22 @@ export default class ClinicalAnalysisGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
+            showSelectCheckbox: false,
+            multiSelection: false,
+            detailView: false,
+
             showToolbar: true,
+            showActions: true,
+
             showCreate: true,
-            showExport: false,
+            showExport: true,
+            showSettings: true,
+            exportTabs: ["download", "link", "code"],
+            highlights: [],
+
             showReviewCase: true,
             showInterpretation: true,
             showReport: true,
-            showSettings: true,
-            showActions: true,
-            detailView: false,
-            // detailFormatter: this.detailFormatter, // function with the detail formatter
-            showSelectCheckbox: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
-            // It comes from external settings, and it is used in _getDefaultColumns()
-            // columns: []
         };
     }
 

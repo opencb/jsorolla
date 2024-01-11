@@ -15,8 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../commons/forms/form-utils";
-import AnalysisUtils from "../../commons/analysis/analysis-utils";
+import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
@@ -87,7 +86,7 @@ export default class RdTieringAnalysis extends LitElement {
         return null;
     }
 
-    onFieldChange(e, field) {
+    onFieldChange() {
         this.toolParams = {...this.toolParams};
         this.requestUpdate();
     }
@@ -95,7 +94,7 @@ export default class RdTieringAnalysis extends LitElement {
     onSubmit() {
         const toolParams = {
             clinicalAnalysis: this.toolParams.clinicalAnalysis || "",
-            panels: this.toolParams.panels.split(",") || [],
+            panels: (this.toolParams.panels || "").split(","),
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -138,12 +137,12 @@ export default class RdTieringAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Clinical Analysis ID",
-                        field: "clinicalAnalysisId",
+                        field: "clinicalAnalysis",
                         type: "custom",
                         display: {
-                            render: (clinicalAnalysisId, dataFormFilterChange, updateParams, clinicalAnalysis) => html`
+                            render: (clinicalAnalysis, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
-                                    .value="${clinicalAnalysisId}"
+                                    .value="${clinicalAnalysis}"
                                     .resource="${"CLINICAL_ANALYSIS"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: false, disabled: !!clinicalAnalysis}}"
@@ -157,17 +156,16 @@ export default class RdTieringAnalysis extends LitElement {
                         //   - Once the clinical analysis id is selected, query its panels?
                         //   - All the studies have panels?
                         title: "Disease Panels",
-                        field: "panels.id",
+                        field: "panels",
                         type: "custom",
                         display: {
                             render: (panels, dataFormFilterChange) => {
-                                // Todo: check if its working
                                 // Get whether disease panels can be modified or are fixed
-                                const casePanelLock = !!this.clinicalAnalysisId;
+                                const casePanelLock = !!this.clinicalAnalysis;
                                 // Get the list of disease panels for the dropdown
                                 let diseasePanels = [];
                                 if (casePanelLock) {
-                                    for (const panelId of panels.split(",")) {
+                                    for (const panelId of (panels || "").split(",")) {
                                         const diseasePanel = this.opencgaSession.study?.panels?.find(p => p.id === panelId);
                                         if (diseasePanel) {
                                             diseasePanels.push(diseasePanel);
@@ -177,15 +175,15 @@ export default class RdTieringAnalysis extends LitElement {
                                     diseasePanels = this.opencgaSession.study?.panels;
                                 }
                                 return html`
-                                    <disease-panel-filter
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .diseasePanels="${diseasePanels}"
-                                        .panel="${this.diseasePanelIds}"
-                                        .showExtendedFilters="${false}"
-                                        .showSelectedPanels="${false}"
+                                    <select-field-filter
+                                        .data="${diseasePanels}"
+                                        .value=${panels || ""}
+                                        .liveSearch=${diseasePanels?.length > 5}
+                                        .multiple="${true}"
                                         .disabled="${casePanelLock}"
+                                        separator="\n"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                    </disease-panel-filter>
+                                    </select-field-filter>
                                 `;
                             },
                         }

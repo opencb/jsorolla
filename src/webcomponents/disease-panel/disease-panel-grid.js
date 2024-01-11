@@ -67,6 +67,12 @@ export default class DiseasePanelGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     updated(changedProperties) {
@@ -87,7 +93,6 @@ export default class DiseasePanelGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         this.toolbarSetting = {
-            // buttons: ["columns", "download"],
             ...this._config,
         };
 
@@ -179,7 +184,6 @@ export default class DiseasePanelGrid extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
                 gridContext: this,
                 // formatLoadingMessage: () => String.raw`<div><loading-spinner></loading-spinner></div>`,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
@@ -266,7 +270,6 @@ export default class DiseasePanelGrid extends LitElement {
             pageList: this._config.pageList,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
             gridContext: this,
             // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             loadingTemplate: () => GridCommons.loadingFormatter(),
@@ -384,7 +387,7 @@ export default class DiseasePanelGrid extends LitElement {
                             <div style="margin: 5px 0">${idLinkHtml}</div>
                         </div>`;
                 },
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("name")
             },
             // {
@@ -402,7 +405,7 @@ export default class DiseasePanelGrid extends LitElement {
             //         }
             //         return row?.id ?? "-";
             //     },
-            //     halign: this._config.header.horizontalAlign,
+            //     halign: this.displayConfigDefault.header.horizontalAlign,
             //     visible: this.gridCommons.isColumnVisible("id")
             // },
             {
@@ -410,7 +413,7 @@ export default class DiseasePanelGrid extends LitElement {
                 title: "Disorders",
                 field: "disorders",
                 formatter: disorders => CatalogGridFormatter.disorderFormatter(disorders),
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("disorders")
             },
             {
@@ -465,7 +468,7 @@ export default class DiseasePanelGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 formatter: (value, row) => `
                     <div class="dropdown" style="display: flex; justify-content: center;">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -599,18 +602,17 @@ export default class DiseasePanelGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
+            showSelectCheckbox: false,
+            multiSelection: false,
+            detailView: false,
+
             showToolbar: true,
+            showActions: true,
+
             showCreate: true,
             showExport: true,
             showSettings: true,
-            showActions: true,
-            detailView: false,
-            detailFormatter: null, // function with the detail formatter
-            multiSelection: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
+            exportTabs: ["download", "link", "code"],
         };
     }
 

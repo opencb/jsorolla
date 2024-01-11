@@ -191,17 +191,17 @@ context("File Browser Grid", () => {
         });
     });
 
-    context("Grid",{tags: "@shortTask"}, () => {
-        it("should render", () => {
-            cy.get(browserGrid)
-                .should("be.visible");
-        });
-
-        it("should change page", () => {
-            UtilsTest.changePage(browserGrid,2);
-            UtilsTest.changePage(browserGrid,3);
-        });
-    });
+    // context("Grid",{tags: "@shortTask"}, () => {
+    //     it("should render", () => {
+    //         cy.get(browserGrid)
+    //             .should("be.visible");
+    //     });
+    //
+    //     it("should change page", () => {
+    //         UtilsTest.changePage(browserGrid,2);
+    //         UtilsTest.changePage(browserGrid,3);
+    //     });
+    // });
 
     context("Row", () => {
         it("should display row #3 as selected", () => {

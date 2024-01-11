@@ -214,6 +214,10 @@
     <!-- /build -->
     <!-- LitElement assets -->
     <!-- build:void[] -->
+    <script type="text/javascript">
+        // We need to initialize IVA_EXTENSIONS as an empty array
+        window.IVA_EXTENSIONS = [];
+    </script>
     <script src="{{ IVA_EXTENSIONS_PATH }}/extensions.js"></script>
     <script type="module" src="./iva-app.js"></script>
     <!-- /build -->
@@ -252,6 +256,7 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            document.title = SUITE.name + " (Bs 5.3)";
             // Show or hide the back-to-top button based on scroll position
             window.addEventListener('scroll', function () {
                 if (window.pageYOffset > 100) {

@@ -135,9 +135,7 @@ export default class RgaVariantView extends LitElement {
                     field: "individualStats.missingParents.numCompHet"
                 }
             ],
-            showColumns: true,
             showExport: false,
-            showDownload: true
         };
     }
 
@@ -616,7 +614,6 @@ export default class RgaVariantView extends LitElement {
             pageList: [10, 25, 50],
             showExport: false,
             detailView: false,
-            detailFormatter: undefined, // function with the detail formatter
             multiSelection: false,
             populationFrequencies: [
                 "GNOMAD_EXOMES:ALL",

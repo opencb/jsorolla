@@ -71,6 +71,12 @@ export default class JobGrid extends LitElement {
         this.autoRefresh = false;
         this.eventNotifyName = "messageevent";
         this._config = this.getDefaultConfig();
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     updated(changedProperties) {
@@ -93,7 +99,6 @@ export default class JobGrid extends LitElement {
 
         this.toolbarSetting = {
             ...this._config,
-            // columns: this._getDefaultColumns().filter(col => col.field)
         };
 
         // Config for the grid toolbar
@@ -232,7 +237,7 @@ export default class JobGrid extends LitElement {
                 },
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter.bind(this),
+                detailFormatter: this.detailFormatter,
                 sortName: "Creation",
                 sortOrder: "asc",
                 gridContext: this,
@@ -690,22 +695,21 @@ export default class JobGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
+            showSelectCheckbox: false,
+            multiSelection: false,
+            detailView: true,
+
             showToolbar: true,
+            showActions: true,
+
             showCreate: true,
             showExport: true,
             showSettings: true,
             showRefresh: true,
-            showActions: true,
-            detailView: true,
-            detailFormatter: this.detailFormatter,
-            showSelectCheckbox: false,
-            multiSelection: false,
+            exportTabs: ["download", "link", "code"],
+
             nucleotideGenotype: true,
             alleleStringLengthMax: 15,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
             autorefreshTiming: 60000,
         };
     }

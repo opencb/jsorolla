@@ -91,9 +91,7 @@ export default class RgaGeneView extends LitElement {
                     field: "variantStats.count,variantStats.numHomAlt,variantStats.numCompHet"
                 }
             ],
-            showColumns: true,
             showExport: false,
-            showDownload: true
         };
         this.requestUpdate();
         this.renderTable();
@@ -126,8 +124,6 @@ export default class RgaGeneView extends LitElement {
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this._config.detailFormatter,
-            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             loadingTemplate: () => GridCommons.loadingFormatter(),
             ajax: async params => {
                 const _filters = {
