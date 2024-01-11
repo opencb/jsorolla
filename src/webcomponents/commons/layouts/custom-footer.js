@@ -186,22 +186,20 @@ export default class CustomFooter extends LitElement {
                                     ${this.appName || "IVA (JSorolla)"} <sup style="margin-left: 5px">${this.version || this.config?.version}</sup>
                                 </a>
                             </div>
+                            <div class="footer-item">
                             ${this.host?.opencga ? html `
-                                <div class="footer-item">
                                     <a href="https://github.com/opencb/opencga" target="blank" style="color: white">
                                         OpenCGA <sup style="margin-left: 5px">${this.host?.opencga}</sup>
                                     </a>
-                                </div>
-                            ` : html`OpenCGA <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`
-                            }
+                            ` : html`OpenCGA <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`}
+                            </div>
+                            <div class="footer-item">
                             ${this.host?.cellbase ? html `
-                                <div class="footer-item">
                                     <a href="https://github.com/opencb/cellbase" target="blank" style="color: white">
                                         CellBase <sup style="margin-left: 5px">${this.host?.cellbase}</sup>
                                     </a>
-                                </div>
-                            ` : html`CellBase <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`
-                            }
+                            ` : html`CellBase <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`}
+                            </div>
                         </div>
                     </div>
                 </div>
