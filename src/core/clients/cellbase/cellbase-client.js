@@ -61,7 +61,7 @@ export class CellBaseClient {
                     detail: value
                 }));
         };
-        if (!this._config.host) {
+        if (!this._config?.host) {
             globalEvent("hostInit", {
                 host: "cellbase",
                 value: "NOT DEFINED"
