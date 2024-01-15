@@ -142,6 +142,20 @@ context("GenomeBrowser", () => {
                 .should("have.length", 24);
         });
 
+        it("should display cytobands sorted", () => {
+            const armLabels = {
+                p: ["p11.1", "p11.2", "p12", "p13.1", "p13.2", "p13.3"],
+                q: ["q11.1","q11.2","q12","q21.1","q21.2","q21.31","q21.32","q21.33","q22","q23.1","q23.2","q23.3","q24.1","q24.2","q24.3","q25.1","q25.2","q25.3"],
+            };
+
+            Object.keys(armLabels).forEach(arm => {
+                cy.get("@chromosome")
+                    .find(`svg text[data-cy="gb-chromosome-cytoband-label"][data-chromosome-arm="${arm}"]`)
+                    .invoke("text")
+                    .should("equal", armLabels[arm].join(""));
+            });
+        });
+
         it("should display a mark in the current positon in the chromosome", () => {
             cy.get("@chromosome")
                 .find(`g[data-cy="gb-chromosome-position"]`)
