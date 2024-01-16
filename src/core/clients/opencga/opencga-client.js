@@ -55,7 +55,8 @@ export class OpenCGAClient {
             },
             cookies: {
                 active: true,
-                prefix: ""
+                prefix: "",
+                secure: true,
                 // expirationTime: ""
             },
             sso: {
