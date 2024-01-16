@@ -337,6 +337,7 @@ class IvaApp extends LitElement {
             const opencgaHost = serverConf?.host || this.config.opencga.host;
             const opencgaVersion = serverConf?.version || this.config.opencga.version;
             const opencgaCookiePrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
+            const opencgaCookieSecure = serverConf?.cookie?.secure ?? this.config.opencga.cookie?.secure ?? true;
             const opencgaSsoActive = serverConf?.sso?.active ?? this.config.opencga.sso?.active ?? false;
             const opencgaSsoCookie = serverConf?.sso?.cookie ?? this.config.opencga.sso?.cookie ?? "JSESSIONID";
 
@@ -346,15 +347,21 @@ class IvaApp extends LitElement {
                 if (currentUrl.searchParams.has("token") && currentUrl.searchParams.has(opencgaSsoCookie)) {
                     // Save token and session ID in cookies
                     // eslint-disable-next-line no-undef
-                    Cookies.set(opencgaSsoCookie, currentUrl.searchParams.get(opencgaSsoCookie), {secure: true});
+                    Cookies.set(opencgaSsoCookie, currentUrl.searchParams.get(opencgaSsoCookie), {
+                        secure: opencgaCookieSecure,
+                    });
                     // eslint-disable-next-line no-undef
-                    Cookies.set(opencgaCookiePrefix + "_sid", currentUrl.searchParams.get("token"), {secure: true});
+                    Cookies.set(opencgaCookiePrefix + "_sid", currentUrl.searchParams.get("token"), {
+                        secure: opencgaCookieSecure,
+                    });
 
                     // Decode token to get user ID
                     // eslint-disable-next-line no-undef
                     const decodedToken = jwt_decode(currentUrl.searchParams.get("token"));
                     // eslint-disable-next-line no-undef
-                    Cookies.set(opencgaCookiePrefix + "_userId", decodedToken.sub, {secure: true});
+                    Cookies.set(opencgaCookiePrefix + "_userId", decodedToken.sub, {
+                        secure: opencgaCookieSecure,
+                    });
 
                     // We need to remove the params from the url
                     Array.from(currentUrl.searchParams.keys()).forEach(key => {
@@ -380,6 +387,7 @@ class IvaApp extends LitElement {
                 cookies: {
                     active: true,
                     prefix: opencgaCookiePrefix,
+                    secure: opencgaCookieSecure,
                 },
                 sso: {
                     active: opencgaSsoActive,
