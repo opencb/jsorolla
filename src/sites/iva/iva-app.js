@@ -336,7 +336,7 @@ class IvaApp extends LitElement {
             // Initialize opencga configuration
             const opencgaHost = serverConf?.host || this.config.opencga.host;
             const opencgaVersion = serverConf?.version || this.config.opencga.version;
-            const opencgaPrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
+            const opencgaCookiePrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
             const opencgaSsoActive = serverConf?.sso?.active ?? this.config.opencga.sso?.active ?? false;
             const opencgaSsoCookie = serverConf?.sso?.cookie ?? this.config.opencga.sso?.cookie ?? "JSESSIONID";
 
@@ -348,13 +348,13 @@ class IvaApp extends LitElement {
                     // eslint-disable-next-line no-undef
                     Cookies.set(opencgaSsoCookie, currentUrl.searchParams.get(opencgaSsoCookie), {secure: true});
                     // eslint-disable-next-line no-undef
-                    Cookies.set(opencgaPrefix + "_sid", currentUrl.searchParams.get("token"), {secure: true});
+                    Cookies.set(opencgaCookiePrefix + "_sid", currentUrl.searchParams.get("token"), {secure: true});
 
                     // Decode token to get user ID
                     // eslint-disable-next-line no-undef
                     const decodedToken = jwt_decode(currentUrl.searchParams.get("token"));
                     // eslint-disable-next-line no-undef
-                    Cookies.set(opencgaPrefix + "_userId", decodedToken.sub, {secure: true});
+                    Cookies.set(opencgaCookiePrefix + "_userId", decodedToken.sub, {secure: true});
 
                     // We need to remove the params from the url
                     Array.from(currentUrl.searchParams.keys()).forEach(key => {
@@ -369,8 +369,8 @@ class IvaApp extends LitElement {
 
             // Initialise clients and create the session
             // this.opencgaClientConfig.serverVersion = this.config.opencga.serverVersion;
-            const sid = Cookies.get(opencgaPrefix + "_sid");
-            const userId = Cookies.get(opencgaPrefix + "_userId");
+            const sid = Cookies.get(opencgaCookiePrefix + "_sid");
+            const userId = Cookies.get(opencgaCookiePrefix + "_userId");
 
             this.opencgaClient = new OpenCGAClient({
                 host: opencgaHost,
@@ -379,7 +379,7 @@ class IvaApp extends LitElement {
                 userId: userId,
                 cookies: {
                     active: true,
-                    prefix: opencgaPrefix,
+                    prefix: opencgaCookiePrefix,
                 },
                 sso: {
                     active: opencgaSsoActive,
