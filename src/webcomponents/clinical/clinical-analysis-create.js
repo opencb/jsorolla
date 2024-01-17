@@ -165,15 +165,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
         this.requestUpdate();
     }
 
-    onCustomFieldChange(field, e) {
-        this.onFieldChange({
-            detail: {
-                value: e.detail.value,
-                param: field
-            }
-        });
-    }
-
     onIndividualChange(e) {
         // Empty proband and disorder fields when a new individual has been selected or removed from the proband field
         delete this.clinicalAnalysis["proband"];
@@ -423,7 +414,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
             title: "Create Case",
             icon: "fas fa-user-md",
             requires: "2.0.0",
-            description: "Sample Variant Stats description",
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
