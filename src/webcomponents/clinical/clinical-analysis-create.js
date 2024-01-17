@@ -77,7 +77,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             // We store the available users from opencgaSession in 'clinicalAnalysis._users'
-            this.clinicalAnalysis._users = [];
             if (this.opencgaSession?.study) {
                 this._users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
                 this.initClinicalAnalysis();
@@ -107,7 +106,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
             // analyst: {
             //     id: this.opencgaSession?.user?.id
             // },
-            _users: this._users,
             comments: [],
             panelLock: false,
             samples: [],
@@ -306,28 +304,30 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
     onSubmit() {
         // Prepare the data for the REST create
-        let data = {...this.clinicalAnalysis};
-
-        // remove private fields
-        delete data._users;
-        delete data.samples;
-        data = {
-            ...data,
+        const data = {
+            ...this.clinicalAnalysis,
             proband: {
                 id: this.clinicalAnalysis?.proband?.id ? this.clinicalAnalysis?.proband?.id : null,
                 samples: this.clinicalAnalysis.samples.map(sample => {
-                    return {id: sample.id};
+                    return {
+                        id: sample.id,
+                    };
                 }),
-            }
+            },
         };
 
+        // Remove private fields
+        delete data.samples;
+
+        // For FAMILY case, we need to include the family id and the members
         if (data.type === "FAMILY") {
-            data = {
-                ...data,
-                family: {
-                    id: this.clinicalAnalysis.family.id,
-                    members: this.clinicalAnalysis.family.members.map(e => ({id: e.id}))
-                }
+            data.family = {
+                id: this.clinicalAnalysis.family.id,
+                members: this.clinicalAnalysis.family.members.map(member => {
+                    return {
+                        id: member.id,
+                    };
+                }),
             };
         }
 
@@ -877,8 +877,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             title: "Assigned To",
                             field: "analysts",
                             type: "custom",
-                            // defaultValue: this.opencgaSession?.user?.id,
-                            // allowedValues: "_users",
                             display: {
                                 render: (analysts, dataFormFilterChange) => {
                                     const handleAnalystsFilterChange = e => {
