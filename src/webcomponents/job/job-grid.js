@@ -102,6 +102,7 @@ export default class JobGrid extends LitElement {
         this.toolbarSetting = {
             ...otherTableProps,
             ...toolbar,
+            showRefresh: true, // Note Vero 20240117: Once the migration has been implemented, this key must be deleted
         };
 
         // Config for the grid toolbar
@@ -683,7 +684,7 @@ export default class JobGrid extends LitElement {
             showActions: true,
 
             toolbar: {
-                // Note Vero 20240108: It is not possible to create jobs.
+                // Note Vero 20240108: It is not possible to create jobs for now through IVA.
                 // However, it was decided a while ago to display the button "New"
                 // for consistency with the rest of the browsers but disabled
                 // (see L103: this.toolbarConfig.create.display.disabled: true)
