@@ -21,6 +21,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
+import "../commons/forms/select-token-filter.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../commons/image-viewer.js";
@@ -113,7 +114,25 @@ export default class ClinicalAnalysisCreate extends LitElement {
             _users: this._users,
             comments: [],
             panelLock: false,
+            samples: [],
         };
+    }
+
+    initSamples(samples, isSomatic) {
+        // 1 Check if there is a sample with status READY
+        const readySample = samples.find(sample => {
+            return sample.somatic === isSomatic && sample?.internal?.status?.id === "READY";
+        });
+        if (readySample) {
+            return [readySample];
+        }
+        // 2. If not, select the first sample in the list instead
+        const firstSample = samples.find(sample => sample.somatic === isSomatic);
+        if (firstSample) {
+            return [firstSample];
+        }
+        // 3. Other case, no samples are available
+        return [];
     }
 
     onFieldChange(e) {
@@ -157,12 +176,14 @@ export default class ClinicalAnalysisCreate extends LitElement {
         // Empty proband and disorder fields when a new individual has been selected or removed from the proband field
         delete this.clinicalAnalysis["proband"];
         delete this.clinicalAnalysis["disorder"];
+        delete this.clinicalAnalysis["samples"];
 
         if (e.detail.value) {
             this.clinicalAnalysis.type = "SINGLE";
             this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis.proband = response.responses[0].results[0];
+                    this.clinicalAnalysis.samples = this.initSamples(this.clinicalAnalysis?.proband?.samples || [], false);
 
                     if (this.clinicalAnalysis.proband?.disorders?.length === 1) {
                         this.clinicalAnalysis.disorder = {
@@ -257,6 +278,16 @@ export default class ClinicalAnalysisCreate extends LitElement {
         }
     }
 
+    onSampleChange(e) {
+        this.clinicalAnalysis.samples = (e.detail.value || "")
+            .split(",")
+            .map(sampleId => {
+                return this.clinicalAnalysis.proband?.samples?.find(sample => sample.id === sampleId);
+            });
+        this.clinicalAnalysis = {...this.clinicalAnalysis};
+        this.requestUpdate();
+    }
+
     notifyClinicalAnalysisWrite() {
         LitUtils.dispatchCustomEvent(this, "clinicalAnalysisCreate", null, {
             id: this.clinicalAnalysis.id,
@@ -278,15 +309,18 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
         // remove private fields
         delete data._users;
+        delete data.samples;
         data = {
             ...data,
             proband: {
-                id: this.clinicalAnalysis?.proband?.id ? this.clinicalAnalysis?.proband?.id : null
+                id: this.clinicalAnalysis?.proband?.id ? this.clinicalAnalysis?.proband?.id : null,
+                samples: this.clinicalAnalysis.samples.map(sample => {
+                    return {id: sample.id};
+                }),
             }
         };
 
         if (data.type === "FAMILY") {
-
             data = {
                 ...data,
                 family: {
@@ -323,6 +357,27 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 // console.error(response);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
+    }
+
+    renderSamplesSelection(samples = [], isMultiple, disableSomaticSamples) {
+        const selectedSamples = (this.clinicalAnalysis?.samples || [])
+            .map(sample => sample.id)
+            .join(",");
+        const data = (samples || []).map(sample => {
+            return {
+                id: sample.id,
+                name: `${sample.name || sample.id} (${sample.somatic ? "Somatic" : "Germline"})`,
+                disabled: sample.somatic && disableSomaticSamples,
+            };
+        });
+        return html`
+            <select-field-filter
+                .data="${data}"
+                .value=${selectedSamples}
+                ?multiple="${isMultiple}"
+                @filterChange="${e => this.onSampleChange(e)}">
+            </select-field-filter>
+        `;
     }
 
     render() {
@@ -480,6 +535,17 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             },
                         },
                         {
+                            title: "Select Samples",
+                            field: "proband.samples",
+                            type: "custom",
+                            required: true,
+                            display: {
+                                render: samples => {
+                                    return this.renderSamplesSelection(samples, false, true);
+                                },
+                            },
+                        },
+                        {
                             title: "Select Disorder",
                             field: "disorder.id",
                             type: "select",
@@ -495,12 +561,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Samples",
-                            field: "proband.samples",
+                            title: "Selected Samples",
+                            field: "samples",
                             type: "table",
                             display: {
                                 // defaultLayout: "vertical",
-                                errorMessage: "No proband selected",
+                                errorMessage: "No samples selected",
                                 errorClassName: "",
                                 columns: [
                                     {
