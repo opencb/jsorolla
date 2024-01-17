@@ -258,7 +258,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
             this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis.proband = response?.responses?.[0]?.results?.[0] || {};
-                    this.clinicalAnalysis.samples = this.initSamples(this.clinicalAnalysis?.proband?.samples || [], false);
+                    this.clinicalAnalysis.samples = this.initSamples(this.clinicalAnalysis?.proband?.samples || [], true);
 
                     if (this.clinicalAnalysis?.proband?.disorders?.length === 1) {
                         this.clinicalAnalysis = {
