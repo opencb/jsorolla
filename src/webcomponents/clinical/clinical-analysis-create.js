@@ -172,7 +172,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
         // Empty proband and disorder fields when a new individual has been selected or removed from the proband field
         delete this.clinicalAnalysis["proband"];
         delete this.clinicalAnalysis["disorder"];
-        delete this.clinicalAnalysis["samples"];
+
+        // Reset samples
+        this.clinicalAnalysis.samples = [];
 
         if (e.detail.value) {
             this.clinicalAnalysis.type = "SINGLE";
@@ -205,11 +207,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
         delete this.clinicalAnalysis["disorder"];
         delete this.clinicalAnalysis["family"];
 
+        // Reset samples
+        this.clinicalAnalysis.samples = [];
+
         if (e.detail.value) {
             this.clinicalAnalysis.type = "FAMILY";
             this.opencgaSession.opencgaClient.families().info(e.detail.value, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis.family = response.responses[0].results[0];
+                    this.clinicalAnalysis.samples = this.initSamples(this.clinicalAnalysis?.proband?.samples || [], false);
 
                     // Select as proband the first son/daughter with a disorder
                     if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
@@ -620,6 +626,17 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             required: true,
                             display: {
                                 errorMessage: "No family selected",
+                            },
+                        },
+                        {
+                            title: "Select Samples",
+                            field: "proband.samples",
+                            type: "custom",
+                            required: true,
+                            display: {
+                                render: samples => {
+                                    return this.renderSamplesSelection(samples, false, true);
+                                },
                             },
                         },
                         {
