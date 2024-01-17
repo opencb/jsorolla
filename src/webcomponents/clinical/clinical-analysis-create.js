@@ -600,7 +600,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     {
                                         id: "Status",
                                         title: "Status",
-                                        field: "status.name",
+                                        field: "internal.status.id",
                                         formatter: value => value ?? "-"
                                     },
                                 ]
@@ -825,7 +825,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     },
                                     {
                                         title: "Status",
-                                        field: "status.name",
+                                        field: "internal.status.id",
                                         formatter: value => value ?? "-"
                                     }
                                 ]
