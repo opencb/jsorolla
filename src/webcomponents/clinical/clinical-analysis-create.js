@@ -545,6 +545,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "proband.samples",
                             type: "custom",
                             required: true,
+                            validation: {
+                                validate: () => {
+                                    return this.clinicalAnalysis?.samples?.length === 1;
+                                },
+                                message: "A germline sample must be selected.",
+                            },
                             display: {
                                 render: samples => {
                                     return this.renderSamplesSelection(samples, false, false);
@@ -635,6 +641,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "proband.samples",
                             type: "custom",
                             required: true,
+                            validation: {
+                                validate: () => {
+                                    return this.clinicalAnalysis?.samples?.length === 1;
+                                },
+                                message: "A germline sample must be selected.",
+                            },
                             display: {
                                 render: samples => {
                                     return this.renderSamplesSelection(samples, false, false);
@@ -770,6 +782,24 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "proband.samples",
                             type: "custom",
                             required: true,
+                            validation: {
+                                validate: () => {
+                                    // Case :: Only one sample has been selected, check if this sample is somatic
+                                    if (this.clinicalAnalysis?.samples?.length === 1) {
+                                        return this.clinicalAnalysis.samples[0].somatic;
+                                    }
+                                    // Case 2: two samples selected: verify that one sample is somatic and the other
+                                    // sample is germline
+                                    if (this.clinicalAnalysis?.samples?.length === 2) {
+                                        const hasSomatic = this.clinicalAnalysis.samples.some(s => s.somatic);
+                                        const hasGermline = this.clinicalAnalysis.samples.some(s => !s.somatic);
+                                        return hasSomatic && hasGermline;
+                                    }
+                                    // Case 3: no samples or more than two samples selected.
+                                    return false;
+                                },
+                                message: "At least a somatic sample must be selected. Only one somatic and one germline samples are allowed.",
+                            },
                             display: {
                                 render: samples => {
                                     return this.renderSamplesSelection(samples, true, true);
