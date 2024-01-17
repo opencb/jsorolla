@@ -250,14 +250,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
         delete this.clinicalAnalysis["proband"];
         delete this.clinicalAnalysis["disorder"];
 
+        // Reset selected samples
+        this.clinicalAnalysis.samples = [];
+
         if (e.detail.value) {
             this.clinicalAnalysis.type = "CANCER";
             this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this.clinicalAnalysis = {
-                        ...this.clinicalAnalysis,
-                        proband: response.responses[0].results[0]
-                    };
+                    this.clinicalAnalysis.proband = response?.responses?.[0]?.results?.[0] || {};
+                    this.clinicalAnalysis.samples = this.initSamples(this.clinicalAnalysis?.proband?.samples || [], false);
 
                     if (this.clinicalAnalysis?.proband?.disorders?.length === 1) {
                         this.clinicalAnalysis = {
@@ -761,6 +762,17 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         @filterChange="${e => this.onCancerChange(e)}">
                                     </catalog-search-autocomplete>
                                 `,
+                            },
+                        },
+                        {
+                            title: "Select Samples",
+                            field: "proband.samples",
+                            type: "custom",
+                            required: true,
+                            display: {
+                                render: samples => {
+                                    return this.renderSamplesSelection(samples, true, false);
+                                },
                             },
                         },
                         {
