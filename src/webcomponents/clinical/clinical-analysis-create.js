@@ -290,6 +290,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
     onSampleChange(e) {
         this.clinicalAnalysis.samples = (e.detail.value || "")
             .split(",")
+            .filter(s => !!s)
             .map(sampleId => {
                 return this.clinicalAnalysis.proband?.samples?.find(sample => sample.id === sampleId);
             });
