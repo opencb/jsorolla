@@ -70,15 +70,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
             titleAlign: "left",
             titleWidth: 3,
             defaultLayout: "horizontal",
-
         };
-
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
@@ -88,15 +81,18 @@ export default class ClinicalAnalysisCreate extends LitElement {
             if (this.opencgaSession?.study) {
                 this._users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
                 this.initClinicalAnalysis();
-                this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
             }
 
             this.requestUpdate();
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
+
         super.update(changedProperties);
     }
 
