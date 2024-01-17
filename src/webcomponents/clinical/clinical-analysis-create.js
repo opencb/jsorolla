@@ -580,8 +580,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "samples",
                             type: "table",
                             display: {
-                                // defaultLayout: "vertical",
-                                errorMessage: "No samples selected",
+                                errorMessage: "No proband or sample selected.",
                                 errorClassName: "",
                                 columns: [
                                     {
@@ -804,11 +803,11 @@ export default class ClinicalAnalysisCreate extends LitElement {
                         },
                         {
                             title: "Samples",
-                            field: "proband.samples",
+                            field: "samples",
                             type: "table",
                             display: {
                                 errorClassName: "",
-                                errorMessage: "No proband selected",
+                                errorMessage: "No proband or sample(s) selected.",
                                 columns: [
                                     {
                                         id: "fileIds",
