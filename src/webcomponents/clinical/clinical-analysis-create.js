@@ -139,6 +139,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
             delete this.clinicalAnalysis["proband"];
             delete this.clinicalAnalysis["disorder"];
             delete this.clinicalAnalysis["family"];
+
+            // We would need also to reset samples
+            this.clinicalAnalysis.samples = [];
         }
 
         // In FAMILY, changing the proband only sets the 'proband.id' field of the clinicalAnalysis object
@@ -150,9 +153,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 const proband = this.clinicalAnalysis.family.members.find(member => member.id === this.clinicalAnalysis.proband?.id);
                 this.clinicalAnalysis.proband = UtilsNew.objectClone(proband);
                 this.clinicalAnalysis.proband.disorders = this.clinicalAnalysis.proband.disorders || [];
+                this.clinicalAnalysis.samples = this.initSamples(this.clinicalAnalysis?.proband?.samples || [], false);
+
             } else {
-                // If we have removed the 'proband.id' field, we have to remove also the full proband object
+                // If we have removed the 'proband.id' field, we have to remove also the full proband object and reset samples
                 delete this.clinicalAnalysis.proband;
+                this.clinicalAnalysis.samples = [];
             }
         }
 
@@ -215,13 +221,13 @@ export default class ClinicalAnalysisCreate extends LitElement {
             this.opencgaSession.opencgaClient.families().info(e.detail.value, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis.family = response.responses[0].results[0];
-                    this.clinicalAnalysis.samples = this.initSamples(this.clinicalAnalysis?.proband?.samples || [], false);
 
                     // Select as proband the first son/daughter with a disorder
                     if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
                         for (const member of this.clinicalAnalysis.family.members) {
                             if (member.disorders && member.disorders.length > 0 && member.father.id && member.mother.id) {
                                 this.clinicalAnalysis.proband = UtilsNew.objectClone(member);
+                                this.clinicalAnalysis.samples = this.initSamples(this.clinicalAnalysis?.proband?.samples || [], false);
                                 break;
                             }
                         }
