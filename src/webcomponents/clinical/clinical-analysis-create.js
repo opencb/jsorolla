@@ -362,7 +362,13 @@ export default class ClinicalAnalysisCreate extends LitElement {
             });
     }
 
-    renderSamplesSelection(samples = [], isMultiple, disableSomaticSamples) {
+    renderSamplesSelection(samples = [], isMultiple, somatic = false) {
+        // Check for no available samples
+        if (this.clinicalAnalysis?.proband?.id) {
+            if (samples.length === 0 || !samples.some(sample => sample.somatic === somatic)) {
+                return `No ${somatic ? "somatic" : "germline"} samples availabe for proband '${this.clinicalAnalysis.proband.id}'.`;
+            }
+        }
         const selectedSamples = (this.clinicalAnalysis?.samples || [])
             .map(sample => sample.id)
             .join(",");
@@ -370,7 +376,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
             return {
                 id: sample.id,
                 name: `${sample.name || sample.id} (${sample.somatic ? "Somatic" : "Germline"})`,
-                disabled: sample.somatic && disableSomaticSamples,
+                disabled: sample.somatic && !somatic,
             };
         });
         return html`
@@ -544,7 +550,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             required: true,
                             display: {
                                 render: samples => {
-                                    return this.renderSamplesSelection(samples, false, true);
+                                    return this.renderSamplesSelection(samples, false, false);
                                 },
                             },
                         },
@@ -636,7 +642,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             required: true,
                             display: {
                                 render: samples => {
-                                    return this.renderSamplesSelection(samples, false, true);
+                                    return this.renderSamplesSelection(samples, false, false);
                                 },
                             },
                         },
@@ -771,7 +777,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             required: true,
                             display: {
                                 render: samples => {
-                                    return this.renderSamplesSelection(samples, true, false);
+                                    return this.renderSamplesSelection(samples, true, true);
                                 },
                             },
                         },
