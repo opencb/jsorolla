@@ -352,7 +352,7 @@ export default class VariantBrowserGrid extends LitElement {
             // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
             responseHandler: response => {
                 return {
-                    total: this.clinicalVariants.length,
+                    total: this.variants.length,
                     rows: response,
                 };
             },
