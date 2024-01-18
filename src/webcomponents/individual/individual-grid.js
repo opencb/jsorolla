@@ -144,6 +144,34 @@ export default class IndividualGrid extends LitElement {
         this.renderTable();
     }
 
+    fetchClinicalAnalysis(rows) {
+        if (rows && rows.length > 0) {
+            return this.opencgaSession.opencgaClient.clinical()
+                .search({
+                    individual: rows.map(individual => individual.id).join(","),
+                    study: this.opencgaSession.study.fqn,
+                    include: "id,proband.id,family.members",
+                })
+                .then(response => {
+                    return rows.forEach(individual => {
+                        (response?.responses?.[0]?.results || []).forEach(clinicalAnalysis => {
+                            if (clinicalAnalysis?.proband?.id === individual.id || clinicalAnalysis?.family?.members?.find(member => member.id === individual.id)) {
+                                if (individual?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
+                                    individual.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
+                                } else {
+                                    // eslint-disable-next-line no-param-reassign
+                                    individual.attributes = {
+                                        OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
+                                    };
+                                }
+                            }
+                        });
+                    });
+                });
+        }
+        return;
+    }
+
     renderTable() {
         // If this.individuals is provided as property we render the array directly
         if (this.individuals?.length > 0) {
@@ -184,16 +212,12 @@ export default class IndividualGrid extends LitElement {
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
-                    const sort = this.table.bootstrapTable("getOptions").sortName ? {
-                        sort: this.table.bootstrapTable("getOptions").sortName,
-                        order: this.table.bootstrapTable("getOptions").sortOrder
-                    } : {};
+                    let individualResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        ...sort,
                         ...this.query
                     };
 
@@ -201,44 +225,15 @@ export default class IndividualGrid extends LitElement {
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.individuals()
                         .search(this.filters)
-                        .then(individualResponse => {
+                        .then(response => {
+                            individualResponse = response;
                             // Fetch Clinical Analysis ID per individual in 1 single query
-                            const individualIds = individualResponse.getResults().map(individual => individual.id).filter(Boolean).join(",");
-                            if (individualIds) {
-                                this.opencgaSession.opencgaClient.clinical()
-                                    .search({
-                                        individual: individualIds,
-                                        study: this.opencgaSession.study.fqn,
-                                        include: "id,proband.id,family.members"
-                                    })
-                                    .then(caseResponse => {
-                                        individualResponse.getResults().forEach(individual => {
-                                            for (const clinicalAnalysis of caseResponse.getResults()) {
-                                                if (clinicalAnalysis?.proband?.id === individual.id || clinicalAnalysis?.family?.members?.find(member => member.id === individual.id)) {
-                                                    if (individual?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
-                                                        individual.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
-                                                    } else {
-                                                        // eslint-disable-next-line no-param-reassign
-                                                        individual.attributes = {
-                                                            OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
-                                                        };
-                                                    }
-                                                }
-                                            }
-                                        });
-                                        params.success(individualResponse);
-                                    })
-                                    .catch(e => {
-                                        console.error(e);
-                                        params.error(e);
-                                    });
-                            } else {
-                                params.success(individualResponse);
-                            }
+                            return this.fetchClinicalAnalysis(individualResponse?.responses?.[0]?.results || []);
                         })
-                        .catch(e => {
-                            console.error(e);
-                            params.error(e);
+                        .then(() => params.success(individualResponse))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
                         });
                 },
                 responseHandler: response => {
@@ -662,6 +657,24 @@ export default class IndividualGrid extends LitElement {
             });
     }
 
+    renderModalUpdate() {
+        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+            display: {
+                modalTitle: `Individual Update: ${this.individualUpdateId}`,
+                modalDraggable: true,
+                modalCyDataName: "modal-update",
+            },
+            render: active => html`
+                <individual-update
+                    .individualId="${this.individualUpdateId}"
+                    .active="${active}"
+                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                    .opencgaSession="${this.opencgaSession}">
+                </individual-update>
+            `,
+        });
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
@@ -682,23 +695,7 @@ export default class IndividualGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-                display: {
-                    modalTitle: `Individual Update: ${this.individualUpdateId}`,
-                    modalDraggable: true,
-                    modalCyDataName: "modal-update",
-                },
-                render: active => {
-                    return html `
-                        <individual-update
-                            .individualId="${this.individualUpdateId}"
-                            .active="${active}"
-                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </individual-update>
-                    `;
-                }
-            })}
+            ${this.renderModalUpdate()}
         `;
     }
 
