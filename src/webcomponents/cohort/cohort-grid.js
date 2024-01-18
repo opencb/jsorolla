@@ -159,8 +159,28 @@ export default class CohortGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             columns: this._getDefaultColumns(),
-            data: this.cohorts,
-            sidePagination: "local",
+            // data: this.cohorts,
+            sidePagination: "server",
+            // Josemi Note 2024-01-18: we have added the ajax function for local cohorts also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.cohorts.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.cohorts.length,
+                    rows: response,
+                };
+            },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config property
@@ -230,9 +250,16 @@ export default class CohortGrid extends LitElement {
                     };
                     // Store the current filters
                     this.lastFilters = {...this.filters};
+                    let cohorstResponse = null;
                     this.opencgaSession.opencgaClient.cohorts()
                         .search(this.filters)
-                        .then(res => params.success(res))
+                        .then(response => {
+                            cohorstResponse = response;
+                            // Prepare data for columns extensions
+                            const rows = cohorstResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
+                        .then(() => params.success(cohorstResponse))
                         .catch(e => {
                             console.error(e);
                             params.error(e);
