@@ -169,7 +169,6 @@ export default class IndividualGrid extends LitElement {
                     });
                 });
         }
-        return;
     }
 
     renderTable() {
