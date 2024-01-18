@@ -164,8 +164,6 @@ export default class SampleGrid extends LitElement {
                     });
                 });
         }
-
-        return;
     }
 
     renderTable() {
@@ -223,6 +221,11 @@ export default class SampleGrid extends LitElement {
                             // Fetch clinical analysis to display the Case ID
                             return this.fetchClinicalAnalysis(sampleResponse?.responses?.[0]?.results || []);
                         })
+                        .then(() => {
+                            // Prepare data for columns extensions
+                            const rows = sampleResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
                         .then(() => params.success(sampleResponse))
                         .catch(error => {
                             console.error(error);
@@ -270,8 +273,28 @@ export default class SampleGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             columns: this._getDefaultColumns(),
-            data: this.samples,
-            sidePagination: "local",
+            // data: this.samples,
+            sidePagination: "server",
+            // Josemi Note 2024-01-18: we have added the ajax function for local variants also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.samples.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.samples.length,
+                    rows: response,
+                };
+            },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
 
