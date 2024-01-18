@@ -227,6 +227,11 @@ export default class FamilyGrid extends LitElement {
                             // Fetch Clinical Analysis ID per Family in 1 single query
                             return this.fetchClinicalAnalysis(familyResponse.responses?.[0]?.results || []);
                         })
+                        .then(() => {
+                            // Prepare data for columns extensions
+                            const rows = familyResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
                         .then(() => params.success(familyResponse))
                         .catch(error => {
                             console.error(error);
@@ -276,8 +281,28 @@ export default class FamilyGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             columns: this._getDefaultColumns(),
-            data: this.families,
-            sidePagination: "local",
+            // data: this.families,
+            sidePagination: "server",
+            // Josemi Note 2024-01-18: we have added the ajax function for local families also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.families.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.families.length,
+                    rows: response,
+                };
+            },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config property
