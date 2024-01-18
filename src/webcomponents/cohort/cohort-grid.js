@@ -236,10 +236,7 @@ export default class CohortGrid extends LitElement {
                 detailView: this._config.detailView,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
-                    const sort = this.table.bootstrapTable("getOptions").sortName ? {
-                        sort: this.table.bootstrapTable("getOptions").sortName,
-                        order: this.table.bootstrapTable("getOptions").sortOrder
-                    } : {};
+                    let cohorstResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
@@ -250,7 +247,6 @@ export default class CohortGrid extends LitElement {
                     };
                     // Store the current filters
                     this.lastFilters = {...this.filters};
-                    let cohorstResponse = null;
                     this.opencgaSession.opencgaClient.cohorts()
                         .search(this.filters)
                         .then(response => {
