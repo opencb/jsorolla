@@ -143,13 +143,12 @@ export default class FamilyGrid extends LitElement {
 
     fetchClinicalAnalysis(rows) {
         if (rows && rows.length > 0) {
-            const query = {
-                family: rows.map(family => family.id).join(","),
-                study: this.opencgaSession.study.fqn,
-                include: "id,proband.id,family.members,family.id"
-            };
             return this.opencgaSession.opencgaClient.clinical()
-                .search(query)
+                .search({
+                    family: rows.map(family => family.id).join(","),
+                    study: this.opencgaSession.study.fqn,
+                    include: "id,proband.id,family.members,family.id",
+                })
                 .then(response => {
                     return rows.forEach(family => {
                         (response?.responses?.[0]?.results || []).forEach(clinicalAnalysis => {
@@ -167,7 +166,6 @@ export default class FamilyGrid extends LitElement {
                     });
                 });
         }
-
         return;
     }
 
