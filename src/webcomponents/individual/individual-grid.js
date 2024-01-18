@@ -230,6 +230,11 @@ export default class IndividualGrid extends LitElement {
                             // Fetch Clinical Analysis ID per individual in 1 single query
                             return this.fetchClinicalAnalysis(individualResponse?.responses?.[0]?.results || []);
                         })
+                        .then(() => {
+                            // Prepare data for columns extensions
+                            const rows = individualResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
                         .then(() => params.success(individualResponse))
                         .catch(error => {
                             console.error(error);
@@ -277,8 +282,28 @@ export default class IndividualGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             columns: this._getDefaultColumns(),
-            data: this.individuals,
-            sidePagination: "local",
+            // data: this.individuals,
+            sidePagination: "server",
+            // Josemi Note 2024-01-18: we have added the ajax function for local individuals also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.individuals.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.individuals.length,
+                    rows: response,
+                };
+            },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config property
