@@ -642,6 +642,23 @@ export default class JobGrid extends LitElement {
         ];
     }
 
+    renderModalUpdate() {
+        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+            display: {
+                modalTitle: "Job Update",
+                modalDraggable: true,
+            },
+            render: active => html`
+                <job-update
+                    .jobId="${this.jobUpdateId}"
+                    .active="${active}"
+                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                    .opencgaSession="${this.opencgaSession}">
+                </job-update>
+            `,
+        });
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
@@ -663,23 +680,7 @@ export default class JobGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-                display: {
-                    modalTitle: "Job Update",
-                    modalDraggable: true,
-                },
-                render: active => {
-                    return html `
-                        <job-update
-                            .jobId="${this.jobUpdateId}"
-                            .active="${active}"
-                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </job-update>
-                    `;
-                }
-            })}
-
+            ${this.renderModalUpdate()}
         `;
     }
 
