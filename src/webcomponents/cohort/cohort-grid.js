@@ -452,8 +452,8 @@ export default class CohortGrid extends LitElement {
             });
     }
 
-    render() {
-        const modalUpdateConfig = {
+    renderModalUpdate() {
+        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
                 modalTitle: `Cohort Update: ${this.cohortUpdateId}`,
                 modalDraggable: true,
@@ -466,8 +466,10 @@ export default class CohortGrid extends LitElement {
                     .opencgaSession="${this.opencgaSession}">
                 </cohort-update>
             `,
-        };
+        });
+    }
 
+    render() {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
@@ -487,7 +489,7 @@ export default class CohortGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, modalUpdateConfig)}
+            ${this.renderModalUpdate()}
         `;
     }
 
