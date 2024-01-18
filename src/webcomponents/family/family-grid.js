@@ -166,7 +166,6 @@ export default class FamilyGrid extends LitElement {
                     });
                 });
         }
-        return;
     }
 
     renderTable() {
