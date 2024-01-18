@@ -430,6 +430,21 @@ export default class CohortGrid extends LitElement {
     }
 
     render() {
+        const modalUpdateConfig = {
+            display: {
+                modalTitle: `Cohort Update: ${this.cohortUpdateId}`,
+                modalDraggable: true,
+            },
+            render: active => html`
+                <cohort-update
+                    .cohortId="${this.cohortUpdateId}"
+                    .active="${active}"
+                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                    .opencgaSession="${this.opencgaSession}">
+                </cohort-update>
+            `,
+        };
+
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
@@ -449,22 +464,7 @@ export default class CohortGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-                display: {
-                    modalTitle: `Cohort Update: ${this.cohortUpdateId}`,
-                    modalDraggable: true,
-                },
-                render: active => {
-                    return html `
-                        <cohort-update
-                            .cohortId="${this.cohortUpdateId}"
-                            .active="${active}"
-                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </cohort-update>
-                    `;
-                }
-            })}
+            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, modalUpdateConfig)}
         `;
     }
 
