@@ -225,7 +225,7 @@ export default class FamilyGrid extends LitElement {
                         .then(response => {
                             familyResponse = response;
                             // Fetch Clinical Analysis ID per Family in 1 single query
-                            return this.fetchClinicalAnalysis(familyResponse.responses?.[0]?.results?.[0] || []);
+                            return this.fetchClinicalAnalysis(familyResponse.responses?.[0]?.results || []);
                         })
                         .then(() => params.success(familyResponse))
                         .catch(error => {
