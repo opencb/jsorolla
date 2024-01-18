@@ -413,7 +413,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
             // Josemi Note 2023-10-25: we have added the ajax function for local variants also to support executing async calls
             // when getting additional data from columns extensions.
-            // This should be moved to a gridCommons in a future
             ajax: params => {
                 const tableOptions = $(this.table).bootstrapTable("getOptions");
                 const limit = params.data.limit || tableOptions.pageSize;
@@ -425,8 +424,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     .then(() => params.success(rows))
                     .catch(error => params.error(error));
             },
-
-            // Jsoemi Note 2023-10-25: we use this method to tell bootstrap-table how many rows we have in our data
+            // Josemi Note 2023-10-25: we use this method to tell bootstrap-table how many rows we have in our data
             responseHandler: response => {
                 return {
                     total: this.clinicalVariants.length,
