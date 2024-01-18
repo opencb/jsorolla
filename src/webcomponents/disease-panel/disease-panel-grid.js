@@ -171,7 +171,6 @@ export default class DiseasePanelGrid extends LitElement {
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
-
                 // Table properties
                 uniqueId: "id",
                 pagination: this._config.pagination,
@@ -183,7 +182,7 @@ export default class DiseasePanelGrid extends LitElement {
                 detailView: this._config.detailView,
                 gridContext: this,
                 formatLoadingMessage: () => String.raw`<div><loading-spinner></loading-spinner></div>`,
-                ajax: async params => {
+                ajax: params => {
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
@@ -194,13 +193,12 @@ export default class DiseasePanelGrid extends LitElement {
 
                     // Store the current filters
                     this.lastFilters = {...this.filters};
-                    try {
-                        const data = await this.fetchDiseasePanels(this.filters);
-                        params.success(data);
-                    } catch (e) {
-                        console.log(e);
-                        params.error(e);
-                    }
+                    this.fetchDiseasePanels(this.filters)
+                        .then(response => params.success(response))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
+                        });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
@@ -547,6 +545,24 @@ export default class DiseasePanelGrid extends LitElement {
             });
     }
 
+    renderModalUpdate() {
+        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+            display: {
+                modalTitle: `Disease Panel Update: ${this.diseasePanelUpdateId}`,
+                modalDraggable: true,
+                modalCyDataName: "modal-update",
+            },
+            render: active => html`
+                <disease-panel-update
+                    .diseasePanelId="${this.diseasePanelUpdateId}"
+                    .active="${active}"
+                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                    .opencgaSession="${this.opencgaSession}">
+                </disease-panel-update>
+            `,
+        });
+    }
+
     render() {
         // CAUTION 20230517 Vero: the event dispatched from disease-panel-create.js is called sessionPanelUpdate.
         return html`
@@ -568,23 +584,7 @@ export default class DiseasePanelGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-                display: {
-                    modalTitle: `Disease Panel Update: ${this.diseasePanelUpdateId}`,
-                    modalDraggable: true,
-                    modalCyDataName: "modal-update",
-                },
-                render: active => {
-                    return html `
-                        <disease-panel-update
-                            .diseasePanelId="${this.diseasePanelUpdateId}"
-                            .active="${active}"
-                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </disease-panel-update>
-                    `;
-                }
-            })}
+            ${this.renderModalUpdate()}
         `;
     }
 
