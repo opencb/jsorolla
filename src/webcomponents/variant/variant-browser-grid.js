@@ -335,7 +335,6 @@ export default class VariantBrowserGrid extends LitElement {
             // data: this.variants,
             columns: this._getDefaultColumns(),
             sidePagination: "server",
-
             // Josemi Note 2024-01-18: we have added the ajax function for local variants also to support executing async calls
             // when getting additional data from columns extensions.
             ajax: params => {
@@ -356,7 +355,6 @@ export default class VariantBrowserGrid extends LitElement {
                     rows: response,
                 };
             },
-
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
