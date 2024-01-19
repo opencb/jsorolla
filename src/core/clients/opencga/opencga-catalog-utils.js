@@ -53,10 +53,6 @@ export default class OpencgaCatalogUtils {
         return loggedUser === "opencga" || loggedUser === user;
     }
 
-    static checkProjectPermissions(project, user) {
-        return user === "opencga" || OpencgaCatalogUtils.getProjectOwner(project) === user;
-    }
-
     // Check if the user has the right the permissions in the study.
     static checkPermissions(study, user, permissions) {
         if (!study || !user || !permissions) {
