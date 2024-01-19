@@ -15,7 +15,6 @@
  */
 
 import UtilsNew from "../../utils-new.js";
-import "../../../sites/iva/conf/browsers.settings.js";
 
 export default class OpencgaCatalogUtils {
 
