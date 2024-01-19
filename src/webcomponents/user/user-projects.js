@@ -17,10 +17,7 @@ export default class UserProjects extends LitElement {
     static get properties() {
         return {
             projects: {
-                type: Array
-            },
-            userId: {
-                type: String,
+                type: Array,
             },
         };
     }
