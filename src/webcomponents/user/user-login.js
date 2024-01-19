@@ -79,8 +79,10 @@ export default class UserLogin extends LitElement {
                             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                         } else {
                             const token = response?.getResult?.(0)?.token;
+                            // eslint-disable-next-line no-undef
                             const decoded = jwt_decode(token);
                             const dateExpired = new Date(decoded.exp * 1000);
+                            // eslint-disable-next-line no-undef
                             const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
 
                             LitUtils.dispatchCustomEvent(this, "login", null, {
