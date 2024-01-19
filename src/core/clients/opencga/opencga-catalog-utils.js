@@ -63,36 +63,30 @@ export default class OpencgaCatalogUtils {
             console.error(`No valid parameters, study: ${study}, user: ${user}, permissions: ${permissions}`);
             return false;
         }
-        // Check if user is the Study owner
-        const studyOwner = study.fqn.split("@")[0];
-        if (user === studyOwner) {
+        // Check if user is a Study admin, belongs to @admins group
+        const admins = study.groups.find(group => group.id === "@admins");
+        if (admins.userIds.includes(user)) {
             return true;
         } else {
-            // Check if user is a Study admin, belongs to @admins group
-            const admins = study.groups.find(group => group.id === "@admins");
-            if (admins.userIds.includes(user)) {
-                return true;
-            } else {
-                // Check if user is in acl
-                const aclUserIds = study.groups
-                    .filter(group => group.userIds.includes(user))
-                    .map(group => group.id);
-                aclUserIds.push(user);
-                for (const aclId of aclUserIds) {
-                    // Find the permissions for this user
-                    const userPermissions = study?.acl
-                        ?.find(acl => acl.member === user)?.groups
-                        ?.find(group => group.id === aclId)?.permissions || [];
-                    if (Array.isArray(permissions)) {
-                        for (const permission of permissions) {
-                            if (userPermissions?.includes(permission)) {
-                                return true;
-                            }
-                        }
-                    } else {
-                        if (userPermissions?.includes(permissions)) {
+            // Check if user is in acl
+            const aclUserIds = study.groups
+                .filter(group => group.userIds.includes(user))
+                .map(group => group.id);
+            aclUserIds.push(user);
+            for (const aclId of aclUserIds) {
+                // Find the permissions for this user
+                const userPermissions = study?.acl
+                    ?.find(acl => acl.member === user)?.groups
+                    ?.find(group => group.id === aclId)?.permissions || [];
+                if (Array.isArray(permissions)) {
+                    for (const permission of permissions) {
+                        if (userPermissions?.includes(permission)) {
                             return true;
                         }
+                    }
+                } else {
+                    if (userPermissions?.includes(permissions)) {
+                        return true;
                     }
                 }
             }
