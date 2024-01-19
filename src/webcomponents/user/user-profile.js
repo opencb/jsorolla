@@ -84,8 +84,7 @@ export default class UserProfile extends LitElement {
                     render: (data, active, opencgaSession) => html`
                         <div>
                             <user-projects
-                                .projects="${opencgaSession?.projects}"
-                                .userId="${opencgaSession?.user?.id}">
+                                .projects="${opencgaSession?.projects}">
                             </user-projects>
                         </div>
                     `,
