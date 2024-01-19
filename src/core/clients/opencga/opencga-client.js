@@ -25,6 +25,7 @@ import GA4GH from "./api/GA4GH.js";
 import Individual from "./api/Individual.js";
 import Job from "./api/Job.js";
 import Meta from "./api/Meta.js";
+import Organization from "./api/Organization.js";
 import Project from "./api/Project.js";
 import Sample from "./api/Sample.js";
 import Study from "./api/Study.js";
@@ -212,6 +213,13 @@ export class OpenCGAClient {
             this.clients.set("admin", new Admin(this._config));
         }
         return this.clients.get("admin");
+    }
+
+    organization() {
+        if (!this.clients.has("organization")) {
+            this.clients.set("organization", new Organization(this._config));
+        }
+        return this.clients.get("organizaton");
     }
 
     /*
