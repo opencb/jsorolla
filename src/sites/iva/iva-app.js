@@ -336,6 +336,7 @@ class IvaApp extends LitElement {
             // Initialize opencga configuration
             const opencgaHost = serverConf?.host || this.config.opencga.host;
             const opencgaVersion = serverConf?.version || this.config.opencga.version;
+            const opencgaOrganizations = serverConf?.organizations || this.config.opencga.organizations || [];
             const opencgaPrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
             const opencgaSsoActive = serverConf?.sso?.active ?? this.config.opencga.sso?.active ?? false;
             const opencgaSsoCookie = serverConf?.sso?.cookie ?? this.config.opencga.sso?.cookie ?? "JSESSIONID";
@@ -375,6 +376,7 @@ class IvaApp extends LitElement {
             this.opencgaClient = new OpenCGAClient({
                 host: opencgaHost,
                 version: opencgaVersion,
+                organizations: opencgaOrganizations,
                 token: sid,
                 userId: userId,
                 cookies: {
