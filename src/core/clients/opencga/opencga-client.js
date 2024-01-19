@@ -258,10 +258,18 @@ export class OpenCGAClient {
         }
     }
 
-    async login(userId, password) {
+    async login(userId, password, organizationId) {
         try {
-            const restResponse = await this.users()
-                .login({user: userId, password: password});
+            const query = {
+                user: userId,
+                password: password,
+            };
+            // Only include the organization to the request query if is provided
+            if (organizationId) {
+                query.organizationId = organizationId;
+            }
+
+            const restResponse = await this.users().login(query);
 
             // TODO remove userId and token from config and move it to session
             this._config.userId = userId;
