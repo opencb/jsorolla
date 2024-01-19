@@ -47,6 +47,7 @@ export class OpenCGAClient {
         return {
             host: "",
             version: "",
+            organizations: [],
             userId: "",
             token: "",
             query: {
