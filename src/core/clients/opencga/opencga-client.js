@@ -344,11 +344,9 @@ export class OpenCGAClient {
         return opencgaSession;
     }
 
-    /**
-     * Creates an authenticated session for the user and token of the current OpenCGAClient. The token is taken from the
-     * opencgaClient object itself.
-     * @returns {Promise<any>}
-     */
+    // Creates an authenticated session for the user and token of the current OpenCGAClient. The token is taken from the
+    // opencgaClient object itself.
+    // @returns {Promise<any>}
     createSession() {
         const _this = this;
         return new Promise((resolve, reject) => {
