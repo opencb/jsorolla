@@ -32,8 +32,8 @@ import Study from "./api/Study.js";
 import User from "./api/User.js";
 import Variant from "./api/Variant.js";
 import VariantOperation from "./api/VariantOperation.js";
-import {CellBaseClient} from "../cellbase/cellbase-client";
-import UtilsNew from "../../utils-new";
+import {CellBaseClient} from "../cellbase/cellbase-client.js";
+import UtilsNew from "../../utils-new.js";
 
 
 export class OpenCGAClient {
