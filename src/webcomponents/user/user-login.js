@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
@@ -141,6 +141,8 @@ export default class UserLogin extends LitElement {
     }
 
     render() {
+        const organizations = this.opencgaSession.opencgaClient._config.organizations || [];
+
         return html`
             <div class="container-fluid" style="max-width:480px;">
                 <div class="panel panel-default">
@@ -163,6 +165,16 @@ export default class UserLogin extends LitElement {
                                 <input id="password" type="password" class="form-control" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
                             </div>
                         </div>
+                        ${organizations.length > 1 ? html`
+                            <div class="form-group ${this.hasEmptyOrganization ? "has-error" : ""}">
+                                <label for="organization" class="control-label label-login">Organization</label>
+                                <select id="organization" class="form-control">
+                                    ${organizations.map(organizationId => html`
+                                        <option value="${organizationId}">${organizationId}</option>
+                                    `)}
+                                </select>
+                            </div>
+                        ` : nothing}
                         <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
                             <strong>Sign In</strong>
                         </button>
