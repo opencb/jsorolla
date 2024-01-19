@@ -63,6 +63,7 @@ export default class UserLogin extends LitElement {
     onSubmit() {
         const user = (this.querySelector("#user").value || "").trim();
         const password = (this.querySelector("#password").value || "").trim();
+        const organization = this.querySelector("#organization")?.value || "";
 
         this.hasEmptyUser = user.length === 0;
         this.hasEmptyPassword = password.length === 0;
@@ -72,7 +73,7 @@ export default class UserLogin extends LitElement {
 
         if (this.opencgaSession) {
             this.requestUpdate(); // Remove errors
-            this.opencgaSession.opencgaClient.login(user, password)
+            this.opencgaSession.opencgaClient.login(user, password, organization)
                 .then(response => {
                     if (response && !UtilsNew.isError(response)) {
                         if (response.getEvents?.("ERROR")?.length) {
@@ -141,7 +142,7 @@ export default class UserLogin extends LitElement {
     }
 
     render() {
-        const organizations = this.opencgaSession.opencgaClient._config.organizations || [];
+        const organizations = this.opencgaSession?.opencgaClient?._config?.organizations || [];
 
         return html`
             <div class="container-fluid" style="max-width:480px;">
@@ -166,7 +167,7 @@ export default class UserLogin extends LitElement {
                             </div>
                         </div>
                         ${organizations.length > 1 ? html`
-                            <div class="form-group ${this.hasEmptyOrganization ? "has-error" : ""}">
+                            <div class="form-group">
                                 <label for="organization" class="control-label label-login">Organization</label>
                                 <div class="input-group">
                                     <span class="input-group-addon" id="username">
