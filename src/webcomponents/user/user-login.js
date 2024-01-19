@@ -168,11 +168,16 @@ export default class UserLogin extends LitElement {
                         ${organizations.length > 1 ? html`
                             <div class="form-group ${this.hasEmptyOrganization ? "has-error" : ""}">
                                 <label for="organization" class="control-label label-login">Organization</label>
-                                <select id="organization" class="form-control">
-                                    ${organizations.map(organizationId => html`
-                                        <option value="${organizationId}">${organizationId}</option>
-                                    `)}
-                                </select>
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="username">
+                                        <i class="fa fa-building fa-lg"></i>
+                                    </span>
+                                    <select id="organization" class="form-control">
+                                        ${organizations.map(organizationId => html`
+                                            <option value="${organizationId}">${organizationId}</option>
+                                        `)}
+                                    </select>
+                                </div>
                             </div>
                         ` : nothing}
                         <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
