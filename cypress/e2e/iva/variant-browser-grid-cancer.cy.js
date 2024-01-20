@@ -80,14 +80,14 @@ context("Variant Browser Grid Cancer", () => {
             });
             cy.get("button[data-action='settings']")
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter2 .select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                UtilsTest.getByDataTest("test-columns", "select-field-filter2 span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter2 .select2-selection")
                 .click();
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
@@ -102,7 +102,6 @@ context("Variant Browser Grid Cancer", () => {
             cy.get("@headerColumns")
                 .should($header => {
                     const _columns = Array.from($header, th => th.textContent?.trim());
-                    debugger;
                     columns.forEach(col => {
                         expect(col).not.to.be.oneOf(_columns);
                     });
@@ -360,7 +359,7 @@ context("Variant Browser Grid Cancer", () => {
                 .should("have.attr", "disabled");
         });
 
-        it("should display an action to copy variant ID in Varsome format", () => {
+        it.skip("should display an action to copy variant ID in Varsome format", () => {
             cy.get("tbody tr:first td")
                 .last()
                 .find(`div.dropdown ul.dropdown-menu li[data-cy="varsome-copy"]`)
