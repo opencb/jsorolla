@@ -79,7 +79,7 @@ context("Cohort Browser Grid", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("h4.modal-title")
-                .should("contain.text", "Cohort Create");
+                .should("contain.text", "Cohort create");
         });
         // 3. Render button clear
         it("should render button clear", () => {
@@ -106,7 +106,7 @@ context("Cohort Browser Grid", () => {
         it("should have form field ID", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .find(`data-form div.form-horizontal div.row.form-group  label.control-label`)
+                .find(`data-form div.form-horizontal div.row  label.col-form-label`)
                 .should("contain.text", "Cohort ID");
         });
     });
@@ -179,7 +179,7 @@ context("Cohort Browser Grid", () => {
 
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:"div",
+                tag: "div",
                 elementId: "SettingModal"
             }).as("settingModal");
 
@@ -214,30 +214,30 @@ context("Cohort Browser Grid", () => {
                 });
         });
 
-        it("should hide columns [Cohort ID,Creation Date]",() => {
-            const columns = ["Cohort ID","Creation Date"];
+        it("should hide columns [Cohort ID,Creation Date]", () => {
+            const columns = ["Cohort ID", "Creation Date"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");
 
             columns.forEach(col => {
                 cy.get("@headerColumns")
-                    .contains("div",col)
+                    .contains("div", col)
                     .should("be.visible");
             });
             cy.get("button[data-action='settings']")
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter2 .select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                UtilsTest.getByDataTest("test-columns", "select-field-filter2 span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter2 .select2-selection")
                 .click();
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:"div",
+                tag: "div",
                 elementId: "SettingModal"
             }).as("settingModal");
 
@@ -262,8 +262,8 @@ context("Cohort Browser Grid", () => {
         });
 
         it("should change page", () => {
-            UtilsTest.changePage(browserGrid,2);
-            UtilsTest.changePage(browserGrid,3);
+            UtilsTest.changePage(browserGrid, 2);
+            UtilsTest.changePage(browserGrid, 3);
         });
     });
 
@@ -273,8 +273,8 @@ context("Cohort Browser Grid", () => {
             cy.get("tbody tr")
                 .eq(3)
                 .click()
-                .should("have.class","success");
-            });
+                .should("have.class", "table-success");
+        });
     });
 
     context("extension", () => {
