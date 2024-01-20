@@ -239,14 +239,14 @@ export default class CustomNavBar extends LitElement {
                             ` : null}
                         </div>
                         ${this.app?.id !== "suite" ? html `
-                            <div class="navbar-brand d-flex justify-content-center me-n1" style="height: 2.5rem;">
+                            <div class="navbar-brand d-flex justify-content-center align-items-center me-n1" style="height: 2.5rem;">
                                 <!-- Application logo provided -->
                                 ${this.app?.logo ? html`
                                     <img class="d-inline-block" src="${this.app?.logo}" alt="App logo">
                                 ` : null}
                                 <!-- No application logo provided -->
                                 ${!this.app?.logo && this.app?.name ? html`
-                                    <span class="" style="font-size:24px;margin-right:4px;">
+                                    <span style="color:var(--main-color-white);font-size:24px;margin-right:4px;">
                                     <strong>${this.app.name}</strong>
                                 </span>
                                 ` : null}
