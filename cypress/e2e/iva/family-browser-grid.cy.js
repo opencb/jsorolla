@@ -79,7 +79,7 @@ context("Family Browser Grid", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("h4.modal-title")
-                .should("contain.text", "Family Create");
+                .should("contain.text", "Family create");
         });
         // 3. Render button clear
         it("should render button clear", () => {
@@ -106,7 +106,7 @@ context("Family Browser Grid", () => {
         it("should have form field ID", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .find("data-form div.form-horizontal div.row.form-group  label.control-label")
+                .find("data-form div.form-horizontal div.row label.col-form-label")
                 .should("contain.text", "Family ID");
         });
     });
@@ -123,8 +123,7 @@ context("Family Browser Grid", () => {
                 .find("a[data-action='edit']")
                 .first()
                 .click();
-            cy.get(browserGrid)
-                .find("div[data-cy='modal-update']")
+            cy.get("div[data-cy='modal-update']")
                 .as("modal-update");
         });
         // 1. Open modal and render update
@@ -139,7 +138,7 @@ context("Family Browser Grid", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("h4.modal-title")
-                .should("contain.text", "Family Update");
+                .should("contain.text", "Family update");
         });
         // 3. Render button clear
         it("should render button clear", () => {
@@ -166,7 +165,7 @@ context("Family Browser Grid", () => {
         it("should have form field ID equal to sample selected", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
-                .find("data-form div.row div.row.form-group  label.control-label")
+                .find("data-form div.row div.row label.col-form-label")
                 .should("contain.text", "Family ID");
         });
     });
@@ -223,14 +222,14 @@ context("Family Browser Grid", () => {
             });
             cy.get("button[data-action='settings']")
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter2 .select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                UtilsTest.getByDataTest("test-columns", "select-field-filter2 span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter2 .select2-selection")
                 .click();
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
@@ -265,7 +264,7 @@ context("Family Browser Grid", () => {
             cy.get("tbody tr")
                 .eq(1)
                 .as("rowSelected")
-                .click()
+                .click();
 
             cy.get("@rowSelected")
                 .should("have.class","table-success");
