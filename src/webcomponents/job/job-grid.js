@@ -71,6 +71,12 @@ export default class JobGrid extends LitElement {
         this.autoRefresh = false;
         this.eventNotifyName = "messageevent";
         this._config = this.getDefaultConfig();
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     updated(changedProperties) {
@@ -92,8 +98,7 @@ export default class JobGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         this.toolbarSetting = {
-            ...this.config,
-            // columns: this._getDefaultColumns().filter(col => col.field)
+            ...this._config,
         };
 
         // Config for the grid toolbar
@@ -228,7 +233,7 @@ export default class JobGrid extends LitElement {
                 },
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter.bind(this),
+                detailFormatter: this.detailFormatter,
                 sortName: "Creation",
                 sortOrder: "asc",
                 gridContext: this,
@@ -243,7 +248,7 @@ export default class JobGrid extends LitElement {
                         order: -1,
                         limit: params.data.limit || this.table.bootstrapTable("getOptions").pageSize,
                         skip: params.data.offset || 0,
-                        include: "id,userId,tool,priority,tags,creationDate,visited,dependsOn,outDir,internal,execution,params,input,output",
+                        include: "id,userId,tool,priority,tags,creationDate,visited,dependsOn,outDir,internal,execution,params,input,output,annotationSets",
                         ...this.query
                     };
 
@@ -321,6 +326,10 @@ export default class JobGrid extends LitElement {
 
     onColumnChange(e) {
         this.gridCommons.onColumnChange(e);
+    }
+
+    onRefresh() {
+        this.table.bootstrapTable("refresh");
     }
 
     detailFormatter(value, row) {
@@ -644,6 +653,7 @@ export default class JobGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
+                    @refresh="${this.onRefresh}"
                     @actionClick="${e => this.onActionClick(e)}"
                     @jobCreate="${this.renderRemoteTable}">
                 </opencb-grid-toolbar>` : nothing
@@ -678,21 +688,21 @@ export default class JobGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
+            showSelectCheckbox: false,
+            multiSelection: false,
+            detailView: true,
+
             showToolbar: true,
+            showActions: true,
+
             showCreate: true,
             showExport: true,
             showSettings: true,
-            showActions: true,
-            detailView: true,
-            detailFormatter: this.detailFormatter,
-            showSelectCheckbox: false,
-            multiSelection: false,
+            showRefresh: true,
+            exportTabs: ["download", "link", "code"],
+
             nucleotideGenotype: true,
             alleleStringLengthMax: 15,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
             autorefreshTiming: 60000,
         };
     }

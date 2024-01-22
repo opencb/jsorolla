@@ -189,6 +189,10 @@
     <!-- /build -->
     <!-- LitElement assets -->
     <!-- build:void[] -->
+    <script type="text/javascript">
+        // We need to initialize IVA_EXTENSIONS as an empty array
+        window.IVA_EXTENSIONS = [];
+    </script>
     <script src="{{ IVA_EXTENSIONS_PATH }}/extensions.js"></script>
     <script type="module" src="./iva-app.js"></script>
     <!-- /build -->
@@ -196,7 +200,7 @@
 </head>
 
 <body>
-    <script type="module">
+    <script type="text/javascript">
         $(function(){
             document.title = SUITE.name;
             // Back to top button

@@ -211,7 +211,7 @@ context("Family Browser Grid", () => {
                 });
         });
 
-        it("should hidden columns [Case ID,Phenotypes]",() => {
+        it("should hide columns [Case ID,Phenotypes]",() => {
             const columns = ["Case ID","Phenotypes"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");
@@ -298,44 +298,30 @@ context("Family Browser Grid", () => {
         });
     });
 
-    context("detail tab",{tags: ["@shortTask","@testTask"]}, () => {
+    context("detail tab", {tags: ["@shortTask","@testTask"]}, () => {
         it("should render", () => {
             cy.get(browserDetail)
                 .should("be.visible");
         });
 
-        it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Family");
-            cy.get("@indexColumn")
-                .then((indexColumn) => {
-                    const indexRow = 1;
-                    // eslint-disable-next-line cypress/unsafe-to-chain-command
-                    cy.get("tbody tr")
-                        .eq(indexRow)
-                        .click() // select the row
-                        .find("td")
-                        .eq(indexColumn)
-                        .invoke("text")
-                        .as("textRow");
-                    });
-
-            cy.get("@textRow")
-                .then((textRow) => {
-                    cy.get("detail-tabs > div.panel")
-                        .invoke("text")
-                        .then((text) => {
-                            const textTab = text.trim().split(" ");
-                            expect(textRow).to.equal(textTab[1].trim());
-                        });
-                });
+        it("should display info from the selected row", () => {
+            const family = "919278";
+            cy.get(`tbody tr[data-uniqueid="${family}"]`)
+                .find(`td`)
+                .eq(1)
+                .trigger("click");
+        
+            cy.get(`detail-tabs h3`)
+                .should("contain.text", `Family ${family}`);
         });
 
         it("should display 'JSON Data' Tab", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("detail-tabs > div.detail-tabs > ul")
                 .find("li")
                 .contains("JSON Data")
-                .click()
+                .trigger("click");
+            
+            cy.get("json-viewer")
                 .should("be.visible");
         });
     });

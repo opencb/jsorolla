@@ -70,7 +70,7 @@ context("Variant Interpreter Grid Germiline", () => {
                 });
         });
 
-        it("should hidden columns [Type,Consequence Type,Gene]",() => {
+        it("should hide columns [Type,Consequence Type,Gene]",() => {
             const columns = ["Type","Consequence Type","Gene"];
             cy.get("variant-interpreter-grid thead th")
                 .as("headerColumns");

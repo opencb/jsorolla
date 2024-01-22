@@ -127,7 +127,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
             this.toolbarSetting = {
                 ...this._config,
-                ...this._config.toolbar, // it comes from external settings
             };
 
             this.toolbarConfig = {
@@ -525,6 +524,13 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     visible: this.clinicalAnalysis.type?.toUpperCase() === "CANCER" && this.gridCommons.isColumnVisible("evidences"),
                 },
                 {
+                    id: "geneFeatureOverlap",
+                    title: "Gene Feature Overlap",
+                    rowspan: 1,
+                    colspan: 2,
+                    halign: "center",
+                },
+                {
                     id: "vcfData1",
                     title: "VCF Data 1",
                     rowspan: 1,
@@ -595,6 +601,30 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 }
             ],
             [
+                {
+                    id: "geneFeatureOverlapVariant1",
+                    title: "Variant 1",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: (value, rows) => {
+                        return VariantInterpreterGridFormatter.geneFeatureOverlapFormatter(rows[0], this.opencgaSession);
+                    },
+                    halign: "center",
+                    valign: "top",
+                    visible: this.gridCommons.isColumnVisible("geneFeatureOverlapVariant1"),
+                },
+                {
+                    id: "geneFeatureOverlapVariant2",
+                    title: "Variant 2",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: (value, rows) => {
+                        return VariantInterpreterGridFormatter.geneFeatureOverlapFormatter(rows[1], this.opencgaSession);
+                    },
+                    halign: "center",
+                    valign: "top",
+                    visible: this.gridCommons.isColumnVisible("geneFeatureOverlapVariant2"),
+                },
                 ...vcfDataColumns.vcf1,
                 ...vcfDataColumns.vcf2,
                 {
@@ -987,11 +1017,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             // genotype: {
             //     type: "VCF_CALL"
             // },
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
-
             quality: {
                 qual: 30,
                 dp: 20

@@ -111,6 +111,49 @@ context("Individual Browser Grid", () => {
         });
     });
 
+    // MODAL CREATE AUTOCOMPLETE
+    context("Modal Create Autocomplete", () => {
+        beforeEach(() => {
+            // eslint-disable-next-line cypress/unsafe-to-chain-command
+            cy.get("@container")
+                .find(`button[data-action="create"]`)
+                .click();
+            cy.get("@container")
+                .find(`div[data-cy="modal-create"]`)
+                .as("modal-create");
+        });
+
+        it("should autocomplete on searching and selecting one result", () => {
+            // eslint-disable-next-line cypress/unsafe-to-chain-command
+            cy.get("@modal-create")
+                .contains("ul.nav.nav-tabs > li", "Phenotypes")
+                .click();
+            cy.get("@modal-create")
+                .contains("button", "Add Item")
+                .click();
+            cy.get("cellbase-search-autocomplete")
+                .find("select-token-filter .select2-container")
+                .click();
+            cy.get("cellbase-search-autocomplete")
+                .find("input.select2-search__field")
+                .type("gli");
+            cy.get("cellbase-search-autocomplete")
+                .find("span.select2-results li")
+                .first()
+                .click();
+            cy.get("cellbase-search-autocomplete")
+                .find("span.select2-selection__rendered")
+                .should("contain.text", "Glioblastoma multiforme");
+            cy.get("@modal-create")
+                .find(`input[placeholder="Add phenotype ID......"]`)
+                .then(element => {
+                    expect(element.val()).equal("HP:0012174");
+                    cy.wrap(element).should("be.disabled");
+                });
+
+        });
+    });
+
     // MODAL UPDATE
     context("Modal Update", () => {
         beforeEach(() => {
@@ -171,6 +214,7 @@ context("Individual Browser Grid", () => {
         });
     });
 
+    // MODAL SETTINGS
     context("Modal Setting", () => {
 
         it("should move modal setting", () => {
@@ -211,7 +255,7 @@ context("Individual Browser Grid", () => {
                 });
         });
 
-        it("should hidden columns [Disorders,Case ID,Ethnicity]",() => {
+        it("should hide columns [Disorders,Case ID,Ethnicity]",() => {
             const columns = ["Disorders","Case ID","Ethnicity"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");
@@ -289,6 +333,7 @@ context("Individual Browser Grid", () => {
             });
         });
 
+        // 2. Data completeness in the grid
         context("data completeness", () => {
             let creationDateIndex = null;
 
@@ -343,15 +388,16 @@ context("Individual Browser Grid", () => {
 
         });
 
+        // 3. Data format
         context("data format", () => {
             beforeEach(() => {
                 cy.get("@grid")
                     .find(`tbody tr[data-index="0"]`)
                     .as("row");
             });
-
         });
 
+        // 4. Extensions
         context("extension", () => {
             it("should display 'Extra Column' column", () => {
                 cy.get("thead th")
@@ -360,10 +406,67 @@ context("Individual Browser Grid", () => {
             });
         });
 
+        // 5. Annotations
+        context("annotations", () => {
+            const annotations = [
+                {
+                    title: "Cardiology Tests",
+                    position: 6,
+                    variables: ["ecg_test", "echo_test"]
+                },
+                {
+                    title: "Risk Assessment",
+                    position: 7,
+                    variables: ["date_risk_assessment"]
+                }
+            ];
+
+            beforeEach(() => {
+                cy.get("@grid")
+                    .find("table")
+                    .as("table");
+            });
+
+            // 5.1 Render each varSet title as column header
+            it("should render enabled varSet column titles", () => {
+                cy.wrap(annotations).each(annotation => {
+                    cy.get("@table")
+                        .contains("thead tr th", annotation.title);
+                });
+            });
+            // 5.2 Render each varSet column at the position configured in position
+            it("should have varSet position configured equal to the index of the corresponding column", () => {
+                cy.wrap(annotations).each(annotation => {
+                    cy.get("@table")
+                        .contains("thead tr th", annotation.title)
+                        .invoke("index")
+                        .then(i => {
+                            // 1. Test index column configured equals column index rendered
+                            expect(i-1).equal(annotation.position);
+                        });
+                    });
+                });
+        // 5.3 Render variables correctly
+            it("should render annotations configured", () => {
+            cy.wrap(annotations).each(annotation => {
+                cy.get("@table")
+                    .contains("thead tr th", annotation.title)
+                    .invoke("index")
+                    .then(i => {
+                        // 1. Test index column configured equals column index rendered
+                        cy.get("tbody tr")
+                            .first()
+                            .find("td")
+                            .eq(i)
+                            .should("contain.text", annotation.variables[0]);
+                        });
+                });
+            });
+        });
     });
 
+    // DETAIL TABS
     context("Detail", () => {
-
         beforeEach(() => {
             cy.get("@container")
                 .find(`div[data-cy="ib-detail"]`)
@@ -375,44 +478,25 @@ context("Individual Browser Grid", () => {
                 .should("be.visible");
         });
 
-        it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Individual");
-            cy.get("@indexColumn")
-                .then(indexColumn => {
-                    const indexRow = 2;
-                    // eslint-disable-next-line cypress/unsafe-to-chain-command
-                    cy.get(`tbody tr`)
-                        .eq(indexRow)
-                        .click() // select the row
-                        .find("td")
-                        .eq(indexColumn)
-                        .invoke("text")
-                        .as("textRow");
-                });
+        it("should display info from the selected row", () => {
+            const individual = "NA12877";
+            cy.get(`tbody tr[data-uniqueid="${individual}"]`)
+                .find(`td`)
+                .eq(1)
+                .trigger("click");
 
-            cy.get("@textRow")
-                .then((textRow) => {
-                    cy.get("detail-tabs > div.panel")
-                        .invoke("text")
-                        .then((text) => {
-                            const textRowTrimmed = textRow.trim();
-                            const firstLineMatch = textRowTrimmed.match(/^([^\n]+)/);
-                            const id = firstLineMatch ? firstLineMatch[1].trim() : textRowTrimmed;
-
-                            const textTab = text.trim().split(" ");
-                            expect(id).to.equal(textTab[1].trim());
-                        });
-                });
+            cy.get(`detail-tabs h3`)
+                .should("contain.text", `Individual ${individual}`);
         });
 
         it("should display 'JSON Data' Tab", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@detail")
                 .find("li")
                 .contains("JSON Data")
-                .click()
-                .should('be.visible');
+                .trigger("click");
+
+            cy.get("json-viewer")
+                .should("be.visible");
         });
     });
-
 });

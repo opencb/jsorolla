@@ -181,12 +181,11 @@ export default class GridCommons {
             }
 
             // Add events for displaying genes and roles list
-            // const gridElement = document.querySelector(`#${this.gridId}`);
-            ["genes", "roles"].forEach(key => {
+            ["genes", "roles", "gene-feature-overlaps"].forEach(key => {
                 Array.from(document.querySelectorAll(`#${this.gridId} div[data-role="${key}-list"]`)).forEach(el => {
-                    const extraList = el.querySelector(`span[data-role="${key}-list-extra"]`);
-                    const showLink = el.querySelector(`a[data-role="${key}-list-show"]`);
-                    const hideLink = el.querySelector(`a[data-role="${key}-list-hide"]`);
+                    const extraList = el.querySelector(`[data-role="${key}-list-extra"]`);
+                    const showLink = el.querySelector(`[data-role="${key}-list-show"]`);
+                    const hideLink = el.querySelector(`[data-role="${key}-list-hide"]`);
 
                     showLink.addEventListener("click", () => {
                         showLink.style.display = "none";
@@ -305,7 +304,7 @@ export default class GridCommons {
                     title: annotation.title || "Custom Annotation",
                     field: "annotationSets",
                     formatter: annotationSets => formatter(annotationSets, annotation.variableSetId, annotation.variables),
-                    halign: gridConfig.header.horizontalAlign,
+                    halign: gridConfig.header?.horizontalAlign || "center",
                     visible: true,
                     excludeFromSettings: true,
                     // visible: this.gridCommons.isColumnVisible("annotations")

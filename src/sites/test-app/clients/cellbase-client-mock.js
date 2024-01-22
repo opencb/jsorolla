@@ -1,4 +1,5 @@
 import UtilsNew from "../../../core/utils-new.js";
+import {RestResponse} from "../../../core/clients/rest-response";
 
 export class CellBaseClientMock {
 
@@ -42,6 +43,19 @@ export class CellBaseClientMock {
                     return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-region-17-43102293-43106467-variants.json`);
                 }
             }
+        }
+        if (category === "feature") {
+            if (subcategory === "ontology" && resource === "search") {
+                switch (params.name) {
+                    case "~/gli/i":
+                        return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/cellbase-autocomplete-phenotypes.json`)
+                            .then(data => new RestResponse({responses: [{results: data}]}));
+                    default:
+                        break;
+                }
+            }
+
+
         }
         // Other request
         return Promise.reject(new Error("Not implemented"));

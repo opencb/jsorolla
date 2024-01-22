@@ -47,9 +47,14 @@ export default class DiseasePanelRegionView extends LitElement {
         this.regions = {};
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "GenePanelBrowserGrid";
-        this.displayConfigDefault = {};
         this._config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     // connectedCallback() {
@@ -95,7 +100,6 @@ export default class DiseasePanelRegionView extends LitElement {
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             // onPageChange: (page, size) => {
@@ -129,7 +133,7 @@ export default class DiseasePanelRegionView extends LitElement {
                     title: "Region",
                     field: "name",
                     formatter: (value, row) => `${row.id}`,
-                    halign: this._config.header.horizontalAlign,
+                    halign: this.displayConfigDefault.header.horizontalAlign,
                 },
                 {
                     id: "modesOfInheritance",
@@ -166,7 +170,7 @@ export default class DiseasePanelRegionView extends LitElement {
                             return "-";
                         }
                     },
-                    halign: this._config.header.horizontalAlign,
+                    halign: this.displayConfigDefault.header.horizontalAlign,
                 },
                 {
                     id: "phenotypes",
@@ -224,13 +228,8 @@ export default class DiseasePanelRegionView extends LitElement {
             pageList: [5, 10, 25],
             showExport: false,
             detailView: false,
-            detailFormatter: null, // function with the detail formatter
             multiSelection: false,
             showToolbar: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            }
         };
     }
 
