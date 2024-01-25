@@ -788,7 +788,10 @@ export default class DataForm extends LitElement {
         if (typeof content === "string") {
             contentHtml = UtilsNew.renderHTML(content);
         } else {
-            if (Array.isArray(content)) {
+            // Note 20240125 Vero:
+            // Added a second condition that ensures that all elements of the array are strings.
+            // Some of the content arrays are arrays of lit objects (e.g, content received from object-list elements)
+            if (Array.isArray(content) && content.every(element => typeof element === "string")) {
                 contentHtml = UtilsNew.renderHTML(content.join(""));
             }
         }
