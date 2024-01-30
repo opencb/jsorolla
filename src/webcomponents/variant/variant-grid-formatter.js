@@ -1221,7 +1221,7 @@ export default class VariantGridFormatter {
                     clinvar.push({
                         values: values
                     });
-                } else { // COSMIC section
+                } else if (trait.source.name.toUpperCase() === "COSMIC") {
                     // Prepare data to group by histologySubtype field
                     const key = trait.id + ":" + trait.somaticInformation.primaryHistology + ":" + trait.somaticInformation.primaryHistology;
                     const reviewStatus = trait.additionalProperties.find(p => p.id === "MUTATION_SOMATIC_STATUS");
