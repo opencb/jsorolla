@@ -277,9 +277,9 @@ class IvaApp extends LitElement {
         }
 
         // Go to the page that tool has
-        if (window.location.hash !== this.tool) {
-            window.location.hash = this.tool;
-        }
+        // if (window.location.hash !== this.tool) {
+        //     window.location.hash = this.tool;
+        // }
 
         // Other initialisations
         // This manages the sample selected in each tool for updating the breadcrumb
@@ -794,7 +794,7 @@ class IvaApp extends LitElement {
             }
         }
 
-        if (window.location.hash === hashFrag) {
+        if (window.location.hash === hashFrag || hashFrag === "#interpreter") {
             this.hashFragmentListener(this);
         } else {
             window.location.hash = hashFrag;
@@ -826,13 +826,13 @@ class IvaApp extends LitElement {
         const [hashTool, hashProject, hashStudy, feature] = arr;
 
         // Stopping the recursive call
-        if (hashTool !== this.tool || hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
+        if (hashTool === "#interpreter" || hashTool !== this.tool || hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
             if (arr.length > 1) {
                 // Field 'project' is being observed, just in case Polymer triggers
                 // an unnecessary event we can check they are really different
                 if (ctx.opencgaSession?.project?.id !== hashProject) {
                     // eslint-disable-next-line no-param-reassign
-                    ctx.opencgaSession.project.id = hashProject;
+                    ctx.opencgaSession.project = ctx.opencgaSession.projects?.find(project => project.id === hashProject);
                 }
                 if (ctx.opencgaSession?.study && arr.length > 2 && ctx.opencgaSession.study !== hashStudy) {
                     for (let i = 0; i < ctx.opencgaSession.projects.length; i++) {
@@ -952,6 +952,11 @@ class IvaApp extends LitElement {
         if (studyFound) {
             // Update the lastStudy in config iff has changed
             this.opencgaClient.updateUserConfig("IVA", {...this.opencgaSession.user.configs["IVA"], lastStudy: studyFqn});
+
+            // This is a terrible hack to exit interpreter when we change the current study
+            if (this.tool === "#interpreter") {
+                window.location.hash = "#clinicalAnalysisPortal";
+            }
 
             // Refresh the session and update cellbase
             this.opencgaSession = {...this.opencgaSession};
