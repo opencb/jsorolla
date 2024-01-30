@@ -1240,7 +1240,6 @@ export default class DataForm extends LitElement {
         return this._createElementTemplate(element, null, content);
     }
 
-
     _createTableElement(element, data = this.data, section) {
         // Get array values
         let array;
@@ -1935,7 +1934,7 @@ export default class DataForm extends LitElement {
     _isFieldAutocomplete(field) {
         // example: phenotypes[].1.description
         if (field?.includes("[].")) {
-            const match = field.match(DataForm.re);
+            const match = field.match(DataForm.ARRAY_FIELD_REGULAR_EXPRESSION);
             return !!(match && typeof this.dataAutocomplete?.[match?.groups?.arrayFieldName]?.[match?.groups?.index]?.[match?.groups?.field] !== "undefined");
         }
         return false;
