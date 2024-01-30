@@ -988,9 +988,10 @@ class IvaApp extends LitElement {
         } else {
             // Josemi 20220216 NOTE: we keep this old way to be backward compatible with OpenCGA 2.1
             // But this should be removed in future releases
+            this.config.cellbase = null;
             this.cellbaseClient = new CellBaseClient({
-                host: this.config.cellbase.host,
-                version: this.config.cellbase.version,
+                host: this.config.cellbase?.host,
+                version: this.config.cellbase?.version,
                 species: "hsapiens",
             });
         }
