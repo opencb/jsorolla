@@ -1207,10 +1207,11 @@ export default class VariantGridFormatter {
             const cosmicIntermediate = new Map();
             for (const trait of row.annotation.traitAssociation) {
                 const values = [];
+                const source = (trait?.source?.name || "").toUpperCase();
                 const vcvId = trait.additionalProperties.find(p => p.name === "VCV ID");
                 const genomicFeature = trait.genomicFeatures.find(f => f.featureType.toUpperCase() === "GENE");
                 const reviewStatus = trait.additionalProperties.find(p => p.name === "ReviewStatus_in_source_file");
-                if (trait.source.name.toUpperCase() === "CLINVAR") {
+                if (source === "CLINVAR") {
                     values.push(`<a href="${trait.url ?? BioinfoUtils.getClinvarVariationLink(trait.id)}" target="_blank">${trait.id}</a>`);
                     values.push(vcvId ? vcvId.value : trait.id);
                     values.push(genomicFeature?.xrefs ? genomicFeature.xrefs?.symbol : "-");
@@ -1221,7 +1222,7 @@ export default class VariantGridFormatter {
                     clinvar.push({
                         values: values
                     });
-                } else if (trait.source.name.toUpperCase() === "COSMIC") {
+                } else if (source === "COSMIC") {
                     // Prepare data to group by histologySubtype field
                     const key = trait.id + ":" + trait.somaticInformation.primaryHistology + ":" + trait.somaticInformation.primaryHistology;
                     const reviewStatus = trait.additionalProperties.find(p => p.id === "MUTATION_SOMATIC_STATUS");
