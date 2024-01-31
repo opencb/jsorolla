@@ -1017,36 +1017,38 @@ export default class VariantInterpreterGridFormatter {
         `;
     }
 
-    static rearrangementFeatureOverlapFormatter(variant, opencgaSession) {
+    static rearrangementFeatureOverlapFormatter(variant, genes, opencgaSession) {
         if (variant?.annotation?.consequenceTypes) {
             const overlaps = [];
-            (variant.annotation.consequenceTypes || []).forEach(ct => {
-                if (Array.isArray(ct.exonOverlap) && ct.exonOverlap?.length > 0) {
-                    ct.exonOverlap.map(exon => {
-                        overlaps.push({
-                            geneName: ct.geneName || "",
-                            transcript: ct.transcript || ct.ensemblTranscriptId || "",
-                            feature: `exon (${exon.number || "-"})`,
+            (variant.annotation.consequenceTypes || [])
+                .filter(ct => genes.has(ct.geneName || ct.geneId || ""))
+                .forEach(ct => {
+                    if (Array.isArray(ct.exonOverlap) && ct.exonOverlap?.length > 0) {
+                        ct.exonOverlap.map(exon => {
+                            overlaps.push({
+                                geneName: ct.geneName || "",
+                                transcript: ct.transcript || ct.ensemblTranscriptId || "",
+                                feature: `exon (${exon.number || "-"})`,
+                            });
                         });
-                    });
-                } else if (Array.isArray(ct.sequenceOntologyTerms) && ct.sequenceOntologyTerms?.length > 0) {
-                    ct.sequenceOntologyTerms.forEach(term => {
-                        if (term.name === "intron_variant") {
-                            overlaps.push({
-                                geneName: ct.geneName || "",
-                                transcript: ct.transcript || ct.ensemblTranscriptId || "",
-                                feature: "intron",
-                            });
-                        } else if (term.name === "5_prime_UTR_variant" || term.name === "3_prime_UTR_variant") {
-                            overlaps.push({
-                                geneName: ct.geneName || "",
-                                transcript: ct.transcript || ct.ensemblTranscriptId || "",
-                                feature: `${term.name.charAt(0)}'-UTR`,
-                            });
-                        }
-                    });
-                }
-            });
+                    } else if (Array.isArray(ct.sequenceOntologyTerms) && ct.sequenceOntologyTerms?.length > 0) {
+                        ct.sequenceOntologyTerms.forEach(term => {
+                            if (term.name === "intron_variant") {
+                                overlaps.push({
+                                    geneName: ct.geneName || "",
+                                    transcript: ct.transcript || ct.ensemblTranscriptId || "",
+                                    feature: "intron",
+                                });
+                            } else if (term.name === "5_prime_UTR_variant" || term.name === "3_prime_UTR_variant") {
+                                overlaps.push({
+                                    geneName: ct.geneName || "",
+                                    transcript: ct.transcript || ct.ensemblTranscriptId || "",
+                                    feature: `${term.name.charAt(0)}'-UTR`,
+                                });
+                            }
+                        });
+                    }
+                });
 
             if (overlaps.length > 0) {
                 const maxDisplayedOverlaps = 3;
