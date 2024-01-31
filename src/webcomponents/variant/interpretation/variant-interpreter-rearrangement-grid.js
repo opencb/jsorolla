@@ -245,12 +245,14 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                             const gene = genes.get(ct.geneName || ct.geneId);
 
                             // Check if this gene exists and overlaps this variant
-                            const start = gene.start - offset;
-                            const end = gene.end + offset;
-                            const variantStart = Math.min(variant.start, variant.end);
-                            const variantEnd = Math.max(variant.start, variant.end);
-                            if (gene && (variant.chromosome === gene.chromosome && variantStart <= end && start <= variantEnd)) {
-                                this.genesByVariant[id].add(ct.geneName || ct.geneId);
+                            if (gene) {
+                                const start = gene.start - offset;
+                                const end = gene.end + offset;
+                                const variantStart = Math.min(variant.start, variant.end);
+                                const variantEnd = Math.max(variant.start, variant.end);
+                                if (variant.chromosome === gene.chromosome && variantStart <= end && start <= variantEnd) {
+                                    this.genesByVariant[id].add(ct.geneName || ct.geneId);
+                                }
                             }
                         });
                     });
@@ -342,7 +344,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
                             params.success(rearrangementResponse);
                         })
-                        .catch(e => params.error(e))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
+                        })
                         .finally(() => {
                             LitUtils.dispatchCustomEvent(this, "queryComplete", null);
                         });
