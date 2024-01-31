@@ -687,7 +687,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: (value, rows) => {
-                        return VariantInterpreterGridFormatter.geneFeatureOverlapFormatter(rows[0], this.opencgaSession);
+                        return VariantInterpreterGridFormatter.rearrangementFeatureOverlapFormatter(rows[0], this.opencgaSession);
                     },
                     halign: "center",
                     valign: "top",
@@ -699,7 +699,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: (value, rows) => {
-                        return VariantInterpreterGridFormatter.geneFeatureOverlapFormatter(rows[1], this.opencgaSession);
+                        return VariantInterpreterGridFormatter.rearrangementFeatureOverlapFormatter(rows[1], this.opencgaSession);
                     },
                     halign: "center",
                     valign: "top",

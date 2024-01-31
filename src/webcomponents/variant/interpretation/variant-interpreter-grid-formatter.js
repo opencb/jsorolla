@@ -1017,7 +1017,7 @@ export default class VariantInterpreterGridFormatter {
         `;
     }
 
-    static geneFeatureOverlapFormatter(variant, opencgaSession) {
+    static rearrangementFeatureOverlapFormatter(variant, opencgaSession) {
         if (variant?.annotation?.consequenceTypes) {
             const overlaps = [];
             (variant.annotation.consequenceTypes || []).forEach(ct => {
