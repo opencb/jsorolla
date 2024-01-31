@@ -75,6 +75,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.review = false;
         this.variantsReview = null;
 
+        // OpenCGA returns the same genes in both variants of the rearrangement
+        // This map is used to assign the correct genes to each variant
+        this.genesByVariant = {};
+
         // Set colors
         // consequenceTypesImpact;
         // eslint-disable-next-line no-undef
@@ -204,6 +208,52 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         return pairs;
     }
 
+    generateGenesMapFromVariants(variants) {
+        this.genesByVariant = {};
+        const genesList = new Set();
+        (variants || []).forEach(variant => {
+            if (variant?.annotation?.consequenceTypes) {
+                variant.annotation.consequenceTypes.forEach(ct => {
+                    if (ct.geneName || ct.geneId) {
+                        genesList.add(ct.geneName || ct.geneId);
+                    }
+                });
+            }
+        });
+
+        // Request gene info to cellbase
+        if (genesList.size > 0) {
+            const genesIds = Array.from(genesList);
+            return this.opencgaSession.cellbaseClient
+                .getGeneClient(genesIds.join(","), "info", {
+                    "include": "id,name,chromosome,start,end",
+                })
+                .then(response => {
+                    // 1. Map each gene with it's correct position
+                    const genes = new Map();
+                    genesIds.forEach((geneId, index) => {
+                        if (response?.responses?.[index]?.results?.[0]) {
+                            genes.set(geneId, response.responses[index].results[0]);
+                        }
+                    });
+
+                    // 2. Assign genes to each variant
+                    variants.forEach(variant => {
+                        const id = variant.id;
+                        this.genesByVariant[id] = new Set();
+                        (variant?.annotation?.consequenceTypes || []).forEach(ct => {
+                            const gene = genes.get(ct.geneName || ct.geneId);
+
+                            // Check if this gene exists and overlaps this variant
+                            if (gene && (variant.chromosome === gene.chromosome && variant.start <= gene.end && gene.start <= variant.end)) {
+                                this.genesByVariant[id].add(ct.geneName || ct.geneId);
+                            }
+                        });
+                    });
+                });
+        }
+    }
+
     renderVariants() {
         if (this.clinicalVariants && this.clinicalVariants.length > 0) {
             this.renderLocalVariants();
@@ -250,6 +300,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 variantGrid: this,
 
                 ajax: params => {
+                    let rearrangementResponse = null;
+
                     // Make a deep clone object to manipulate the query sent to OpenCGA
                     const internalQuery = JSON.parse(JSON.stringify(this.query));
 
@@ -272,13 +324,19 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then(res => {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
+                            rearrangementResponse = res;
 
+                            // Generate map of genes to variants
+                            return this.generateGenesMapFromVariants(res.responses[0].results);
+                        })
+                        .then(() => {
                             // pairs will have the following format: [[v1, v2], [v3, v4], [v5, v6]];
-                            const pairs = this.generateRowsFromVariants(res.responses[0].results);
+                            const results = rearrangementResponse.responses[0].results;
+                            const pairs = this.generateRowsFromVariants(results);
                             // It's important to overwrite results array
-                            res.responses[0].results = pairs;
+                            rearrangementResponse.responses[0].results = pairs;
 
-                            params.success(res);
+                            params.success(rearrangementResponse);
                         })
                         .catch(e => params.error(e))
                         .finally(() => {
@@ -509,7 +567,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     field: "gene",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row[0], index, this.query, this.opencgaSession),
+                    formatter: (value, row) => {
+                        return VariantInterpreterGridFormatter.rearrangementGeneFormatter(row, this.genesByVariant, this.opencgaSession);
+                    },
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("gene"),
                 },
