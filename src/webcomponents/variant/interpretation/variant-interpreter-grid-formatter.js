@@ -1026,7 +1026,7 @@ export default class VariantInterpreterGridFormatter {
                     if (Array.isArray(ct.exonOverlap) && ct.exonOverlap?.length > 0) {
                         ct.exonOverlap.map(exon => {
                             overlaps.push({
-                                geneName: ct.geneName || "",
+                                geneName: ct.geneName || ct.geneId || "",
                                 transcript: ct.transcript || ct.ensemblTranscriptId || "",
                                 feature: `exon (${exon.number || "-"})`,
                             });
@@ -1035,13 +1035,13 @@ export default class VariantInterpreterGridFormatter {
                         ct.sequenceOntologyTerms.forEach(term => {
                             if (term.name === "intron_variant") {
                                 overlaps.push({
-                                    geneName: ct.geneName || "",
+                                    geneName: ct.geneName || ct.geneId || "",
                                     transcript: ct.transcript || ct.ensemblTranscriptId || "",
                                     feature: "intron",
                                 });
                             } else if (term.name === "5_prime_UTR_variant" || term.name === "3_prime_UTR_variant") {
                                 overlaps.push({
-                                    geneName: ct.geneName || "",
+                                    geneName: ct.geneName || ct.geneId || "",
                                     transcript: ct.transcript || ct.ensemblTranscriptId || "",
                                     feature: `${term.name.charAt(0)}'-UTR`,
                                 });
