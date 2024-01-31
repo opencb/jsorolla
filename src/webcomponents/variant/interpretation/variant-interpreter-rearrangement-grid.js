@@ -208,7 +208,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         return pairs;
     }
 
-    generateGenesMapFromVariants(variants) {
+    generateGenesMapFromVariants(variants, offset = 5000) {
         this.genesByVariant = {};
         const genesList = new Set();
         (variants || []).forEach(variant => {
@@ -245,7 +245,11 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                             const gene = genes.get(ct.geneName || ct.geneId);
 
                             // Check if this gene exists and overlaps this variant
-                            if (gene && (variant.chromosome === gene.chromosome && variant.start <= gene.end && gene.start <= variant.end)) {
+                            const start = gene.start - offset;
+                            const end = gene.end + offset;
+                            const variantStart = Math.min(variant.start, variant.end);
+                            const variantEnd = Math.max(variant.start, variant.end);
+                            if (gene && (variant.chromosome === gene.chromosome && variantStart <= end && start <= variantEnd)) {
                                 this.genesByVariant[id].add(ct.geneName || ct.geneId);
                             }
                         });
