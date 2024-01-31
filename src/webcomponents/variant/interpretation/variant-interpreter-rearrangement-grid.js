@@ -367,9 +367,29 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: variants,
             columns: this._getDefaultColumns(),
-            sidePagination: "local",
+            sidePagination: "server",
+            // Josemi Note 2024-01-31: we have added the ajax function for local variants for getting genes info
+            // and map the genes to each variant
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = variants.slice(skip, skip + limit);
+
+                // Generate map of genes to variants
+                this.generateGenesMapFromVariants(rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-31: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: variants.length,
+                    rows: response,
+                };
+            },
+
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
 
