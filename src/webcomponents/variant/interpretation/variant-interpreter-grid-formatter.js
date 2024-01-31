@@ -1094,21 +1094,21 @@ export default class VariantInterpreterGridFormatter {
         return "-";
     }
 
-    static rearrangementGeneFormatter(variants, visibleGenesByVariant, opencgaSession) {
+    static rearrangementGeneFormatter(variants, genesByVariant, opencgaSession) {
         const separator = `<div style="background-color:currentColor;height:1px;margin-top:4px;margin-bottom:4px;opacity:0.2"></div>`;
         return variants
             .map((variant, index) => {
                 let resultHtml = "-";
-                const visibleGenes = Array.from(visibleGenesByVariant[variant.id] || []);
+                const genes = Array.from(genesByVariant[variant.id] || []);
 
-                if (visibleGenes.length > 0) {
-                    const genesLins = visibleGenes.map(gene => {
+                if (genes.length > 0) {
+                    const genesLinks = genes.map(gene => {
                         const tooltip = VariantGridFormatter.getGeneTooltip(gene, opencgaSession?.project?.organism?.assembly);
                         return `
                             <a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltip}">${gene}</a>
                         `;
                     });
-                    resultHtml = genesLins.join(" ");
+                    resultHtml = genesLinks.join(" ");
                 }
 
                 return `<div><b>Variant ${index + 1}</b>: ${resultHtml}</div>`;
