@@ -149,6 +149,8 @@ export default class UserLogin extends LitElement {
     render() {
         return html`
             <style>
+                /* Josemi NOTe 2024-02-01 */
+                /* Terrible style hack to fix rounded corners in organization field */
                 .organization-field .select2-selection {
                     border-top-left-radius: 0px !important;
                     border-bottom-left-radius: 0px !important;
