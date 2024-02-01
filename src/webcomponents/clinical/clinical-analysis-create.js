@@ -324,9 +324,21 @@ export default class ClinicalAnalysisCreate extends LitElement {
             data.family = {
                 id: this.clinicalAnalysis.family.id,
                 members: this.clinicalAnalysis.family.members.map(member => {
-                    return {
+                    const familyMember = {
                         id: member.id,
                     };
+
+                    // We need to include the selected samples for the member of the family that is also
+                    // the proband in the clinical analysis
+                    if (member.id === this.clinicalAnalysis.proband.id) {
+                        familyMember.samples = this.clinicalAnalysis.samples.map(sample => {
+                            return {
+                                id: sample.id,
+                            };
+                        });
+                    }
+
+                    return familyMember;
                 }),
             };
         }
