@@ -18,7 +18,7 @@ import {LitElement, html, nothing} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
-
+import "../commons/forms/select-token-filter-static.js";
 
 export default class UserLogin extends LitElement {
 
@@ -42,6 +42,7 @@ export default class UserLogin extends LitElement {
     #init() {
         this.hasEmptyUser = false;
         this.hasEmptyPassword = false;
+        this.organizationId = "";
     }
 
     firstUpdated() {
@@ -63,7 +64,7 @@ export default class UserLogin extends LitElement {
     onSubmit() {
         const user = (this.querySelector("#user").value || "").trim();
         const password = (this.querySelector("#password").value || "").trim();
-        const organization = this.querySelector("#organization")?.value || "";
+        const organization = this.organizationId || ""; // this.querySelector("#organization")?.value || "";
 
         this.hasEmptyUser = user.length === 0;
         this.hasEmptyPassword = password.length === 0;
@@ -130,6 +131,10 @@ export default class UserLogin extends LitElement {
         }
     }
 
+    onOrganizationChange(e) {
+        this.organizationId = e.detail.value;
+    }
+
     // NOTE Josemi 20220317: reset password is disabled until we have an endpoint in OpenCGA to allow users
     // to reset it's password
     renderResetPasswordLink() {
@@ -142,8 +147,6 @@ export default class UserLogin extends LitElement {
     }
 
     render() {
-        const organizations = this.opencgaSession?.opencgaClient?._config?.organizations || [];
-
         return html`
             <div class="container-fluid" style="max-width:480px;">
                 <div class="panel panel-default">
@@ -166,21 +169,19 @@ export default class UserLogin extends LitElement {
                                 <input id="password" type="password" class="form-control" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
                             </div>
                         </div>
-                        ${organizations.length > 1 ? html`
-                            <div class="form-group">
-                                <label for="organization" class="control-label label-login">Organization</label>
-                                <div class="input-group">
-                                    <span class="input-group-addon" id="username">
-                                        <i class="fa fa-building fa-lg"></i>
-                                    </span>
-                                    <select id="organization" class="form-control">
-                                        ${organizations.map(organizationId => html`
-                                            <option value="${organizationId}">${organizationId}</option>
-                                        `)}
-                                    </select>
-                                </div>
+                        <div class="form-group">
+                            <label for="organization" class="control-label label-login">Organization</label>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="username">
+                                    <i class="fa fa-building fa-lg"></i>
+                                </span>
+                                <select-token-filter-static
+                                    .data="${this.opencgaSession?.opencgaClient?._config?.organizations || []}"
+                                    .value="${""}"
+                                    .config="${{multiple: false}}">
+                                </select-token-filter-static>
                             </div>
-                        ` : nothing}
+                        </div>
                         <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
                             <strong>Sign In</strong>
                         </button>
