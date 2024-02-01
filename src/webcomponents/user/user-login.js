@@ -148,6 +148,12 @@ export default class UserLogin extends LitElement {
 
     render() {
         return html`
+            <style>
+                .organization-field .select2-selection {
+                    border-top-left-radius: 0px !important;
+                    border-bottom-left-radius: 0px !important;
+                }
+            </style>
             <div class="container-fluid" style="max-width:480px;">
                 <div class="panel panel-default">
                     <div class="panel-body" style="padding:32px;">
@@ -169,7 +175,7 @@ export default class UserLogin extends LitElement {
                                 <input id="password" type="password" class="form-control" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group organization-field">
                             <label for="organization" class="control-label label-login">Organization</label>
                             <div class="input-group">
                                 <span class="input-group-addon" id="username">
