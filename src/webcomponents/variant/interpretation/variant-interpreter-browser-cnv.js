@@ -428,6 +428,8 @@ class VariantInterpreterBrowserCNV extends LitElement {
                         hideType: true,
                         hidePopulationFrequencies: true,
                         hideClinicalInfo: true,
+                        hideDeleteriousnessCADD: true,
+                        hideDeleteriousnessSpliceAi: true,
 
                         genotype: {
                             type: "VAF"
