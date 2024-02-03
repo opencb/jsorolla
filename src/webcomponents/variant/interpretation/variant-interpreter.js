@@ -313,7 +313,7 @@ class VariantInterpreter extends LitElement {
                             </variant-interpreter-qc>
                         </div>
                     `;
-                case "cusom-analysis":
+                case "custom-analysis":
                     return html`
                         <div id="${this._prefix}customAnalysis" class="clinical-portal-content">
                             ${this.renderCustomAnalysisTab()}
