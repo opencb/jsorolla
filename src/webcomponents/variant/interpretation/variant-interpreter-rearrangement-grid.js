@@ -843,11 +843,15 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             }
         });
 
-        // Set 'Edit' button as enabled/disabled
-        document.getElementById(`${this._prefix}${this._rows[index][0].id}VariantReviewButton`).disabled = !event.currentTarget.checked;
+        // Set 'Edit' button as enabled/disabled in 'Review' column
+        // Josemi NOTE 20240205 - Edit buton in column is not rendered when 'Review' column is hidden
+        const reviewButton = document.getElementById(`${this._prefix}${this._rows[index][0].id}VariantReviewButton`);
+        if (reviewButton) {
+            reviewButton.disabled = !event.currentTarget.checked;
+        }
 
+        // Set 'Edit' button as enabled/disabled in 'Actions' dropdown
         // Josemi NOTE 20240205 - Edit buton in actions dropdown is not rendered when when actions column is hidden
-        // We have added a condition to ensure that the button exists before set/remove the disabled attribute
         const reviewActionButton = document.getElementById(`${this._prefix}${this._rows[index][0].id}VariantReviewActionButton`);
         if (reviewActionButton) {
             if (event.currentTarget.checked) {
