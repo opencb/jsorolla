@@ -16,7 +16,7 @@
 
 import Admin from "./api/Admin.js";
 import Alignment from "./api/Alignment.js";
-import Clinical from "./api/Clinical.js";
+import ClinicalAnalysis from "./api/ClinicalAnalysis.js";
 import Cohort from "./api/Cohort.js";
 import DiseasePanel from "./api/DiseasePanel.js";
 import Family from "./api/Family.js";
@@ -188,7 +188,7 @@ export class OpenCGAClient {
 
     clinical() {
         if (!this.clients.has("clinical")) {
-            this.clients.set("clinical", new Clinical(this._config));
+            this.clients.set("clinical", new ClinicalAnalysis(this._config));
         }
         return this.clients.get("clinical");
     }
