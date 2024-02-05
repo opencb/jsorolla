@@ -1308,10 +1308,10 @@ export default class VariantInterpreterGrid extends LitElement {
         }
 
         // Set 'Edit' button as enabled/disabled in column and actions dropdown
-        const reviewButton = document.getElementById(`${this._prefix}${variantId}VariantReviewButton`);
-        if (reviewButton) {
-            reviewButton.disabled = !e.currentTarget.checked;
-        }
+        document.getElementById(`${this._prefix}${variantId}VariantReviewButton`).disabled = !e.currentTarget.checked;
+
+        // Josemi NOTE 20240205 - Edit buton in actions dropdown is not rendered when when actions column is hidden
+        // We have added a condition to ensure that the button exists before set/remove the disabled attribute
         const reviewActionButton = document.getElementById(`${this._prefix}${variantId}VariantReviewActionButton`);
         if (reviewActionButton) {
             if (e.currentTarget.checked) {
