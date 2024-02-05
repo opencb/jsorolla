@@ -234,7 +234,8 @@ export default class FileManager extends LitElement {
                     overflow: hidden;
                 }
                 .file-manager .file.active {
-                    background-color: #626269;
+                    background-color: #3aafdc;
+                    color: white;
                     outline: thick solid #d0d0d0;
                 }
 
@@ -411,7 +412,7 @@ export default class FileManager extends LitElement {
                 <div class="card-body text-center w-100" @click="${() => this.route(node.file.id)}">
                     <div class="d-flex gap-2 align-items-center">
                         <span><i class="fas fa-folder fa-4x"></i></span>
-                        <div class="fs-6 text-wrap p-1" style="width:80%">
+                        <div class="fs-6 text-break p-1" style="width:80%">
                             ${node.file.name}
                             <!-- <span class="details">\${node.children.length} items</span> -->
                         </div>
@@ -426,11 +427,13 @@ export default class FileManager extends LitElement {
             <div class="col card mb-3 rounded-3 shadow-sm file ${this.fileId === node.file.id ? "active" : ""}">
                 <div class="card-body text-center w-100" @click="${() => this.onClickFile(node.file.id)}">
                     <div class="d-flex gap-2 align-items-center">
-                        ${this.icon(node.file.format, 4)}
-                        <span class="format">
-                            ${node.file.format !== "UNKNOWN" ? node.file.format : ""}
-                        </span>
-                        <span class="fs-6 text-wrap p-3">
+                        <div class="d-flex flex-column">
+                            ${this.icon(node.file.format, 4)}
+                            <span>
+                                ${node.file.format !== "UNKNOWN" ? node.file.format : ""}
+                            </span>
+                        </div>
+                        <span class="fs-6 text-break p-3">
                         ${node.file.name}
                         <span class="">${UtilsNew.getDiskUsage(node.file.size)}</span>
                     </span>
