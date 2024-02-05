@@ -119,7 +119,7 @@
     "uglify-es": "~3.1.9",
     "uglify-js": "^3.14.2",
     "uglifycss": "0.0.29",
-    "vite": "^2.5.5",
+    "vite": "^5.0.2",
     "xmldom": "0.1.27"
   },
   "browserslist": [
