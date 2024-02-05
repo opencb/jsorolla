@@ -16,7 +16,7 @@
 
 import Admin from "./api-mock/Admin";
 import Alignment from "./api-mock/Alignment.js";
-import Clinical from "./api-mock/Clinical.js";
+import ClinicalAnalysis from "./api-mock/ClinicalAnalysis.js";
 import Cohort from "./api-mock/Cohort.js";
 import DiseasePanel from "./api-mock/DiseasePanel.js";
 import Family from "./api-mock/Family.js";
@@ -184,7 +184,7 @@ export class OpenCGAClientMock {
 
     clinical() {
         if (!this.clients.has("clinical")) {
-            this.clients.set("clinical", new Clinical(this._config));
+            this.clients.set("clinical", new ClinicalAnalysis(this._config));
         }
         return this.clients.get("clinical");
     }
