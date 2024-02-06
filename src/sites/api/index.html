@@ -69,6 +69,7 @@
         <script type="text/javascript" src="../../../node_modules/crypto-js/core.js"></script>
         <script type="text/javascript" src="../../../node_modules/crypto-js/sha256.js"></script>
         <script type="text/javascript" src="../../../node_modules/jquery.json-viewer/json-viewer/jquery.json-viewer.js"></script>
+        <script type="text/javascript" src="../../../node_modules/@popperjs/core/dist/umd/popper.min.js"></script>
         <script type="text/javascript" src="../../../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="../../../node_modules/bootstrap-table/dist/bootstrap-table.min.js"></script>
         <script type="text/javascript" src="../../../node_modules/bootstrap-select/dist/js/bootstrap-select.js"></script>
@@ -80,7 +81,9 @@
         <script type="text/javascript" src="../../../node_modules/@svgdotjs/svg.js/dist/svg.min.js"></script>
         <script type="text/javascript" src="../../../node_modules/sweetalert2/dist/sweetalert2.js"></script>
         <script type="text/javascript" src="../../../node_modules/clipboard/dist/clipboard.min.js"></script>
-        <script type="text/javascript" src="../../../node_modules/select2/dist/js/select2.min.js"></script>
+        <script type="text/javascript" src="../../../node_modules/select2/dist/js/select2.full.min.js"></script>
+        <script type="text/javascript" src="../../../node_modules/@eonasdan/tempus-dominus/dist/js/tempus-dominus.min.js"></script>
+
 
         <link rel="stylesheet" href="../../../node_modules/bootstrap/dist/css/bootstrap.min.css">
         <link rel="stylesheet" href="../../../node_modules/animate.css/animate.min.css">
@@ -95,11 +98,15 @@
         <link rel="stylesheet" href="../../../node_modules/@highlightjs/cdn-assets/styles/default.min.css">
         <link rel="stylesheet" href="../../../node_modules/select2/dist/css/select2.css">
         <link rel="stylesheet" href="../../../node_modules/select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.min.css">
+        <link rel="stylesheet" href="../../../node_modules/@eonasdan/tempus-dominus/dist/css/tempus-dominus.min.css">
 
         <link rel="stylesheet" href="../../../styles/css/global.css">
-        <link rel="stylesheet" href="../../../styles/css/style.css">
+        <link rel="stylesheet" href="../../genome-browser/css/genome-browser.css">
+        <link rel="stylesheet" href="../../core/visualisation/viz-styles.css">
+
+        <!-- <link rel="stylesheet" href="../../../styles/css/style.css">
         <link rel="stylesheet" href="../../../styles/css/toggle-switch.css">
-        <link rel="stylesheet" href="../../../styles/css/magic-check.css">
+        <link rel="stylesheet" href="../../../styles/css/magic-check.css"> -->
 
         <script type="module" src="./api-app.js"></script>
     </head>
@@ -107,7 +114,7 @@
     <body>
         <script type="module">
             $(function () {
-                document.title = SUITE.name;
+                document.title = SUITE.name + " (Bs 5.3)";
                 // Back to top button
                 $(window).scroll(function () {
                     if ($(this).scrollTop() > 100) {
