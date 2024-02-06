@@ -58,41 +58,43 @@ export default class RestMenu extends LitElement {
     #renderList() {
         return html `
             <div id="rest-list">
-                <div class="panel-body" id="accordion" role="tablist" aria-multiselectable="false" data-cy="rest-api-endpoints">
+                <div class="d-flex flex-column card-body gap-3" id="accordion" role="tablist" aria-multiselectable="false" data-cy="rest-api-endpoints">
                     ${
                         this.api?.map(category => {
                             const categoryName = category.name.replaceAll(" ", "_");
                             return html `
-                                <div class="panel panel-default">
-                                    <div class="panel-body" role="tab" id="${categoryName}HeadingOne">
-                                        <h5 class="panel-title">
+                                <div class="card">
+                                    <div class="card-body" role="tab" id="${categoryName}HeadingOne">
+                                        <h5 class="card-title">
                                             <div class="">
-                                                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#${categoryName}CollapseOne" aria-expanded="true" aria-controls="${category.name}CollapseOne">
-                                                    <div style="margin-bottom: 10px">
-                                                        ${category.name} <span class="badge pull-right">${category.endpoints?.length || "NA"}</span>
+                                                <a class="text-decoration-none" role="button" data-bs-toggle="collapse"
+                                                data-bs-parent="#accordion" href="#${categoryName}CollapseOne" aria-expanded="true" aria-controls="${category.name}CollapseOne">
+                                                    <div class="mb-2">
+                                                        ${category.name} <span class="badge bg-primary float-end rounded-pill">${category.endpoints?.length || "NA"}</span>
                                                     </div>
-                                                    <div style="font-size: 1em;text-transform: none;letter-spacing: 1px">
+                                                    <div class="fs-5" style="text-transform: none;letter-spacing: 1px">
                                                         ${category.path}
                                                     </div>
                                                 </a>
                                             </div>
                                         </h5>
                                     </div>
-                                    <div id="${categoryName}CollapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="${categoryName}HeadingOne">
+                                    <div id="${categoryName}CollapseOne" class="collapse" role="tabpanel" aria-labelledby="${categoryName}HeadingOne">
                                         ${
                                             category.endpoints.sort((a, b) => {
                                                 return this.config.methodOrder[a.method] - this.config.methodOrder[b.method];
                                             }).map(endpoint => html `
-                                                <div class="panel-body" style="padding: 5px 15px">
-                                                    <button class="btn btn-link" role="link" style="display:flex;white-space:normal;" @click="${e => this.onClick(e, endpoint)}">
-                                                        <span style="margin-right: 10px; font-weight: bold; color:${this.config.methodColor[endpoint.method]}">
+                                                <div class="card-body py-2 px-3">
+                                                    <a style="white-space:normal;cursor:pointer" @click="${e => this.onClick(e, endpoint)}"
+                                                    class="link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" role="link">
+                                                    <span class="fw-bold me-3" style="color:${this.config.methodColor[endpoint.method]}">
                                                             ${endpoint.method}
                                                         </span>
-                                                        <span style="font-weight:bold;word-break:break-word;text-align:left;" data-cy="endpoint-path">
+                                                        <span class="fw-bold text-break" data-cy="endpoint-path">
                                                             ${endpoint.path.replace("/{apiVersion}", "")}
                                                         </span>
-                                                    </button>
-                                                    <div class="help-block" style="margin: 0 15px">
+                                                    </a>
+                                                    <div class="text-secondary">
                                                         ${endpoint.description}
                                                     </div>
                                                 </div>
@@ -108,23 +110,11 @@ export default class RestMenu extends LitElement {
         `;
     }
 
-    renderStyle() {
-        return html `
-            <style>
-                .rest-menu-wrapper{
-                    display: flex;
-                    flex-direction: column;
-                }
-            </style>
-        `;
-    }
-
     render() {
         return html`
-            ${this.renderStyle()}
-            <div class="rest-menu-wrapper panel panel-default">
+            <div class="d-flex flex-column card">
                 <!-- SIDE-BAR: APIs title-->
-                <div class="panel-heading">
+                <div class="card-header">
                     <div>${this.apiInfo.title}</div>
                 </div>
                 <!-- SIDE-BAR FILTER-->
@@ -156,7 +146,6 @@ export default class RestMenu extends LitElement {
             },
         };
     }
-
 
 }
 
