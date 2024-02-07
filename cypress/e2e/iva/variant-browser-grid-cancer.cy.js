@@ -23,8 +23,10 @@ context("Variant Browser Grid Cancer", () => {
 
     beforeEach(() => {
         cy.visit("#variant-browser-grid-cancer");
+        cy.get(`div[data-cy="variant-browser-container"]`)
+            .as("container");
         cy.waitUntil(() => {
-            return cy.get(browserGrid)
+            return cy.get("@container")
                 .should("be.visible");
         });
     });
@@ -116,119 +118,71 @@ context("Variant Browser Grid Cancer", () => {
                 .should("be.visible");
         });
 
-        it("should chnage page variant-browser-grid", () => {
+        it("should change page variant-browser-grid", () => {
             UtilsTest.changePage(browserGrid,2);
             UtilsTest.changePage(browserGrid,3);
         });
     });
 
-    context("Tooltip", () => {
-        it("should display variant tooltip", () => {
-            // Select first row, first column: Variant
-            // variant == id
-            BrowserTest.getColumnIndexByHeader("Variant");
-            cy.get("@indexColumn")
-                .then(index => {
-                    cy.get("tbody tr:first > td")
-                        .eq(index)
-                            .within(() => {
-                                cy.get("a")
-                                    .eq(0)
-                                    .trigger("mouseover");
-                            });
-                    cy.get(".qtip-content")
-                        .should("be.visible");
-            });
+    context("Variant Browser Bootstrap Grid", () => {
+
+        beforeEach(() => {
+            cy.get("@container")
+                .find(`div[data-cy="vb-grid"]`)
+                .as("grid");
         });
 
-        it("should display gene tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("Gene");
-            cy.get("@indexColumn")
-                .then(index => {
-                    cy.get("tbody tr:first > td")
-                        .eq(index)
-                            .within(() => {
-                                cy.get("a")
-                                    .eq(0)
-                                    .trigger("mouseover");
-                            });
-                    cy.get(".qtip-content")
-                        .should("be.visible");
-            });
-        });
+        context("Tooltip", () => {
 
-        it("should display consequenceType tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("Consequence Type");
-            cy.get("@indexColumn")
-                .then(index => {
-                    cy.get("tbody tr:first > td")
-                        .eq(index)
+            const tooltips = [
+                {title: "Variant", },
+                {title: "Gene"},
+                {title: "Consequence Type"},
+            ];
+            const helps = [
+                {title: "Deleteriousness"},
+                {title: "Conservation"},
+                {title: "Population Frequencies"},
+                {title: "Clinical Info"},
+            ];
+
+            beforeEach(() => {
+                cy.get("@grid")
+                    .find("tbody")
+                    .as("body");
+            });
+
+            it("should display headers' help", () => {
+                // Select first row, first column: Variant
+                // variant == id
+                cy.wrap(helps).each(help => {
+                    cy.get("@grid")
+                        .contains("th", help.title)
                         .within(() => {
                             cy.get("a")
-                                .eq(0)
                                 .trigger("mouseover");
                         });
                     cy.get(".qtip-content")
                         .should("be.visible");
                 });
-        });
-
-        it("should display population frequencies tooltip", () => {
-            cy.get("tbody tr:first > td")
-                .eq(13)
-                .within(() => {
-                    cy.get("a")
-                        .eq(0)
-                        .trigger("mouseover");
             });
-            cy.get(".qtip-content")
-                .should("be.visible");
-        });
-    });
 
-    context("Helpers", () => {
-        it("should display deleteriousness help", () => {
-            cy.get("thead th")
-                .contains("div","Deleteriousness")
-                .within(() => {
-                    cy.get("a")
-                        .trigger("mouseover");
+            it("should display content tooltips", () => {
+                // Select first row, first column: Variant
+                // variant == id
+                cy.wrap(tooltips).each(tooltip => {
+                    cy.get("@grid")
+                        .contains("th", tooltip.title)
+                        .invoke("index")
+                        .then(i => {
+                            cy.get("@body")
+                                .find(`tr:first td:nth-child(${i+1}) a`)
+                                .trigger("mouseover");
+                            cy.get(".qtip-content")
+                                .should("be.visible");
+                        });
+                });
             });
-            cy.get(".qtip-content")
-                .should("be.visible");
-        });
-
-        it("should display conservation help", () => {
-            cy.get("thead th")
-                .contains("div","Conservation")
-                    .within(() => {
-                        cy.get("a")
-                            .trigger("mouseover");
-                    });
-            cy.get(".qtip-content")
-                .should("be.visible");
-        });
-
-        it("should display population frequencies help", () => {
-            cy.get("thead th")
-                .contains("div","Population Frequencies")
-                .within(() => {
-                    cy.get("a")
-                        .trigger("mouseover");
-            });
-            cy.get(".qtip-content")
-                .should("be.visible");
-        });
-
-        it("should display clinical info help", () => {
-            cy.get("thead th")
-                .contains("div","Clinical Info")
-                .within(() => {
-                    cy.get("a")
-                    .trigger("mouseover");
-            });
-            cy.get(".qtip-content")
-                .should("be.visible");
         });
     });
 
