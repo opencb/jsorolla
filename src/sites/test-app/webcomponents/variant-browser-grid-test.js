@@ -23,10 +23,6 @@ import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/commons/forms/data-form.js";
 import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/variant/variant-browser-grid.js";
-import Types from "../../../webcomponents/commons/types";
-import CatalogGridFormatter from "../../../webcomponents/commons/catalog-grid-formatter";
-import VariantTableFormatter from "../../../webcomponents/variant/variant-table-formatter";
-
 
 class VariantBrowserGridTest extends LitElement {
 
@@ -84,6 +80,7 @@ class VariantBrowserGridTest extends LitElement {
         UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testVariantFile}.json`)
             .then(content => {
                 this.variants = content;
+                // Fixme 20240107: no distinction between germline and cancer
                 if (this.testVariantFile === "variant-browser-germline") {
                     this.germlineMutate();
                 } else {
@@ -131,131 +128,20 @@ class VariantBrowserGridTest extends LitElement {
         }
 
         return html`
-            <h2 style="font-weight: bold;">
-                Variant Browser (${this.testVariantFile?.split("-")?.at(-1)})
-            </h2>
-
-            <data-form
-                .data="${{variants: this.variants.slice(0, 10)}}"
-                .config="${this.getDefaultConfig()}">
-            </data-form>
-
-            <variant-browser-grid
-                .toolId="${this.COMPONENT_ID}"
-                .variants="${this.variants}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}"
-                @settingsUpdate="${() => this.onSettingsUpdate()}"
-                .populationFrequencies="${this.config.populationFrequencies}">
-            </variant-browser-grid>
+            <div data-cy="variant-browser-container">
+                <h2 style="font-weight: bold;">
+                    Variant Browser (${this.testVariantFile?.split("-")?.at(-1)})
+                </h2>
+                <variant-browser-grid
+                    .toolId="${this.COMPONENT_ID}"
+                    .variants="${this.variants}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config}"
+                    @settingsUpdate="${() => this.onSettingsUpdate()}"
+                    .populationFrequencies="${this.config.populationFrequencies}">
+                </variant-browser-grid>
+            </div>
         `;
-    }
-
-    getDefaultConfig() {
-        const gridConfig = {
-            ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.rearrangements]?.grid || {}),
-            somatic: false,
-            geneSet: {
-                ensembl: true,
-                refseq: false,
-            },
-            consequenceType: {
-                maneTranscript: true,
-                gencodeBasicTranscript: true,
-                ensemblCanonicalTranscript: true,
-                refseqTranscript: true,
-                ccdsTranscript: false,
-                ensemblTslTranscript: false,
-                proteinCodingTranscript: false,
-                highImpactConsequenceTypeTranscript: false,
-
-                showNegativeConsequenceTypes: true
-            },
-            populationFrequenciesConfig: {
-                displayMode: "FREQUENCY_BOX"
-            },
-            variantTypes: ["SNV"],
-        };
-
-        return {
-            title: "Summary",
-            icon: "",
-            display: {
-                collapsable: true,
-                titleVisible: false,
-                titleWidth: 2,
-                defaultValue: "-",
-                defaultLayout: "horizontal",
-                buttonsVisible: false,
-            },
-            sections: [
-                {
-                    title: "Variants",
-                    display: {
-                    },
-                    elements: [
-                        {
-                            title: "List of Variants",
-                            field: "variants",
-                            type: "table",
-                            display: {
-                                defaultLayout: "vertical",
-                                className: "",
-                                style: "",
-                                headerClassName: "",
-                                headerStyle: "",
-                                headerVisible: true,
-                                // filter: array => array.filter(item => item.somatic),
-                                // transform: array => array.map(item => {
-                                //     item.somatic = true;
-                                //     return item;
-                                // }),
-                                defaultValue: "-",
-                                columns: [
-                                    VariantTableFormatter.variantIdFormatter(),
-                                    VariantTableFormatter.geneFormatter(),
-                                    VariantTableFormatter.hgvsFormatter(gridConfig),
-                                    VariantTableFormatter.typeFormatter(),
-                                    VariantTableFormatter.consequenceTypeFormatter("", gridConfig),
-                                    {
-                                        title: "Deleteriousness",
-                                        display: {
-                                            columns: [
-                                                VariantTableFormatter.siftFormatter(),
-                                                VariantTableFormatter.polyphenFormatter(),
-                                                VariantTableFormatter.revelFormatter(),
-                                                VariantTableFormatter.caddScaledFormatter(),
-                                                VariantTableFormatter.spliceAIFormatter(),
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        title: "Conservation",
-                                        display: {
-                                            columns: [
-                                                VariantTableFormatter.conservationFormatter("PhyloP"),
-                                                VariantTableFormatter.conservationFormatter("PhastCons"),
-                                                VariantTableFormatter.conservationFormatter("GERP"),
-                                            ]
-                                        }
-                                    },
-                                    // VariantTableFormatter.populationFrequencyFormatter(),
-                                    {
-                                        title: "Clinical",
-                                        display: {
-                                            columns: [
-                                                VariantTableFormatter.clinvarFormatter(),
-                                                VariantTableFormatter.cosmicFormatter(),
-                                            ]
-                                        }
-                                    }
-                                ],
-                            },
-                        },
-                    ],
-                },
-            ],
-        };
     }
 
 }
