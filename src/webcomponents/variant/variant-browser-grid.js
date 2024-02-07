@@ -1052,7 +1052,7 @@ export default class VariantBrowserGrid extends LitElement {
                 </opencb-grid-toolbar>
             ` : null}
 
-            <div>
+            <div data-cy="vb-grid">
                 <table id="${this.gridId}"></table>
             </div>
 
