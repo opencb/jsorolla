@@ -1311,13 +1311,22 @@ export default class VariantInterpreterGrid extends LitElement {
             this.checkedVariants.delete(variantId);
         }
 
-        // Set 'Edit' button as enabled/disabled
-        document.getElementById(`${this._prefix}${variantId}VariantReviewButton`).disabled = !e.currentTarget.checked;
+        // Set 'Edit' button as enabled/disabled in 'Review' column
+        // Josemi NOTE 20240205 - Edit buton in column is not rendered when 'Review' column is hidden
+        const reviewButton = document.getElementById(`${this._prefix}${variantId}VariantReviewButton`);
+        if (reviewButton) {
+            reviewButton.disabled = !e.currentTarget.checked;
+        }
+
+        // Set 'Edit' button as enabled/disabled in 'Actions' dropdown
+        // Josemi NOTE 20240205 - Edit buton in actions dropdown is not rendered when when actions column is hidden
         const reviewActionButton = document.getElementById(`${this._prefix}${variantId}VariantReviewActionButton`);
-        if (e.currentTarget.checked) {
-            reviewActionButton.removeAttribute("disabled");
-        } else {
-            reviewActionButton.setAttribute("disabled", "true");
+        if (reviewActionButton) {
+            if (e.currentTarget.checked) {
+                reviewActionButton.removeAttribute("disabled");
+            } else {
+                reviewActionButton.setAttribute("disabled", "true");
+            }
         }
 
         // Enable or disable evidences select
