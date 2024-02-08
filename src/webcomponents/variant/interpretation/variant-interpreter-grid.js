@@ -888,7 +888,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: (value, row) => VariantGridFormatter.caddScaledFormatter(value, row),
                     align: "right",
                     halign: this.displayConfigDefault.header.horizontalAlign,
-                    visible: this.gridCommons.isColumnVisible("cadd", "deleteriousness"),
+                    visible: !this._config.hideDeleteriousness && this.gridCommons.isColumnVisible("cadd", "deleteriousness"),
+                    excludeFromSettings: this._config.hideDeleteriousness,
+                    excludeFromExport: this._config.hideDeleteriousness,
                 },
                 {
                     id: "spliceai",
@@ -899,7 +901,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: (value, row) => VariantGridFormatter.spliceAIFormatter(value, row),
                     align: "right",
                     halign: this.displayConfigDefault.header.horizontalAlign,
-                    visible: this.gridCommons.isColumnVisible("spliceai", "deleteriousness"),
+                    visible: !this._config.hideDeleteriousness && this.gridCommons.isColumnVisible("spliceai", "deleteriousness"),
+                    excludeFromSettings: this._config.hideDeleteriousness,
+                    excludeFromExport: this._config.hideDeleteriousness,
                 },
                 ...vcfDataColumns,
                 {
@@ -1572,6 +1576,7 @@ export default class VariantInterpreterGrid extends LitElement {
             hideType: false,
             hidePopulationFrequencies: false,
             hideClinicalInfo: false,
+            hideDeleteriousness: false,
 
             quality: {
                 qual: 30,
