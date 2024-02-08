@@ -107,13 +107,16 @@ export default class CatalogGridFormatter {
             for (const panel of panels) {
                 if (panel.source?.project?.toUpperCase() === "PANELAPP") {
                     panelHtml += `
-                        <div>
-                            <a class="text-decoration-none" href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
+                        <div style="margin:5px 0px">
+                            <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
                                 ${panel.name} (${panel.source.project} v${panel.source.version})
                             </a>
-                        </div>`;
+                        </div>
+                    `;
                 } else {
-                    panelHtml = panel.id;
+                    panelHtml += `
+                        <div style="margin:5px 0px">${panel.id}</div>
+                    `;
                 }
             }
         }

@@ -139,6 +139,33 @@ export default class SampleGrid extends LitElement {
         this.renderTable();
     }
 
+    fetchClinicalAnalysis(rows) {
+        if (rows && rows.length > 0) {
+            return this.opencgaSession.opencgaClient.clinical()
+                .search({
+                    individual: rows.map(sample => sample.individualId).join(","),
+                    study: this.opencgaSession.study.fqn,
+                    include: "id,proband.id,family.members",
+                })
+                .then(response => {
+                    return rows.forEach(sample => {
+                        (response?.responses?.[0]?.results || []).forEach(clinicalAnalysis => {
+                            if (clinicalAnalysis?.proband?.id === sample.individualId || clinicalAnalysis?.family?.members?.find(member => member.id === sample.individualId)) {
+                                if (sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
+                                    sample.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
+                                } else {
+                                    // eslint-disable-next-line no-param-reassign
+                                    sample.attributes = {
+                                        OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
+                                    };
+                                }
+                            }
+                        });
+                    });
+                });
+        }
+    }
+
     renderTable() {
         // If this.samples is provided as property we render the array directly
         if (this.samples?.length > 0) {
@@ -178,17 +205,13 @@ export default class SampleGrid extends LitElement {
                 // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
-                    const sort = this.table.bootstrapTable("getOptions").sortName ? {
-                        sort: this.table.bootstrapTable("getOptions").sortName,
-                        order: this.table.bootstrapTable("getOptions").sortOrder
-                    } : {};
+                    let sampleResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         // exclude: "qualityControl",
-                        ...sort,
                         ...this.query
                     };
 
@@ -196,47 +219,20 @@ export default class SampleGrid extends LitElement {
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.samples()
                         .search(this.filters)
-                        .then(sampleResponse => {
+                        .then(response => {
+                            sampleResponse = response;
                             // Fetch clinical analysis to display the Case ID
-                            const individualIds = sampleResponse.getResults()
-                                .map(sample => sample.individualId)
-                                .filter(Boolean).join(",");
-                            if (individualIds) {
-                                this.opencgaSession.opencgaClient.clinical()
-                                    .search(
-                                        {
-                                            individual: individualIds,
-                                            study: this.opencgaSession.study.fqn,
-                                            include: "id,proband.id,family.members"
-                                        })
-                                    .then(caseResponse => {
-                                        sampleResponse.getResults().forEach(sample => {
-                                            for (const clinicalAnalysis of caseResponse.getResults()) {
-                                                if (clinicalAnalysis?.proband?.id === sample.individualId || clinicalAnalysis?.family?.members?.find(member => member.id === sample.individualId)) {
-                                                    if (sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
-                                                        sample.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
-                                                    } else {
-                                                        // eslint-disable-next-line no-param-reassign
-                                                        sample.attributes = {
-                                                            OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
-                                                        };
-                                                    }
-                                                }
-                                            }
-                                        });
-                                        params.success(sampleResponse);
-                                    })
-                                    .catch(e => {
-                                        console.error(e);
-                                        params.error(e);
-                                    });
-                            } else {
-                                params.success(sampleResponse);
-                            }
+                            return this.fetchClinicalAnalysis(sampleResponse?.responses?.[0]?.results || []);
                         })
-                        .catch(e => {
-                            console.error(e);
-                            params.error(e);
+                        .then(() => {
+                            // Prepare data for columns extensions
+                            const rows = sampleResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
+                        .then(() => params.success(sampleResponse))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
                         });
                 },
                 responseHandler: response => {
@@ -282,8 +278,28 @@ export default class SampleGrid extends LitElement {
             theadClasses: "table-light",
             buttonsClass: "light",
             columns: this._getDefaultColumns(),
-            data: this.samples,
-            sidePagination: "local",
+            // data: this.samples,
+            sidePagination: "server",
+            // Josemi Note 2024-01-18: we have added the ajax function for local variants also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.samples.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.samples.length,
+                    rows: response,
+                };
+            },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
 
@@ -532,6 +548,25 @@ export default class SampleGrid extends LitElement {
             });
     }
 
+    renderModalUpdate() {
+        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+            display: {
+                modalTitle: `Sample Update: ${this.sampleUpdateId}`,
+                modalDraggable: true,
+                modalCyDataName: "modal-update",
+                modalSize: "modal-lg"
+            },
+            render: active => html`
+                <sample-update
+                    .sampleId="${this.sampleUpdateId}"
+                    .active="${active}"
+                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                    .opencgaSession="${this.opencgaSession}">
+                </sample-update>
+            `,
+        });
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
@@ -553,24 +588,7 @@ export default class SampleGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-                display: {
-                    modalTitle: `Sample Update: ${this.sampleUpdateId}`,
-                    modalDraggable: true,
-                    modalCyDataName: "modal-update",
-                    modalSize: "modal-lg"
-                },
-                render: active => {
-                    return html `
-                        <sample-update
-                            .sampleId="${this.sampleUpdateId}"
-                            .active="${active}"
-                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </sample-update>
-                    `;
-                }
-            })}
+            ${this.renderModalUpdate()}
         `;
     }
 

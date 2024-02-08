@@ -212,6 +212,8 @@ export default class VariantBrowserGrid extends LitElement {
                         // summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
+
+                    let variantResponse = null;
                     this.opencgaSession.opencgaClient.variants().query(this.filters)
                         .then(res => {
                             // FIXME A quick temporary fix -> TASK-947
@@ -266,9 +268,15 @@ export default class VariantBrowserGrid extends LitElement {
                                     });
                                 }
                             }
-
-                            params.success(res);
+                            variantResponse = res;
+                            return;
                         })
+                        .then(() => {
+                            // Prepare data for columns extensions
+                            const rows = variantResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
+                        .then(() => params.success(variantResponse))
                         .catch(e => params.error(e))
                         .finally(() => {
                             LitUtils.dispatchCustomEvent(this, "queryComplete", null);
@@ -327,10 +335,29 @@ export default class VariantBrowserGrid extends LitElement {
         $("#" + this.gridId).bootstrapTable({
             theadClasses: "table-light",
             buttonsClass: "light",
-            data: this.variants,
+            // data: this.variants,
             columns: this._getDefaultColumns(),
-            sidePagination: "local",
+            sidePagination: "server",
+            // Josemi Note 2024-01-18: we have added the ajax function for local variants also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.variants.slice(skip, skip + limit);
 
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.variants.length,
+                    rows: response,
+                };
+            },
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,

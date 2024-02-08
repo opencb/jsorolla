@@ -323,7 +323,12 @@ export default class VariantInterpreterGrid extends LitElement {
                             // FIXME Temporary code to check which variants are being interpreted or have been reported
                             // This should be implemented by OpenCGA
                             // return this.fillReportedVariants(variantResponse.responses[0].results);
-                            return variantResponse;
+                            // return variantResponse;
+
+                            // Josemi Note 2023-10-25: we would need to move this to gridCommons in the future
+                            // Prepare data for columns extensions
+                            const rows = variantResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
                         })
                         .then(() => params.success(variantResponse))
                         .catch(e => params.error(e))
@@ -405,11 +410,31 @@ export default class VariantInterpreterGrid extends LitElement {
         this.table.bootstrapTable({
             theadClasses: "table-light",
             buttonsClass: "light",
-            data: this.clinicalVariants,
+            // data: this.clinicalVariants,
             columns: this._getDefaultColumns(),
-            sidePagination: "local",
+            sidePagination: "server",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
+            // Josemi Note 2023-10-25: we have added the ajax function for local variants also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.clinicalVariants.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2023-10-25: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.clinicalVariants.length,
+                    rows: response,
+                };
+            },
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
@@ -712,7 +737,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     align: "center",
-                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this),
+                    formatter: (value, row) => {
+                        return VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter(value, row, this._config);
+                    },
                     visible: !this._config.hidePopulationFrequencies && this.gridCommons.isColumnVisible("populationFrequencies"),
                 },
                 {

@@ -90,17 +90,17 @@ export default class VariantInterpreterGridFormatter {
         }
     }
 
-    static clinicalPopulationFrequenciesFormatter(value, row) {
+    static clinicalPopulationFrequenciesFormatter(value, row, config) {
         if (row?.annotation?.populationFrequencies?.length > 0) {
             const popFreqMap = new Map();
             row.annotation.populationFrequencies.forEach(popFreq => {
                 popFreqMap.set(popFreq.study + ":" + popFreq.population, popFreq);
             });
             return VariantGridFormatter.renderPopulationFrequencies(
-                this._config.populationFrequencies,
+                config.populationFrequencies,
                 popFreqMap,
                 POPULATION_FREQUENCIES.style,
-                this._config.populationFrequenciesConfig,
+                config.populationFrequenciesConfig,
             );
         } else {
             return "-";
