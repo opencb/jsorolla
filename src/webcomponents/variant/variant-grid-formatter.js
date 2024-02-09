@@ -132,7 +132,7 @@ export default class VariantGridFormatter {
         }
 
         return `
-            <div style="margin:5px 0px;white-space:nowrap;">
+            <div class="my-1 mx-0 text-nowrap">
                 <a tooltip-title='Links' tooltip-text='${tooltipText}'>
                     ${row.chromosome}:${row.start}&nbsp;&nbsp;${ref}/${alt}
                 </a>
@@ -743,7 +743,7 @@ export default class VariantGridFormatter {
                         </div>
                         ${exon?.percentage ? `
                             <div>
-                                <span class="help-block" style="margin: 2px 0px">${exon?.percentage.toFixed(2) ?? "-"}%</span>
+                                <span class="d-block text-secondary" style="margin: 2px 0px">${exon?.percentage.toFixed(2) ?? "-"}%</span>
                             </div>` :
                         ""}
                     `);
@@ -775,7 +775,7 @@ export default class VariantGridFormatter {
                         </div>
                         ${pva.uniprotVariantId ? `
                             <div>
-                                <span class="help-block" style="margin: 0px">${pva.uniprotVariantId}</span>
+                                <span class="d-block text-secondary" style="margin: 0px">${pva.uniprotVariantId}</span>
                             </div>` :
                         ""}
                     `;
@@ -792,7 +792,7 @@ export default class VariantGridFormatter {
                             visited.add(feature.id);
                             tooltipText += `
                                 <div>
-                                    <span style="font-weight: bold; margin: 5px">${feature.id}</span><span class="help-block" style="margin: 5px">${feature.description}</span>
+                                    <span style="font-weight: bold; margin: 5px">${feature.id}</span><span class="d-block text-secondary" style="margin: 5px">${feature.description}</span>
                                 </div>
                             `;
                         }
@@ -1105,7 +1105,7 @@ export default class VariantGridFormatter {
                                 <div>
                                     ${trait?.heritableTraits?.length > 0 && trait.heritableTraits
                                 .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided")
-                                .map(t => `<span class="help-block" style="margin: 5px 1px">${t.trait}</span>`)
+                                .map(t => `<span class="d-block text-secondary" style="margin: 5px 1px">${t.trait}</span>`)
                                 .join("")
                             }
                                 </div>
@@ -1134,7 +1134,7 @@ export default class VariantGridFormatter {
                     Array.from(cosmicMap.entries()).forEach(([traitId, histologies]) => {
                         const histologiesItems = Array.from(histologies.values())
                             .filter(histology => histology && histology !== "null")
-                            .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
+                            .map(histology => `<span class="d-block text-secondary" style="margin: 5px 1px">${histology}</span>`)
                             .join("");
 
                         tooltipText += `
@@ -1184,7 +1184,7 @@ export default class VariantGridFormatter {
                     hotspot.variants
                         .map(variant => `
                                     <span
-                                        class="help-block"
+                                        class="d-block text-secondary"
                                         style="margin: 5px 1px">${AMINOACID_CODE[hotspot.aminoacidReference]}${hotspot.aminoacidPosition}${AMINOACID_CODE[variant.aminoacidAlternate]}: ${variant.count} sample(s)
                                     </span>`)
                         .join("")
