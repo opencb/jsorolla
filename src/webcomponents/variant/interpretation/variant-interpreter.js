@@ -391,18 +391,18 @@ class VariantInterpreter extends LitElement {
             ${this._config.title}
             <span class="inverse">
                 Case ${this.clinicalAnalysis?.id}
-                ${this.clinicalAnalysis?.locked ? "<span class=\"fa fa-lock icon-padding\"></span>" : ""}
+                ${this.clinicalAnalysis?.locked ? "<span class=\"fa fa-lock pe-1\"></span>" : ""}
             </span>
         `;
     }
 
     renderToolbarRightContent() {
         return html`
-            <div style="align-items:center;display:flex;">
+            <div class="d-flex align-items-center">
                 ${this.clinicalAnalysis?.interpretation ? html`
-                    <div align="center" style="margin-right:3rem;">
+                    <div class="d-flex flex-column align-items-center" style="margin-right:3rem;">
                         <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
-                            ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock icon-padding"></span>` : ""}
+                            ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock pe-1"></span>` : ""}
                             <strong>${this.clinicalAnalysis.interpretation.id}</strong>
                         </div>
                         ${this.clinicalAnalysis.interpretation?.method?.name ? html`
@@ -410,16 +410,15 @@ class VariantInterpreter extends LitElement {
                                 <strong>${this.clinicalAnalysis.interpretation.method.name}</strong>
                             </div>
                         ` : null}
-                        <div class="text-muted">
+                        <div class="text-secondary">
                             Primary Findings: <strong>${this.clinicalAnalysis.interpretation?.primaryFindings?.length ?? 0}</strong>
                         </div>
                     </div>
                 ` : null}
                 <div class="dropdown">
-                    <button class="btn btn-light btn-lg" data-toggle="dropdown">
+                    <button class="btn btn-light btn-lg dropdown-toggle" data-bs-toggle="dropdown" type="button">
                         <i class="fa fa-toolbox" aria-hidden="true"></i>
                         <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
-                        <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
@@ -432,7 +431,7 @@ class VariantInterpreter extends LitElement {
                                 <li>
                                     <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
                                         ${item.id}
-                                        <i class="fa ${item.locked ? "fa-lock" : "fa-unlock"} icon-padding" style="padding-left: 5px"></i>
+                                        <i class="fa ${item.locked ? "fa-lock" : "fa-unlock"} pe-1" style="padding-left: 5px"></i>
                                     </a>
                                 </li>
                             `)}
@@ -445,23 +444,23 @@ class VariantInterpreter extends LitElement {
                         </li>
                         <li>
                             <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisLock}">
-                                <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} icon-padding"></i>
+                                <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
                                 ${this.clinicalAnalysis.locked ? "Case Unlock" : "Case Lock"}
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisRefresh}">
-                                <i class="fa fa-sync icon-padding"></i> Refresh
+                                <i class="fa fa-sync pe-1"></i> Refresh
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisDownload}">
-                                <i class="fa fa-download icon-padding"></i> Download
+                                <i class="fa fa-download pe-1"></i> Download
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" style="padding-left: 25px" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
-                                <i class="fa fa-times icon-padding"></i> Close
+                                <i class="fa fa-times pe-1"></i> Close
                             </a>
                         </li>
                     </ul>
