@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement, nothing} from "lit";
+import { html, LitElement, nothing } from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 
@@ -54,7 +54,7 @@ export default class SelectFieldFilter2 extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.data = [];
         this.classes = "";
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = { ...this.getDefaultConfig(), ...this.config };
     }
 
     firstUpdated() {
@@ -66,14 +66,14 @@ export default class SelectFieldFilter2 extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = { ...this.getDefaultConfig(), ...this.config };
         }
         super.update(changedProperties);
     }
 
     updated(changedProperties) {
         if (changedProperties.has("data") || changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = { ...this.getDefaultConfig(), ...this.config };
             this.loadData();
         }
 
@@ -100,33 +100,33 @@ export default class SelectFieldFilter2 extends LitElement {
         const options = this.data.map(item => this.getOptions(item));
 
         const selectConfig = {
-                ...this._config,
-                theme: "bootstrap-5",
-                dropdownParent: document.querySelector(`#${this._prefix}`).parentElement,
-                selectionCssClass: this._config?.selectionClass ? this.config?.selectionClass : "",
-                multiple: this._config?.multiple ?? false,
-                placeholder: this._config?.placeholder ?? "Select an option",
-                allowClear: true,
-                disabled: this._config?.disabled ?? false,
-                width: "80%",
-                data: options,
-                tokenSeparator: this._config?.separator,
-                closeOnSelect: !this._config?.multiple,
-                templateResult: e => this.optionsFormatter(e),
-                ...this._config?.liveSearch ? {} : {minimumResultsForSearch: Infinity}, // To hide search box
-            };
+            ...this._config,
+            theme: "bootstrap-5",
+            dropdownParent: document.querySelector(`#${this._prefix}`).parentElement,
+            selectionCssClass: this._config?.selectionClass ? this.config?.selectionClass : "",
+            multiple: this._config?.multiple ?? false,
+            placeholder: this._config?.placeholder ?? "Select an option",
+            allowClear: true,
+            disabled: this._config?.disabled ?? false,
+            width: "80%",
+            data: options,
+            tokenSeparator: this._config?.separator,
+            closeOnSelect: !this._config?.multiple,
+            templateResult: e => this.optionsFormatter(e),
+            ...this._config?.liveSearch ? {} : { minimumResultsForSearch: Infinity }, // To hide search box
+        };
 
-        const searchBox = this._config?.liveSearch && this._config?.multiple ? {dropdownAdapter: $.fn.select2.amd.require("CustomDropdownAdapter")} : {};
+        const searchBox = this._config?.liveSearch && this._config?.multiple ? { dropdownAdapter: $.fn.select2.amd.require("CustomDropdownAdapter") } : {};
         const selectAdapter = this._config?.multiple ? {
-                    templateSelection: data => {
-                        return `Selected ${data.selected.length} out of ${data.all.length}`;
-                    },
-                    // Make selection-box similar to single select
-                    selectionAdapter: $.fn.select2.amd.require("CustomSelectionAdapter"),
-                    ...searchBox
-                } : {};
+            templateSelection: data => {
+                return `Selected ${data.selected.length} out of ${data.all.length}`;
+            },
+            // Make selection-box similar to single select
+            selectionAdapter: $.fn.select2.amd.require("CustomSelectionAdapter"),
+            ...searchBox
+        } : {};
 
-        this.select.select2({...selectConfig, ...selectAdapter})
+        this.select.select2({ ...selectConfig, ...selectAdapter })
             .on("select2:select", e => this.filterChange(e))
             .on("select2:unselect", e => this.filterChange(e));
 
@@ -241,6 +241,11 @@ export default class SelectFieldFilter2 extends LitElement {
                 </span>
             `);
         }
+
+        if (item.text === "") {
+            return $(`<hr class="mt-0 mb-1">`);
+        }
+
         return $(`
             <div class="d-flex justify-content-between align-items-center py-1">
                 <span>${item.text}</span>
@@ -264,7 +269,7 @@ export default class SelectFieldFilter2 extends LitElement {
         // id, name;
         let _data = [];
         if (data) {
-            _data = data?.map(({name, ...props}) => ({...props, text: name}));
+            _data = data?.map(({ name, ...props }) => ({ ...props, text: name }));
             console.log("Output transform: ", _data);
         }
     }
@@ -280,7 +285,7 @@ export default class SelectFieldFilter2 extends LitElement {
         if (item.fields && item.fields.length > 0) {
             return {
                 text: item?.id || item?.name,
-                children: item.fields.map(opt => ({id: opt.id, text: opt?.name || opt?.id}))
+                children: item.fields.map(opt => ({ id: opt.id, text: opt?.name || opt?.id }))
             };
         }
 
@@ -299,7 +304,7 @@ export default class SelectFieldFilter2 extends LitElement {
                 }
             });
 
-        const selection = Array.isArray(this.select.select2("data"))?
+        const selection = Array.isArray(this.select.select2("data")) ?
             [...this.select.select2("data").map(el => el.id), ...disabled] :
             this.select.select2("data").map(el => el.id);
 
@@ -330,11 +335,11 @@ export default class SelectFieldFilter2 extends LitElement {
         // Notify to event to allow parent components to react
         LitUtils.dispatchCustomEvent(this, "filterChange", this.value?.length > 0 ? this.value.join(",") : "", {
             data: this.data,
-        }, null, {bubbles: false, composed: false});
+        }, null, { bubbles: false, composed: false });
     }
 
     renderShowSelectAll() {
-        return html `
+        return html`
             <span class="input-group-text rounded-start-0">
                 <input class="form-check-input mt-0" id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." @click=${this.selectAll}>
                 <span class="fw-bold ms-1">All</span>
