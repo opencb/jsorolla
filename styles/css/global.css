@@ -57,7 +57,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: white;
-    color: var(--main-bg-color);
+    color: var(--main-bg-color) !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -142,6 +142,27 @@ a:visited {
 .bootstrap-table .loading-text {
     min-height: 135px;
 }
+
+
+/* Custom pagination-detail on top of the boostrap-table grids.
+   This removes the pager buttons on top pf the grids leaving only the counter of records.
+   nth-child(2) is the top pager while nth-child(4) would the bottom pager.
+*/
+.bootstrap-table.bootstrap5 .fixed-table-pagination:nth-child(2) .pagination-info {
+    line-height: 1;
+}
+.bootstrap-table.bootstrap5 .fixed-table-pagination:nth-child(2) .pagination-detail {
+    margin: 0 0 3px 0;
+}
+.bootstrap-table.bootstrap5 .fixed-table-pagination:nth-child(2) .page-list,
+.bootstrap-table.bootstrap5 .fixed-table-pagination:nth-child(2) .pagination {
+    display: none;
+}
+
+.bootstrap-table .pagination-info {
+    font-size: 12px;
+}
+
 
 /*********** main view tabs *****************/
 .main-view .content-tab {
