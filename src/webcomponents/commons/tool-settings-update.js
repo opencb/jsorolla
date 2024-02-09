@@ -233,7 +233,7 @@ export default class ToolSettingsUpdate extends LitElement {
                     display: {
                         // titleHeader: "",
                         // titleStyle: "",
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "d-block text-secondary",
                         // descriptionStyle: "",
                         // visible: () =>
                     },
@@ -259,7 +259,7 @@ export default class ToolSettingsUpdate extends LitElement {
                     display: {
                         // titleHeader: "",
                         // titleStyle: "",
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "d-block text-secondary",
                         // descriptionStyle: "",
                         // visible: () =>
                     },

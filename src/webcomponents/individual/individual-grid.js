@@ -458,7 +458,7 @@ export default class IndividualGrid extends LitElement {
                     return `
                         <div>
                             <span style="font-weight: bold; margin: 5px 0">${individualId}</span>
-                            <span class="help-block" style="margin: 5px 0">${sexHtml}</span>
+                            <span class="d-block text-secondary" style="margin: 5px 0">${sexHtml}</span>
                         </div>`;
                 },
                 sortable: true,

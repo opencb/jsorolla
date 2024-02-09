@@ -292,7 +292,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     display: {
                         titleHeader: "h4",
                         titleStyle: "margin: 5px 5px",
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "d-block text-secondary",
                         descriptionStyle: "margin: 0px 10px",
                         visible: () => !!this.config?.genotype?.type
                     },
@@ -314,7 +314,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     display: {
                         titleHeader: "h4",
                         titleStyle: "margin: 5px 5px",
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "d-block text-secondary",
                         descriptionStyle: "margin: 0px 10px",
                         visible: () => !!this.config?.geneSet
                     },
@@ -464,7 +464,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     display: {
                         titleHeader: "h4",
                         titleStyle: "margin: 5px 5px",
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "d-block text-secondary",
                         descriptionStyle: "margin: 0px 10px",
                         visible: () => !!this.config?.populationFrequenciesConfig
                     },

@@ -128,7 +128,7 @@ class ClinicalInterpretationEditor extends LitElement {
                     }}">
                 </select-field-filter2>
                 ${status.description ?
-                        html`<span class="help-block" style="padding: 0px 5px">${status.description}</span>` :
+                        html`<span class="d-block text-secondary" style="padding: 0px 5px">${status.description}</span>` :
             null
                 }
             </div>`;

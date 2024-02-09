@@ -457,7 +457,7 @@ export default class VariantFileInfoFilter extends LitElement {
                         type: "text",
                         text: caller.fileId || "",
                         display: {
-                            textClassName: "help-block small",
+                            textClassName: "d-block text-secondary small",
                             textStyle: "margin: 5px 0; overflow-wrap: break-word; font-style: italic",
                         }
                     },

@@ -320,8 +320,8 @@ export default class OpencgaFileGrid extends LitElement {
                 formatter: (fileName, row) => {
                     return `
                         <div>
-                            <span style="font-weight: bold; margin: 5px 0">${fileName}</span>
-                            <span class="help-block" style="margin: 5px 0">/${row.path.replace(row.name, "").replace("//", "/")}</span>
+                            <span class="fw-bold" style="margin: 5px 0">${fileName}</span>
+                            <span class="d-block text-secondary" style="margin: 5px 0">/${row.path.replace(row.name, "").replace("//", "/")}</span>
                         </div>`;
                 },
                 visible: this.gridCommons.isColumnVisible("name")
@@ -340,11 +340,11 @@ export default class OpencgaFileGrid extends LitElement {
                 formatter: sampleIds => {
                     let html = "-";
                     if (sampleIds?.length > 0) {
-                        html = `<div style="white-space: nowrap">`;
+                        html = `<div class="text-nowrap">`;
                         for (let i = 0; i < sampleIds.length; i++) {
                             // Display first 3 files
                             if (i < 3) {
-                                html += `<div style="margin: 2px 0"><span style="font-weight: bold">${sampleIds[i]}</span></div>`;
+                                html += `<div style="margin: 2px 0"><span class="fw-bold">${sampleIds[i]}</span></div>`;
                             } else {
                                 html += `<a tooltip-title="Samples" tooltip-text='${sampleIds.join("<br>")}'>... view all samples (${sampleIds.length})</a>`;
                                 break;

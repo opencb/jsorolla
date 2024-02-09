@@ -328,7 +328,7 @@ export default class CohortGrid extends LitElement {
                     return `
                         <div>
                             <span style="font-weight: bold; margin: 5px 0">${cohortId}</span>
-                            ${cohort.name ? `<span class="help-block" style="margin: 5px 0">${cohort.name}</span>` : ""}
+                            ${cohort.name ? `<span class="d-block text-secondary" style="margin: 5px 0">${cohort.name}</span>` : ""}
                         </div>`;
                 },
                 halign: this.displayConfigDefault.header.horizontalAlign,

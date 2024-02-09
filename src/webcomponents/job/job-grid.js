@@ -436,7 +436,7 @@ export default class JobGrid extends LitElement {
                     return `
                         <div>
                             <span style="font-weight: bold; margin: 5px 0">${id}</span>
-                            ${row.outDir?.path ? `<span class="help-block" style="margin: 5px 0">/${row.outDir.path.replace(id, "").replace("//", "/")}</span>` : ""}
+                            ${row.outDir?.path ? `<span class="d-block text-secondary" style="margin: 5px 0">/${row.outDir.path.replace(id, "").replace("//", "/")}</span>` : ""}
                         </div>`;
                 },
                 visible: this.gridCommons.isColumnVisible("id")
@@ -449,7 +449,7 @@ export default class JobGrid extends LitElement {
                     return `
                         <div>
                             <span style="margin: 5px 0">${toolId}</span>
-                            ${row.tool?.type ? `<span class="help-block" style="margin: 5px 0">${row.tool.type}</span>` : ""}
+                            ${row.tool?.type ? `<span class="d-block text-secondary" style="margin: 5px 0">${row.tool.type}</span>` : ""}
                         </div>`;
                 },
                 visible: this.gridCommons.isColumnVisible("toolId")

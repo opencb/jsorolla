@@ -415,7 +415,7 @@ export default class ClinicalAnalysisView extends LitElement {
                                             return `
                                                 <div>
                                                     <span style="font-weight: bold; margin: 5px 0">${sampleId}</span>
-                                                    ${somaticHtml ? `<span class="help-block" style="margin: 5px 0">${somaticHtml}</span>` : nothing}
+                                                    ${somaticHtml ? `<span class="d-block text-secondary" style="margin: 5px 0">${somaticHtml}</span>` : nothing}
                                                 </div>
                                             `;
                                         },

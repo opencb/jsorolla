@@ -186,7 +186,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                         </div>
                                         <div>${acmg.comment || "No comment found"}</div>
                                     </div>
-                                    <div class="help-block" style="margin: 5px">
+                                    <div class="d-block text-secondary" style="margin: 5px">
                                         Added by <b>${acmg.author || this.opencgaSession?.user?.id || "-"}</b> on
                                         <b>${UtilsNew.dateFormatter(acmg.date || UtilsNew.getDatetime())}</b>
                                     </div>
