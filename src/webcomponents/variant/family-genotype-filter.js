@@ -362,21 +362,22 @@ export default class FamilyGenotypeFilter extends LitElement {
             </style>
 
             <div id="opencga-variant-filter-clinical" class="row">
-                <div class="form-check col-md-12">
-                    <div style="padding: 5px 5px 10px 5px; font-size: 14px">
+                <div class="col-md-12 mb-2">
+                    <div>
                         You can manually select sample genotypes or select a
-                        <span style="font-weight: bold;margin: 0px">Mode of Inheritance</span>
+                        <span class="fw-bold m-0">Mode of Inheritance</span>
                         such as RECESSIVE OR COMPOUND HETEROZYGOUS.
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-4 mb-2">
                     <div class="form-check-label mode-button">
                         <select-field-filter2
                             .data="${this.modeSelectData}"
                             value="${this.mode}"
                             .config="${{
-                                liveSearch: false
+                                liveSearch: false,
+                                multiple:false,
                             }}"
                             @filterChange="${this.setMode}">
                         </select-field-filter2>
@@ -384,7 +385,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                 </div>
                 <div class="col-md-12">
                     <div>
-                        <h4 style="padding-top: 10px; margin-bottom: 0px">
+                        <h4 class="mb-2">
                             Select Sample Genoypes
                         </h4>
                         <table id="${this._prefix}BasicTable" class="table table-hover table-no-bordered">

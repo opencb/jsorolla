@@ -105,7 +105,7 @@ export default class FamilyGenotypeModal extends LitElement {
 
             <div class="modal fade" id="${this._prefix}SampleGenotypeFilterModal" data-backdrop="static" data-keyboard="false"
                  tabindex="-1" role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
-                <div class="modal-dialog" style="width: 1280px">
+                <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
                             <h3>Family Genotype Filter</h3>
