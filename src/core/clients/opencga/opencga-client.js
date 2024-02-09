@@ -266,15 +266,15 @@ export class OpenCGAClient {
         }
     }
 
-    async login(userId, password, organizationId) {
+    async login(userId, password, organization) {
         try {
             const query = {
                 user: userId,
                 password: password,
             };
             // Only include the organization to the request query if is provided
-            if (organizationId) {
-                query.organizationId = organizationId;
+            if (organization) {
+                query.organization = organization;
             }
 
             const restResponse = await this.users().login(query);
