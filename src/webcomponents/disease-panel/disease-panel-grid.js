@@ -171,7 +171,6 @@ export default class DiseasePanelGrid extends LitElement {
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
-
                 // Table properties
                 uniqueId: "id",
                 pagination: this._config.pagination,
@@ -183,7 +182,8 @@ export default class DiseasePanelGrid extends LitElement {
                 detailView: this._config.detailView,
                 gridContext: this,
                 formatLoadingMessage: () => String.raw`<div><loading-spinner></loading-spinner></div>`,
-                ajax: async params => {
+                ajax: params => {
+                    let panelsResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
@@ -194,13 +194,18 @@ export default class DiseasePanelGrid extends LitElement {
 
                     // Store the current filters
                     this.lastFilters = {...this.filters};
-                    try {
-                        const data = await this.fetchDiseasePanels(this.filters);
-                        params.success(data);
-                    } catch (e) {
-                        console.log(e);
-                        params.error(e);
-                    }
+                    this.fetchDiseasePanels(this.filters)
+                        .then(response => {
+                            panelsResponse = response;
+                            // Prepare data for columns extensions
+                            const rows = panelsResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
+                        .then(() => params.success(panelsResponse))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
+                        });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
@@ -253,8 +258,28 @@ export default class DiseasePanelGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             columns: this._getDefaultColumns(),
-            data: this.diseasePanels,
-            sidePagination: "local",
+            // data: this.diseasePanels,
+            sidePagination: "server",
+            // Josemi Note 2024-01-18: we have added the ajax function for local disease panels also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.diseasePanels.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.diseasePanels.length,
+                    rows: response,
+                };
+            },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config property
@@ -547,6 +572,24 @@ export default class DiseasePanelGrid extends LitElement {
             });
     }
 
+    renderModalUpdate() {
+        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+            display: {
+                modalTitle: `Disease Panel Update: ${this.diseasePanelUpdateId}`,
+                modalDraggable: true,
+                modalCyDataName: "modal-update",
+            },
+            render: active => html`
+                <disease-panel-update
+                    .diseasePanelId="${this.diseasePanelUpdateId}"
+                    .active="${active}"
+                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                    .opencgaSession="${this.opencgaSession}">
+                </disease-panel-update>
+            `,
+        });
+    }
+
     render() {
         // CAUTION 20230517 Vero: the event dispatched from disease-panel-create.js is called sessionPanelUpdate.
         return html`
@@ -568,23 +611,7 @@ export default class DiseasePanelGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-                display: {
-                    modalTitle: `Disease Panel Update: ${this.diseasePanelUpdateId}`,
-                    modalDraggable: true,
-                    modalCyDataName: "modal-update",
-                },
-                render: active => {
-                    return html `
-                        <disease-panel-update
-                            .diseasePanelId="${this.diseasePanelUpdateId}"
-                            .active="${active}"
-                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </disease-panel-update>
-                    `;
-                }
-            })}
+            ${this.renderModalUpdate()}
         `;
     }
 

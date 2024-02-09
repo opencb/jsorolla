@@ -39,6 +39,7 @@ export default class GridCommons {
         this.config = config;
         this.checkedRows = new Map();
         this.selectedRow;
+        this.extensionsData = {}; // To store extra data for extensions
     }
 
     responseHandler(response, bootstrapTableConfig) {
@@ -315,10 +316,20 @@ export default class GridCommons {
         return columns;
     }
 
+    async prepareDataForExtensions(componentId, opencgaSession, query, rows) {
+        this.extensionsData = {};
+        if (!this.context?._config?.skipExtensions) {
+            const id = componentId || this.context?.COMPONENT_ID;
+            this.extensionsData = await ExtensionsManager.prepareDataForColumns(id, opencgaSession, query, rows);
+        }
+    }
+
     addColumnsFromExtensions(columns, componentId) {
         if (!this.context?._config?.skipExtensions) {
             const id = componentId || this.context?.COMPONENT_ID;
-            return ExtensionsManager.injectColumns(columns, id, columnId => this.isColumnVisible(columnId));
+            const isVisible = columnId => this.isColumnVisible(columnId);
+            const getData = () => this.extensionsData || {};
+            return ExtensionsManager.injectColumns(columns, id, isVisible, getData);
         }
         // No extensions to inject, just return the original columns list
         return columns;
