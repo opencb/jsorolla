@@ -175,14 +175,14 @@ export default class VariantInterpreterGridFormatter {
                 message = `<div class="${variantGrid._prefix}${row.id}EvidenceFiltered">Showing <span class='fw-bold' style="color: red">${showArrayIndexes.length}</span> of
                                 <span class='fw-bold' style=" color: red">${newEvidences.length}</span> clinical evidences
                                 ${showArrayIndexes.length !== newEvidences.length ?
-                    `, <a id="${variantGrid._prefix}${row.id}ShowEvidence" data-id="${row.id}" style="cursor: pointer">show all...</a>` :
+                    `, <a class="link-primary" id="${variantGrid._prefix}${row.id}ShowEvidence" data-id="${row.id}" style="cursor: pointer">show all...</a>` :
                     ""
                 }
                             </div>
                             <div class="${variantGrid._prefix}${row.id}EvidenceFiltered" style="display: none">Showing <span class='fw-bold' style="color: red">${newEvidences.length}</span> of
                                 <span class='fw-bold' style="color: red">${newEvidences.length}</span> clinical evidences,
                                 ${showArrayIndexes.length !== newEvidences.length ?
-                    `, <a id="${variantGrid._prefix}${row.id}HideEvidence" data-id="${row.id}" style="cursor: pointer">apply filters...</a>` :
+                    `, <a class="link-primary" id="${variantGrid._prefix}${row.id}HideEvidence" data-id="${row.id}" style="cursor: pointer">apply filters...</a>` :
                     ""
                 }
                            </div>

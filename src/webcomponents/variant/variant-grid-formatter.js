@@ -641,12 +641,12 @@ export default class VariantGridFormatter {
                 message = `<div class="${variantGrid._prefix}${row.id}Filtered">
                                 Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of
                                 <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types,
-                                <a id="${variantGrid._prefix}${row.id}ShowCt" data-id="${row.id}" style="cursor: pointer">show all...</a>
+                                <a class="link-primary" id="${variantGrid._prefix}${row.id}ShowCt" data-id="${row.id}" style="cursor: pointer">show all...</a>
                             </div>
                             <div class="${variantGrid._prefix}${row.id}Filtered" style="display: none">
                                 Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of
                                 <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types,
-                                <a id="${variantGrid._prefix}${row.id}HideCt" data-id="${row.id}" style="cursor: pointer">apply filters...</a>
+                                <a class="link-primary" id="${variantGrid._prefix}${row.id}HideCt" data-id="${row.id}" style="cursor: pointer">apply filters...</a>
                             </div>
                             `;
             }

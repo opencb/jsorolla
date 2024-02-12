@@ -378,7 +378,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                             value="${this.mode}"
                             .config="${{
                                 liveSearch: false,
-                                multiple:false,
+                                multiple: false,
                             }}"
                             @filterChange="${this.setMode}">
                         </select-field-filter2>
