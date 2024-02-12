@@ -150,8 +150,12 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                         display: {
                             render: clinicalSignificance => html`
                                 <select-field-filter2
-                                    .data=${CLINICAL_SIGNIFICANCE}
-                                    .value=${(clinicalSignificance || "").toLowerCase()}
+                                    .data="${CLINICAL_SIGNIFICANCE}"
+                                    .value="${(clinicalSignificance || "").toLowerCase()}"
+                                    .config="${{
+                                        multiple: false,
+                                        liveSearch: false,
+                                    }}"
                                     @filterChange="${e => this.onFieldChange(e, "clinicalSignificance")}">
                                 </select-field-filter2>
                             `,
