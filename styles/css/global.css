@@ -151,9 +151,11 @@ a:visited {
 .bootstrap-table.bootstrap5 .fixed-table-pagination:nth-child(2) .pagination-info {
     line-height: 1;
 }
+
 .bootstrap-table.bootstrap5 .fixed-table-pagination:nth-child(2) .pagination-detail {
     margin: 0 0 3px 0;
 }
+
 .bootstrap-table.bootstrap5 .fixed-table-pagination:nth-child(2) .page-list,
 .bootstrap-table.bootstrap5 .fixed-table-pagination:nth-child(2) .pagination {
     display: none;
@@ -318,4 +320,13 @@ a:visited {
     font-style: normal;
     font-weight: 400;
     src: local('Roboto'), local('Roboto'), url(../fonts/Roboto.woff) format('woff');
+}
+
+/* qtip tooltip */
+
+/* Terrible hack to remove the fixed max-width of 280px of the qtip tooltip */
+@supports selector(:has(*)) {
+    .qtip:has(.population-freq-tooltip) {
+        max-width: 500px !important;
+    }
 }
