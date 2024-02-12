@@ -95,7 +95,7 @@ export default class FamilyGenotypeFilter extends LitElement {
 
     firstUpdated() {
         // Render the first time after preparing the DOM
-        $("select.selectpicker", this).selectpicker("render");
+        // $("select.selectpicker", this).selectpicker("render");
     }
 
     // Builds the table data
@@ -192,6 +192,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                 }*/
             });
         }
+
         LitUtils.dispatchCustomEvent(this, "filterChange", null, {
             value: {
                 sample: _sample.length ? _sample.join(";") : null,
@@ -453,7 +454,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                                     </td>
                                     ${~["PROBAND", "FATHER", "MOTHER"].indexOf(sample.role.toUpperCase()) && ~this.modes.indexOf(this.mode) ? html`
                                         <td colspan="3">
-                                            <div class="alert-info text-center" style="padding: 4px 0 1px;"> ${this.mode}</div>
+                                            <div class="alert alert-info text-center p-0 m-0"> ${this.mode}</div>
                                         </td>
                                     ` : html`
                                         <td style="padding-left: 20px">

@@ -104,10 +104,10 @@ export default class FamilyGenotypeModal extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}SampleGenotypeFilterModal" data-backdrop="static" data-keyboard="false"
-                 tabindex="-1" role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
-                <div class="modal-dialog modal-xl">
+                tabindex="-1" role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
+                <div class="modal-dialog" style="min-width: 1280px;max-width: 1280px;">
                     <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
+                        <div class="modal-header my-2 mx-1">
                             <h3>Family Genotype Filter</h3>
                         </div>
                         <div class="modal-body">
@@ -120,8 +120,8 @@ export default class FamilyGenotypeModal extends LitElement {
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" .disabled=${this.errorState} @click="${this.confirm}">OK</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" .disabled=${this.errorState} @click="${this.confirm}">OK</button>
                         </div>
                     </div>
                 </div>
