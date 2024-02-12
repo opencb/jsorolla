@@ -392,14 +392,14 @@ export default class OpencgaGenomeBrowser extends LitElement {
             <div class="modal-dialog modal-lg" role="document" style="width: 80%;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="${this._prefix}SampleBrowserLabel">Sample Browser</h4>
                     </div>
                     <div class="modal-body" style="height: 780px">
                         <sample-browser .opencgaClient="${this.opencgaClient}" .opencgaSession="${this.opencgaSession}" .config="${this.sampleBrowserConfig}"></sample-browser>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.onAnalysisSelected}">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${this.onAnalysisSelected}">
                             OK
                         </button>
                     </div>

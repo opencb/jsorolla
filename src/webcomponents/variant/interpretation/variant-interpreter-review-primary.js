@@ -321,7 +321,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                             <h4 style="margin-right:auto;">
                                 Interpretation preview
                             </h4>
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <button type="button" class="close" data-bs-dismississ="modal">&times;</button>
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid" style="max-height:75vh;overflow-y:auto;">
@@ -329,7 +329,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>

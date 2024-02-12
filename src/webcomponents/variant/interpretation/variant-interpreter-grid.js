@@ -1546,8 +1546,8 @@ export default class VariantInterpreterGrid extends LitElement {
                             </clinical-interpretation-variant-review>
                         ` : null}
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-dismiss="modal" @click="${() => this.onVariantReviewCancel()}">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onVariantReviewOk()}">Ok</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal" @click="${() => this.onVariantReviewCancel()}">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${() => this.onVariantReviewOk()}">Ok</button>
                         </div>
                     </div>
                 </div>
@@ -1570,8 +1570,8 @@ export default class VariantInterpreterGrid extends LitElement {
                             </clinical-interpretation-variant-evidence-review>
                         ` : null}
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onEvidenceReviewOk()}">Ok</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${() => this.onEvidenceReviewOk()}">Ok</button>
                         </div>
                     </div>
                 </div>

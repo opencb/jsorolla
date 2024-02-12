@@ -371,7 +371,7 @@ export default class StudyAdminAudit extends LitElement {
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                             <h4 class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
@@ -391,7 +391,7 @@ export default class StudyAdminAudit extends LitElement {
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}">Save</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${this.save}">Save</button>
                         </div>
                     </div>
                 </div>
