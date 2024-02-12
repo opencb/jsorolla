@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { html, LitElement, nothing } from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 
@@ -54,7 +54,7 @@ export default class SelectFieldFilter2 extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.data = [];
         this.classes = "";
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     firstUpdated() {
@@ -66,14 +66,14 @@ export default class SelectFieldFilter2 extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
-            this._config = { ...this.getDefaultConfig(), ...this.config };
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
         super.update(changedProperties);
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("data") || changedProperties.has("config")) {
-            this._config = { ...this.getDefaultConfig(), ...this.config };
+        if (changedProperties.has("data")) {
+            // this._config = {...this.getDefaultConfig(), ...this.config};
             this.loadData();
         }
 
@@ -113,10 +113,10 @@ export default class SelectFieldFilter2 extends LitElement {
             tokenSeparator: this._config?.separator,
             closeOnSelect: !this._config?.multiple,
             templateResult: e => this.optionsFormatter(e),
-            ...this._config?.liveSearch ? {} : { minimumResultsForSearch: Infinity }, // To hide search box
+            ...this._config?.liveSearch ? {} : {minimumResultsForSearch: Infinity}, // To hide search box
         };
 
-        const searchBox = this._config?.liveSearch && this._config?.multiple ? { dropdownAdapter: $.fn.select2.amd.require("CustomDropdownAdapter") } : {};
+        const searchBox = this._config?.liveSearch && this._config?.multiple ? {dropdownAdapter: $.fn.select2.amd.require("CustomDropdownAdapter")} : {};
         const selectAdapter = this._config?.multiple ? {
             templateSelection: data => {
                 return `Selected ${data.selected.length} out of ${data.all.length}`;
@@ -126,7 +126,7 @@ export default class SelectFieldFilter2 extends LitElement {
             ...searchBox
         } : {};
 
-        this.select.select2({ ...selectConfig, ...selectAdapter })
+        this.select.select2({...selectConfig, ...selectAdapter})
             .on("select2:select", e => this.filterChange(e))
             .on("select2:unselect", e => this.filterChange(e));
 
@@ -269,7 +269,7 @@ export default class SelectFieldFilter2 extends LitElement {
         // id, name;
         let _data = [];
         if (data) {
-            _data = data?.map(({ name, ...props }) => ({ ...props, text: name }));
+            _data = data?.map(({name, ...props}) => ({...props, text: name}));
             console.log("Output transform: ", _data);
         }
     }
@@ -285,7 +285,7 @@ export default class SelectFieldFilter2 extends LitElement {
         if (item.fields && item.fields.length > 0) {
             return {
                 text: item?.id || item?.name,
-                children: item.fields.map(opt => ({ id: opt.id, text: opt?.name || opt?.id }))
+                children: item.fields.map(opt => ({id: opt.id, text: opt?.name || opt?.id}))
             };
         }
 
@@ -314,7 +314,8 @@ export default class SelectFieldFilter2 extends LitElement {
                 val = selection.join(",");
             }
         }
-        LitUtils.dispatchCustomEvent(this, "filterChange", selection.join(","));
+        LitUtils.dispatchCustomEvent(this, "filterChange", selection.join(","),
+        {}, null, {bubbles: false, composed: false});
     }
 
     selectAll(e) {
@@ -335,7 +336,7 @@ export default class SelectFieldFilter2 extends LitElement {
         // Notify to event to allow parent components to react
         LitUtils.dispatchCustomEvent(this, "filterChange", this.value?.length > 0 ? this.value.join(",") : "", {
             data: this.data,
-        }, null, { bubbles: false, composed: false });
+        }, null, {bubbles: false, composed: false});
     }
 
     renderShowSelectAll() {
