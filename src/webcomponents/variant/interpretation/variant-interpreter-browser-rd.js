@@ -291,8 +291,6 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     getDefaultConfig() {
-        // Add case panels to query object
-        // TODO should we also check main interpretation panels?
         const lockedFields = [
             {id: "sample"},
             {id: "sampleData"},
@@ -300,6 +298,7 @@ class VariantInterpreterBrowserRd extends LitElement {
             {id: "fileData"},
         ];
 
+        // Add panels to locked fields
         if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLock) {
             lockedFields.push({id: "panel"});
             lockedFields.push({id: "panelIntersection"});
