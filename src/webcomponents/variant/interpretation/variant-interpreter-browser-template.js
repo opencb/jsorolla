@@ -353,6 +353,15 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.requestUpdate();
     }
 
+    renderViewButton(id, title, icon) {
+        return html`
+            <button class="${`btn btn-success ${this.activeView === id ? "active" : ""}`}" @click="${() => this.onChangeView(id)}">
+                <i class="${`fa fa-${icon} icon-padding`}" aria-hidden="true"></i>
+                <strong>${title}</strong>
+            </button>
+        `;
+    }
+
     render() {
         // Check Project exists
         if (!this.opencgaSession?.study) {
@@ -443,21 +452,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 </div> <!-- Close col-md-2 -->
 
                 <div class="col-md-10">
-                    <div class="content-pills" role="toolbar" aria-label="toolbar">
-                        <button
-                            type="button"
-                            class="${`btn btn-success ${this.activeView === "table" ? "active" : ""} content-pills`}"
-                            @click="${() => this.onChangeView("table")}">
-                            <i class="fa fa-table icon-padding" aria-hidden="true"></i>
-                            <strong>Table Result</strong>
-                        </button>
-                        <button
-                            type="button"
-                            class="${`btn btn-success ${this.activeView === "genome" ? "active" : ""} content-pills`}"
-                            @click="${() => this.onChangeView("genome")}">
-                            <i class="fas fa-dna icon-padding" aria-hidden="true"></i>
-                            <strong>Genome Browser</strong>
-                        </button>
+                    <!-- View toolbar -->
+                    <div role="toolbar" aria-label="toolbar">
+                        ${this.renderViewButton("table", "Table Result", "table")}
+                        ${this.renderViewButton("genome-browser", "Genome Browser", "dna")}
                     </div>
 
                     <div>
