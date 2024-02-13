@@ -77,6 +77,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.notSavedVariantIds = 0;
         this.removedVariantIds = 0;
 
+        // Saves the current active view
+        this.activeView = "table";
+
         // Variant inclusion list
         this.variantInclusionState = [];
 
@@ -345,6 +348,11 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.requestUpdate();
     }
 
+    onChangeView(newView) {
+        this.activeView = newView;
+        this.requestUpdate();
+    }
+
     render() {
         // Check Project exists
         if (!this.opencgaSession?.study) {
@@ -435,6 +443,23 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 </div> <!-- Close col-md-2 -->
 
                 <div class="col-md-10">
+                    <div class="content-pills" role="toolbar" aria-label="toolbar">
+                        <button
+                            type="button"
+                            class="${`btn btn-success ${this.activeView === "table" ? "active" : ""} content-pills`}"
+                            @click="${() => this.onChangeView("table")}">
+                            <i class="fa fa-table icon-padding" aria-hidden="true"></i>
+                            <strong>Table Result</strong>
+                        </button>
+                        <button
+                            type="button"
+                            class="${`btn btn-success ${this.activeView === "genome" ? "active" : ""} content-pills`}"
+                            @click="${() => this.onChangeView("genome")}">
+                            <i class="fas fa-dna icon-padding" aria-hidden="true"></i>
+                            <strong>Genome Browser</strong>
+                        </button>
+                    </div>
+
                     <div>
                         <variant-interpreter-browser-toolbar
                             .clinicalAnalysis="${this.clinicalAnalysis}"
