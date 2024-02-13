@@ -277,9 +277,9 @@ class IvaApp extends LitElement {
         }
 
         // Go to the page that tool has
-        if (window.location.hash !== this.tool) {
-            window.location.hash = this.tool;
-        }
+        // if (window.location.hash !== this.tool) {
+        //     window.location.hash = this.tool;
+        // }
 
         // Other initialisations
         // This manages the sample selected in each tool for updating the breadcrumb
@@ -336,7 +336,8 @@ class IvaApp extends LitElement {
             // Initialize opencga configuration
             const opencgaHost = serverConf?.host || this.config.opencga.host;
             const opencgaVersion = serverConf?.version || this.config.opencga.version;
-            const opencgaPrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
+            const opencgaCookiePrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
+            const opencgaCookieSecure = serverConf?.cookie?.secure ?? this.config.opencga.cookie?.secure ?? true;
             const opencgaSsoActive = serverConf?.sso?.active ?? this.config.opencga.sso?.active ?? false;
             const opencgaSsoCookie = serverConf?.sso?.cookie ?? this.config.opencga.sso?.cookie ?? "JSESSIONID";
 
@@ -346,15 +347,21 @@ class IvaApp extends LitElement {
                 if (currentUrl.searchParams.has("token") && currentUrl.searchParams.has(opencgaSsoCookie)) {
                     // Save token and session ID in cookies
                     // eslint-disable-next-line no-undef
-                    Cookies.set(opencgaSsoCookie, currentUrl.searchParams.get(opencgaSsoCookie), {secure: true});
+                    Cookies.set(opencgaSsoCookie, currentUrl.searchParams.get(opencgaSsoCookie), {
+                        secure: opencgaCookieSecure,
+                    });
                     // eslint-disable-next-line no-undef
-                    Cookies.set(opencgaPrefix + "_sid", currentUrl.searchParams.get("token"), {secure: true});
+                    Cookies.set(opencgaCookiePrefix + "_sid", currentUrl.searchParams.get("token"), {
+                        secure: opencgaCookieSecure,
+                    });
 
                     // Decode token to get user ID
                     // eslint-disable-next-line no-undef
                     const decodedToken = jwt_decode(currentUrl.searchParams.get("token"));
                     // eslint-disable-next-line no-undef
-                    Cookies.set(opencgaPrefix + "_userId", decodedToken.sub, {secure: true});
+                    Cookies.set(opencgaCookiePrefix + "_userId", decodedToken.sub, {
+                        secure: opencgaCookieSecure,
+                    });
 
                     // We need to remove the params from the url
                     Array.from(currentUrl.searchParams.keys()).forEach(key => {
@@ -369,8 +376,8 @@ class IvaApp extends LitElement {
 
             // Initialise clients and create the session
             // this.opencgaClientConfig.serverVersion = this.config.opencga.serverVersion;
-            const sid = Cookies.get(opencgaPrefix + "_sid");
-            const userId = Cookies.get(opencgaPrefix + "_userId");
+            const sid = Cookies.get(opencgaCookiePrefix + "_sid");
+            const userId = Cookies.get(opencgaCookiePrefix + "_userId");
 
             this.opencgaClient = new OpenCGAClient({
                 host: opencgaHost,
@@ -379,7 +386,8 @@ class IvaApp extends LitElement {
                 userId: userId,
                 cookies: {
                     active: true,
-                    prefix: opencgaPrefix,
+                    prefix: opencgaCookiePrefix,
+                    secure: opencgaCookieSecure,
                 },
                 sso: {
                     active: opencgaSsoActive,
@@ -659,34 +667,34 @@ class IvaApp extends LitElement {
         window.clearInterval(this.intervalCheckSession);
     }
 
-    async saveLastStudy(newStudy) {
-        const userConfig = await this.opencgaClient.updateUserConfigs({
-            ...this.opencgaSession.user.configs.IVA,
-            lastStudy: newStudy.fqn
-        });
-        this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
-    }
+    // async saveLastStudy(newStudy) {
+    //     const userConfig = await this.opencgaClient.updateUserConfig({
+    //         ...this.opencgaSession.user.configs.IVA,
+    //         lastStudy: newStudy.fqn
+    //     });
+    //     this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
+    // }
 
-    onUrlChange(e) {
-        let hashFrag = e.detail.id;
-        if (UtilsNew.isNotUndefined(this.opencgaSession.project) && UtilsNew.isNotEmpty(this.opencgaSession.project.alias)) {
-
-            hashFrag += "/" + this.opencgaSession.project.alias;
-            if (UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
-                hashFrag += "/" + this.opencgaSession.study.alias;
-            }
-        }
-
-        const myQueryParams = [];
-        for (const key in e.detail.query) {
-            myQueryParams.push(key + "=" + e.detail.query[key]);
-        }
-        if (myQueryParams.length > 0) {
-            hashFrag += `?${myQueryParams.join("&")}`;
-        }
-
-        window.location.hash = hashFrag;
-    }
+    // onUrlChange(e) {
+    //     let hashFrag = e.detail.id;
+    //     if (UtilsNew.isNotUndefined(this.opencgaSession.project) && UtilsNew.isNotEmpty(this.opencgaSession.project.alias)) {
+    //
+    //         hashFrag += "/" + this.opencgaSession.project.alias;
+    //         if (UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
+    //             hashFrag += "/" + this.opencgaSession.study.alias;
+    //         }
+    //     }
+    //
+    //     const myQueryParams = [];
+    //     for (const key in e.detail.query) {
+    //         myQueryParams.push(key + "=" + e.detail.query[key]);
+    //     }
+    //     if (myQueryParams.length > 0) {
+    //         hashFrag += `?${myQueryParams.join("&")}`;
+    //     }
+    //
+    //     window.location.hash = hashFrag;
+    // }
 
     // TODO: we should move this code to an OpenCGA Utils
     checkSessionActive() {
@@ -794,7 +802,7 @@ class IvaApp extends LitElement {
             }
         }
 
-        if (window.location.hash === hashFrag) {
+        if (window.location.hash === hashFrag || hashFrag === "#interpreter") {
             this.hashFragmentListener(this);
         } else {
             window.location.hash = hashFrag;
@@ -826,13 +834,13 @@ class IvaApp extends LitElement {
         const [hashTool, hashProject, hashStudy, feature] = arr;
 
         // Stopping the recursive call
-        if (hashTool !== this.tool || hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
+        if (hashTool === "#interpreter" || hashTool !== this.tool || hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
             if (arr.length > 1) {
                 // Field 'project' is being observed, just in case Polymer triggers
                 // an unnecessary event we can check they are really different
                 if (ctx.opencgaSession?.project?.id !== hashProject) {
                     // eslint-disable-next-line no-param-reassign
-                    ctx.opencgaSession.project.id = hashProject;
+                    ctx.opencgaSession.project = ctx.opencgaSession.projects?.find(project => project.id === hashProject);
                 }
                 if (ctx.opencgaSession?.study && arr.length > 2 && ctx.opencgaSession.study !== hashStudy) {
                     for (let i = 0; i < ctx.opencgaSession.projects.length; i++) {
@@ -951,7 +959,12 @@ class IvaApp extends LitElement {
 
         if (studyFound) {
             // Update the lastStudy in config iff has changed
-            this.opencgaClient.updateUserConfigs({...this.opencgaSession.user.configs, lastStudy: studyFqn});
+            this.opencgaClient.updateUserConfig("IVA", {...this.opencgaSession.user.configs["IVA"], lastStudy: studyFqn});
+
+            // This is a terrible hack to exit interpreter when we change the current study
+            if (this.tool === "#interpreter") {
+                window.location.hash = "#clinicalAnalysisPortal";
+            }
 
             // Refresh the session and update cellbase
             this.opencgaSession = {...this.opencgaSession};
@@ -975,9 +988,10 @@ class IvaApp extends LitElement {
         } else {
             // Josemi 20220216 NOTE: we keep this old way to be backward compatible with OpenCGA 2.1
             // But this should be removed in future releases
+            this.config.cellbase = null;
             this.cellbaseClient = new CellBaseClient({
-                host: this.config.cellbase.host,
-                version: this.config.cellbase.version,
+                host: this.config.cellbase?.host,
+                version: this.config.cellbase?.version,
                 species: "hsapiens",
             });
         }

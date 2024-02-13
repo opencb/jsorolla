@@ -159,7 +159,9 @@ class SteinerReport extends LitElement {
                 //     return item.status.toUpperCase() === "REPORTED";
                 // }),
                 primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings,
-                analyst: this.clinicalAnalysis.analyst.name,
+                analysts: (this.clinicalAnalysis.analysts || [])
+                    .map(analyst=> analyst.name)
+                    .join(", "),
                 signedBy: "",
                 discussion: "",
                 hrdetects: [],
@@ -403,11 +405,12 @@ class SteinerReport extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [10, 25, 50],
-            showExport: false,
             detailView: true,
             showReview: true,
             showEditReview: false,
             showActions: false,
+
+            showExport: false,
             showSettings: false,
             showColumns: false,
             showDownload: false,
@@ -419,22 +422,12 @@ class SteinerReport extends LitElement {
 
             renderLocal: false,
 
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom",
-            },
-
             quality: {
                 qual: 30,
                 dp: 20,
             },
             evidences: {
                 showSelectCheckbox: false,
-            },
-            toolbar: {
-                showColumns: false,
-                showDownload: false,
-                showExport: false,
             },
         };
 
@@ -800,7 +793,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1);
 
                                     const gridConfig = {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.snv]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: false,
                                         variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
@@ -832,7 +825,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1);
 
                                     const gridConfig = {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.rearrangements]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: false,
                                         variantTypes: ["BREAKEND"],
@@ -880,7 +873,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => v.confidence?.value === "HIGH");
 
                                     return this.renderSomaticVariantsGrid(filteredVariants, {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.snv]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: true,
                                         variantTypes: ["SNV", "INDEL"],
@@ -903,7 +896,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => v.confidence?.value === "HIGH");
 
                                     return this.renderSomaticRearrangementVariantsGrid(filteredVariants, {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.rearrangements]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: true,
                                         variantTypes: ["BREAKEND"],
@@ -926,7 +919,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => v.confidence?.value === "HIGH");
 
                                     return this.renderSomaticVariantsGrid(filteredVariants, {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.cnv]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.cnv]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: true,
                                         variantTypes: ["COPY_NUMBER", "CNV"],
@@ -958,7 +951,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => !v.confidence?.value || v.confidence?.value !== "HIGH");
 
                                     return this.renderSomaticVariantsGrid(filteredVariants, {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.snv]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: true,
                                         variantTypes: ["SNV", "INDEL"],
@@ -979,7 +972,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => !v.confidence?.value || v.confidence?.value !== "HIGH");
 
                                     return this.renderSomaticRearrangementVariantsGrid(filteredVariants, {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.rearrangements]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: true,
                                         variantTypes: ["BREAKEND"],
@@ -1000,7 +993,7 @@ class SteinerReport extends LitElement {
                                         .filter(v => !v.confidence?.value || v.confidence?.value !== "HIGH");
 
                                     return this.renderSomaticVariantsGrid(filteredVariants, {
-                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.cnv]?.grid || {}),
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.settings?.[this.gridTypes.cnv]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: true,
                                         variantTypes: ["COPY_NUMBER", "CNV"],
@@ -1198,7 +1191,7 @@ class SteinerReport extends LitElement {
                         },
                         {
                             title: "Analysed by",
-                            field: "analyst",
+                            field: "analysts",
                         },
                         {
                             title: "Signed off by",

@@ -65,13 +65,14 @@ export default class OpencbGridToolbar extends LitElement {
         if (changedProperties.has("settings")) {
             this._settings = {
                 ...this.getDefaultSettings(),
-                ...this.settings};
+                ...this.settings,
+            };
         }
 
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
-                ...this.config
+                ...this.config,
             };
         }
 
@@ -148,6 +149,13 @@ export default class OpencbGridToolbar extends LitElement {
                                 </div>
                             `) : nothing}
 
+                            ${this._settings.showRefresh ? html`
+                                <button type="button" class="btn btn-default btn-sm" @click="${() => LitUtils.dispatchCustomEvent(this, "refresh")}">
+                                    <i class="fas fa-sync-alt icon-padding"></i> Refresh
+                                </button>
+                            ` :nothing}
+
+
                             <!-- Second, display elements configured -->
                             ${this._config?.create && (this._settings.showCreate || this._settings.showNew) ? html`
                                 <div class="btn-group">
@@ -178,7 +186,6 @@ export default class OpencbGridToolbar extends LitElement {
                                 </div>
                             ` : nothing}
 
-                            <!-- && this._config? !== undefined-->
                             ${this._settings?.showSettings ? html`
                                 <div class="btn-group">
                                     <button data-action="settings" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
@@ -192,15 +199,15 @@ export default class OpencbGridToolbar extends LitElement {
             </div>
 
             <!-- Add modals-->
-            ${this._settings?.showExport && this._config?.export ? ModalUtils.create(this, `${this._prefix}ExportModal`, this._config.export) : nothing}
-
-            ${this._settings?.showSettings && this._config?.settings ? ModalUtils.create(this, `${this._prefix}SettingModal`, this._config.settings) : nothing}
-
             ${(this._config?.create &&
             (this._settings.showCreate || this._settings.showNew) &&
             OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`)) ?
             ModalUtils.create(this, `${this._prefix}CreateModal`, this._config.create) :
             nothing}
+
+            ${this._settings?.showExport && this._config?.export ? ModalUtils.create(this, `${this._prefix}ExportModal`, this._config.export) : nothing}
+
+            ${this._settings?.showSettings && this._config?.settings ? ModalUtils.create(this, `${this._prefix}SettingModal`, this._config.settings) : nothing}
         `;
     }
 
@@ -208,10 +215,10 @@ export default class OpencbGridToolbar extends LitElement {
         return {
             // label: "records",
             showCreate: true,
-            showDownload: true,
+            showExport: true,
             showSettings: true,
-            download: ["Tab", "JSON"],
-            buttons: ["columns", "download"],
+            // download: ["Tab", "JSON"],
+            // buttons: ["columns", "download"],
         };
     }
 

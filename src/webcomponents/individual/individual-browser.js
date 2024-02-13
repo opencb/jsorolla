@@ -56,7 +56,7 @@ export default class IndividualBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
+        this.COMPONENT_ID = "individual-browser";
         this._config = this.getDefaultConfig();
     }
 
@@ -68,38 +68,27 @@ export default class IndividualBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
-        // merge filter list, canned filters, detail tabs
+        this._config = this.getDefaultConfig();
+
+        // Apply Study grid configuration
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-        // if (this.settings?.table) {
-        //     this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
-        // }
 
-        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
-            ...this._config?.filter?.result.grid,
-            ...this.settings.table
-        });
+        // Grid configuration and take out toolbar admin/user settings to grid level.
+        if (this.settings?.table) {
+            const {toolbar, ...otherTableProps} = this.settings.table;
+            UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+                ...this._config.filter.result.grid,
+                ...otherTableProps,
+                ...toolbar,
+            });
+        }
 
-        // if (this.settings?.table?.toolbar) {
-        //     this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        // }
-
-        UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
-            ...this._config.filter?.result?.grid?.toolbar,
-            ...this.settings.table?.toolbar
-        });
-        // Apply user configuration
-        // if (this.opencgaSession.user?.configs?.IVA?.individualBrowserCatalog?.grid) {
-        //     this._config.filter.result.grid = {
-        //         ...this._config.filter.result.grid,
-        //         ...this.opencgaSession.user.configs.IVA.individualBrowserCatalog.grid,
-        //     };
-        // }
+        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.individualBrowser?.grid
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
 
         this.requestUpdate();
@@ -141,6 +130,7 @@ export default class IndividualBrowser extends LitElement {
                     active: true,
                     render: params => html`
                         <individual-grid
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
@@ -169,11 +159,6 @@ export default class IndividualBrowser extends LitElement {
                             .data="${params.facetResults}">
                         </opencb-facet-results>`
                 }
-                /*
-                {
-                    id: "comparator-tab",
-                    name: "Comparator"
-                }*/
             ],
             filter: {
                 searchButton: false,
@@ -211,16 +196,16 @@ export default class IndividualBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "phenotypes",
-                                name: "Phenotype",
-                                placeholder: "Full-text search, e.g. *melanoma*",
+                                id: "disorders",
+                                name: "Disorder",
+                                placeholder: "Intellectual disability,Arthrogryposis...",
                                 multiple: true,
                                 description: ""
                             },
                             {
-                                id: "disorders",
-                                name: "Disorder",
-                                placeholder: "Intellectual disability,Arthrogryposis...",
+                                id: "phenotypes",
+                                name: "Phenotype",
+                                placeholder: "Full-text search, e.g. *melanoma*",
                                 multiple: true,
                                 description: ""
                             },
@@ -241,13 +226,6 @@ export default class IndividualBrowser extends LitElement {
                                 name: "Ethnicity",
                                 type: "string",
                                 placeholder: "White caucasian,asiatic...",
-                                description: ""
-                            },
-                            {
-                                id: "lifeStatus",
-                                name: "Life Status",
-                                allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
-                                multiple: true,
                                 description: ""
                             },
                             {
@@ -277,12 +255,6 @@ export default class IndividualBrowser extends LitElement {
                         multiSelection: false,
                         showSelectCheckbox: false
                     }
-                },
-                gridComparator: {
-                    pageSize: 5,
-                    pageList: [5, 10],
-                    detailView: true,
-                    multiSelection: true
                 },
                 detail: {
                     title: "Individual",

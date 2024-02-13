@@ -39,6 +39,9 @@ export default class SampleGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -67,6 +70,7 @@ export default class SampleGrid extends LitElement {
 
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
@@ -84,12 +88,11 @@ export default class SampleGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarSetting = {
-            // buttons: ["columns", "download"],
             ...this._config,
         };
 
         this.toolbarConfig = {
-            toolId: "sampleBrowser",
+            toolId: this.toolId,
             resource: "SAMPLE",
             columns: this._getDefaultColumns(),
             create: {
@@ -148,7 +151,6 @@ export default class SampleGrid extends LitElement {
 
     renderRemoteTable() {
         if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
-            // const filters = {...this.query};
             if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
@@ -169,18 +171,21 @@ export default class SampleGrid extends LitElement {
                 pageList: this._config.pageList,
                 paginationVAlign: "both",
                 formatShowingRows: this.gridCommons.formatShowingRows,
-                showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
+                detailView: !!this.detailFormatter,
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
+                    const sort = this.table.bootstrapTable("getOptions").sortName ? {
+                        sort: this.table.bootstrapTable("getOptions").sortName,
+                        order: this.table.bootstrapTable("getOptions").sortOrder
+                    } : {};
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         // exclude: "qualityControl",
+                        ...sort,
                         ...this.query
                     };
 
@@ -190,7 +195,9 @@ export default class SampleGrid extends LitElement {
                         .search(this.filters)
                         .then(sampleResponse => {
                             // Fetch clinical analysis to display the Case ID
-                            const individualIds = sampleResponse.getResults().map(sample => sample.individualId).filter(Boolean).join(",");
+                            const individualIds = sampleResponse.getResults()
+                                .map(sample => sample.individualId)
+                                .filter(Boolean).join(",");
                             if (individualIds) {
                                 this.opencgaSession.opencgaClient.clinical()
                                     .search(
@@ -280,9 +287,7 @@ export default class SampleGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
-            showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -324,18 +329,36 @@ export default class SampleGrid extends LitElement {
                 id: "id",
                 title: "Sample ID",
                 field: "id",
+                formatter: (sampleId, sample) => {
+                    let somaticHtml = "";
+                    if (typeof sample.somatic !== "undefined") {
+                        somaticHtml = sample.somatic ? "Somatic" : "Germline";
+                    }
+                    return `
+                        <div>
+                            <span style="font-weight: bold; margin: 5px 0">${sampleId}</span>
+                            ${somaticHtml ? `<span class="help-block" style="margin: 5px 0">${somaticHtml}</span>` : nothing}
+                        </div>`;
+                },
+                sortable: true,
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
                 id: "individualId",
                 title: "Individual ID",
                 field: "individualId",
-                formatter: (value, row) => row?.individualId ?? "-",
+                formatter: individualId => {
+                    if (individualId) {
+                        return `<div><span style="font-weight: bold">${individualId}</span></div>`;
+                    } else {
+                        return "-";
+                    }
+                },
                 visible: this.gridCommons.isColumnVisible("individualId")
             },
             {
                 id: "fileIds",
-                title: "Files (VCF, BAM)",
+                title: "Files (Only BAM and VCF)",
                 field: "fileIds",
                 formatter: fileIds => CatalogGridFormatter.fileFormatter(fileIds, ["vcf", "vcf.gz", "bam"]),
                 visible: this.gridCommons.isColumnVisible("fileIds")
@@ -347,6 +370,12 @@ export default class SampleGrid extends LitElement {
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession),
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
+            // {
+            //     id: "cohortIds",
+            //     title: "Cohorts",
+            //     field: "cohortIds",
+            //     // visible: this.gridCommons.isColumnVisible("cohorts")
+            // },
             {
                 id: "collection.method",
                 title: "Collection Method",
@@ -359,21 +388,26 @@ export default class SampleGrid extends LitElement {
                 field: "processing.preparationMethod",
                 visible: this.gridCommons.isColumnVisible("processing.preparationMethod")
             },
-            {
-                id: "cellLine",
-                title: "Cell Line",
-                field: "cellLine",
-                formatter: (value, row) => row.somatic ? "Somatic" : "Germline",
-                visible: this.gridCommons.isColumnVisible("cellLine")
-            },
+            // {
+            //     id: "cellLine",
+            //     title: "Cell Line",
+            //     field: "cellLine",
+            //     formatter: (value, row) => row.somatic ? "Somatic" : "Germline",
+            //     visible: this.gridCommons.isColumnVisible("cellLine")
+            // },
             {
                 id: "creationDate",
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
+                sortable: true,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
+
+        if (this._config.annotations?.length > 0) {
+            this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
+        }
 
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
@@ -537,15 +571,26 @@ export default class SampleGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
+            multiSelection: false,
+            showSelectCheckbox: false,
+            // detailView: true,
+
             showToolbar: true,
+            showActions: true,
+
             showCreate: true,
             showExport: true,
             showSettings: true,
-            showActions: true,
-            showSelectCheckbox: true,
-            detailView: false,
-            detailFormatter: null, // function with the detail formatter
-            multiSelection: false,
+            exportTabs: ["download", "link", "code"],
+
+            // toolbar: {
+            //     showSettings: true,
+            //     showColumns: false,
+            //     showDownload: false,
+            //     showExport: true,
+            //     exportTabs: ["download", "link", "code"]
+            //     // columns list for the dropdown will be added in grid components based on settings.table.columns
+            // },
         };
     }
 

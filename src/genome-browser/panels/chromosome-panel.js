@@ -259,7 +259,6 @@ export default class ChromosomePanel {
         });
 
         const cytobandsByStain = {};
-        let textDrawingOffset = offset;
         (this.chromosome.cytobands || []).forEach(rawCytoband => {
             const cytoband = {
                 ...rawCytoband,
@@ -273,18 +272,18 @@ export default class ChromosomePanel {
             }
             cytobandsByStain[cytoband.stain].push(cytoband);
 
-            const middleX = textDrawingOffset + (cytoband.pixelSize / 2);
+            const textX = offset + ((cytoband.pixelStart + cytoband.pixelEnd) / 2);
             const textY = 35;
             const text = SVG.addChild(group, "text", {
                 "data-cy": "gb-chromosome-cytoband-label",
-                "x": middleX,
+                "data-chromosome-arm": cytoband.name[0],
+                "x": textX,
                 "y": textY,
                 "font-size": 10,
-                "transform": `rotate(-90, ${middleX}, ${textY})`,
-                "fill": "black"
+                "transform": `rotate(-90, ${textX}, ${textY})`,
+                "fill": "black",
             });
             text.textContent = cytoband.name;
-            textDrawingOffset += cytoband.pixelSize;
         });
 
         Object.keys(cytobandsByStain).forEach(name => {

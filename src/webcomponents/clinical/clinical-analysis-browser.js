@@ -54,6 +54,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "clinical-analysis-browser";
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
     }
@@ -79,29 +80,19 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         }
 
         if (this.settings?.table) {
-            this._config.filter.result.grid = {
+            const {toolbar, ...otherTableProps} = this.settings.table;
+            UtilsNew.setObjectValue(this._config, "filter.result.grid", {
                 ...this._config.filter.result.grid,
-                ...this.settings.table,
-                toolbar: {
-                    ...this._config.filter.result.grid.toolbar,
-                    ...(this.settings.table.toolbar || {}),
-                },
-            };
+                ...otherTableProps,
+                ...toolbar,
+            });
         }
 
         // Apply user configuration
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.[this._config.componentId]?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         });
-
-
-        // if (this.opencgaSession.user?.configs?.IVA?.clinicalAnalysisBrowserCatalog?.grid) {
-        //     this._config.filter.result.grid = {
-        //         ...this._config.filter.result.grid,
-        //         ...this.opencgaSession.user.configs.IVA.clinicalAnalysisBrowserCatalog.grid,
-        //     };
-        // }
 
         this.requestUpdate();
     }
@@ -143,7 +134,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                     active: true,
                     render: params => html `
                         <clinical-analysis-grid
-                            .componentId="${this._config.componentId}"
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
@@ -168,6 +159,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                     active: false,
                     render: params => html`
                         <clinical-analysis-group
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.result.grid}"
                             .query="${params.executedQuery}"
@@ -246,9 +238,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                         detailView: false,
                         multiSelection: false,
                         showActions: true,
-                        toolbar: {
-                            showCreate: false,
-                        },
+                        showCreate: false,
                     }
                 },
                 detail: {
@@ -272,13 +262,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
             // TODO recheck (they come from clinical-analysis-browser and used in opencga-clinical-analysis-filter and opencga-clinical-analysis-grid now they have been moved in config)
             analyses: [],
             analysis: {},
-
-            gridComparator: {
-                pageSize: 5,
-                pageList: [5, 10],
-                detailView: true,
-                multiSelection: true
-            }
         };
     }
 

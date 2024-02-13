@@ -128,10 +128,10 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         }
 
         // Check for user configuration
-        if (this.toolId && this.opencgaSession.user?.configs?.IVA?.[this.toolId]?.grid) {
+        if (this.toolId && this.opencgaSession.user?.configs?.IVA?.settings?.[this.toolId]?.grid) {
             this._config.result.grid = {
                 ...this._config.result.grid,
-                ...this.opencgaSession.user.configs.IVA[this.toolId].grid,
+                ...this.opencgaSession.user.configs.IVA.settings[this.toolId].grid,
                 showGenomeBrowserLink: false,
             };
         }
@@ -197,14 +197,30 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
 
     async onGridConfigSave(e) {
         const newGridConfig = {...e.detail.value};
-
         // Remove highlights and copies configuration from new config
-        delete newGridConfig.highlights;
-        // delete newConfig.copies;
+        // delete newGridConfig.highlights;
 
         // Update user configuration
         try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.toolId, newGridConfig);
+            // await OpencgaCatalogUtils.updateGridConfig("IVA", this.opencgaSession, this.toolId, newGridConfig);
+            // Update user configuration
+            await OpencgaCatalogUtils
+                .updateGridConfig(
+                    "IVA",
+                    this.opencgaSession,
+                    this.toolId,
+                    {
+                        // All Variant Grids
+                        pageSize: newGridConfig.pageSize,
+                        columns: newGridConfig.columns,
+                        geneSet: newGridConfig.geneSet,
+                        consequenceType: newGridConfig.consequenceType,
+                        populationFrequenciesConfig: newGridConfig.populationFrequenciesConfig,
+                        highlights: newGridConfig.highlights,
+                        // Only Variant Interpreter Grids
+                        genotype: newGridConfig.genotype,
+                    }
+                );
             this.settingsObserver();
             this.requestUpdate();
 
@@ -344,11 +360,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     alleleStringLengthMax: 10,
 
                     renderLocal: false,
-
-                    header: {
-                        horizontalAlign: "center",
-                        verticalAlign: "bottom"
-                    },
 
                     quality: {
                         qual: 30,

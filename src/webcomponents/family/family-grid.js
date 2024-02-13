@@ -61,10 +61,17 @@ export default class FamilyGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
@@ -82,13 +89,12 @@ export default class FamilyGrid extends LitElement {
 
         // Settings for the grid toolbar
         this.toolbarSetting = {
-            // buttons: ["columns", "download"],
             ...this._config,
         };
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: "familyBrowser",
+            toolId: this.toolId,
             resource: "FAMILY",
             columns: this._getDefaultColumns(),
             create: {
@@ -136,7 +142,7 @@ export default class FamilyGrid extends LitElement {
     }
 
     renderTable() {
-        if (this.families && this.families?.length > 0) {
+        if (this.families?.length > 0) {
             this.renderLocalTable();
         } else {
             this.renderRemoteTable();
@@ -146,7 +152,6 @@ export default class FamilyGrid extends LitElement {
 
     renderRemoteTable() {
         if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
-            // const filters = {...this.query};
             if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
@@ -171,7 +176,7 @@ export default class FamilyGrid extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
+                detailFormatter: this.detailFormatter,
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
@@ -385,19 +390,6 @@ export default class FamilyGrid extends LitElement {
         return result;
     }
 
-    membersFormatter(value, row) {
-        if (UtilsNew.isNotEmptyArray(value)) {
-            const members = value.map(member => `<p>${member.id} (${member.sex?.id || member.sex})</p>`).join("");
-            return `
-                <a tooltip-title="Members" tooltip-text="${members}">
-                    ${value.length} members found
-                </a>
-            `;
-        } else {
-            return "No members found";
-        }
-    }
-
     async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
@@ -426,24 +418,45 @@ export default class FamilyGrid extends LitElement {
                 id: "id",
                 title: "Family",
                 field: "id",
+                formatter: familyId => `<div><span style="font-weight: bold">${familyId}</span></div>`,
                 sortable: true,
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
                 id: "members",
                 title: "Members",
                 field: "members",
-                formatter: this.membersFormatter.bind(this),
-                halign: this._config.header.horizontalAlign,
+                formatter: members => {
+                    let html = "-";
+                    if (members?.length > 0) {
+                        html = `<div style="white-space: nowrap">`;
+                        for (let i = 0; i < members.length; i++) {
+                            // Display first 5 members
+                            if (i < 5) {
+                                html += `
+                                    <div style="margin: 2px 0">
+                                        <span style="font-weight: bold">${members[i].id}</span><span> (${members[i].sex.id})</span>
+                                    </div>
+                                `;
+                            } else {
+                                html += `<a tooltip-title="Files" tooltip-text='${members.join("")}'>... view all members (${members.length})</a>`;
+                                break;
+                            }
+                        }
+                        html += "</div>";
+                    }
+                    return html;
+                },
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("members")
             },
             {
                 id: "disorders",
                 title: "Disorders",
                 field: "disorders",
-                formatter: disorders => disorders.map(disorder => CatalogGridFormatter.disorderFormatter(disorder)).join("<br>"),
-                halign: this._config.header.horizontalAlign,
+                formatter: disorders => CatalogGridFormatter.disorderFormatter(disorders),
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("disorders")
             },
             {
@@ -451,7 +464,7 @@ export default class FamilyGrid extends LitElement {
                 title: "Phenotypes",
                 field: "phenotypes",
                 formatter: CatalogGridFormatter.phenotypesFormatter,
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("phenotypes")
             },
             {
@@ -459,7 +472,7 @@ export default class FamilyGrid extends LitElement {
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
@@ -468,10 +481,14 @@ export default class FamilyGrid extends LitElement {
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
                 sortable: true,
-                halign: this._config.header.horizontalAlign,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
+
+        if (this._config.annotations?.length > 0) {
+            this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
+        }
 
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
@@ -623,19 +640,18 @@ export default class FamilyGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
+            showSelectCheckbox: false,
+            multiSelection: false,
+            detailFormatter: this.detailFormatter, // function with the detail formatter
+            detailView: true,
+
             showToolbar: true,
+            showActions: true,
+
             showCreate: true,
             showExport: true,
             showSettings: true,
-            showActions: true,
-            showSelectCheckbox: true,
-            detailView: true,
-            detailFormatter: this.detailFormatter, // function with the detail formatter
-            multiSelection: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
+            exportTabs: ["download", "link", "code"],
         };
     }
 

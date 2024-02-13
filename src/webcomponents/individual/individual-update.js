@@ -162,12 +162,11 @@ export default class IndividualUpdate extends LitElement {
                                 render: (samples, dataFormFilterChange, updateParams) => {
                                     const handleSamplesFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
-                                        // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const sampleList = e.detail.value
                                             ?.split(",")
                                             .filter(sampleId => sampleId)
                                             .map(sampleId => ({id: sampleId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(sampleList);
                                     };
 
                                     return html`
@@ -373,6 +372,17 @@ export default class IndividualUpdate extends LitElement {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
                                 view: pheno => html`<div>${pheno.id} - ${pheno?.name}</div>`,
+                                search: {
+                                    title: "Autocomplete",
+                                    button: false,
+                                    render: (currentData, dataFormFilterChange) => html`
+                                        <cellbase-search-autocomplete
+                                            .resource="${"PHENOTYPE"}"
+                                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.data)}">
+                                        </cellbase-search-autocomplete>
+                                    `,
+                                },
                             },
                             elements: [
                                 {
@@ -440,6 +450,17 @@ export default class IndividualUpdate extends LitElement {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
                                 view: disorder => html`<div>${disorder.id} - ${disorder?.name}</div>`,
+                                search: {
+                                    title: "Autocomplete",
+                                    button: false,
+                                    render: (currentData, dataFormFilterChange) => html`
+                                        <cellbase-search-autocomplete
+                                            .resource="${"DISORDER"}"
+                                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.data)}">
+                                        </cellbase-search-autocomplete>
+                                    `,
+                                },
                             },
                             elements: [
                                 {

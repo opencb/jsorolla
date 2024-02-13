@@ -87,13 +87,6 @@ export default class VariantBrowser extends LitElement {
         this.COMPONENT_ID = "variant-browser";
         this._prefix = UtilsNew.randomString(8);
 
-        // These are for making the queries to server
-        /* this.facetFields = [];
-        this.facetRanges = [];
-
-        this.facetFieldsName = [];
-        this.facetRangeFields = [];*/
-
         this.results = [];
         this._showInitMessage = true;
 
@@ -130,37 +123,28 @@ export default class VariantBrowser extends LitElement {
     }
 
     settingsObserver() {
-        if (!this.opencgaSession) {
-            return;
-        }
         this._config = this.getDefaultConfig();
 
-        // filter list, canned filters, detail tabs
+        // Apply Study grid configuration
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
 
-        // Grid configuration
+        // Grid configuration and take out toolbar admin/user settings to grid level.
         if (this.settings?.table) {
-            this._config.filter.result.grid = {
+            const {toolbar, ...otherTableProps} = this.settings.table;
+            UtilsNew.setObjectValue(this._config, "filter.result.grid", {
                 ...this._config.filter.result.grid,
-                ...this.settings.table,
-            };
-        }
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {
-                ...this._config.filter.result.grid.toolbar,
-                ...this.settings.table.toolbar,
-            };
+                ...otherTableProps,
+                ...toolbar,
+            });
         }
 
-        // Apply user configuration
-        if (this.opencgaSession.user?.configs?.IVA?.[this.COMPONENT_ID]?.grid) {
-            this._config.filter.result.grid = {
-                ...this._config.filter.result.grid,
-                ...this.opencgaSession.user.configs.IVA[this.COMPONENT_ID].grid,
-            };
-        }
+        // Apply User grid configuration. Only 'pageSize', 'columns', 'geneSet', 'consequenceType' and 'populationFrequenciesConfig' are set
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
+        });
 
         this.requestUpdate();
     }
@@ -432,6 +416,7 @@ export default class VariantBrowser extends LitElement {
                         <div class="main-view">
                             <div id="table-tab" class="${`content-tab ${this.activeTab === "table-tab" ? "active" : ""}`}">
                                 <variant-browser-grid
+                                    .toolId="${this.COMPONENT_ID}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .query="${this.executedQuery}"
                                     .cohorts="${this.opencgaSession?.project?.studies ?? []}"
@@ -442,7 +427,7 @@ export default class VariantBrowser extends LitElement {
                                     .config="${this._config.filter.result.grid}"
                                     @queryComplete="${this.onQueryComplete}"
                                     @selectrow="${this.onSelectVariant}"
-                                    @gridconfigsave="${this.onGridConfigSave}">
+                                    @settingsUpdate="${this.onSettingsUpdate}">
                                 </variant-browser-grid>
 
                                 <!-- Bottom tabs with specific variant information -->
@@ -684,7 +669,7 @@ export default class VariantBrowser extends LitElement {
                             name: "Consequence Type",
                             render: (variant, active) => html`
                                 <variant-consequence-type-view
-                                    .consequenceTypes="${variant.annotation.consequenceTypes}"
+                                    .consequenceTypes="${variant?.annotation?.consequenceTypes}"
                                     .active="${active}">
                                 </variant-consequence-type-view>
                             `,
@@ -694,7 +679,7 @@ export default class VariantBrowser extends LitElement {
                             name: "Population Frequencies",
                             render: (variant, active) => html`
                                 <cellbase-population-frequency-grid
-                                    .populationFrequencies="${variant.annotation.populationFrequencies}"
+                                    .populationFrequencies="${variant?.annotation?.populationFrequencies}"
                                     .active="${active}">
                                 </cellbase-population-frequency-grid>
                             `,
@@ -704,8 +689,8 @@ export default class VariantBrowser extends LitElement {
                             name: "Clinical",
                             render: variant => html`
                                 <variant-annotation-clinical-view
-                                    .traitAssociation="${variant.annotation.traitAssociation}"
-                                    .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                                    .traitAssociation="${variant?.annotation?.traitAssociation}"
+                                    .geneTraitAssociation="${variant?.annotation?.geneTraitAssociation}">
                                 </variant-annotation-clinical-view>
                             `,
                         },
@@ -748,7 +733,10 @@ export default class VariantBrowser extends LitElement {
                             id: "json-view",
                             name: "JSON Data",
                             render: (variant, active) => html`
-                                <json-viewer .data="${variant}" .active="${active}"></json-viewer>
+                                <json-viewer
+                                    .data="${variant}"
+                                    .active="${active}">
+                                </json-viewer>
                             `,
                         }
                         // TODO Think about Neeworks

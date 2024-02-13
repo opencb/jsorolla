@@ -24,6 +24,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/catalog-browser-grid-config.js";
 import "../commons/opencb-grid-toolbar.js";
 import ModalUtils from "../commons/modal/modal-utils";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter";
 
 export default class DiseasePanelGrid extends LitElement {
 
@@ -39,6 +40,9 @@ export default class DiseasePanelGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -63,10 +67,17 @@ export default class DiseasePanelGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
@@ -82,13 +93,12 @@ export default class DiseasePanelGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         this.toolbarSetting = {
-            // buttons: ["columns", "download"],
             ...this._config,
         };
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: "diseasePanelBrowser",
+            toolId: this.toolId,
             resource: "DISEASE_PANEL",
             columns: this._getDefaultColumns(),
             create: {
@@ -137,7 +147,7 @@ export default class DiseasePanelGrid extends LitElement {
 
     renderTable() {
         // If this.diseasePanel is provided as property we render the array directly
-        if (this.diseasePanels && this.diseasePanels.length > 0) {
+        if (this.diseasePanels?.length > 0) {
             this.renderLocalTable();
         } else {
             this.renderRemoteTable();
@@ -147,7 +157,6 @@ export default class DiseasePanelGrid extends LitElement {
 
     renderRemoteTable() {
         if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
-            // const filters = {...this.query};
             if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
@@ -172,7 +181,6 @@ export default class DiseasePanelGrid extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
                 gridContext: this,
                 formatLoadingMessage: () => String.raw`<div><loading-spinner></loading-spinner></div>`,
                 ajax: async params => {
@@ -256,15 +264,9 @@ export default class DiseasePanelGrid extends LitElement {
             pageList: this._config.pageList,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            // onPageChange: (page, size) => {
-            //     const result = this.gridCommons.onPageChange(page, size);
-            //     this.from = result.from || this.from;
-            //     this.to = result.to || this.to;
-            // },
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
@@ -285,7 +287,6 @@ export default class DiseasePanelGrid extends LitElement {
                 await this.updateComplete;
                 ModalUtils.show(`${this._prefix}UpdateModal`);
                 break;
-
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
@@ -361,144 +362,113 @@ export default class DiseasePanelGrid extends LitElement {
 
     _getDefaultColumns() {
         this._columns = [
-            [
-                {
-                    id: "id",
-                    title: "Panel ID",
-                    field: "id",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        if (row?.source && row?.source?.project === "PanelApp") {
-                            return String.raw`
+            {
+                id: "name",
+                title: "Panel",
+                field: "name",
+                formatter: (name, row) => {
+                    let idLinkHtml = "";
+                    if (row?.source && row?.source?.project === "PanelApp") {
+                        idLinkHtml = `
                             <a href="${BioinfoUtils.getPanelAppLink(row?.source?.id)}" title="Panel ID: ${row?.id}" target="_blank">
                                 ${row?.id ?? "-"} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
                             </a>`;
-                        }
-                        return row?.id ?? "-";
-                    },
-                    halign: this._config.header.horizontalAlign,
-                    visible: this.gridCommons.isColumnVisible("id")
+                    }
+                    return `
+                        <div>
+                            <div style="font-weight: bold; margin: 5px 0">${name}</div>
+                            <div style="margin: 5px 0">${idLinkHtml}</div>
+                        </div>`;
                 },
-                {
-                    id: "name",
-                    title: "Name",
-                    field: "name",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => row?.name ?? "-",
-                    halign: this._config.header.horizontalAlign,
-                    visible: this.gridCommons.isColumnVisible("name")
+                halign: this.displayConfigDefault.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("name")
+            },
+            // {
+            //     id: "id",
+            //     title: "Panel ID",
+            //     field: "id",
+            //     rowspan: 2,
+            //     colspan: 1,
+            //     formatter: (value, row) => {
+            //         if (row?.source && row?.source?.project === "PanelApp") {
+            //             return String.raw`
+            //             <a href="${BioinfoUtils.getPanelAppLink(row?.source?.id)}" title="Panel ID: ${row?.id}" target="_blank">
+            //                 ${row?.id ?? "-"} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
+            //             </a>`;
+            //         }
+            //         return row?.id ?? "-";
+            //     },
+            //     halign: this.displayConfigDefault.header.horizontalAlign,
+            //     visible: this.gridCommons.isColumnVisible("id")
+            // },
+            {
+                id: "disorders",
+                title: "Disorders",
+                field: "disorders",
+                formatter: disorders => CatalogGridFormatter.disorderFormatter(disorders),
+                halign: this.displayConfigDefault.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("disorders")
+            },
+            {
+                id: "stats",
+                title: "Stats",
+                field: "stats",
+                formatter: stats => {
+                    return `
+                        <div>
+                            <div style="margin: 2px 0; white-space: nowrap">
+                                <span style="font-weight: bold">Genes:</span><span> ${stats.numberOfGenes}</span>
+                            </div>
+                            <div style="margin: 2px 0; white-space: nowrap">
+                                <span style="font-weight: bold">Regions:</span><span> ${stats.numberOfRegions}</span>
+                            </div>
+                            <div style="margin: 2px 0; white-space: nowrap">
+                                <span style="font-weight: bold">Variants:</span><span> ${stats.numberOfVariants}</span>
+                            </div>
+                        </div>
+                    `;
                 },
-                {
-                    id: "disorders",
-                    title: "Disorders",
-                    field: "disorders",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: disorders => {
-                        if (disorders?.length > 0) {
-                            const disordersHtml = [];
-                            for (const disorder of disorders) {
-                                let result = disorder.id;
-                                if (disorder.name) {
-                                    result += " - " + disorder.name;
-                                }
-                                disordersHtml.push(`<div style="margin: 5px 0">${result}</div>`);
-                            }
-                            return disordersHtml.join("");
-                        }
-                    },
-                    halign: this._config.header.horizontalAlign,
-                    visible: this.gridCommons.isColumnVisible("disorders")
-                },
-                {
-                    id: "stats",
-                    title: "Stats",
-                    field: "stats",
-                    rowspan: 1,
-                    colspan: 3,
-                    align: "center",
-                    visible: true
-                },
-                {
-                    id: "source",
-                    title: "Source",
-                    field: "source",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        if (row?.source) {
-                            const {id, author, project, version} = row.source;
-                            let projectAndVersion = "";
-                            if (project?.toUpperCase() === "PANELAPP") {
-                                projectAndVersion = `
+                align: "center",
+                visible: this.gridCommons.isColumnVisible("stats")
+            },
+            {
+                id: "source",
+                title: "Source",
+                field: "source",
+                formatter: (value, row) => {
+                    if (row?.source) {
+                        const {id, author, project, version} = row.source;
+                        let projectAndVersion = "";
+                        if (project?.toUpperCase() === "PANELAPP") {
+                            projectAndVersion = `
                             <a href="https://panelapp.genomicsengland.co.uk/api/v1/panels/${id}/?version=${version}" target="_blank">
                                 ${project} ${version} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
                             </a>`;
-                            } else {
-                                projectAndVersion = `${project || ""} ${version}`;
-                            }
-                            return `${author ? `${author} -` : ""} ${projectAndVersion}`;
+                        } else {
+                            projectAndVersion = `${project || ""} ${version}`;
                         }
-                        return "-";
-                    },
-                    align: "center",
-                    visible: this.gridCommons.isColumnVisible("source")
+                        return `${author ? `${author} -` : ""} ${projectAndVersion}`;
+                    }
+                    return "-";
                 },
-            ],
-            [
-                {
-                    id: "numberOfGenes",
-                    title: "# genes",
-                    field: "numberOfGenes",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: (value, row) => row?.stats?.numberOfGenes ?? "-",
-                    halign: this._config.header.horizontalAlign,
-                    align: "right",
-                    visible: this.gridCommons.isColumnVisible("numberOfGenes")
-                },
-                {
-                    id: "numberOfRegions",
-                    title: "# regions",
-                    field: "numberOfRegions",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: (value, row) => row?.stats?.numberOfRegions ?? "-",
-                    halign: this._config.header.horizontalAlign,
-                    align: "right",
-                    visible: this.gridCommons.isColumnVisible("numberOfRegions")
-                },
-                {
-                    id: "numberOfVariants",
-                    title: "# variants",
-                    field: "numberOfVariants",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: (value, row) => row?.stats?.numberOfVariants ?? "-",
-                    halign: this._config.header.horizontalAlign,
-                    align: "right",
-                    visible: this.gridCommons.isColumnVisible("numberOfVariants")
-                }
-            ]
+                align: "center",
+                visible: this.gridCommons.isColumnVisible("source")
+            },
         ];
 
         if (this.opencgaSession && this._config.showActions) {
-            this._columns[0].push({
+            this._columns.push({
                 id: "actions",
                 title: "Actions",
                 field: "actions",
-                halign: this._config.header.horizontalAlign,
-                rowspan: 2,
-                colspan: 1,
+                halign: this.displayConfigDefault.header.horizontalAlign,
                 formatter: (value, row) => `
                     <div class="dropdown" style="display: flex; justify-content: center;">
-                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
-                                <span>Actions</span>
-                                <span class="caret" style="margin-left: 5px"></span>
-                            </button>
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                            <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                            <span>Actions</span>
+                            <span class="caret" style="margin-left: 5px"></span>
+                        </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
                                 <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
@@ -536,7 +506,6 @@ export default class DiseasePanelGrid extends LitElement {
             });
         }
 
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
     }
@@ -624,18 +593,17 @@ export default class DiseasePanelGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
+            showSelectCheckbox: false,
+            multiSelection: false,
+            detailView: false,
+
             showToolbar: true,
+            showActions: true,
+
             showCreate: true,
             showExport: true,
             showSettings: true,
-            showActions: true,
-            detailView: false,
-            detailFormatter: null, // function with the detail formatter
-            multiSelection: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
+            exportTabs: ["download", "link", "code"],
         };
     }
 

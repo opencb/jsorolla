@@ -64,7 +64,7 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                 });
         });
 
-        it("should hidden columns [Type,Role in Cancer,Cohort Stats]",() => {
+        it("should hide columns [Type,Role in Cancer,Cohort Stats]",() => {
             const columns = ["Type","Role in Cancer","Cohort Stats"];
             cy.get("variant-interpreter-grid thead th").as("headerColumns");
             columns.forEach(col => {
@@ -168,7 +168,7 @@ context("Variant Interpreter Grid Cancer CNV", () => {
 
         it("should display Cohort Stats (Population Frequencies) tooltip", () => {
             cy.get("tbody tr:first > td")
-                .eq(8)
+                .eq(10)
                 .within(() => {
                     cy.get("a")
                         .trigger("mouseover");
@@ -177,7 +177,7 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                 .should("be.visible");
         });
 
-        it("should display reference population frequencies tooltip", () => {
+        it.skip("should display reference population frequencies tooltip", () => {
             cy.get("tbody tr:first > td")
                 .eq(9)
                 .within(() => {

@@ -71,11 +71,6 @@ class VariantInterpreterGridTest extends LitElement {
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
 
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
-
             quality: {
                 qual: 30,
                 dp: 20
@@ -157,7 +152,10 @@ class VariantInterpreterGridTest extends LitElement {
     }
 
     onSettingsUpdate() {
-        this.configVariantInterpreterGrid = {...this.configVariantInterpreterGrid, ...this.opencgaSession?.user?.configs?.IVA?.variantInterpreterBrowser?.grid};
+        this.configVariantInterpreterGrid = {
+            ...this.configVariantInterpreterGrid,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.variantInterpreterBrowser?.grid
+        };
         this.opencgaSessionObserver();
     }
 

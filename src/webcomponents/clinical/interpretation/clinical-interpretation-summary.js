@@ -195,7 +195,7 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                         <strong>Version</strong>: ${method.version}
                                     </div>
                                     <div>
-                                        <strong>Dependencies</strong>: 
+                                        <strong>Dependencies</strong>:
                                         ${(method.dependencies || []).map(item => html`
                                             <span class="label label-primary">${item.name} (${item.version})</span>
                                         `)}

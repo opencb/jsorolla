@@ -61,21 +61,31 @@ export class CellBaseClient {
                     detail: value
                 }));
         };
-        this.getMeta("about")
-            .then(response => {
-                const result = response?.response?.[0]?.result[0];
-                // Older versions of cellbase are using 'Version: ' as the key instead of 'Version' (Issue #185).
-                // To keep compatibility, we will check for both keys, but in the future only the newest key will be used.
-                globalEvent("hostInit", {
-                    host: "cellbase",
-                    value: "v" + (result["Version"] || result["Version: "]),
-                });
-            })
-            .catch(e => {
-                console.error(e);
-                // globalEvent("signingInError", {value: "Cellbase host not available."});
-                globalEvent("hostInit", {host: "cellbase", value: "NOT AVAILABLE"});
+        if (!this._config?.host) {
+            globalEvent("hostInit", {
+                host: "cellbase",
+                value: "NOT DEFINED"
             });
+        } else {
+            this.getMeta("about")
+                .then(response => {
+                    const result = response?.response?.[0]?.result[0];
+                    // Older versions of cellbase are using 'Version: ' as the key instead of 'Version' (Issue #185).
+                    // To keep compatibility, we will check for both keys, but in the future only the newest key will be used.
+                    globalEvent("hostInit", {
+                        host: "cellbase",
+                        value: "v" + (result["Version"] || result["Version: "]),
+                    });
+                })
+                .catch(e => {
+                    console.error(e);
+                    // globalEvent("signingInError", {value: "Cellbase host not available."});
+                    globalEvent("hostInit", {
+                        host: "cellbase",
+                        value: "NOT AVAILABLE"
+                    });
+                });
+        }
     }
 
     _initCache() {
@@ -269,6 +279,7 @@ export class CellBaseClient {
 
         const url = this._createRestUrl(host, version, species, category, subcategory, ids, resource, params);
         const k = this.generateKey({...params, species, category, subcategory, resource, params});
+        // FIXME: add try-catch-finally (see opencga-rest-input.js)
         return this.restClient.call(url, options, k);
     }
 

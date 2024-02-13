@@ -83,6 +83,8 @@ export default class DataForm extends LitElement {
 
         // We need to initialise 'data' in case undefined value is passed
         this.data = {};
+        // Maintains a data model of the data that has been filled out using the search autocomplete
+        this.dataAutocomplete = {};
     }
 
     update(changedProperties) {
@@ -656,6 +658,8 @@ export default class DataForm extends LitElement {
             `;
         }
 
+        // ${typeof content === "string" ? UtilsNew.renderHTML(content) : content}
+        // content.replace(/(<([^>]+)>)/ig, '')
         return html`
             <div class="${hasErrorMessages ? "has-error" : nothing}">
                 <div data-testid="${this.config.test?.active ? `${this.config.test.prefix || "test"}-${element.field}` : nothing}">
@@ -944,7 +948,7 @@ export default class DataForm extends LitElement {
             return html`<span class="text-danger">No template provided</span>`;
         }
         const content = html`
-            <span>
+            <span class="${element.display.classes}" style="${element.display.style}">
                 ${UtilsNew.renderHTML(this.applyTemplate(element.display.template, data, null, this._getDefaultValue(element)))}
             </span>
         `;
@@ -1255,6 +1259,30 @@ export default class DataForm extends LitElement {
     _createObjectElement(element) {
         const isDisabled = this._getBooleanValue(element.display?.disabled, false, element);
         const contents = [];
+
+        if (element.display?.search && typeof element.display.search === "object") {
+            // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
+            const data = this.data[element.field][element.index];
+            const searchContent = html `
+                <div class="row form-group" style="margin-left: 0;margin-right: 0">
+                    <!-- 1. Render the title -->
+                    ${element.display.title ? html`
+                        <div>
+                            <label class="control-label" style="padding-top: 0;">
+                                ${element.display.title}
+                            </label>
+                        </div>
+                    ` : null}
+                    <!-- 2. Todo: Render an icon -->
+                    <!-- 3. Render -->
+                    <div>
+                    ${element.display.search.render(data, object => this.onObjectChange(element, object, {action: "AUTOCOMPLETE"}))}
+                    </div>
+                </div>
+            `;
+            contents.push(searchContent);
+        }
+
         for (const childElement of element.elements) {
             // 1. Check if this filed is visible
             const isVisible = this._getBooleanValue(childElement.display?.visible, true, childElement);
@@ -1267,6 +1295,10 @@ export default class DataForm extends LitElement {
                 ...childElement.display,
                 nested: true
             };
+
+            if (!UtilsNew.isEmpty(this.dataAutocomplete) && this._isFieldAutocomplete(childElement.field)) {
+                childElement.display.disabled = true;
+            }
 
             // 2.1 If parent is disabled then we must overwrite disabled field
             if (isDisabled) {
@@ -1348,6 +1380,10 @@ export default class DataForm extends LitElement {
                                 const _element = JSON.parse(JSON.stringify(element));
                                 // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
                                 // items have a virtual element associated, this will allow to get the proper value later.
+                                if (_element.display?.search && typeof element.display?.search?.render === "function") {
+                                    _element.index = index;
+                                    _element.display.search.render = element.display.search.render;
+                                }
                                 for (let i = 0; i< _element.elements.length; i++) {
                                     // This support object nested
                                     const [left, right] = _element.elements[i].field.split("[].");
@@ -1376,6 +1412,7 @@ export default class DataForm extends LitElement {
                                     }
                                 }
                                 return html`
+                                    <!--VIEW-->
                                     <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
                                         <div>
                                             ${element.display.view(item)}
@@ -1397,6 +1434,7 @@ export default class DataForm extends LitElement {
                                             }
                                         </div>
                                     </div>
+                                    <!--FORM-->
                                     <div id="${element?.field}_${index}"
                                          style="border-left: 2px solid #0c2f4c; margin-left: 10px; padding-left: 12px; display: ${index === this.editOpen ? "block" : "none"}">
                                         ${this._createObjectElement(_element)}
@@ -1458,7 +1496,7 @@ export default class DataForm extends LitElement {
                             </button>`: nothing
                         }
                         ${this._getBooleanValue(element.display.showResetListButton, false) ? html`
-                            <button type="button" class="btn btn-sm btn-primary" title="Discord changes in this list"
+                            <button type="button" class="btn btn-sm btn-primary" title="Discard changes in this list"
                                     ?disabled="${isDisabled}"
                                     @click="${e => this.#resetObjectList(e, element)}">
                                 <i aria-hidden="true" class="fas fa-undo icon-padding"></i>
@@ -1503,6 +1541,10 @@ export default class DataForm extends LitElement {
             index: index,
         };
         this.onFilterChange(element, null, event);
+
+        if (!UtilsNew.isEmpty(this.dataAutocomplete)) {
+            this.onObjectChange(element, null, event);
+        }
     }
 
     #toggleObjectListCollapse(element, collapsed) {
@@ -1516,6 +1558,9 @@ export default class DataForm extends LitElement {
             action: "RESET",
         };
         this.onFilterChange(element, null, event);
+        if (!UtilsNew.isEmpty(this.dataAutocomplete)) {
+            this.onObjectChange(element, null, event);
+        }
     }
 
     #addToObjectList(e, element) {
@@ -1576,6 +1621,88 @@ export default class DataForm extends LitElement {
         } else {
             return value;
         }
+    }
+
+    _isFieldAutocomplete(field) {
+        // example: phenotypes[].1.description
+        if (field?.includes("[].")) {
+            const match = field.match(DataForm.re);
+            return !!(match && typeof this.dataAutocomplete?.[match?.groups?.arrayFieldName]?.[match?.groups?.index]?.[match?.groups?.field] !== "undefined");
+        }
+        return false;
+    }
+
+    onObjectChange(element, object, objectListEvent) {
+        let eventDetail = {};
+        // Check field exists
+        if (!element.field) {
+            return;
+        }
+        // Process the value to save it correctly.
+        object = this.parseValue(element, object);
+        let param = "";
+
+        // 1. Check if AUTOCOMPLETE, REMOVE, RESET has been clicked, this happens in 'object-list'
+        if (objectListEvent) {
+            switch (objectListEvent.action) {
+                case "AUTOCOMPLETE":
+                    // 1. Update the data model
+                    const props = `${element.field}.${element.index}`;
+                    UtilsNew.setObjectValue(this.data, props, object);
+
+                    // 2. Update data autocomplete model
+                    // If the object has inputs already filled  and undefined in cellbase, do not overwrite them.
+                    const newElement = {};
+                    const data = this.data[element.field][element.index];
+                    Object.entries(object).forEach(([key, value]) => {
+                        if (typeof value !== "undefined" || typeof data[key] !== "undefined") {
+                            newElement[key] = value ?? data[key];
+                        }
+                    });
+                    if (!this.dataAutocomplete[element.field]) {
+                        this.dataAutocomplete[element.field] = [];
+                    }
+                    this.dataAutocomplete[element.field][element.index] = newElement;
+
+                    // 3. Set event detail
+                    param = `${element.field}[].${element.index}`;
+                    eventDetail = {
+                        index: element.index,
+                        param: param,
+                        value: object,
+                        action: objectListEvent.action,
+                    };
+                    break;
+                case "CLOSE":
+                    break;
+                case "REMOVE":
+                    // 1. Remove element from the autocomplete data model
+                    this.dataAutocomplete[element.field].splice(objectListEvent.index, 1);
+                    // 2. Set event detail
+                    param = `${element.field}[].${objectListEvent.index}`;
+                    eventDetail = {
+                        param: param,
+                        value: object,
+                        index: objectListEvent.index,
+                        action: objectListEvent.action
+                    };
+                    break;
+                case "RESET":
+                    // 2. Delete field from autocomplete data model
+                    delete this.dataAutocomplete[element.field];
+                    param = `${element.field}[]`;
+                    eventDetail = {
+                        param: param,
+                        value: object,
+                        action: objectListEvent.action
+                    };
+                    break;
+            }
+        }
+        LitUtils.dispatchCustomEvent(this, "fieldChange", null, {
+            ...eventDetail,
+            data: this.data,
+        }, null, {bubbles: true, composed: true});
     }
 
     onFilterChange(element, value, objectListEvent) {
@@ -1685,6 +1812,7 @@ export default class DataForm extends LitElement {
     onClear(e) {
         this.formSubmitted = false;
         this.showGlobalValidationError = false;
+        this.dataAutocomplete = {};
         LitUtils.dispatchCustomEvent(this, "clear", null, {}, null);
     }
 
@@ -1798,7 +1926,7 @@ export default class DataForm extends LitElement {
         }
     }
 
-    renderContentAsForm() {
+    renderContentAsForm(dismiss) {
         // Buttons values
         const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
         const buttonsLayout = this._getButtonsLayout();
@@ -1827,13 +1955,13 @@ export default class DataForm extends LitElement {
             }
 
             <!-- Render buttons -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
 
             <!-- Render data form -->
             ${this.data ? this.renderData() : null}
 
             <!-- Render buttons -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : null}
 
             <!-- PREVIEW modal -->
             <div class="modal fade" id="${this._prefix}PreviewDataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}PreviewDataModalLabel"
@@ -1859,7 +1987,7 @@ export default class DataForm extends LitElement {
         `;
     }
 
-    renderContentAsTabs() {
+    renderContentAsTabs(dismiss) {
         // Buttons values
         const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
         const buttonsLayout = this._getButtonsLayout();
@@ -1872,7 +2000,7 @@ export default class DataForm extends LitElement {
             ${notificationHtml}
 
             <!-- Render buttons UPPER, above the tabs -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "UPPER" ? this.renderButtons(null, this.activeSection) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "UPPER" ? this.renderButtons(dismiss, this.activeSection) : null}
 
             <!-- Render tabs -->
             <div>
@@ -1891,7 +2019,7 @@ export default class DataForm extends LitElement {
                 </ul>
             </div>
             <!-- Render buttons at the TOP -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null, this.activeSection) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss, this.activeSection) : null}
 
             <!-- Render data form -->
             <div style="margin-top:24px;">
@@ -1899,11 +2027,11 @@ export default class DataForm extends LitElement {
             </div>
 
             <!-- Render buttons at the BOTTOM -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : null}
         `;
     }
 
-    renderContentAsPills() {
+    renderContentAsPills(dismiss) {
         // Buttons values
         const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
         const buttonsLayout = this._getButtonsLayout();
@@ -1913,7 +2041,7 @@ export default class DataForm extends LitElement {
         return html`
             ${notificationHtml}
 
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
             <div class="row">
                 <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
                     <ul class="nav nav-pills nav-stacked">
@@ -1933,22 +2061,22 @@ export default class DataForm extends LitElement {
                     ${this.renderData()}
                 </div>
             </div>
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : null}
         `;
     }
 
-    renderContent(type) {
+    renderContent(type, dismiss = "") {
         let result;
         switch (type?.toUpperCase()) {
             case "FORM":
             default:
-                result = this.renderContentAsForm();
+                result = this.renderContentAsForm(dismiss);
                 break;
             case "TABS":
-                result = this.renderContentAsTabs();
+                result = this.renderContentAsTabs(dismiss);
                 break;
             case "PILLS":
-                result = this.renderContentAsPills();
+                result = this.renderContentAsPills(dismiss);
                 break;
         }
         return result;
@@ -2021,7 +2149,7 @@ export default class DataForm extends LitElement {
                             </div>
                             <div class="modal-body">
                                 <div class="container-fluid">
-                                    ${this.renderContent(type)}
+                                    ${this.renderContent(type, "modal")}
                                 </div>
                             </div>
                             ${modalButtonsVisible ? html`

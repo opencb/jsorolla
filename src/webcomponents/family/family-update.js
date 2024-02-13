@@ -121,12 +121,11 @@ export default class FamilyUpdate extends LitElement {
                                         members?.map(member => member.id).join(",") : members;
                                     const handleSamplesFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
-                                        // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const memberList = e.detail.value
                                             ?.split(",")
                                             .filter(memberId => memberId)
                                             .map(memberId => ({id: memberId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(memberList);
                                     };
                                     return html`
                                         <catalog-search-autocomplete

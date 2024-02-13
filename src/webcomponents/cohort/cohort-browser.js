@@ -49,6 +49,7 @@ export default class CohortBrowser extends LitElement {
     }
 
     _init() {
+        this.COMPONENT_ID = "cohort-browser";
         this._config = this.getDefaultConfig();
     }
 
@@ -60,37 +61,27 @@ export default class CohortBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
-        // merge filter list, canned filters, detail tabs
+        this._config = this.getDefaultConfig();
+
+        // Apply Study settings
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-        // if (this.settings?.table) {
-        //     this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
-        // }
-        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
-            ...this._config?.filter?.result.grid,
-            ...this.settings.table
-        });
-        // if (this.settings?.table?.toolbar) {
-        //     this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        // }
 
-        UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
-            ...this._config.filter?.result?.grid?.toolbar,
-            ...this.settings.table?.toolbar
-        });
+        // Grid configuration and take out toolbar admin/user settings to grid level.
+        if (this.settings?.table) {
+            const {toolbar, ...otherTableProps} = this.settings.table;
+            UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+                ...this._config.filter.result.grid,
+                ...otherTableProps,
+                ...toolbar,
+            });
+        }
 
-        // if (this.opencgaSession.user?.configs?.IVA?.cohortBrowserCatalog?.grid) {
-        //     this._config.filter.result.grid = {
-        //         ...this._config.filter.result.grid,
-        //         ...this.opencgaSession.user.configs.IVA.cohortBrowserCatalog.grid,
-        //     };
-        // }
-        // Apply user configuration
+        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.cohortBrowser?.grid
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
 
         this.requestUpdate();
@@ -127,6 +118,7 @@ export default class CohortBrowser extends LitElement {
                     active: true,
                     render: params => html `
                         <cohort-grid
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .query="${params.executedQuery}"
                             .search="${params.executedQuery}"
@@ -155,13 +147,7 @@ export default class CohortBrowser extends LitElement {
                             .query="${params.facetQuery}"
                             .data="${params.facetResults}">
                         </opencb-facet-results>`
-                }/*
-                {
-                    id: "comparator-tab",
-                    name: "Comparator",
-                    icon: "fas fa-clone",
-                    disabled: true
-                }*/
+                }
             ],
             filter: {
                 searchButton: false,
