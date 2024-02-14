@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
-import "../commons/forms/select-token-filter-static.js";
 
 export default class UserLogin extends LitElement {
 
@@ -64,7 +63,7 @@ export default class UserLogin extends LitElement {
     onSubmit() {
         const user = (this.querySelector("#user").value || "").trim();
         const password = (this.querySelector("#password").value || "").trim();
-        const organization = this.organizationId || ""; // this.querySelector("#organization")?.value || "";
+        const organization = (this.querySelector("#organization")?.value || "").trim();
 
         this.hasEmptyUser = user.length === 0;
         this.hasEmptyPassword = password.length === 0;
@@ -131,10 +130,6 @@ export default class UserLogin extends LitElement {
         }
     }
 
-    onOrganizationChange(e) {
-        this.organizationId = e.detail.value;
-    }
-
     // NOTE Josemi 20220317: reset password is disabled until we have an endpoint in OpenCGA to allow users
     // to reset it's password
     renderResetPasswordLink() {
@@ -180,14 +175,10 @@ export default class UserLogin extends LitElement {
                         <div class="form-group organization-field">
                             <label for="organization" class="control-label label-login">Organization</label>
                             <div class="input-group">
-                                <span class="input-group-addon" id="username">
+                                <span class="input-group-addon">
                                     <i class="fa fa-building fa-lg"></i>
                                 </span>
-                                <select-token-filter-static
-                                    .data="${this.opencgaSession?.opencgaClient?._config?.organizations || []}"
-                                    .value="${""}"
-                                    .config="${{multiple: false}}">
-                                </select-token-filter-static>
+                                <input id="organization" type="text" class="form-control" placeholder="Organization ID" @keyup="${e => this.onKeyUp(e)}">
                             </div>
                         </div>
                         <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
