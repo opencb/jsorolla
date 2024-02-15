@@ -289,7 +289,7 @@ class VariantInterpreterBrowser extends LitElement {
             if (type === "SINGLE" || type === "FAMILY") {
                 items.push({
                     id: "variant-browser",
-                    name: "Variant Browser",
+                    name: "Small Variants",
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         const browserSettings = {
@@ -299,7 +299,7 @@ class VariantInterpreterBrowser extends LitElement {
                         return html`
                             <div class="col-md-12">
                                 <tool-header
-                                    title="Variant Browser - ${this._sample?.id}"
+                                    title="Small Variants - ${this._sample?.id}"
                                     class="bg-white"></tool-header>
                                 <variant-interpreter-browser-rd
                                     .opencgaSession="${opencgaSession}"
