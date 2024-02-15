@@ -540,7 +540,14 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                     .active="${this.activeView === "genome-browser"}">
                                 </genome-browser>
                             ` : html`
-                                Split Genome Browser
+                                <split-genome-browser
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${this._config.genomeBrowser.config}"
+                                    .regions="${this.variant}"
+                                    .tracks="${this._config.genomeBrowser.tracks}"
+                                    .active="${this.activeView === "genome-browser"}">
+                                </split-genome-browser>
+
                             `}
                         </div>
                     </div>
