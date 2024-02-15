@@ -33,7 +33,7 @@ export default class NavigationBar {
     }
 
     #initDom() {
-        const template = UtilsNew.renderHTML(`
+        const template = UtilsNew.renderHTML(String.raw`
             <div id="${this.prefix}" class="d-flex justify-content-between my-1">
                 <div class="d-flex flex-wrap gap-1">
 
@@ -78,7 +78,7 @@ export default class NavigationBar {
                         <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
                             ${this.config.featuresOfInterestTitle}
                         </button>
-                        <ul id="${this.prefix}FeaturesOfInterestMenu" data-cy="gb-features-list" class="dropdown-menu"></ul>
+                        <ul id="${this.prefix}FeaturesOfInterestMenu" data-cy="gb-features-list" class="dropdown-menu" style="width: 12rem;"></ul>
                     </div>
 
                     <div id="${this.prefix}ControlsSpace" style="width:1rem;display:none;"></div>
@@ -476,15 +476,14 @@ export default class NavigationBar {
                 this.elements.featuresOfInterestMenu.appendChild(itemTemplate.querySelector("li"));
             } else if (item.features && item.name) {
                 const itemTemplate = UtilsNew.renderHTML(`
-                    <li class="dropdown-submenu">
-                        <a style="display:flex;align-items:center;">
+                    <li class="dropdown-submenu dropend">
+                        <a class="d-flex align-items-center gap-2 ms-2 px-2 dropdown-toggle text-decoration-none text-dark">
                             ${item.display?.color ? `
-                                <div style="background-color:${item.display.color};width:1rem;height:1rem;border-radius:999px;margin-right:8px;"></div>
+                                <div style="background-color:${item.display.color};width:1rem;height:1rem;border-radius:999px;"></div>
                             ` : ""}
-                            <span style="padding-right:8px;">${item.name}</span>
-                            <span class="caret" style="transform:rotate(270deg);margin-left:auto"></span>
+                            <span>${item.name}</span>
                         </a>
-                        <ul class="dropdown-menu" style="max-height:300px;overflow:auto;"></ul>
+                        <ul class="dropdown-menu ps-3" style="max-height:300px;overflow:auto;width:14rem"></ul>
                     </li>
                 `);
                 const itemEntry = itemTemplate.querySelector("li");
