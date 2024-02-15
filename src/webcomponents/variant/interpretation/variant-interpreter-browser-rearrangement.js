@@ -283,37 +283,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         });
 
         // Generate Genome browser columns and tracks configurations
-        const genomeBrowserTracks = [
-            {
-                type: "gene",
-                config: {},
-            },
-            {
-                type: "opencga-variant",
-                config: {
-                    title: "Variants",
-                    query: {
-                        sample: (this.clinicalAnalysis?.proband?.samples || []).map(s => s.id).join(","),
-                    },
-                    height: 120,
-                },
-            },
-            ...(this.clinicalAnalysis?.proband?.samples || []).map(sample => ({
-                type: "opencga-alignment",
-                config: {
-                    title: `Alignments - ${sample.id}`,
-                    sample: sample.id,
-                },
-            })),
-        ];
-        const genomeBrowserConfig = {
-            cellBaseClient: this.cellbaseClient,
-            karyotypePanelVisible: false,
-            overviewPanelVisible: false,
-            navigationPanelHistoryControlsVisible: false,
-            navigationPanelGeneSearchVisible: false,
-            navigationPanelRegionSearchVisible: false,
-        };
 
         return {
             title: "Cancer Case Interpreter",
@@ -467,6 +436,39 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 }
             },
             aggregation: {},
+            genomeBrowser: {
+                config: {
+                    cellBaseClient: this.cellbaseClient,
+                    karyotypePanelVisible: false,
+                    overviewPanelVisible: false,
+                    navigationPanelHistoryControlsVisible: false,
+                    navigationPanelGeneSearchVisible: false,
+                    navigationPanelRegionSearchVisible: false,
+                },
+                tracks: [
+                    {
+                        type: "gene",
+                        config: {},
+                    },
+                    {
+                        type: "opencga-variant",
+                        config: {
+                            title: "Variants",
+                            query: {
+                                sample: (this.clinicalAnalysis?.proband?.samples || []).map(s => s.id).join(","),
+                            },
+                            height: 120,
+                        },
+                    },
+                    ...(this.clinicalAnalysis?.proband?.samples || []).map(sample => ({
+                        type: "opencga-alignment",
+                        config: {
+                            title: `Alignments - ${sample.id}`,
+                            sample: sample.id,
+                        },
+                    })),
+                ],
+            },
         };
     }
 
