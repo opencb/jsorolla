@@ -21,7 +21,6 @@ import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-browser-cnv.js";
 import "./variant-interpreter-browser-rearrangement.js";
-import "../../visualization/genome-browser.js";
 import "../../commons/view/detail-tabs.js";
 
 class VariantInterpreterBrowser extends LitElement {
