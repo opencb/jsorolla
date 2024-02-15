@@ -17,7 +17,6 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-template.js";
-import "../../visualization/split-genome-browser.js";
 import "../../commons/json-viewer.js";
 
 class VariantInterpreterBrowserRearrangement extends LitElement {
@@ -444,20 +443,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                     },
                     showTitle: true,
                     items: [
-                        {
-                            id: "browser",
-                            name: "Rearrangements Browser",
-                            active: true,
-                            render: variants => html`
-                                <split-genome-browser
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .regions="${variants}"
-                                    ?active="${this.active}"
-                                    .tracks="${genomeBrowserTracks}"
-                                    .config="${genomeBrowserConfig}">
-                                </split-genome-browser>
-                            `,
-                        },
                         {
                             id: "json-view-variant1",
                             name: "Variant 1 JSON Data",
