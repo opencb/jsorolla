@@ -922,11 +922,12 @@ export default class DataForm extends LitElement {
                 <select-field-filter2
                     .data="${allowedValues}"
                     .config="${{
-                        multiple: element.multiple,
-                        all: element.all,
-                        maxOptions: element.maxOptions,
+                        liveSearch: element?.search,
+                        multiple: element?.multiple,
+                        all: element?.all,
+                        maxOptions: element?.maxOptions,
                         disabled: disabled,
-                        required: element.required,
+                        required: element?.required,
                     }}"
                     .value="${defaultValue}"
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
@@ -2012,7 +2013,7 @@ export default class DataForm extends LitElement {
                 const active = index === this.activeSection;
                 return html`
                                 <li class="nav-item ${active ? "show" : ""}" role="presentation">
-                                    <a class="nav-link" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                    <a class="nav-link fw-bold" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
                                         ${section.title || ""}
                                     </a>
                                 </li>
@@ -2052,7 +2053,7 @@ export default class DataForm extends LitElement {
                                 const active = index === this.activeSection;
                                 return html`
                                     <li class="nav-item" role="presentation">
-                                        <a class="nav-link ${active ? "active" : ""}" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                        <a class="nav-link fw-bold ${active ? "active" : ""}" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
                                             ${section.title || ""}
                                         </a>
                                     </li>
