@@ -605,24 +605,20 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     genomeBrowserConfig.featuresOfInterest.push({
                         name: panel.name,
                         features: panel.genes
+                            .filter(gene => !!gene?.coordinates?.find(c => c.assembly === assembly))
                             .map(gene => {
                                 const coordinates = gene?.coordinates?.find(c => c.assembly === assembly);
-                                if (!coordinates) {
-                                    return null;
-                                } else {
-                                    const region = new Region(coordinates.location);
-                                    return {
-                                        chromosome: region.chromosome,
-                                        start: region.start,
-                                        end: region.end,
-                                        name: `
-                                            <div>${gene.name}</div>
-                                            <div class="small text-muted">${region.toString()}</div>
-                                        `,
-                                    };
-                                }
+                                const region = new Region(coordinates.location);
+                                return {
+                                    chromosome: region.chromosome,
+                                    start: region.start,
+                                    end: region.end,
+                                    name: `
+                                        <div>${gene.name}</div>
+                                        <div class="small text-muted">${region.toString()}</div>
+                                    `,
+                                };
                             })
-                            .filter(gene => !!gene)
                             .sort((a, b) => a.name < b.name ? -1 : +1),
                         display: {
                             visible: true,
