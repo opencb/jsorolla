@@ -1374,31 +1374,33 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["rd-interpreter"] ? html`
             <div class="content" id="rd-interpreter">
-                <variant-rd-interpreter .opencgaSession="${this.opencgaSession}"
-                                        .cellbaseClient="${this.cellbaseClient}"
-                                        .clinicalAnalysisId="${this.clinicalAnalysisId}"
-                                        .query="${this.interpretationSearchQuery}"
-                                        .consequenceTypes="${this.config.consequenceTypes}"
-                                        .populationFrequencies="${this.config.populationFrequencies}"
-                                        .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                        .config="${true}"
-                                        @gene="${this.geneSelected}"
-                                        @samplechange="${this.onSampleChange}">
+                <variant-rd-interpreter
+                    .opencgaSession="${this.opencgaSession}"
+                    .cellbaseClient="${this.cellbaseClient}"
+                    .clinicalAnalysisId="${this.clinicalAnalysisId}"
+                    .query="${this.interpretationSearchQuery}"
+                    .consequenceTypes="${this.config.consequenceTypes}"
+                    .populationFrequencies="${this.config.populationFrequencies}"
+                    .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                    .config="${true}"
+                    @gene="${this.geneSelected}"
+                    @samplechange="${this.onSampleChange}">
                 </variant-rd-interpreter>
             </div>
         ` : null}
 
                 ${this.config.enabledComponents["cancer-interpreter"] ? html`
             <div class="content" id="cancer-interpreter">
-                <variant-cancer-interpreter .opencgaSession="${this.opencgaSession}"
-                                            .cellbaseClient="${this.cellbaseClient}"
-                                            .clinicalAnalysisId="${this.clinicalAnalysisId}"
-                                            .query="${this.interpretationSearchQuery}"
-                                            .consequenceTypes="${this.config.consequenceTypes}"
-                                            .populationFrequencies="${this.config.populationFrequencies}"
-                                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                            @gene="${this.geneSelected}"
-                                            @samplechange="${this.onSampleChange}">
+                <variant-cancer-interpreter
+                    .opencgaSession="${this.opencgaSession}"
+                    .cellbaseClient="${this.cellbaseClient}"
+                    .clinicalAnalysisId="${this.clinicalAnalysisId}"
+                    .query="${this.interpretationSearchQuery}"
+                    .consequenceTypes="${this.config.consequenceTypes}"
+                    .populationFrequencies="${this.config.populationFrequencies}"
+                    .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                    @gene="${this.geneSelected}"
+                    @samplechange="${this.onSampleChange}"></variant-cancer-interpreter>
                 </variant-cancer-interpreter>
             </div>
         ` : null}
