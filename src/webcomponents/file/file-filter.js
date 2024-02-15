@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utils-new.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-dynamic.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
-import "../commons/forms/date-filter.js";
+import "../commons/forms/date-picker.js.js";
 import "../commons/forms/text-field-filter.js";
 import "../commons/forms/select-field-filter2.js";
 import "../commons/filters/catalog-distinct-autocomplete";
@@ -228,10 +228,10 @@ export default class OpencgaFileFilter extends LitElement {
                 break;
             case "date":
                 content = html`
-                    <date-filter
-                        .creationDate="${this.preparedQuery.creationDate}"
+                    <date-picker
+                        .filterDate="${this.preparedQuery.creationDate}"
                         @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
-                    </date-filter>
+                    </date-picker>
                 `;
                 break;
             default:
