@@ -33,7 +33,7 @@ export default class NavigationBar {
     }
 
     #initDom() {
-        const template = UtilsNew.renderHTML(String.raw`
+        const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}" class="d-flex justify-content-between my-1">
                 <div class="d-flex flex-wrap gap-1">
 

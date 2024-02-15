@@ -228,7 +228,7 @@ class VariantInterpreterBrowser extends LitElement {
                                         end: region.end,
                                         name: `
                                             <div>${gene.name}</div>
-                                            <div class="small text-muted">${region.toString()}</div>
+                                            <div class="small text-secondary">${region.toString()}</div>
                                         `,
                                     };
                                 }
@@ -261,7 +261,7 @@ class VariantInterpreterBrowser extends LitElement {
                             start: feature.start,
                             end: feature.end ?? (feature.start + 1),
                             name: `
-                                <div style="padding-top:4px;padding-bottom:4px;">
+                                <div class="py-1">
                                     <div>${feature.id} (${feature.type})</div>
                                     ${feature.annotation.displayConsequenceType ? `
                                         <div class="small text-primary">
@@ -269,7 +269,7 @@ class VariantInterpreterBrowser extends LitElement {
                                         </div>
                                     ` : ""}
                                     ${genes.length > 0 ? `
-                                        <div class="small text-muted">${genes.join(", ")}</div>
+                                        <div class="small text-secondary">${genes.join(", ")}</div>
                                     ` : ""}
                                 </div>
                             `,

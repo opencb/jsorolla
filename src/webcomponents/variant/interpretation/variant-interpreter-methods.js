@@ -91,7 +91,7 @@ class VariantInterpreterMethods extends LitElement {
         // If no methods have been configured, we will display a warning message
         if (!this._config || this._config.items.length === 0) {
             return html`
-                <div class="col-6 p-3">
+                <div class="col-md-10 offset-md-1">
                     <div class="alert alert-warning" role="alert">
                         No automatic methods available at this time.
                     </div>
