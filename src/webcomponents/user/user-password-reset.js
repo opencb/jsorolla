@@ -63,8 +63,8 @@ export default class UserPasswordReset extends LitElement {
     render() {
         return html`
             <div class="container-fluid" style="max-width:380px;">
-                <div class="panel panel-default" style="margin-top:96px;">
-                    <div class="panel-body" style="padding:32px;">
+                <div class="card" style="margin-top:96px;">
+                    <div class="card-body" style="padding:32px;">
                         <div align="center">
                             <h3 style="font-weight:bold;margin-top:0px;">
                                 Reset your password
