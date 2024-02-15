@@ -559,6 +559,10 @@ export default class PdfBuilder {
         }
         const contentLayout = element.display?.contentLayout || "vertical";
 
+        if (typeof element.display?.transform === "function") {
+            values = element.display.transform(values);
+        }
+
         // 1. Check array and layout exist
         if (!Array.isArray(values)) {
             // return this._createElementTemplate(element, null, null, {
@@ -577,9 +581,6 @@ export default class PdfBuilder {
         if (typeof element.display?.filter === "function") {
             values = element.display.filter(values);
         }
-        if (typeof element.display?.transform === "function") {
-            values = element.display.transform(values);
-        }
 
         // 3. Check length of the array. This MUST be done after filtering
         if (values.length === 0) {
@@ -588,7 +589,7 @@ export default class PdfBuilder {
             //     message: this._getDefaultValue(element, section) ?? "Empty array",
             // });
         }
-
+debugger
         // 4. Format list elements. Initialise values with array, this is valid for scalars, or when 'template' and 'format' do not exist
         // Apply the template to all Array elements and store them in 'values'
         if (element.display?.format || element.display?.render) {
@@ -660,10 +661,15 @@ export default class PdfBuilder {
                 //     `)
                 //     .join("")
                 // }`;
+                // CAUTION: stack accepts an array of strings, not an array of objects.
+                //  See: https://pdfmake.github.io/docs/0.1/document-definition-object/stack/
+                // content = {
+                //     stack: values.map((elem, index) => {
+                //         return {text: elem};
+                //     })
+                // };
                 content = {
-                    stack: values.map((elem, index) => {
-                        return {text: elem};
-                    })
+                    stack: values,
                 };
                 break;
             case "bullets":
@@ -678,6 +684,7 @@ export default class PdfBuilder {
                 // }
                 //     </ul>
                 // `;
+                // Fixme: object malformed if template or style applied
                 content = {
                     ul: values.map((elem, index) => {
                         return {text: elem};

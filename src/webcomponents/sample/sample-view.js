@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
@@ -23,7 +22,6 @@ import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../study/annotationset/annotation-set-view.js";
 import "../loading-spinner.js";
-import PdfBuilder, {stylePdf} from "../commons/forms/pdf-builder";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter";
 
 export default class SampleView extends LitElement {
@@ -69,6 +67,7 @@ export default class SampleView extends LitElement {
             titleVisible: false,
             titleWidth: 2,
             defaultValue: "-",
+            pdf: true,
         };
         this._config = this.getDefaultConfig();
     }
@@ -121,12 +120,6 @@ export default class SampleView extends LitElement {
         this.sampleId = e.detail.value;
     }
 
-    onDownloadPdf() {
-        const dataFormConf = this.getDefaultConfig();
-        const pdfDocument = new PdfBuilder(this.sample, dataFormConf);
-        pdfDocument.exportToPdf();
-    }
-
     render() {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
@@ -142,11 +135,6 @@ export default class SampleView extends LitElement {
         }
 
         return html`
-            <button class="btn btn-primary" style="margin-bottom:14px; display: ${UtilsNew.isNotEmpty(this.sample) ? "block": "none"}"
-                @click="${this.onDownloadPdf}">
-                <i class="fas fa-file-pdf"></i>
-                Export PDF (Beta)
-            </button>
             <data-form
                 .data="${this.sample}"
                 .config="${this._config}">
@@ -159,27 +147,6 @@ export default class SampleView extends LitElement {
             title: "Summary",
             icon: "",
             display: this.displayConfig || this.displayConfigDefault,
-            displayDoc: {
-                headerTitle: {
-                    title: `Sample ${this.sample?.id}`,
-                    display: {
-                        classes: "h1",
-                        propsStyle: {
-                            ...stylePdf({
-                                alignment: "center",
-                                bold: true,
-                            })
-                        },
-                    },
-                },
-                watermark: {
-                    text: "Demo",
-                    color: "blue",
-                    opacity: 0.3,
-                    bold: true,
-                    italics: false
-                },
-            },
             sections: [
                 {
                     title: "Search",
@@ -215,10 +182,14 @@ export default class SampleView extends LitElement {
                     elements: [
                         {
                             title: "Sample ID",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                visible: sample => sample?.id,
-                                render: data => `<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
+                                template: "${id} (UUID: ${uuid})",
+                                style: {
+                                    id: {
+                                        "font-weight": "bold",
+                                    }
+                                },
                             },
                         },
                         {
@@ -247,26 +218,26 @@ export default class SampleView extends LitElement {
                         },
                         {
                             title: "Status",
-                            field: "internal.status",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: field => `${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
+                                template: "${internal.status.name} (${internal.status.date})",
+                                format: {
+                                    "internal.status.date": date => UtilsNew.dateFormatter(date),
+                                }
                             },
                         },
                         {
                             title: "Creation Date",
                             field: "creationDate",
-                            type: "custom",
                             display: {
-                                render: field => `${UtilsNew.dateFormatter(field)}`,
+                                format: date => UtilsNew.dateFormatter(date),
                             },
                         },
                         {
                             title: "Modification Date",
                             field: "modificationDate",
-                            type: "custom",
                             display: {
-                                render: field => `${UtilsNew.dateFormatter(field)}`,
+                                format: date => UtilsNew.dateFormatter(date),
                             },
                         },
                         {
@@ -283,30 +254,9 @@ export default class SampleView extends LitElement {
                             display: {
                                 // showPDF: false,
                                 contentLayout: "bullets",
-                                // render: phenotype => {
-                                //     let id = phenotype?.id;
-                                //     if (phenotype?.id?.startsWith("HP:")) {
-                                //         id = html`
-                                //             <a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
-                                //                 ${phenotype.id}
-                                //             </a>
-                                //         `;
-                                //     }
-                                //     return phenotype?.name ? html`${phenotype.name} (${id})}` : html`${id}`;
-                                // },
-                                format: phenotype => UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype])),
+                                format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
                             },
                         },
-                        /*
-                            {
-                                title: "Annotation sets",
-                                field: "annotationSets",
-                                type: "custom",
-                                display: {
-                                    render: field => html`<annotation-sets-view .annotationSets="${field}"></annotation-sets-view>`
-                                }
-                            }
-                        */
                     ],
                 },
             ],

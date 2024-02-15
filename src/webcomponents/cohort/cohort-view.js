@@ -141,11 +141,13 @@ export default class CohortView extends LitElement {
         }
 
         return html`
-            <button class="btn btn-primary" style="margin-bottom:14px; display: ${UtilsNew.isNotEmpty(this.cohort) ? "block": "none"}"
-                @click="${this.onDownloadPdf}">
+<!--
+            <button class="btn btn-primary" style="margin-bottom:14px; display: $UtilsNew.isNotEmpty(this.cohort) ? "block": "none"}"
+                @click="$this.onDownloadPdf}">
                 <i class="fas fa-file-pdf"></i>
                 Export PDF (Beta)
             </button>
+-->
             <data-form
                 .data=${this.cohort}
                 .config="${this._config}">
@@ -158,27 +160,27 @@ export default class CohortView extends LitElement {
             title: "Summary",
             icon: "",
             display: this.displayConfig || this.displayConfigDefault,
-            displayDoc: {
-                headerTitle: {
-                    title: `Cohort ${this.cohort?.id}`,
-                    display: {
-                        classes: "h1",
-                        propsStyle: {
-                            ...stylePdf({
-                                alignment: "center",
-                                bold: true,
-                            })
-                        },
-                    },
-                },
-                watermark: {
-                    text: "Demo",
-                    color: "blue",
-                    opacity: 0.3,
-                    bold: true,
-                    italics: false
-                },
-            },
+            // displayDoc: {
+            //     headerTitle: {
+            //         title: `Cohort ${this.cohort?.id}`,
+            //         display: {
+            //             classes: "h1",
+            //             propsStyle: {
+            //                 ...stylePdf({
+            //                     alignment: "center",
+            //                     bold: true,
+            //                 })
+            //             },
+            //         },
+            //     },
+            //     watermark: {
+            //         text: "Demo",
+            //         color: "blue",
+            //         opacity: 0.3,
+            //         bold: true,
+            //         italics: false
+            //     },
+            // },
             sections: [
                 {
                     title: "Search",
@@ -214,7 +216,15 @@ export default class CohortView extends LitElement {
                         // available types: basic (optional/default), complex, list (horizontal and vertical), table, plot, custom
                         {
                             title: "Cohort Id",
-                            field: "id",
+                            type: "complex",
+                            display: {
+                                template: "${id} (UUID: ${uuid})",
+                                style: {
+                                    id: {
+                                        "font-weight": "bold",
+                                    },
+                                },
+                            },
                         },
                         {
                             title: "Cohort Type",
@@ -226,32 +236,33 @@ export default class CohortView extends LitElement {
                         },
                         {
                             title: "Status",
-                            field: "internal.status",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: field => `${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
+                                template: "${internal.status.name} (${internal.status.date})",
+                                format: {
+                                    "internal.status.date": date => UtilsNew.dateFormatter(date),
+                                }
                             },
                         },
                         {
-                            title: "Creation date",
+                            title: "Creation Date",
                             field: "creationDate",
-                            type: "custom",
                             display: {
-                                render: field => `${UtilsNew.dateFormatter(field)}`,
+                                format: date => UtilsNew.dateFormatter(date),
                             },
                         },
                         {
                             title: "Modification Date",
                             field: "modificationDate",
-                            type: "custom",
                             display: {
-                                render: field => `${UtilsNew.dateFormatter(field)}`,
+                                format: date => UtilsNew.dateFormatter(date),
                             },
                         },
                         {
                             title: "Annotation sets",
                             field: "annotationSets",
                             type: "custom",
+                            // FIXME: fix export to PDF
                             display: {
                                 showPDF: false,
                                 render: field => html`
@@ -266,6 +277,7 @@ export default class CohortView extends LitElement {
                             title: "Samples",
                             field: "samples",
                             type: "table",
+                            // FIXME: fix export to PDF
                             display: {
                                 columns: [
                                     {

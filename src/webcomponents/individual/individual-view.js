@@ -67,7 +67,7 @@ export default class IndividualView extends LitElement {
             defaultValue: "-",
             defaultLayout: "horizontal",
             buttonsVisible: false,
-            pdf: true
+            pdf: true,
         };
         this._config = this.getDefaultConfig();
     }
@@ -86,7 +86,10 @@ export default class IndividualView extends LitElement {
             this.individualIdObserver();
         }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig
+            };
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -213,7 +216,7 @@ export default class IndividualView extends LitElement {
                                 // render: data => `
                                 //     <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})
                                 // `,
-                                template: "${id} (${uuid})",
+                                template: "${id} (UUID: ${uuid})",
                                 // transform: {
                                 //     id: id => id.toLowerCase(),
                                 // },
@@ -313,12 +316,9 @@ export default class IndividualView extends LitElement {
                         {
                             title: "Date of Birth",
                             field: "dateOfBirth",
-                            type: "custom",
                             display: {
-                                render: dateOfBirth => {
-                                    return dateOfBirth ? moment(dateOfBirth, "YYYYMMDDHHmmss").format("D MMM YYYY") : "-";
-                                }
-                            }
+                                format: date => UtilsNew.dateFormatter(date)
+                            },
                         },
                         {
                             title: "Life Status",
@@ -330,8 +330,6 @@ export default class IndividualView extends LitElement {
                         },
                         {
                             title: "Status",
-                            // field: "internal.status",
-                            // type: "custom",
                             type: "complex",
                             display: {
                                 // render: field => field ? `${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-"
@@ -344,10 +342,9 @@ export default class IndividualView extends LitElement {
                         {
                             title: "Creation Date",
                             field: "creationDate",
-                            // type: "custom",
                             display: {
                                 // render: field => field ? UtilsNew.dateFormatter(field) : "-"
-                                format: creationDate => UtilsNew.dateFormatter(creationDate)
+                                format: date => UtilsNew.dateFormatter(date)
                             },
                         },
                         {
@@ -362,6 +359,23 @@ export default class IndividualView extends LitElement {
                             title: "Description",
                             field: "description",
                         },
+                        /*
+                        // Fixme: fix export to pdf
+                        {
+                            title: "Annotation sets",
+                            field: "annotationSets",
+                            type: "custom",
+                            display: {
+                                showPDF: false,
+                                render: field => html`
+                                    <annotation-set-view
+                                        .annotationSets="${field}">
+                                    </annotation-set-view>
+                                `,
+                                defaultValue: "N/A",
+                            },
+                        },
+                        */
                     ],
                 },
                 {
@@ -411,8 +425,11 @@ export default class IndividualView extends LitElement {
                                     {
                                         title: "Phenotypes",
                                         field: "phenotypes",
-                                        type: "list"
-                                        // formatter: value => value?.length ? `${value.map(d => d.id).join(", ")}` : "-",
+                                        type: "list",
+                                        display: {
+                                            contentLayout: "bullets",
+                                            format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
+                                        },
                                     },
                                 ],
                             },

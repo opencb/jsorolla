@@ -234,12 +234,14 @@ export default class ClinicalAnalysisView extends LitElement {
                             field: "proband.id",
                         },
                         {
-                            title: "Disorder",
-                            field: "disorder",
-                            id: "type",
-                            type: "custom",
+                            title: "Disorders",
+                            type: "complex",
                             display: {
-                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder])),
+                                template: "${disorder}",
+                                format: {
+                                    disorder: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
+                                },
+                                defaultValue: "N/A",
                             },
                         },
                         {
