@@ -18,7 +18,6 @@ import {html, LitElement} from "lit";
 import VariantUtils from "../variant-utils.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-toolbar.js";
@@ -27,6 +26,8 @@ import "./variant-interpreter-detail.js";
 import "../variant-browser-filter.js";
 import "../../commons/tool-header.js";
 import "../../commons/opencga-active-filters.js";
+import "../../visualization/genome-browser.js";
+import "../../visualization/split-genome-browser.js";
 
 class VariantInterpreterBrowserTemplate extends LitElement {
 
@@ -84,7 +85,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.variantInclusionState = [];
 
         this.currentQueryBeforeSaveEvent = null;
-        this._config = {};
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -143,7 +144,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             return;
         }
         // merge filters
-        this._config = {...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
 
         // filter list, canned filters, detail tabs
         if (this.settings?.menu) {
@@ -526,12 +530,154 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                         </div>
                         <!-- Genome browser view -->
                         <div id="genome-browser-view" class="${`content-tab ${this.activeView === "genome-browser" ? "active" : ""}`}">
-                            Genome Browser
+                            ${!this._config.filter.result.grid.isRearrangement ? html`
+                                <genome-browser
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${this._config.genomeBrowser.config}"
+                                    .region="${this.variant}"
+                                    .tracks="${this._config.genomeBrowser.tracks}"
+                                    .active="${this.activeView === "genome-browser"}">
+                                </genome-browser>
+                            ` : html`
+                                Split Genome Browser
+                            `}
                         </div>
                     </div>
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        let genomeBrowserTracks = [];
+        const genomeBrowserConfig = {
+            cellBaseClient: this.opencgaSession?.cellbaseClient,
+            featuresOfInterest: [],
+        };
+
+        // Check for opencgaSession and clinicalAnalysis defined
+        if (this.opencgaSession && this.clinicalAnalysis) {
+            const type = this.clinicalAnalysis.type.toUpperCase();
+
+            // Append tracks
+            genomeBrowserTracks = [
+                {
+                    type: "gene-overview",
+                    overview: true,
+                    config: {},
+                },
+                {
+                    type: "sequence",
+                    config: {},
+                },
+                {
+                    type: "gene",
+                    config: {},
+                },
+                {
+                    type: "opencga-variant",
+                    config: {
+                        title: "Variants",
+                        query: {
+                            sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                        },
+                    },
+                },
+                ...(this.clinicalAnalysis.proband?.samples || []).map(sample => ({
+                    type: "opencga-alignment",
+                    config: {
+                        title: `Alignments - ${sample.id}`,
+                        sample: sample.id,
+                    },
+                })),
+            ];
+
+            // Add interpretation panels to features of interest
+            if (this.clinicalAnalysis?.interpretation?.panels?.length > 0) {
+                genomeBrowserConfig.featuresOfInterest.push({
+                    name: "Panels of the interpretation",
+                    category: true,
+                });
+
+                const colors = ["green", "blue", "darkorange", "blueviolet", "sienna", "indigo", "salmon"];
+                const assembly = this.opencgaSession.project.organism?.assembly;
+                this.clinicalAnalysis.interpretation.panels.forEach((panel, index) => {
+                    genomeBrowserConfig.featuresOfInterest.push({
+                        name: panel.name,
+                        features: panel.genes
+                            .map(gene => {
+                                const coordinates = gene?.coordinates?.find(c => c.assembly === assembly);
+                                if (!coordinates) {
+                                    return null;
+                                } else {
+                                    const region = new Region(coordinates.location);
+                                    return {
+                                        chromosome: region.chromosome,
+                                        start: region.start,
+                                        end: region.end,
+                                        name: `
+                                            <div>${gene.name}</div>
+                                            <div class="small text-muted">${region.toString()}</div>
+                                        `,
+                                    };
+                                }
+                            })
+                            .filter(gene => !!gene)
+                            .sort((a, b) => a.name < b.name ? -1 : +1),
+                        display: {
+                            visible: true,
+                            color: colors[index % colors.length],
+                        },
+                    });
+                });
+            }
+
+            if (this.clinicalAnalysis.interpretation?.primaryFindings?.length > 0) {
+                if (genomeBrowserConfig.featuresOfInterest.length > 0) {
+                    genomeBrowserConfig.featuresOfInterest.push({separator: true});
+                }
+                genomeBrowserConfig.featuresOfInterest.push({
+                    name: "Variants",
+                    category: true,
+                });
+                genomeBrowserConfig.featuresOfInterest.push({
+                    name: "Primary Findings",
+                    features: this.clinicalAnalysis.interpretation.primaryFindings.map(feature => {
+                        const genes = Array.from(new Set(feature.annotation.consequenceTypes.filter(ct => !!ct.geneName).map(ct => ct.geneName)));
+                        return {
+                            id: feature.id,
+                            chromosome: feature.chromosome,
+                            start: feature.start,
+                            end: feature.end ?? (feature.start + 1),
+                            name: `
+                                <div style="padding-top:4px;padding-bottom:4px;">
+                                    <div>${feature.id} (${feature.type})</div>
+                                    ${feature.annotation.displayConsequenceType ? `
+                                        <div class="small text-primary">
+                                            <strong>${feature.annotation.displayConsequenceType}</strong>
+                                        </div>
+                                    ` : ""}
+                                    ${genes.length > 0 ? `
+                                        <div class="small text-muted">${genes.join(", ")}</div>
+                                    ` : ""}
+                                </div>
+                            `,
+                        };
+                    }),
+                    display: {
+                        visible: true,
+                        color: "red",
+                    },
+                });
+            }
+        }
+
+        return {
+            genomeBrowser: {
+                config: genomeBrowserConfig,
+                tracks: genomeBrowserTracks,
+            },
+        };
     }
 
 }
