@@ -449,7 +449,7 @@ export default class VariantFileInfoFilter extends LitElement {
                 display: {
                     titleHeader: "h5",
                     titleStyle: "margin: 5px 0",
-                    titleClassName: "break-word"
+                    titleClassName: "text-break"
                 },
                 elements: [
                     {
@@ -457,8 +457,8 @@ export default class VariantFileInfoFilter extends LitElement {
                         type: "text",
                         text: caller.fileId || "",
                         display: {
-                            textClassName: "d-block text-secondary small",
-                            textStyle: "margin: 5px 0; overflow-wrap: break-word; font-style: italic",
+                            textClassName: "d-block text-secondary small text-break",
+                            textStyle: "margin: 5px 0; font-style: italic",
                         }
                     },
                     ...caller.dataFilters.map(field => ({

@@ -414,7 +414,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
             <!-- Rodiel 27-09-23 NOTE: Using 'row' and 'col' has problems for standard resolution, so I opted for 'flex -->
             <div class="d-flex gap-4">
-                <div>
+                <div class="col-2">
                     <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onSearch}">
                             <i class="fa fa-search" aria-hidden="true"></i>

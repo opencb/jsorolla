@@ -396,7 +396,7 @@ export default class RgaVariantIndividual extends LitElement {
 
     render() {
         return html`
-            <h3 class="break-word">Individual presenting ${this.variant.id}</h3>
+            <h3 class="text-break">Individual presenting ${this.variant.id}</h3>
             ${this.hiddenIndividuals > 0 ? html`
                 <div class="alert alert-warning"><i class="fas fa-3x fa-exclamation-circle align-middle"></i>
                     ${this.hiddenIndividuals} individual${this.hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings.

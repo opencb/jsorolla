@@ -261,13 +261,13 @@ export default class SampleVariantStatsBrowser extends LitElement {
 
     renderQcVariantStatsSelectItem(qcVvariantStats) {
         return html`
-            <div class="break-word" style="border-left: 2px solid #0c2f4c">
+            <div class="text-break" style="border-left: 2px solid #0c2f4c">
                 <div style="font-weight: bold; margin: 5px 10px">${qcVvariantStats.id}</div>
                 <div style="margin: 5px 10px">${qcVvariantStats.description}</div>
-                <div class="d-block text-secondary break-word" style="margin: 5px 10px;overflow-wrap: break-word;">
+                <div class="d-block text-secondary text-break" style="margin: 5px 10px;overflow-wrap: break-word;">
                     ${qcVvariantStats.query ? Object.entries(qcVvariantStats.query).map(([k, v]) => {
             if (k !== "study") {
-                return html`<span class="break-word" style="overflow-wrap: break-word;"><span style="font-weight: bold">${k}:</span> ${UtilsNew.substring(v, 40)}</span><br>`;
+                return html`<span class="text-break" style="overflow-wrap: break-word;"><span style="font-weight: bold">${k}:</span> ${UtilsNew.substring(v, 40)}</span><br>`;
             } else {
                 if (Object.keys(qcVvariantStats.query).length === 1) {
                     // No fitlers applied

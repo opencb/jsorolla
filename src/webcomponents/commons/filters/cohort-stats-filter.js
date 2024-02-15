@@ -189,7 +189,7 @@ export default class CohortStatsFilter extends LitElement {
                             data-cy="study-cohort-toggle" style="cursor: pointer;"
                             @click="${this.handleCollapseAction}">
                         </i>
-                        <span class="break-word">Study <strong>${this.getStudyIdFromFqn(study.fqn)}</strong> cohorts</span>
+                        <span class="text-break">Study <strong>${this.getStudyIdFromFqn(study.fqn)}</strong> cohorts</span>
                     </div>
 
                     <div class="row g-2" id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}" hidden>
