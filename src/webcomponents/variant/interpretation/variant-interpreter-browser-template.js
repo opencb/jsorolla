@@ -20,6 +20,7 @@ import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js
 import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
+import Region from "../../../core/bioinfo/region.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
@@ -605,7 +606,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     genomeBrowserConfig.featuresOfInterest.push({
                         name: panel.name,
                         features: panel.genes
-                            .filter(gene => !!gene?.coordinates?.find(c => c.assembly === assembly))
+                            .filter(gene => gene?.coordinates?.some(c => c.assembly === assembly))
                             .map(gene => {
                                 const coordinates = gene?.coordinates?.find(c => c.assembly === assembly);
                                 const region = new Region(coordinates.location);
