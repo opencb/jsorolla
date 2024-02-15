@@ -64,7 +64,7 @@ export default class JobView extends LitElement {
         this.displayConfigDefault = {
             collapsable: true,
             titleVisible: false,
-            titleWidth: 2,
+            titleWidth: 3,
             defaultValue: "-",
             defaultLayout: "horizontal",
             buttonsVisible: false,
@@ -78,7 +78,26 @@ export default class JobView extends LitElement {
         this.requestUpdate();
     }
 
+    #prepareData() {
+        // 0. Local copy
+        this._job = UtilsNew.objectClone(this.job);
+
+        // 1. Transform datapoint Input Parameters 'params' object into an array
+        if (this._job?.params && typeof this._job.params === "object") {
+            this._job.params = Object.entries(this._job.params)
+                .map(([paramKey, content]) => {
+                    const paramValue = (content && typeof content === "object") ?
+                        JSON.stringify(content, null, 8) :
+                        content;
+                    return {paramKey, paramValue};
+                });
+        }
+    }
+
     update(changedProperties) {
+        if (changedProperties.has("job")) {
+            this.jobObserver();
+        }
         if (changedProperties.has("jobId")) {
             this.jobIdObserver();
         }
@@ -89,10 +108,11 @@ export default class JobView extends LitElement {
             };
             this._config = this.getDefaultConfig();
         }
-        // if (changedProperties.has("opencgaSession")) {
-        //     this._config = this.getDefaultConfig();
-        // }
         super.update(changedProperties);
+    }
+
+    jobObserver() {
+        this.#prepareData();
     }
 
     jobIdObserver() {
@@ -106,6 +126,7 @@ export default class JobView extends LitElement {
                 .info(this.jobId, params)
                 .then(response => {
                     this.job = response.responses[0].results[0];
+                    this.#prepareData();
                 })
                 .catch(reason => {
                     this.job = {};
@@ -127,39 +148,9 @@ export default class JobView extends LitElement {
     }
 
     // FORMATTERS
-    tagsFormatter(tag) {
-        return `<span class="badge badge-pill badge-primary">${tag}</span>`;
-    }
-
-    jobStatusFormatter(status, appendDescription = false) {
-        const description = appendDescription && status.description ? `<br>${status.description}` : "";
-        // FIXME remove this backward-compatibility check in next v2.3
-        const statusId = status.id || status.name;
-        switch (statusId) {
-            case "PENDING":
-            case "QUEUED":
-                return `<span class="text-primary"><i class="far fa-clock"></i> ${statusId}${description}</span>`;
-            case "RUNNING":
-                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${statusId}${description}</span>`;
-            case "DONE":
-                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${statusId}${description}</span>`;
-            case "ERROR":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${statusId}${description}</span>`;
-            case "UNKNOWN":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${statusId}${description}</span>`;
-            case "ABORTED":
-                return `<span class="text-warning"><i class="fas fa-ban"></i> ${statusId}${description}</span>`;
-            case "DELETED":
-                return `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${statusId}${description}</span>`;
-        }
-        return "-";
-    }
-
-
     jobOutputFilesFormatter(output, job, opencgaSession) {
         // CAUTION: Temporary patch for managing outputFiles array of nulls.
         //  See details in: https://app.clickup.com/t/36631768/TASK-1704
-        debugger
         if (output.length > 0 && output.every(jobOut => jobOut === null)) {
             return `
                 <div class="alert alert-danger" role="alert">
@@ -206,25 +197,12 @@ export default class JobView extends LitElement {
             .join("")}`;
     }
 
-    jobParamFormatter(param) {
-        return `
-            <label>${param.key}<label>:
-            ${param.value && typeof param.value === "object" ? `
-                <ul>
-                    ${Object.keys(param.value).map(key2 => `
-                        <li><b>${key2}</b>: ${param.value[key2] || "-"}</li>
-                    `).join("")}
-                </ul>
-            ` : (param.value || "-")}
-        `;
-    }
-
     render() {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }
 
-        if (!this.job?.id && this.search === false) {
+        if (!this._job?.id && this.search === false) {
             return html`
                 <div class="alert alert-info">
                     <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
@@ -235,7 +213,7 @@ export default class JobView extends LitElement {
 
         return html`
             <data-form
-                .data="${this.job}"
+                .data="${this._job}"
                 .config="${this._config}">
             </data-form>
         `;
@@ -255,13 +233,13 @@ export default class JobView extends LitElement {
                     },
                     elements: [
                         {
-                            title: `Job ID ${job.id}`,
+                            title: "Job ID",
                             // field: "jobId",
                             type: "custom",
                             display: {
-                                render: () => html `
+                                render: job => html `
                                     <catalog-search-autocomplete
-                                        .value="${this.job?.id}"
+                                        .value="${job?.id}"
                                         .resource="${"JOB"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
@@ -291,48 +269,30 @@ export default class JobView extends LitElement {
                         },
                         {
                             name: "Status",
-                            // type: "complex",
-                            field: "internal.status",
+                            type: "complex",
                             display: {
-                                // template: "${internal.status}",
-                                format: status => UtilsNew.jobStatusFormatter(status, true),
+                                template: "${internal.status}",
+                                format: {
+                                    "internal.status": status => UtilsNew.jobStatusFormatter(status, true),
+                                },
                             }
                         },
                         {
                             name: "Priority",
                             field: "priority",
                         },
-                        // {
-                        //     name: "Tags",
-                        //     field: "tags",
-                        //     type: "list",
-                        //     display: {
-                        //         separator: "",
-                        //         format: tag => {
-                        //             return `<span class="badge badge-pill badge-primary">${tag}</span>`;
-                        //         }
-                        //     },
-                        //     defaultValue: "-"
-                        // },
                         {
                             name: "Tags",
                             field: "tags",
                             type: "list",
-                            // Fixme: export to pdf  not working.
                             display: {
                                 separator: "",
-                                contentLayout: "bullets",
-                                // format: tag => this.tagsFormatter(tag),
+                                contentLayout: "vertical",
                                 transform: tags => tags.map(tag => ({tag})),
                                 template: "${tag}",
-                                // CAUTION New: bootstrap class(es) to each element of the list. To approve.
                                 classes: {
                                     "tag": "badge badge-pill badge-primary",
                                 },
-                                // style: {
-                                //     "color": "red",
-                                // },
-
                             },
                         },
                         {
@@ -370,60 +330,25 @@ export default class JobView extends LitElement {
                         },
                         {
                             name: "Input Parameters",
-                            type: "custom",
-                            display: {
-                                render: job => {
-                                    if (job.params) {
-                                        return Object.entries(job.params)
-                                            .map(([param, value]) => `
-                                                <div>
-                                                    <label>${param}</label>:
-                                                    ${value && typeof value === "object" ? `
-                                                        <ul>
-                                                            ${Object.keys(value).map(key => `
-                                                                <li><b>${key}</b>: ${value[key] || "-"}</li>
-                                                            `).join("")}
-                                                        </ul>
-                                                    ` : (value || "-")}
-                                                </div>
-                                            `);
-                                    } else {
-                                        return "-";
-                                    }
-                                },
-                            },
-                        },
-                        {
-                            name: "Input Parameters 2",
                             field: "params",
                             type: "list",
                             display: {
-                                contentLayout: "bullets",
-                                transform: values => Object
-                                    .entries(values)
-                                    // .map(([key, value]) => ({key, value})),
-                                    .map(([key, content]) => {
-                                        const value = (content && typeof content === "object") ?
-                                            JSON.stringify(content, null, 8) :
-                                            content;
-                                        return {key, value};
-                                    }),
-                                format: param => `${param.key}: ${param.value}`,
-                                // format: param => this.jobParamFormatter(param),
-                                // template: "${key}: ${value}",
-                                // style: {
-                                //     key: {
-                                //         "font-weight": "bold"
-                                //     }
-                                // }
+                                defaultValue: "-",
+                                contentLayout: "vertical",
+                                template: "${paramKey}: ${paramValue}",
+                                style: {
+                                    paramKey: {
+                                        "font-weight": "bold"
+                                    }
+                                }
                             }
                         },
                         {
                             name: "Input Files",
                             field: "input",
                             type: "list",
-                            defaultValue: "N/A",
                             display: {
+                                defaultValue: "-",
                                 contentLayout: "bullets",
                                 template: "${name}",
                             },
@@ -432,17 +357,17 @@ export default class JobView extends LitElement {
                             name: "Output Directory",
                             field: "outDir.path",
                         },
-                        // {
-                        //     name: "Output Files",
-                        //     type: "complex",
-                        //     display: {
-                        //         // FIXME: export pdf not working
-                        //         template: "${output}",
-                        //         format: {
-                        //             "output": (output, data) => this.jobOutputFilesFormatter(output, data, this.opencgaSession),
-                        //         }
-                        //     },
-                        // },
+                        {
+                            name: "Output Files",
+                            type: "complex",
+                            display: {
+                                // FIXME: export pdf not working
+                                template: "${output}",
+                                format: {
+                                    "output": (output, data) => this.jobOutputFilesFormatter(output, data, this.opencgaSession),
+                                }
+                            },
+                        },
                         {
                             name: "Command Line",
                             field: "commandLine",
@@ -450,7 +375,6 @@ export default class JobView extends LitElement {
                             // text: data => data.commandLine,
                             display: {
                                 className: "cmd",
-                                // style: "display: block",
                                 style: {
                                     "display": "block"
                                 },
