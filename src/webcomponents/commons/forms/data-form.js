@@ -1137,7 +1137,6 @@ export default class DataForm extends LitElement {
         }
 
         if (typeof element.display?.transform === "function") {
-            debugger
             values = element.display.transform(values);
         }
 
