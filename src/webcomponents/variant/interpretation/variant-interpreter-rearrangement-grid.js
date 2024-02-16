@@ -312,7 +312,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     const internalQuery = JSON.parse(JSON.stringify(this.query));
 
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
-                    const filters = {
+                    this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit * 2 || tableOptions.pageSize * 2,
                         skip: params.data.offset || 0,
@@ -327,7 +327,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         type: "BREAKEND"
                     };
 
-                    this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
+                    this.opencgaSession.opencgaClient.clinical()
+                        .queryVariant(this.filters)
                         .then(res => {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
                             rearrangementResponse = res;
@@ -1034,6 +1035,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 .config="${this.toolbarConfig}"
                 .settings="${this.toolbarSetting}"
                 .opencgaSession="${this.opencgaSession}"
+                .query="${this.filters}"
                 @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}"
                 @export="${this.onDownload}"
