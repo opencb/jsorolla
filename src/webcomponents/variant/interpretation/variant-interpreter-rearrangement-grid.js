@@ -71,6 +71,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     _init() {
         this.COMPONENT_ID = "";
         this._prefix = UtilsNew.randomString(8);
+        this._config = this.getDefaultConfig();
 
         this.toolbarConfig = {};
         this.toolbarSetting = {};
