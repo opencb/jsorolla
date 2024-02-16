@@ -357,7 +357,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onLoadSuccess: data => {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
@@ -422,7 +422,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
             variantGrid: this,
 
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 this._rows = data;
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
