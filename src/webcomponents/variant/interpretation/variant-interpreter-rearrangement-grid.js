@@ -94,24 +94,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-    }
-
-    firstUpdated() {
-        this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
-        this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-        this.table = $("#" + this.gridId);
-        // this.checkedVariants = new Map();
-    }
-
     update(changedProperties) {
         if (changedProperties.has("toolId")) {
             this.COMPONENT_ID = this.toolId + "-grid";
