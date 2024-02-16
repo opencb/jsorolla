@@ -126,7 +126,9 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("query") || changedProperties.has("clinicalVariants") || changedProperties.has("config") || changedProperties.has("toolId") || changedProperties.has("active")) {
+        // We ned to perform an update of the table only when any of the properties of this grid has changed
+        // This means that we only need to check if the changedProperties set is not empty
+        if (changedProperties.size > 0) {
             this.renderVariants();
         }
     }
