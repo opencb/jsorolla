@@ -31,8 +31,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
     constructor() {
         super();
-
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -68,10 +67,11 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "";
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
+        this._rows = [];
 
         this.toolbarConfig = {};
         this.toolbarSetting = {};
