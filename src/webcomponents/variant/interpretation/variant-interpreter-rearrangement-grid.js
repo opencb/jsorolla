@@ -61,7 +61,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
@@ -73,6 +76,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
         this.review = false;
+        this.active = true;
         this.variantsReview = null;
 
         // OpenCGA returns the same genes in both variants of the rearrangement
@@ -140,6 +144,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 columns: this._getDefaultColumns()
             };
             this.requestUpdate();
+            this.renderVariants();
+        }
+
+        if (changedProperties.has("active")) {
             this.renderVariants();
         }
     }
@@ -261,10 +269,12 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     renderVariants() {
-        if (this.clinicalVariants && this.clinicalVariants.length > 0) {
-            this.renderLocalVariants();
-        } else {
-            this.renderRemoteVariants();
+        if (this.active) {
+            if (this.clinicalVariants && this.clinicalVariants.length > 0) {
+                this.renderLocalVariants();
+            } else {
+                this.renderRemoteVariants();
+            }
         }
     }
 
