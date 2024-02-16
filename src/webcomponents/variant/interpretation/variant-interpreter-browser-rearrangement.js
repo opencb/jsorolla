@@ -259,6 +259,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 .settings="${this.settings}"
                 .toolId="${this.COMPONENT_ID}"
                 .config="${this._config}"
+                .active="${this.active}"
                 @queryChange="${this.onQueryChange}">
             </variant-interpreter-browser-template>
         `;
