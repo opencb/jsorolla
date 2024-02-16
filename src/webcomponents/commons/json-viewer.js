@@ -74,7 +74,7 @@ export default class JsonViewer extends LitElement {
             ` : null
             }
 
-            <div id="${this._prefix}JsonView" class="json-renderer"></div>
+            <div id="${this._prefix}JsonView" class="json-renderer text-break"></div>
         `;
     }
 

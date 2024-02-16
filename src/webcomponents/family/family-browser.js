@@ -21,7 +21,6 @@ import "../commons/facet-filter.js";
 import "./family-grid.js";
 import "./family-detail.js";
 
-
 export default class FamilyBrowser extends LitElement {
 
     constructor() {
