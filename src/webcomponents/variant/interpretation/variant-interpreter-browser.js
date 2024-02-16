@@ -305,6 +305,7 @@ class VariantInterpreterBrowser extends LitElement {
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .cellbaseClient="${this.cellbaseClient}"
                                     .settings="${browserSettings}"
+                                    .active="${active}"
                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                     @genomeBrowserRegionChange="${e => this.onGenomeBrowserRegionChange(e)}"
                                     @samplechange="${this.onSampleChange}">
@@ -335,6 +336,7 @@ class VariantInterpreterBrowser extends LitElement {
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .cellbaseClient="${this.cellbaseClient}"
                                         .settings="${browserSettings}"
+                                        .active="${active}"
                                         @genomeBrowserRegionChange="${e => this.onGenomeBrowserRegionChange(e)}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-browser-cancer>
@@ -366,6 +368,7 @@ class VariantInterpreterBrowser extends LitElement {
                                             .query="${this.query}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .settings="${browserSettings}"
+                                            .active="${active}"
                                             @genomeBrowserRegionChange="${e => this.onGenomeBrowserRegionChange(e)}"
                                             @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                         </variant-interpreter-browser-cnv>
@@ -396,7 +399,7 @@ class VariantInterpreterBrowser extends LitElement {
                                             .clinicalAnalysis="${clinicalAnalysis}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .settings="${browserSettings}"
-                                            ?active="${active}"
+                                            .active="${active}"
                                             @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                         </variant-interpreter-browser-rearrangement>
                                     </div>
@@ -426,6 +429,7 @@ class VariantInterpreterBrowser extends LitElement {
                                             .clinicalAnalysis="${clinicalAnalysis}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .settings="${browserSettings}"
+                                            .active="${active}"
                                             @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                             @genomeBrowserRegionChange="${e => this.onGenomeBrowserRegionChange(e)}"
                                             @samplechange="${this.onSampleChange}">
@@ -454,7 +458,7 @@ class VariantInterpreterBrowser extends LitElement {
                                             .somatic="${false}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .settings="${browserSettings}"
-                                            ?active="${active}"
+                                            .active="${active}"
                                             @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                         </variant-interpreter-browser-rearrangement>
                                     </div>
