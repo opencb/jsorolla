@@ -75,33 +75,32 @@ export default class VariantInterpreterGrid extends LitElement {
     #init() {
         this.COMPONENT_ID = "";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "VariantBrowserGrid";
+        this._config = this.getDefaultConfig();
+        this._rows = [];
+
+        this.toolbarConfig = {};
+        this.toolbarSetting = {};
+
         this.checkedVariants = new Map();
+        this.gridId = this._prefix + "VariantBrowserGrid";
         this.active = true;
+        this.review = false;
+
+        this.gridCommons = null;
+        this.clinicalAnalysisManager = null;
 
         // Set colors
         // eslint-disable-next-line no-undef
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
 
         // Keep the status of selected variants
-        this._rows = [];
         this.queriedVariants = {};
-        this.review = false;
 
         this.displayConfigDefault = {
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom",
             },
-        };
-
-    }
-
-    firstUpdated() {
-        this.table = this.querySelector("#" + this.gridId);
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
         };
     }
 
