@@ -127,22 +127,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         }
 
         if (changedProperties.has("config") || changedProperties.has("toolId")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
-            this.toolbarSetting = {
-                ...this._config,
-            };
-
-            this.toolbarConfig = {
-                toolId: this.toolId,
-                resource: "CLINICAL_VARIANT",
-                showInterpreterConfig: true,
-                columns: this._getDefaultColumns()
-            };
+            this.configObserver();
             this.requestUpdate();
             this.renderVariants();
         }
@@ -189,6 +174,25 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 }
             }
         }
+    }
+
+    configObserver() {
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
+        this.toolbarSetting = {
+            ...this._config,
+        };
+
+        this.toolbarConfig = {
+            toolId: this.toolId,
+            resource: "CLINICAL_VARIANT",
+            showInterpreterConfig: true,
+            columns: this._getDefaultColumns()
+        };
     }
 
     onColumnChange(e) {
