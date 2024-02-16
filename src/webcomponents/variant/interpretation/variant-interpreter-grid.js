@@ -348,6 +348,10 @@ export default class VariantInterpreterGrid extends LitElement {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
                     this.gridCommons.onLoadSuccess(data, 2);
+
+                    // Josemi Note 20240214 - We need to force an update of the grid component to propagate the applied
+                    // filters in 'this.filters' to the component 'opencga-grid-toolbar'.
+                    this.requestUpdate();
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onExpandRow: (index, row) => {
