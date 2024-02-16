@@ -65,7 +65,10 @@ export default class VariantInterpreterGrid extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
@@ -74,6 +77,7 @@ export default class VariantInterpreterGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
+        this.active = true;
 
         // Set colors
         // eslint-disable-next-line no-undef
@@ -106,22 +110,23 @@ export default class VariantInterpreterGrid extends LitElement {
             this.COMPONENT_ID = this.toolId + "-grid";
         }
 
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this.configObserver();
+        }
+
         super.update(changedProperties);
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver();
-        }
-        if (changedProperties.has("query") || changedProperties.has("clinicalVariants")) {
-            this.renderVariants();
-        }
-        if (changedProperties.has("config") || changedProperties.has("toolId")) {
-            this.configObserver();
-            this.requestUpdate();
+        if (changedProperties.has("query") || changedProperties.has("clinicalVariants") || changedProperties.has("config") || changedProperties.has("toolId") || changedProperties.has("active")) {
             this.renderVariants();
         }
     }
@@ -194,20 +199,12 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     renderVariants() {
-        if (this._config.renderLocal) {
-            // FIXME remove this ASAP
-            this.clinicalVariants = this.clinicalAnalysis.interpretation.primaryFindings;
-        }
-
-        if (this.clinicalVariants?.length > 0) {
-            // FIXME Temporary code to check which variants are being interpreted or have been reported
-            // This should be implemented by OpenCGA
-            // this.fillReportedVariants(this.clinicalVariants)
-            //     .catch(error => console.error(error))
-            //     .finally(() => this.renderLocalVariants());
-            this.renderLocalVariants();
-        } else {
-            this.renderRemoteVariants();
+        if (this.active) {
+            if (this.clinicalVariants?.length > 0) {
+                this.renderLocalVariants();
+            } else {
+                this.renderRemoteVariants();
+            }
         }
     }
 
