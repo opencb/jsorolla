@@ -65,7 +65,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
@@ -499,6 +502,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                     .query="${this.executedQuery}"
                                     .review="${true}"
                                     .config="${this._config.filter.result.grid}"
+                                    .active="${this.active}"
                                     @queryComplete="${this.onQueryComplete}"
                                     @selectrow="${this.onSelectVariant}"
                                     @updaterow="${this.onUpdateVariant}"
@@ -512,6 +516,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                     .query="${this.executedQuery}"
                                     .review="${true}"
                                     .config="${this._config.filter.result.grid}"
+                                    .active="${this.active}"
                                     @queryComplete="${this.onQueryComplete}"
                                     @selectrow="${this.onSelectVariant}"
                                     @updaterow="${this.onUpdateVariant}"
@@ -537,7 +542,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                     .config="${this._config.genomeBrowser.config}"
                                     .region="${this.variant}"
                                     .tracks="${this._config.genomeBrowser.tracks}"
-                                    .active="${this.activeView === "genome-browser"}">
+                                    .active="${this.active && this.activeView === "genome-browser"}">
                                 </genome-browser>
                             ` : html`
                                 <split-genome-browser
@@ -545,7 +550,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                     .config="${this._config.genomeBrowser.config}"
                                     .regions="${this.variant}"
                                     .tracks="${this._config.genomeBrowser.tracks}"
-                                    .active="${this.activeView === "genome-browser"}">
+                                    .active="${this.active && this.activeView === "genome-browser"}">
                                 </split-genome-browser>
 
                             `}
