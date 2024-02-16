@@ -290,7 +290,7 @@ export default class JobView extends LitElement {
                                 contentLayout: "vertical",
                                 transform: tags => tags.map(tag => ({tag})),
                                 template: "${tag}",
-                                classes: {
+                                className: {
                                     "tag": "badge badge-pill badge-primary",
                                 },
                             },
