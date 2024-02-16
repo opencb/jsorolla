@@ -73,11 +73,16 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         this.toolbarConfig = {};
+        this.toolbarSetting = {};
+
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
         this.review = false;
         this.active = true;
         this.variantsReview = null;
+
+        this.gridCommons = null;
+        this.clinicalAnalysisManager = null;
 
         // OpenCGA returns the same genes in both variants of the rearrangement
         // This map is used to assign the correct genes to each variant
@@ -112,50 +117,25 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             this.COMPONENT_ID = this.toolId + "-grid";
         }
 
+        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("opencgaSession")) {
+            this.clinicalAnalysisObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this.configObserver();
+        }
+
         super.update(changedProperties);
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
-
-        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("query") || changedProperties.has("toolId")) {
-            // this.opencgaSessionObserver();
-            this.clinicalAnalysisObserver();
-            this.renderVariants();
-        }
-
-        if (changedProperties.has("config") || changedProperties.has("toolId")) {
-            this.configObserver();
-            this.requestUpdate();
-            this.renderVariants();
-        }
-
-        if (changedProperties.has("active")) {
-            this.renderVariants();
-        }
-    }
-
-    opencgaSessionObserver() {
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+    updated() {
+        this.renderVariants();
     }
 
     clinicalAnalysisObserver() {
-        // We need to load server config always.
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+        if (this.opencgaSession && this.clinicalAnalysis) {
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
-        // Make sure somatic sample is the first one
-        if (this.clinicalAnalysis) {
             if (!this.clinicalAnalysis.interpretation) {
                 this.clinicalAnalysis.interpretation = {};
             }
@@ -177,16 +157,21 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     configObserver() {
+        // 1. Merge default configuration with the configuration provided via props
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,
         };
+
+        // 2. Initialize grid commons with the new configutation
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
+        // 3. Set toolbar settings
         this.toolbarSetting = {
             ...this._config,
         };
 
+        // 4. Set toolbar configuration
         this.toolbarConfig = {
             toolId: this.toolId,
             resource: "CLINICAL_VARIANT",
