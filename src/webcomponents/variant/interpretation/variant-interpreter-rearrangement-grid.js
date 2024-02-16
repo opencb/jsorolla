@@ -241,6 +241,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     });
                 });
         }
+
+        // In other case, we will return a dummy promise
+        return Promise.resolve(null);
     }
 
     renderVariants() {
@@ -372,7 +375,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 const rows = variants.slice(skip, skip + limit);
 
                 // Generate map of genes to variants
-                this.generateGenesMapFromVariants(rows)
+                this.generateGenesMapFromVariants(rows.flat())
                     .then(() => params.success(rows))
                     .catch(error => params.error(error));
             },
