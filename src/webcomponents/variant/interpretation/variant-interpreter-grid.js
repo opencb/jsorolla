@@ -109,11 +109,7 @@ export default class VariantInterpreterGrid extends LitElement {
             this.COMPONENT_ID = this.toolId + "-grid";
         }
 
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
-
-        if (changedProperties.has("clinicalAnalysis")) {
+        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("opencgaSession")) {
             this.clinicalAnalysisObserver();
         }
 
@@ -132,25 +128,10 @@ export default class VariantInterpreterGrid extends LitElement {
         }
     }
 
-    opencgaSessionObserver() {
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-    }
-
     clinicalAnalysisObserver() {
-        // We need to load server config always.
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+        if (this.opencgaSession && this.clinicalAnalysis) {
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
-        // Make sure somatic sample is the first one
-        if (this.clinicalAnalysis) {
             if (!this.clinicalAnalysis.interpretation) {
                 this.clinicalAnalysis.interpretation = {};
             }
@@ -174,19 +155,22 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     configObserver() {
+        // 1. Merge default configuration with the configuration provided via props
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config
         };
+
+        // 2. Create a new grid commons instance with the new configuration
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
+        // 3. Set toolbar settings
         this.toolbarSetting = {
             ...this._config,
             showCreate: false,
-            // columns: defaultColumns[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
-            // gridColumns: defaultColumns, // original column structure
         };
 
+        // 4. Set toolbar config
         this.toolbarConfig = {
             toolId: this.toolId,
             resource: "CLINICAL_VARIANT",
