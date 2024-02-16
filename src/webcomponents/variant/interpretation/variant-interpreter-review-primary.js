@@ -75,7 +75,10 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
@@ -276,6 +279,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                     .clinicalVariants="${this.clinicalVariants}"
                                     .review="${true}"
+                                    .active="${this.active}"
                                     .config="${this._config.result.grid}"
                                     @selectrow="${this.onSelectVariant}"
                                     @updaterow="${this.onUpdateVariant}"
@@ -289,6 +293,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                     .clinicalVariants="${this.clinicalVariants}"
                                     .review="${true}"
+                                    .active="${this.active}"
                                     .config="${this._config.result.grid}"
                                     @selectrow="${this.onSelectVariant}"
                                     @updaterow="${this.onUpdateVariant}"
