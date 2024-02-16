@@ -156,6 +156,7 @@ export default class DataForm extends LitElement {
         } else {
             value = defaultValue;
         }
+
         return value;
     }
 
@@ -164,7 +165,6 @@ export default class DataForm extends LitElement {
         const matches = template
             .match(/\$\{[a-zA-Z_.\[\]]+}/g)
             .map(elem => elem.substring(2, elem.length - 1));
-debugger
 
         for (const match of matches) {
             // Check if 'style' has been defined for this match variable, example:
@@ -198,14 +198,10 @@ debugger
                 const href = element?.display?.link?.[match](value, data);
                 value = `<a href="${href}" target="_blank">${value}</a>`;
             }
-            if (element?.display?.style?.[match]) {
-                const style = this._parseStyleField(element.display.style[match], value, data);
-                value = `<span style="${style}">${value}</span>`;
-            }
-            // CAUTION New Vero: template each field with class names
-            if (element?.display?.classes?.[match]) {
-                const classes = element.display.classes[match];
-                value = `<span class="${classes}">${value}</span>`;
+            if (element?.display?.className?.[match] || element?.display?.style?.[match]) {
+                const style = this._parseStyleField(element.display?.style?.[match], value, data);
+                const className = this._parseClassField(element.display?.className?.[match], value, data);
+                value = `<span class="${className||""}" style="${style}">${value}</span>`;
             }
 
             // eslint-disable-next-line no-param-reassign
@@ -233,6 +229,14 @@ debugger
             style = styles.join(";");
         }
         return style;
+    }
+
+    _parseClassField(elementClass, value, data = this.data) {
+        let resultClass = elementClass || "";
+        if (elementClass && typeof elementClass == "function") {
+            resultClass = elementClass(value, data);
+        }
+        return resultClass;
     }
 
     _getType() {
@@ -1113,14 +1117,6 @@ debugger
             values = element.display.getData(data);
         }
         const contentLayout = element.display?.contentLayout || "vertical";
-
-        // 0. Apply 'transform' functions if defined
-        // CAUTION 20240214 VERO: Moved here to have a chance to tranform the values before
-        //  applying array methods (e.g. for tranforming an object into an array of objects)
-        if (typeof element.display?.transform === "function") {
-            values = element.display.transform(values);
-        }
-
         // 1. Check array and layout exist
         if (!Array.isArray(values)) {
             return this._createElementTemplate(element, null, null, {
@@ -1140,9 +1136,10 @@ debugger
             values = element.display.filter(values);
         }
 
-        // if (typeof element.display?.transform === "function") {
-        //     values = element.display.transform(values);
-        // }
+        if (typeof element.display?.transform === "function") {
+            debugger
+            values = element.display.transform(values);
+        }
 
         // 3. Check length of the array. This MUST be done after filtering
         if (values.length === 0) {
@@ -1211,8 +1208,8 @@ debugger
                         <span style="${styles[elem]}">${elem}</span>
                         <span>${index < values.length - 1 ? separators[index] ?? ", " : ""}</span>
                     `)
-                    .join(``)
-                }`;
+                    .join("")}
+                `;
                 break;
             case "vertical":
                 content = `
