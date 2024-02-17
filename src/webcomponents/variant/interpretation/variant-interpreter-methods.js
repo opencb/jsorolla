@@ -123,7 +123,7 @@ class VariantInterpreterMethods extends LitElement {
                         name: "Exomiser",
                         render: (clinicalAnalysis, active, opencgaSession) => {
                             return html`
-                                <div class="col-6">
+                                <div class="col-md-6 offset-md-3">
                                     <tool-header title="Exomiser - ${probandId}" class="bg-white"></tool-header>
                                     <exomiser-analysis
                                         .toolParams="${{clinicalAnalysis: clinicalAnalysis.id}}"
@@ -146,7 +146,7 @@ class VariantInterpreterMethods extends LitElement {
                                 panels: clinicalAnalysis.panels?.map(panel => panel.id).join(","),
                             };
                             return html`
-                                <div class="col-6">
+                                <div class="col-md-6 offset-md-3">
                                     <tool-header title="RD Tiering - ${probandId}" class="bg-white"></tool-header>
                                     <rd-tiering-analysis
                                         .toolParams="${toolParams}"
