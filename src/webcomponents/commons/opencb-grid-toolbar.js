@@ -144,8 +144,8 @@ export default class OpencbGridToolbar extends LitElement {
                             `) : nothing}
 
                             ${this._settings.showRefresh ? html`
-                                <button type="button" class="btn btn-default btn-sm" @click="${() => LitUtils.dispatchCustomEvent(this, "refresh")}">
-                                    <i class="fas fa-sync-alt icon-padding"></i> Refresh
+                                <button type="button" class="btn btn-light btn-sm" @click="${() => LitUtils.dispatchCustomEvent(this, "refresh")}">
+                                    <i class="fas fa-sync-alt pe-1"></i> Refresh
                                 </button>
                             ` :nothing}
 

@@ -183,7 +183,7 @@ class InterpretationHistory extends LitElement {
                 title: "Actions",
                 formatter: (value, row) => `
                     <div class="dropdown">
-                        <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
+                        <button class="btn btn-light btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
