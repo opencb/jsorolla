@@ -126,14 +126,17 @@ export default class ToolSettingsEditor extends LitElement {
 
     renderSelect() {
         return html `
+        <div style="width:20rem">
             <select-field-filter2
                 .data="${Object.keys(this.toolSettings)}"
                 .value="${this._toolName}"
                 .config="${{
-                    multiple: false
+                    multiple: false,
+                    liveSearch: false
                 }}"
                 @filterChange="${this.onToolChange}">
             </select-field-filter2>
+        </div>
         `;
     }
 
@@ -142,11 +145,11 @@ export default class ToolSettingsEditor extends LitElement {
         return html `
             <div class="card d-flex flex-column mt-3" id="tool-settings-editor-card">
                 <!-- Header -->
-                <div class="d-flex justify-content-center mt-3 gap-2" id="tool-settings-editor-card-header">
+                <div class="d-flex justify-content-center align-items-center mt-3 gap-2" id="tool-settings-editor-card-header">
                     ${this.readOnly ? html `
                         <label class="form-label fw-bold">Select one of the tools for previewing (READ-ONLY) the settings: </label>
                     `: nothing}
-                    <div class="card-header-options">
+                    <div class="d-flex gap-1">
                         ${this.readOnly ? this.renderSelect() : html `
                             <button
                                 class="btn btn-warning" type="button"
