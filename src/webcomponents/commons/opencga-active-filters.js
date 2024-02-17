@@ -699,7 +699,7 @@ export default class OpencgaActiveFilters extends LitElement {
                             style="cursor:pointer;"
                             @click="${this.onFilterChange}">
                             <span class="flex-grow-1">${item.id}</span>
-                            <span class="text-secondary cy-action-buttons">
+                            <span class="text-secondary cy-action-buttons ms-3">
                             <span tooltip-title="${item.id}"
                                 tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
                                 data-filter-id="${item.id}">
