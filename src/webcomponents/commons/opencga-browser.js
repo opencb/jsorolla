@@ -357,7 +357,7 @@ export default class OpencgaBrowser extends LitElement {
                     .icon="${this._config.icon}">
                 </tool-header>
             ` : null}
-            <div class="d-flex gap-4">
+            <div class="d-flex gap-4" style="padding-right:21px">
                 <div class="col-2">
                     <div class="d-grid gap-2 pb-3">
                         <button type="button" class="btn btn-primary" @click="${this.onRun}">
@@ -398,7 +398,7 @@ export default class OpencgaBrowser extends LitElement {
                         ${this.renderAggregation()}
                     </div>
                 </div>
-                <div class="flex-grow-1">
+                <div class="col-10">
                     ${this.renderButtonViews()}
                     <div>
                         <opencga-active-filters

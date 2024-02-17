@@ -248,7 +248,7 @@ export default class JobDetailLog extends LitElement {
                     </div>
                 </div>
             </div>
-            <pre class="cmd log-wrapper ${this.command}">${this.content}\n${this.renderCursor()}</pre>
+            <pre class="overflow-x-scroll cmd log-wrapper ${this.command} rounded">${this.content}\n${this.renderCursor()}</pre>
         `;
     }
 

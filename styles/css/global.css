@@ -255,6 +255,16 @@ a:visited {
     transform: rotate(-45deg);
 }
 
+
+/****** job logs ********/
+.cmd {
+    background: black;
+    font-family: "Courier New", monospace;
+    padding: 15px;
+    color: #a5a5a5;
+    font-size: .9em;
+}
+
 .rocket-RUNNING {
     animation: spaceOutUp 2s infinite;
 }
