@@ -241,12 +241,15 @@ class VariantInterpreterBrowserCNV extends LitElement {
     }
 
     getDefaultConfig() {
-        // Add case panels to query object
         const lockedFields = [
             {id: "sample"},
+            {id: "sampleData"},
+            {id: "file"},
+            {id: "fileData"},
             {id: "type"},
         ];
 
+        // Add panels to locked fields
         if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLock) {
             lockedFields.push({id: "panel"});
             lockedFields.push({id: "panelIntersection"});

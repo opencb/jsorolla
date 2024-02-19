@@ -266,6 +266,13 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
     }
 
     getDefaultConfig() {
+        const lockedFields = [
+            {id: "sample"},
+            {id: "sampleData"},
+            {id: "file"},
+            {id: "fileData"},
+        ];
+
         // Prepare dynamic Variant Caller INFO filters
         const callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2", "Pisces", "CRAFT"];
         const callerFilters = callers.map(caller => {
@@ -307,7 +314,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         {id: "fileData", separator: ","},
                     ],
                     hiddenFields: [],
-                    lockedFields: [{id: "sample"}]
+                    lockedFields: lockedFields,
                 },
                 callers: [],
                 sections: [ // sections and subsections, structure and order is respected
