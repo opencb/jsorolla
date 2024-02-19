@@ -266,13 +266,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
     }
 
     getDefaultConfig() {
-        const lockedFields = [
-            {id: "sample"},
-            {id: "sampleData"},
-            {id: "file"},
-            {id: "fileData"},
-        ];
-
         return {
             title: "Cancer Case Interpreter",
             icon: "fas fa-search",
@@ -285,9 +278,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 searchButtonText: "Search",
                 activeFilters: {
                     alias: {
-                        // Example:
-                        // "region": "Region",
-                        // "gene": "Gene",
                         "ct": "Consequence Types"
                     },
                     complexFields: [
@@ -295,10 +285,15 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         {id: "fileData", separator: ","},
                     ],
                     hiddenFields: [],
-                    lockedFields: lockedFields,
+                    lockedFields: [
+                        {id: "sample"},
+                        {id: "sampleData"},
+                        {id: "file"},
+                        {id: "fileData"},
+                    ],
                 },
                 callers: [],
-                sections: [ // sections and subsections, structure and order is respected
+                sections: [
                     {
                         title: "Genomic",
                         collapsed: false,
