@@ -68,7 +68,7 @@ export default class JobView extends LitElement {
             defaultValue: "-",
             defaultLayout: "horizontal",
             buttonsVisible: false,
-            pdf: true,
+            pdf: false,
         };
         this._config = this.getDefaultConfig();
     }

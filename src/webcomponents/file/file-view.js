@@ -71,7 +71,7 @@ export default class FileView extends LitElement {
             titleVisible: false,
             titleWidth: 2,
             defaultValue: "-",
-            pdf: true,
+            pdf: false,
         };
         this._config = this.getDefaultConfig();
     }

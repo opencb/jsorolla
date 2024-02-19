@@ -97,7 +97,7 @@ export default class ClinicalAnalysisView extends LitElement {
                     className: ""
                 }
             ],
-            pdf: true,
+            pdf: false,
         };
         this._config = this.getDefaultConfig();
     }
@@ -179,7 +179,6 @@ export default class ClinicalAnalysisView extends LitElement {
     }
 
     render() {
-        debugger
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }

@@ -66,7 +66,7 @@ export default class DiseasePanelSummary extends LitElement {
             buttonsVisible: false,
             showTitle: false,
             labelWidth: 3,
-            pdf: true,
+            pdf: false,
         };
         this._config = this.getDefaultConfig();
     }
