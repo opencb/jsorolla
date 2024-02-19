@@ -276,7 +276,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.requestUpdate();
     }
 
-    onResetVariants(e) {
+    onResetVariants() {
         this.clinicalAnalysisManager.reset();
 
         this.preparedQuery = {...this.preparedQuery};
@@ -552,7 +552,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                     .tracks="${this._config.genomeBrowser.tracks}"
                                     .active="${this.active && this.activeView === "genome-browser"}">
                                 </split-genome-browser>
-
                             `}
                         </div>
                     </div>
