@@ -172,17 +172,19 @@ export default class UserLogin extends LitElement {
                             </div>
                         </div>
                         <div class="form-group organization-field">
-                            <label for="organization" class="control-label label-login">Organization</label>
-                            <div class="input-group">
-                                <span class="input-group-addon">
+                            <label for="organization" class="form-label fw-bold">Organization</label>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text" id="organization">
                                     <i class="fa fa-building fa-lg"></i>
                                 </span>
-                                <input id="organization" type="text" class="form-control" placeholder="Organization ID" @keyup="${e => this.onKeyUp(e)}">
+                                <input class="form-control" id="organization" type="text" placeholder="Organization ID" @keyup="${e => this.onKeyUp(e)}">
                             </div>
                         </div>
-                        <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
-                            <strong>Sign In</strong>
-                        </button>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
+                                <strong>Sign In</strong>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 ${this.renderResetPasswordLink()}
