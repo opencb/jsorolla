@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import VariantUtils from "../variant-utils.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
@@ -176,11 +176,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         // FIXME For old users
         if (typeof this._config.filter.result.grid?.highlights === "string") {
             this._config.filter.result.grid.highlights = this.settings.table.highlights;
-        }
-
-        // Check to hide the genome browser link
-        if (this.settings?.hideGenomeBrowser) {
-            this._config.filter.result.grid.showGenomeBrowserLink = false;
         }
 
         // Add copy.execute functions
@@ -463,7 +458,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     <!-- View toolbar -->
                     <div class="content-pills" role="toolbar" aria-label="toolbar">
                         ${this.renderViewButton("table", "Table Result", "table")}
-                        ${this.renderViewButton("genome-browser", "Genome Browser", "dna")}
+                        ${!this.settings?.hideGenomeBrowser ? this.renderViewButton("genome-browser", "Genome Browser", "dna") : nothing}
                     </div>
                     <!-- Active filters -->
                     <opencga-active-filters
@@ -535,25 +530,27 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             </variant-interpreter-detail>
                         </div>
                         <!-- Genome browser view -->
-                        <div id="genome-browser-view" class="${`content-tab ${this.activeView === "genome-browser" ? "active" : ""}`}">
-                            ${!this._config.filter.result.grid.isRearrangement ? html`
-                                <genome-browser
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${this._config.genomeBrowser.config}"
-                                    .region="${this.variant}"
-                                    .tracks="${this._config.genomeBrowser.tracks}"
-                                    .active="${this.active && this.activeView === "genome-browser"}">
-                                </genome-browser>
-                            ` : html`
-                                <split-genome-browser
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${this._config.genomeBrowser.config}"
-                                    .regions="${this.variant}"
-                                    .tracks="${this._config.genomeBrowser.tracks}"
-                                    .active="${this.active && this.activeView === "genome-browser"}">
-                                </split-genome-browser>
-                            `}
-                        </div>
+                        ${!this.settings?.hideGenomeBrowser ? html`
+                            <div id="genome-browser-view" class="${`content-tab ${this.activeView === "genome-browser" ? "active" : ""}`}">
+                                ${!this._config.filter.result.grid.isRearrangement ? html`
+                                    <genome-browser
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this._config.genomeBrowser.config}"
+                                        .region="${this.variant}"
+                                        .tracks="${this._config.genomeBrowser.tracks}"
+                                        .active="${this.active && this.activeView === "genome-browser"}">
+                                    </genome-browser>
+                                ` : html`
+                                    <split-genome-browser
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this._config.genomeBrowser.config}"
+                                        .regions="${this.variant}"
+                                        .tracks="${this._config.genomeBrowser.tracks}"
+                                        .active="${this.active && this.activeView === "genome-browser"}">
+                                    </split-genome-browser>
+                                `}
+                            </div>
+                        ` : nothing}
                     </div>
                 </div>
             </div>
