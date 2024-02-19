@@ -981,11 +981,6 @@ export default class VariantBrowserGrid extends LitElement {
     onActionClick(e, value, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
-            case "genome-browser":
-                LitUtils.dispatchCustomEvent(this, "genomeBrowserRegionChange", null, {
-                    region: row.chromosome + ":" + row.start + "-" + row.end,
-                });
-                break;
             case "copy-json":
                 navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
                 break;
