@@ -20,6 +20,7 @@ import LitUtils from "../commons/utils/lit-utils";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
 import "../commons/image-viewer.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 
 
 export default class ClinicalAnalysisView extends LitElement {
@@ -95,7 +96,8 @@ export default class ClinicalAnalysisView extends LitElement {
                     id: "files",
                     className: ""
                 }
-            ]
+            ],
+            pdf: true,
         };
         this._config = this.getDefaultConfig();
     }
@@ -105,6 +107,17 @@ export default class ClinicalAnalysisView extends LitElement {
         this.requestUpdate();
     }
 
+    #priorityFormatter(id, data) {
+        switch (data.priority.rank) {
+            case 1: return "label label-warning";
+            case 2: return "label label-primary";
+            case 3: return "label label-info";
+            case 4: return "label label-success";
+            case 5: return "label label-default";
+            default: return "label";
+        }
+    }
+
     update(changedProperties) {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
@@ -112,8 +125,11 @@ export default class ClinicalAnalysisView extends LitElement {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
-        if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig
+            };
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -163,6 +179,7 @@ export default class ClinicalAnalysisView extends LitElement {
     }
 
     render() {
+        debugger
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }
@@ -234,7 +251,7 @@ export default class ClinicalAnalysisView extends LitElement {
                             field: "proband.id",
                         },
                         {
-                            title: "Disorders",
+                            title: "Disorder",
                             type: "complex",
                             display: {
                                 template: "${disorder}",
@@ -254,43 +271,36 @@ export default class ClinicalAnalysisView extends LitElement {
                         {
                             title: "Flags",
                             field: "flags",
-                            type: "custom",
+                            type: "list",
                             display: {
                                 visible: !this._config?.hiddenFields?.includes("flags"),
-                                render: flags => html`
-                                    ${flags.map(flag => html`
-                                        <span class="badge badge-secondary">${flag?.id || "-"}</span>
-                                    `)}
-                                `,
+                                separator: " ",
+                                contentLayout: "horizontal",
+                                template: "${id}",
+                                className: {
+                                    "id": "badge badge-secondary",
+                                },
                             }
                         },
                         {
                             title: "Status",
-                            field: "status.name",
+                            field: "status.id",
+                        },
+                        {
+                            title: "Priority",
+                            type: "complex",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("status.name") && !!this.opencgaSession?.study?.configuration?.clinical?.status,
-                            },
+                                template: "${priority.id}",
+                                className: {
+                                    "priority.id": (id, data) => this.#priorityFormatter(id, data),
+                                },
+                            }
                         },
                         {
                             title: "Description",
                             field: "description",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("description"),
                                 errorMessage: "-",
-                            },
-                        },
-                        {
-                            title: "Priority",
-                            field: "priority",
-                            type: "custom",
-                            display: {
-                                visible: !this._config?.hiddenFields?.includes("priority") && !!this.opencgaSession?.study?.configuration?.clinical?.priorities,
-                                render: priority => {
-                                    const priorityRankToColor = ["label-danger", "label-warning", "label-primary", "label-info", "label-success", "label-default"];
-                                    return html`<span class="label ${priorityRankToColor[priority.rank]}">
-                                        ${priority.id}
-                                    </span>`;
-                                },
                             },
                         },
                         {
@@ -300,25 +310,21 @@ export default class ClinicalAnalysisView extends LitElement {
                             display: {
                                 contentLayout: "bullets",
                                 visible: !this._config?.hiddenFields?.includes("analyst.assignee") && !this._config?.hiddenFields?.includes("analyst.id"),
-                                render: analyst => analyst.id,
+                                format: analyst => analyst.id,
                             },
                         },
                         {
-                            title: "Creation date",
+                            title: "Creation Date",
                             field: "creationDate",
-                            type: "custom",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("creationDate"),
-                                render: creationDate => html`${moment(creationDate, "YYYYMMDDHHmmss").format("D MMM YY")}`,
+                                format: date => UtilsNew.dateFormatter(date)
                             },
                         },
                         {
                             title: "Due date",
                             field: "dueDate",
-                            type: "custom",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("dueDate"),
-                                render: dueDate => html`${moment(dueDate, "YYYYMMDDHHmmss").format("D MMM YY")}`,
+                                format: date => UtilsNew.dateFormatter(date)
                             },
                         }
                     ]
@@ -337,87 +343,130 @@ export default class ClinicalAnalysisView extends LitElement {
                         },
                         {
                             title: "Sex (Karyotypic)",
-                            type: "custom",
                             field: "proband",
                             display: {
-                                render: proband => `
-                                    ${proband?.sex?.id ?? proband?.sex ?? "Not specified"} (${proband?.karyotypicSex ?? "Not specified"})
-                                `,
+                                defaultValue: "Not specified",
+                                format: proband => `${proband?.sex?.id ?? proband?.sex} (${proband?.karyotypicSex})`
                             },
                         },
                         {
                             title: "Date of Birth",
-                            type: "complex",
-                            display: {
-                                template: "${proband.dateOfBirth} (${proband.lifeStatus})",
-                            },
+                            field: "dateOfBirth",
+                        },
+                        {
+                            title: "Life Status",
+                            field: "lifeStatus",
+
                         },
                         {
                             title: "Disorders",
                             field: "proband.disorders",
                             type: "list",
                             display: {
-                                contentLayout: "bullets",
-                                render: disorder => {
-                                    let id = disorder.id;
-                                    if (disorder.id.startsWith("OMIM:")) {
-                                        id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
-                                    }
-                                    return html`${disorder.name} (${id})`;
-                                },
                                 defaultValue: "N/A",
+                                contentLayout: "bullets",
+                                transform: disorders => (disorders || []).map(disorder => ({disorder})),
+                                template: "${disorder.name} (${disorder.id})",
+                                link: {
+                                    "disorder.id": id => id.startsWith("OMIM:") ?
+                                        BioinfoUtils.getOmimOntologyLink(id) :
+                                        "",
+                                },
                             },
                         },
                         {
                             title: "Phenotypes",
                             field: "proband.phenotypes",
-                            type: "custom",
+                            type: "list",
                             display: {
-                                render: phenotypes => {
-                                    return (phenotypes || [])
-                                        .sort(item => item?.status === "OBSERVED" ? -1 : 1)
-                                        .map(phenotype => {
-                                            if (phenotype?.source && phenotype?.source?.toUpperCase() === "HPO") {
-                                                const url = `https://hpo.jax.org/app/browse/term/${phenotype.id}`;
-                                                return html`
-                                                    <li>${phenotype.name} (<a target="_blank" href="${url}">${phenotype.id}</a>) - ${phenotype.status}</li>
-                                                `;
-                                            } else {
-                                                return html`
-                                                    <li>${phenotype.id} - ${phenotype.status}</li>
-                                                `;
-                                            }
-                                        });
-                                },
                                 defaultValue: "N/A",
+                                contentLayout: "bullets",
+                                transform: phenotypes => (phenotypes || [])
+                                    .sort(item => item?.status === "OBSERVED" ? -1 : 1)
+                                    .map(phenotype => ({phenotype})),
+                                template: "${phenotype.name} (${phenotype.id}) - Status: ${phenotype.status}",
+                                link: {
+                                    "phenotype.id": id => id.startsWith("HP:") ? BioinfoUtils.getHpoLink(id) : id,
+                                }
+                                // render: phenotypes => {
+                                //     return (phenotypes || [])
+                                //         .sort(item => item?.status === "OBSERVED" ? -1 : 1)
+                                //         .map(phenotype => {
+                                //             if (phenotype?.source && phenotype?.source?.toUpperCase() === "HPO") {
+                                //                 const url = `https://hpo.jax.org/app/browse/term/${phenotype.id}`;
+                                //                 return html`
+                                //                     <li>${phenotype.name} (<a target="_blank" href="${url}">${phenotype.id}</a>) - ${phenotype.status}</li>
+                                //                 `;
+                                //             } else {
+                                //                 return html`
+                                //                     <li>${phenotype.id} - ${phenotype.status}</li>
+                                //                 `;
+                                //             }
+                                //         });
+                                // },
                             },
                         },
                         {
                             title: "Samples",
                             field: "proband.samples",
                             type: "table",
+                            style: {
+                                "margin-top": "1em",
+                            },
                             display: {
+                                // defaultValue: "No sample found",
                                 defaultLayout: "vertical",
+                                headerStyle: {
+                                    background: "#f5f5f5",
+                                    lineHeight: "0.5"
+                                },
                                 columns: [
+                                //     {
+                                //         title: "ID",
+                                //         field: "id",
+                                //         formatter: (sampleId, sample) => {
+                                //             let somaticHtml = "";
+                                //             if (typeof sample.somatic !== "undefined") {
+                                //                 somaticHtml = sample.somatic ? "Somatic" : "Germline";
+                                //             }
+                                //             return `
+                                //                 <div>
+                                //                     <span style="font-weight: bold; margin: 5px 0">${sampleId}</span>
+                                //                     ${somaticHtml ? `<span class="help-block" style="margin: 5px 0">${somaticHtml}</span>` : nothing}
+                                //                 </div>
+                                //             `;
+                                //         },
+                                //     },
                                     {
                                         title: "ID",
-                                        field: "id",
-                                        formatter: (sampleId, sample) => {
-                                            let somaticHtml = "";
-                                            if (typeof sample.somatic !== "undefined") {
-                                                somaticHtml = sample.somatic ? "Somatic" : "Germline";
+                                        type: "complex",
+                                        display: {
+                                            defaultValue: "-",
+                                            template: "${id} ${somatic}",
+                                            format: {
+                                                "somatic": (somatic, sample) => sample.somatic ? "Somatic" : "Germline",
+                                            },
+                                            className: {
+                                                "somatic": "help-block"
+                                            },
+                                            style: {
+                                                "id": {
+                                                    "font-weight": "bold"
+                                                },
+                                                "somatic": {
+                                                    "margin": "5px 0"
+                                                },
                                             }
-                                            return `
-                                                <div>
-                                                    <span style="font-weight: bold; margin: 5px 0">${sampleId}</span>
-                                                    ${somaticHtml ? `<span class="help-block" style="margin: 5px 0">${somaticHtml}</span>` : nothing}
-                                                </div>
-                                            `;
                                         },
                                     },
                                     {
                                         title: "Files",
                                         field: "fileIds",
+                                        type: "list",
+                                        display: {
+                                            defaultValue: "-",
+                                            contentLayout: "vertical",
+                                        },
                                     },
                                     {
                                         title: "Collection Method",
@@ -429,21 +478,25 @@ export default class ClinicalAnalysisView extends LitElement {
                                     {
                                         title: "Preparation Method",
                                         field: "processing.preparationMethod",
-                                        formatter: (value, row) => value ?? "-"
+                                        display: {
+                                            defaultValue: "-",
+                                        },
                                     },
                                     {
                                         title: "Creation Date",
                                         field: "creationDate",
-                                        type: "custom", // this is not needed. feels right though
-                                        formatter: value => `${moment(value, "YYYYMMDDHHmmss").format("D MMM YY")}`
+                                        display: {
+                                            format: creationDate => UtilsNew.dateFormatter(creationDate, "D MMM YYYY, h:mm:ss a"),
+                                        }
                                     },
                                     {
                                         title: "Status",
                                         field: "status.name",
-                                        formatter: (value, row) => value ?? "-"
+                                        display: {
+                                            defaultValue: "-",
+                                        },
                                     },
                                 ],
-                                defaultValue: "No sample found",
                             },
                         },
                     ]
@@ -491,17 +544,23 @@ export default class ClinicalAnalysisView extends LitElement {
                                 errorMessage: "No family selected",
                             },
                         },
+                        // {
+                        //     title: "Pedigree",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: clinicalAnalysis => html`
+                        //             <image-viewer
+                        //                 .data="${clinicalAnalysis?.family?.pedigreeGraph?.base64}">
+                        //             </image-viewer>
+                        //         `,
+                        //     },
+                        // },
                         {
                             title: "Pedigree",
-                            type: "custom",
-                            display: {
-                                render: clinicalAnalysis => html`
-                                    <image-viewer
-                                        .data="${clinicalAnalysis?.family?.pedigreeGraph?.base64}">
-                                    </image-viewer>
-                                `,
-                            },
-                        }
+                            type: "image",
+                            field: "family.pedigreeGraph.base64",
+                        },
+
                     ]
                 },
                 {
