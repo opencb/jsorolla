@@ -570,9 +570,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
         // Check for opencgaSession and clinicalAnalysis defined
         if (this.opencgaSession && this.clinicalAnalysis) {
-            const type = this.clinicalAnalysis.type.toUpperCase();
-
-            // Append tracks
             genomeBrowserTracks = [
                 {
                     type: "gene-overview",
