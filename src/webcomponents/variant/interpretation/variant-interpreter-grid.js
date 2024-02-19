@@ -1149,11 +1149,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     $(`#${this._prefix}ReviewSampleModal`).modal("show");
                 }
                 break;
-            case "genome-browser":
-                LitUtils.dispatchCustomEvent(this, "genomeBrowserRegionChange", null, {
-                    region: row.chromosome + ":" + row.start + "-" + row.end,
-                });
-                break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
