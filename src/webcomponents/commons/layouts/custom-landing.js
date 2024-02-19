@@ -122,7 +122,6 @@ export default class CustomLanding extends LitElement {
                 }
 
                 .landing-wrapper > .landing > div {
-                    flex: 1;
                     display: flex;
                     justify-content: center;
                     align-items: flex-start;
