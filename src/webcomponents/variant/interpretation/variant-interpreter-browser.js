@@ -59,7 +59,6 @@ class VariantInterpreterBrowser extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this._activeTab = null;
-        this._genomeBrowserRegion = null;
 
         this._config = this.getDefaultConfig();
     }
@@ -101,20 +100,6 @@ class VariantInterpreterBrowser extends LitElement {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
                 });
         }
-    }
-
-    // onClinicalAnalysisUpdate(e) {
-    //     LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-    //         clinicalAnalysis: e.detail.clinicalAnalysis,
-    //     }, null);
-    // }
-
-    onGenomeBrowserRegionChange(event) {
-        this._genomeBrowserRegion = event.detail.region;
-        this._config = this.getDefaultConfig();
-        this._activeTab = "genome-browser";
-
-        this.requestUpdate();
     }
 
     onActiveTabChange(event) {
@@ -307,7 +292,6 @@ class VariantInterpreterBrowser extends LitElement {
                                     .settings="${browserSettings}"
                                     .active="${active}"
                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
-                                    @genomeBrowserRegionChange="${e => this.onGenomeBrowserRegionChange(e)}"
                                     @samplechange="${this.onSampleChange}">
                                 </variant-interpreter-browser-rd>
                             </div>
@@ -337,7 +321,6 @@ class VariantInterpreterBrowser extends LitElement {
                                         .cellbaseClient="${this.cellbaseClient}"
                                         .settings="${browserSettings}"
                                         .active="${active}"
-                                        @genomeBrowserRegionChange="${e => this.onGenomeBrowserRegionChange(e)}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-browser-cancer>
                                 </div>
@@ -369,7 +352,6 @@ class VariantInterpreterBrowser extends LitElement {
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .settings="${browserSettings}"
                                             .active="${active}"
-                                            @genomeBrowserRegionChange="${e => this.onGenomeBrowserRegionChange(e)}"
                                             @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                         </variant-interpreter-browser-cnv>
                                     </div>
@@ -431,7 +413,6 @@ class VariantInterpreterBrowser extends LitElement {
                                             .settings="${browserSettings}"
                                             .active="${active}"
                                             @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
-                                            @genomeBrowserRegionChange="${e => this.onGenomeBrowserRegionChange(e)}"
                                             @samplechange="${this.onSampleChange}">
                                         </variant-interpreter-browser-rd>
                                     </div>
