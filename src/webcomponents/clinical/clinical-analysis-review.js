@@ -349,11 +349,15 @@ export default class ClinicalAnalysisReview extends LitElement {
         }
 
         return html`
+
+            <!--
+            Fixme 20240220: enable this button through pdf: true/false in config
             <button class="btn btn-primary" style="margin-bottom:14px"
-                @click="${this.onDownloadPdf}">
+                @click="$this.onDownloadPdf}">
                 <i class="fas fa-file-pdf"></i>
                 Export PDF (Beta)
             </button>
+            -->
             <data-form
                 .data="${this.clinicalAnalysis}"
                 .config="${this._config}"
