@@ -722,7 +722,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                 </div>"
                             tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     rowspan: 1,
-                    colspan: 3,
+                    colspan: 4,
                     align: "center"
                 },
                 {
@@ -888,7 +888,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: (value, row) => VariantGridFormatter.caddScaledFormatter(value, row),
                     align: "right",
                     halign: this.displayConfigDefault.header.horizontalAlign,
-                    visible: this.gridCommons.isColumnVisible("cadd", "deleteriousness"),
+                    visible: !this._config.hideDeleteriousness && this.gridCommons.isColumnVisible("cadd", "deleteriousness"),
+                    excludeFromSettings: this._config.hideDeleteriousness,
+                    excludeFromExport: this._config.hideDeleteriousness,
                 },
                 {
                     id: "spliceai",
@@ -899,7 +901,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: (value, row) => VariantGridFormatter.spliceAIFormatter(value, row),
                     align: "right",
                     halign: this.displayConfigDefault.header.horizontalAlign,
-                    visible: this.gridCommons.isColumnVisible("spliceai", "deleteriousness"),
+                    visible: !this._config.hideDeleteriousness && this.gridCommons.isColumnVisible("spliceai", "deleteriousness"),
+                    excludeFromSettings: this._config.hideDeleteriousness,
+                    excludeFromExport: this._config.hideDeleteriousness,
                 },
                 ...vcfDataColumns,
                 {
@@ -931,6 +935,16 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: VariantGridFormatter.clinicalCancerHotspotsFormatter,
                     align: "center",
                     visible: !this._config.hideClinicalInfo && this.gridCommons.isColumnVisible("hotspots", "clinicalInfo"),
+                },
+                {
+                    id: "omim",
+                    title: "OMIM",
+                    field: "omim",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalOmimFormatter,
+                    align: "center",
+                    visible: this.gridCommons.isColumnVisible("omim"),
                 },
                 // Interpretation methods column
                 {
@@ -1307,13 +1321,22 @@ export default class VariantInterpreterGrid extends LitElement {
             this.checkedVariants.delete(variantId);
         }
 
-        // Set 'Edit' button as enabled/disabled
-        document.getElementById(`${this._prefix}${variantId}VariantReviewButton`).disabled = !e.currentTarget.checked;
+        // Set 'Edit' button as enabled/disabled in 'Review' column
+        // Josemi NOTE 20240205 - Edit buton in column is not rendered when 'Review' column is hidden
+        const reviewButton = document.getElementById(`${this._prefix}${variantId}VariantReviewButton`);
+        if (reviewButton) {
+            reviewButton.disabled = !e.currentTarget.checked;
+        }
+
+        // Set 'Edit' button as enabled/disabled in 'Actions' dropdown
+        // Josemi NOTE 20240205 - Edit buton in actions dropdown is not rendered when when actions column is hidden
         const reviewActionButton = document.getElementById(`${this._prefix}${variantId}VariantReviewActionButton`);
-        if (e.currentTarget.checked) {
-            reviewActionButton.removeAttribute("disabled");
-        } else {
-            reviewActionButton.setAttribute("disabled", "true");
+        if (reviewActionButton) {
+            if (e.currentTarget.checked) {
+                reviewActionButton.removeAttribute("disabled");
+            } else {
+                reviewActionButton.setAttribute("disabled", "true");
+            }
         }
 
         // Enable or disable evidences select
@@ -1563,6 +1586,7 @@ export default class VariantInterpreterGrid extends LitElement {
             hideType: false,
             hidePopulationFrequencies: false,
             hideClinicalInfo: false,
+            hideDeleteriousness: false,
 
             quality: {
                 qual: 30,
