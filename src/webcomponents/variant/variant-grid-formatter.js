@@ -1504,4 +1504,35 @@ export default class VariantGridFormatter {
         return "-";
     }
 
+
+    static clinicalOmimFormatter(value, row) {
+        const entries = (row?.annotation?.geneTraitAssociation || [])
+            .filter(item => (item?.id || "").startsWith("OMIM:"))
+            .map(item => item.id.replace("OMIM:", ""));
+
+        if (entries.length > 0) {
+            const uniqueEntries = new Set(entries);
+            const entriesLinks = Array.from(uniqueEntries).map(entry => {
+                return `
+                    <div style="">
+                        <a href="${BioinfoUtils.getOmimLink(entry)}" target="_blank">${entry}</a>
+                    </div>
+                `;
+            });
+            const tooltipText = entriesLinks.join("");
+
+            return `
+                <a class="hotspots-tooltip" tooltip-title='Info' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                    <span style='color:green;'>${uniqueEntries.size}<br>${uniqueEntries.size === 1 ? "entry" : "entries"}</span>
+                </a>
+            `;
+        } else {
+            return `
+                <span title='No clinical records found for this variant'>
+                    <i class='fa fa-times' style='color: gray'></i>
+                </span>
+            `;
+        }
+    }
+
 }
