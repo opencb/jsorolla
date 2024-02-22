@@ -301,7 +301,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     const internalQuery = JSON.parse(JSON.stringify(this.query));
 
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
-                    const filters = {
+                    this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit * 2 || tableOptions.pageSize * 2,
                         skip: params.data.offset || 0,
@@ -316,7 +316,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         type: "BREAKEND"
                     };
 
-                    this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
+                    this.opencgaSession.opencgaClient.clinical()
+                        .queryVariant(this.filters)
                         .then(res => {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
                             rearrangementResponse = res;
@@ -345,11 +346,15 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onLoadSuccess: data => {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
                     this.gridCommons.onLoadSuccess(data, 2);
+
+                    // Josemi Note 20240214 - We need to force an update of the grid component to propagate the applied
+                    // filters in 'this.filters' to the component 'opencga-grid-toolbar'.
+                    this.requestUpdate();
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
@@ -406,7 +411,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
             variantGrid: this,
 
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 this._rows = data;
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
@@ -1023,6 +1028,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 .config="${this.toolbarConfig}"
                 .settings="${this.toolbarSetting}"
                 .opencgaSession="${this.opencgaSession}"
+                .query="${this.filters}"
                 @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}"
                 @export="${this.onDownload}"
