@@ -53,7 +53,10 @@ class VariantInterpreterBrowserRd extends LitElement {
             },
             settings: {
                 type: Object
-            }
+            },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
@@ -285,6 +288,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                 .settings="${this.settings}"
                 .toolId="${this.COMPONENT_ID}"
                 .config="${this._config}"
+                .active="${this.active}"
                 @queryChange="${this.onQueryChange}">
             </variant-interpreter-browser-template>
         `;

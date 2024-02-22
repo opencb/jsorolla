@@ -31,8 +31,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
     constructor() {
         super();
-
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -61,19 +60,30 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "";
         this._prefix = UtilsNew.randomString(8);
+        this._config = this.getDefaultConfig();
+        this._rows = [];
 
         this.toolbarConfig = {};
+        this.toolbarSetting = {};
+
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
         this.review = false;
+        this.active = true;
         this.variantsReview = null;
+
+        this.gridCommons = null;
+        this.clinicalAnalysisManager = null;
 
         // OpenCGA returns the same genes in both variants of the rearrangement
         // This map is used to assign the correct genes to each variant
@@ -85,84 +95,34 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-    }
-
-    firstUpdated() {
-        this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
-        this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-        this.table = $("#" + this.gridId);
-        // this.checkedVariants = new Map();
-    }
-
     update(changedProperties) {
         if (changedProperties.has("toolId")) {
             this.COMPONENT_ID = this.toolId + "-grid";
+        }
+
+        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("opencgaSession")) {
+            this.clinicalAnalysisObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this.configObserver();
         }
 
         super.update(changedProperties);
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
-
-        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("query") || changedProperties.has("toolId")) {
-            // this.opencgaSessionObserver();
-            this.clinicalAnalysisObserver();
+        // We ned to perform an update of the table only when any of the properties of this grid has changed
+        // This means that we only need to check if the changedProperties set is not empty
+        if (changedProperties.size > 0) {
             this.renderVariants();
         }
-
-        if (changedProperties.has("config") || changedProperties.has("toolId")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
-            this.toolbarSetting = {
-                ...this._config,
-            };
-
-            this.toolbarConfig = {
-                toolId: this.toolId,
-                resource: "CLINICAL_VARIANT",
-                showInterpreterConfig: true,
-                columns: this._getDefaultColumns()
-            };
-            this.requestUpdate();
-            this.renderVariants();
-        }
-    }
-
-    opencgaSessionObserver() {
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     clinicalAnalysisObserver() {
-        // We need to load server config always.
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+        if (this.opencgaSession && this.clinicalAnalysis) {
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
-        // Make sure somatic sample is the first one
-        if (this.clinicalAnalysis) {
             if (!this.clinicalAnalysis.interpretation) {
                 this.clinicalAnalysis.interpretation = {};
             }
@@ -181,6 +141,30 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 }
             }
         }
+    }
+
+    configObserver() {
+        // 1. Merge default configuration with the configuration provided via props
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+
+        // 2. Initialize grid commons with the new configutation
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
+        // 3. Set toolbar settings
+        this.toolbarSetting = {
+            ...this._config,
+        };
+
+        // 4. Set toolbar configuration
+        this.toolbarConfig = {
+            toolId: this.toolId,
+            resource: "CLINICAL_VARIANT",
+            showInterpreterConfig: true,
+            columns: this._getDefaultColumns()
+        };
     }
 
     onColumnChange(e) {
@@ -258,13 +242,18 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     });
                 });
         }
+
+        // In other case, we will return a dummy promise
+        return Promise.resolve(null);
     }
 
     renderVariants() {
-        if (this.clinicalVariants && this.clinicalVariants.length > 0) {
-            this.renderLocalVariants();
-        } else {
-            this.renderRemoteVariants();
+        if (this.active) {
+            if (this.clinicalVariants && this.clinicalVariants.length > 0) {
+                this.renderLocalVariants();
+            } else {
+                this.renderRemoteVariants();
+            }
         }
     }
 
@@ -392,7 +381,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 const rows = variants.slice(skip, skip + limit);
 
                 // Generate map of genes to variants
-                this.generateGenesMapFromVariants(rows)
+                this.generateGenesMapFromVariants(rows.flat())
                     .then(() => params.success(rows))
                     .catch(error => params.error(error));
             },
