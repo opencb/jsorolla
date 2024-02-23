@@ -230,7 +230,7 @@ class VariantInterpreterQc extends LitElement {
                     name: "Family QC Analysis",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-8 col-md-offset-2">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header title="Family QC Analysis - ${probandId} (${clinicalAnalysis.family?.id})" class="bg-white"></tool-header>
                                 <family-qc-analysis
                                     .toolParams="${{family: clinicalAnalysis.family?.id}}"
@@ -246,7 +246,7 @@ class VariantInterpreterQc extends LitElement {
                     name: "Individual QC Analysis",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-8 col-md-offset-2">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header title="Individual QC Analysis - ${probandId}" class="bg-white"></tool-header>
                                 <individual-qc-analysis
                                     .toolParams="${{individual: clinicalAnalysis.proband?.id}}"

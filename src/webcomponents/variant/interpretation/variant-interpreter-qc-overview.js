@@ -255,13 +255,12 @@ class VariantInterpreterQcOverview extends LitElement {
             <div class="row variant-interpreter-overview mb-3 p-3">
                 <div class="col-md-2 list-group interpreter-side-nav side-tabs side-nav">
                     ${this._config.sections[0].elements.filter(field => !field.disabled).map((field, i) => html`
-                        <button
-                            type="button"
-                            class="list-group-item ${i === 0 ? "active" : ""}"
+                        <a
+                            class="list-group-item p-3 ${i === 0 ? "active" : ""}"
                             data-bs-toggle="tab"
                             data-bs-target="#${this._prefix}${field.id}">
                             ${field.title}
-                        </button>
+                        </a>
                     `)}
                 </div>
 
