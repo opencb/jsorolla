@@ -159,25 +159,25 @@ export default class UserLogin extends LitElement {
                             <span class="input-group-text" id="username">
                                 <i class="fa fa-user fa-lg"></i>
                             </span>
-                            <input class="form-control" id="user" type="text" placeholder="User ID"
+                            <input id="user" class="form-control" type="text" placeholder="User ID"
                                 @keyup="${e => this.onKeyUp(e)}">
                         </div>
                         <label for="pass" class="form-label fw-bold">Password</label>
                         <div class="form-group ${this.hasEmptyPassword ? "is-invalid" : ""}">
                             <div class="input-group mb-3">
-                                <span class="input-group-text" id="username">
+                                <span id="username" class="input-group-text" >
                                     <i class="fa fa-key fa-lg"></i>
                                 </span>
-                                <input class="form-control" id="password" type="password" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
+                                <input id="password" class="form-control" type="password" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
                             </div>
                         </div>
                         <div class="form-group organization-field">
                             <label for="organization" class="form-label fw-bold">Organization</label>
                             <div class="input-group mb-3">
-                                <span class="input-group-text" id="organization">
+                                <span class="input-group-text">
                                     <i class="fa fa-building fa-lg"></i>
                                 </span>
-                                <input class="form-control" id="organization" type="text" placeholder="Organization ID" @keyup="${e => this.onKeyUp(e)}">
+                                <input id="organization" class="form-control" type="text" placeholder="Organization ID" @keyup="${e => this.onKeyUp(e)}">
                             </div>
                         </div>
                         <div class="d-grid gap-2">
