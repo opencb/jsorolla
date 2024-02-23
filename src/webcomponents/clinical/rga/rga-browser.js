@@ -361,13 +361,13 @@ export default class RgaBrowser extends LitElement {
 
     render() {
 
-        // if (!this?.opencgaSession?.study?.fqn) {
-        //     return guardPage();
-        // }
+        if (!this?.opencgaSession?.study?.fqn) {
+            return guardPage();
+        }
 
-        // if (this.opencgaSession.study?.attributes?.RGA?.status !== "INDEXED") {
-        //     return guardPage(`Study ${this?.opencgaSession?.study.name} is not enabled to Recessive Variant Analysis.`);
-        // }
+        if (this.opencgaSession.study?.attributes?.RGA?.status !== "INDEXED") {
+            return guardPage(`Study ${this?.opencgaSession?.study.name} is not enabled to Recessive Variant Analysis.`);
+        }
 
         return html`
             <style>
