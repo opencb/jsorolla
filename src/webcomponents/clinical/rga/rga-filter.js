@@ -153,12 +153,12 @@ export default class RgaFilter extends LitElement {
             },
         };
         return html`
-            <select-field-filter-autocomplete
-                    .opencgaSession="${this.opencgaSession}"
-                    .config=${config}
-                    .value="${this.preparedQuery[subsection.id]}"
-                    @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-            </select-field-filter-autocomplete>`;
+            <select-field-filter2
+                .opencgaSession="${this.opencgaSession}"
+                .config=${config}
+                .value="${this.preparedQuery[subsection.id]}"
+                @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+            </select-field-filter2>`;
     }
 
     _createSubSection(subsection) {
@@ -167,59 +167,73 @@ export default class RgaFilter extends LitElement {
             case "variants":
                 content = html`
                     <text-field-filter
-                            placeholder="${subsection.placeholder}"
-                            .value="${this.preparedQuery[subsection.id]}"
-                            .separator="${",;"}"
-                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                        placeholder="${subsection.placeholder}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .separator="${",;"}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </text-field-filter>`;
                 break;
             case "geneName":
                 content = html`
                     <feature-filter
-                            placeholder="${subsection.placeholder}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .query="${this.preparedQuery}"
-                            .separator="${",;"}"
-                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                        placeholder="${subsection.placeholder}"
+                        .cellbaseClient="${this.cellbaseClient}"
+                        .query="${this.preparedQuery}"
+                        .separator="${",;"}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </feature-filter>`;
                 break;
             case "cohort":
                 content = html`
-                    <cohort-stats-filter .opencgaSession="${this.opencgaSession}"
-                                         .onlyCohortAll=${true}
-                                         .cohortStatsAlt="${this.preparedQuery[subsection.id]}"
-                                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    <cohort-stats-filter .
+                        opencgaSession="${this.opencgaSession}"
+                        .onlyCohortAll=${true}
+                        .cohortStatsAlt="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </cohort-stats-filter>`;
                 break;
             case "populationFrequency":
                 content = html`
-                    <population-frequency-filter .populationFrequencies="${POPULATION_FREQUENCIES}"
-                                                 .allowedFrequencies=${this.allowedPopFrequencies}
-                                                 ?onlyPopFreqAll="${subsection.onlyPopFreqAll}"
-                                                 .populationFrequencyAlt="${this.preparedQuery[subsection.id]}"
-                                                 .config="${{comparators: [{id: "<", name: "<"}, {id: ">=", name: "&#8804;"}]}}"
-                                                 @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    <population-frequency-filter
+                        .populationFrequencies="${POPULATION_FREQUENCIES}"
+                        .allowedFrequencies=${this.allowedPopFrequencies}
+                        ?onlyPopFreqAll="${subsection.onlyPopFreqAll}"
+                        .populationFrequencyAlt="${this.preparedQuery[subsection.id]}"
+                        .config="${{comparators: [{id: "<", name: "<"}, {id: ">=", name: "&#8804;"}]}}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </population-frequency-filter>`;
                 break;
             case "type":
                 content = html`
-                    <variant-type-filter .type="${this.preparedQuery[subsection.id]}"
-                                         .config="${subsection}"
-                                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    <variant-type-filter
+                        .type="${this.preparedQuery[subsection.id]}"
+                        .config="${subsection}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </variant-type-filter>`;
                 break;
             case "consequenceType":
                 content = html`
-                    <consequence-type-select-filter .ct="${this.preparedQuery[subsection.id]}" .config="${subsection}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></consequence-type-select-filter>`;
+                    <consequence-type-select-filter
+                        .ct="${this.preparedQuery[subsection.id]}"
+                        .config="${subsection}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </consequence-type-select-filter>`;
                 break;
             case "clinicalSignificance":
                 content = html`
-                    <clinvar-accessions-filter .config="${{clinvar: false}}" .clinicalSignificance="${this.preparedQuery[subsection.id]}"
-                                               @filterChange="${e => this.onFilterChange(subsection.id, e?.detail?.value?.clinicalSignificance)}"></clinvar-accessions-filter>`;
+                    <clinvar-accessions-filter
+                        .config="${{clinvar: false}}"
+                        .clinicalSignificance="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e?.detail?.value?.clinicalSignificance)}">
+                </clinvar-accessions-filter>`;
                 break;
             case "numParents":
                 content = html`
-                    <checkbox-field-filter .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></checkbox-field-filter>`;
+                    <checkbox-field-filter
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .data="${subsection.allowedValues}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </checkbox-field-filter>`;
                 break;
             case "knockoutType":
                 content = html`
@@ -246,7 +260,11 @@ export default class RgaFilter extends LitElement {
                 break;
             case "region":
                 content = html`
-                    <region-filter .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}" @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
+                    <region-filter
+                        .cellbaseClient="${this.cellbaseClient}"
+                        .region="${this.preparedQuery.region}"
+                        @filterChange="${e => this.onFilterChange("region", e.detail.value)}">
+                    </region-filter>`;
                 break;
             case "individualId":
                 content = html`
@@ -264,13 +282,14 @@ export default class RgaFilter extends LitElement {
                 console.error("Filter component not found", subsection?.id);
         }
         return html`
-            <div class="form-group">
-                <div class="browser-subsection" id="${subsection.id}">${subsection.name}
+            <div class="mb-3">
+                <label class="form-label fw-bold" id="${subsection.id}">${subsection.name}
                     ${subsection.tooltip ? html`
-                        <div class="tooltip-div pull-right">
-                            <a tooltip-title="${subsection.name}" tooltip-text="${subsection.tooltip}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                        </div>` : null}
-                </div>
+                        <a tooltip-title="${subsection.name}" tooltip-text="${subsection.tooltip}">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        </a>
+                        ` : null}
+                </label>
                 <div id="${this._prefix}${subsection.id}" class="cy-subsection-content" data-cy="${subsection.id}">
                     ${content}
                 </div>
@@ -287,7 +306,7 @@ export default class RgaFilter extends LitElement {
             </div>
         ` : null}
 
-        <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
+        <div class="d-grid gap-1 mb-3" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
             ${this.config?.sections?.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
         </div>
         `;

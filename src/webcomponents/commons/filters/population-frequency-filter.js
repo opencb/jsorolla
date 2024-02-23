@@ -252,40 +252,36 @@ export default class PopulationFrequencyFilter extends LitElement {
             const allowedFrequenciesArray = this.allowedFrequencies.split(",");
             return html`
                 ${this._populationFrequencies.studies.map(study => html`
-                    <div class="mb-1">
-                        <div class="ps-1">
-                            <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus" data-cy="pop-freq-toggle-${study.id}"
-                                style="cursor: pointer" @click="${this.handleCollapseAction}">
-                            </i>
-                            <label class="form-label fw-bold">${study.title}</label>
-                        </div>
-                        <div id="${this._prefix}${study.id}" class="row g-2" hidden data-cy="pop-freq-codes-wrapper-${study.id}">
+                    <div class="mb-2">
+                        <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus" data-cy="pop-freq-toggle-${study.id}"
+                            style="cursor: pointer" @click="${this.handleCollapseAction}">
+                        </i>
+                        <span class="form-label fw-bold">${study.title}</span>
+                        <div class="row g-2"  id="${this._prefix}${study.id}" hidden data-cy="pop-freq-codes-wrapper-${study.id}">
                             ${study.populations && study.populations.length && study.populations.map(popFreq => html`
-                                <div class="mb-3">
-                                    <div class="col-md-2">
-                                        <div>${popFreq.id}</div>
-                                    </div>
-                                    <div class="col-md-5">
-                                        <select-field-filter2
-                                            .data="${this._config.comparators}"
-                                            .value="${this.state[study.id + ":" + popFreq.id]?.comparator}"
-                                            @filterChange="${e => {
-                                                this.filterSelectChange(e, study.id + ":" + popFreq.id, "comparator");
-                                            }}">
-                                        </select-field-filter2>
-                                    </div>
-                                    <div class="col-md-5">
-                                        <select-field-filter2
-                                            .data="${allowedFrequenciesArray}"
-                                            .value="${this.state[study.id + ":" + popFreq.id]?.value}"
-                                            .config="${{
-                                                placeholder: "Frequency ..."
-                                            }}"
-                                            @filterChange="${e => {
-                                                this.filterSelectChange(e, study.id + ":" + popFreq.id, "value");
-                                            }}">
-                                        </select-field-filter2>
-                                    </div>
+                                <label class="col-md-3 col-sm-2 col-form-label">
+                                    >${popFreq.id}
+                                </label>
+                                <div class="col-md-4">
+                                    <select-field-filter2
+                                        .data="${this._config.comparators}"
+                                        .value="${this.state[study.id + ":" + popFreq.id]?.comparator}"
+                                        @filterChange="${e => {
+                                            this.filterSelectChange(e, study.id + ":" + popFreq.id, "comparator");
+                                        }}">
+                                    </select-field-filter2>
+                                </div>
+                                <div class="col-md-5">
+                                    <select-field-filter2
+                                        .data="${allowedFrequenciesArray}"
+                                        .value="${this.state[study.id + ":" + popFreq.id]?.value}"
+                                        .config="${{
+                                            placeholder: "Frequency ..."
+                                        }}"
+                                        @filterChange="${e => {
+                                            this.filterSelectChange(e, study.id + ":" + popFreq.id, "value");
+                                        }}">
+                                    </select-field-filter2>
                                 </div>
                             `)}
                         </div>
@@ -295,13 +291,12 @@ export default class PopulationFrequencyFilter extends LitElement {
         } else {
             return html`
                 ${this._populationFrequencies.studies.map(study => html`
-                    <div class="mb-1">
-                        <div class="ps-1">
-                            <i class="fa fa-plus" id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" data-cy="pop-freq-toggle-${study.id}"
-                                style="cursor: pointer;padding-right: 5px" @click="${this.handleCollapseAction}">
-                            </i>
-                            <label class="form-label fw-bold">${study.title}</label>
-                        </div>
+                    <div class="mb-2">
+                        <i class="fa fa-plus ps-1" id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" data-cy="pop-freq-toggle-${study.id}"
+                            style="cursor: pointer;"
+                            @click="${this.handleCollapseAction}">
+                        </i>
+                        <span class="text-break fw-bold">${study.title}</span>
                         <div class="row g-2" id="${this._prefix}${study.id}" hidden data-cy="pop-freq-codes-wrapper-${study.id}">
                             ${this.showSetAll ? html`
                                     <label class="form-label text-center col-sm-7 col-md-7" data-toggle="tooltip">Set all</label>
@@ -311,18 +306,21 @@ export default class PopulationFrequencyFilter extends LitElement {
                                             name="${study.id}Input" @input="${this.onSetAllFreqChange}">
                                     </div>
                             ` : ""}
-                            ${study.populations && study.populations.length && study.populations.map(popFreq => html`
-                                <number-field-filter
-                                    .value="${getStateValue(this.state, study, popFreq)}"
-                                    .config="${{
-                                        comparator: true,
-                                        layout: [2, 5, 5]
-                                    }}"
-                                    .label="${popFreq.id}"
-                                    type="text"
-                                    @filterChange="${e => this.filterChange(e, `${study.id}:${popFreq.id}`)}">
-                                </number-field-filter>
-                            `)}
+                            ${study.populations && study.populations.length && study.populations.map(popFreq => {
+                                const stateValue = getStateValue(this.state, study, popFreq);
+                                return html`
+                                    <number-field-filter
+                                        .value="${stateValue}"
+                                        .config="${{
+                                            comparator: true,
+                                            layout: [2, 5, 5]
+                                        }}"
+                                        .label="${popFreq.id}"
+                                        data-study="${study.id}"
+                                        type="text"
+                                        @filterChange="${e => this.filterChange(e, `${study.id}:${popFreq.id}`)}">
+                                    </number-field-filter>
+                                `;})}
                         </div>
                     </div>
                 `)}
