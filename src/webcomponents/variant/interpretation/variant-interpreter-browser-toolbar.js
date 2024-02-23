@@ -243,7 +243,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             <strong>Reset</strong>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
-                            <li class="my-1 mx-2">
+                            <li class="dropdown-item">
                                 <div class="my-1 mx-0">
                                     <span class="fw-bold">Added Variants</span>
                                 </div>
@@ -256,7 +256,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                 </div>
                             </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li class="my-1 mx-2">
+                            <li class="dropdown-item">
                                 <div class="my-1 mx-0">
                                     <span class="fw-bold">Removed Variants</span>
                                 </div>
@@ -269,7 +269,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                 </div>
                             </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li class="my-1 mx-2">
+                            <li class="dropdown-item">
                                 <div class="float-end">
                                     <button type="button" ?disabled="${!(this.state.addedVariants?.length || this.state.removedVariants?.length)}"
                                             class="btn btn-primary m-1 ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}"
@@ -290,7 +290,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             <i class="fas fa-save pe-1" aria-hidden="true"></i>
                             <strong>Save</strong>
                             ${hasVariantsToSave ? html`
-                                <span class="badge ms-1">
+                                <span class="badge bg-white text-danger rounded-pill ms-1">
                                     ${this.state.addedVariants.length + this.state.removedVariants.length + this.state.updatedVariants.length}
                                 </span>
                             ` : null}
