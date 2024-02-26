@@ -417,9 +417,6 @@ export default class IndividualView extends LitElement {
                                         // formatter: value => value ? "true" : "false",
                                         display: {
                                             render: somatic => somatic ? "true" : "false",
-                                            style: {
-                                                color: "red"
-                                            }
                                         }
                                     },
                                     {

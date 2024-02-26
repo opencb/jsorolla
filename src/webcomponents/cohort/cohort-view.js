@@ -22,6 +22,7 @@ import PdfBuilder, {stylePdf} from "../commons/forms/pdf-builder.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
 import "../study/annotationset/annotation-set-view.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter";
 
 export default class CohortView extends LitElement {
 
@@ -288,23 +289,22 @@ export default class CohortView extends LitElement {
                                         // sortable: true,
                                     },
                                     {
-                                        id: "somatic",
                                         title: "Somatic",
+                                        type: "custom",
                                         field: "somatic",
-                                        // sortable: true,
-                                        // width: "*",
-                                        formatter: value => value ? "true" : "false",
+                                        display: {
+                                            render: somatic => somatic ? "true" : "false",
+                                        }
                                     },
                                     {
-                                        id: "phenotypes",
                                         title: "Phenotypes",
                                         field: "phenotypes",
-                                        // sortable: true,
-                                        // width: "*",
-                                        formatter: (value, row) => {
-                                            return row?.phenotypes?.length > 0 ? row.phenotypes.map(d => d.id).join(", ") : "-";
-                                        }
-                                    }
+                                        type: "list",
+                                        display: {
+                                            contentLayout: "bullets",
+                                            format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
+                                        },
+                                    },
                                 ],
                                 // pagination: true,
                                 // search: true,

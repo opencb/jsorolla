@@ -350,12 +350,11 @@ export default class ClinicalAnalysisView extends LitElement {
                         },
                         {
                             title: "Date of Birth",
-                            field: "dateOfBirth",
+                            field: "proband.dateOfBirth",
                         },
                         {
                             title: "Life Status",
-                            field: "lifeStatus",
-
+                            field: "proband.lifeStatus",
                         },
                         {
                             title: "Disorders",
@@ -378,12 +377,12 @@ export default class ClinicalAnalysisView extends LitElement {
                             field: "proband.phenotypes",
                             type: "list",
                             display: {
-                                defaultValue: "N/A",
+                                defaultValue: "",
                                 contentLayout: "bullets",
                                 transform: phenotypes => (phenotypes || [])
                                     .sort(item => item?.status === "OBSERVED" ? -1 : 1)
                                     .map(phenotype => ({phenotype})),
-                                template: "${phenotype.name} (${phenotype.id}) - Status: ${phenotype.status}",
+                                template: "${phenotype.name} (${phenotype.id}) - ${phenotype.status}",
                                 link: {
                                     "phenotype.id": id => id.startsWith("HP:") ? BioinfoUtils.getHpoLink(id) : id,
                                 }

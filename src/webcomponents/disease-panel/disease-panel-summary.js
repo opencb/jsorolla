@@ -165,7 +165,7 @@ export default class DiseasePanelSummary extends LitElement {
                             display: {
                                 template: "${id} (UUID: ${uuid})",
                                 link: {
-                                    id: (id, data) => BioinfoUtils.getPanelAppLink(data.source.id),
+                                    id: (id, data) => data?.source?.project === "PanelApp"? BioinfoUtils.getPanelAppLink(data.source.id) : false,
                                 },
                             }
                         },

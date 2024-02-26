@@ -196,7 +196,7 @@ export default class DataForm extends LitElement {
             }
             if (element?.display?.link?.[match]) {
                 const href = element?.display?.link?.[match](value, data);
-                value = `<a href="${href}" target="_blank">${value}</a>`;
+                value = href ? `<a href="${href}" target="_blank">${value}</a>` : value;
             }
             if (element?.display?.className?.[match] || element?.display?.style?.[match]) {
                 const style = this._parseStyleField(element.display?.style?.[match], value, data);
@@ -830,7 +830,7 @@ export default class DataForm extends LitElement {
     }
 
     _createTextElement(element) {
-        const value = typeof element.text === "function" ? element.text(this.data) : element.text;
+        const value = typeof element.text === "function" ? element.text(this.data, element.field) : element.text;
         const textClass = element.display?.textClassName ?? "";
         const textStyle = element.display?.textStyle ?? "";
         const notificationClass = element.type === "notification" ? DataForm.NOTIFICATION_TYPES[element?.display?.notificationType] || "alert alert-info" : "";
