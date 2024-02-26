@@ -326,10 +326,6 @@ export default class FamilyView extends LitElement {
                                             format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype])
                                         }
                                     },
-                                    {
-                                        title: "Life Status",
-                                        field: "lifeStatus",
-                                    },
                                 ]
                             }
                         },
