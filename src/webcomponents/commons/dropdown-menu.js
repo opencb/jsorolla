@@ -52,16 +52,16 @@ export default class DropdownMenu extends LitElement {
         return html`
             ${element.link ? html`
                 <li>
-                    <a href="${element.link}" target="_blank" class="btn" data-action="${element.id}"
-                       style="text-align: left" ${element.disabled ? "disabled" : ""}>
-                        <i class="${element.icon ?? ""} icon-padding" aria-hidden="true"></i> ${element.title}
+                    <a href="${element.link}" target="_blank" class="dropdown-item text-start" data-action="${element.id}"
+                        ?disabled=${!!element?.disabled}>
+                        <i class="${element.icon ?? ""} pe-1" aria-hidden="true"></i> ${element.title}
                     </a>
                 </li>
             ` : html`
                 <li>
-                    <a href="javascript: void 0" class="btn" data-action="${element.id}"
-                       style="text-align: left" ${element.disabled ? "disabled" : ""}>
-                        <i class="${element.icon ?? ""} icon-padding" aria-hidden="true"></i> ${element.title}
+                    <a href="javascript: void 0" class="dropdown-item text-start" data-action="${element.id}"
+                        ?disabled=${!!element?.disabled}>
+                        <i class="${element.icon ?? ""} pe-1" aria-hidden="true"></i> ${element.title}
                     </a>
                 </li>
             `}
@@ -75,13 +75,12 @@ export default class DropdownMenu extends LitElement {
 
         return html`
             <div class="dropdown">
-                <button type="button" data-toggle="dropdown" class="btn ${this.config.display?.className ? this.config.display.className : "btn-light btn-sm"} dropdown-toggle one-line">
+                <button type="button" data-bs-toggle="dropdown" class="btn ${this.config.display?.className ? this.config.display.className : "btn-light btn-sm"} dropdown-toggle one-line">
                     ${this.config.icon ? html`
-                        <i class="${this.config.icon ?? ""} icon-padding" aria-hidden="true"></i>
+                        <i class="${this.config.icon ?? ""} pe-1" aria-hidden="true"></i>
                     ` : null
                     }
                     ${this.config.title}
-                    <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                     ${this.config.sections

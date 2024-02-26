@@ -156,7 +156,7 @@ export default class OpencbGridToolbar extends LitElement {
                                     <!-- Note 20230517 Vero: it is not possible to trigger a tooltip on a disabled button.
                                     As a workaround, the tooltip will be displayed from a wrapper -->
                                     ${isCreateDisabled ? html `
-                                        <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="${isCreateDisabledTooltip}">
+                                        <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="${isCreateDisabledTooltip}">
                                             <button data-action="create" type="button" class="btn btn-light" disabled>
                                                 <i class="fas fa-file pe-1" aria-hidden="true"></i> New ...
                                             </button>

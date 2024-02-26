@@ -299,7 +299,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                         <span class="text-break fw-bold">${study.title}</span>
                         <div class="row g-2" id="${this._prefix}${study.id}" hidden data-cy="pop-freq-codes-wrapper-${study.id}">
                             ${this.showSetAll ? html`
-                                    <label class="form-label text-center col-sm-7 col-md-7" data-toggle="tooltip">Set all</label>
+                                    <label class="form-label text-center col-sm-7 col-md-7" data-bs-toggle="tooltip">Set all</label>
                                     <div class="col-sm-5">
                                         <input class="form-control input-sm ${this._prefix}FilterTextInput" id="${this._prefix}${study.id}Input"
                                             type="text" data-mode="all" data-study="${study.id}"
@@ -320,7 +320,8 @@ export default class PopulationFrequencyFilter extends LitElement {
                                         type="text"
                                         @filterChange="${e => this.filterChange(e, `${study.id}:${popFreq.id}`)}">
                                     </number-field-filter>
-                                `;})}
+                                `;
+                            })}
                         </div>
                     </div>
                 `)}

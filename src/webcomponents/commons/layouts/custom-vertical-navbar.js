@@ -236,9 +236,9 @@ export default class CustomVerticalNavBar extends LitElement {
                         .map(item => item.submenu && UtilsNew.hasVisibleItems(item.submenu, this.opencgaSession) ? html `
                             <li class="dropdown open">
                                 <!-- CAUTION: href attribute removed. To discuss: toggle open always-->
-                                <a class="dropdown-toggle" data-toggle="dropdown open"
+                                <a class="dropdown-toggle" data-bs-toggle="dropdown open"
                                 role="button" aria-haspopup="true" aria-expanded="true">
-                                    ${item.name} <!-- <span class="caret"></span> -->
+                                    ${item.name}
                                 </a>
                                 <ul class="dropdown-menu" @click="${this._onItemNavClick}">
                                 ${
@@ -276,7 +276,7 @@ export default class CustomVerticalNavBar extends LitElement {
                             <li>TODO: NO SUBMENU</li>
                         `)}
                 </ul>
-
+            </div>
         `;
     }
 

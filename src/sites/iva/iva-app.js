@@ -1364,15 +1364,15 @@ class IvaApp extends LitElement {
             </div>
         ` : null}
 
-                ${this.config.enabledComponents["rga"] ? html`
-            <div class="content" id="rga">
-                <rga-browser
-                    .opencgaSession="${this.opencgaSession}"
-                    .cellbaseClient="${this.cellbaseClient}"
-                    .settings="${this.settings.RGA_BROWSER}">
-                </rga-browser>
-            </div>
-        ` : null}
+            ${this.config.enabledComponents["rga"] ? html`
+                <div class="content" id="rga">
+                    <rga-browser
+                        .opencgaSession="${this.opencgaSession}"
+                        .cellbaseClient="${this.cellbaseClient}"
+                        .settings="${this.settings.RGA_BROWSER}">
+                    </rga-browser>
+                </div>
+            ` : null}
 
                 ${this.config.enabledComponents["rd-interpreter"] ? html`
             <div class="content" id="rd-interpreter">
@@ -1402,7 +1402,7 @@ class IvaApp extends LitElement {
                     .populationFrequencies="${this.config.populationFrequencies}"
                     .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
                     @gene="${this.geneSelected}"
-                    @samplechange="${this.onSampleChange}"></variant-cancer-interpreter>
+                    @samplechange="${this.onSampleChange}">
                 </variant-cancer-interpreter>
             </div>
         ` : null}

@@ -19,7 +19,6 @@ import UtilsNew from "../../core/utils-new.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../variant/variant-browser-grid.js";
 
-
 export default class OpencgaProteinView extends LitElement {
 
     constructor() {
@@ -329,8 +328,8 @@ export default class OpencgaProteinView extends LitElement {
         <br>
 
         <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active">
-                <a href="#${this._prefix}Variants" role="tab" data-toggle="tab" class="protein-variant-tab-title">Variants</a>
+            <li role="presentation" class="nav-item active">
+                <a href="#${this._prefix}Variants" role="tab" data-bs-toggle="tab" class="nav-link protein-variant-tab-title">Variants</a>
             </li>
         </ul>
 

@@ -509,7 +509,7 @@ const client = new OpenCGAClient({
 
                             ${this.format === "tab" && this.exportFields?.length ? html`
                                 <div>
-                                    <span data-toggle="collapse" class="export-fields-button collapsed" data-target="#${this._prefix}exportFields">
+                                    <span data-bs-toggle="collapse" class="export-fields-button collapsed" data-bs-target="#${this._prefix}exportFields">
                                         Customise export fields
                                     </span>
                                     <div id="${this._prefix}exportFields" class="collapse">

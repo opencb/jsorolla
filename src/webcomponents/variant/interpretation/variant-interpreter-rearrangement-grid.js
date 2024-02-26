@@ -556,7 +556,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     title: `Interpretation
                         <a class='interpretation-info-icon'
                             tooltip-title='Interpretation'
-                            tooltip-text="<span class="fw-bold">Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations"
+                            tooltip-text="<span class='fw-bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations"
                             tooltip-position-at="left bottom" tooltip-position-my="right top">
                             <i class='fa fa-info-circle' aria-hidden='true'></i>
                         </a>`,
@@ -575,7 +575,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
                         return `
                             <div class="dropdown">
-                                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
                                     <span>Actions</span>
                                     <span class="caret" style="margin-left: 5px"></span>
