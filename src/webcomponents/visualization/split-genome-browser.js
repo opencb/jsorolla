@@ -31,7 +31,7 @@ export default class SplitGenomeBrowser extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession) {
+        if (!this.opencgaSession || !this.regions) {
             return null;
         }
 
