@@ -215,6 +215,9 @@ export default class OpencgaUpdate extends LitElement {
                                 // eslint-disable-next-line no-param-reassign
                                 params.mother = {id: params.mother.id};
                             }
+                            if (params.dateOfBirth) {
+                                params.dateOfBirth = UtilsNew.dateFormatter(params.dateOfBirth, "YYYYMMDD");
+                            }
                         },
                     ];
                     break;

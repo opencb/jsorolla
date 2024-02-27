@@ -67,6 +67,7 @@ export default class IndividualView extends LitElement {
             defaultValue: "-",
             defaultLayout: "horizontal",
             buttonsVisible: false,
+            pdf: false,
         };
         this._config = this.getDefaultConfig();
     }
@@ -85,7 +86,10 @@ export default class IndividualView extends LitElement {
             this.individualIdObserver();
         }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig
+            };
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -178,65 +182,94 @@ export default class IndividualView extends LitElement {
                     collapsed: false,
                     display: {
                         visible: individual => individual?.id,
+                        // layout: [
+                        //     {
+                        //         id: "name",
+                        //         className: ""
+                        //     },
+                        //     {
+                        //         id: "",
+                        //         className: "row",
+                        //         elements: [
+                        //             {
+                        //                 id: "father",
+                        //                 className: "col-md-6"
+                        //             },
+                        //             {
+                        //                 id: "mother",
+                        //                 className: "col-md-6"
+                        //             }
+                        //         ]
+                        //     },
+                        //     {
+                        //         id: "sex",
+                        //         className: ""
+                        //     },
+                        // ]
                     },
                     elements: [
                         {
                             title: "Individual ID",
-                            type: "custom",
+                            // type: "custom",
+                            type: "complex",
                             display: {
-                                render: data => html`
-                                    <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})
-                                `,
-                                // render: {
-                                //     separator: "-",
-                                //     items: [
-                                //         {
-                                //             text: "${data.id}",
-                                //             style: {
-                                //                 "font-weight": "bold"
-                                //             }
-                                //         },
-                                //         {
-                                //             text: "${data.uuid}",
-                                //         }
-                                //     ]
-                                // }
+                                // render: data => `
+                                //     <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})
+                                // `,
+                                template: "${id} (UUID: ${uuid})",
+                                // transform: {
+                                //     id: id => id.toLowerCase(),
+                                // },
+                                style: {
+                                    id: {
+                                        "font-weight": "bold",
+                                    }
+                                }
                             },
                         },
                         {
+                            id: "name",
                             title: "Name",
                             field: "name",
                         },
                         {
+                            id: "father",
                             title: "Father ID",
                             field: "father.id",
-                            type: "basic",
+                            // type: "basic",
                         },
                         {
+                            id: "mother",
                             title: "Mother ID",
                             field: "mother.id",
-                            type: "basic",
+                            // type: "basic",
                         },
                         {
+                            id: "sex",
                             title: "Reported Sex (Karyotypic)",
-                            type: "custom",
+                            // type: "custom",
+                            type: "complex",
                             display: {
-                                render: individual => `
-                                    ${individual.sex?.id ?? individual.sex ?? "Not specified"} (${individual.karyotypicSex ?? "Not specified"})
-                                `,
+                                // render: individual => `
+                                //     ${individual.sex?.id ?? "Not specified"} (${individual.karyotypicSex ?? "Not specified"})
+                                // `,
+                                defaultValue: "Not specified",
+                                template: "${sex.id} (${karyotypicSex})"
                             },
                         },
                         {
                             title: "Inferred Karyotypic Sex",
-                            type: "custom",
+                            // type: "custom",
+                            field: "qualityControl",
                             display: {
-                                render: data => {
-                                    if (data?.qualityControl?.inferredSexReports && data.qualityControl.inferredSexReports?.length > 0) {
-                                        return data.qualityControl.inferredSexReports[0].inferredKaryotypicSex;
-                                    } else {
-                                        return "-";
-                                    }
-                                },
+                                // render: data => {
+                                //     if (data?.qualityControl?.inferredSexReports?.length > 0) {
+                                //         return data.qualityControl.inferredSexReports[0].inferredKaryotypicSex;
+                                //     } else {
+                                //         return "-";
+                                //     }
+                                // },
+                                format: qualityControl => qualityControl?.inferredSexReports?.length > 0 ? qualityControl.inferredSexReports[0].inferredKaryotypicSex : "-"
                             },
                         },
                         {
@@ -249,7 +282,8 @@ export default class IndividualView extends LitElement {
                             type: "list",
                             display: {
                                 contentLayout: "vertical",
-                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder])),
+                                // render: disorder => CatalogGridFormatter.disorderFormatter(disorder),
+                                format: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
                                 defaultValue: "N/A",
                             },
                         },
@@ -259,6 +293,11 @@ export default class IndividualView extends LitElement {
                             type: "list",
                             display: {
                                 contentLayout: "vertical",
+                                // filter: phenotypes => [phenotypes[0]],
+                                // transform: phenotypes => phenotypes.map(phenotype => {
+                                //     phenotype.id = phenotype.id.toLowerCase();
+                                //     return phenotype;
+                                // }),
                                 // render: phenotype => {
                                 //     let id = phenotype.id;
                                 //     if (phenotype.id.startsWith("HP:")) {
@@ -270,19 +309,16 @@ export default class IndividualView extends LitElement {
                                 //     }
                                 //     return html`${phenotype.name} (${id})`;
                                 // },
-                                render: phenotype => UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype])),
+                                format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
                                 defaultValue: "N/A",
                             },
                         },
                         {
                             title: "Date of Birth",
                             field: "dateOfBirth",
-                            type: "custom",
                             display: {
-                                render: dateOfBirth => {
-                                    return dateOfBirth ? moment(dateOfBirth, "YYYYMMDDHHmmss").format("D MMM YYYY") : "-";
-                                }
-                            }
+                                format: date => UtilsNew.dateFormatter(date)
+                            },
                         },
                         {
                             title: "Life Status",
@@ -294,32 +330,52 @@ export default class IndividualView extends LitElement {
                         },
                         {
                             title: "Status",
-                            field: "internal.status",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: field => field ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-"
+                                // render: field => field ? `${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-"
+                                template: "${internal.status.name} (${internal.status.date})",
+                                format: {
+                                    "internal.status.date": date => UtilsNew.dateFormatter(date)
+                                }
                             },
                         },
                         {
                             title: "Creation Date",
                             field: "creationDate",
-                            type: "custom",
                             display: {
-                                render: field => field ? html`${UtilsNew.dateFormatter(field)}` : "-"
+                                // render: field => field ? UtilsNew.dateFormatter(field) : "-"
+                                format: date => UtilsNew.dateFormatter(date)
                             },
                         },
                         {
                             title: "Modification Date",
                             field: "modificationDate",
-                            type: "custom",
+                            // type: "custom",
                             display: {
-                                render: field => field ? html`${UtilsNew.dateFormatter(field)}` : "-"
+                                format: modificationDate => UtilsNew.dateFormatter(modificationDate),
                             },
                         },
                         {
                             title: "Description",
                             field: "description",
                         },
+                        /*
+                        // Fixme: fix export to pdf
+                        {
+                            title: "Annotation sets",
+                            field: "annotationSets",
+                            type: "custom",
+                            display: {
+                                showPDF: false,
+                                render: field => html`
+                                    <annotation-set-view
+                                        .annotationSets="${field}">
+                                    </annotation-set-view>
+                                `,
+                                defaultValue: "N/A",
+                            },
+                        },
+                        */
                     ],
                 },
                 {
@@ -333,23 +389,46 @@ export default class IndividualView extends LitElement {
                             field: "samples",
                             type: "table",
                             display: {
+                                className: "",
+                                style: "",
+                                headerClassName: "",
+                                headerStyle: "",
+                                headerVisible: true,
+                                // filter: array => array.filter(item => item.somatic),
+                                // transform: array => array.map(item => {
+                                //     item.somatic = true;
+                                //     return item;
+                                // }),
+                                defaultValue: "No phenotypes found",
                                 columns: [
                                     {
                                         title: "Samples ID",
                                         field: "id",
+                                        display: {
+                                            style: {
+                                                "font-weight": "bold"
+                                            }
+                                        }
                                     },
                                     {
                                         title: "Somatic",
+                                        type: "custom",
                                         field: "somatic",
-                                        formatter: value => value ? "true" : "false",
+                                        // formatter: value => value ? "true" : "false",
+                                        display: {
+                                            render: somatic => somatic ? "true" : "false",
+                                        }
                                     },
                                     {
                                         title: "Phenotypes",
                                         field: "phenotypes",
-                                        formatter: value => value?.length ? `${value.map(d => d.id).join(", ")}` : "-",
+                                        type: "list",
+                                        display: {
+                                            contentLayout: "bullets",
+                                            format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
+                                        },
                                     },
                                 ],
-                                defaultValue: "No phenotypes found",
                             },
                         },
                     ],

@@ -421,7 +421,7 @@ export default class IndividualCreate extends LitElement {
                                     field: "phenotypes[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add phenotype ID......",
+                                        placeholder: "Add phenotype ID...",
                                     }
                                 },
                                 {
