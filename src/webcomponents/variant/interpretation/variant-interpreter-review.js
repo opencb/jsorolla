@@ -22,7 +22,6 @@ import "../../clinical/interpretation/clinical-interpretation-summary.js";
 import "../../clinical/interpretation/clinical-interpretation-update.js";
 import "../../commons/view/detail-tabs.js";
 
-
 export default class VariantInterpreterReview extends LitElement {
 
     constructor() {
@@ -128,7 +127,7 @@ export default class VariantInterpreterReview extends LitElement {
                                 class="bg-white"
                                 title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
                             </tool-header>
-                            <div class="col-md-8">
+                            <div class="col-md-8 mb-3">
                                 <clinical-interpretation-summary
                                     .opencgaSession="${opencgaSession}"
                                     .interpretation="${clinicalAnalysis?.interpretation}">
