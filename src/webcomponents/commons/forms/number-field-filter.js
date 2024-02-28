@@ -151,7 +151,7 @@ export default class NumberFieldFilter extends LitElement {
                             .data="${this._config.values}"
                             .value="${this.state.comparator}"
                             .config="${{
-                                multiple: !this._config.comparatorForceSelection,
+                                // multiple: !this._config.comparatorForceSelection,
                                 liveSearch: false
                             }}"
                             @filterChange="${e => this.filterChange(e, "comparator", e.detail.value)}">

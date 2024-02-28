@@ -296,6 +296,7 @@ export default class StudyAdminAudit extends LitElement {
                                 .data="${this.sortedUserIds || []}"
                                 .config=${{
                                     ...this._config,
+                                    multiple: true,
                                     placeholder: "User: All",
                                     liveSearch: false,
                                 }}
@@ -312,6 +313,7 @@ export default class StudyAdminAudit extends LitElement {
                                 .data="${this.actionValues}"
                                 .config=${{
                                     ...this._config,
+                                    multiple: true,
                                     placeholder: "Action: All",
                                     liveSearch: false,
                                 }}

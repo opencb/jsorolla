@@ -106,6 +106,7 @@ export default class ClinicalAnnotationFilter extends LitElement {
                     <select-field-filter2
                         .data="${this._config.clinicalDatabases}"
                         .value=${this.clinical}
+                        .config="${{multiple: true}}"
                         @filterChange="${e => this.filterChange(e, "clinical")}">
                     </select-field-filter2>
                 </div>
@@ -119,6 +120,7 @@ export default class ClinicalAnnotationFilter extends LitElement {
                     <select-field-filter2
                         .data=${CLINICAL_SIGNIFICANCE}
                         .value=${this.clinicalSignificance}
+                        .config="${{multiple: true}}"
                         @filterChange="${e => this.filterChange(e, "clinicalSignificance")}">
                     </select-field-filter2>
                 </div>

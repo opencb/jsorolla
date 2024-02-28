@@ -256,7 +256,10 @@ export default class DiseasePanelFilter extends LitElement {
                     <select-field-filter2
                         .data="${this.panelFeatureTypes}"
                         .value=${this.panelFeatureType}
-                        .config=${{disabled: this.genes?.length === 0 || this.disabled}}
+                        .config=${{
+                            multiple: true,
+                            disabled: this.genes?.length === 0 || this.disabled
+                            }}
                         @filterChange="${e => this.filterChange(e, "panelFeatureType")}">
                     </select-field-filter2>
                 </div>
@@ -269,6 +272,7 @@ export default class DiseasePanelFilter extends LitElement {
                         .data="${MODE_OF_INHERITANCE}"
                         .value=${this.panelModeOfInheritance}
                         .config=${{
+                            multiple: true,
                             disabled: this.genes?.length === 0 || this.disabled
                         }}
                         @filterChange="${e => this.filterChange(e, "panelModeOfInheritance")}">
@@ -283,6 +287,7 @@ export default class DiseasePanelFilter extends LitElement {
                         .data="${DISEASE_PANEL_CONFIDENCE}"
                         .value=${this.panelConfidence}
                         .config=${{
+                            multiple: true,
                             disabled: this.genes?.length === 0 || this.disabled
                         }}
                         @filterChange="${e => this.filterChange(e, "panelConfidence")}">
@@ -297,6 +302,7 @@ export default class DiseasePanelFilter extends LitElement {
                         .data="${ROLE_IN_CANCER}"
                         .value=${this.panelRoleInCancer}
                         .config=${{
+                            multiple: true,
                             disabled: this.genes?.length === 0 || this.disabled
                         }}
                         @filterChange="${e => this.filterChange(e, "panelRoleInCancer")}">

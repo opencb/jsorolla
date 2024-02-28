@@ -246,6 +246,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                             .config="${{
                                                 title: "Columns",
                                                 liveSearch: false,
+                                                multiple: true,
                                             }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                         </select-field-filter2>

@@ -338,9 +338,6 @@ export default class FacetFilter extends LitElement {
                         <select-field-filter2
                             .data="${this.config.sections.map(section => ({...section, fields: section.fields.map(item => ({...item, disabled: item.id === facet.id}))}))}"
                             .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null}
-                            .config="${{
-                                multiple: false,
-                            }}"
                             @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}">
                         </select-field-filter2>
                         <div class="pt-1 pb-2">
@@ -588,7 +585,10 @@ export default class FacetFilter extends LitElement {
                 </label>
                 <select-field-filter2
                     .data="${this.config.sections}"
-                    .value=${Object.keys(this.selectedFacet).join(",")}
+                    .value="${Object.keys(this.selectedFacet).join(",")}"
+                    .config="${{
+                        multiple: true,
+                    }}"
                     @filterChange="${this.onFacetFieldChange}">
                 </select-field-filter2>
                 <div class="text-center">

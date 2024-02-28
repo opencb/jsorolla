@@ -126,6 +126,7 @@ export default class IndividualHpoFilter extends LitElement {
                     .value="${this.value || ""}"
                     .data="${this.phenotypes}"
                     .config="${{
+                        multiple: true,
                         liveSearch: this.phenotypes?.length > 25,
                         disabled: this.phenotypes?.length === 0 || this.allChecked || this.disabled
                     }}"

@@ -241,7 +241,8 @@ export default class RgaFilter extends LitElement {
                         .data="${subsection.allowedValues}"
                         .value="${this.preparedQuery[subsection.id]}"
                         .config="${{
-                            liveSearch: false
+                            liveSearch: false,
+                            multiple: true
                         }}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </select-field-filter2>`;

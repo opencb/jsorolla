@@ -270,6 +270,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                 .data="${variable?.allowedKeys}"
                                 .value="${this.variableMap?.[variableSet.id]?.[variable.id] ?? []}"
                                 .config="${{
+                                    multiple: true,
                                     liveSearch: false
                                 }}"
                                 @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}">
@@ -319,6 +320,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                 .data="${variable?.allowedKeys}"
                                 .value=${this.variableMap?.[variableSet.id]?.[variable.id] ?? []}
                                 .config="${{
+                                    multiple: true,
                                     liveSearch: false
                                 }}"
                                 @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}">

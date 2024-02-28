@@ -275,6 +275,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                             .value="${this.selectedColumns?.join(",")}"
                                             .config="${{
                                                 title: "Columns",
+                                                multiple: true,
                                                 liveSearch: false,
                                             }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">

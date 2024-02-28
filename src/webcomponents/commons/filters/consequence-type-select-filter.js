@@ -220,7 +220,8 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                 <label class="form-label">Or select terms manually:</label>
                 <select-field-filter2
                     .data="${this.options}"
-                    .value=${this._ct}
+                    .value="${this._ct}"
+                    .config="${{multiple: true}}"
                     @filterChange="${this.onFilterChange}">
                 </select-field-filter2>
             </div>

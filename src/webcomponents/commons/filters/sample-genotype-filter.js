@@ -107,6 +107,7 @@ export default class SampleGenotypeFilter extends LitElement {
                 .data="${this._config.genotypes}"
                 .value=${this.genotypes}
                 .config="${{
+                    multiple: true,
                     liveSearch: false
                 }}"
                 @filterChange="${this.filterChange}">

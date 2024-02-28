@@ -74,7 +74,8 @@ export default class VariantFileFilter extends LitElement {
                 .data="${this.files}"
                 .value="${this.value}"
                 .config="${{
-                    liveSearch: false
+                    multiple: true,
+                    liveSearch: false,
                 }}"
                 @filterChange="${this.filterChange}">
             </select-field-filter2>

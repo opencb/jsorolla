@@ -210,6 +210,7 @@ export default class OpencgaFileFilter extends LitElement {
                 content = html`
                     <select-field-filter2
                         .value="${this.preparedQuery[subsection.id]}"
+                        .config="${{multiple: true}}"
                         .data="${subsection.allowedValues}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </select-field-filter2>
