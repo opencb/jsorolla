@@ -28,6 +28,7 @@ import "../commons/image-viewer.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 import "./filters/clinical-analyst-filter.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter";
 
 
 export default class ClinicalAnalysisCreate extends LitElement {
@@ -592,24 +593,41 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 defaultValue: "No proband or sample selected.",
                                 columns: [
                                     {
-                                        id: "id",
                                         title: "ID",
-                                        field: "id",
-                                        formatter: (value, row) => `<span style="font-weight: bold">${row.id}</span>`,
+                                        type: "complex",
+                                        display: {
+                                            defaultValue: "-",
+                                            template: "${id} ${somatic}",
+                                            format: {
+                                                "somatic": (somatic, sample) => sample.somatic ? "Somatic" : "Germline",
+                                            },
+                                            className: {
+                                                "somatic": "help-block"
+                                            },
+                                            style: {
+                                                "id": {
+                                                    "font-weight": "bold"
+                                                },
+                                                "somatic": {
+                                                    "margin": "5px 0"
+                                                },
+                                            }
+                                        },
                                     },
                                     {
-                                        id: "fileIds",
                                         title: "Files",
                                         field: "fileIds",
-                                        formatter: values => {
-                                            return (values || []).filter(file => file?.includes(".vcf")).join("<br>") || "-";
+                                        type: "list",
+                                        display: {
+                                            defaultValue: "-",
+                                            contentLayout: "vertical",
+                                            transform: values => (values || []).filter(file => file?.includes(".vcf")),
                                         },
                                     },
                                     {
                                         id: "Status",
                                         title: "Status",
                                         field: "internal.status.id",
-                                        formatter: value => value ?? "-"
                                     },
                                 ]
                             }
@@ -691,32 +709,31 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 errorClassName: "",
                                 columns: [
                                     {
-                                        id: "individualId",
                                         title: "Individual ID",
-                                        formatter: (value, row) => `
-                                                <div style="font-weight: bold">
-                                                    ${row.id}
-                                                </div>
-                                                <div class="help-block">
-                                                    ${row?.sex?.id || "Not specified"} (${row.karyotypicSex || "Not specified"})
-                                                </div>
-                                            `,
+                                        field: "id",
+                                        display: {
+                                            style: {
+                                                "font-weight": "bold"
+                                            }
+                                        }
                                     },
                                     {
-                                        id: "name",
-                                        title: "Individual Name",
-                                        field: "name",
+                                        title: "Sex",
+                                        field: "sex",
+                                        display: {
+                                            format: sex => sex.id
+                                        }
                                     },
                                     {
                                         id: "samples",
                                         title: "Samples",
                                         field: "samples",
-                                        formatter: values => {
-                                            if (!values || values.length === 0) {
-                                                return "-";
-                                            }
-                                            return values.map(sample => `<div>${sample.id}</div>`);
-                                        },
+                                        type: "list",
+                                        display: {
+                                            defaultValue: "-",
+                                            contentLayout: "vertical",
+                                            template: "${id}"
+                                        }
                                     },
                                     {
                                         id: "fatherId",
@@ -729,22 +746,14 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         field: "mother.id",
                                     },
                                     {
-                                        id: "disorders",
                                         title: "Disorders",
                                         field: "disorders",
-                                        formatter: (values, row) => {
-                                            if (values && values.length > 0) {
-                                                let id = values[0].id;
-                                                const name = values[0].name;
-                                                if (id?.startsWith("OMIM:")) {
-                                                    id = `<a href="https://omim.org/entry/${id.split(":")[1]}" target="_blank">${id}</a>`;
-                                                }
-                                                return `${name} (${id})`;
-                                            } else {
-                                                return "<span>N/A</span>";
-                                            }
+                                        type: "list",
+                                        display: {
+                                            defaultValue: "N/A",
+                                            format: disorder => CatalogGridFormatter.disorderFormatter([disorder])
                                         }
-                                    }
+                                    },
                                 ]
                             }
                         },
@@ -841,15 +850,23 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 defaultValue: "No proband or sample(s) selected.",
                                 columns: [
                                     {
-                                        id: "fileIds",
                                         title: "ID",
-                                        formatter: (value, row) => `<span style="font-weight: bold">${row.id}</span>`,
+                                        field: "id",
+                                        display: {
+                                            style: {
+                                                "font-weight": "bold"
+                                            }
+                                        },
                                     },
                                     {
-                                        id: "fileIds",
                                         title: "Files",
                                         field: "fileIds",
-                                        formatter: (values, row) => `${values.join("\n")}`,
+                                        type: "list",
+                                        display: {
+                                            defaultValue: "-",
+                                            contentLayout: "vertical",
+                                            transform: values => (values || []).filter(file => file?.includes(".vcf")),
+                                        },
                                     },
                                     {
                                         title: "Somatic",
@@ -858,7 +875,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     {
                                         title: "Status",
                                         field: "internal.status.id",
-                                        formatter: value => value ?? "-"
                                     }
                                 ]
                             }
