@@ -69,6 +69,7 @@ export default class SampleGenotypeFilter extends LitElement {
     }
 
     filterChange(e) {
+
         // Prepare sample query filter
         let sampleFilter = this.sampleId;
         if (e.detail.value) {
@@ -102,10 +103,11 @@ export default class SampleGenotypeFilter extends LitElement {
     }
 
     render() {
+        const genotypes = this.genotypes ?? [];
         return html`
             <select-field-filter2
-                .data="${this._config.genotypes}"
-                .value=${this.genotypes}
+                .data="${this._config?.genotypes}"
+                .value=${genotypes}
                 .config="${{
                     multiple: true,
                     liveSearch: false
