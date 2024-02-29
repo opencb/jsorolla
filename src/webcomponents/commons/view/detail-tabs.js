@@ -194,7 +194,7 @@ export default class DetailTabs extends LitElement {
 
         return html`
             ${this._config.title ? this.renderTitle() : null}
-            <div class="detail-tabs">
+            <div class="detail-tabs row">
                 ${!(this._config.hideTabsIfOnlyOneVisible && visibleTabsCount === 1) ? html`
                     <!-- TABS -->
                     ${this.mode === DetailTabs.TABS_MODE ? html`
@@ -213,7 +213,7 @@ export default class DetailTabs extends LitElement {
                     <!-- PILLS -->
                     ${this.mode === DetailTabs.PILLS_VERTICAL_MODE ? html`
                         <div class="col-md-2">
-                            <ul class="nav nav-pills nav-stacked" role="tablist">
+                            <ul class="nav flex-column nav-pills me-3" role="tablist">
                                 ${this.renderTabTitle()}
                             </ul>
                         </div>

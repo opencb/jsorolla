@@ -115,7 +115,7 @@ class SteinerVariantInterpreterAnalysis extends LitElement {
                 name: "Overview",
                 render: (clinicalAnalysis, active, opencgaSession) => {
                     return html`
-                        <div class="col-md-8 col-md-offset-2">
+                        <div class="col-md-8 offset-md-2">
                             <tool-header title="Analysis Overview" class="bg-white"></tool-header>
                             <steiner-variant-interpreter-analysis-overview
                                 .opencgaSession="${opencgaSession}"
@@ -133,7 +133,7 @@ class SteinerVariantInterpreterAnalysis extends LitElement {
                     const probandId = clinicalAnalysis.proband.id;
                     const somaticSample = clinicalAnalysis?.proband?.samples?.find(sample => sample.somatic);
                     return html`
-                        <div class="col-md-8 col-md-offset-2">
+                        <div class="col-md-8 offset-md-2">
                             <tool-header
                                 title="Mutational Signature - ${probandId} (${somaticSample?.id})"
                                 class="bg-white">
@@ -154,7 +154,7 @@ class SteinerVariantInterpreterAnalysis extends LitElement {
                     const probandId = clinicalAnalysis.proband.id;
                     const somaticSample = clinicalAnalysis?.proband?.samples?.find(sample => sample.somatic);
                     return html`
-                        <div class="col-md-8 col-md-offset-2">
+                        <div class="col-md-8 offset-md-2">
                             <tool-header
                                 title="HRDetect - ${probandId} (${somaticSample?.id})"
                                 class="bg-white">
@@ -172,7 +172,8 @@ class SteinerVariantInterpreterAnalysis extends LitElement {
 
         return {
             display: {
-                align: "center"
+                align: "center",
+                classes: "justify-content-center"
             },
             items: items,
         };

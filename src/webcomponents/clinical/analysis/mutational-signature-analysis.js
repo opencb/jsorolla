@@ -301,7 +301,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                                 const signature = signatures.find(item => item.id === signatureId);
                                 if (signature?.query) {
                                     return Object.keys(signature.query).map(key => html`
-                                        <span class="badge">
+                                        <span class="badge text-bg-primary">
                                             ${key}: ${signature.query[key]}
                                         </span>
                                     `);
