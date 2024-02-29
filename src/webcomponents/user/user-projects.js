@@ -93,18 +93,18 @@ export default class UserProjects extends LitElement {
                 },
                 {
                     title: "Project ID",
-                    text: project.id || "-",
                     type: "text",
+                    text: project.id,
                     display: {
-                        textStyle: "padding-left:16px;",
+                        defaultValue: "-",
                     },
                 },
                 {
                     title: "Project Description",
-                    text: project.description || "-",
                     type: "text",
+                    text: project.description,
                     display: {
-                        textStyle: "padding-left:16px;",
+                        defaultValue: "-",
                     },
                 },
                 {
@@ -112,8 +112,8 @@ export default class UserProjects extends LitElement {
                     text: project.attributes.release,
                     type: "text",
                     display: {
+                        visible: !!project?.attributes?.release,
                         textStyle: "padding-left:16px;",
-                        visible: !!project?.attributes?.release
                     },
                 },
                 {
@@ -153,8 +153,13 @@ export default class UserProjects extends LitElement {
                 {
                     type: "table",
                     // title: "Studies",
-                    defaultValue: project.studies,
                     display: {
+                        defaultLayout: "vertical",
+                        headerStyle: {
+                            background: "#f5f5f5",
+                            lineHeight: "0.5"
+                        },
+                        getData: () => project.studies,
                         columns: [
                             {
                                 title: "ID",
@@ -167,17 +172,25 @@ export default class UserProjects extends LitElement {
                             {
                                 title: "Description",
                                 field: "description",
-                                formatter: value => UtilsNew.isNotEmpty(value) ? value : "-",
+                                display: {
+                                    defaultValue: "-",
+                                },
                             },
                             {
                                 title: "Creation",
                                 field: "creationDate",
-                                formatter: value => UtilsNew.dateFormatter(value) ?? "-",
+                                display: {
+                                    format: date => UtilsNew.dateFormatter(date),
+                                },
                             },
                             {
                                 title: "FQN",
                                 field: "fqn",
                             },
+                            // Caution 20240229 Vero: commented out because:
+                            //  (a) not working
+                            //  (b) further discussion needed to migrate to new config data model
+                            /*
                             {
                                 title: "Links",
                                 field: "id",
@@ -187,8 +200,8 @@ export default class UserProjects extends LitElement {
                                     </a>
                                 `,
                             },
+                            */
                         ],
-                        defaultLayout: "vertical",
                     },
                 },
             ],
