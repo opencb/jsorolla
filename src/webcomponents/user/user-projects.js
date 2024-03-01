@@ -113,7 +113,6 @@ export default class UserProjects extends LitElement {
                     type: "text",
                     display: {
                         visible: !!project?.attributes?.release,
-                        textStyle: "padding-left:16px;",
                     },
                 },
                 {
@@ -121,24 +120,20 @@ export default class UserProjects extends LitElement {
                     text: owner || "-",
                     type: "text",
                     display: {
-                        textStyle: "padding-left:16px;font-weight:bold;",
+                        "font-weight": "bold"
                     },
                 },
                 {
                     title: "Species",
                     text: `${project.organism?.scientificName || "-"} (${project.organism?.assembly || "-"})`,
                     type: "text",
-                    display: {
-                        textStyle: "padding-left:16px;",
-                    },
+
                 },
                 {
                     title: "CellBase",
                     text: `${project.cellbase?.url || "-"} (${project.cellbase?.version || "-"}, Data Release: ${project.cellbase?.dataRelease || "-"})`,
                     type: "text",
-                    display: {
-                        textStyle: "padding-left:16px;",
-                    },
+
                 },
                 // Generate a table with all studies of this project of this user
                 {
