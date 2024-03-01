@@ -119,7 +119,8 @@ export default class SelectFieldFilter2 extends LitElement {
         const searchBox = this._config?.liveSearch && this._config?.multiple ? {dropdownAdapter: $.fn.select2.amd.require("CustomDropdownAdapter")} : {};
         const selectAdapter = this._config?.multiple ? {
             templateSelection: data => {
-                return `Selected ${data.selected.length} out of ${data.all.length}`;
+                const items = Array.from(data.all).filter(opt => opt.text !== "");
+                return `Selected ${data.selected.length} out of ${items.length}`;
             },
             // Make selection-box similar to single select
             selectionAdapter: $.fn.select2.amd.require("CustomSelectionAdapter"),
