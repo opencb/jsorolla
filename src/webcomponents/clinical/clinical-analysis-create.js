@@ -594,23 +594,11 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 columns: [
                                     {
                                         title: "ID",
-                                        type: "complex",
+                                        field: "id",
                                         display: {
                                             defaultValue: "-",
-                                            template: "${id} ${somatic}",
-                                            format: {
-                                                "somatic": (somatic, sample) => sample.somatic ? "Somatic" : "Germline",
-                                            },
-                                            className: {
-                                                "somatic": "help-block"
-                                            },
                                             style: {
-                                                "id": {
-                                                    "font-weight": "bold"
-                                                },
-                                                "somatic": {
-                                                    "margin": "5px 0"
-                                                },
+                                                "font-weight": "bold"
                                             }
                                         },
                                     },
