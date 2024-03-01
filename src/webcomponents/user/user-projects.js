@@ -120,7 +120,9 @@ export default class UserProjects extends LitElement {
                     text: owner || "-",
                     type: "text",
                     display: {
-                        "font-weight": "bold"
+                        style: {
+                            "font-weight": "bold"
+                        }
                     },
                 },
                 {
