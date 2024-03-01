@@ -1263,7 +1263,8 @@ class IvaApp extends LitElement {
                 @jobSelected="${e => this.onJobSelected(e)}"
                 @route="${this.route}">
             </custom-navbar>
-
+            <!-- Rodiel 2023-03-01 Note:  Is it necessary to add 'isCreatingSession' to all components,
+            or should those components be added in the 'else' block?" -->
             ${ this.isCreatingSession ? html `
             <div class="cy-login-overlay position-absolute top-50 start-50 translate-middle">
                 <loading-spinner
@@ -1274,9 +1275,10 @@ class IvaApp extends LitElement {
             }
 
             <!-- This is where main IVA application is rendered -->
+
             ${console.log("Enabled components", Object.keys(this.config.enabledComponents).filter(key => this.config.enabledComponents[key])) }
             <div class="container-fluid" style="min-height:calc(100vh - 101px);">
-                ${this.config.enabledComponents.home ? html`
+                ${this.config.enabledComponents.home && !this.isCreatingSession? html`
                     <div class="d-flex justify-content-center" id="home">
                         <custom-welcome
                             .app="${this.app}"
@@ -1901,7 +1903,9 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["mutational-signature"] ? html`
                     <div class="container py-3" id="mutational-signature-analysis">
-                        <mutational-signature-analysis .opencgaSession="${this.opencgaSession}"></mutational-signature-analysis>
+                        <mutational-signature-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </mutational-signature-analysis>
                     </div>
                 ` : null}
 
