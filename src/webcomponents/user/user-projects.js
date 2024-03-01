@@ -129,13 +129,11 @@ export default class UserProjects extends LitElement {
                     title: "Species",
                     text: `${project.organism?.scientificName || "-"} (${project.organism?.assembly || "-"})`,
                     type: "text",
-
                 },
                 {
                     title: "CellBase",
                     text: `${project.cellbase?.url || "-"} (${project.cellbase?.version || "-"}, Data Release: ${project.cellbase?.dataRelease || "-"})`,
                     type: "text",
-
                 },
                 // Generate a table with all studies of this project of this user
                 {
