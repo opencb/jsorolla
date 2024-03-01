@@ -710,19 +710,25 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 columns: [
                                     {
                                         title: "Individual ID",
-                                        field: "id",
+                                        type: "complex",
                                         display: {
+                                            defaultValue: "-",
+                                            template: "${id} ${sex}",
+                                            format: {
+                                                "sex": (sex, member) => `${sex?.id ?? sex}(${member.karyotypicSex})`
+                                            },
+                                            className: {
+                                                "sex": "help-block"
+                                            },
                                             style: {
-                                                "font-weight": "bold"
+                                                "id": {
+                                                    "font-weight": "bold"
+                                                },
+                                                "sex": {
+                                                    "margin": "5px 0"
+                                                },
                                             }
-                                        }
-                                    },
-                                    {
-                                        title: "Sex",
-                                        field: "sex",
-                                        display: {
-                                            format: sex => sex.id
-                                        }
+                                        },
                                     },
                                     {
                                         id: "samples",
