@@ -235,9 +235,9 @@ class VariantInterpreterQcVariantStats extends LitElement {
         // Check Project exists
         if (!this.opencgaSession.project) {
             return html`
-                    <div>
-                        <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
-                    </div>`;
+                <div>
+                    <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
+                </div>`;
         }
 
         // Check Clinical Analysis exist

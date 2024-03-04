@@ -119,7 +119,7 @@ export default class SelectFieldFilter2 extends LitElement {
         const searchBox = this._config?.liveSearch && this._config?.multiple ? {dropdownAdapter: $.fn.select2.amd.require("CustomDropdownAdapter")} : {};
         const selectAdapter = this._config?.multiple ? {
             templateSelection: data => {
-                const items = Array.from(data.all).filter(opt => opt.text !== "");
+                const items = Array.from(data.all).filter(opt => opt.text !== "" && typeof opt.text !== "undefined");
                 return `Selected ${data.selected.length} out of ${items.length}`;
             },
             // Make selection-box similar to single select
@@ -234,7 +234,7 @@ export default class SelectFieldFilter2 extends LitElement {
 
     optionsFormatter(item) {
         // optgroup elements
-        if (typeof item.children != "undefined") {
+        if (typeof item.children !== "undefined") {
             return $(`
                 <hr class="m-0 mb-2"/>
                 <span class='fw-bold text-secondary'>
@@ -243,7 +243,7 @@ export default class SelectFieldFilter2 extends LitElement {
             `);
         }
 
-        if (item.text === "") {
+        if (typeof item.text === "undefined" || item.text === "") {
             return $(`<hr class="mt-0 mb-1">`);
         }
 
