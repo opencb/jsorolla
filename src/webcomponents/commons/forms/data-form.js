@@ -311,7 +311,7 @@ export default class DataForm extends LitElement {
     }
 
     _getElementWidth(element, section) {
-        return element?.display?.width ?? section?.display?.width ?? this.config?.display?.width ?? null;
+        return element?.display?.width ?? section?.display?.elementWidth ?? this.config?.display?.elementWidth ?? null;
     }
 
     _getElementTitleWidth(element, section) {
