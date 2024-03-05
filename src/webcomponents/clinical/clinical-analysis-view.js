@@ -361,7 +361,7 @@ export default class ClinicalAnalysisView extends LitElement {
                             field: "proband.disorders",
                             type: "list",
                             display: {
-                                defaultValue: "N/A",
+                                defaultValue: "-",
                                 contentLayout: "bullets",
                                 transform: disorders => (disorders || []).map(disorder => ({disorder})),
                                 template: "${disorder.name} (${disorder.id})",
@@ -377,7 +377,7 @@ export default class ClinicalAnalysisView extends LitElement {
                             field: "proband.phenotypes",
                             type: "list",
                             display: {
-                                defaultValue: "",
+                                defaultValue: "-",
                                 contentLayout: "bullets",
                                 transform: phenotypes => (phenotypes || [])
                                     .sort(item => item?.status === "OBSERVED" ? -1 : 1)

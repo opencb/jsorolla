@@ -208,9 +208,6 @@ export default class SampleView extends LitElement {
                         {
                             title: "Somatic",
                             field: "somatic",
-                            display: {
-                                defaultValue: "false",
-                            },
                         },
                         {
                             title: "Version",
