@@ -132,7 +132,7 @@ export default class DataForm extends LitElement {
             }
 
             // If 'value' exists we must apply the functions, DO NOT change the order
-            if (value) {
+            if (value || typeof value === "boolean") {
                 if (display?.format) {
                     // Check if response is actually an HTML
                     // value = UtilsNew.renderHTML(display.format(value));
