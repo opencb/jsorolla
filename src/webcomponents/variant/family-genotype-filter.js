@@ -197,6 +197,12 @@ export default class FamilyGenotypeFilter extends LitElement {
             })
             .then(response => {
                 const genotypeResultMap = response.getResult(0);
+                // Nacho: Autosomal Recessive means two copies of an abnormal gene must be present in order for the disease or trait to develop.
+                // So we need to add 1/2 to the proband.
+                if (mode === "AUTOSOMAL_RECESSIVE") {
+                    genotypeResultMap[this.clinicalAnalysis.proband.id].push("1/2");
+                }
+
                 let countGenoypes = 0;
                 if (genotypeResultMap) {
                     const state = {};
