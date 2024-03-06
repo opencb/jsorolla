@@ -802,20 +802,14 @@ export default class VariantBrowserGrid extends LitElement {
                                     </li>
 
                                     <li class="dropdown-header">CellBase Links</li>
+                                    ${["v5.2", "v5.8"].map(v => `
                                     <li>
-                                        <a target="_blank" class="btn force-text-left"
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
+                                        <a target="_blank" class="btn force-text-left" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`)}">
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
-                                            CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
+                                            CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}
                                         </a>
                                     </li>
-                                    <li>
-                                        <a target="_blank" class="btn force-text-left"
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
-                                            CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
-                                        </a>
-                                    </li>
+                                    `).join("")}
                                     <li class="dropdown-header">External Genome Browsers</li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
