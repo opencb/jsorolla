@@ -24,43 +24,6 @@ export default class VariantUtils {
     static jsonToTabConvert(variants, populationFrequenciesStudies, samples, nucleotideGenotype, fieldList) {
         const rows = [];
         let populationMap = {};
-        const headerString = [];
-        // const sampleIds = samples?.map(sample => sample.id);
-
-        // took from the first result. Is there a better way?
-        // allele count / allele freqs
-        // const cohortAlleleStatsColumns = [];
-        // const alleleStats = [];
-        // const studyIds = [];
-
-        // variants?.[0]?.studies
-        //     ?.filter(s => s.studyId.includes("@"))
-        //     .map(s => s.studyId.split(":")[1]);
-
-        // Code to Remove
-        // ###
-        // if (variants[0].studies?.length) {
-        //     variants[0].studies.forEach(study => {
-        //         if (study.studyId.includes("@")) {
-        //             const studyId = study.studyId.split(":")[1];
-        //             studyIds.push(studyId);
-        //             cohortAlleleStatsColumns.push(`cohorts.${studyId}.alleleCount`, `cohorts.${studyId}.altAlleleFreq`);
-        //             // alleleCount, altAlleleFreq
-        //
-        //             // cohort ALL is always the first element in study.stats
-        //             // Remove
-        //             alleleStats.push({
-        //                 id: studyId,
-        //                 stats: study.stats,
-        //             });
-        //         } else {
-        //             console.error("Unexpected studyId format");
-        //         }
-        //     });
-        // }
-        // #####
-
-        // const popStudyIds = populationFrequenciesStudies?.map(popFreqStudy => "popfreq." + popFreqStudy.id);
 
         /* // explicit list gives less maintainability but we need customisation (also in some cases for each column there is more than 1 field) */
         let flatFieldList = [];
@@ -74,8 +37,6 @@ export default class VariantUtils {
                 "gene",
                 "type",
                 "hgvs",
-                // Adding SAMPLES (includeSample=all in VB and Case samples in Sample VB)
-                // ...samples.map(sample => sample.id || sample),
                 "samples",
                 "consequenceType",
                 "deleteriousness.SIFT",
@@ -86,14 +47,7 @@ export default class VariantUtils {
                 "conservation.phylop",
                 "conservation.phastCons",
                 "conservation.gerp",
-                // AC / AF
-                // fieldList (columns in the grid) is in the form: cohorts.RD38, cohorts.CG38
-                // TSV in the form: cohort.RD38.alleleCount,cohort.RD38.altAlleleFreq
-                // ...studyIds.map(studyId => `cohorts.${studyId}`),
                 "cohortStats",
-                // fieldList (columns in the grid) is in the form: popfreq.1kG_phase3, popfreq.GNOMAD_GENOMES
-                // TSV in the form: popfreq.1kG_phase3_SAS,popfreq.GNOMAD_GENOMES_ALL,popfreq.GNOMAD_GENOMES_AFR
-                // ...popStudyIds,
                 "populationFrequencies",
                 "clinicalInfo.clinvar",
                 "clinicalInfo.cosmic",
@@ -103,38 +57,7 @@ export default class VariantUtils {
             flatFieldList = fieldList
                 .filter(f => f.export && !f.excludeFromExport)
                 .flatMap(f => f.children?.filter(f => f.export && !f.excludeFromExport).map(x => f.id + "." + x.id) ?? f.id);
-            // ESlint parse error. Cannot read property 'range' of null https://github.com/babel/babel-eslint/issues/681
-            // flatFieldList = fieldList.filter(f => f.export).flatMap(f => f.children?.filter(f => f.export).map(x => `${f.id}.${x.id}`) ?? f.id);
         }
-
-        // flatFieldList.forEach(f => {
-        //     if ("id" === f) {
-        //         headerString.push("id");
-        //         // headerString.push("snp_id");
-        //     } else if (f.startsWith("cohorts.")) {
-        //         // Cohorts Variant Browser
-        //         studyIds.forEach(id => {
-        //             if (f === "cohorts." + id) {
-        //                 headerString.push(`cohorts.${id}.alleleCount`, `cohorts.${id}.altAlleleFreq`);
-        //             }
-        //         });
-        //     } else if ("frequencies.cohort" === f) {
-        //         // Cohorts in Sample Variant Browser
-        //         studyIds.forEach(id => headerString.push(`cohorts.${id}.alleleCount`, `cohorts.${id}.altAlleleFreq`));
-        //     } else if (f.startsWith("popfreq.")) {
-        //         // Pop freq in Variant Browser
-        //         populationFrequenciesStudies.forEach(study => {
-        //             if (f === "popfreq." + study.id) {
-        //                 headerString.push(...study.populations.map(pop => "popfreq." + study.id + "_" + pop.id));
-        //             }
-        //         });
-        //     } else if ("frequencies.populationFrequencies" === f) {
-        //         // Pop freq in Sample Variant Browser
-        //         populationFrequenciesStudies.forEach(study => headerString.push(...study.populations.map(pop => "popfreq." + study.id + "_" + pop.id)));
-        //     } else {
-        //         headerString.push(f);
-        //     }
-        // });
 
         //  TSV header
         rows.push(flatFieldList.join("\t"));
@@ -163,7 +86,7 @@ export default class VariantUtils {
                             genes.add(consequenceType.geneName);
                         }
 
-                        // Consequence Type
+                        // Consequence Types
                         for (const consequenceTypeName of consequenceType.sequenceOntologyTerms) {
                             if (consequenceTypeName.name) {
                                 consequenceTypeNames.add(consequenceTypeName.name);
@@ -284,10 +207,6 @@ export default class VariantUtils {
                     });
                 }
 
-                // genes = genes.size > 0 ? [...genes].join(",") : "-";
-                // consequenceTypeNames = consequenceTypeNames.size > 0 ? [...consequenceTypeNames].join(",") : "-";
-                // sift = typeof proteinSubstitutionScores.sift !== "undefined" ? proteinSubstitutionScores.sift : "-";
-                // polyphen = typeof proteinSubstitutionScores.polyphen !== "undefined" ? proteinSubstitutionScores.polyphen : "-";
                 clinvar = clinvar.size > 0 ? [...clinvar].join(",") : "-";
                 cosmic = cosmic.size > 0 ? [...cosmic.entries()].map(([traitId, histologies]) => traitId + "(" + [...histologies].join(",") + ")").join(",") : "-";
             }
@@ -297,13 +216,19 @@ export default class VariantUtils {
                 acmgPrediction = this.getClassificationByClinicalSignificance(variant);
             }
 
+
             // START PREPARING THE LINE
             if (flatFieldList.includes("id")) {
-                dataToTsv["id"] = variant.chromosome + ":" + variant.start + ":" + variant.reference || "-" + ":" + variant.alternate || "-";
+                dataToTsv["id"] = variant.chromosome + ":" + variant.start + ":" + (variant.reference || "-") + (":" + variant.alternate || "-");
             }
+
             if (flatFieldList.includes("snp_id")) {
                 // SNP ID
-                const dbSnpId = variant.names?.filter(name => name.startsWith("rs"))?.map(name => name).join(",");
+                const dbSnpId = variant.names
+                    ?.filter(name => name.startsWith("rs"))
+                    ?.map(name => name)
+                    .join(",");
+
                 if (dbSnpId) {
                     dataToTsv["snp_id"] = dbSnpId;
                 } else {
@@ -319,12 +244,15 @@ export default class VariantUtils {
                     }
                 }
             }
+
             if (flatFieldList.includes("gene")) {
                 dataToTsv["gene"] = genes.size > 0 ? [...genes].join(",") : "-";
             }
+
             if (flatFieldList.includes("type")) {
                 dataToTsv["type"] = variant.type;
             }
+
             if (flatFieldList.includes("hgvs")) {
                 dataToTsv["hgvs"] = this.gethgvsValues(variant);
             }
@@ -352,45 +280,40 @@ export default class VariantUtils {
             if (flatFieldList.includes("consequenceType")) {
                 dataToTsv["consequenceType"] = consequenceTypeNames.size > 0 ? [...consequenceTypeNames].join(",") : "-";
             }
+
             if (flatFieldList.includes("deleteriousness.SIFT")) {
                 dataToTsv["deleteriousness.SIFT"] = proteinSubstitutionScores.sift || "-";
             }
+
             if (flatFieldList.includes("deleteriousness.polyphen")) {
                 dataToTsv["deleteriousness.polyphen"] = proteinSubstitutionScores.polyphen || "-";
             }
+
             if (flatFieldList.includes("deleteriousness.revel")) {
                 dataToTsv["deleteriousness.revel"] = proteinSubstitutionScores.revel || "-";
             }
+
             if (flatFieldList.includes("deleteriousness.cadd")) {
                 dataToTsv["deleteriousness.cadd"] = cadd;
             }
+
             if (flatFieldList.includes("deleteriousness.spliceai")) {
                 dataToTsv["deleteriousness.spliceai"] = this.getSpliceAI(variant);
             }
+
             if (flatFieldList.includes("conservation.phylop")) {
                 dataToTsv["conservation.phylop"] = phylop;
             }
+
             if (flatFieldList.includes("conservation.phastCons")) {
                 dataToTsv["conservation.phastCons"] = phastCons;
             }
+
             if (flatFieldList.includes("conservation.gerp")) {
                 dataToTsv["conservation.gerp"] = gerp;
             }
 
             if (flatFieldList.includes("cohortStats")) {
-                // variant?.studies.forEach(study => {
-                //     const studyId = study.studyId.split(":")[1];
-                //     if (flatFieldList.includes(`cohorts.${studyId}`) || flatFieldList.includes("frequencies.cohort")) {
-                //         const ac = [];
-                //         const af = [];
-                //         study?.stats.map(cohort => {
-                //             ac.push(`${cohort.cohortId}:${cohort.alleleCount}`);
-                //             af.push(`${cohort.cohortId}:${cohort.altAlleleFreq}`);
-                //         });
-                //         dataToTsv[`cohorts.${studyId}.alleleCount`] = ac.join(";");
-                //         dataToTsv[`cohorts.${studyId}.altAlleleFreq`] = af.join(";");
-                //     }
-                // });
                 const cohortStats = [];
                 for (const study of variant.studies) {
                     const studyId = study.studyId.split(":")[1];
@@ -402,15 +325,6 @@ export default class VariantUtils {
             }
 
             if (flatFieldList.includes("populationFrequencies")) {
-                // populationFrequenciesStudies.forEach(study => {
-                //     study.populations.forEach(pop => {
-                //         if (flatFieldList.includes("popfreq." + study.id) || flatFieldList.includes("frequencies.populationFrequencies")) {
-                //             const valuePopFreq = populationMap[study.id + "_" + pop.id];
-                //             dataToTsv[`popfreq.${study.id}_${pop.id}`] = UtilsNew.isNotEmpty(valuePopFreq) ? valuePopFreq : "-";
-                //         }
-                //     });
-                // });
-
                 const populationFrequencies = [];
                 for (const study of populationFrequenciesStudies) {
                     for (const pop of study.populations) {
@@ -420,12 +334,15 @@ export default class VariantUtils {
                 }
                 dataToTsv["populationFrequencies"] = populationFrequencies.join(",");
             }
+
             if (flatFieldList.includes("clinicalInfo.clinvar")) {
                 dataToTsv["clinicalInfo.clinvar"] = clinvar;
             }
+
             if (flatFieldList.includes("clinicalInfo.cosmic")) {
                 dataToTsv["clinicalInfo.cosmic"] = cosmic;
             }
+
             if (flatFieldList.includes("interpretation.prediction")) {
                 dataToTsv["acmgPrediction"] = acmgPrediction;
             }
