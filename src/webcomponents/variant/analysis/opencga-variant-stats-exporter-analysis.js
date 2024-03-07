@@ -43,7 +43,7 @@ export default class OpencgaVariantStatsExporterAnalysis extends LitElement {
     }
 
     _init() {
-        this._prefix = "oga-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this._config = this.getDefaultConfig();
     }
