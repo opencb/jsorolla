@@ -290,11 +290,7 @@ export default class CohortView extends LitElement {
                                     },
                                     {
                                         title: "Somatic",
-                                        type: "custom",
                                         field: "somatic",
-                                        display: {
-                                            render: somatic => somatic ? "true" : "false",
-                                        }
                                     },
                                     {
                                         title: "Phenotypes",
