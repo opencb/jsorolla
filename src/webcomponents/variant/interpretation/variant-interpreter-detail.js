@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import UtilsNew from "../../../core/utils-new.js";
 import ExtensionsManager from "../../extensions-manager.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
 import "../annotation/cellbase-variantannotation-view.js";
@@ -111,7 +112,7 @@ export default class VariantInterpreterDetail extends LitElement {
     }
 
     variantObserver() {
-        this._variant = {...this.variant};
+        this._variant = UtilsNew.objectClone(this.variant);
         this.requestUpdate();
     }
 
