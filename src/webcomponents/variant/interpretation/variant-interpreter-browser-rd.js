@@ -341,20 +341,20 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 params: {
                                     genotypes: [
                                         {
-                                            id: "0/1", name: "HET"
+                                            id: "0/1", name: "HET (0/1)"
                                         },
                                         {
-                                            id: "1/1", name: "HOM ALT"
+                                            id: "1/1", name: "HOM_ALT (1/1)"
                                         },
                                         {
                                             separator: true
                                         },
                                         {
-                                            id: "1/2", name: "BIALLELIC HET (Genotype 1/2)"
+                                            id: "1/2", name: "BIALLELIC (1/2)"
                                         },
-                                        {
-                                            id: "1", name: "HEMI"
-                                        }
+                                        // {
+                                        //     id: "1", name: "HEMI"
+                                        // }
                                     ]
                                 },
                                 tooltip: tooltips.sample,
