@@ -124,7 +124,7 @@ export default class VariantFileFormatFilter extends LitElement {
                 collapsable: true,
                 titleVisible: false,
                 titleWidth: 2,
-                defaultValue: "-",
+                defaultValue: "",
                 defaultLayout: "vertical"
             },
             sections: [
@@ -141,9 +141,9 @@ export default class VariantFileFormatFilter extends LitElement {
                             type: "input-number",
                             comparators: this.depthIndex?.type === "RANGE_LT" ? "<,>=" : "<=,>",
                             allowedValues: this.depthIndex?.thresholds,
-                            defaultValue: "",
                             display: {
-                                visible: () => this.depthIndex?.thresholds?.length > 0
+                                defaultValue: "",
+                                visible: () => this.depthIndex?.thresholds?.length > 0,
                             }
                         },
                         {
@@ -152,9 +152,9 @@ export default class VariantFileFormatFilter extends LitElement {
                             type: "input-number",
                             comparators: this.afIndex?.type === "RANGE_LT" ? "<,>=" : "<=,>",
                             allowedValues: this.afIndex?.thresholds,
-                            defaultValue: "",
                             display: {
-                                visible: () => this.afIndex?.thresholds?.length > 0
+                                defaultValue: "",
+                                visible: () => this.afIndex?.thresholds?.length > 0,
                             }
                         },
                         {
@@ -163,9 +163,9 @@ export default class VariantFileFormatFilter extends LitElement {
                             type: "input-number",
                             comparators: this.extVafIndex?.type === "RANGE_LT" ? "<,>=" : "<=,>",
                             allowedValues: this.extVafIndex?.thresholds,
-                            defaultValue: "",
                             display: {
-                                visible: () => this.extVafIndex?.thresholds?.length > 0
+                                defaultValue: "",
+                                visible: () => this.extVafIndex?.thresholds?.length > 0,
                             }
                         }
                     ]
