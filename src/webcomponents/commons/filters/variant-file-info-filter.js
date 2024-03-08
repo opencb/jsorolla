@@ -469,7 +469,9 @@ export default class VariantFileInfoFilter extends LitElement {
                         allowedValues: field.allowedValues,
                         multiple: field.multiple ?? false,
                         maxOptions: field.maxOptions ?? 1,
-                        defaultValue: "",
+                        display: {
+                            defaultValue: "",
+                        },
                     }))
                 ],
             };
@@ -483,7 +485,7 @@ export default class VariantFileInfoFilter extends LitElement {
                 collapsable: true,
                 titleVisible: false,
                 titleWidth: 2,
-                defaultValue: "-",
+                defaultValue: "",
                 defaultLayout: "vertical"
             },
             sections: _sections,
