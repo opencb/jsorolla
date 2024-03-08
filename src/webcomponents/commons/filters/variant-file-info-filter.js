@@ -427,7 +427,7 @@ export default class VariantFileInfoFilter extends LitElement {
     render() {
         return html`
             <data-form
-                .data=${this.fileDataQuery}
+                .data="${this.fileDataQuery}"
                 .config="${this._config}"
                 @fieldChange="${this.filterChange}">
             </data-form>
