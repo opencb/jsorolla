@@ -108,7 +108,7 @@ export default class VariantFileFormatFilter extends LitElement {
     render() {
         return html`
             <data-form
-                .data=${this._sampleData}
+                .data="${this._sampleData}"
                 .config="${this._config}"
                 @fieldChange="${this.filterChange}">
             </data-form>
