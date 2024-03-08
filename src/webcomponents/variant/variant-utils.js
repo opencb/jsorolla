@@ -33,12 +33,12 @@ export default class VariantUtils {
             // default list
             flatFieldList = [
                 "id",
-                "snp_id",
+                "snpId",
                 "gene",
                 "type",
                 "hgvs",
                 "samples",
-                "consequenceType",
+                "consequenceTypes",
                 "deleteriousness.SIFT",
                 "deleteriousness.polyphen",
                 "deleteriousness.revel",
@@ -47,7 +47,7 @@ export default class VariantUtils {
                 "conservation.phylop",
                 "conservation.phastCons",
                 "conservation.gerp",
-                "cohortStats",
+                "cohortStats.alt",
                 "populationFrequencies",
                 "clinicalInfo.clinvar",
                 "clinicalInfo.cosmic",
@@ -65,14 +65,14 @@ export default class VariantUtils {
         for (const variant of variants) {
             const genes = new Set();
             const consequenceTypeNames = new Set();
-            const proteinSubstitutionScores = {sift: "-", polyphen: "-", revel: "-"};
-            let cadd = "-";
-            let phylop = "-";
-            let phastCons = "-";
-            let gerp = "-";
+            const proteinSubstitutionScores = {sift: "", polyphen: "", revel: ""};
+            let cadd = "";
+            let phylop = "";
+            let phastCons = "";
+            let gerp = "";
             let clinvar = new Set();
             let cosmic = new Map();
-            let acmgPrediction = "-";
+            let acmgPrediction = "";
 
             populationMap = {};
             const dataToTsv = {};
@@ -89,7 +89,11 @@ export default class VariantUtils {
                         // Consequence Types
                         for (const consequenceTypeName of consequenceType.sequenceOntologyTerms) {
                             if (consequenceTypeName.name) {
-                                consequenceTypeNames.add(consequenceTypeName.name);
+                                let ct = consequenceTypeName.name;
+                                if (consequenceType.geneName) {
+                                    ct += "(" + consequenceType.geneName + ")";
+                                }
+                                consequenceTypeNames.add(ct);
                             }
                         }
 
@@ -207,8 +211,8 @@ export default class VariantUtils {
                     });
                 }
 
-                clinvar = clinvar.size > 0 ? [...clinvar].join(",") : "-";
-                cosmic = cosmic.size > 0 ? [...cosmic.entries()].map(([traitId, histologies]) => traitId + "(" + [...histologies].join(",") + ")").join(",") : "-";
+                clinvar = clinvar.size > 0 ? [...clinvar].join(",") : "";
+                cosmic = cosmic.size > 0 ? [...cosmic.entries()].map(([traitId, histologies]) => traitId + "(" + [...histologies].join(",") + ")").join(",") : "";
             }
 
             // prediction
@@ -222,7 +226,7 @@ export default class VariantUtils {
                 dataToTsv["id"] = variant.chromosome + ":" + variant.start + ":" + (variant.reference || "-") + (":" + variant.alternate || "-");
             }
 
-            if (flatFieldList.includes("snp_id")) {
+            if (flatFieldList.includes("snpId")) {
                 // SNP ID
                 const dbSnpId = variant.names
                     ?.filter(name => name.startsWith("rs"))
@@ -230,23 +234,23 @@ export default class VariantUtils {
                     .join(",");
 
                 if (dbSnpId) {
-                    dataToTsv["snp_id"] = dbSnpId;
+                    dataToTsv["snpId"] = dbSnpId;
                 } else {
                     if (variant.annotation?.xrefs?.length > 0) {
                         const dbSnpXref = variant.annotation.xrefs.find(el => el.source === "dbSNP");
                         if (dbSnpXref) {
-                            dataToTsv["snp_id"] = dbSnpXref.id;
+                            dataToTsv["snpId"] = dbSnpXref.id;
                         } else {
-                            dataToTsv["snp_id"] = "-";
+                            dataToTsv["snpId"] = "";
                         }
                     } else {
-                        dataToTsv["snp_id"] = "-";
+                        dataToTsv["snpId"] = "";
                     }
                 }
             }
 
             if (flatFieldList.includes("gene")) {
-                dataToTsv["gene"] = genes.size > 0 ? [...genes].join(",") : "-";
+                dataToTsv["gene"] = genes.size > 0 ? [...genes].join(",") : "";
             }
 
             if (flatFieldList.includes("type")) {
@@ -263,12 +267,6 @@ export default class VariantUtils {
                 const sampleGenotypes = [];
                 gtSamples.forEach(sample => {
                     Object.keys(sample).forEach(sampleId => {
-                        // if (flatFieldList.includes("sampleGenotypes." + sampleId)) {
-                        //     dataToTsv["sampleGenotypes."+ sampleId] = sample[sampleId];
-                        // }
-                        // if (flatFieldList.includes("samples." + sampleId)) {
-                        //     dataToTsv["samples."+ sampleId] = sample[sampleId];
-                        // }
                         if (sample[sampleId] !== "-") {
                             sampleGenotypes.push(sampleId + ":" + sample[sampleId]);
                         }
@@ -277,20 +275,20 @@ export default class VariantUtils {
                 dataToTsv["samples"] = sampleGenotypes.join(",");
             }
 
-            if (flatFieldList.includes("consequenceType")) {
-                dataToTsv["consequenceType"] = consequenceTypeNames.size > 0 ? [...consequenceTypeNames].join(",") : "-";
+            if (flatFieldList.includes("consequenceTypes")) {
+                dataToTsv["consequenceTypes"] = consequenceTypeNames.size > 0 ? [...consequenceTypeNames].join(",") : "";
             }
 
             if (flatFieldList.includes("deleteriousness.SIFT")) {
-                dataToTsv["deleteriousness.SIFT"] = proteinSubstitutionScores.sift || "-";
+                dataToTsv["deleteriousness.SIFT"] = proteinSubstitutionScores.sift || "";
             }
 
             if (flatFieldList.includes("deleteriousness.polyphen")) {
-                dataToTsv["deleteriousness.polyphen"] = proteinSubstitutionScores.polyphen || "-";
+                dataToTsv["deleteriousness.polyphen"] = proteinSubstitutionScores.polyphen || "";
             }
 
             if (flatFieldList.includes("deleteriousness.revel")) {
-                dataToTsv["deleteriousness.revel"] = proteinSubstitutionScores.revel || "-";
+                dataToTsv["deleteriousness.revel"] = proteinSubstitutionScores.revel || "";
             }
 
             if (flatFieldList.includes("deleteriousness.cadd")) {
@@ -313,7 +311,7 @@ export default class VariantUtils {
                 dataToTsv["conservation.gerp"] = gerp;
             }
 
-            if (flatFieldList.includes("cohortStats")) {
+            if (flatFieldList.includes("cohortStats.alt")) {
                 const cohortStats = [];
                 for (const study of variant.studies) {
                     const studyId = study.studyId.split(":")[1];
@@ -321,7 +319,7 @@ export default class VariantUtils {
                         cohortStats.push(studyId + ":" + stats.cohortId + "=" + stats.altAlleleFreq);
                     }
                 }
-                dataToTsv["cohortStats"] = cohortStats.join(",");
+                dataToTsv["cohortStats.alt"] = cohortStats.join(",");
             }
 
             if (flatFieldList.includes("populationFrequencies")) {
@@ -329,7 +327,9 @@ export default class VariantUtils {
                 for (const study of populationFrequenciesStudies) {
                     for (const pop of study.populations) {
                         const valuePopFreq = populationMap[study.id + "_" + pop.id];
-                        populationFrequencies.push(study.id + ":" + pop.id + "=" + valuePopFreq);
+                        if (valuePopFreq) {
+                            populationFrequencies.push(study.id + ":" + pop.id + "=" + valuePopFreq);
+                        }
                     }
                 }
                 dataToTsv["populationFrequencies"] = populationFrequencies.join(",");
@@ -488,10 +488,15 @@ export default class VariantUtils {
             const results = [];
             for (const index of showArrayIndexes) {
                 const consequenceType = variant.annotation.consequenceTypes[index];
+
                 const hgvsTranscriptIndex = variant.annotation.hgvs.findIndex(hgvs => hgvs.startsWith(consequenceType.transcriptId));
+                if (hgvsTranscriptIndex > -1) {
+                    results.push(`${this.getHgvs(consequenceType.transcriptId, variant.annotation.hgvs) || ""}`);
+                }
+
                 const hgvsProteingIndex = variant.annotation.hgvs.findIndex(hgvs => hgvs.startsWith(consequenceType.proteinVariantAnnotation?.proteinId));
-                if (hgvsTranscriptIndex > -1 || hgvsProteingIndex > -1) {
-                    results.push(`${this.getHgvs(consequenceType.transcriptId, variant.annotation.hgvs) || "-"} ${this.getHgvs(consequenceType.proteinVariantAnnotation?.proteinId, variant.annotation.hgvs) || "-"}`);
+                if (hgvsProteingIndex > -1) {
+                    results.push(`${this.getHgvs(consequenceType.proteinVariantAnnotation?.proteinId, variant.annotation.hgvs) || ""}`);
                 }
             }
             return results.join();
@@ -535,7 +540,7 @@ export default class VariantUtils {
             }
             return dscore;
         }
-        return "-";
+        return "";
     }
 
     static validateQuery(query) {
