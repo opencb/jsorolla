@@ -129,7 +129,7 @@ export default class JsonEditor extends LitElement {
                 <div class="text-right">
                     <download-button
                         .json="${this.data}"
-                        class="btn-sm">
+                        .class="${"btn-sm"}">
                     </download-button>
                 </div>
             ` : null
