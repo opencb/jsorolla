@@ -36,7 +36,8 @@ const opencga = {
     version: "v2",
     organizations: [],
     cookie: {
-        prefix: "iva-" + hosts[1].id
+        prefix: "iva-" + hosts[1].id,
+        secure: true,
     },
     sso: {
         active: false,
