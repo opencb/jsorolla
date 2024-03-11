@@ -16,7 +16,7 @@
 
 import Admin from "./api/Admin.js";
 import Alignment from "./api/Alignment.js";
-import Clinical from "./api/Clinical.js";
+import ClinicalAnalysis from "./api/ClinicalAnalysis.js";
 import Cohort from "./api/Cohort.js";
 import DiseasePanel from "./api/DiseasePanel.js";
 import Family from "./api/Family.js";
@@ -57,7 +57,8 @@ export class OpenCGAClient {
             },
             cookies: {
                 active: true,
-                prefix: ""
+                prefix: "",
+                secure: true,
                 // expirationTime: ""
             },
             sso: {
@@ -189,7 +190,7 @@ export class OpenCGAClient {
 
     clinical() {
         if (!this.clients.has("clinical")) {
-            this.clients.set("clinical", new Clinical(this._config));
+            this.clients.set("clinical", new ClinicalAnalysis(this._config));
         }
         return this.clients.get("clinical");
     }
@@ -333,9 +334,13 @@ export class OpenCGAClient {
     #setCookies(userId, token) {
         if (userId && token) {
             // eslint-disable-next-line no-undef
-            Cookies.set(this._config.cookies.prefix + "_userId", userId, {secure: true});
+            Cookies.set(this._config.cookies.prefix + "_userId", userId, {
+                secure: this._config.cookies.secure ?? true,
+            });
             // eslint-disable-next-line no-undef
-            Cookies.set(this._config.cookies.prefix + "_sid", this._config.token, {secure: true});
+            Cookies.set(this._config.cookies.prefix + "_sid", this._config.token, {
+                secure: this._config.cookies.secure ?? true,
+            });
         } else {
             // eslint-disable-next-line no-undef
             Cookies.expire(this._config.cookies.prefix + "_userId");
