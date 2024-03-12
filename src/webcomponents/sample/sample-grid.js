@@ -197,14 +197,18 @@ export default class SampleGrid extends LitElement {
                             // Fetch clinical analysis to display the Case ID
                             const individualIds = sampleResponse.getResults()
                                 .map(sample => sample.individualId)
-                                .filter(Boolean).join(",");
+                                .filter(Boolean)
+                                .join(",");
+
                             if (individualIds) {
-                                this.opencgaSession.opencgaClient.clinical()
+                                this.opencgaSession.opencgaClient
+                                    .clinical()
                                     .search(
                                         {
                                             individual: individualIds,
                                             study: this.opencgaSession.study.fqn,
-                                            include: "id,proband.id,family.members"
+                                            include: "id,proband.id,family.members",
+                                            limit: (this._config.pageSize || 10) * 10
                                         })
                                     .then(caseResponse => {
                                         sampleResponse.getResults().forEach(sample => {
