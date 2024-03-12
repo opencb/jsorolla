@@ -112,7 +112,7 @@ export default class Variant {
             return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-platinum-17-43102293-43106467-variants.json`);
         }
 
-        return this._get("analysis", null, "variant", null, "query", params);
+        return Promise.resolve([]);
     }
 
     runRelatedness(data, params) {
