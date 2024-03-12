@@ -55,11 +55,32 @@ export default {
             }));
     },
 
+    // Prepares data for column extensions
+    // @param {string} componentId - ID of the component where this new column will be injected
+    // @return {object} data - an object with data required for columns
+    async prepareDataForColumns(componentId, opencgaSession, query, rows) {
+        const data = {};
+        const columns = this.getByType(this.TYPES.COLUMN)
+            .filter(extension => (extension.components || []).includes(componentId))
+            .filter(extension => typeof extension.prepareData === "function");
+
+        for (let i = 0; i < columns.length; i++) {
+            const extension = columns[i];
+            const columnData = await extension.prepareData(opencgaSession, query, rows);
+            if (columnData) {
+                data[extension.id] = columnData;
+            }
+        }
+        return data;
+    },
+
     // Returns a list of custom columns for the specified component
     // @param {array} columns - An array of columns where new columns will be injected
     // @param {string} componentId - ID of the component where this new column will be injected
+    // @param {function} checkColumnVisible: function to determine if column is visible or not
+    // @param {function} getData: function to obtain custom data for columns
     // @return {array} columns - a list of columns configurations
-    injectColumns(columns, componentId, checkColumnVisible) {
+    injectColumns(columns, componentId, checkColumnVisible, getData) {
         // We need to check if we are in a single or multiple row levels
         const hasGroupedRows = columns.length === 2 && (Array.isArray(columns[0]) && Array.isArray(columns[1]));
         this.getByType(this.TYPES.COLUMN)
@@ -69,7 +90,14 @@ export default {
                     [newColumns].flat().forEach(newColumn => {
                         const group = hasGroupedRows ? columns[index] : columns;
                         const position = newColumn.position ?? group.length;
-                        const config = {...newColumn.config};
+                        const config = {
+                            ...newColumn.config,
+                            // We need to overwrite the formatter to provide custom data of this columns
+                            formatter: (value, row, index) => {
+                                const data = typeof getData === "function" ? getData() : {};
+                                return newColumn.config.formatter(value, row, index, data?.[extension.id]);
+                            },
+                        };
                         // check if we have provided a function to check if column is visible
                         // This function will be called only when we do NOT have row groups or when the rowspan value is 1
                         if (typeof checkColumnVisible === "function") {
