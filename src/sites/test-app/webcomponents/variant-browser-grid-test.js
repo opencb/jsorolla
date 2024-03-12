@@ -16,13 +16,9 @@
  */
 
 import {html, LitElement} from "lit";
-
-
-import {DATA_FORM_EXAMPLE} from "../conf/data-form.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/variant/variant-browser-grid.js";
-
 
 class VariantBrowserGridTest extends LitElement {
 
@@ -54,45 +50,38 @@ class VariantBrowserGridTest extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "variant-browser";
-        this.isLoading = false;
-        this.variants = [];
-        this._dataFormConfig = DATA_FORM_EXAMPLE;
+        this.variants = null;
 
         this._config = {};
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-
     update(changedProperties) {
-        if (changedProperties.has("testVariantFile") &&
-            changedProperties.has("testDataVersion") &&
-            changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("testVariantFile") || changedProperties.has("testDataVersion") || changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+
         super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
-        this.#setLoading(true);
-        UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testVariantFile}.json`)
-            .then(content => {
-                this.variants = content;
-                if (this.testVariantFile === "variant-browser-germline") {
-                    this.germlineMutate();
-                } else {
-                    // this.cancerMutate();
-                }
-            })
-            .catch(err => {
-                // this.variants = [];
-                console.log(err);
-            })
-            .finally(() => {
-                this.#setLoading(false);
-            });
+        this.variants = null;
+        if (this.opencgaSession && this.testDataVersion && this.testVariantFile) {
+            UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testVariantFile}.json`)
+                .then(content => {
+                    this.variants = content;
+                    if (this.testVariantFile === "variant-browser-germline") {
+                        this.germlineMutate();
+                    } else {
+                        // this.cancerMutate();
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+                .finally(() => {
+                    this.requestUpdate();
+                });
+        }
     }
 
     germlineMutate() {
@@ -104,32 +93,31 @@ class VariantBrowserGridTest extends LitElement {
         //     .filter(ct => ct.proteinVariantAnnotation)
         //     .forEach(ct => delete ct.proteinVariantAnnotation.substitutionScores[0].description);
         // Finally, we update variants mem address to force a rendering
-        this.variants = [...this.variants];
-    }
-
-
-    changeView(id) {
-        this.activeTab = id;
-        // this.mutate();
+        this.variants = [
+            ...this.variants,
+        ];
     }
 
     onSettingsUpdate() {
         this._config = {
             ...this._config,
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         };
-        this.opencgaSessionObserver();
+        // this.opencgaSessionObserver();
+        this.requestUpdate();
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+        if (!this.variants) {
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
         }
+
         return html`
             <h2 style="font-weight: bold;">
                 Variant Browser (${this.testVariantFile?.split("-")?.at(-1)})
             </h2>
-
             <variant-browser-grid
                 .toolId="${this.COMPONENT_ID}"
                 .variants="${this.variants}"
