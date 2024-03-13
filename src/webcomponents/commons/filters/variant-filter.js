@@ -93,7 +93,7 @@ export default class VariantFilter extends LitElement {
     getDefaultConfig() {
         return {
             rows: 3,
-            placeholder: "1:78571307:C:T,..."
+            placeholder: "11:66922620:T:A,11:66922678:T:C,..."
         };
     }
 

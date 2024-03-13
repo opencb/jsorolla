@@ -513,7 +513,7 @@ export default class VariantBrowser extends LitElement {
                         filters: [
                             {
                                 id: "variant",
-                                title: "Variant ID (format 'chr:pos:ref:alt')",
+                                title: "Variant ID",
                                 tooltip: tooltips.variant
                             },
                             {
