@@ -125,6 +125,7 @@ class TestApp extends LitElement {
             "pedigree",
             "mutational-signatures",
 
+            "variant-browser-grid-validation",
             "variant-interpreter-rd-grid",
         ];
 
@@ -746,6 +747,17 @@ class TestApp extends LitElement {
                             @gene="${this.geneSelected}"
                             @samplechange="${this.onSampleChange}">
                         </opencga-update>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["variant-browser-grid-validation"] ? html`
+                    <div style="padding:2%" class="content" id="variant-grid">
+                        <variant-browser-grid-test
+                            .testVariantFile="${"variant-browser-grid-validation"}"
+                            .testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config}">
+                        </variant-browser-grid-test>
                     </div>
                 ` : null}
 
