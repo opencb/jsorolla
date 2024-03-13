@@ -17,6 +17,7 @@
 
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import LitUtils from "../utils/lit-utils.js";
 
 
 export default class VariantFilter extends LitElement {
@@ -25,7 +26,7 @@ export default class VariantFilter extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -43,37 +44,30 @@ export default class VariantFilter extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.separator = ",";
         this._config = this.getDefaultConfig();
     }
 
-    // firstUpdated(changedProperties) {
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
-
-    // update(changedProperties) {
-    //     super.update(changedProperties);
-    // }
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
+        super.update(changedProperties);
+    }
 
     filterChange(e) {
         // Process the textarea: remove newline chars, empty chars, leading/trailing commas
-        const _id = e.target.value.trim()
+        const _id = e.target.value
+            .trim()
             .replace(/\r?\n/g, this.separator)
             .replace(/\s/g, "")
             .split(this.separator)
             .filter(Boolean)
             .join(this.separator);
 
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: _id
-            },
-            bubbles: true,
-            composed: true
-        });
-        this.dispatchEvent(event);
+        LitUtils.dispatchCustomEvent(this, "filterChange", _id);
     }
 
     render() {
