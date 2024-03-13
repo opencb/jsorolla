@@ -15,8 +15,9 @@
  */
 
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import LitUtils from "../utils/lit-utils.js";
 
 
 export default class RegionFilter extends LitElement {
@@ -25,7 +26,7 @@ export default class RegionFilter extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -34,77 +35,65 @@ export default class RegionFilter extends LitElement {
 
     static get properties() {
         return {
-            cellbaseClient: {
-                type: Object
-            },
             region: {
                 type: String
             },
+            // Note: commented as it is not used at the moment, but it could be a good idea to check region is valid.
+            // cellbaseClient: {
+            //     type: Object
+            // },
             config: {
                 type: Object
             }
         };
     }
 
-    _init() {
-        this._prefix = "crf-" + UtilsNew.randomString(6) + "_";
-        // FIXME in case of region as a prop (with value = this.query.region from variant-filter) in case opencga-active-filter deletes a region filter this component is not updated.
-        // A temp solution is to add query as prop and watch for its edits in updated() [this.region as prop is not used anymore].
-        // this.region = "";
+    #init() {
+        this._prefix = UtilsNew.randomString(8);
         this.separator = ",";
         this._config = this.getDefaultConfig();
     }
 
-    firstUpdated(_changedProperties) {
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    updated(_changedProperties) {
-        // "this.region" are automatically reflected on the template, we don't needto watch it
-        /*if (_changedProperties.has("region")) {
-            if (this.region) {
-                this.querySelector("#" + this._prefix + "LocationTextarea").value = this.region;
-            } else {
-                this.querySelector("#" + this._prefix + "LocationTextarea").value = "";
-            }
-        }*/
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
+        super.update(changedProperties);
     }
 
     filterChange(e) {
         // Process the textarea: remove newline chars, empty chars, leading/trailing commas
-        const _region = e.target.value.trim()
+        const _region = e.target.value
+            .trim()
             .replace(/\r?\n/g, this.separator)
             .replace(/\s/g, "")
             .split(this.separator)
             .filter(Boolean)
             .join(this.separator);
 
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: _region
-            },
-            bubbles: true,
-            composed: true
-        });
-        this.dispatchEvent(event);
+        LitUtils.dispatchCustomEvent(this, "filterChange", _region);
+    }
+
+    render() {
+        return html`
+            <textarea id="${this._prefix}LocationTextarea"
+                      name="location"
+                      .value="${this.region || ""}"
+                      rows="${this._config.rows}"
+                      placeholder="${this._config.placeholder}"
+                      class="form-control clearable ${this._prefix}FilterTextInput"
+                      @input="${e => this.filterChange(e)}">
+            </textarea>
+        `;
     }
 
     getDefaultConfig() {
         return {
             rows: 3,
-            placeholder: "3:444-55555,1:1-100000"
+            placeholder: "1:1-100000,3:444-55555,..."
         };
     }
 
-    render() {
-        return html`
-                    <textarea id="${this._prefix}LocationTextarea" name="location"
-                        class="form-control clearable ${this._prefix}FilterTextInput"
-                        rows="${this._config.rows}" placeholder="${this._config.placeholder}"
-                        .value="${this.region || ""}"
-                        @input="${e => this.filterChange(e)}"></textarea>
-                `;
-    }
 }
 
 customElements.define("region-filter", RegionFilter);
