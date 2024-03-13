@@ -80,6 +80,29 @@ context("Variant Browser Grid (Validation)", () => {
                                 });
                             });
                         });
+
+                        it("should display 'Genotype HOM_ALT' values in tooltip", () => {
+                            vb.grid.population.subColumnsItems.forEach((item, index) => {
+                                // eslint-disable-next-line cypress/no-force
+                                cy.get("@variantBrowserTable")
+                                    .find(`tr[data-uniqueid="${variant.id}"] > td`)
+                                    .eq(vb.grid.population.subColumnsIndex + index)
+                                    .find(`a`)
+                                    .trigger("mouseover", {force: true});
+
+                                // eslint-disable-next-line cypress/no-unnecessary-waiting
+                                cy.wait(50).then(() => {
+                                    cy.get("div.qtip")
+                                        .eq(index)
+                                        .find(`div.qtip-content > table > tbody > tr`)
+                                        .each((el, i) => {
+                                            cy.wrap(el)
+                                                .find(`td:nth(2)`)
+                                                .should("contain.text", variant.populations[index].frequencyBoxMode.tooltip.genotypeHomAltFreqText[i]);
+                                        });
+                                });
+                            });
+                        });
                     });
                 });
             });
