@@ -51,10 +51,33 @@ context("Variant Browser Grid (Validation)", () => {
                                     .eq(vb.grid.population.subColumnsIndex + index)
                                     .find(`table td`)
                                     .each((el, i) => {
-                                        const hexColor = variant.populations[index].populationsColors[i];
+                                        const hexColor = variant.populations[index].frequencyBoxMode.colors[i];
                                         cy.wrap(el)
                                             .should("have.css", "background-color", Utils.hexToRgb(hexColor));
                                     });
+                            });
+                        });
+
+                        it("should display 'Allele ALT' values in a tooltip", () => {
+                            vb.grid.population.subColumnsItems.forEach((item, index) => {
+                                // eslint-disable-next-line cypress/no-force
+                                cy.get("@variantBrowserTable")
+                                    .find(`tr[data-uniqueid="${variant.id}"] > td`)
+                                    .eq(vb.grid.population.subColumnsIndex + index)
+                                    .find(`a`)
+                                    .trigger("mouseover", {force: true});
+
+                                // eslint-disable-next-line cypress/no-unnecessary-waiting
+                                cy.wait(50).then(() => {
+                                    cy.get("div.qtip")
+                                        .eq(index)
+                                        .find(`div.qtip-content > table > tbody > tr`)
+                                        .each((el, i) => {
+                                            cy.wrap(el)
+                                                .find(`td:nth(1)`)
+                                                .should("contain.text", variant.populations[index].frequencyBoxMode.tooltip.altFreqText[i]);
+                                        });
+                                });
                             });
                         });
                     });
