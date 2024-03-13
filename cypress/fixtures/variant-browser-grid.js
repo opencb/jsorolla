@@ -24,7 +24,7 @@ export default {
                         colors: ["#ff0000", "#ff8080", "#000000", "#000000", "#000000", "#000000"],
                         tooltip: {
                             altFreqText: ["0.0003123 / 2 (0.03123%)", "0.001120 / 2 (0.1120%)", "Not Observed", "Not Observed", "Not Observed", "Not Observed"],
-                            genotypeHomAltFreqText: ["Not Observed", "Not Observed", "Not Observed", "Not Observed", "Not Observed", "Not Observed"],
+                            genotypeHomAltFreqText: ["- / 0", "- / 0", "Not Observed", "Not Observed", "Not Observed", "Not Observed"],
                         },
                     },
                 },
