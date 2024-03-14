@@ -167,8 +167,28 @@ export default class JobGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             columns: this._getDefaultColumns(),
-            data: this.jobs,
-            sidePagination: "local",
+            // data: this.jobs,
+            sidePagination: "server",
+            // Josemi Note 2024-01-18: we have added the ajax function for local jobs also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.jobs.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.jobs.length,
+                    rows: response,
+                };
+            },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config property
@@ -199,13 +219,6 @@ export default class JobGrid extends LitElement {
                 return;
             }
 
-            // Make a copy of the jobs (if they exist), we will use this private copy until it is assigned to this.jobs
-            // if (UtilsNew.isNotUndefined(this.jobs)) {
-            //     this._jobs = this.jobs;
-            // } else {
-            //     this._jobs = [];
-            // }
-
             this._columns = this._getDefaultColumns();
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
@@ -216,12 +229,6 @@ export default class JobGrid extends LitElement {
                 uniqueId: "id",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
-                // NOTE native Bootstrap table autorefresh doesn't clear interval correctly
-                // showRefresh: true,
-                // autoRefresh: true,
-                // autoRefreshSilent: false,
-                // autoRefreshStatus: true,
-                // autoRefreshInterval: 5,
 
                 // Table properties
                 pagination: this._config.pagination,
@@ -240,6 +247,8 @@ export default class JobGrid extends LitElement {
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     document.getElementById(this._prefix + "refreshIcon").style.visibility = "visible";
+
+                    let jobsResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         deleted: false,
@@ -256,10 +265,16 @@ export default class JobGrid extends LitElement {
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.jobs()
                         .search(this.filters)
-                        .then(res => params.success(res))
-                        .catch(e => {
-                            console.error(e);
-                            params.error(e);
+                        .then(response => {
+                            jobsResponse = response;
+                            // Prepare data for columns extensions
+                            const rows = jobsResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
+                        .then(() => params.success(jobsResponse))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
                         });
                 },
                 responseHandler: response => {
@@ -642,6 +657,23 @@ export default class JobGrid extends LitElement {
         ];
     }
 
+    renderModalUpdate() {
+        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+            display: {
+                modalTitle: "Job Update",
+                modalDraggable: true,
+            },
+            render: active => html`
+                <job-update
+                    .jobId="${this.jobUpdateId}"
+                    .active="${active}"
+                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                    .opencgaSession="${this.opencgaSession}">
+                </job-update>
+            `,
+        });
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
@@ -663,23 +695,7 @@ export default class JobGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-                display: {
-                    modalTitle: "Job Update",
-                    modalDraggable: true,
-                },
-                render: active => {
-                    return html `
-                        <job-update
-                            .jobId="${this.jobUpdateId}"
-                            .active="${active}"
-                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </job-update>
-                    `;
-                }
-            })}
-
+            ${this.renderModalUpdate()}
         `;
     }
 
