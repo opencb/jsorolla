@@ -907,7 +907,7 @@ export default class VariantGridFormatter {
                 const altCount = popFreq?.altAlleleCount || 0;
                 // TASK-5854: Check if altHomGenotypeFreq (population freqs) or genotypeFreq (cohort stats)
                 const homAltFreq = popFreq?.altHomGenotypeFreq?.toPrecision(4) ?? popFreq?.genotypeFreq?.["1/1"]?.toPrecision(4) ?? 0;
-                const homAltCount = popFreq?.altHomGenotypeCount ?? popFreq?.genotypeCount?.["1/1"]?.toPrecision(4) ?? 0;
+                const homAltCount = popFreq?.altHomGenotypeCount ?? popFreq?.genotypeCount?.["1/1"] ?? 0;
                 const color = VariantGridFormatter._getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
                 let altFreqText = "";
                 let homAltFreqText = "";
