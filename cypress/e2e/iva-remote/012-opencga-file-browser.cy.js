@@ -34,16 +34,16 @@ context("12. File Browser", () => {
         });
 
         cy.get(".lhs button[data-filter-name]").should("have.length", 1);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.checkResults("opencga-file-grid");
         cy.get("opencga-active-filters button[data-filter-name='name']").click();
         UtilsTest.checkResults("opencga-file-grid");
 
-        cy.get("#format + .subsection-content a").contains("VCF").click({force: true});
-        cy.get("#bioformat + .subsection-content a").contains("VARIANT").click({force: true});
+        cy.get("#format + .cy-subsection-content a").contains("VCF").click({force: true});
+        cy.get("#bioformat + .cy-subsection-content a").contains("VARIANT").click({force: true});
 
         cy.get(".lhs button[data-filter-name]").should("have.length", 3);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
 
         UtilsTest.checkResults("opencga-file-grid");
         UtilsTest.changePage("opencga-file-grid", 2);
@@ -86,7 +86,7 @@ context("12. File Browser", () => {
         UtilsTest.facet.checkActiveFacet("status", "status[READY]");
         // cy.get("div.facet-wrapper button[data-filter-name='status']").contains("status[READY]");
 
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
 
         UtilsTest.facet.checkActiveFacetLength(6);
         UtilsTest.facet.checkResultLength(6);
@@ -98,11 +98,11 @@ context("12. File Browser", () => {
         // cy.get("facet-filter .facet-selector li a").contains("Creation Year").click({force: true}); // creationYear remove
 
         UtilsTest.facet.checkActiveFacetLength(5);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.facet.checkResultLength(5);
 
         // cy.get("div.facet-wrapper button[data-filter-value]", {timeout: TIMEOUT}).should("have.length", 5);
-        // cy.get("div.search-button-wrapper button").click();
+        // cy.get("div.cy-search-button-wrapper button").click();
         // cy.get("opencb-facet-results opencga-facet-result-view", {timeout: TIMEOUT}).should("have.length", 5);
 
         UtilsTest.facet.select("Creation Year"); // adding Creation Year
@@ -116,7 +116,7 @@ context("12. File Browser", () => {
         UtilsTest.facet.select("Number Of Samples");
 
         UtilsTest.facet.checkActiveFacetLength(2);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.facet.checkResultLength(2);
 
     });

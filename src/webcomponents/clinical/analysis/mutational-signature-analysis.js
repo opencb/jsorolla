@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
-import "../../commons/forms/select-field-filter.js";
+import "../../commons/forms/select-field-filter2.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 import "../../commons/view/signature-view.js";
 
@@ -278,13 +278,15 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         display: {
                             visible: signatures.length > 0,
                             render: (signature, dataFormFilterChange) => html`
-                                <select-field-filter
+                                <select-field-filter2
                                     .data="${this.generateSignaturesDropdown()}"
                                     .value=${signature}
-                                    ?multiple="${false}"
-                                    ?liveSearch=${false}
+                                    .config="${{
+                                        multiple: false,
+                                        liveSearch: false
+                                    }}"
                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                </select-field-filter>
+                                </select-field-filter2>
                             `,
                         },
                     },
@@ -299,7 +301,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                                 const signature = signatures.find(item => item.id === signatureId);
                                 if (signature?.query) {
                                     return Object.keys(signature.query).map(key => html`
-                                        <span class="badge">
+                                        <span class="badge text-bg-primary">
                                             ${key}: ${signature.query[key]}
                                         </span>
                                     `);

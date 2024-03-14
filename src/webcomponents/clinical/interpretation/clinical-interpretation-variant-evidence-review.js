@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/filters/acmg-filter.js";
-import "../../commons/forms/select-field-filter.js";
+import "../../commons/forms/select-field-filter2.js";
 
 export default class ClinicalInterpretationVariantEvidenceReview extends LitElement {
 
@@ -149,11 +149,11 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                         type: "custom",
                         display: {
                             render: clinicalSignificance => html`
-                                <select-field-filter
-                                    .data=${CLINICAL_SIGNIFICANCE}
-                                    .value=${(clinicalSignificance || "").toLowerCase()}
+                                <select-field-filter2
+                                    .data="${CLINICAL_SIGNIFICANCE}"
+                                    .value="${(clinicalSignificance || "").toLowerCase()}"
                                     @filterChange="${e => this.onFieldChange(e, "clinicalSignificance")}">
-                                </select-field-filter>
+                                </select-field-filter2>
                             `,
                             defaultValue: "",
                         },
@@ -186,7 +186,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                         </div>
                                         <div>${acmg.comment || "No comment found"}</div>
                                     </div>
-                                    <div class="help-block" style="margin: 5px">
+                                    <div class="d-block text-secondary" style="margin: 5px">
                                         Added by <b>${acmg.author || this.opencgaSession?.user?.id || "-"}</b> on
                                         <b>${UtilsNew.dateFormatter(acmg.date || UtilsNew.getDatetime())}</b>
                                     </div>

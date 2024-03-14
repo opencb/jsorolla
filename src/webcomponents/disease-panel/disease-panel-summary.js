@@ -123,7 +123,7 @@ export default class DiseasePanelSummary extends LitElement {
         if (!this.diseasePanel?.id) {
             return html`
                 <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    <i class="fas fa-3x fa-info-circle align-middle pe-2"></i>
                     No Disease Panel ID found.
                 </div>
             `;
@@ -163,8 +163,8 @@ export default class DiseasePanelSummary extends LitElement {
                                 render: data => {
                                     if (data?.source?.project === "PanelApp") {
                                         return html`
-                                            <a href="${BioinfoUtils.getPanelAppLink(data.source.id)}" title="Panel ID: ${data.id}" target="_blank">
-                                                ${data?.id ?? "-"} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
+                                            <a class="text-decoration-none" href="${BioinfoUtils.getPanelAppLink(data.source.id)}" title="Panel ID: ${data.id}" target="_blank">
+                                                ${data?.id ?? "-"} <i class="fas fa-external-link-alt ps-1"></i>
                                             </a> (UUID: ${data.uuid})`;
                                     }
                                     return data?.id ?? "-";

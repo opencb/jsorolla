@@ -87,12 +87,12 @@ export default class VariantGridFormatter {
             tooltipText += `
                 <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Links</div>
                 <div style="padding: 5px">
-                    <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "decipher")}">
+                    <a class="text-decoration-none" target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "decipher")}">
                         Decipher
                     </a>
                 </div>
                 <div style="padding: 5px" data-cy="varsome-variant-link">
-                    <a target="_blank" ${row.type === "COPY_NUMBER" ? `class="${"disabled"}"` : `href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "varsome", assembly)}"`}>
+                    <a target="_blank" ${row.type === "COPY_NUMBER" ? `class="text-decoration-none disabled"` : `class="text-decoration-none" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "varsome", assembly)}"`}>
                         Varsome ${row.type === "COPY_NUMBER" ? "<small>(Disabled)</small>" : ""}
                     </a>
                 </div>
@@ -102,12 +102,12 @@ export default class VariantGridFormatter {
         tooltipText += `
             <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Genome Browsers</div>
             <div style="padding: 5px">
-                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ensembl_genome_browser", assembly)}">
+                <a class="text-decoration-none" target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ensembl_genome_browser", assembly)}">
                     Ensembl Genome Browser
                 </a>
             </div>
             <div style="padding: 5px">
-                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ucsc_genome_browser")}">
+                <a class="text-decoration-none" target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ucsc_genome_browser")}">
                     UCSC Genome Browser
                 </a>
             </div>
@@ -132,7 +132,7 @@ export default class VariantGridFormatter {
         }
 
         return `
-            <div style="margin:5px 0px;white-space:nowrap;">
+            <div class="my-1 mx-0 text-nowrap">
                 <a tooltip-title='Links' tooltip-text='${tooltipText}'>
                     ${row.chromosome}:${row.start}&nbsp;&nbsp;${ref}/${alt}
                 </a>
@@ -173,9 +173,9 @@ export default class VariantGridFormatter {
 
         if (snpId) {
             if (assembly.toUpperCase() === "GRCH37") {
-                return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
+                return "<a class='text-decoration-none' target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
             } else {
-                return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
+                return "<a class='text-decoration-none' target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
             }
         }
         return snpId;
@@ -217,8 +217,8 @@ export default class VariantGridFormatter {
                 if (geneName && !visited[geneName]) {
                     let geneViewMenuLink = "";
                     if (opencgaSession.project && opencgaSession.study) {
-                        geneViewMenuLink = `<div style='padding: 5px'>
-                                                <a style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a>
+                        geneViewMenuLink = `<div class='p-1'>
+                                                <a class='text-decoration-none' style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a>
                                             </div>`;
                     }
 
@@ -231,17 +231,17 @@ export default class VariantGridFormatter {
                     if (query?.ct) {
                         // If gene contains one of the query.ct
                         if (geneHasQueryCt.has(geneName)) {
-                            geneWithCtLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;">
-                                                        ${geneName}
-                                                  </a>`);
+                            geneWithCtLinks.push(`<a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;">
+                                                    ${geneName}
+                                                </a>`);
                         } else {
-                            geneLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;color: darkgray;font-style: italic">
+                            geneLinks.push(`<a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;color: darkgray;font-style: italic">
                                                     ${geneName}
                                             </a>`);
                         }
                     } else {
                         // No query.ct passed
-                        geneLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px">
+                        geneLinks.push(`<a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px">
                                                 ${geneName}
                                         </a>`);
                     }
@@ -282,29 +282,33 @@ export default class VariantGridFormatter {
 
     static getGeneTooltip(geneName, assembly) {
         return `
-            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>External Links</div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", assembly)}'>Ensembl</a>
+            <div class='dropdown-header ps-1 mt-2 mb-1'>
+                External Links
             </div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
+            <div class='p-1'>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", assembly)}'>Ensembl</a>
             </div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
+            <div class='p-1'>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
             </div>
-            <div style='padding: 5px' data-cy='varsome-gene-link'>
-                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "varsome", assembly)}'>Varsome</a>
+            <div class='p-1'>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
             </div>
-
-            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>Clinical Resources</div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
+            <div class='p-1' data-cy='varsome-gene-link'>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "varsome", assembly)}'>Varsome</a>
             </div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", assembly)}'>COSMIC</a>
+            <div class='dropdown-header ps-1 mt-2 mb-1'>
+                Clinical Resources
             </div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
+            <hr class='dropdown-divider'>
+            <div class='p-1'>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
+            </div>
+            <div class='p-1'>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", assembly)}'>COSMIC</a>
+            </div>
+            <div class='p-1'>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
             </div>
         `;
     }
@@ -488,7 +492,7 @@ export default class VariantGridFormatter {
         }
 
         let html = `<table id="${id ? id : null}" class="table ${config?.classes ? config.classes : "table-hover table-no-bordered"}">
-                        <thead>
+                        <thead class="table-light">
                             ${tr}
                         </thead>
                         <tbody>`;
@@ -637,12 +641,12 @@ export default class VariantGridFormatter {
                 message = `<div class="${variantGrid._prefix}${row.id}Filtered">
                                 Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of
                                 <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types,
-                                <a id="${variantGrid._prefix}${row.id}ShowCt" data-id="${row.id}" style="cursor: pointer">show all...</a>
+                                <a class="link-primary" id="${variantGrid._prefix}${row.id}ShowCt" data-id="${row.id}" style="cursor: pointer">show all...</a>
                             </div>
                             <div class="${variantGrid._prefix}${row.id}Filtered" style="display: none">
                                 Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of
                                 <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types,
-                                <a id="${variantGrid._prefix}${row.id}HideCt" data-id="${row.id}" style="cursor: pointer">apply filters...</a>
+                                <a class="link-primary" id="${variantGrid._prefix}${row.id}HideCt" data-id="${row.id}" style="cursor: pointer">apply filters...</a>
                             </div>
                             `;
             }
@@ -651,7 +655,7 @@ export default class VariantGridFormatter {
                               ${message}
                           </div>
                           <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
-                              <thead>
+                              <thead class="table-light">
                                   <tr>
                                       <th rowspan="2">Gene</th>
                                       <th rowspan="2">Transcript</th>
@@ -739,7 +743,7 @@ export default class VariantGridFormatter {
                         </div>
                         ${exon?.percentage ? `
                             <div>
-                                <span class="help-block" style="margin: 2px 0px">${exon?.percentage.toFixed(2) ?? "-"}%</span>
+                                <span class="d-block text-secondary" style="margin: 2px 0px">${exon?.percentage.toFixed(2) ?? "-"}%</span>
                             </div>` :
                         ""}
                     `);
@@ -771,7 +775,7 @@ export default class VariantGridFormatter {
                         </div>
                         ${pva.uniprotVariantId ? `
                             <div>
-                                <span class="help-block" style="margin: 0px">${pva.uniprotVariantId}</span>
+                                <span class="d-block text-secondary" style="margin: 0px">${pva.uniprotVariantId}</span>
                             </div>` :
                         ""}
                     `;
@@ -788,7 +792,7 @@ export default class VariantGridFormatter {
                             visited.add(feature.id);
                             tooltipText += `
                                 <div>
-                                    <span style="font-weight: bold; margin: 5px">${feature.id}</span><span class="help-block" style="margin: 5px">${feature.description}</span>
+                                    <span style="font-weight: bold; margin: 5px">${feature.id}</span><span class="d-block text-secondary" style="margin: 5px">${feature.description}</span>
                                 </div>
                             `;
                         }
@@ -1101,7 +1105,7 @@ export default class VariantGridFormatter {
                                 <div>
                                     ${trait?.heritableTraits?.length > 0 && trait.heritableTraits
                                 .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided")
-                                .map(t => `<span class="help-block" style="margin: 5px 1px">${t.trait}</span>`)
+                                .map(t => `<span class="d-block text-secondary" style="margin: 5px 1px">${t.trait}</span>`)
                                 .join("")
                             }
                                 </div>
@@ -1130,7 +1134,7 @@ export default class VariantGridFormatter {
                     Array.from(cosmicMap.entries()).forEach(([traitId, histologies]) => {
                         const histologiesItems = Array.from(histologies.values())
                             .filter(histology => histology && histology !== "null")
-                            .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
+                            .map(histology => `<span class="d-block text-secondary" style="margin: 5px 1px">${histology}</span>`)
                             .join("");
 
                         tooltipText += `
@@ -1180,7 +1184,7 @@ export default class VariantGridFormatter {
                     hotspot.variants
                         .map(variant => `
                                     <span
-                                        class="help-block"
+                                        class="d-block text-secondary"
                                         style="margin: 5px 1px">${AMINOACID_CODE[hotspot.aminoacidReference]}${hotspot.aminoacidPosition}${AMINOACID_CODE[variant.aminoacidAlternate]}: ${variant.count} sample(s)
                                     </span>`)
                         .join("")
@@ -1390,7 +1394,7 @@ export default class VariantGridFormatter {
         if (row?.interpretations?.length > 0) {
             let reportedHtml = `
                 <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
-                    <thead>
+                    <thead class="table-light">
                         <tr>
                             <th rowspan="2">Case</th>
                             <th rowspan="2">Disease Panel</th>

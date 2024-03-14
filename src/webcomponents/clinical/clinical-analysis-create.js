@@ -20,6 +20,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import UtilsNew from "../../core/utils-new.js";
+import {guardPage} from "../commons/html-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/forms/select-token-filter.js";
 import "../commons/filters/disease-panel-filter.js";
@@ -28,7 +29,6 @@ import "../commons/image-viewer.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 import "./filters/clinical-analyst-filter.js";
-
 
 export default class ClinicalAnalysisCreate extends LitElement {
 
@@ -389,12 +389,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
     render() {
         if (!this.opencgaSession?.study) {
-            return html `
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         return html`
@@ -682,10 +677,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         id: "individualId",
                                         title: "Individual ID",
                                         formatter: (value, row) => `
-                                                <div style="font-weight: bold">
-                                                    ${row.id}
-                                                </div>
-                                                <div class="help-block">
+                                                <div class="fw-bold">${row.id}</div>
+                                                <div class="form-text">
                                                     ${row?.sex?.id || "Not specified"} (${row.karyotypicSex || "Not specified"})
                                                 </div>
                                             `,
@@ -831,7 +824,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     {
                                         id: "fileIds",
                                         title: "ID",
-                                        formatter: (value, row) => `<span style="font-weight: bold">${row.id}</span>`,
+                                        formatter: (value, row) => `<span class="fw-bold">${row.id}</span>`,
                                     },
                                     {
                                         id: "fileIds",

@@ -35,8 +35,8 @@ context("9. Individual Browser", () => {
         UtilsTest.checkResults("individual-grid");
 
         UtilsTest.getResult("individual-grid", 1).then($text => {
-            UtilsTest.selectToken(".subsection-content[data-cy='id'] individual-id-autocomplete", $text);
-            cy.get("div.search-button-wrapper button").click();
+            UtilsTest.selectToken(".cy-subsection-content[data-cy='id'] individual-id-autocomplete", $text);
+            cy.get("div.cy-search-button-wrapper button").click();
             UtilsTest.checkExactResult("individual-grid", 1);
             cy.get("opencga-active-filters button[data-filter-name='id']").click();
             UtilsTest.checkResults("individual-grid");
@@ -81,7 +81,7 @@ context("9. Individual Browser", () => {
 
 
         UtilsTest.facet.checkActiveFacetLength(8);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.facet.checkResultLength(8);
 
         // cy.get("div.facet-wrapper button[data-filter-name='creationYear']").contains("creationYear>>creationMonth");
@@ -94,7 +94,7 @@ context("9. Individual Browser", () => {
         UtilsTest.facet.select("Status"); // removing status
 
         UtilsTest.facet.checkActiveFacetLength(7);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.facet.checkResultLength(7);
 
     });

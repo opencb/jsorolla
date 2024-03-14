@@ -256,7 +256,7 @@ class SampleVariantStatsView extends LitElement {
                                     Object.entries(query)
                                         .map(([k, v]) => {
                                             if (k !== "study") {
-                                                return html`<span class="break-word"><span style="font-weight: bold">${k}:</span> ${v}</span><br>`;
+                                                return html`<span class="text-break"><span style="font-weight: bold">${k}:</span> ${v}</span><br>`;
                                             } else {
                                                 if (Object.keys(query).length === 1) {
                                                     return html`<span>-</span>`;
@@ -483,21 +483,27 @@ class SampleVariantStatsView extends LitElement {
         return html`
             ${this.sample ?
                 html`
-                    <div style="margin: 20px 10px">
-                        <div class="form-horizontal">
-                            <div class="form-group">
-                                <label class="col-md-2">Select Variant Stat</label>
-                                <div class="col-md-2">
-                                    <select-field-filter forceSelection .data="${this.statsSelect}" .value=${this.variantStats.id} @filterChange="${this.statChange}"></select-field-filter>
-                                </div>
-                            </div>
+                    <div class="row my-3">
+                        <label class="col-md-2 col-form-label fw-bold">Select Variant Stat</label>
+                        <div class="col-md-2">
+                            <select-field-filter2
+                                .data="${this.statsSelect}"
+                                .value=${this.variantStats.id}
+                                .config="${{
+                                    liveSearch: false,
+                                    multiple: false
+                                }}"
+                                @filterChange="${this.statChange}">
+                            </select-field-filter2>
                         </div>
-                    </div>` :
-                null
+                    </div>` : null
             }
 
             <div>
-                <data-form .data=${this.variantStats} .config="${this._config}"></data-form>
+                <data-form
+                    .data=${this.variantStats}
+                    .config="${this._config}">
+                </data-form>
             </div>
         `;
     }

@@ -27,7 +27,6 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 
-
 export default class VariantBrowserGrid extends LitElement {
 
     constructor() {
@@ -181,6 +180,8 @@ export default class VariantBrowserGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -196,7 +197,7 @@ export default class VariantBrowserGrid extends LitElement {
                     this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, this.totalRowsNotTruncated, this.isApproximateCount),
                 detailView: this._config.detailView,
                 detailFormatter: this.detailFormatter,
-                formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
                 variantGrid: this,
                 ajax: params => {
@@ -332,6 +333,8 @@ export default class VariantBrowserGrid extends LitElement {
     renderFromLocal() {
         $("#" + this.gridId).bootstrapTable("destroy");
         $("#" + this.gridId).bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             // data: this.variants,
             columns: this._getDefaultColumns(),
             sidePagination: "server",
@@ -360,11 +363,11 @@ export default class VariantBrowserGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
-            paginationVAlign: "both",
+            paginationVAlign: "bottom",
             formatShowingRows: this.gridCommons.formatShowingRows,
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
-            formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
             variantGrid: this,
             onClickRow: (row, $element) => {
@@ -706,7 +709,7 @@ export default class VariantBrowserGrid extends LitElement {
                         C-scores strongly correlate with allelic diversity, pathogenicity of both coding and non-coding variants,
                         and experimentally measured regulatory effects, and also highly rank causal variants within individual genome sequences.
                         SpliceAI: a deep learning-based tool to identify splice variants.">
-                        <i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                        <i class="fa fa-info-circle text-primary" aria-hidden="true"></i></a>`,
                     field: "deleteriousness",
                     rowspan: 1,
                     colspan: 5,
@@ -723,7 +726,7 @@ export default class VariantBrowserGrid extends LitElement {
                                 range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint.
                                 Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while
                                 still strongly enriching for truly constrained sites">
-                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                         </a>`,
                     field: "conservation",
                     rowspan: 1,
@@ -745,7 +748,7 @@ export default class VariantBrowserGrid extends LitElement {
                         <a id="cohortStatsInfoIcon"
                             tooltip-title="Cohort Stats"
                             tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}">
-                            <i class="fa fa-info-circle" aria-hidden="true">
+                            <i class="fa fa-info-circle text-primary" aria-hidden="true">
                             </i>
                         </a>`,
                     field: "cohorts",
@@ -761,7 +764,7 @@ export default class VariantBrowserGrid extends LitElement {
                             tooltip-title="Population Frequencies"
                             tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}"
                             tooltip-position-at="left bottom" tooltip-position-my="right top">
-                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                         </a>`,
                     field: "popfreq",
                     rowspan: 1,
@@ -779,7 +782,7 @@ export default class VariantBrowserGrid extends LitElement {
                                 <div style='padding-top: 10px'>
                                     <span style='font-weight: bold'>COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
                                 </div>"
-                            tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                            tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle text-primary" aria-hidden="true"></i></a>`,
                     field: "clinicalInfo",
                     rowspan: 1,
                     colspan: 2,
@@ -808,17 +811,17 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: (value, row) => {
                         return `
                             <div class="dropdown">
-                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-toolbox" aria-hidden="true"></i>
                                     <span>Actions</span>
                                     <span class="caret" style="margin-left: 5px"></span>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-right">
+                                <ul class="dropdown-menu dropdown-menu-end">
                                     <li class="dropdown-header">External Links</li>
                                     <li>
-                                        <a target="_blank" class="btn force-text-left" ${row.type !== "SNV" ? "disabled" : ""} title="${row.type !== "SNV" ? "Only SNV are accepted" : ""}"
+                                        <a target="_blank" class="dropdown-item" ${row.type !== "SNV" ? "disabled" : ""} title="${row.type !== "SNV" ? "Only SNV are accepted" : ""}"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "decipher")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Decipher
+                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i> Decipher
                                         </a>
                                     </li>
                                     <li data-cy="varsome-variant-link">
@@ -830,42 +833,42 @@ export default class VariantBrowserGrid extends LitElement {
 
                                     <li class="dropdown-header">CellBase Links</li>
                                     <li>
-                                        <a target="_blank" class="btn force-text-left"
+                                        <a target="_blank" class="dropdown-item"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
+                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                                             CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
                                         </a>
                                     </li>
                                     <li>
-                                        <a target="_blank" class="btn force-text-left"
+                                        <a target="_blank" class="dropdown-item"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
+                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                                             CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
                                         </a>
                                     </li>
                                     <li class="dropdown-header">External Genome Browsers</li>
                                     <li>
-                                        <a target="_blank" class="btn force-text-left"
+                                        <a target="_blank" class="dropdown-item"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser", this.opencgaSession?.project?.organism?.assembly)}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Ensembl Genome Browser
+                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i> Ensembl Genome Browser
                                         </a>
                                     </li>
                                     <li>
-                                        <a target="_blank" class="btn force-text-left"
+                                        <a target="_blank" class="dropdown-item"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ucsc_genome_browser")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> UCSC Genome Browser
+                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i> UCSC Genome Browser
                                         </a>
                                     </li>
                                     <li role="separator" class="divider"></li>
                                     <li class="dropdown-header">Fetch Variant</li>
                                     <li>
-                                        <a href="javascript: void 0" class="btn force-text-left" data-action="copy-json">
-                                            <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                        <a href="javascript: void 0" class="dropdown-item" data-action="copy-json">
+                                            <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="javascript: void 0" class="btn force-text-left" data-action="download">
-                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                        <a href="javascript: void 0" class="dropdown-item" data-action="download">
+                                            <i class="fas fa-download" aria-hidden="true"></i> Download JSON
                                         </a>
                                     </li>
                                     <li data-cy="varsome-copy">
@@ -1062,6 +1065,25 @@ export default class VariantBrowserGrid extends LitElement {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
                 this.requestUpdate();
             });
+    }
+
+    onGridConfigChange(e) {
+        this.__config = e.detail.value;
+    }
+
+    onGridConfigSave() {
+        LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
+    }
+
+    getRightToolbar() {
+        return [
+            {
+                render: () => html`
+                    <button type="button" class="btn btn-light btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                        <i class="fas fa-cog"></i> Settings ...
+                    </button>`
+            }
+        ];
     }
 
     render() {

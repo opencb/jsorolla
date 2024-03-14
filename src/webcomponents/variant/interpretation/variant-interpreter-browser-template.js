@@ -18,9 +18,9 @@ import {html, LitElement} from "lit";
 import VariantUtils from "../variant-utils.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
+import {guardPage} from "../../commons/html-utils.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
@@ -345,18 +345,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.requestUpdate();
     }
 
-    render() {
-        // Check Project exists
-        if (!this.opencgaSession?.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No project available to browse. Please login to continue</h3>
-                </div>
-            `;
-        }
-
-        return html`
+    renderStyles() {
+        return html `
             <style>
                 .prioritization-center {
                     margin: auto;
@@ -394,7 +384,16 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     margin: 20px 0;
                 }
             </style>
+        `;
+    }
 
+    render() {
+        // Check Project exists
+        if (!this.opencgaSession?.study) {
+            return guardPage();
+        }
+
+        return html`
             ${this._config.showTitle ? html`
                 <tool-header
                     title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}"
@@ -404,18 +403,19 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
             ${this.clinicalAnalysis.interpretation.locked ? html`
                 <div class="row">
-                    <div class="panel panel-warning col-sm-8 col-sm-offset-2" style="padding: 0">
-                        <div class="panel-heading" style="font-size: 1.1em">
+                    <div class="card text-bg-warning col-sm-8 offset-sm-2 p-0">
+                        <div class="card-header" style="font-size: 1.1em">
                             <label>Interpretation locked:</label> you cannot modify this interpretation. You can unlock the interpretation in
-                            <span style="font-style: italic;">Case Info >> Interpretation Manager</span>.
+                            <span class="fst-italic">Case Info >> Interpretation Manager</span>.
                         </div>
                     </div>
                 </div>` : null
             }
 
-            <div class="row">
-                <div class="col-md-2">
-                    <div class="search-button-wrapper">
+            <!-- Rodiel 27-09-23 NOTE: Using 'row' and 'col' has problems for standard resolution, so I opted for 'flex -->
+            <div class="d-flex gap-4">
+                <div class="col-2">
+                    <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onSearch}">
                             <i class="fa fa-search" aria-hidden="true"></i>
                             <strong>${this._config.filter?.searchButtonText || "Search"}</strong>
@@ -434,7 +434,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     </variant-browser-filter>
                 </div> <!-- Close col-md-2 -->
 
-                <div class="col-md-10">
+                <div class="flex-grow-1">
                     <div>
                         <variant-interpreter-browser-toolbar
                             .clinicalAnalysis="${this.clinicalAnalysis}"

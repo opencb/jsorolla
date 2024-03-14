@@ -242,62 +242,56 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
     render() {
         return html`
             <div class="row">
-                <div class="col-md-12">
-                    <div class="row" style="padding: 10px">
-                        <div class="col-md-12">
-                            <div class="col-md-7">
-                                <h2>Genome Plot</h2>
-                                <circos-view
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .sampleId="${this.sampleId}"
-                                    .query="${this.query}"
-                                    .queries="${this.queries}"
-                                    .active="${this.active}"
-                                    @changeCircosPlot="${this.onChangeCircosPlot}">
-                                </circos-view>
-                            </div>
-                            <div class="col-md-5">
-                                <div style="margin-bottom: 20px">
-                                    <h2>Mutational Catalogue</h2>
-                                    <h4>SNV Catalogue</h4>
-                                    <signature-view
-                                        .signature="${this.signature?.["SNV"] || null}"
-                                        .mode="${"SBS"}"
-                                        ?active="${this.active}">
-                                    </signature-view>
-                                    <h4>SV Catalogue</h4>
-                                    <signature-view
-                                        .signature="${this.signature?.["SV"] || null}"
-                                        .mode="${"SV"}"
-                                        ?active="${this.active}">
-                                    </signature-view>
-                                </div>
-                                <div style="padding-top: 20px">
-                                    <h2>Small Deletions and Insertions</h2>
-                                    <div class="">
-                                        <simple-chart
-                                            .title="${`${this.deletionAggregationStatsResults?.[0].count} deletions and insertions`}"
-                                            .type="${"bar"}"
-                                            .data="${this.deletionTypeStats}"
-                                            .colors="${this.deletionsInsertionsPlotColors}"
-                                            ?active="${true}"
-                                            @changeChart="${this.onChangeDeletionAggregationStatsChart}">
-                                        </simple-chart>
-                                    </div>
-                                </div>
-                                <div style="padding-top: 20px">
-                                    <h2>Rearrangements</h2>
-                                    <div class="">
-                                        <simple-chart
-                                            .title="${`${this.aggregationStatsResults?.[0].count} rearrangements`}"
-                                            .type="${"bar"}"
-                                            .data="${this.typeStats}"
-                                            .colors="${this.rearrangementsPlotColors}"
-                                            ?active="${true}">
-                                        </simple-chart>
-                                    </div>
-                                </div>
-                            </div>
+                <div class="col-md-7">
+                    <h2>Genome Plot</h2>
+                    <circos-view
+                        .opencgaSession="${this.opencgaSession}"
+                        .sampleId="${this.sampleId}"
+                        .query="${this.query}"
+                        .queries="${this.queries}"
+                        .active="${this.active}"
+                        @changeCircosPlot="${this.onChangeCircosPlot}">
+                    </circos-view>
+                </div>
+                <div class="col-md-5">
+                    <div class="mb-3">
+                        <h2>Mutational Catalogue</h2>
+                        <h4>SNV Catalogue</h4>
+                        <signature-view
+                            .signature="${this.signature?.["SNV"] || null}"
+                            .mode="${"SBS"}"
+                            ?active="${this.active}">
+                        </signature-view>
+                        <h4>SV Catalogue</h4>
+                        <signature-view
+                            .signature="${this.signature?.["SV"] || null}"
+                            .mode="${"SV"}"
+                            ?active="${this.active}">
+                        </signature-view>
+                    </div>
+                    <div class="mb-3">
+                        <h2>Small Deletions and Insertions</h2>
+                        <div class="">
+                            <simple-chart
+                                .title="${`${this.deletionAggregationStatsResults?.[0].count} deletions and insertions`}"
+                                .type="${"bar"}"
+                                .data="${this.deletionTypeStats}"
+                                .colors="${this.deletionsInsertionsPlotColors}"
+                                ?active="${true}"
+                                @changeChart="${this.onChangeDeletionAggregationStatsChart}">
+                            </simple-chart>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <h2>Rearrangements</h2>
+                        <div class="">
+                            <simple-chart
+                                .title="${`${this.aggregationStatsResults?.[0].count} rearrangements`}"
+                                .type="${"bar"}"
+                                .data="${this.typeStats}"
+                                .colors="${this.rearrangementsPlotColors}"
+                                ?active="${true}">
+                            </simple-chart>
                         </div>
                     </div>
                 </div>

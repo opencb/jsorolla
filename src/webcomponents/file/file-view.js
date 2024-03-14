@@ -192,7 +192,7 @@ export default class FileView extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => html`
-                                    <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})
+                                    <span class="fw-bold">${data.id}</span> (UUID: ${data.uuid})
                                 `,
                             },
                         },

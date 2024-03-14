@@ -253,6 +253,8 @@ export default class VariantAnnotationClinicalView extends LitElement {
 
         $("#" + this._prefix + "ConsequenceTypeTable").bootstrapTable("destroy");
         $("#" + this._prefix + "ConsequenceTypeTable").bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: this.traitAssociation,
             pagination: false,
             columns: [

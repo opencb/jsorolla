@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-field-filter.js";
+import "../../commons/forms/select-field-filter2.js";
 
 export default class ClinicalFlagFilter extends LitElement {
 
@@ -80,19 +80,21 @@ export default class ClinicalFlagFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter
+            <select-field-filter2
                 .data="${this.flags}"
-                .value=${this.flag}
-                .placeholder="${this.placeholder}"
-                .multiple="${this.multiple}"
+                .value="${this.flag}"
+                .config="${{
+                    placeholder: this.placeholder,
+                    multiple: this.multiple,
+                    disabled: this.disabled,
+                }}"
                 .classes="${this.classes}"
-                .disabled="${this.disabled}"
                 @filterChange="${e => this.filterChange(e)}">
-            </select-field-filter>
+            </select-field-filter2>
 
             <!-- Only show description when one single values is expected -->
             ${!this.multiple && this.flagObject?.description ? html`
-                <span class="help-block" style="padding: 0px 5px">${this.flagObject.description}</span>` : null
+                <span class="d-block text-secondary" style="padding: 0px 5px">${this.flagObject.description}</span>` : null
             }
         `;
     }

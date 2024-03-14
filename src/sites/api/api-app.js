@@ -404,7 +404,7 @@ class ApiApp extends LitElement {
     changeTool(e) {
         e.preventDefault();
         const target = e.currentTarget;
-        $(".navbar-inverse ul > li", this).removeClass("active");
+        $(".cy-navbar ul > li", this).removeClass("active");
         $(target).parent("li").addClass("active");
         if ($(target).closest("ul").hasClass("dropdown-menu")) {
             $(target).closest("ul").closest("li").addClass("active");
@@ -655,7 +655,7 @@ class ApiApp extends LitElement {
             <!-- End of navigation bar -->
 
             ${this.signingIn ? html`
-                <div class="login-overlay">
+                <div class="cy-login-overlay">
                     <loading-spinner
                         .description="${this.signingIn}">
                     </loading-spinner>

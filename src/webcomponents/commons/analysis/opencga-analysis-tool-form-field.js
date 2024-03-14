@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../forms/select-field-filter.js";
+import "../forms/select-field-filter2.js";
 import "../forms/text-field-filter.js";
 import "../filters/population-frequency-filter.js";
 import "../filters/clinvar-accessions-filter.js";
@@ -69,14 +69,16 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
         switch (fieldConfig.type) {
             case "category":
                 return html`
-                    <select-field-filter
-                        ?multiple="${fieldConfig.multiple}"
-                        ?disabled="${this.config.disabled}"
-                        ?required="${this.config.required}"
+                    <select-field-filter2
                         .data="${fieldConfig.allowedValues}"
                         .value="${fieldConfig.defaultValue}"
+                        .config="${{
+                            multiple: fieldConfig.multiple,
+                            disabled: fieldConfig.disabled,
+                            required: fieldConfig.required
+                        }}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </select-field-filter>
+                    </select-field-filter2>
                 `;
             case "string":
                 return html`
@@ -91,7 +93,7 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
             case "number":
                 const [min = "", max = ""] = fieldConfig.allowedValues || [];
                 return html`
-                    <div id="${this._prefix}-wrapper" class="subsection-content form-group">
+                    <div id="${this._prefix}-wrapper" class="cy-subsection-content form-group">
                         <input type="number" min=${min} max=${max} step="0.01"
                         .disabled=${this.config.disabled}
                         ?required=${this.config.required} value="${fieldConfig.defaultValue || ""}"
@@ -242,14 +244,14 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
         }
 
         return html`
-            <div class="opencga-analysis-tool-form-field" style="padding: ${padding}; width: ${width}">
-                ${this.config.title ? html`<label>${this.config.title}</label>` : null}
+            <div class="row opencga-analysis-tool-form-field">
+                ${this.config.title ? html`<label class="fw-bold form-label">${this.config.title}</label>` : nothing}
                 ${this.config.tooltip ? html`
                     <div class="tooltip-div pull-right">
                         <a tooltip-title="Info" tooltip-text="${this.config.tooltip}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                     </div>
-                ` : null}
-                <div id="${this.config.id}-wrapper">
+                ` : nothing}
+                <div class="col-md-6" id="${this.config.id}-wrapper">
                     ${this.renderField()}
                 </div>
             </div>

@@ -17,8 +17,7 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utils-new.js";
-import "../commons/forms/select-field-filter.js";
-
+import "../commons/forms/select-field-filter2.js";
 
 export default class FamilyGenotypeFilter extends LitElement {
 
@@ -96,7 +95,7 @@ export default class FamilyGenotypeFilter extends LitElement {
 
     firstUpdated() {
         // Render the first time after preparing the DOM
-        $("select.selectpicker", this).selectpicker("render");
+        // $("select.selectpicker", this).selectpicker("render");
     }
 
     // Builds the table data
@@ -193,6 +192,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                 }*/
             });
         }
+
         LitUtils.dispatchCustomEvent(this, "filterChange", null, {
             value: {
                 sample: _sample.length ? _sample.join(";") : null,
@@ -363,30 +363,34 @@ export default class FamilyGenotypeFilter extends LitElement {
             </style>
 
             <div id="opencga-variant-filter-clinical" class="row">
-                <div class="form-check col-md-12">
-                    <div style="padding: 5px 5px 10px 5px; font-size: 14px">
+                <div class="col-md-12 mb-2">
+                    <div>
                         You can manually select sample genotypes or select a
-                        <span style="font-weight: bold;margin: 0px">Mode of Inheritance</span>
+                        <span class="fw-bold m-0">Mode of Inheritance</span>
                         such as RECESSIVE OR COMPOUND HETEROZYGOUS.
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-4 mb-2">
                     <div class="form-check-label mode-button">
-                        <select-field-filter
+                        <select-field-filter2
                             .data="${this.modeSelectData}"
                             value="${this.mode}"
+                            .config="${{
+                                liveSearch: false,
+                                multiple: false,
+                            }}"
                             @filterChange="${this.setMode}">
-                        </select-field-filter>
+                        </select-field-filter2>
                     </div>
                 </div>
                 <div class="col-md-12">
                     <div>
-                        <h4 style="padding-top: 10px; margin-bottom: 0px">
+                        <h4 class="mb-2">
                             Select Sample Genoypes
                         </h4>
                         <table id="${this._prefix}BasicTable" class="table table-hover table-no-bordered">
-                            <thead>
+                            <thead class="table-light">
                             <tr>
                                 <th rowspan="2">Sample</th>
                                 <th rowspan="2">Individual</th>
@@ -450,7 +454,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                                     </td>
                                     ${~["PROBAND", "FATHER", "MOTHER"].indexOf(sample.role.toUpperCase()) && ~this.modes.indexOf(this.mode) ? html`
                                         <td colspan="3">
-                                            <div class="alert-info text-center" style="padding: 4px 0 1px;"> ${this.mode}</div>
+                                            <div class="alert alert-info text-center p-0 m-0"> ${this.mode}</div>
                                         </td>
                                     ` : html`
                                         <td style="padding-left: 20px">

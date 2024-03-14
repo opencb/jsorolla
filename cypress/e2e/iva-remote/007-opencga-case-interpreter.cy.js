@@ -122,7 +122,7 @@ context("7. Case Interpreter", () => {
                     cy.get("variant-browser-filter a[data-cy-section-title='ConsequenceType'].collapsed").click();
                     cy.get("consequence-type-select-filter input[value='Loss-of-Function (LoF)'").click({force: true});
                     cy.get("opencga-active-filters button[data-filter-name='ct']").contains("Consequence Types");
-                    cy.get("div.search-button-wrapper button").click();
+                    cy.get("div.cy-search-button-wrapper button").click();
                     UtilsTest.checkResults("variant-interpreter-grid");
                 }
 

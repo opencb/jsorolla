@@ -142,9 +142,9 @@ export default class OpencgaPanelFilter extends LitElement {
         <br>
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
             <!-- Panel -->
-            <div class="panel panel-default">
-                <div class="panel-body" role="tab" id="${this._prefix}PanelSelectionHeading">
-                    <h4 class="panel-title">
+            <div class="card">
+                <div class="card-body" role="tab" id="${this._prefix}PanelSelectionHeading">
+                    <h4 class="card-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
                            href="#${this._prefix}PanelSelection" aria-expanded="true"
                            aria-controls="${this._prefix}PanelSelection">
@@ -160,11 +160,11 @@ export default class OpencgaPanelFilter extends LitElement {
 
                 <div id="${this._prefix}PanelCharacteristics" class="panel-collapse collapse in" role="tabpanel"
                      aria-labelledby="${this._prefix}PanelCharacteristicsHeading">
-                    <div class="panel-body">
+                    <div class="card-body">
                         <div class="form-group">
                             <div class="browser-subsection">ID
                             </div>
-                            <div id="${this._prefix}-panelId" class="subsection-content form-group">
+                            <div id="${this._prefix}-panelId" class="cy-subsection-content form-group">
                                 <input type="text" id="${this._prefix}IDPanel" class="form-control input-sm ${this._prefix}FilterTextInput"
                                        placeholder="ID ..." @input="${this.updateQueryFilters}">
                             </div>
@@ -173,7 +173,7 @@ export default class OpencgaPanelFilter extends LitElement {
                         <div class="form-group">
                             <div class="browser-subsection">Name
                             </div>
-                            <div id="${this._prefix}-panelName" class="subsection-content form-group">
+                            <div id="${this._prefix}-panelName" class="cy-subsection-content form-group">
                                 <input type="text" id="${this._prefix}NamePanel" class="form-control input-sm ${this._prefix}FilterTextInput"
                                        placeholder="Name, Name2 ..." @keyup="${this.updateQueryFilters}">
                             </div>
@@ -182,7 +182,7 @@ export default class OpencgaPanelFilter extends LitElement {
                         <div class="form-group">
                             <div class="browser-subsection">Version
                             </div>
-                            <div id="${this._prefix}-panelVersion" class="subsection-content form-group">
+                            <div id="${this._prefix}-panelVersion" class="cy-subsection-content form-group">
                                 <input type="text" id="${this._prefix}versionPanel" class="form-control input-sm ${this._prefix}FilterTextInput"
                                        placeholder="Version ..." @keyup="${this.updateQueryFilters}">
                             </div>
@@ -191,7 +191,7 @@ export default class OpencgaPanelFilter extends LitElement {
                         <div class="form-group">
                             <div class="browser-subsection">Author
                             </div>
-                            <div id="${this._prefix}-panelAuthor" class="subsection-content form-group">
+                            <div id="${this._prefix}-panelAuthor" class="cy-subsection-content form-group">
                                 <input type="text" id="${this._prefix}authorPanel" class="form-control input-sm ${this._prefix}FilterTextInput"
                                        placeholder="Author ..." @keyup="${this.updateQueryFilters}">
                             </div>

@@ -94,7 +94,7 @@ export default class SelectFieldFilter extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
+        $.fn.selectpicker.Constructor.BootstrapVersion = "5";
         this.multiple = false;
         this.all = false;
         this.data = [];
@@ -110,7 +110,10 @@ export default class SelectFieldFilter extends LitElement {
             iconBase: "fas",
             tickIcon: "fa-check",
             val: "",
-            multipleSeparator: this.separator
+            multipleSeparator: this.separator,
+            style: "",
+            styleBase: this.all ? "form-control rounded-end-0" : "form-control"
+            // actionsBox: this.all,
         });
         // this.selectPicker.selectpicker("val", "");
     }
@@ -119,11 +122,17 @@ export default class SelectFieldFilter extends LitElement {
         if (changedProperties.has("data")) {
             // TODO check why lit-element execute this for all existing select-field-filter instances..wtf
             this.data = this.data ?? [];
-            this.selectPicker.selectpicker("refresh");
+            // 20230604 rodiel: The latest version of bootstrap-select is causing a duplication issue with the list.
+            // To prevent this, it's necessary to disable refresh.
+            // Further investigation is necessary to ensure a solution
+            // this.selectPicker.selectpicker("refresh");
+            // https://developer.snapappointments.com/bootstrap-select/methods/#:~:text=%27deselectAll%27)%3B-,.selectpicker(%27render%27),-You%20can%20force
+            // Solution:
+            this.selectPicker.selectpicker("render");
         }
 
         if (changedProperties.has("disabled")) {
-            this.selectPicker.selectpicker("refresh");
+            this.selectPicker.selectpicker("render");
         }
 
         if (changedProperties.has("value") || changedProperties.has("data") || changedProperties.has("disabled")) {
@@ -151,7 +160,7 @@ export default class SelectFieldFilter extends LitElement {
             } else {
                 // if classes os removed then we need to removed the old assigned classes
                 this.selectPicker.selectpicker("setStyle", changedProperties.get("classes"), "remove");
-                this.selectPicker.selectpicker("setStyle", "btn-default", "add");
+                this.selectPicker.selectpicker("setStyle", "border-secondary-subtle", "add");
             }
         }
     }
@@ -229,10 +238,19 @@ export default class SelectFieldFilter extends LitElement {
         `;
     }
 
+    renderShowSelectAll() {
+        return html `
+            <span class="input-group-text rounded-start-0">
+                <input class="form-check-input mt-0" id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." @click=${this.selectAll}>
+                <span class="fw-bold ms-1">All</span>
+            </span>
+        `;
+    }
+
     render() {
         return html`
             <div id="${this._prefix}-select-field-filter-wrapper" class="select-field-filter">
-                <div class="${this.all ? "input-group" : ""}">
+                <div class="${this.all ? "d-flex" : ""}">
                     <select id="${this.elm}"
                             class="${this.elm}"
                             ?multiple="${!this.forceSelection}"
@@ -245,7 +263,7 @@ export default class SelectFieldFilter extends LitElement {
                             data-width="100%"
                             data-title="${this.title || nothing}"
                             data-selected-text-format="${this.title ? "static" : "values"}"
-                            data-style="btn-default ${this.classes}"
+                            data-style="${this.classes}"
                             @change="${this.filterChange}">
                         ${this.data?.map(opt => html`
                             ${opt?.separator ? html`<option data-divider="true"></option>` : html`
@@ -262,12 +280,7 @@ export default class SelectFieldFilter extends LitElement {
                         `)}
                     </select>
 
-                    ${this.all ? html`
-                        <span class="input-group-addon">
-                            <input id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." style="margin: 0 5px" @click=${this.selectAll}>
-                            <span style="font-weight: bold">All</span>
-                        </span>` : nothing
-                    }
+                    ${this.all ? this.renderShowSelectAll() : nothing}
                 </div>
             </div>
         `;

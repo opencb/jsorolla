@@ -209,7 +209,7 @@ class VariantInterpreterQcSummary extends LitElement {
                                         field: "file",
                                         formatter: value => `
                                             <div>
-                                                <span style="font-weight: bold">
+                                                <span class="fw-bold">
                                                     ${value}
                                                 </span>
                                             </div>

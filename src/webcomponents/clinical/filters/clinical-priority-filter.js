@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-field-filter.js";
+import "../../commons/forms/select-field-filter2.js";
 
 export default class ClinicalPriorityFilter extends LitElement {
 
@@ -84,20 +84,22 @@ export default class ClinicalPriorityFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter
+            <select-field-filter2
                 .data="${this.priorities}"
                 .value=${this.priority}
-                .placeholder="${this.placeholder}"
-                .multiple="${this.multiple}"
-                .forceSelection="${this.forceSelection}"
+                .config="${{
+                    placeholder: this.placeholder,
+                    multiple: this.multiple,
+                    liveSearch: false,
+                    disabled: this.disabled,
+                }}"
                 .classes="${this.classes}"
-                .disabled="${this.disabled}"
                 @filterChange="${e => this.filterChange(e)}">
-            </select-field-filter>
+            </select-field-filter2>
 
             <!-- Only show description when one single values is expected -->
             ${!this.multiple && this.priorityObject?.description ? html`
-                <span class="help-block" style="padding: 0 5px">${this.priorityObject.description}</span>` : null
+                <span class="form-text">${this.priorityObject.description}</span>` : null
             }
         `;
     }

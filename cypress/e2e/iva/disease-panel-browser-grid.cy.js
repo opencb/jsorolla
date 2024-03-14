@@ -78,7 +78,7 @@ context("Disease Panel Browser Grid", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("h4.modal-title")
-                .should("contain.text", "Disease Panel Create");
+                .should("contain.text", "Disease panel create");
         });
         // 3. Render button clear
         it("should render button clear", () => {
@@ -105,7 +105,7 @@ context("Disease Panel Browser Grid", () => {
         it("should have form field ID", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .find("data-form div.form-horizontal div.row.form-group  label.control-label")
+                .find("data-form div.form-horizontal div.row label.col-form-label")
                 .should("contain.text", "Disease Panel ID");
         });
     });
@@ -122,8 +122,7 @@ context("Disease Panel Browser Grid", () => {
                 .find("a[data-action='edit']")
                 .first()
                 .click();
-            cy.get("@container")
-                .find("div[data-cy='modal-update']")
+            cy.get("div[data-cy='modal-update']")
                 .as("modal-update");
         });
         // 1. Open modal and render update
@@ -138,7 +137,7 @@ context("Disease Panel Browser Grid", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("h4.modal-title")
-                .should("contain.text", "Disease Panel Update");
+                .should("contain.text", "Disease panel update");
         });
         // 3. Render button clear
         it("should render button clear", () => {
@@ -165,7 +164,7 @@ context("Disease Panel Browser Grid", () => {
         it("should have form field ID equal to sample selected", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
-                .find("data-form div.row div.row.form-group  label.control-label")
+                .find("data-form div.row div.row label.col-form-label")
                 .should("contain.text", "Disease Panel ID");
         });
     });
@@ -222,14 +221,14 @@ context("Disease Panel Browser Grid", () => {
             });
             cy.get("button[data-action='settings']")
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter2 .select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                UtilsTest.getByDataTest("test-columns", "select-field-filter2 span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter2 .select2-selection")
                 .click();
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
@@ -314,6 +313,7 @@ context("Disease Panel Browser Grid", () => {
         });
 
         context("data format", () => {
+
             beforeEach(() => {
                 cy.get("@grid")
                     .find("tbody tr[data-index='0']")
@@ -332,7 +332,6 @@ context("Disease Panel Browser Grid", () => {
     });
 
     context("Detail", () => {
-
         beforeEach(() => {
             cy.get("@container")
                 .find("div[data-cy='dpb-detail']")
@@ -349,7 +348,7 @@ context("Disease Panel Browser Grid", () => {
             cy.get(`tbody tr[data-uniqueid="${panel}"]`)
                 .find(`td:first`)
                 .trigger("click");
-        
+
             cy.get(`detail-tabs h3`)
                 .should("contain.text", `Disease Panel ${panel}`);
         });
@@ -359,7 +358,7 @@ context("Disease Panel Browser Grid", () => {
                 .find("li")
                 .contains("JSON Data")
                 .trigger("click");
-            
+
             cy.get("json-viewer")
                 .should("be.visible");
         });

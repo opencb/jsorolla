@@ -108,7 +108,7 @@ export default class FileUpload extends LitElement {
     render() {
         return html`
             <!--<div class="btn-group columns-toggle-wrapper">
-                <button type="button" class="btn btn-default btn-small ripple btn-sm" aria-expanded="false" @click="\${this.toggleCollapse}">
+                <button type="button" class="btn btn-light btn-small ripple btn-sm" aria-expanded="false" @click="\${this.toggleCollapse}">
                     <i class="fas fa-upload icon-padding" aria-hidden="true" id=""></i> Upload list
                 </button>
             </div>-->
@@ -116,12 +116,14 @@ export default class FileUpload extends LitElement {
             <div class="collapse file-drop-area" id="${this._prefix}file-form">
                 <form action="" method="POST" enctype="multipart/form-data">
                     <div class="form-group">
-                        <div class="dropzone-wrapper" @change="${this.readFile}" @drop="${this.readFile}" @dragover="${this.onDragOver}" @dragleave="${this.onDragLeave}">
-                            <div class="dropzone-desc">
+                        <div class="d-flex align-items-center justify-content-center mt-2 border border-light-subtle text-body-tertiary"
+                            style="cursor:pointer;border-style: dashed !important;border-width: 2px !important;height:100px;"
+                            @change="${this.readFile}" @drop="${this.readFile}" @dragover="${this.onDragOver}" @dragleave="${this.onDragLeave}">
+                            <div class="text-center">
                                 <i class="fas fa-upload"></i>
                                 <div>Choose an text file or drag it here.</div>
                             </div>
-                            <input type="file" class="dropzone" />
+                            <input type="file" class="position-absolute opacity-0" />
                         </div>
                     </div>
                 </form>

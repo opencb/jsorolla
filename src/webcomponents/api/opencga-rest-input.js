@@ -22,7 +22,6 @@ import NotificationUtils from "../commons/utils/notification-utils";
 import LitUtils from "../commons/utils/lit-utils";
 import RestClient from "../../core/clients/rest-client";
 
-
 export default class OpencgaRestInput extends LitElement {
 
     constructor() {
@@ -573,9 +572,9 @@ export default class OpencgaRestInput extends LitElement {
         }
         return html`
             <!-- Parameters Section-->
-            <div style="padding: 5px 10px">
-                <h3 style="display:inline-block;">Input Parameters</h3>
-                <div style="padding: 20px">
+            <div class="py-2 px-3">
+                <h3 class="d-inline-block">Input Parameters</h3>
+                <div class="p-4">
                     <data-form
                         .data="${this.data}"
                         .config="${this.config}"
