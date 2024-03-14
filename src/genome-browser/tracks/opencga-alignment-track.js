@@ -64,7 +64,7 @@ export default class OpenCGAAlignmentTrack extends FeatureTrack {
         const coverageRequest = this.config.opencgaClient.alignments().queryCoverage(this.alignmentInfo.id, {
             study: this.config.opencgaStudy,
             region: options.region.toString(),
-            windowSize: 1,
+            windowSize: Math.max(1, Math.round(10 / this.pixelBase)),
             offset: 0,
         });
 
