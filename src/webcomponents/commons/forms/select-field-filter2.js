@@ -111,7 +111,7 @@ export default class SelectFieldFilter2 extends LitElement {
             width: "80%",
             data: options,
             tokenSeparator: this._config?.separator,
-            closeOnSelect: !!this._config?.multiple,
+            closeOnSelect: !this._config?.multiple,
             templateResult: e => this.optionsFormatter(e),
             ...this._config?.liveSearch ? {} : {minimumResultsForSearch: Infinity}, // To hide search box
         };
