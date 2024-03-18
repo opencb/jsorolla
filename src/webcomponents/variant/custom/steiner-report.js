@@ -291,13 +291,6 @@ class SteinerReport extends LitElement {
         }
     }
 
-    onFieldChange() {
-        this._data = {
-            ...this._data,
-        };
-        this.requestUpdate();
-    }
-
     onSignatureChange(event, type) {
         this.selectedSignatures[type] = event.detail.value;
         this._config = {
@@ -365,7 +358,6 @@ class SteinerReport extends LitElement {
             <data-form
                 .data="${this._data}"
                 .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onRun}">
             </data-form>
