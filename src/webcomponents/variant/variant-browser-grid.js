@@ -1088,7 +1088,6 @@ export default class VariantBrowserGrid extends LitElement {
             <div data-cy="vb-grid">
                 <table id="${this.gridId}"></table>
             </div>
-
         `;
     }
 
