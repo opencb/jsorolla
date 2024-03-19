@@ -262,8 +262,7 @@ class IvaApp extends LitElement {
         // Initially we load the SUIte config
         this.app = this.getActiveAppConfig();
 
-        // We need to listen to hash fragment changes to update the display and breadcrumb
-        // const _this = this;
+        // We need to listen to hash fragment changes to update the URL
         window.onhashchange = e => {
             // e.preventDefault();
             console.log("URL Hash changed: ", e);
@@ -281,11 +280,6 @@ class IvaApp extends LitElement {
         // if (window.location.hash !== this.tool) {
         //     window.location.hash = this.tool;
         // }
-
-        // Other initialisations
-        // This manages the sample selected in each tool for updating the breadcrumb
-        this.samples = [];
-        this._samplesPerTool = {};
 
         // Notifications
         this.notificationManager = new NotificationManager({});
@@ -305,12 +299,12 @@ class IvaApp extends LitElement {
         // Show confirmation
         this.addEventListener(NotificationUtils.NOTIFY_CONFIRMATION, e => this.notificationManager.showConfirmation(e.detail));
 
-        // TODO remove browserSearchQuery
-        this.browserSearchQuery = {};
         // keeps track of the executedQueries transitioning from browser tool to facet tool
-        this.queries = [];
+        this.queries = {};
+
         // keeps track of status and version of the hosts (opencga and cellbase)
         this.host = {};
+
         globalThis.addEventListener("signingIn", e => {
             this.isCreatingSession = e.detail.value;
             this.requestUpdate();
@@ -333,7 +327,6 @@ class IvaApp extends LitElement {
         // Import server configuration from conf/server.json file (if exists)
         // See issue https://github.com/opencb/jsorolla/issues/425
         UtilsNew.importJSONFile("conf/server.json").then(serverConf => {
-
             // Initialize opencga configuration
             const opencgaHost = serverConf?.host || this.config.opencga.host;
             const opencgaVersion = serverConf?.version || this.config.opencga.version;
@@ -376,7 +369,6 @@ class IvaApp extends LitElement {
             }
 
             // Initialise clients and create the session
-            // this.opencgaClientConfig.serverVersion = this.config.opencga.serverVersion;
             const sid = Cookies.get(opencgaCookiePrefix + "_sid");
             const userId = Cookies.get(opencgaCookiePrefix + "_userId");
 
@@ -395,8 +387,6 @@ class IvaApp extends LitElement {
                     cookie: opencgaSsoCookie,
                 },
             });
-
-            this.reactomeClient = new ReactomeClient();
 
             if (sid) {
                 this.checkSessionActive();
@@ -417,7 +407,7 @@ class IvaApp extends LitElement {
 
     opencgaSessionObserver() {
         this.renderHashFragments();
-        this.queries = {};
+        // this.queries = {};
         // this.requestUpdate();
     }
 
@@ -761,7 +751,9 @@ class IvaApp extends LitElement {
     }
 
     changeTool(e) {
+        // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
         e.preventDefault();
+
         const target = e.currentTarget;
         $(".navbar-inverse ul > li", this).removeClass("active");
         $(target).parent("li").addClass("active");
@@ -769,19 +761,8 @@ class IvaApp extends LitElement {
             $(target).closest("ul").closest("li").addClass("active");
         }
 
-        if (e) {
-            e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-        }
-
         if (target?.attributes?.href) {
             this.tool = target.attributes.href.value;
-            if (this._samplesPerTool) {
-                if (this._samplesPerTool.hasOwnProperty(this.tool.replace("#", ""))) {
-                    this.samples = this._samplesPerTool[this.tool.replace("#", "")];
-                } else {
-                    this.samples = [];
-                }
-            }
         } else {
             this.tool = "#home";
         }
@@ -821,136 +802,11 @@ class IvaApp extends LitElement {
         this.renderHashFragments();
     }
 
-    hashFragmentListenerOld(ctx) {
-        console.log("hashFragmentListener - DEBUG", this.tool);
-        // Hide all elements
-        console.log("Hide all enabled elements");
-        for (const element in this.config.enabledComponents) {
-            if (UtilsNew.isNotUndefined(this.config.enabledComponents[element])) {
-                this.config.enabledComponents[element] = false;
-            }
-        }
-        console.log("All enabled elements hidden");
-
-        let arr = window.location.hash.split("/");
-
-        // TODO evaluate refactor
-        const [hashTool, hashProject, hashStudy, feature] = arr;
-
-        // Stopping the recursive call
-        if (hashTool === "#interpreter" || hashTool !== this.tool || hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
-            if (arr.length > 1) {
-                // Field 'project' is being observed, just in case Polymer triggers
-                // an unnecessary event we can check they are really different
-                if (ctx.opencgaSession?.project?.id !== hashProject) {
-                    // eslint-disable-next-line no-param-reassign
-                    ctx.opencgaSession.project = ctx.opencgaSession.projects?.find(project => project.id === hashProject);
-                }
-                if (ctx.opencgaSession?.study && arr.length > 2 && ctx.opencgaSession.study !== hashStudy) {
-                    for (let i = 0; i < ctx.opencgaSession.projects.length; i++) {
-                        if (ctx.opencgaSession.projects[i].name === ctx.opencgaSession.project.name ||
-                            ctx.opencgaSession.projects[i].id === ctx.opencgaSession.project.id) {
-                            for (let j = 0; j < ctx.opencgaSession.projects[i].studies.length; j++) {
-                                if (ctx.opencgaSession.projects[i].studies[j].name === hashStudy || ctx.opencgaSession.projects[i].studies[j].id === hashStudy) {
-                                    ctx.opencgaSession.study = ctx.opencgaSession.projects[i].studies[j];
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
-
-                    // Change active study
-                    ctx.opencgaSession = {...ctx.opencgaSession};
-                    ctx.requestUpdate();
-                }
-            }
-
-            switch (hashTool) {
-                case "#variant-browser":
-                    // this.browserSearchQuery = Object.assign({}, this.browserSearchQuery);
-                    if (feature) {
-                        // feature === variant ID
-                    }
-                    break;
-                case "#protein":
-                    break;
-                case "#interpreter":
-                    this.clinicalAnalysisId = feature;
-                    if (!this.clinicalAnalysisId) {
-                        // Redirect to Case Portal when trying to access the interpreter without a valid Clinical Analysis ID
-                        window.location.hash = `#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
-                    }
-                    break;
-                case "#sampleVariantStatsBrowser":
-                case "#sampleCancerVariantStatsBrowser":
-                case "#sampleUpdate":
-                    this.sampleId = feature;
-                    break;
-                case "#fileUpdate":
-                    this.fileId = feature;
-                    break;
-                case "#individualUpdate":
-                    this.individualId = feature;
-                    break;
-                case "#familyUpdate":
-                    this.familyId = feature;
-                    break;
-                case "#study-admin":
-                    // this.studyAdminFqn = arr[1];
-                    this.changeActiveStudy(arr[1]);
-                    break;
-                case "#diseasePanelUpdate":
-                    this.diseasePanelId = feature;
-                    break;
-            }
-
-            if (UtilsNew.isNotEmpty(feature)) {
-                if (hashTool === "#protein") {
-                    ctx.protein = feature;
-                } else if (feature.startsWith("ENST")) {
-                    ctx.transcript = feature;
-                } else {
-                    ctx.gene = feature;
-                }
-            }
-            ctx.tool = hashTool;
-        }
-
-        // Parse query params
-        const searchArr = window.location.hash.split("?");
-        if (searchArr.length > 1) {
-            const query = {};
-            const params = searchArr[1].split("&");
-            for (const param of params) {
-                const keyValue = param.split("=");
-                query[keyValue[0]] = keyValue[1];
-            }
-            // debugger
-            this.query = query;
-            // this.queries.variants = query;
-            // this.queries = {...this.queries};
-        }
-
-        const componentName = this.tool.replace("#", "");
-        if (UtilsNew.isNotUndefined(this.config.enabledComponents[componentName])) {
-            this.config.enabledComponents[componentName] = true;
-        } else {
-            // If the component does not exist, mark as custom page
-            this.config.enabledComponents["customPage"] = true;
-        }
-        console.log("Force update in hasFragmentListener");
-        this.config = {...this.config};
-
-        // TODO quickfix to avoid hash browser scroll
-        $("body,html").animate({
-            scrollTop: 0
-        }, 1);
-    }
 
     hashFragmentListener() {
-        // 1. Hide all elements
         console.log("hashFragmentListener - Hide all enabled elements");
+
+        // 1. Hide all elements
         for (const element in this.config.enabledComponents) {
             if (this.config.enabledComponents[element]) {
                 this.config.enabledComponents[element] = false;
@@ -958,45 +814,59 @@ class IvaApp extends LitElement {
         }
 
         // 2. Parse hash fragment URL
-        const [hashTool, hashProject, hashStudy, featureId] = window.location.hash.split("/");
+        const [hashTool, hashProject, hashStudy, hashQuery] = window.location.hash.split("/");
 
         // 3. Processing the actions
         // NOTE: remove this check: hashTool === "#interpreter" ||
-        if (hashTool !== this.tool || hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
-            // 3.1. Update global 'tool' param
+        if (hashTool !== this.tool) {
             this.tool = hashTool;
+        }
 
-            // 3.2. Update project/study
-            if (hashProject || hashStudy) {
-                this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
+        // 4. Parse project and study
+        if (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
+            this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
+        }
+
+        // 5. Update location.hash
+        window.location.hash = `${hashTool}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+
+        // 6. Parse query fragment in 'featureId'
+        if (hashTool && hashQuery) {
+            const componentId = hashTool.replace("#", "");
+
+            let query = {};
+            // Check if key=value list exist
+            if (hashQuery.includes("=")) {
+                const filters = hashQuery.split("&");
+                for (const filter of filters) {
+                    const [key, value] = filter.split("=");
+                    query[key] = value;
+                }
+            } else {
+                // Default query filter is 'id'
+                query = {id: hashQuery};
             }
 
-            // 3.3. Parsing 'featureId'
             switch (hashTool) {
                 case "#variant-browser":
-                    // this.browserSearchQuery = Object.assign({}, this.browserSearchQuery);
-                    if (featureId) {
-                        this.browserSearchQuery = {id: featureId};
-                        // this.requestUpdate();
-                    }
-
-                    console.log("hashFragmentListener - 2.1");
+                case "#sample":
+                    this.queries[componentId] = query;
                     break;
                 case "#gene":
-                    this.gene = featureId || null;
+                    this.gene = hashQuery || null;
                     break;
                 case "#transcript":
-                    if (featureId.startsWith("ENST")) {
-                        this.transcript = featureId;
+                    if (hashQuery.startsWith("ENST")) {
+                        this.transcript = hashQuery;
                     } else {
-                        this.gene = featureId;
+                        this.gene = hashQuery;
                     }
                     break;
                 case "#protein":
-                    this.protein = featureId || null;
+                    this.protein = hashQuery || null;
                     break;
                 case "#interpreter":
-                    this.clinicalAnalysisId = featureId;
+                    this.clinicalAnalysisId = hashQuery;
                     if (!this.clinicalAnalysisId) {
                         // Redirect to Case Portal when trying to access the interpreter without a valid Clinical Analysis ID
                         window.location.hash = `#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
@@ -1005,16 +875,16 @@ class IvaApp extends LitElement {
                 case "#sampleVariantStatsBrowser":
                 case "#sampleCancerVariantStatsBrowser":
                 case "#sampleUpdate":
-                    this.sampleId = featureId;
+                    this.sampleId = hashQuery;
                     break;
                 case "#fileUpdate":
-                    this.fileId = featureId;
+                    this.fileId = hashQuery;
                     break;
                 case "#individualUpdate":
-                    this.individualId = featureId;
+                    this.individualId = hashQuery;
                     break;
                 case "#familyUpdate":
-                    this.familyId = featureId;
+                    this.familyId = hashQuery;
                     break;
                 case "#study-admin":
                     // this.studyAdminFqn = arr[1];
@@ -1022,15 +892,14 @@ class IvaApp extends LitElement {
                     this.changeActiveStudy(arr[1]);
                     break;
                 case "#diseasePanelUpdate":
-                    this.diseasePanelId = featureId;
+                    this.diseasePanelId = hashQuery;
                     break;
             }
-
-            // 3.4 Update location.hash
-            window.location.hash = `${hashTool}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+            // this.requestUpdate();
         }
 
-        // 4. Enable component
+        // 7. Enable component
+        console.log("hashFragmentListener - Show enabled element " + this.tool);
         const componentName = this.tool.replace("#", "");
         if (this.config.enabledComponents.hasOwnProperty(componentName)) {
             this.config.enabledComponents[componentName] = true;
@@ -1039,8 +908,7 @@ class IvaApp extends LitElement {
             this.config.enabledComponents["customPage"] = true;
         }
 
-        // 5. Force a page refresh
-        this.config = {...this.config};
+        this.requestUpdate();
 
         // TODO quickfix to avoid hash browser scroll
         $("body,html").animate({
@@ -1083,6 +951,8 @@ class IvaApp extends LitElement {
                 window.location.hash = "#clinicalAnalysisPortal";
             }
 
+            this.queries = {};
+
             // Update CellBase and refresh the session.
             this.updateCellBaseClient();
             this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[SETTINGS_NAME].settings);
@@ -1106,7 +976,7 @@ class IvaApp extends LitElement {
                 species: this.opencgaSession.project.organism.scientificName,
             });
 
-            // 2.1 This simplifies passing cellbaseClient to all components
+            // 2.1 This simplifies passing 'cellbaseClient' to all components
             this.opencgaSession.cellbaseClient = this.cellbaseClient;
         }
     }
@@ -1132,11 +1002,11 @@ class IvaApp extends LitElement {
     // }
 
     onSampleChange(e) {
-        if (UtilsNew.isNotUndefinedOrNull(this.samples) && UtilsNew.isNotUndefinedOrNull(e.detail)) {
-            this.samples = e.detail.samples;
-            this._samplesPerTool[this.tool.replace("#", "")] = this.samples;
-            // this.renderBreadcrumb();
-        }
+        // if (UtilsNew.isNotUndefinedOrNull(this.samples) && UtilsNew.isNotUndefinedOrNull(e.detail)) {
+        // this.samples = e.detail.samples;
+        // this._samplesPerTool[this.tool.replace("#", "")] = this.samples;
+        // this.renderBreadcrumb();
+        // }
     }
 
     // quickSearch(e) {
@@ -1166,10 +1036,12 @@ class IvaApp extends LitElement {
     }
 
     // TODO this should keep in sync the query object between variant-browser and variant-facet
-    // onQueryChange(e) {
-    //     console.log("onQueryChange", e);
-    //     this.browserSearchQuery = {...e.detail.query};
-    // }
+    onQueryChange(e) {
+        debugger
+        console.warn("onQueryChange", e);
+        this.browserSearchQuery = {...e.detail.query};
+        // this.browserSearchQuery = {};
+    }
 
 
     onQueryFilterSearch(e, source) {
@@ -1177,25 +1049,13 @@ class IvaApp extends LitElement {
         // TODO fix active-filters
         const q = e.detail.query ? {...e.detail.query} : {...e.detail};
         this.queries[source] = {...q};
-        this.queries = {...this.queries};
-        // console.log("this.queries",this.queries);
-        this.requestUpdate();
+        // this.queries = {...this.queries};
+        // this.requestUpdate();
     }
 
     onSelectClinicalAnalysis(e) {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
     }
-
-    /* Set the width of the side navigation to 250px */
-    // openNav() {
-    //     this.querySelector("#side-nav").style.width = "250px";
-    //     console.log("open");
-    // }
-
-    /* Set the width of the side navigation to 0 */
-    // closeNav() {
-    //     this.querySelector("#side-nav").style.width = "0";
-    // }
 
     toggleSideBar(e) {
         e.preventDefault();
@@ -1244,17 +1104,17 @@ class IvaApp extends LitElement {
         return !!this?.opencgaSession?.token;
     }
 
-    createAboutLink(link, button) {
-        const url = link.url ? `${link.url}` : `#${link.id}`;
-        const iconHtml = link.icon ? html`<i class="${link.icon} icon-padding" aria-hidden="true"></i>` : null;
-        if (link.url) {
-            return html`
-                <a href="${url}" role="${button ? "button" : "link"}" target="_blank">${iconHtml} ${link.name}</a>`;
-        } else {
-            return html`
-                <a href="${url}" role="${button ? "button" : "link"}">${iconHtml} ${link.name}</a>`;
-        }
-    }
+    // createAboutLink(link, button) {
+    //     const url = link.url ? `${link.url}` : `#${link.id}`;
+    //     const iconHtml = link.icon ? html`<i class="${link.icon} icon-padding" aria-hidden="true"></i>` : null;
+    //     if (link.url) {
+    //         return html`
+    //             <a href="${url}" role="${button ? "button" : "link"}" target="_blank">${iconHtml} ${link.name}</a>`;
+    //     } else {
+    //         return html`
+    //             <a href="${url}" role="${button ? "button" : "link"}">${iconHtml} ${link.name}</a>`;
+    //     }
+    // }
 
     onSessionUpdateRequest() {
         this._createOpenCGASession();
@@ -1469,15 +1329,16 @@ class IvaApp extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .cellbaseClient="${this.cellbaseClient}"
                             .reactomeClient="${this.reactomeClient}"
-                            .query="${this.browserSearchQuery}"
+                            .query="${this.queries["variant-browser"]}"
                             .settings="${this.settings.VARIANT_BROWSER}"
                             .consequenceTypes="${this.config.consequenceTypes}"
                             .populationFrequencies="${this.config.populationFrequencies}"
                             .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
                             @onGene="${this.geneSelected}"
                             @onSamplechange="${this.onSampleChange}"
-                            @querySearch="${e => this.onQueryFilterSearch(e, "variant")}"
-                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "variant")}">
+                            @querySearch="${e => this.onQueryFilterSearch(e, "variant-browser")}"
+                            onqueryChange="${e => this.onQueryChange(e, "variant")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "variant-browser")}">
                         </variant-browser>
                     </div>
                 ` : null}

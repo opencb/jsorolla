@@ -171,10 +171,11 @@ export default class VariantBrowser extends LitElement {
     }
 
     queryObserver() {
-        if (this?.opencgaSession?.study?.fqn) {
+        if (this.opencgaSession?.study?.fqn) {
+            debugger
             // NOTE UtilsNew.objectCompare avoid repeating remote requests.
             if (!UtilsNew.objectCompare(this.query, this._query)) {
-                this._query = this.query;
+                this._query = {...this.query};
                 if (this.query) {
                     this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
                     this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
@@ -216,6 +217,7 @@ export default class VariantBrowser extends LitElement {
     async onRun() {
         // NOTE notifySearch() triggers this chain: notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in variant-browser
         // queryObserver() here stops the repetition of the remote request by checking if it has changed
+        debugger
         this.query = {...this.preparedQuery};
         // updates this.queries in iva-app
         this.notifySearch(this.preparedQuery);
@@ -251,6 +253,7 @@ export default class VariantBrowser extends LitElement {
     }
 
     onActiveFilterChange(e) {
+        debugger
         VariantUtils.validateQuery(e.detail);
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.notifySearch(this.query);
