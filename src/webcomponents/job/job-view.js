@@ -63,10 +63,12 @@ export default class JobView extends LitElement {
 
         this.displayConfigDefault = {
             collapsable: true,
-            showTitle: false,
-            labelWidth: 3,
-            defaultLayout: "horizontal",
+            titleVisible: false,
+            titleWidth: 3,
             defaultValue: "-",
+            defaultLayout: "horizontal",
+            buttonsVisible: false,
+            pdf: false,
         };
         this._config = this.getDefaultConfig();
     }
@@ -76,15 +78,41 @@ export default class JobView extends LitElement {
         this.requestUpdate();
     }
 
+    #prepareData() {
+        // 0. Local copy
+        this._job = UtilsNew.objectClone(this.job);
+
+        // 1. Transform datapoint Input Parameters 'params' object into an array
+        if (this._job?.params && typeof this._job.params === "object") {
+            this._job.params = Object.entries(this._job.params)
+                .map(([paramKey, content]) => {
+                    const paramValue = (content && typeof content === "object") ?
+                        JSON.stringify(content, null, 8) :
+                        content;
+                    return {paramKey, paramValue};
+                });
+        }
+    }
+
     update(changedProperties) {
+        if (changedProperties.has("job")) {
+            this.jobObserver();
+        }
         if (changedProperties.has("jobId")) {
             this.jobIdObserver();
         }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig
+            };
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
+    }
+
+    jobObserver() {
+        this.#prepareData();
     }
 
     jobIdObserver() {
@@ -98,6 +126,7 @@ export default class JobView extends LitElement {
                 .info(this.jobId, params)
                 .then(response => {
                     this.job = response.responses[0].results[0];
+                    this.#prepareData();
                 })
                 .catch(reason => {
                     this.job = {};
@@ -118,12 +147,62 @@ export default class JobView extends LitElement {
         this.jobId = e.detail.value;
     }
 
+    // FORMATTERS
+    jobOutputFilesFormatter(output, job, opencgaSession) {
+        // CAUTION: Temporary patch for managing outputFiles array of nulls.
+        //  See details in: https://app.clickup.com/t/36631768/TASK-1704
+        if (output.length > 0 && output.every(jobOut => jobOut === null)) {
+            return `
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-1x fa-exclamation-circle align-middle">
+                        The output files are not accessible at the moment. We are working on fixing this issue.
+                    </i>
+                </div>
+            `;
+        }
+        const outputFiles= [...output];
+
+        // Check if stdout and stderr files have been created and can be dowloaded
+        ["stdout", "stderr"].forEach(file => {
+            if (job[file]?.id && job[file]?.type === "FILE") {
+                outputFiles.push(job[file]);
+            }
+        });
+
+        if (outputFiles.length === 0) {
+            return "No output files yet";
+        }
+
+        return `${outputFiles
+            .map(file => {
+                const url = [
+                    opencgaSession.server.host,
+                    "/webservices/rest/",
+                    opencgaSession.server.version,
+                    "/files/",
+                    file.id,
+                    "/download?study=",
+                    opencgaSession.study.fqn,
+                    "&sid=",
+                    opencgaSession.token,
+                ];
+                return `
+                    <div>
+                        <span style="margin-right: 10px">${file.name} ${file.size > 0 ? `(${UtilsNew.getDiskUsage(file.size)})` : ""}</span>
+                        <a href="${url.join("")}" target="_blank">
+                            <i class="fas fa-download icon-padding"></i>
+                        </a>
+                    </div>`;
+            })
+            .join("")}`;
+    }
+
     render() {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }
 
-        if (!this.job?.id && this.search === false) {
+        if (!this._job?.id && this.search === false) {
             return html`
                 <div class="alert alert-info">
                     <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
@@ -134,7 +213,7 @@ export default class JobView extends LitElement {
 
         return html`
             <data-form
-                .data="${this.job}"
+                .data="${this._job}"
                 .config="${this._config}">
             </data-form>
         `;
@@ -158,9 +237,9 @@ export default class JobView extends LitElement {
                             // field: "jobId",
                             type: "custom",
                             display: {
-                                render: () => html `
+                                render: job => html `
                                     <catalog-search-autocomplete
-                                        .value="${this.job?.id}"
+                                        .value="${job?.id}"
                                         .resource="${"JOB"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
@@ -190,9 +269,12 @@ export default class JobView extends LitElement {
                         },
                         {
                             name: "Status",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: job => UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job.internal.status, true))
+                                template: "${internal.status}",
+                                format: {
+                                    "internal.status": status => UtilsNew.jobStatusFormatter(status, true),
+                                },
                             }
                         },
                         {
@@ -205,17 +287,19 @@ export default class JobView extends LitElement {
                             type: "list",
                             display: {
                                 separator: "",
-                                render: tag => {
-                                    return html`<span class="badge badge-pill badge-primary">${tag}</span>`;
-                                }
+                                contentLayout: "vertical",
+                                transform: tags => tags.map(tag => ({tag})),
+                                template: "${tag}",
+                                className: {
+                                    "tag": "badge badge-pill badge-primary",
+                                },
                             },
-                            defaultValue: "-"
                         },
                         {
                             name: "Submitted Date",
-                            type: "custom",
+                            field: "creationDate",
                             display: {
-                                render: job => html`${UtilsNew.dateFormatter(job.creationDate, "D MMM YYYY, h:mm:ss a")}`
+                                format: creationDate => UtilsNew.dateFormatter(creationDate, "D MMM YYYY, h:mm:ss a"),
                             }
                         },
                         {
@@ -231,52 +315,42 @@ export default class JobView extends LitElement {
                     },
                     elements: [
                         {
-                            name: "Start-End Date",
-                            type: "custom",
+                            name: "Start Time",
+                            field: "execution.start",
                             display: {
-                                render: job => {
-                                    if (job.execution) {
-                                        const start = job.execution.start ? moment(job.execution.start).format("D MMM YYYY, h:mm:ss a") : "-";
-                                        const end = job.execution.end ? html`- ${moment(job.execution.end).format("D MMM YYYY, h:mm:ss a")}` : "-";
-                                        return html`${start} - ${end}`;
-                                    } else {
-                                        return "-";
-                                    }
-                                },
+                                format: date => UtilsNew.dateFormatter(date, "D MMM YYYY, h:mm:ss a"),
+                            },
+                        },
+                        {
+                            name: "End Time",
+                            field: "execution.end",
+                            display: {
+                                format: date => UtilsNew.dateFormatter(date, "D MMM YYYY, h:mm:ss a"),
                             },
                         },
                         {
                             name: "Input Parameters",
-                            type: "custom",
+                            field: "params",
+                            type: "list",
                             display: {
-                                render: job => {
-                                    if (job.params) {
-                                        return Object.entries(job.params).map(([param, value]) => html`
-                                            <div>
-                                                <label>${param}</label>:
-                                                ${value && typeof value === "object" ? html`
-                                                    <ul>
-                                                        ${Object.keys(value).map(key => html`
-                                                            <li><b>${key}</b>: ${value[key] || "-"}</li>
-                                                        `)}
-                                                    </ul>
-                                                ` : (value || "-")}
-                                            </div>
-                                        `);
-                                    } else {
-                                        return "-";
+                                defaultValue: "-",
+                                contentLayout: "vertical",
+                                template: "${paramKey}: ${paramValue}",
+                                style: {
+                                    paramKey: {
+                                        "font-weight": "bold"
                                     }
-                                },
-                            },
+                                }
+                            }
                         },
                         {
                             name: "Input Files",
                             field: "input",
                             type: "list",
-                            defaultValue: "N/A",
                             display: {
-                                template: "${name}",
+                                defaultValue: "-",
                                 contentLayout: "bullets",
+                                template: "${name}",
                             },
                         },
                         {
@@ -285,61 +359,26 @@ export default class JobView extends LitElement {
                         },
                         {
                             name: "Output Files",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: job => {
-                                    // CAUTION: Temporary patch for managing outputFiles array of nulls.
-                                    //  See details in: https://app.clickup.com/t/36631768/TASK-1704
-                                    if (job.output.length > 0 && job.output.every(jobOut => jobOut === null)) {
-                                        return html`
-                                            <div class="alert alert-danger" role="alert">
-                                                <i class="fas fa-1x fa-exclamation-circle align-middle">
-                                                    The output files are not accessible at the moment. We are working on fixing this issue.
-                                                </i>
-                                            </div>
-                                        `;
-                                    }
-                                    const outputFiles= [...job.output];
-
-                                    // Check if stdout and stderr files have been created and can be dowloaded
-                                    ["stdout", "stderr"].forEach(file => {
-                                        if (job[file]?.id && job[file]?.type === "FILE") {
-                                            outputFiles.push(job[file]);
-                                        }
-                                    });
-
-                                    if (outputFiles.length === 0) {
-                                        return "No output files yet";
-                                    }
-
-                                    return html`${outputFiles.map(file => {
-                                        const url = [
-                                            this.opencgaSession.server.host,
-                                            "/webservices/rest/",
-                                            this.opencgaSession.server.version,
-                                            "/files/",
-                                            file.id,
-                                            "/download?study=",
-                                            this.opencgaSession.study.fqn,
-                                            "&sid=",
-                                            this.opencgaSession.token,
-                                        ];
-                                        return html`
-                                            <div>
-                                                <span style="margin-right: 10px">${file.name} ${file.size > 0 ? `(${UtilsNew.getDiskUsage(file.size)})` : ""}</span>
-                                                <a href="${url.join("")}" target="_blank">
-                                                    <i class="fas fa-download icon-padding"></i>
-                                                </a>
-                                            </div>`;
-                                    })}`;
-                                },
+                                // FIXME: export pdf not working
+                                template: "${output}",
+                                format: {
+                                    "output": (output, data) => this.jobOutputFilesFormatter(output, data, this.opencgaSession),
+                                }
                             },
                         },
                         {
                             name: "Command Line",
-                            type: "complex",
+                            field: "commandLine",
+                            // type: "text",
+                            // text: data => data.commandLine,
                             display: {
-                                template: "<div class='cmd'>${commandLine}</div>",
+                                className: "cmd",
+                                style: {
+                                    "display": "block"
+                                },
+                                // textClassName: "cmd",
                             },
                         },
                     ],
@@ -387,7 +426,6 @@ export default class JobView extends LitElement {
                                         field: "internal.status.name"
                                     }
                                 ],
-                                border: true,
                             },
                         },
                     ],

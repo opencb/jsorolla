@@ -174,9 +174,9 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
     }
 
     render() {
-        if (this.family.qualityControl?.relatedness?.length === 0) {
+        if (!this.family?.qualityControl?.relatedness?.length) {
             return html`
-                <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>
+                <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No Relatedness data are available yet.</div>
             `;
         }
 

@@ -225,7 +225,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                         },
                         {
                             type: "text",
-                            text: "Select the <span style=\"font-weight: bold\">columns</span> to be displayed",
+                            text: "Select the columns to be displayed",
                             display: {
                                 containerStyle: "margin: 20px 5px 5px 0px",
                             }
