@@ -220,7 +220,7 @@ export class OpenCGAClient {
         if (!this.clients.has("organization")) {
             this.clients.set("organization", new Organization(this._config));
         }
-        return this.clients.get("organizaton");
+        return this.clients.get("organization");
     }
 
     /*
