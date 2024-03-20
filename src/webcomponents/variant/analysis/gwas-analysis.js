@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
-import FormUtils from "../../commons/forms/form-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
@@ -36,14 +35,14 @@ export default class GwasAnalysis extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object,
-            },
             toolParams: {
                 type: Object,
             },
-            title: {
-                type: String,
+            opencgaSession: {
+                type: Object,
+            },
+            config: {
+                type: Object
             },
         };
     }
@@ -307,10 +306,11 @@ export default class GwasAnalysis extends LitElement {
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
+            this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
-            this.check()
+            this.check(),
+            this.config
         );
     }
 
