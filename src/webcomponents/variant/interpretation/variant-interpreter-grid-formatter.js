@@ -545,7 +545,7 @@ export default class VariantInterpreterGridFormatter {
 
     static alleleGenotypeRenderer(variant, sampleEntry, mode) {
         let res = "-";
-        if (variant?.studies?.length > 0 && sampleEntry?.data.length > 0) {
+        if (variant?.studies?.length > 0 && sampleEntry?.data?.length > 0) {
             const genotype = sampleEntry.data[0];
 
             // Check special cases
@@ -558,11 +558,9 @@ export default class VariantInterpreterGridFormatter {
 
             const alleles = [];
             const allelesArray = genotype.split(new RegExp("[/|]"));
+            const isNumberRegex = /^\d+$/;
             for (const allele of allelesArray) {
                 switch (allele) {
-                    case ".":
-                        alleles.push(".");
-                        break;
                     case "0":
                         if (mode === "alleles") {
                             alleles.push(variant.reference ? variant.reference : "-");
@@ -577,14 +575,8 @@ export default class VariantInterpreterGridFormatter {
                             alleles.push(allele);
                         }
                         break;
-                    case "2":
-                        if (mode === "alleles") {
-                            // TODO to decide how to display 1/2 alleles
-                            // alleles.push(variant?.studies[0]?.secondaryAlternates[0]?.reference ? variant?.studies[0]?.secondaryAlternates[0]?.reference : "-");
-                            alleles.push("*");
-                        } else {
-                            alleles.push(allele);
-                        }
+                    case ".":
+                        alleles.push(".");
                         break;
                     case "?":
                         if (mode === "alleles") {
@@ -593,6 +585,25 @@ export default class VariantInterpreterGridFormatter {
                             alleles.push("0");
                         }
                         break;
+                    default:
+                        // Check allele is a number
+                        if (isNumberRegex.test(allele)) {
+                            if (mode === "alleles") {
+                                // TASK-5635: check if the secondary alternate has the same coordinates.
+                                const secondaryAlternate = variant.studies[0].secondaryAlternates[allele - 2];
+                                if (secondaryAlternate.start === variant.start && secondaryAlternate.end === variant.end) {
+                                    alleles.push(secondaryAlternate.alternate);
+                                } else {
+                                    alleles.push("<*>");
+                                }
+                            } else {
+                                alleles.push(allele);
+                            }
+                        } else {
+                            console.error("Allele not recognized: " + allele);
+                        }
+                        break;
+
                 }
             }
 
