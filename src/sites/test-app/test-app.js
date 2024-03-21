@@ -35,6 +35,7 @@ import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
 
 import "./webcomponents/data-form-test.js";
+import "./webcomponents/data-form-table-test.js";
 import "./webcomponents/custom-page-test.js";
 import "./webcomponents/variant-browser-grid-test.js";
 import "./webcomponents/sample-browser-grid-test.js";
@@ -104,6 +105,7 @@ class TestApp extends LitElement {
             "login",
             "aboutzetta",
             "data-form",
+            "data-form-table",
             "utils-new",
             "catalog-filters",
             "file-browser-grid",
@@ -643,6 +645,19 @@ class TestApp extends LitElement {
                             @clear="${e => this.onClear(e)}"
                             @submit="${e => this.onSubmit(e)}">
                         </data-form-test>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["data-form-table"] ? html`
+                    <div class="content" id="data-form-table" style="padding:2%">
+                        <data-form-table-test
+                            testVariantFile="variant-browser-germline"
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}"
+                            @fieldChange="${e => this.onFieldChange(e)}"
+                            @clear="${e => this.onClear(e)}"
+                            @submit="${e => this.onSubmit(e)}">
+                        </data-form-table-test>
                     </div>
                 ` : null}
 

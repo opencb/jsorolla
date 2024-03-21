@@ -290,7 +290,8 @@ export default class UtilsNew {
 
     static dateFormatter(date, format) {
         const _format = format ? format : "D MMM YYYY";
-        return moment(date, "YYYYMMDDHHmmss").format(_format);
+        const _date = moment(date).isValid() ? moment(date) : moment(date, "YYYYMMDDHHmmss");
+        return _date.format(_format);
     }
 
     static arrayDimension(array) {

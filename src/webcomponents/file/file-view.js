@@ -71,6 +71,7 @@ export default class FileView extends LitElement {
             titleVisible: false,
             titleWidth: 2,
             defaultValue: "-",
+            pdf: false,
         };
         this._config = this.getDefaultConfig();
     }
@@ -108,6 +109,7 @@ export default class FileView extends LitElement {
                 .info(this.fileId, params)
                 .then(response => {
                     this.file = response.responses[0].results[0];
+                    // images = await UtilsNew.xyz(aaa)
                 })
                 .catch(reason => {
                     this.file = {};
@@ -189,11 +191,15 @@ export default class FileView extends LitElement {
                     elements: [
                         {
                             title: "File ID",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: data => html`
-                                    <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})
-                                `,
+                                visible: file => file?.id,
+                                template: "${id} (UUID: ${uuid})",
+                                style: {
+                                    id: {
+                                        "font-weight": "bold",
+                                    }
+                                },
                             },
                         },
                         {
@@ -207,17 +213,13 @@ export default class FileView extends LitElement {
                         {
                             title: "Size",
                             field: "size",
-                            type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.getDiskUsage(field)}`
+                                format: field => UtilsNew.getDiskUsage(field),
                             },
                         },
                         {
-                            title: "Format (Bioformat)",
-                            type: "complex",
-                            display: {
-                                template: "${format} (${bioformat})",
-                            },
+                            title: "Format",
+                            field: "format",
                         },
                         {
                             title: "Tags",
@@ -230,27 +232,27 @@ export default class FileView extends LitElement {
                         {
                             title: "Creation Date",
                             field: "creationDate",
-                            type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
+                                format: date => UtilsNew.dateFormatter(date),
                             },
                         },
                         {
                             title: "Status",
-                            field: "internal.status",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: field => field ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-",
+                                template: "${internal.status.name} (${internal.status.date})",
+                                format: {
+                                    "internal.status.date": date => UtilsNew.dateFormatter(date),
+                                }
                             },
                         },
                         {
-                            // title: "Index Status",
                             title: "Variant Index Status",
-                            field: "internal.variant.index.status",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: field => {
-                                    return field?.id ? html`${field.id} (${UtilsNew.dateFormatter(field.date)})` : "-";
+                                template: "${internal.variant.index.status.id} (${internal.variant.index.status.date})",
+                                format: {
+                                    "internal.variant.index.status.date": date => UtilsNew.dateFormatter(date),
                                 }
                             },
                         },
