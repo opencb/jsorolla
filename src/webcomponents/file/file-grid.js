@@ -152,6 +152,7 @@ export default class OpencgaFileGrid extends LitElement {
                 detailView: !!this.detailFormatter,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
+                    let filesResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         type: "FILE",
@@ -170,10 +171,16 @@ export default class OpencgaFileGrid extends LitElement {
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.files()
                         .search(this.filters)
-                        .then(res => params.success(res))
-                        .catch(e => {
-                            console.error(e);
-                            params.error(e);
+                        .then(response => {
+                            filesResponse = response;
+                            // Prepare data for columns extensions
+                            const rows = filesResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
+                        .then(() => params.success(filesResponse))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
                         });
                 },
                 responseHandler: response => {
@@ -218,8 +225,28 @@ export default class OpencgaFileGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             columns: this._getDefaultColumns(),
-            data: this.files,
-            sidePagination: "local",
+            // data: this.files,
+            sidePagination: "server",
+            // Josemi Note 2024-01-18: we have added the ajax function for local files also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.files.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.files.length,
+                    rows: response,
+                };
+            },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
 
@@ -334,7 +361,7 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "size",
                 title: "Size",
                 field: "size",
-                formatter: UtilsNew.getDiskUsage,
+                formatter: size => UtilsNew.getDiskUsage(size),
                 visible: this.gridCommons.isColumnVisible("size")
             },
             {
@@ -371,7 +398,7 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "creationDate",
                 title: "Creation date",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
+                formatter: date => CatalogGridFormatter.dateFormatter(date),
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];

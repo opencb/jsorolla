@@ -16,7 +16,7 @@
 
 import Admin from "./api/Admin.js";
 import Alignment from "./api/Alignment.js";
-import Clinical from "./api/Clinical.js";
+import ClinicalAnalysis from "./api/ClinicalAnalysis.js";
 import Cohort from "./api/Cohort.js";
 import DiseasePanel from "./api/DiseasePanel.js";
 import Family from "./api/Family.js";
@@ -25,14 +25,15 @@ import GA4GH from "./api/GA4GH.js";
 import Individual from "./api/Individual.js";
 import Job from "./api/Job.js";
 import Meta from "./api/Meta.js";
+import Organization from "./api/Organization.js";
 import Project from "./api/Project.js";
 import Sample from "./api/Sample.js";
 import Study from "./api/Study.js";
 import User from "./api/User.js";
 import Variant from "./api/Variant.js";
 import VariantOperation from "./api/VariantOperation.js";
-import {CellBaseClient} from "../cellbase/cellbase-client";
-import UtilsNew from "../../utils-new";
+import {CellBaseClient} from "../cellbase/cellbase-client.js";
+import UtilsNew from "../../utils-new.js";
 
 
 export class OpenCGAClient {
@@ -47,6 +48,7 @@ export class OpenCGAClient {
         return {
             host: "",
             version: "",
+            organizations: [],
             userId: "",
             token: "",
             query: {
@@ -55,7 +57,8 @@ export class OpenCGAClient {
             },
             cookies: {
                 active: true,
-                prefix: ""
+                prefix: "",
+                secure: true,
                 // expirationTime: ""
             },
             sso: {
@@ -187,7 +190,7 @@ export class OpenCGAClient {
 
     clinical() {
         if (!this.clients.has("clinical")) {
-            this.clients.set("clinical", new Clinical(this._config));
+            this.clients.set("clinical", new ClinicalAnalysis(this._config));
         }
         return this.clients.get("clinical");
     }
@@ -211,6 +214,13 @@ export class OpenCGAClient {
             this.clients.set("admin", new Admin(this._config));
         }
         return this.clients.get("admin");
+    }
+
+    organization() {
+        if (!this.clients.has("organization")) {
+            this.clients.set("organization", new Organization(this._config));
+        }
+        return this.clients.get("organizaton");
     }
 
     /*
@@ -257,10 +267,18 @@ export class OpenCGAClient {
         }
     }
 
-    async login(userId, password) {
+    async login(userId, password, organization) {
         try {
-            const restResponse = await this.users()
-                .login({user: userId, password: password});
+            const query = {
+                user: userId,
+                password: password,
+            };
+            // Only include the organization to the request query if is provided
+            if (organization) {
+                query.organization = organization;
+            }
+
+            const restResponse = await this.users().login(query);
 
             // TODO remove userId and token from config and move it to session
             this._config.userId = userId;
@@ -316,9 +334,13 @@ export class OpenCGAClient {
     #setCookies(userId, token) {
         if (userId && token) {
             // eslint-disable-next-line no-undef
-            Cookies.set(this._config.cookies.prefix + "_userId", userId, {secure: true});
+            Cookies.set(this._config.cookies.prefix + "_userId", userId, {
+                secure: this._config.cookies.secure ?? true,
+            });
             // eslint-disable-next-line no-undef
-            Cookies.set(this._config.cookies.prefix + "_sid", this._config.token, {secure: true});
+            Cookies.set(this._config.cookies.prefix + "_sid", this._config.token, {
+                secure: this._config.cookies.secure ?? true,
+            });
         } else {
             // eslint-disable-next-line no-undef
             Cookies.expire(this._config.cookies.prefix + "_userId");
@@ -344,11 +366,9 @@ export class OpenCGAClient {
         return opencgaSession;
     }
 
-    /**
-     * Creates an authenticated session for the user and token of the current OpenCGAClient. The token is taken from the
-     * opencgaClient object itself.
-     * @returns {Promise<any>}
-     */
+    // Creates an authenticated session for the user and token of the current OpenCGAClient. The token is taken from the
+    // opencgaClient object itself.
+    // @returns {Promise<any>}
     createSession() {
         const _this = this;
         return new Promise((resolve, reject) => {

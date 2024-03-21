@@ -65,39 +65,42 @@ export default class VariantInterpreterGrid extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
     #init() {
         this.COMPONENT_ID = "";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "VariantBrowserGrid";
+        this._config = this.getDefaultConfig();
+        this._rows = [];
+
+        this.toolbarConfig = {};
+        this.toolbarSetting = {};
+
         this.checkedVariants = new Map();
+        this.gridId = this._prefix + "VariantBrowserGrid";
+        this.active = true;
+        this.review = false;
+
+        this.gridCommons = null;
+        this.clinicalAnalysisManager = null;
 
         // Set colors
         // eslint-disable-next-line no-undef
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
 
         // Keep the status of selected variants
-        this._rows = [];
         this.queriedVariants = {};
-        this.review = false;
 
         this.displayConfigDefault = {
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom",
             },
-        };
-
-    }
-
-    firstUpdated() {
-        this.table = this.querySelector("#" + this.gridId);
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
         };
     }
 
@@ -106,45 +109,29 @@ export default class VariantInterpreterGrid extends LitElement {
             this.COMPONENT_ID = this.toolId + "-grid";
         }
 
+        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("opencgaSession")) {
+            this.clinicalAnalysisObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this.configObserver();
+        }
+
         super.update(changedProperties);
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver();
-        }
-        if (changedProperties.has("query") || changedProperties.has("clinicalVariants")) {
+        // We ned to perform an update of the table only when any of the properties of this grid has changed
+        // This means that we only need to check if the changedProperties set is not empty
+        if (changedProperties.size > 0) {
             this.renderVariants();
         }
-        if (changedProperties.has("config") || changedProperties.has("toolId")) {
-            this.configObserver();
-            this.requestUpdate();
-            this.renderVariants();
-        }
-    }
-
-    opencgaSessionObserver() {
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     clinicalAnalysisObserver() {
-        // We need to load server config always.
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+        if (this.opencgaSession && this.clinicalAnalysis) {
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
-        // Make sure somatic sample is the first one
-        if (this.clinicalAnalysis) {
             if (!this.clinicalAnalysis.interpretation) {
                 this.clinicalAnalysis.interpretation = {};
             }
@@ -168,10 +155,13 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     configObserver() {
+        // 1. Merge default configuration with the configuration provided via props
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config
         };
+
+        // 2. Create a new grid commons instance with the new configuration
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Settings for the grid toolbar
@@ -180,10 +170,9 @@ export default class VariantInterpreterGrid extends LitElement {
             ...otherTableProps,
             ...toolbar,
             showCreate: false,
-            // columns: defaultColumns[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
-            // gridColumns: defaultColumns, // original column structure
         };
 
+        // 4. Set toolbar config
         this.toolbarConfig = {
             toolId: this.toolId,
             resource: "CLINICAL_VARIANT",
@@ -197,20 +186,12 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     renderVariants() {
-        if (this._config.renderLocal) {
-            // FIXME remove this ASAP
-            this.clinicalVariants = this.clinicalAnalysis.interpretation.primaryFindings;
-        }
-
-        if (this.clinicalVariants?.length > 0) {
-            // FIXME Temporary code to check which variants are being interpreted or have been reported
-            // This should be implemented by OpenCGA
-            // this.fillReportedVariants(this.clinicalVariants)
-            //     .catch(error => console.error(error))
-            //     .finally(() => this.renderLocalVariants());
-            this.renderLocalVariants();
-        } else {
-            this.renderRemoteVariants();
+        if (this.active) {
+            if (this.clinicalVariants?.length > 0) {
+                this.renderLocalVariants();
+            } else {
+                this.renderRemoteVariants();
+            }
         }
     }
 
@@ -319,7 +300,12 @@ export default class VariantInterpreterGrid extends LitElement {
                             // FIXME Temporary code to check which variants are being interpreted or have been reported
                             // This should be implemented by OpenCGA
                             // return this.fillReportedVariants(variantResponse.responses[0].results);
-                            return variantResponse;
+                            // return variantResponse;
+
+                            // Josemi Note 2023-10-25: we would need to move this to gridCommons in the future
+                            // Prepare data for columns extensions
+                            const rows = variantResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
                         })
                         .then(() => params.success(variantResponse))
                         .catch(e => params.error(e))
@@ -341,6 +327,10 @@ export default class VariantInterpreterGrid extends LitElement {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
                     this.gridCommons.onLoadSuccess(data, 2);
+
+                    // Josemi Note 20240214 - We need to force an update of the grid component to propagate the applied
+                    // filters in 'this.filters' to the component 'opencga-grid-toolbar'.
+                    this.requestUpdate();
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onExpandRow: (index, row) => {
@@ -393,11 +383,31 @@ export default class VariantInterpreterGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: this.clinicalVariants,
+            // data: this.clinicalVariants,
             columns: this._getDefaultColumns(),
-            sidePagination: "local",
+            sidePagination: "server",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
+            // Josemi Note 2023-10-25: we have added the ajax function for local variants also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.clinicalVariants.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2023-10-25: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.clinicalVariants.length,
+                    rows: response,
+                };
+            },
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
@@ -592,7 +602,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "id",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
+                    formatter: (value, row, index) => VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
                     halign: this.displayConfigDefault.header.horizontalAlign,
                     // sortable: true
                     visible: this.gridCommons.isColumnVisible("id"),
@@ -691,7 +701,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     align: "center",
-                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this),
+                    formatter: (value, row) => {
+                        return VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter(value, row, this._config);
+                    },
                     visible: !this._config.hidePopulationFrequencies && this.gridCommons.isColumnVisible("populationFrequencies"),
                 },
                 {
@@ -706,7 +718,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                 </div>"
                             tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     rowspan: 1,
-                    colspan: 3,
+                    colspan: 4,
                     align: "center"
                 },
                 {
@@ -778,14 +790,6 @@ export default class VariantInterpreterGrid extends LitElement {
                                         </a>
                                     </li>
                                     <li role="separator" class="divider"></li>
-                                    ${this._config.showGenomeBrowserLink ? `
-                                        <li class="dropdown-header">Genome Browser</li>
-                                        <li>
-                                            <a class="btn force-text-left" data-action="genome-browser">
-                                                <i class="fas fa-dna icon-padding" aria-hidden="true"></i>Genome Browser
-                                            </a>
-                                        </li>
-                                    ` : ""}
                                     <li class="dropdown-header">External Links</li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
@@ -872,7 +876,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: (value, row) => VariantGridFormatter.caddScaledFormatter(value, row),
                     align: "right",
                     halign: this.displayConfigDefault.header.horizontalAlign,
-                    visible: this.gridCommons.isColumnVisible("cadd", "deleteriousness"),
+                    visible: !this._config.hideDeleteriousness && this.gridCommons.isColumnVisible("cadd", "deleteriousness"),
+                    excludeFromSettings: this._config.hideDeleteriousness,
+                    excludeFromExport: this._config.hideDeleteriousness,
                 },
                 {
                     id: "spliceai",
@@ -883,7 +889,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: (value, row) => VariantGridFormatter.spliceAIFormatter(value, row),
                     align: "right",
                     halign: this.displayConfigDefault.header.horizontalAlign,
-                    visible: this.gridCommons.isColumnVisible("spliceai", "deleteriousness"),
+                    visible: !this._config.hideDeleteriousness && this.gridCommons.isColumnVisible("spliceai", "deleteriousness"),
+                    excludeFromSettings: this._config.hideDeleteriousness,
+                    excludeFromExport: this._config.hideDeleteriousness,
                 },
                 ...vcfDataColumns,
                 {
@@ -915,6 +923,16 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: VariantGridFormatter.clinicalCancerHotspotsFormatter,
                     align: "center",
                     visible: !this._config.hideClinicalInfo && this.gridCommons.isColumnVisible("hotspots", "clinicalInfo"),
+                },
+                {
+                    id: "omim",
+                    title: "OMIM",
+                    field: "omim",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalOmimFormatter,
+                    align: "center",
+                    visible: this.gridCommons.isColumnVisible("omim"),
                 },
                 // Interpretation methods column
                 {
@@ -1153,11 +1171,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     $(`#${this._prefix}ReviewSampleModal`).modal("show");
                 }
                 break;
-            case "genome-browser":
-                LitUtils.dispatchCustomEvent(this, "genomeBrowserRegionChange", null, {
-                    region: row.chromosome + ":" + row.start + "-" + row.end,
-                });
-                break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
@@ -1291,13 +1304,22 @@ export default class VariantInterpreterGrid extends LitElement {
             this.checkedVariants.delete(variantId);
         }
 
-        // Set 'Edit' button as enabled/disabled
-        document.getElementById(`${this._prefix}${variantId}VariantReviewButton`).disabled = !e.currentTarget.checked;
+        // Set 'Edit' button as enabled/disabled in 'Review' column
+        // Josemi NOTE 20240205 - Edit buton in column is not rendered when 'Review' column is hidden
+        const reviewButton = document.getElementById(`${this._prefix}${variantId}VariantReviewButton`);
+        if (reviewButton) {
+            reviewButton.disabled = !e.currentTarget.checked;
+        }
+
+        // Set 'Edit' button as enabled/disabled in 'Actions' dropdown
+        // Josemi NOTE 20240205 - Edit buton in actions dropdown is not rendered when when actions column is hidden
         const reviewActionButton = document.getElementById(`${this._prefix}${variantId}VariantReviewActionButton`);
-        if (e.currentTarget.checked) {
-            reviewActionButton.removeAttribute("disabled");
-        } else {
-            reviewActionButton.setAttribute("disabled", "true");
+        if (reviewActionButton) {
+            if (e.currentTarget.checked) {
+                reviewActionButton.removeAttribute("disabled");
+            } else {
+                reviewActionButton.setAttribute("disabled", "true");
+            }
         }
 
         // Enable or disable evidences select
@@ -1530,7 +1552,6 @@ export default class VariantInterpreterGrid extends LitElement {
             showReview: true,
             showEditReview: true,
             showType: true,
-            showGenomeBrowserLink: true,
 
             showToolbar: true,
             showActions: true,
@@ -1545,11 +1566,14 @@ export default class VariantInterpreterGrid extends LitElement {
             hideType: false,
             hidePopulationFrequencies: false,
             hideClinicalInfo: false,
+
             // 20231912 Vero: I comment out this code. I believe is not used.
+            // hideDeleteriousness: false,
             // quality: {
             //     qual: 30,
             //     dp: 20
             // },
+
             populationFrequencies: [
                 "1000G:ALL",
                 "GNOMAD_GENOMES:ALL",

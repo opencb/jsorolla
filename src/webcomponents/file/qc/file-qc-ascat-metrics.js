@@ -92,7 +92,6 @@ export default class FileQcAscatMetrics extends LitElement {
                 <div>No Ascat metrics provided.</div>
             `;
         }
-
         return html`
             <div class="container" style="margin: 20px 10px">
                 <h3>ASCAT Metrics</h3>
@@ -144,7 +143,6 @@ export default class FileQcAscatMetrics extends LitElement {
                                     {
                                         title: "ASCAT File",
                                         field: "file",
-                                        formatter: value => `<span style="font-weight:bold">${value || ""}</span>`,
                                     },
                                     {
                                         title: "ASCAT Aberrant Fraction",

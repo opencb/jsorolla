@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
@@ -68,6 +67,7 @@ export default class SampleView extends LitElement {
             titleVisible: false,
             titleWidth: 2,
             defaultValue: "-",
+            pdf: false,
         };
         this._config = this.getDefaultConfig();
     }
@@ -152,6 +152,7 @@ export default class SampleView extends LitElement {
                     title: "Search",
                     display: {
                         visible: sample => !sample?.id && this.search === true,
+                        showPDF: false,
                     },
                     elements: [
                         {
@@ -181,10 +182,14 @@ export default class SampleView extends LitElement {
                     elements: [
                         {
                             title: "Sample ID",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                visible: sample => sample?.id,
-                                render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
+                                template: "${id} (UUID: ${uuid})",
+                                style: {
+                                    id: {
+                                        "font-weight": "bold",
+                                    }
+                                },
                             },
                         },
                         {
@@ -203,9 +208,6 @@ export default class SampleView extends LitElement {
                         {
                             title: "Somatic",
                             field: "somatic",
-                            display: {
-                                defaultValue: "false",
-                            },
                         },
                         {
                             title: "Version",
@@ -213,26 +215,26 @@ export default class SampleView extends LitElement {
                         },
                         {
                             title: "Status",
-                            field: "internal.status",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: field => `${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
+                                template: "${internal.status.name} (${internal.status.date})",
+                                format: {
+                                    "internal.status.date": date => UtilsNew.dateFormatter(date),
+                                }
                             },
                         },
                         {
                             title: "Creation Date",
                             field: "creationDate",
-                            type: "custom",
                             display: {
-                                render: field => `${UtilsNew.dateFormatter(field)}`,
+                                format: date => UtilsNew.dateFormatter(date),
                             },
                         },
                         {
                             title: "Modification Date",
                             field: "modificationDate",
-                            type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
+                                format: date => UtilsNew.dateFormatter(date),
                             },
                         },
                         {
@@ -247,32 +249,11 @@ export default class SampleView extends LitElement {
                             field: "phenotypes",
                             type: "list",
                             display: {
-                                defaultValue: "N/A",
+                                // showPDF: false,
                                 contentLayout: "bullets",
-                                // render: phenotype => {
-                                //     let id = phenotype?.id;
-                                //     if (phenotype?.id?.startsWith("HP:")) {
-                                //         id = html`
-                                //             <a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
-                                //                 ${phenotype.id}
-                                //             </a>
-                                //         `;
-                                //     }
-                                //     return phenotype?.name ? html`${phenotype.name} (${id})}` : html`${id}`;
-                                // },
-                                render: phenotype => UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype])),
+                                format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
                             },
                         },
-                        /*
-                            {
-                                title: "Annotation sets",
-                                field: "annotationSets",
-                                type: "custom",
-                                display: {
-                                    render: field => html`<annotation-sets-view .annotationSets="${field}"></annotation-sets-view>`
-                                }
-                            }
-                        */
                     ],
                 },
             ],

@@ -19,7 +19,6 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 
-
 export default class UserLogin extends LitElement {
 
     constructor() {
@@ -42,6 +41,7 @@ export default class UserLogin extends LitElement {
     #init() {
         this.hasEmptyUser = false;
         this.hasEmptyPassword = false;
+        this.organizationId = "";
     }
 
     firstUpdated() {
@@ -63,6 +63,7 @@ export default class UserLogin extends LitElement {
     onSubmit() {
         const user = (this.querySelector("#user").value || "").trim();
         const password = (this.querySelector("#password").value || "").trim();
+        const organization = (this.querySelector("#organization")?.value || "").trim();
 
         this.hasEmptyUser = user.length === 0;
         this.hasEmptyPassword = password.length === 0;
@@ -72,15 +73,17 @@ export default class UserLogin extends LitElement {
 
         if (this.opencgaSession) {
             this.requestUpdate(); // Remove errors
-            this.opencgaSession.opencgaClient.login(user, password)
+            this.opencgaSession.opencgaClient.login(user, password, organization)
                 .then(response => {
                     if (response && !UtilsNew.isError(response)) {
                         if (response.getEvents?.("ERROR")?.length) {
                             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                         } else {
                             const token = response?.getResult?.(0)?.token;
+                            // eslint-disable-next-line no-undef
                             const decoded = jwt_decode(token);
                             const dateExpired = new Date(decoded.exp * 1000);
+                            // eslint-disable-next-line no-undef
                             const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
 
                             LitUtils.dispatchCustomEvent(this, "login", null, {
@@ -140,6 +143,14 @@ export default class UserLogin extends LitElement {
 
     render() {
         return html`
+            <style>
+                /* Josemi NOTe 2024-02-01 */
+                /* Terrible style hack to fix rounded corners in organization field */
+                .organization-field .select2-selection {
+                    border-top-left-radius: 0px !important;
+                    border-bottom-left-radius: 0px !important;
+                }
+            </style>
             <div class="container-fluid" style="max-width:480px;">
                 <div class="panel panel-default">
                     <div class="panel-body" style="padding:32px;">
@@ -159,6 +170,15 @@ export default class UserLogin extends LitElement {
                                     <i class="fa fa-key fa-lg"></i>
                                 </span>
                                 <input id="password" type="password" class="form-control" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
+                            </div>
+                        </div>
+                        <div class="form-group organization-field">
+                            <label for="organization" class="control-label label-login">Organization</label>
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-building fa-lg"></i>
+                                </span>
+                                <input id="organization" type="text" class="form-control" placeholder="Organization ID" @keyup="${e => this.onKeyUp(e)}">
                             </div>
                         </div>
                         <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">

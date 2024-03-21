@@ -210,6 +210,8 @@ export default class VariantBrowserGrid extends LitElement {
                         // summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
+
+                    let variantResponse = null;
                     this.opencgaSession.opencgaClient.variants().query(this.filters)
                         .then(res => {
                             // FIXME A quick temporary fix -> TASK-947
@@ -264,9 +266,15 @@ export default class VariantBrowserGrid extends LitElement {
                                     });
                                 }
                             }
-
-                            params.success(res);
+                            variantResponse = res;
+                            return;
                         })
+                        .then(() => {
+                            // Prepare data for columns extensions
+                            const rows = variantResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
+                        .then(() => params.success(variantResponse))
                         .catch(e => params.error(e))
                         .finally(() => {
                             LitUtils.dispatchCustomEvent(this, "queryComplete", null);
@@ -317,10 +325,29 @@ export default class VariantBrowserGrid extends LitElement {
     renderFromLocal() {
         $("#" + this.gridId).bootstrapTable("destroy");
         $("#" + this.gridId).bootstrapTable({
-            data: this.variants,
+            // data: this.variants,
             columns: this._getDefaultColumns(),
-            sidePagination: "local",
+            sidePagination: "server",
+            // Josemi Note 2024-01-18: we have added the ajax function for local variants also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.variants.slice(skip, skip + limit);
 
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.variants.length,
+                    rows: response,
+                };
+            },
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
@@ -625,7 +652,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) =>
-                        VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
+                        VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("id")
                 },
@@ -747,7 +774,7 @@ export default class VariantBrowserGrid extends LitElement {
                             tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "clinicalInfo",
                     rowspan: 1,
-                    colspan: 2,
+                    colspan: 3,
                     align: "center"
                 },
                 // ...ExtensionsManager.getColumns("variant-browser-grid"),
@@ -960,6 +987,16 @@ export default class VariantBrowserGrid extends LitElement {
                     align: "center",
                     visible: this.gridCommons.isColumnVisible("cosmic", "clinicalInfo")
                 },
+                {
+                    id: "omim",
+                    title: "OMIM",
+                    field: "omim",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalOmimFormatter,
+                    align: "center",
+                    visible: this.gridCommons.isColumnVisible("omim"),
+                },
             ]
         ];
         // 2. Extensions: Inject columns for extensions
@@ -971,11 +1008,6 @@ export default class VariantBrowserGrid extends LitElement {
     onActionClick(e, value, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
-            case "genome-browser":
-                LitUtils.dispatchCustomEvent(this, "genomeBrowserRegionChange", null, {
-                    region: row.chromosome + ":" + row.start + "-" + row.end,
-                });
-                break;
             case "copy-json":
                 navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
                 break;
@@ -1042,7 +1074,7 @@ export default class VariantBrowserGrid extends LitElement {
                 </opencb-grid-toolbar>
             ` : null}
 
-            <div>
+            <div data-cy="vb-grid">
                 <table id="${this.gridId}"></table>
             </div>
 

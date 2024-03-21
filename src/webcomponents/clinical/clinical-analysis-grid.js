@@ -161,7 +161,12 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     this.fetchData(this.filters)
                         .then(res => {
                             response = res;
-                            params.success(res);
+                            // Prepare data for columns extensions
+                            const rows = response.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
+                        .then(() => {
+                            params.success(response);
                         })
                         .catch(error => {
                             response = error;

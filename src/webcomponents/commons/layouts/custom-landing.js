@@ -44,6 +44,47 @@ export default class CustomLanding extends LitElement {
         }
     }
 
+    renderLogin() {
+        // Check if opencgaSession and opencgaClient have been initialized
+        // This prevents displaying the login form before checkig if SSO is enabled.
+        if (!this.opencgaSession?.opencgaClient) {
+            return html`
+                <div align="center" style="font-size:2.5rem;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+            `;
+        }
+
+        // Check if SSO is active. In this case, we will render the SSO button instead of the login form
+        if (this.opencgaSession?.opencgaClient?._config?.sso?.active) {
+            return html`
+                <div>
+                    <div align="center">
+                        <a class="btn-group" role="group" href="${this.getSSOUrl()}">
+                            <button type="button" class="btn btn-primary btn-lg" style="">
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <button type="button" class="btn btn-primary btn-lg">
+                                <strong style="color:white;">Login with SSO</strong>
+                            </button>
+                        </a>
+                    </div>
+                    <div class="landing-login-sso-helper">
+                        By clicking on the <b>Login with SSO</b> button you will be redirected to your SSO login
+                        page.
+                    </div>
+                </div>
+            `;
+        }
+
+        // No SSO and opencgaSession is ready, render the user-login component
+        return html`
+            <user-login
+                .opencgaSession="${this.opencgaSession}">
+            </user-login>
+        `;
+    }
+
     render() {
         const ukcaSection = this.config?.landingPage?.organisation?.ukca || {};
         return html`
@@ -123,7 +164,6 @@ export default class CustomLanding extends LitElement {
                 }
 
                 .landing-wrapper > .landing > div {
-                    flex: 1;
                     display: flex;
                     justify-content: center;
                     align-items: flex-start;
@@ -242,28 +282,7 @@ export default class CustomLanding extends LitElement {
                     ` : null}
                     <!-- Landing login -->
                     <div class="landing-login">
-                        ${this.opencgaSession?.opencgaClient?._config?.sso?.active ? html`
-                            <div>
-                                <div align="center">
-                                    <a class="btn-group" role="group" href="${this.getSSOUrl()}">
-                                        <button type="button" class="btn btn-primary btn-lg" style="">
-                                            <i class="fas fa-user"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-primary btn-lg">
-                                            <strong style="color:white;">Login with SSO</strong>
-                                        </button>
-                                    </a>
-                                </div>
-                                <div class="landing-login-sso-helper">
-                                    By clicking on the <b>Login with SSO</b> button you will be redirected to your SSO login
-                                    page.
-                                </div>
-                            </div>
-                        ` : html`
-                            <user-login
-                                    .opencgaSession="${this.opencgaSession}">
-                            </user-login>
-                        `}
+                        ${this.renderLogin()}
                     </div>
                 </div>
             </div>

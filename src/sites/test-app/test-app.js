@@ -35,6 +35,7 @@ import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
 
 import "./webcomponents/data-form-test.js";
+import "./webcomponents/data-form-table-test.js";
 import "./webcomponents/custom-page-test.js";
 import "./webcomponents/variant-browser-grid-test.js";
 import "./webcomponents/sample-browser-grid-test.js";
@@ -46,6 +47,7 @@ import "./webcomponents/cohort-browser-grid-test.js";
 import "./webcomponents/job-browser-grid-test.js";
 import "./webcomponents/disease-panel-browser-grid-test.js";
 
+import "./webcomponents/interpreter/variant-interpreter-rd-grid-test.js";
 
 import "./webcomponents/genome-browser-test.js";
 import "./webcomponents/protein-lollipop-test.js";
@@ -103,6 +105,7 @@ class TestApp extends LitElement {
             "login",
             "aboutzetta",
             "data-form",
+            "data-form-table",
             "utils-new",
             "catalog-filters",
             "file-browser-grid",
@@ -123,6 +126,8 @@ class TestApp extends LitElement {
             "protein-lollipop",
             "pedigree",
             "mutational-signatures",
+
+            "variant-interpreter-rd-grid",
         ];
 
         for (const component of components) {
@@ -643,6 +648,19 @@ class TestApp extends LitElement {
                     </div>
                 ` : null}
 
+                ${this.config.enabledComponents["data-form-table"] ? html`
+                    <div class="content" id="data-form-table" style="padding:2%">
+                        <data-form-table-test
+                            testVariantFile="variant-browser-germline"
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}"
+                            @fieldChange="${e => this.onFieldChange(e)}"
+                            @clear="${e => this.onClear(e)}"
+                            @submit="${e => this.onSubmit(e)}">
+                        </data-form-table-test>
+                    </div>
+                ` : null}
+
                 ${this.config.enabledComponents["utils-new"] ? html`
                     <div class="content" id="clinicalAnalysisPortal">
                         No component found.
@@ -768,6 +786,16 @@ class TestApp extends LitElement {
                     </div>
                 ` : null}
 
+                ${this.config.enabledComponents["variant-interpreter-rd-grid"] ? html`
+                    <div style="padding:2%" class="content" id="variant-interpreter-rd-grid">
+                        <variant-interpreter-rd-grid-test
+                            .testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config}">
+                        </variant-interpreter-rd-grid-test>
+                    </div>
+                ` : null}
+
                 ${this.config.enabledComponents["variant-interpreter-grid-germline"] ? html`
                     <div style="padding:2%" class="content" id="variant-interpreter-grid">
                         <variant-interpreter-grid-test
@@ -779,7 +807,6 @@ class TestApp extends LitElement {
                         </variant-interpreter-grid-test>
                     </div>
                 ` : null}
-
 
                 ${this.config.enabledComponents["variant-interpreter-grid-cancer"] ? html`
                     <div style="padding:2%" class="content" id="variant-interpreter-grid">

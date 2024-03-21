@@ -1,6 +1,5 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/forms/data-form.js";
 
 export default class UserProjects extends LitElement {
@@ -17,60 +16,28 @@ export default class UserProjects extends LitElement {
     static get properties() {
         return {
             projects: {
-                type: Array
-            },
-            userId: {
-                type: String,
+                type: Array,
             },
         };
     }
 
     #init() {
-        this.userProjects = [];
-        this.sharedProjects = {};
+        this.projects = [];
         this.config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("projects") || changedProperties.has("userId")) {
-            this.projectsObserver();
+        if (changedProperties.has("projects")) {
+            this.config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
     }
 
-    projectsObserver() {
-        this.userProjects = [];
-        this.sharedProjects = {};
-
-        if (this.projects) {
-            // Generate a list with all owners, without the logged user
-            const owners = new Set();
-            (OpencgaCatalogUtils.getProjectOwners(this.projects) || []).forEach(name => {
-                if (name !== this.userId) {
-                    owners.add(name);
-                }
-            });
-
-            // Group projects by users
-            owners.forEach(name => {
-                this.sharedProjects[name] = this.projects.filter(project => project.fqn.startsWith(name + "@"));
-            });
-
-            // Get user projects
-            if (this.userId) {
-                this.userProjects = this.projects.filter(project => project.fqn.startsWith(this.userId + "@"));
-            }
-        }
-
-        // Update configuration
-        this.config = this.getDefaultConfig();
-    }
-
-    generateProjectSection(project, owner, bg) {
+    generateProjectSection(project) {
         return {
             display: {
-                style: `border-left:4px solid var(--main-bg-color);padding:16px 24px;background-color:${bg}`,
+                style: `border-left:4px solid var(--main-bg-color);padding:16px 24px;`,
             },
             elements: [
                 {
@@ -93,18 +60,18 @@ export default class UserProjects extends LitElement {
                 },
                 {
                     title: "Project ID",
-                    text: project.id || "-",
                     type: "text",
+                    text: project.id,
                     display: {
-                        textStyle: "padding-left:16px;",
+                        defaultValue: "-",
                     },
                 },
                 {
                     title: "Project Description",
-                    text: project.description || "-",
                     type: "text",
+                    text: project.description,
                     display: {
-                        textStyle: "padding-left:16px;",
+                        defaultValue: "-",
                     },
                 },
                 {
@@ -112,33 +79,18 @@ export default class UserProjects extends LitElement {
                     text: project.attributes.release,
                     type: "text",
                     display: {
-                        textStyle: "padding-left:16px;",
-                        visible: !!project?.attributes?.release
-                    },
-                },
-                {
-                    title: "Project Owner",
-                    text: owner || "-",
-                    type: "text",
-                    display: {
-                        textStyle: "padding-left:16px;font-weight:bold;",
+                        visible: !!project?.attributes?.release,
                     },
                 },
                 {
                     title: "Species",
                     text: `${project.organism?.scientificName || "-"} (${project.organism?.assembly || "-"})`,
                     type: "text",
-                    display: {
-                        textStyle: "padding-left:16px;",
-                    },
                 },
                 {
                     title: "CellBase",
                     text: `${project.cellbase?.url || "-"} (${project.cellbase?.version || "-"}, Data Release: ${project.cellbase?.dataRelease || "-"})`,
                     type: "text",
-                    display: {
-                        textStyle: "padding-left:16px;",
-                    },
                 },
                 // Generate a table with all studies of this project of this user
                 {
@@ -153,8 +105,13 @@ export default class UserProjects extends LitElement {
                 {
                     type: "table",
                     // title: "Studies",
-                    defaultValue: project.studies,
                     display: {
+                        defaultLayout: "vertical",
+                        headerStyle: {
+                            background: "#f5f5f5",
+                            lineHeight: "0.5"
+                        },
+                        getData: () => project.studies,
                         columns: [
                             {
                                 title: "ID",
@@ -167,17 +124,25 @@ export default class UserProjects extends LitElement {
                             {
                                 title: "Description",
                                 field: "description",
-                                formatter: value => UtilsNew.isNotEmpty(value) ? value : "-",
+                                display: {
+                                    defaultValue: "-",
+                                },
                             },
                             {
                                 title: "Creation",
                                 field: "creationDate",
-                                formatter: value => UtilsNew.dateFormatter(value) ?? "-",
+                                display: {
+                                    format: date => UtilsNew.dateFormatter(date),
+                                },
                             },
                             {
                                 title: "FQN",
                                 field: "fqn",
                             },
+                            // Caution 20240229 Vero: commented out because:
+                            //  (a) not working
+                            //  (b) further discussion needed to migrate to new config data model
+                            /*
                             {
                                 title: "Links",
                                 field: "id",
@@ -187,8 +152,8 @@ export default class UserProjects extends LitElement {
                                     </a>
                                 `,
                             },
+                            */
                         ],
-                        defaultLayout: "vertical",
                     },
                 },
             ],
@@ -204,78 +169,9 @@ export default class UserProjects extends LitElement {
     }
 
     getDefaultConfig() {
-        const sections = [];
-
-        // Add user projects
-        sections.push({
-            elements: [
-                {
-                    type: "text",
-                    text: "Your projects",
-                    display: {
-                        icon: "user",
-                        textClassName: "h3",
-                        textStyle: "color: var(--main-bg-color);font-weight:bold;",
-                    },
-                }
-            ],
+        const projectsSections = (this.projects || []).map(project => {
+            return this.generateProjectSection(project);
         });
-        if (this.userProjects.length > 0) {
-            this.userProjects.forEach(project => {
-                sections.push(this.generateProjectSection(project, this.userId, "#ffffff"));
-            });
-        } else {
-            // No user projects found
-            sections.push({
-                elements: [
-                    {
-                        type: "notification",
-                        text: "You do not have any personal project.",
-                        display: {
-                            notificationType: "warning",
-                        },
-                    }
-                ],
-            });
-        }
-
-        // Add shared projects
-        sections.push({
-            elements: [
-                {
-                    type: "text",
-                    text: "Shared projects",
-                    display: {
-                        icon: "users",
-                        textClassName: "h3",
-                        textStyle: "color: var(--main-bg-color);font-weight:bold;",
-                    },
-                }
-            ],
-        });
-
-        if (Object.keys(this.sharedProjects).length > 0) {
-            Object.keys(this.sharedProjects).forEach((owner, index) => {
-                const bg = index % 2 === 0 ? "#ffffff" : "#f5f5f5";
-
-                this.sharedProjects[owner].forEach(project => {
-                    sections.push(this.generateProjectSection(project, owner, bg));
-                });
-            });
-        } else {
-            // No shared project found
-            sections.push({
-                elements: [
-                    {
-                        type: "notification",
-                        text: "You do not have any shared project.",
-                        display: {
-                            notificationType: "warning",
-                        },
-                    }
-                ],
-            });
-        }
 
         return {
             icon: "",
@@ -296,7 +192,21 @@ export default class UserProjects extends LitElement {
                         }
                     ],
                 },
-                ...sections,
+                {
+                    display: {
+                        visible: projectsSections.length === 0,
+                    },
+                    elements: [
+                        {
+                            type: "notification",
+                            text: "You do not have access to any project on this organization.",
+                            display: {
+                                notificationType: "warning",
+                            },
+                        }
+                    ],
+                },
+                ...projectsSections,
             ],
         };
     }

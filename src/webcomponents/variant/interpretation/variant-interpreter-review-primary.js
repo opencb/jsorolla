@@ -75,7 +75,10 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
@@ -132,7 +135,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             this._config.result.grid = {
                 ...this._config.result.grid,
                 ...this.opencgaSession.user.configs.IVA.settings[this.toolId].grid,
-                showGenomeBrowserLink: false,
             };
         }
 
@@ -276,6 +278,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                     .clinicalVariants="${this.clinicalVariants}"
                                     .review="${true}"
+                                    .active="${this.active}"
                                     .config="${this._config.result.grid}"
                                     @selectrow="${this.onSelectVariant}"
                                     @updaterow="${this.onUpdateVariant}"
@@ -289,6 +292,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                     .clinicalVariants="${this.clinicalVariants}"
                                     .review="${true}"
+                                    .active="${this.active}"
                                     .config="${this._config.result.grid}"
                                     @selectrow="${this.onSelectVariant}"
                                     @updaterow="${this.onUpdateVariant}"
@@ -352,7 +356,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
 
                     showReview: true,
                     showActions: true,
-                    showGenomeBrowserLink: false,
 
                     showExport: true,
                     exportFilename: exportFilename,
@@ -377,7 +380,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         active: true,
                         render: variant => html`
                             <cellbase-variant-annotation-summary
-                                .variantAnnotation="${variant.annotation}"
+                                .variantAnnotation="${variant?.annotation}"
                                 .consequenceTypes="${CONSEQUENCE_TYPES}"
                                 .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
                                 .assembly=${this.opencgaSession.project.organism.assembly}>
@@ -389,7 +392,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         name: "Consequence Type",
                         render: (variant, active) => html`
                             <variant-consequence-type-view
-                                .consequenceTypes="${variant.annotation.consequenceTypes}"
+                                .consequenceTypes="${variant?.annotation?.consequenceTypes}"
                                 .active="${active}">
                             </variant-consequence-type-view>
                         `,
@@ -399,7 +402,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         name: "Population Frequencies",
                         render: (variant, active) => html`
                             <cellbase-population-frequency-grid
-                                .populationFrequencies="${variant.annotation.populationFrequencies}"
+                                .populationFrequencies="${variant?.annotation?.populationFrequencies}"
                                 .active="${active}">
                             </cellbase-population-frequency-grid>
                         `,
@@ -409,8 +412,8 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         name: "Clinical",
                         render: variant => html`
                             <variant-annotation-clinical-view
-                                .traitAssociation="${variant.annotation.traitAssociation}"
-                                .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                                .traitAssociation="${variant?.annotation?.traitAssociation}"
+                                .geneTraitAssociation="${variant?.annotation?.geneTraitAssociation}">
                             </variant-annotation-clinical-view>
                         `,
                     },
@@ -442,7 +445,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         render: (variant, active, opencgaSession) => html`
                             <variant-samples
                                 .opencgaSession="${opencgaSession}"
-                                .variantId="${variant.id}"
+                                .variantId="${variant?.id}"
                                 .active="${active}">
                             </variant-samples>
                         `,
@@ -452,7 +455,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         name: "Beacon",
                         render: (variant, active, opencgaSession) => html`
                             <variant-beacon-network
-                                .variant="${variant.id}"
+                                .variant="${variant?.id}"
                                 .assembly="${opencgaSession.project.organism.assembly}"
                                 .config="${this.beaconConfig}"
                                 .active="${active}">

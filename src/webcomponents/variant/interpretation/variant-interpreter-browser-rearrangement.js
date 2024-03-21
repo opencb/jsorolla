@@ -17,7 +17,6 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-template.js";
-import "../../visualization/split-genome-browser.js";
 import "../../commons/json-viewer.js";
 
 class VariantInterpreterBrowserRearrangement extends LitElement {
@@ -260,62 +259,13 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 .settings="${this.settings}"
                 .toolId="${this.COMPONENT_ID}"
                 .config="${this._config}"
+                .active="${this.active}"
                 @queryChange="${this.onQueryChange}">
             </variant-interpreter-browser-template>
         `;
     }
 
     getDefaultConfig() {
-        // Prepare dynamic Variant Caller INFO filters
-        const callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2", "Pisces", "CRAFT"];
-        const callerFilters = callers.map(caller => {
-            const callerId = caller.toLowerCase();
-            return {
-                id: callerId,
-                title: caller + " Filters",
-                description: () => html`
-                    File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile[callerId].name}</span>
-                `,
-                visible: () => this.callerToFile && this.callerToFile[callerId],
-                params: {
-                    fileId: `${this.callerToFile ? this.callerToFile[callerId]?.name : null}`,
-                },
-            };
-        });
-
-        // Generate Genome browser columns and tracks configurations
-        const genomeBrowserTracks = [
-            {
-                type: "gene",
-                config: {},
-            },
-            {
-                type: "opencga-variant",
-                config: {
-                    title: "Variants",
-                    query: {
-                        sample: (this.clinicalAnalysis?.proband?.samples || []).map(s => s.id).join(","),
-                    },
-                    height: 120,
-                },
-            },
-            ...(this.clinicalAnalysis?.proband?.samples || []).map(sample => ({
-                type: "opencga-alignment",
-                config: {
-                    title: `Alignments - ${sample.id}`,
-                    sample: sample.id,
-                },
-            })),
-        ];
-        const genomeBrowserConfig = {
-            cellBaseClient: this.cellbaseClient,
-            karyotypePanelVisible: false,
-            overviewPanelVisible: false,
-            navigationPanelHistoryControlsVisible: false,
-            navigationPanelGeneSearchVisible: false,
-            navigationPanelRegionSearchVisible: false,
-        };
-
         return {
             title: "Cancer Case Interpreter",
             icon: "fas fa-search",
@@ -328,9 +278,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 searchButtonText: "Search",
                 activeFilters: {
                     alias: {
-                        // Example:
-                        // "region": "Region",
-                        // "gene": "Gene",
                         "ct": "Consequence Types"
                     },
                     complexFields: [
@@ -338,10 +285,15 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         {id: "fileData", separator: ","},
                     ],
                     hiddenFields: [],
-                    lockedFields: [{id: "sample"}]
+                    lockedFields: [
+                        {id: "sample"},
+                        {id: "sampleData"},
+                        {id: "file"},
+                        {id: "fileData"},
+                    ],
                 },
                 callers: [],
-                sections: [ // sections and subsections, structure and order is respected
+                sections: [
                     {
                         title: "Genomic",
                         collapsed: false,
@@ -440,20 +392,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                     showTitle: true,
                     items: [
                         {
-                            id: "browser",
-                            name: "Rearrangements Browser",
-                            active: true,
-                            render: variants => html`
-                                <split-genome-browser
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .regions="${variants}"
-                                    ?active="${this.active}"
-                                    .tracks="${genomeBrowserTracks}"
-                                    .config="${genomeBrowserConfig}">
-                                </split-genome-browser>
-                            `,
-                        },
-                        {
                             id: "json-view-variant1",
                             name: "Variant 1 JSON Data",
                             render: (variants, active) => html`
@@ -477,6 +415,39 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 }
             },
             aggregation: {},
+            genomeBrowser: {
+                config: {
+                    cellBaseClient: this.cellbaseClient,
+                    karyotypePanelVisible: false,
+                    overviewPanelVisible: false,
+                    navigationPanelHistoryControlsVisible: false,
+                    navigationPanelGeneSearchVisible: false,
+                    navigationPanelRegionSearchVisible: false,
+                },
+                tracks: [
+                    {
+                        type: "gene",
+                        config: {},
+                    },
+                    {
+                        type: "opencga-variant",
+                        config: {
+                            title: "Variants",
+                            query: {
+                                sample: (this.clinicalAnalysis?.proband?.samples || []).map(s => s.id).join(","),
+                            },
+                            height: 120,
+                        },
+                    },
+                    ...(this.clinicalAnalysis?.proband?.samples || []).map(sample => ({
+                        type: "opencga-alignment",
+                        config: {
+                            title: `Alignments - ${sample.id}`,
+                            sample: sample.id,
+                        },
+                    })),
+                ],
+            },
         };
     }
 
