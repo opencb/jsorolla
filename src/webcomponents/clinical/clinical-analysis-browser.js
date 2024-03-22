@@ -142,6 +142,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                             .active="${params.active}"
                             @selectanalysis="${params.onSelectClinicalAnalysis}"
                             @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}"
+                            @rowUpdate="${e => params.onComponentUpdate(e, "clinicalAnalysis")}"
                             @clinicalAnalysisUpdate="${e => params.onComponentUpdate(e, "clinicalAnalysis")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </clinical-analysis-grid>

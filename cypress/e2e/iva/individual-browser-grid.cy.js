@@ -145,7 +145,7 @@ context("Individual Browser Grid", () => {
                 .find("span.select2-selection__rendered")
                 .should("contain.text", "Glioblastoma multiforme");
             cy.get("@modal-create")
-                .find(`input[placeholder="Add phenotype ID......"]`)
+                .find(`input[placeholder="Add phenotype ID..."]`)
                 .then(element => {
                     expect(element.val()).equal("HP:0012174");
                     cy.wrap(element).should("be.disabled");

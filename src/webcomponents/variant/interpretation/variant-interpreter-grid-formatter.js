@@ -1014,36 +1014,38 @@ export default class VariantInterpreterGridFormatter {
         `;
     }
 
-    static geneFeatureOverlapFormatter(variant, opencgaSession) {
+    static rearrangementFeatureOverlapFormatter(variant, genes, opencgaSession) {
         if (variant?.annotation?.consequenceTypes) {
             const overlaps = [];
-            (variant.annotation.consequenceTypes || []).forEach(ct => {
-                if (Array.isArray(ct.exonOverlap) && ct.exonOverlap?.length > 0) {
-                    ct.exonOverlap.map(exon => {
-                        overlaps.push({
-                            geneName: ct.geneName || "",
-                            transcript: ct.transcript || ct.ensemblTranscriptId || "",
-                            feature: `exon (${exon.number || "-"})`,
+            (variant.annotation.consequenceTypes || [])
+                .filter(ct => genes.has(ct.geneName || ct.geneId || ""))
+                .forEach(ct => {
+                    if (Array.isArray(ct.exonOverlap) && ct.exonOverlap?.length > 0) {
+                        ct.exonOverlap.map(exon => {
+                            overlaps.push({
+                                geneName: ct.geneName || ct.geneId || "",
+                                transcript: ct.transcript || ct.ensemblTranscriptId || "",
+                                feature: `exon (${exon.number || "-"})`,
+                            });
                         });
-                    });
-                } else if (Array.isArray(ct.sequenceOntologyTerms) && ct.sequenceOntologyTerms?.length > 0) {
-                    ct.sequenceOntologyTerms.forEach(term => {
-                        if (term.name === "intron_variant") {
-                            overlaps.push({
-                                geneName: ct.geneName || "",
-                                transcript: ct.transcript || ct.ensemblTranscriptId || "",
-                                feature: "intron",
-                            });
-                        } else if (term.name === "5_prime_UTR_variant" || term.name === "3_prime_UTR_variant") {
-                            overlaps.push({
-                                geneName: ct.geneName || "",
-                                transcript: ct.transcript || ct.ensemblTranscriptId || "",
-                                feature: `${term.name.charAt(0)}'-UTR`,
-                            });
-                        }
-                    });
-                }
-            });
+                    } else if (Array.isArray(ct.sequenceOntologyTerms) && ct.sequenceOntologyTerms?.length > 0) {
+                        ct.sequenceOntologyTerms.forEach(term => {
+                            if (term.name === "intron_variant") {
+                                overlaps.push({
+                                    geneName: ct.geneName || ct.geneId || "",
+                                    transcript: ct.transcript || ct.ensemblTranscriptId || "",
+                                    feature: "intron",
+                                });
+                            } else if (term.name === "5_prime_UTR_variant" || term.name === "3_prime_UTR_variant") {
+                                overlaps.push({
+                                    geneName: ct.geneName || ct.geneId || "",
+                                    transcript: ct.transcript || ct.ensemblTranscriptId || "",
+                                    feature: `${term.name.charAt(0)}'-UTR`,
+                                });
+                            }
+                        });
+                    }
+                });
 
             if (overlaps.length > 0) {
                 const maxDisplayedOverlaps = 3;
@@ -1087,6 +1089,28 @@ export default class VariantInterpreterGridFormatter {
         }
         // Nothing to display
         return "-";
+    }
+
+    static rearrangementGeneFormatter(variants, genesByVariant, opencgaSession) {
+        const separator = `<div style="background-color:currentColor;height:1px;margin-top:4px;margin-bottom:4px;opacity:0.2"></div>`;
+        return variants
+            .map((variant, index) => {
+                let resultHtml = "-";
+                const genes = Array.from(genesByVariant[variant.id] || []);
+
+                if (genes.length > 0) {
+                    const genesLinks = genes.map(gene => {
+                        const tooltip = VariantGridFormatter.getGeneTooltip(gene, opencgaSession?.project?.organism?.assembly);
+                        return `
+                            <a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltip}">${gene}</a>
+                        `;
+                    });
+                    resultHtml = genesLinks.join(" ");
+                }
+
+                return `<div><b>Variant ${index + 1}</b>: ${resultHtml}</div>`;
+            })
+            .join(separator);
     }
 
 }

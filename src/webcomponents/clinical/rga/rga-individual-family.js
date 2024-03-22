@@ -382,7 +382,7 @@ export default class RgaIndividualFamily extends LitElement {
                     title: "Id",
                     field: "id",
                     rowspan: 2,
-                    formatter: (value, row, index) => row.chromosome ? VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly) : value
+                    formatter: (value, row, index) => row.chromosome ? VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly) : value
                 },
                 {
                     title: "Gene",

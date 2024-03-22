@@ -68,7 +68,9 @@ export default class UserInfo extends LitElement {
                         {
                             title: "Organization",
                             field: "organization",
-                            defaultValue: "-",
+                            display: {
+                                defaultValue: "-",
+                            },
                         },
                         {
                             title: "Account type",
@@ -77,18 +79,19 @@ export default class UserInfo extends LitElement {
                         {
                             title: "Member since",
                             field: "account.creationDate",
-                            type: "custom",
                             display: {
-                                render: date => date ? UtilsNew.dateFormatter(date) : "Not provided",
+                                defaultValue: "Not provided",
+                                format: date => UtilsNew.dateFormatter(date)
                             }
                         },
                         {
                             title: "Synced from",
                             field: "account.authentication",
-                            type: "custom",
+                            // CAUTION 20240229 VERO: bug in visible function:
+                            //  the argument authentication is the entire data model, not the field account.authentication
                             display: {
                                 visible: authentication => authentication.id === "internal",
-                                render: authentication => authentication.id,
+                                format: authentication => authentication.id,
                             }
                         }
                     ]

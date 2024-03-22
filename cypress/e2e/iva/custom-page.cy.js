@@ -16,7 +16,7 @@
 
 import UtilsTest from "../../support/utils-test.js";
 
-context("Sample Browser Grid", () => {
+context("Custom page", () => {
 
     beforeEach(() => {
         cy.visit("#aboutzetta");
