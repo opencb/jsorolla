@@ -203,7 +203,7 @@ class VariantInterpreterQc extends LitElement {
                                 <individual-qc-analysis
                                     .toolParams="${{individual: clinicalAnalysis.proband?.id}}"
                                     .opencgaSession="${opencgaSession}"
-                                    .title="">
+                                    .config=${{title: ""}}>
                                 </individual-qc-analysis>
                             </div>
                         `;
@@ -240,7 +240,7 @@ class VariantInterpreterQc extends LitElement {
                                 <family-qc-analysis
                                     .toolParams="${{family: clinicalAnalysis.family?.id}}"
                                     .opencgaSession="${opencgaSession}"
-                                    .title="">
+                                    .config=${{title: ""}}>
                                 </family-qc-analysis>
                             </div>
                         `;
@@ -256,7 +256,7 @@ class VariantInterpreterQc extends LitElement {
                                 <individual-qc-analysis
                                     .toolParams="${{individual: clinicalAnalysis.proband?.id}}"
                                     .opencgaSession="${opencgaSession}"
-                                    .title="">
+                                    .config=${{title: ""}}>
                                 </individual-qc-analysis>
                             </div>
                         `;
