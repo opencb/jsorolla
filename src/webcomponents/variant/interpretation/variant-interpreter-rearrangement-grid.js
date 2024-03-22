@@ -401,13 +401,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             showExport: this._config.showExport,
             detailView: !!this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-<<<<<<< HEAD
-=======
-
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
-            variantGrid: this,
-
->>>>>>> develop
+            // variantGrid: this,
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 this._rows = data;
