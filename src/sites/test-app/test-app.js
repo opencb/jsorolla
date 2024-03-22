@@ -653,6 +653,19 @@ class TestApp extends LitElement {
                     </div>
                 ` : null}
 
+                ${this.config.enabledComponents["data-form-table"] ? html`
+                    <div class="content" id="data-form-table" style="padding:2%">
+                        <data-form-table-test
+                            testVariantFile="variant-browser-germline"
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}"
+                            @fieldChange="${e => this.onFieldChange(e)}"
+                            @clear="${e => this.onClear(e)}"
+                            @submit="${e => this.onSubmit(e)}">
+                        </data-form-table-test>
+                    </div>
+                ` : null}
+
                 ${this.config.enabledComponents["utils-new"] ? html`
                     <div class="content" id="clinicalAnalysisPortal">
                         No component found.

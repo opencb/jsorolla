@@ -452,17 +452,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     </variant-browser-filter>
                 </div> <!-- Close col-md-2 -->
 
-                <!-- <div class="flex-grow-1">
-                    <div>
-                        <variant-interpreter-browser-toolbar
-                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .state="${this.clinicalAnalysisManager.state}"
-                            .variantInclusionState="${this.variantInclusionState}"
-                            .write="${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")}"
-                            @filterVariants="${this.onFilterVariants}"
-                            @resetVariants="${this.onResetVariants}"
-                            @saveInterpretation="${this.onSaveVariants}">
-                        </variant-interpreter-browser-toolbar> -->
                 <div class="flex-grow-1">
                     <!-- View toolbar -->
                     <div class="content-pills" role="toolbar" aria-label="toolbar">

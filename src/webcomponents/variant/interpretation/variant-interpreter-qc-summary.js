@@ -216,6 +216,7 @@ class VariantInterpreterQcSummary extends LitElement {
                                         title: "BAM File",
                                         field: "file",
                                     },
+
                                     {
                                         title: "SD insert size",
                                         field: "sdInsertSize",

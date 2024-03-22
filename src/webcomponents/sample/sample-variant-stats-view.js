@@ -293,19 +293,6 @@ class SampleVariantStatsView extends LitElement {
                             field: "query",
                             type: "list",
                             display: {
-                            //     render: query => query && !UtilsNew.isEmpty(query) ?
-                            //         Object.entries(query)
-                            //             .map(([k, v]) => {
-                            //                 if (k !== "study") {
-                            //                     return html`<span class="text-break"><span style="font-weight: bold">${k}:</span> ${v}</span><br>`;
-                            //                 } else {
-                            //                     if (Object.keys(query).length === 1) {
-                            //                         return html`<span>-</span>`;
-                            //                     }
-                            //                 }
-                            //             }) :
-                            //         "none"
-                            // }
                                 defaultValue: "None",
                                 contentLayout: "vertical",
                                 template: "${key}: ${value}",
