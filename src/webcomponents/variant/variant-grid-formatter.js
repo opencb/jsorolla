@@ -976,25 +976,25 @@ export default class VariantGridFormatter {
                     }
 
                     if (populations.length > 1) {
-                        populationFrequenciesHtml.push("<div>");
+                        populationFrequenciesHtml.push(`<div data-cy="population-${population}">`);
                         populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${population}</span>`);
                         populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${freq}</span>`);
                         populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">(${percentage} %)</span>`);
                         populationFrequenciesHtml.push("</div>");
                     } else {
-                        populationFrequenciesHtml.push("<div>");
+                        populationFrequenciesHtml.push(`<div data-cy="population-${population}">`);
                         populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${freq}</span>`);
                         populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">(${percentage} %)</span>`);
                         populationFrequenciesHtml.push("</div>");
                     }
                 } else { // Freq does not exist
                     if (populations.length > 1) {
-                        populationFrequenciesHtml.push("<div>");
+                        populationFrequenciesHtml.push(`<div data-cy="population-${population}">`);
                         populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${population}</span>`);
                         populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">NA</span>`);
                         populationFrequenciesHtml.push("</div>");
                     } else {
-                        populationFrequenciesHtml.push("<div>");
+                        populationFrequenciesHtml.push(`<div data-cy="population-${population}">`);
                         populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">NA</span>`);
                         populationFrequenciesHtml.push("</div>");
                     }
