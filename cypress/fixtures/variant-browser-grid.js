@@ -27,6 +27,10 @@ export default {
                             genotypeHomAltFreqText: ["- / 0", "- / 0", "Not Observed", "Not Observed", "Not Observed", "Not Observed"],
                         },
                     },
+                    frequencyNumberMode: {
+                        colors: ["#ff0000", "#ff8080", "#000000", "#000000", "#000000", "#000000"],
+                        text: ["0.00031230482(0.03123 %)", "0.0011198209(0.1120 %)", "NA", "NA", "NA", "NA"],
+                    },
                 },
                 {
                     id: "GNOMAD_GENOMES",
@@ -37,6 +41,10 @@ export default {
                             genotypeHomAltFreqText: ["Not Observed", "Not Observed", "Not Observed", "Not Observed", "Not Observed", "Not Observed"],
                         },
                     },
+                    frequencyNumberMode: {
+                        colors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"],
+                        text: ["NA", "NA", "NA", "NA", "NA", "NA"],
+                    },
                 },
                 {
                     id: "GNOMAD_EXOMES",
@@ -46,6 +54,10 @@ export default {
                             altFreqText: ["Not Observed", "Not Observed", "Not Observed", "Not Observed", "Not Observed", "Not Observed"],
                             genotypeHomAltFreqText: ["Not Observed", "Not Observed", "Not Observed", "Not Observed", "Not Observed", "Not Observed"],
                         },
+                    },
+                    frequencyNumberMode: {
+                        colors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000"],
+                        text: ["NA", "NA", "NA", "NA", "NA", "NA"],
                     },
                 },
             ],
