@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utils-new.js";
+import {html, LitElement} from "lit";
+import WebUtils from "../commons/utils/web-utils";
 import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
@@ -28,7 +28,7 @@ export default class SampleBrowser extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -49,7 +49,7 @@ export default class SampleBrowser extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "sample-browser";
         this._config = this.getDefaultConfig();
     }
@@ -62,34 +62,7 @@ export default class SampleBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = this.getDefaultConfig();
-
-        // Apply Study settings
-        if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
-        }
-
-        // Grid configuration and take out toolbar admin/user settings to grid level.
-        // if (this.settings?.table) {
-        //     const {toolbar, ...otherTableProps} = this.settings.table;
-        //     UtilsNew.setObjectValue(this._config, "filter.result.grid", {
-        //         ...this._config.filter.result.grid,
-        //         ...otherTableProps,
-        //         ...toolbar,
-        //     });
-        // }
-        // BROWSER: Admin browser configuration merged with internal default configuration.
-        if (this.settings?.table) {
-            UtilsNew.mergeTableSettings(this._config, this.settings, "CATALOG", this.COMPONENT_ID, this.opencgaSession);
-        }
-
-        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
-        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
-            ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
-        });
-
-        this.requestUpdate();
+        this._config = WebUtils.mergeSettingsAndBrowserConfig(this.settings, this.getDefaultConfig(), this.COMPONENT_ID, this.opencgaSession);
     }
 
     onSettingsUpdate() {

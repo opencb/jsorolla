@@ -125,7 +125,6 @@ export default class DiseasePanelRegionView extends LitElement {
     }
 
     getDefaultColumns() {
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         return [
             [
                 {

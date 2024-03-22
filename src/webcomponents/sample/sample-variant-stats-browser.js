@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import WebUtils from "../commons/utils/web-utils";
 import "../variant/variant-browser-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../loading-spinner.js";
@@ -137,9 +137,9 @@ export default class SampleVariantStatsBrowser extends LitElement {
         };
         delete this._config?.menu;
         if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
+            this._config.filter = WebUtils.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     onVariantFilterChange(e) {

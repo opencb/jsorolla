@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import WebUtils from "../../commons/utils/web-utils";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/forms/select-field-filter.js";
 import "../../loading-spinner.js";
@@ -116,7 +117,7 @@ export default class RgaBrowser extends LitElement {
         // TODO only filter configuration is supported at the moment (no columns nor details)
         // filter list, canned filters
         if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
+            this._config.filter = WebUtils.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
         this.requestUpdate();
     }

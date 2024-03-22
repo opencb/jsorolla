@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
+import WebUtils from "../commons/utils/web-utils";
 import UtilsNew from "../../core/utils-new.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import VariantUtils from "./variant-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/tool-header.js";
 import "./variant-browser-filter.js";
@@ -33,7 +32,6 @@ import "./annotation/cellbase-population-frequency-grid.js";
 import "./annotation/variant-annotation-clinical-view.js";
 import "./variant-cohort-stats.js";
 import "./variant-samples.js";
-
 import "../visualization/genome-browser.js";
 
 export default class VariantBrowser extends LitElement {
@@ -42,7 +40,7 @@ export default class VariantBrowser extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -83,7 +81,7 @@ export default class VariantBrowser extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "variant-browser";
         this._prefix = UtilsNew.randomString(8);
 
@@ -123,25 +121,7 @@ export default class VariantBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = this.getDefaultConfig();
-
-        // Apply Study grid configuration
-        if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
-        }
-
-        // BROWSER: Admin browser configuration merged with internal default configuration.
-        if (this.settings?.table) {
-            UtilsNew.mergeTableSettings(this._config, this.settings, "CATALOG", this.COMPONENT_ID, this.opencgaSession);
-        }
-
-        // Apply User grid configuration. Only 'pageSize', 'columns', 'geneSet', 'consequenceType' and 'populationFrequenciesConfig' are set
-        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
-            ...this._config.filter?.result?.grid,
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
-        });
-
-        this.requestUpdate();
+        this._config = WebUtils.mergeSettingsAndBrowserConfig(this.settings, this.getDefaultConfig(), this.COMPONENT_ID, this.opencgaSession);
     }
 
     opencgaSessionObserver() {

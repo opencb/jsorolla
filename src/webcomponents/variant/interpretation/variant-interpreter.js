@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
+import WebUtils from "../../commons/utils/web-utils";
 import "../../commons/tool-header.js";
 import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
@@ -102,7 +103,7 @@ class VariantInterpreter extends LitElement {
         // 2. Merge with interpreter tools from extensions
         this.#updateInterpreterTools();
         // 3. Use settings to decide which tools are visible
-        this._config.tools = UtilsNew.mergeArray(this._config.tools, this.settings?.tools, false, true);
+        this._config.tools = WebUtils.mergeArray(this._config.tools, this.settings?.tools, false, true);
     }
 
     opencgaSessionObserver() {

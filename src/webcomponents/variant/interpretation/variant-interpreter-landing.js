@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utils-new.js";
+import {html, LitElement} from "lit";
+import WebUtils from "../../commons/utils/web-utils";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import "../../clinical/clinical-analysis-update.js";
 import "../../clinical/interpretation/clinical-interpretation-manager.js";
@@ -67,7 +67,7 @@ class VariantInterpreterLanding extends LitElement {
         // }
 
         if (changedProperties.has("config")) {
-            this._config.items = UtilsNew.mergeArray(this._config.items, this.config.tabs, false, true);
+            this._config.items = WebUtils.mergeArray(this._config.items, this.config.tabs, false, true);
         }
 
         // this._config = this.getDefaultConfig();

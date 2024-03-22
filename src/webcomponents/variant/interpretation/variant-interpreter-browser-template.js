@@ -19,6 +19,7 @@ import VariantUtils from "../variant-utils.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import WebUtils from "../../commons/utils/web-utils";
 import UtilsNew from "../../../core/utils-new.js";
 import Region from "../../../core/bioinfo/region.js";
 import "./variant-interpreter-browser-toolbar.js";
@@ -155,12 +156,12 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
         // filter list, canned filters, detail tabs
         if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
+            this._config.filter = WebUtils.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
 
         // BROWSER: Admin browser configuration merged with internal default configuration.
         if (this.settings?.table) {
-            UtilsNew.mergeTableSettings(this._config, this.settings, "INTERPRETER", this.toolId, this.opencgaSession);
+            WebUtils.mergeTableSettings(this._config, this.settings, "INTERPRETER", this.toolId, this.opencgaSession);
         }
 
         // Apply User grid configuration. Only 'pageSize', 'columns', 'geneSet', 'consequenceType' and 'populationFrequenciesConfig' are set

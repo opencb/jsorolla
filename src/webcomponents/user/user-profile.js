@@ -1,4 +1,4 @@
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import "../commons/tool-header.js";
 import "../commons/view/detail-tabs.js";
 import "./user-info.js";
@@ -42,7 +42,6 @@ export default class UserProfile extends LitElement {
     settingsObserver() {
         if (this.settings?.items) {
             this.config = this.getDefaultConfig();
-            // this.config.items = UtilsNew.mergeConfigById(this.config.items, this.settings?.items);
             this.requestUpdate();
         }
     }

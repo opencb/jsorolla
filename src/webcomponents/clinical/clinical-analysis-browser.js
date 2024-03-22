@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
+import WebUtils from "../commons/utils/web-utils";
 import "../commons/opencga-browser.js";
 import "./clinical-analysis-view.js";
 import "./clinical-analysis-grid.js";
@@ -29,6 +28,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -73,23 +73,8 @@ export default class ClinicalAnalysisBrowser extends LitElement {
             ...(this.settings || {}),
             ...(this.config || {}),
         };
-        // merge filter list, canned filters, detail tabs
-        if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config.filter, this.settings);
-        }
 
-        // BROWSER: Admin browser configuration merged with internal default configuration.
-        if (this.settings?.table) {
-            UtilsNew.mergeTableSettings(this._config, this.settings, "CATALOG", this.COMPONENT_ID, this.opencgaSession);
-        }
-
-        // Apply user configuration
-        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
-            ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
-        });
-
-        this.requestUpdate();
+        this._config = WebUtils.mergeSettingsAndBrowserConfig(this.settings, this._config, this.COMPONENT_ID, this.opencgaSession);
     }
 
     onSettingsUpdate() {
