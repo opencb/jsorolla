@@ -140,6 +140,35 @@ context("Variant Browser Grid (Validation)", () => {
                                     .should("have.length", vb.grid.population.metadata.populations.length);
                             });
                         });
+
+                        it("should encode population color in each line", () => {
+                            vb.grid.population.subColumnsItems.forEach((item, index) => {
+                                cy.get("@variantBrowserTable")
+                                    .find(`tr[data-uniqueid="${variant.id}"] > td`)
+                                    .eq(vb.grid.population.subColumnsIndex + index)
+                                    .find(`div[data-cy^="population"]`)
+                                    .each((el, i) => {
+                                        const hexColor = variant.populations[index].frequencyNumberMode.colors[i];
+                                        cy.wrap(el)
+                                            .find(`span`)
+                                            .should("have.css", "color", Utils.hexToRgb(hexColor));
+                                    });
+                            });
+                        });
+
+                        it("should display frequencies for each population", () => {
+                            vb.grid.population.subColumnsItems.forEach((item, index) => {
+                                cy.get("@variantBrowserTable")
+                                    .find(`tr[data-uniqueid="${variant.id}"] > td`)
+                                    .eq(vb.grid.population.subColumnsIndex + index)
+                                    .find(`div[data-cy^="population"]`)
+                                    .each((el, i) => {
+                                        const text = variant.populations[index].frequencyNumberMode.text[i];
+                                        cy.wrap(el)
+                                            .should("contain.text", text);
+                                    });
+                            });
+                        });
                     });
                 });
             });
