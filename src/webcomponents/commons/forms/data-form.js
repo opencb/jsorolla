@@ -809,7 +809,7 @@ export default class DataForm extends LitElement {
 
         return html`
             <div class="${hasErrorMessages ? "has-error" : nothing}">
-                <div data-testid="${this.config.test?.active ? `${this.config.test.prefix || "test"}-${element.field}` : nothing}">
+                <div data-cy="${this.config.test?.active ? `${this.config.test.prefix || "test"}-${element.field}` : nothing}">
                     ${contentHtml}
                 </div>
                 ${helpMessage && helpMode !== "block" ? html`
