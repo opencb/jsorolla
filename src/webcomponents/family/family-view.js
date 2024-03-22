@@ -72,7 +72,8 @@ export default class FamilyView extends LitElement {
             collapsable: true,
             titleVisible: false,
             titleWidth: 2,
-            defaultValue: "-"
+            defaultValue: "-",
+            pdf: false,
         };
         this._config = this.getDefaultConfig();
     }
@@ -89,26 +90,14 @@ export default class FamilyView extends LitElement {
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
-        if (changedProperties.has("settings")) {
-            this.settingsObserver();
-        }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig
+            };
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
-    }
-
-    settingsObserver() {
-        this._config = this.getDefaultConfig();
-        if (this.settings?.fields?.length) {
-            this._config.hiddenFields = null;
-            this._config = UtilsNew.mergeDataFormConfig(this._config, this.settings.fields);
-        } else if (this.settings?.hiddenFields?.length) {
-            this._config.hiddenFields = this.settings.hiddenFields;
-            this._config = {...this._config, ...this.getDefaultConfig()}; // this is needed as we need to relauch getDefaultConfig() with the updated `hiddenFields` array
-        }
-        this.requestUpdate();
     }
 
     familyIdObserver() {
@@ -232,10 +221,15 @@ export default class FamilyView extends LitElement {
                     elements: [
                         {
                             title: "Family ID",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
-                            }
+                                template: "${id} (UUID: ${uuid})",
+                                style: {
+                                    id: {
+                                        "font-weight": "bold",
+                                    }
+                                },
+                            },
                         },
                         {
                             title: "Family Name",
@@ -247,7 +241,7 @@ export default class FamilyView extends LitElement {
                             type: "list",
                             display: {
                                 contentLayout: "vertical",
-                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder])),
+                                format: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
                                 defaultValue: "N/A"
                             }
                         },
@@ -256,15 +250,8 @@ export default class FamilyView extends LitElement {
                             field: "phenotypes",
                             type: "list",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("phenotypes"),
-                                contentLayout: "bullets",
-                                render: phenotype => {
-                                    let id = phenotype.id;
-                                    if (phenotype.id.startsWith("HP:")) {
-                                        id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
-                                    }
-                                    return html`${phenotype.name} (${id})`;
-                                },
+                                contentLayout: "vertical",
+                                format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
                                 defaultValue: "N/A"
                             }
                         },
@@ -275,25 +262,21 @@ export default class FamilyView extends LitElement {
                         {
                             title: "Creation Date",
                             field: "creationDate",
-                            type: "custom",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("creationDate"),
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
+                                format: date => UtilsNew.dateFormatter(date)
                             }
                         },
                         {
                             title: "Description",
                             field: "description",
-                            display: {
-                                visible: !this._config?.hiddenFields?.includes("description"),
-                            }
                         }
                     ]
                 },
                 {
                     title: "Family Members",
                     display: {
-                        visible: family => family?.id
+                        visible: family => family?.id,
+                        defaultValue: "-"
                     },
                     elements: [
                         {
@@ -301,55 +284,67 @@ export default class FamilyView extends LitElement {
                             field: "members",
                             type: "table",
                             display: {
-                                layout: "horizontal",
+                                defaultValue: "-",
                                 columns: [
                                     {
                                         title: "Individual ID",
-                                        field: "id"
+                                        field: "id",
+                                        display: {
+                                            style: {
+                                                "font-weight": "bold"
+                                            }
+                                        }
                                     },
                                     {
                                         title: "Sex",
                                         field: "sex",
-                                        formatter: value => value?.id || value || "Not specified",
+                                        display: {
+                                            format: sex => sex.id
+                                        }
                                     },
                                     {
                                         title: "Father ID",
                                         field: "father.id",
-                                        formatter: value => value ?? "-"
                                     },
                                     {
                                         title: "Mother ID",
                                         field: "mother.id",
-                                        formatter: value => value ?? "-"
                                     },
                                     {
                                         title: "Disorders",
                                         field: "disorders",
-                                        formatter: values => values?.length ? `${values.map(d => d.id).join(", ")}` : "-",
+                                        type: "list",
+                                        display: {
+                                            format: disorder => CatalogGridFormatter.disorderFormatter([disorder])
+                                        }
                                     },
                                     {
                                         title: "Phenotypes",
                                         field: "phenotypes",
-                                        formatter: values => values?.length ? `${values.map(d => d.id).join(", ")}` : "-",
+                                        type: "list",
+                                        display: {
+                                            format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype])
+                                        }
                                     },
-                                    {
-                                        title: "Life Status",
-                                        field: "lifeStatus",
-                                    }
                                 ]
                             }
                         },
+                        // {
+                        //     title: "Pedigree",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: () => html`
+                        //             <image-viewer
+                        //                 .data="${this.family?.pedigreeGraph?.base64}">
+                        //             </image-viewer>
+                        //         `,
+                        //     }
+                        // },
                         {
                             title: "Pedigree",
-                            type: "custom",
-                            display: {
-                                render: () => html`
-                                    <image-viewer
-                                        .data="${this.family?.pedigreeGraph?.base64}">
-                                    </image-viewer>
-                                `,
-                            }
-                        }
+                            type: "image",
+                            field: "pedigreeGraph.base64",
+                        },
                     ]
                 }
             ]

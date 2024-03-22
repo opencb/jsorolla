@@ -53,7 +53,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
             },
             settings: {
                 type: Object
-            }
+            },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
@@ -269,16 +272,21 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 .settings="${this.settings}"
                 .toolId="${this.COMPONENT_ID}"
                 .config="${this._config}"
+                .active="${this.active}"
                 @queryChange="${this.onQueryChange}">
             </variant-interpreter-browser-template>
         `;
     }
 
     getDefaultConfig() {
-        // Add case panels to query object
-        // TODO should we also check main interpretation panels?
-        const lockedFields = [{id: "sample"}];
+        const lockedFields = [
+            {id: "sample"},
+            {id: "sampleData"},
+            {id: "file"},
+            {id: "fileData"},
+        ];
 
+        // Add panels to locked fields
         if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLock) {
             lockedFields.push({id: "panel"});
             lockedFields.push({id: "panelIntersection"});

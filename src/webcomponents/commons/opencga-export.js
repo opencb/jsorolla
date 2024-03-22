@@ -88,6 +88,17 @@ export default class OpencgaExport extends LitElement {
             "json": "JSON",
         };
 
+        this.excludedVariantQueryFields = [
+            // Fields not supported in variant export
+            "count",
+            "approximateCount",
+            "approximateCountSamplingSize",
+            "includeInterpretation",
+            // Fields used for the pagination and does not apply on export
+            "limit",
+            "skip",
+        ];
+
         this.mode = "sync";
         this.format = "tab";
         this.query = {};
@@ -359,6 +370,12 @@ const client = new OpenCGAClient({
                     outputFileName: "variants",
                     outputFileFormat: this.outputFileFormats[this.format],
                 };
+
+                // Exclude keys from the query object that are not supported in export endpoint
+                this.excludedVariantQueryFields.forEach(key => {
+                    delete data[key];
+                });
+
                 const params = {
                     study: this.opencgaSession.study.fqn,
                 };

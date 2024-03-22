@@ -17,6 +17,7 @@
 
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import "../../../webcomponents/commons/forms/data-form.js";
 import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/variant/variant-browser-grid.js";
 
@@ -115,17 +116,19 @@ class VariantBrowserGridTest extends LitElement {
         }
 
         return html`
-            <h2 style="font-weight: bold;">
-                Variant Browser (${this.testVariantFile?.split("-")?.at(-1)})
-            </h2>
-            <variant-browser-grid
-                .toolId="${this.COMPONENT_ID}"
-                .variants="${this.variants}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}"
-                @settingsUpdate="${() => this.onSettingsUpdate()}"
-                .populationFrequencies="${this.config.populationFrequencies}">
-            </variant-browser-grid>
+            <div data-cy="variant-browser-container">
+                <h2 style="font-weight: bold;">
+                    Variant Browser (${this.testVariantFile?.split("-")?.at(-1)})
+                </h2>
+                <variant-browser-grid
+                    .toolId="${this.COMPONENT_ID}"
+                    .variants="${this.variants}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config}"
+                    @settingsUpdate="${() => this.onSettingsUpdate()}"
+                    .populationFrequencies="${this.config.populationFrequencies}">
+                </variant-browser-grid>
+            </div>
         `;
     }
 

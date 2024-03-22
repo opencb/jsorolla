@@ -211,7 +211,32 @@ export default class VariantBrowserGrid extends LitElement {
                         // summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
+                    // TASK-5791: Temporary SNP ID Search fix
+                    if (this.query.xref) {
+                        const snpIds = this.query.xref.split(",").filter(xref => xref.startsWith("rs"));
+                        if (snpIds.length > 0) {
+                            const snpRegion = [];
+                            const request = new XMLHttpRequest();
+                            for (const snpId of snpIds) {
+                                const url = `https://rest.ensembl.org/variation/human/${snpId}?content-type=application/json`;
 
+                                request.onload = event => {
+                                    if (request.status === 200) {
+                                        const restObject = JSON.parse(event.currentTarget.response);
+                                        const mapping = restObject.mappings?.find(m => m.assembly_name === "GRCh38");
+                                        snpRegion.push(mapping.seq_region_name + ":" + mapping.start);
+                                    }
+                                };
+                                request.open("GET", url, false);
+                                request.send();
+                            }
+                            if (this.filters.region) {
+                                this.filters.region += "," + snpRegion.join(",");
+                            } else {
+                                this.filters.region = snpRegion.join(",");
+                            }
+                        }
+                    }
                     let variantResponse = null;
                     this.opencgaSession.opencgaClient.variants().query(this.filters)
                         .then(res => {
@@ -660,7 +685,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) =>
-                        VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
+                        VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("id")
                 },
@@ -782,7 +807,7 @@ export default class VariantBrowserGrid extends LitElement {
                             tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "clinicalInfo",
                     rowspan: 1,
-                    colspan: 2,
+                    colspan: 3,
                     align: "center"
                 },
                 // ...ExtensionsManager.getColumns("variant-browser-grid"),
@@ -995,6 +1020,16 @@ export default class VariantBrowserGrid extends LitElement {
                     align: "center",
                     visible: this.gridCommons.isColumnVisible("cosmic", "clinicalInfo")
                 },
+                {
+                    id: "omim",
+                    title: "OMIM",
+                    field: "omim",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalOmimFormatter,
+                    align: "center",
+                    visible: this.gridCommons.isColumnVisible("omim"),
+                },
             ]
         ];
 
@@ -1008,11 +1043,6 @@ export default class VariantBrowserGrid extends LitElement {
     onActionClick(e, value, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
-            case "genome-browser":
-                LitUtils.dispatchCustomEvent(this, "genomeBrowserRegionChange", null, {
-                    region: row.chromosome + ":" + row.start + "-" + row.end,
-                });
-                break;
             case "copy-json":
                 navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
                 break;
@@ -1079,7 +1109,7 @@ export default class VariantBrowserGrid extends LitElement {
                 </opencb-grid-toolbar>
             ` : null}
 
-            <div>
+            <div data-cy="vb-grid">
                 <table id="${this.gridId}"></table>
             </div>
 

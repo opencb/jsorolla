@@ -401,7 +401,7 @@ class VariantInterpreter extends LitElement {
                         </div>
                         ${this.clinicalAnalysis.interpretation?.method?.name ? html`
                             <div style="font-size:0.875em;">
-                                <strong>${this.clinicalAnalysis.interpretation.method.name}</strong> 
+                                <strong>${this.clinicalAnalysis.interpretation.method.name}</strong>
                             </div>
                         ` : null}
                         <div class="text-muted">
