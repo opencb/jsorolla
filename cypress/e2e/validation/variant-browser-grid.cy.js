@@ -6,6 +6,8 @@ context("Variant Browser Grid (Validation)", () => {
         cy.visit("#variant-browser-grid-validation");
         cy.get("variant-browser-grid table")
             .as("variantBrowserTable");
+        cy.get(`variant-browser-grid opencb-grid-toolbar`)
+            .as("variantBrowserToolbar");
         cy.waitUntil(() => {
             return cy.get("@variantBrowserTable")
                 .should("be.visible");
@@ -101,6 +103,41 @@ context("Variant Browser Grid (Validation)", () => {
                                                 .should("contain.text", variant.populations[index].frequencyBoxMode.tooltip.genotypeHomAltFreqText[i]);
                                         });
                                 });
+                            });
+                        });
+                    });
+
+                    context("With 'FREQUENCY_NUMBER' mode enabled", () => {
+                        beforeEach(() => {
+                            cy.get("@variantBrowserToolbar")
+                                .find(`button[data-action="settings"]`)
+                                .click();
+                            cy.get("@variantBrowserToolbar")
+                                .find("a")
+                                .contains("Population Frequencies")
+                                .click();
+                            cy.get("@variantBrowserToolbar")
+                                .find(`div[data-cy="test-populationFrequenciesConfig.displayMode"]`)
+                                .find("select-field-filter button")
+                                .click();
+                            cy.get("@variantBrowserToolbar")
+                                .find(`select-field-filter a.dropdown-item`)
+                                .contains("FREQUENCY_NUMBER")
+                                .click();
+                            cy.get("@variantBrowserToolbar")
+                                .find(`div[class="modal-body"]`)
+                                .find("button")
+                                .contains("OK")
+                                .click();
+                        });
+
+                        it("should render one line for each population", () => {
+                            vb.grid.population.subColumnsItems.forEach((item, index) => {
+                                cy.get("@variantBrowserTable")
+                                    .find(`tr[data-uniqueid="${variant.id}"] > td`)
+                                    .eq(vb.grid.population.subColumnsIndex + index)
+                                    .find(`div[data-cy^="population"]`)
+                                    .should("have.length", vb.grid.population.metadata.populations.length);
                             });
                         });
                     });
