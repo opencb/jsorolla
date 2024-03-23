@@ -114,7 +114,7 @@ const CATALOG_NAVBAR_MENU = {
             visibility: "public"
         },
         {
-            id: "sample",
+            id: "sample-browser",
             name: "Sample Browser",
             visibility: "public",
             icon: "img/tools/icons/file_explorer.svg",
