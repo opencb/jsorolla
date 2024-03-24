@@ -34,22 +34,57 @@ export default class WebUtils {
         }
     }
 
-    static mergeSettingsAndBrowserConfig(settings, config, COMPONENT_ID, opencgaSession) {
-        // Apply Study settings
+    /**
+     * This method merges the internal config with external settings from users.
+     * It checks a URL param 'SETTINGS_POLICY' to decide to use the default settings in the files
+     * or to merge settings from the study and the use.r
+     * @param settings
+     * @param config
+     * @param componentId
+     * @param opencgaSession
+     * @returns {*}
+     */
+    static mergeSettingsAndBrowserConfig(settings, config, componentId, opencgaSession) {
+        // 1. Apply merge browser filter settings. This step must be executed always.
         if (settings?.menu) {
             config.filter = WebUtils.mergeFiltersAndDetails(config?.filter, settings);
         }
 
-        // BROWSER: Admin browser configuration merged with internal default configuration.
-        if (settings?.table) {
-            WebUtils.mergeTableSettings(config, settings, "CATALOG", COMPONENT_ID, opencgaSession);
-        }
+        // 2. Check URL param and decide if we need to merge users settings.
+        if (opencgaSession?.URL?.searchParams?.has("SETTINGS_POLICY", "DEFAULT")) {
+            // 2.1 Use default settings from files
+            const componentSettingsId = componentId.replaceAll("-", "_").toUpperCase();
 
-        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
-        UtilsNew.setObjectValue(config, "filter.result.grid", {
-            ...config.filter?.result?.grid,
-            ...opencgaSession.user?.configs?.IVA?.settings?.[COMPONENT_ID]?.grid
-        });
+            // List all filters selected in the settings file, e.g. sample-browser.settings.js
+            const allFilters = opencgaSession.ivaDefaultSettings.settings[componentSettingsId].menu.sections
+                .flatMap(section => section.filters)
+                .map(f => f);
+            const sections = [];
+            for (const section of config.filter.sections) {
+                const _filters = section.filters.filter(filter => allFilters.includes(filter.id));
+                sections.push(
+                    {
+                        ...section,
+                        filters: _filters
+                    }
+                );
+            }
+            config.filter.sections = sections;
+
+            // Set table/grid settings
+            config.filter.result.grid = {...opencgaSession.ivaDefaultSettings.settings[componentSettingsId].table};
+        } else {
+            // 2.2 Merge settings from the study and user
+            if (settings?.table) {
+                WebUtils.mergeTableSettings(config, settings, "CATALOG", componentId, opencgaSession);
+            }
+
+            // Apply User grid configuration. Only 'pageSize' and 'columns' are set
+            UtilsNew.setObjectValue(config, "filter.result.grid", {
+                ...config.filter?.result?.grid,
+                ...opencgaSession.user?.configs?.IVA?.settings?.[componentId]?.grid
+            });
+        }
 
         return config;
     }

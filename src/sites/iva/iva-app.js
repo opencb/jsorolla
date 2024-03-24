@@ -130,31 +130,37 @@ class IvaApp extends LitElement {
      * @private
      */
     _init() {
-        // Create the 'config' , this objects contains all the different configuration
-        this.settings = {};
+        // Save URL to be used during the initialisation
+        this.URL = new URL(window.location);
+
+        // 1. Set 'config/ object
+        // 1.1 Prepare a temporary '_config' object to store all the different configuration
         const _config = SUITE;
+
+        // 1.2 Set OpenCGA server to be used. Check if a URL parameter has been set
+        _config.hosts = hosts;
         _config.opencga = opencga;
+        if (this.URL.searchParams.has("OPENCGA_HOST")) {
+            const opencgaHostId = this.URL.searchParams.get("OPENCGA_HOST");
+            const opencgaHost = _config.hosts.find(host => host.id === opencgaHostId);
+            console.log(`Connecting to ${opencgaHostId}`);
+            if (opencgaHost) {
+                _config.opencga.host = opencgaHost.url;
+                _config.opencga.cookie.prefix = "iva-" + opencgaHostId;
+            }
+        }
+
+        // 1.3 Set the rest of params
         _config.cellbase = typeof cellbase !== "undefined" ? cellbase : null;
         _config.pages = typeof CUSTOM_PAGES !== "undefined" ? CUSTOM_PAGES : [];
         _config.consequenceTypes = CONSEQUENCE_TYPES;
         _config.populationFrequencies = POPULATION_FREQUENCIES;
         _config.proteinSubstitutionScores = PROTEIN_SUBSTITUTION_SCORE.style;
 
-        // We can customise which components are active by default, this improves the first loading time.
+        // 1.4 We can customise which components are active by default, this improves the first loading time.
         _config.enabledComponents = {};
-        _config.enabledComponents.home = true;
-
-        // Reading the default settings from the config files, eg. browser.settings.js
-        // Store them in a flat structure.
-        this.DEFAULT_TOOL_SETTINGS = {
-            ...CATALOG_SETTINGS,
-            // ...VARIANT_SETTINGS,
-            ...INTERPRETER_SETTINGS,
-            ...USER_SETTINGS,
-            // CUSTOM_PAGES,
-            SAMPLE_BROWSER
-        };
-
+        // _config.enabledComponents.home = true;
+        // 1.4.1 Define all components
         const components = [
             "home",
             "gettingstarted",
@@ -240,30 +246,39 @@ class IvaApp extends LitElement {
             "rest-api",
         ];
 
-        // Add custom tools
-        ExtensionsManager
-            .getTools()
-            .forEach(tool => components.push(tool.id));
+        // 1.4.2 Add components from IVA custom extensions
+        ExtensionsManager.getTools().forEach(tool => components.push(tool.id));
 
-        for (const component of components) {
-            _config.enabledComponents[component] = false;
-        }
+        // Add and disable all components
+        components.forEach(component => _config.enabledComponents[component] = false);
 
         // Register custom page component
         // Only will be displayed if no other component matches the current url
         _config.enabledComponents["customPage"] = false;
 
-        // We set the global Polymer variable, this produces one single event
+        // 1.5 We set the global Polymer variable, this produces one single event
         this.config = _config;
 
-        // Get version from env variable
+
+        // 2. Reading the default settings from the config files, eg. browser.settings.js
+        // Store them in a flat structure.
+        this.DEFAULT_TOOL_SETTINGS = {
+            ...CATALOG_SETTINGS,
+            // ...VARIANT_SETTINGS,
+            ...INTERPRETER_SETTINGS,
+            ...USER_SETTINGS,
+            // CUSTOM_PAGES,
+            SAMPLE_BROWSER_SETTINGS
+        };
+
+        // 3. Get version from env variable
         // eslint-disable-next-line no-undef
         this.version = process.env.VERSION;
 
-        // Initially we load the SUIte config
+        // 4. Initially we load the SUIte config
         this.app = this.getActiveAppConfig();
 
-        // We need to listen to hash fragment changes to update the display and breadcrumb
+        // 5. We need to listen to hash fragment changes to update the display and breadcrumb
         const _this = this;
         window.onhashchange = function (e) {
             // e.preventDefault();
@@ -287,7 +302,7 @@ class IvaApp extends LitElement {
         this.samples = [];
         this._samplesPerTool = {};
 
-        // Notifications
+        // 6. Notifications
         this.notificationManager = new NotificationManager({});
 
         // Global notification
@@ -324,7 +339,6 @@ class IvaApp extends LitElement {
             this.host = {...this.host, [e.detail.host]: e.detail.value};
             this.requestUpdate();
         }, false);
-
     }
 
     connectedCallback() {
@@ -545,6 +559,7 @@ class IvaApp extends LitElement {
                 if (UtilsNew.isNotEmptyArray(response.projects) && response.projects.some(p => UtilsNew.isNotEmptyArray(p.studies))) {
                     this.opencgaSession = {
                         ..._response,
+                        URL: this.URL,
                         ivaDefaultSettings: {
                             version: this.version,
                             settings: UtilsNew.objectClone(this.DEFAULT_TOOL_SETTINGS),
@@ -1453,7 +1468,7 @@ class IvaApp extends LitElement {
                         <sample-browser
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.queries.sample}"
-                            .settings="${this.settings.SAMPLE_BROWSER}"
+                            .settings="${this.settings.SAMPLE_BROWSER_SETTINGS}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "sample-browser")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "sample-browser")}">
                         </sample-browser>

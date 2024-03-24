@@ -63,9 +63,14 @@ export default class OpencbGridToolbar extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("settings")) {
+            // const _toolbarSettings = {
+            //     ...this.getDefaultSettings().toolbar,
+            //     ...this.settings.toolbar
+            // };
             this._settings = {
                 ...this.getDefaultSettings(),
                 ...this.settings,
+                // toolbar: _toolbarSettings
             };
         }
 
