@@ -118,7 +118,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                         .opencgaSession="${this.opencgaSession}">
                     </clinical-analysis-create>
-                `
+                `,
             }
         };
     }
