@@ -147,13 +147,13 @@ export default class CohortBrowser extends LitElement {
                                 placeholder: "HG01879, HG01880, HG01881...",
                                 description: ""
                             },
-                            {
-                                id: "type",
-                                name: "Type",
-                                type: "string",
-                                multiple: true,
-                                description: ""
-                            },
+                            // {
+                            //     id: "type",
+                            //     name: "Type",
+                            //     type: "string",
+                            //     multiple: true,
+                            //     description: ""
+                            // },
                             {
                                 id: "date",
                                 name: "Date",

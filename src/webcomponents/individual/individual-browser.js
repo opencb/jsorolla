@@ -175,14 +175,14 @@ export default class IndividualBrowser extends LitElement {
                             {
                                 id: "disorders",
                                 name: "Disorder",
-                                placeholder: "Intellectual disability,Arthrogryposis...",
+                                placeholder: "Intellectual disability, Arthrogryposis...",
                                 multiple: true,
                                 description: ""
                             },
                             {
                                 id: "phenotypes",
                                 name: "Phenotype",
-                                placeholder: "Full-text search, e.g. *melanoma*",
+                                placeholder: "melanoma, ...",
                                 multiple: true,
                                 description: ""
                             },

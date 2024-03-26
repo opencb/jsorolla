@@ -638,6 +638,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     _getDefaultColumns() {
+        // 1. Define columns
         this._columns = [
             {
                 id: "caseId",
@@ -742,6 +743,12 @@ export default class ClinicalAnalysisGrid extends LitElement {
             },
         ];
 
+        // 2. Annotations
+        if (this._config.annotations?.length > 0) {
+            this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
+        }
+
+        // 3. Actions
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
                 id: "actions",
@@ -814,7 +821,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
             });
         }
 
+        // 4. Extensions
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+
         return this._columns;
     }
 
@@ -916,20 +925,36 @@ export default class ClinicalAnalysisGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showSelectCheckbox: false,
 
             showToolbar: true,
             showActions: true,
-
             toolbar: {
                 showCreate: true,
                 showSettings: true,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
             },
-
-            highlights: [],
             skipExtensions: false,
+
+            showSelectCheckbox: false,
+            readOnlyMode: false,
+            highlights: [],
+
+            // Annotations Example:
+            // annotations: [
+            //     {
+            //         title: "Cardiology Tests",
+            //         position: 3,
+            //         variableSetId: "cardiology_tests_checklist",
+            //         variables: ["ecg_test", "echo_test"]
+            //     },
+            //     {
+            //         title: "Risk Assessment",
+            //         position: 5,
+            //         variableSetId: "risk_assessment",
+            //         variables: ["vf_cardiac_arrest_events"]
+            //     }
+            // ]
         };
     }
 

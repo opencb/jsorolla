@@ -297,6 +297,22 @@ export default class GridCommons {
         return rowStyle;
     }
 
+    /*
+     Example of custom annotation configuration:
+        this._config.annotations = [
+            {
+                title: "Cardiology Tests",
+                position: 6,
+                variableSetId: "cardiology_tests_checklist",
+                variables: ["ecg_test", "echo_test"]
+            },
+            {
+                title: "Risk Assessment",
+                position: 7,
+                variableSetId: "risk_assessment",
+            }
+        ];
+    */
     addColumnsFromAnnotations(columns, formatter, gridConfig) {
         if (gridConfig?.annotations?.length > 0) {
             for (const annotation of gridConfig.annotations) {

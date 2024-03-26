@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
@@ -384,12 +384,6 @@ export default class SampleGrid extends LitElement {
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession),
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
-            // {
-            //     id: "cohortIds",
-            //     title: "Cohorts",
-            //     field: "cohortIds",
-            //     // visible: this.gridCommons.isColumnVisible("cohorts")
-            // },
             {
                 id: "collection.method",
                 title: "Collection Method",
@@ -402,13 +396,6 @@ export default class SampleGrid extends LitElement {
                 field: "processing.preparationMethod",
                 visible: this.gridCommons.isColumnVisible("processing.preparationMethod")
             },
-            // {
-            //     id: "cellLine",
-            //     title: "Cell Line",
-            //     field: "cellLine",
-            //     formatter: (value, row) => row.somatic ? "Somatic" : "Germline",
-            //     visible: this.gridCommons.isColumnVisible("cellLine")
-            // },
             {
                 id: "creationDate",
                 title: "Creation Date",
@@ -418,10 +405,12 @@ export default class SampleGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
+
         // 2. Annotations
         if (this._config.annotations?.length > 0) {
             this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
+
         // 3. Actions
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
@@ -495,6 +484,7 @@ export default class SampleGrid extends LitElement {
                 visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
+
         // 4. Extensions
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
 
@@ -590,16 +580,29 @@ export default class SampleGrid extends LitElement {
 
             showToolbar: true,
             showActions: true,
-
             toolbar: {
                 showCreate: true,
                 showSettings: true,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
-                // columns list for the dropdown will be added in grid components based on settings.table.columns
             },
-
             skipExtensions: false,
+
+            // Annotations Example:
+            // annotations: [
+            //     {
+            //         title: "Cardiology Tests",
+            //         position: 3,
+            //         variableSetId: "cardiology_tests_checklist",
+            //         variables: ["ecg_test", "echo_test"]
+            //     },
+            //     {
+            //         title: "Risk Assessment",
+            //         position: 5,
+            //         variableSetId: "risk_assessment",
+            //         variables: ["vf_cardiac_arrest_events"]
+            //     }
+            // ]
         };
     }
 

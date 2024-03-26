@@ -209,9 +209,6 @@ export default class OpencgaFileGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                // onPostBody: data => {
-                //     // Add tooltips?
-                // }
             });
         }
     }
@@ -314,13 +311,6 @@ export default class OpencgaFileGrid extends LitElement {
                 },
                 visible: this.gridCommons.isColumnVisible("name")
             },
-            // {
-            //     id: "directory",
-            //     title: "Directory",
-            //     field: "path",
-            //     formatter: (_, row) => "/" + row.path.replace("/" + row.name, ""),
-            //     visible: this.gridCommons.isColumnVisible("directory")
-            // },
             {
                 id: "sampleIds",
                 title: "Samples",
@@ -370,12 +360,6 @@ export default class OpencgaFileGrid extends LitElement {
                 field: "format",
                 visible: this.gridCommons.isColumnVisible("format")
             },
-            // {
-            //     id: "bioformat",
-            //     title: "Bioformat",
-            //     field: "bioformat",
-            //     visible: this.gridCommons.isColumnVisible("bioformat")
-            // },
             {
                 id: "index",
                 title: "Variant Index Status",
@@ -396,16 +380,18 @@ export default class OpencgaFileGrid extends LitElement {
             },
             {
                 id: "creationDate",
-                title: "Creation date",
+                title: "Creation Date",
                 field: "creationDate",
                 formatter: date => CatalogGridFormatter.dateFormatter(date),
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
+
         // 2. Annotations
         if (this._config.annotations?.length > 0) {
             this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
+
         // 3. Actions
         if (this.opencgaSession && this._config.showActions) {
             const downloadUrl = this.opencgaSession?.server? [
@@ -474,6 +460,7 @@ export default class OpencgaFileGrid extends LitElement {
                 visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
+
         // 4. Extensions
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns);
 
@@ -547,7 +534,6 @@ export default class OpencgaFileGrid extends LitElement {
 
             showToolbar: true,
             showActions: true,
-
             toolbar: {
                 // Note Vero 20240108: It is not possible to create files.
                 // However, it was decided a while ago to display the button "New"
@@ -557,10 +543,24 @@ export default class OpencgaFileGrid extends LitElement {
                 showSettings: true,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
-                // columns list for the dropdown will be added in grid components based on settings.table.columns
             },
-
             skipExtensions: false,
+
+            // Annotations Example:
+            // annotations: [
+            //     {
+            //         title: "Cardiology Tests",
+            //         position: 3,
+            //         variableSetId: "cardiology_tests_checklist",
+            //         variables: ["ecg_test", "echo_test"]
+            //     },
+            //     {
+            //         title: "Risk Assessment",
+            //         position: 5,
+            //         variableSetId: "risk_assessment",
+            //         variables: ["vf_cardiac_arrest_events"]
+            //     }
+            // ]
         };
     }
 

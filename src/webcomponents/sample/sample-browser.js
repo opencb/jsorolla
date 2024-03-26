@@ -21,6 +21,7 @@ import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
 import "./sample-grid.js";
 import "./sample-detail.js";
+import Logger from "../../core/logger";
 
 export default class SampleBrowser extends LitElement {
 

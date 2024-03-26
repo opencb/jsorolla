@@ -462,7 +462,7 @@ export default class JobGrid extends LitElement {
                                     <div style="padding-left: 10px">
                                         ${nestedObject}
                                     </div>` :
-                                    `<span style="margin: 2px 0; font-weight: bold">${key}:</span> ${params[key]}`}
+                                `<span style="margin: 2px 0; font-weight: bold">${key}:</span> ${params[key]}`}
                                 </div>`;
                         }
                         html += "</div>";
@@ -544,11 +544,8 @@ export default class JobGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
-        // 2. Annotations
-        if (this._config.annotations?.length > 0) {
-            this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
-        }
-        // 3. Actions
+
+        // 2. Actions
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
                 id: "actions",
@@ -592,7 +589,8 @@ export default class JobGrid extends LitElement {
                 visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
-        // 4. Extensions
+
+        // 3. Extensions
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
 
         return this._columns;
@@ -698,7 +696,6 @@ export default class JobGrid extends LitElement {
 
             showToolbar: true,
             showActions: true,
-
             toolbar: {
                 // Note Vero 20240108: It is not possible to create jobs for now through IVA.
                 // However, it was decided a while ago to display the button "New"
@@ -711,7 +708,6 @@ export default class JobGrid extends LitElement {
                 autorefreshTiming: 60000,
                 exportTabs: ["download", "link", "code"]
             },
-
             skipExtensions: false,
         };
     }

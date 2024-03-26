@@ -1,4 +1,4 @@
-const OPENCGA_VARIANT_BROWSER_SETTINGS = {
+const VARIANT_BROWSER_SETTINGS = {
     menu: {
         // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
         sections: [
@@ -54,13 +54,41 @@ const OPENCGA_VARIANT_BROWSER_SETTINGS = {
         ]
     },
     table: {
-        // merge criterium: spread operator
+        pageSize: 10,
+        pageList: [5, 10, 25],
+        showToolbar: true,
+        showActions: true,
         toolbar: {
-            showColumns: true,
+            showSettings: true,
             showExport: true,
-            showDownload: false
-            // columns list for the dropdown will be added in grid components based on settings.table.columns
+            exportTabs: ["download", "export", "link", "code"]
         },
+        skipExtensions: false,
+
+        showSelectCheckbox: false,
+        genotype: {
+            type: "VCF_CALL"
+        },
+        alleleStringLengthMax: 15,
+        geneSet: {
+            ensembl: true,
+            refseq: true,
+        },
+        consequenceType: {
+            maneTranscript: true,
+            gencodeBasicTranscript: true,
+            ensemblCanonicalTranscript: true,
+            refseqTranscript: true, // Fixme: not considered in variant-interpreter-grid-config?
+            ccdsTranscript: false,
+            ensemblTslTranscript: false,
+            proteinCodingTranscript: false,
+            highImpactConsequenceTypeTranscript: false,
+            showNegativeConsequenceTypes: true
+        },
+        populationFrequenciesConfig: {
+            displayMode: "FREQUENCY_BOX" // Options: FREQUENCY_BOX | FREQUENCY_NUMBER
+        },
+
         // Highlight conditions for Variant Browser
         // highlights: [
         //     {
@@ -77,13 +105,11 @@ const OPENCGA_VARIANT_BROWSER_SETTINGS = {
         //     },
         // ],
         // activeHighlights: ["highlight1"],
+
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span.
-        // It is supported either columns[] or hiddenColumns[].
         // columns: ["id", "gene", "type", "consequenceType", "deleteriousness", "conservation", "samples", "cohorts", "popfreq", "clinicalInfo", "actions"]
-        // hiddenColumns: ["id", "gene", "type"]
     },
+
     // merge criterium: uses this array as filter for internal 1D array.
-    // It is supported either details[] or hiddenDetails[].
     details: ["annotationSummary", "annotationConsType", "annotationPropFreq", "annotationClinical", "cohortStats", "samples", "beacon", "json-view"]
-    // hiddenDetails: ["json-view"]
 };

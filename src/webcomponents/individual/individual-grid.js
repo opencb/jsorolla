@@ -478,22 +478,6 @@ export default class IndividualGrid extends LitElement {
                 halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("phenotypes")
             },
-            // {
-            //     id: "sex",
-            //     title: "Sex (Karyotypic)",
-            //     field: "sex",
-            //     formatter: this.sexFormatter,
-            //     halign: this.displayConfigDefault.header.horizontalAlign,
-            //     visible: this.gridCommons.isColumnVisible("sex")
-            // },
-            {
-                id: "caseId",
-                title: "Case ID",
-                field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
-                formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
-                halign: this.displayConfigDefault.header.horizontalAlign,
-                visible: this.gridCommons.isColumnVisible("caseId")
-            },
             {
                 id: "ethnicity",
                 title: "Ethnicity",
@@ -502,15 +486,14 @@ export default class IndividualGrid extends LitElement {
                 halign: this.displayConfigDefault.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("ethnicity")
             },
-            // {
-            //     id: "dateOfBirth",
-            //     title: "Date of Birth",
-            //     field: "dateOfBirth",
-            //     sortable: true,
-            //     formatter: CatalogGridFormatter.dateFormatter,
-            //     halign: this.displayConfigDefault.header.horizontalAlign,
-            //     visible: this.gridCommons.isColumnVisible("dateOfBirth")
-            // },
+            {
+                id: "caseId",
+                title: "Case ID",
+                field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
+                formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
+                halign: this.displayConfigDefault.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("caseId")
+            },
             {
                 id: "creationDate",
                 title: "Creation Date",
@@ -521,26 +504,12 @@ export default class IndividualGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
-        // 2. Annotations
-        // Example of custom annotation configuration:
-        /*
-        this._config.annotations = [
-            {
-                title: "Cardiology Tests",
-                position: 6,
-                variableSetId: "cardiology_tests_checklist",
-                variables: ["ecg_test", "echo_test"]
-            },
-            {
-                title: "Risk Assessment",
-                position: 7,
-                variableSetId: "risk_assessment",
-            }
-        ];
-        */
+
+        // Annotations
         if (this._config.annotations?.length > 0) {
             this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
+
         // 3. Actions
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
@@ -603,6 +572,7 @@ export default class IndividualGrid extends LitElement {
                 visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
+
         // 4. Extensions
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
 
@@ -699,15 +669,29 @@ export default class IndividualGrid extends LitElement {
 
             showToolbar: true,
             showActions: true,
-
             toolbar: {
                 showCreate: true,
                 showSettings: true,
                 showExport: true,
                 exportTabs: ["download", "link", "code"]
             },
-
             skipExtensions: false,
+
+            // Annotations Example:
+            // annotations: [
+            //     {
+            //         title: "Cardiology Tests",
+            //         position: 3,
+            //         variableSetId: "cardiology_tests_checklist",
+            //         variables: ["ecg_test", "echo_test"]
+            //     },
+            //     {
+            //         title: "Risk Assessment",
+            //         position: 5,
+            //         variableSetId: "risk_assessment",
+            //         variables: ["vf_cardiac_arrest_events"]
+            //     }
+            // ]
         };
     }
 

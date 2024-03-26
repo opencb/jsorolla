@@ -53,7 +53,7 @@ export default class WebUtils {
         // 2. Check URL param and decide if we need to merge users settings.
         if (opencgaSession?.URL?.searchParams?.has("SETTINGS_POLICY", "DEFAULT")) {
             // 2.1 Use default settings from files
-            const componentSettingsId = componentId.replaceAll("-", "_").toUpperCase();
+            const componentSettingsId = componentId.replaceAll("-", "_").toUpperCase() + "_SETTINGS";
 
             // List all filters selected in the settings file, e.g. sample-browser.settings.js
             const allFilters = opencgaSession.ivaDefaultSettings.settings[componentSettingsId].menu.sections
@@ -129,13 +129,13 @@ export default class WebUtils {
         let defaultSettingsName = "";
         switch (type) {
             case "CATALOG":
-                defaultSettingsName = id.replace(/-/g, "_").toUpperCase();
+                defaultSettingsName = id.replace(/-/g, "_").toUpperCase() + "_SETTINGS";
                 defaultSettings = opencgaSession.ivaDefaultSettings
                     .settings[defaultSettingsName]
                     .table;
                 break;
             case "INTERPRETER":
-                defaultSettingsName = id.replace("variant-interpreter-", "").replace(/-/g, "_").toUpperCase();
+                defaultSettingsName = id.replace("variant-interpreter-", "").replace(/-/g, "_").toUpperCase() + "_SETTINGS";
                 defaultSettings = opencgaSession.ivaDefaultSettings
                     .settings.VARIANT_INTERPRETER_SETTINGS.tools
                     .find(tool => tool.id === "variant-browser")

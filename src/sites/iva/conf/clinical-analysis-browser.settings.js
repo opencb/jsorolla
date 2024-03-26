@@ -1,31 +1,32 @@
-const SAMPLE_BROWSER_SETTINGS = {
+const CLINICAL_ANALYSIS_BROWSER_SETTINGS = {
     menu: {
         sections: [
             // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string).
             // Sections and filter order is respected.
             {
-                filters: ["id", "fileIds", "phenotypes", "somatic", "date", "annotations"]
+                filters: ["id", "family", "proband", "sample", "status", "priority", "type", "creationDate", "dueDate"]
             }
         ],
         // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.
         examples: []
     },
     table: {
-        // Browser parameters per study that an admin can configure.
         pageSize: 10,
         pageList: [5, 10, 25],
         showToolbar: true,
         showActions: true,
         toolbar: {
-            showCreate: true,
+            showCreate: true, // If true, the  button will be displayed but disabled
             showSettings: true,
             showExport: true,
             exportTabs: ["download", "link", "code"]
         },
         skipExtensions: false,
 
-        // Columns list for the dropdown will be added in grid components based on settings.table.columns
-        columns: ["id", "individualId", "fileIds", "caseId", "collection.method", "processing.preparationMethod", "creationDate", "actions"],
+        readOnlyMode: false, // It hides priority and status selectors even if the user has permissions
+
+        // Merge criteria: uses this array as filter for internal 1D/2D array. It handles row/col span.
+        columns: ["caseId", "probandId", "disorderId", "interpretation", "status", "priority", "analysts", "dates", "action"]
 
         // Annotations Example:
         // annotations: [
@@ -45,5 +46,5 @@ const SAMPLE_BROWSER_SETTINGS = {
     },
 
     // merge criterium: uses this array as filter for internal 1D array.
-    detail: ["sample-view", "sample-variant-stats-view", "samtools-flags-stats-view", "individual-view", "file-view", "json-view"]
+    details: ["clinical-analysis-view", "json-view"]
 };

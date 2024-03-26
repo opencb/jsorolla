@@ -999,6 +999,7 @@ export default class VariantBrowserGrid extends LitElement {
                 },
             ]
         ];
+
         // 2. Extensions: Inject columns for extensions
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns);
 
@@ -1077,7 +1078,6 @@ export default class VariantBrowserGrid extends LitElement {
             <div data-cy="vb-grid">
                 <table id="${this.gridId}"></table>
             </div>
-
         `;
     }
 
@@ -1087,28 +1087,25 @@ export default class VariantBrowserGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showSelectCheckbox: false,
-
-            genotype: {
-                type: "VCF_CALL"
-            },
-
-            alleleStringLengthMax: 15,
 
             showToolbar: true,
             showActions: true,
-
             toolbar: {
                 showSettings: true,
                 showExport: true,
                 exportTabs: ["download", "export", "link", "code"]
             },
+            skipExtensions: false,
 
+            showSelectCheckbox: false,
+            genotype: {
+                type: "VCF_CALL"
+            },
+            alleleStringLengthMax: 15,
             geneSet: {
                 ensembl: true,
                 refseq: true,
             },
-
             consequenceType: {
                 maneTranscript: true,
                 gencodeBasicTranscript: true,
@@ -1120,15 +1117,25 @@ export default class VariantBrowserGrid extends LitElement {
                 highImpactConsequenceTypeTranscript: false,
                 showNegativeConsequenceTypes: true
             },
-
             populationFrequenciesConfig: {
                 displayMode: "FREQUENCY_BOX", // Options: FREQUENCY_BOX | FREQUENCY_NUMBER
             },
 
-            annotations: [],
-            highlights: [],
-
-            skipExtensions: false,
+            // Highlight conditions for Variant Browser
+            // highlights: [
+            //     {
+            //         id: "highlight1",
+            //         name: "Test highlight 1",
+            //         description: "",
+            //         condition: () => true,
+            //         style: {
+            //             rowBackgroundColor: "#cfe2ff",
+            //             rowOpacity: 0.5,
+            //             icon: "circle",
+            //             iconColor: "blue",
+            //         },
+            //     },
+            // ],
         };
     }
 

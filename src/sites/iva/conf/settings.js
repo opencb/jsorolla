@@ -15,81 +15,6 @@
  * limitations under the License.
  */
 
-
-// const hosts = [
-//     {
-//         id: "prod",
-//         url: "https://ws.opencb.org/opencga-prod"
-//     },
-//     {
-//         id: "test",
-//         url: "https://demo.app.zettagenomics.com/opencga"
-//     },
-//     {
-//         id: "reference",
-//         url: "https://test.app.zettagenomics.com/reference/opencga"
-//     },
-// ];
-//
-// const opencga = {
-//     host: hosts[1].url,
-//     version: "v2",
-//     organizations: [],
-//     cookie: {
-//         prefix: "iva-" + hosts[1].id,
-//         secure: true,
-//     },
-//     sso: {
-//         active: false,
-//         cookie: "JSESSIONID"
-//     },
-//
-//     // This forces the following projects to be used instead of the user's project
-//     // projects: [
-//     //     {
-//     //         id: "platinum",
-//     //         name: "Platinum",
-//     //         alias: "platinum",
-//     //         organism: {
-//     //             scientificName: "Homo sapiens",
-//     //             assembly: "GRCh37"
-//     //         },
-//     //         studies : [
-//     //             {
-//     //                 id: "illumina_platinum",
-//     //                 name: "Illumina Platinum",
-//     //                 alias: "illumina_platinum"
-//     //             }
-//     //         ]
-//     //     }
-//     // ],
-//
-//     // This allows IVA to query a OpenCGA instance being an 'anonymous' user, this means that no login is required.
-//     // If 'projects' is empty then all public projects and studies of 'user' will be used.
-//     // anonymous: {
-//     //     // user: "hgvauser",
-//     //     projects: [
-//     //         {
-//     //             id: "platinum",
-//     //             name: "Platinum",
-//     //             alias: "platinum",
-//     //             organism: {
-//     //                 scientificName: "Homo sapiens",
-//     //                 assembly: "GRCh37"
-//     //             },
-//     //             studies : [
-//     //                 {
-//     //                     id: "illumina_platinum",
-//     //                     name: "Illumina Platinum",
-//     //                     alias: "illumina_platinum"
-//     //                 }
-//     //             ]
-//     //         }
-//     //     ]
-//     // },
-//     // summary: true,
-// };
-
 const CATALOG_NAVBAR_MENU = {
     id: "catalog",
     name: "Catalog",
@@ -109,7 +34,7 @@ const CATALOG_NAVBAR_MENU = {
             visibility: "public"
         },
         {
-            id: "file",
+            id: "file-browser",
             name: "File Browser",
             visibility: "public"
         },
@@ -128,17 +53,17 @@ const CATALOG_NAVBAR_MENU = {
             featured: true,
         },
         {
-            id: "individual",
+            id: "individual-browser",
             name: "Individual Browser",
             visibility: "public"
         },
         {
-            id: "family",
+            id: "family-browser",
             name: "Family Browser",
             visibility: "public"
         },
         {
-            id: "cohort",
+            id: "cohort-browser",
             name: "Cohort Browser",
             visibility: "public"
         },
@@ -147,13 +72,13 @@ const CATALOG_NAVBAR_MENU = {
             visibility: "public"
         },
         {
-            id: "clinicalAnalysis",
-            name: "Clinical Analysis Browser",
+            id: "disease-panel-browser",
+            name: "Disease Panel Browser",
             visibility: "public"
         },
         {
-            id: "disease-panel",
-            name: "Disease Panel Browser",
+            id: "clinical-analysis-browser",
+            name: "Clinical Analysis Browser",
             visibility: "public"
         },
         {
@@ -161,7 +86,7 @@ const CATALOG_NAVBAR_MENU = {
             visibility: "public"
         },
         {
-            id: "job",
+            id: "job-browser",
             name: "Job Browser",
             visibility: "public"
         },
@@ -675,7 +600,7 @@ const SUITE = {
             },
             menu: [
                 {
-                    id: "clinicalAnalysisPortal",
+                    id: "clinical-analysis-portal",
                     name: "Case Interpreter Portal",
                     icon: "img/tools/icons/interpretation_portal.svg",
                     description: `
