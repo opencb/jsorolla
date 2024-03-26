@@ -121,8 +121,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 `
             }
         };
-        this.renderRemoteTable();
-        this.requestUpdate();
     }
 
     renderRemoteTable() {
