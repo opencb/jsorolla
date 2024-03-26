@@ -69,6 +69,12 @@ class SteinerReport extends LitElement {
             "manta": {type: "Rearrangements", group: "germline", rank: 2},
         };
 
+        this.stockPhrases = [
+            "No pathogenic variants identified.",
+            "Results related to other genetic conditions of medical significance (additional findings).",
+            "Results that are not expected to impact participant health but may be relevant to family members or children.",
+        ];
+
         this.somaticSample = null;
         this.germlineSample = null;
 
@@ -163,6 +169,7 @@ class SteinerReport extends LitElement {
                     .map(analyst=> analyst.name)
                     .join(", "),
                 signedBy: "",
+                discussionPhrase: "",
                 discussion: "",
                 hrdetects: [],
                 selectedHrdetect: null,
