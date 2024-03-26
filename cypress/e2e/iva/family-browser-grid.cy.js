@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2023 OpenCB
+/*
+ * Copyright 2015-2024 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -310,7 +310,7 @@ context("Family Browser Grid", () => {
                 .find(`td`)
                 .eq(1)
                 .trigger("click");
-        
+
             cy.get(`detail-tabs h3`)
                 .should("contain.text", `Family ${family}`);
         });
@@ -320,7 +320,7 @@ context("Family Browser Grid", () => {
                 .find("li")
                 .contains("JSON Data")
                 .trigger("click");
-            
+
             cy.get("json-viewer")
                 .should("be.visible");
         });

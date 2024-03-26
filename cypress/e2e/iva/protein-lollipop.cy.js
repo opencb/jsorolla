@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2023 OpenCB
+/*
+ * Copyright 2015-2024 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -260,16 +260,16 @@ context("Protein Lollipop", () => {
                 cy.get("@variantsTrack")
                     .find(`div[data-cy="protein-lollipop-legend"]`)
                     .as("legend");
-                
+
                 cy.get("@variantsTrack")
                     .find(`div[data-cy="protein-lollipop-legend-item"]`)
                     .first()
                     .as("firstLegendItem")
-                
+
                 cy.get("@firstLegendItem")
                     .invoke("attr", "data-item")
                     .then(str => ct = str);
-                
+
                 // eslint-disable-next-line cypress/no-force
                 cy.get("@firstLegendItem")
                     .trigger("click", {force: true});
@@ -450,7 +450,7 @@ context("Protein Lollipop", () => {
                 cy.get("@clinvarTrack")
                     .find(`g[data-cy="protein-lollipop-track-feature"][data-index="0"]`)
                     .as("firstClinvarVariant");
-                
+
                 // eslint-disable-next-line cypress/no-force
                 cy.get("@firstClinvarVariant")
                     .find("circle")
@@ -484,11 +484,11 @@ context("Protein Lollipop", () => {
                     .find(`div[data-cy="protein-lollipop-legend-item"]`)
                     .first()
                     .as("firstClinvarLegendItem");
-                
+
                 cy.get("@firstClinvarLegendItem")
                     .invoke("attr", "data-item")
                     .then(value => ct = value);
-                
+
                 // eslint-disable-next-line cypress/no-force
                 cy.get("@firstClinvarLegendItem")
                     .trigger("click", {force: true});

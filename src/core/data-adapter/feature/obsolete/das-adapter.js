@@ -1,22 +1,17 @@
 /*
- * Copyright (c) 2012 Francisco Salavert (ICM-CIPF)
- * Copyright (c) 2012 Ruben Sanchez (ICM-CIPF)
- * Copyright (c) 2012 Ignacio Medina (ICM-CIPF)
+ * Copyright 2015-2024 OpenCB
  *
- * This file is part of JS Common Libs.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * JS Common Libs is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * JS Common Libs is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 function DasAdapter(args){
@@ -35,7 +30,7 @@ function DasAdapter(args){
 	this.params = {};
 
     _.extend(this, args);
-    
+
     this.on(this.handlers);
 
 	this.featureCache =  new FeatureCache(this.featureCache);
@@ -45,25 +40,25 @@ DasAdapter.prototype.getData = function(args){
 //	console.time("all");
 	var _this = this;
 	//region check
-	
+
 	this.params["histogram"] = args.histogram;
 	this.params["interval"] = args.interval;
 	this.params["transcript"] = args.transcript;
-	
+
 	if(args.start<1){
 		args.start=1;
 	}
 	if(args.end>300000000){
 		args.end=300000000;
 	}
-	
+
 	var dataType = "data";
 	if(args.histogram){
 		dataType = "histogram"+args.interval;
 	}
 
 	this.params["dataType"] = dataType;
-	
+
 	var firstChunk = this.featureCache._getChunk(args.start);
 	var lastChunk = this.featureCache._getChunk(args.end);
 
@@ -84,17 +79,17 @@ DasAdapter.prototype.getData = function(args){
 	if(itemList.length>0){
 		this.trigger('data:ready',{items:itemList, params:this.params, cached:true});
 	}
-	
-	
+
+
 	//data process
 	var updateStart = true;
 	var updateEnd = true;
 	if(chunks.length > 0){
 //		console.log(chunks);
-		
+
 		for ( var i = 0; i < chunks.length; i++) {
 			var query = null;
-			
+
 			if(updateStart){
 				var chunkStart = parseInt(chunks[i] * this.featureCache.chunkSize);
 				updateStart = false;
@@ -103,7 +98,7 @@ DasAdapter.prototype.getData = function(args){
 				var chunkEnd = parseInt((chunks[i] * this.featureCache.chunkSize) + this.featureCache.chunkSize-1);
 				updateEnd = false;
 			}
-			
+
 			if(chunks[i+1]!=null){
 				if(chunks[i]+1==chunks[i+1]){
 					updateEnd =true;
@@ -138,10 +133,10 @@ DasAdapter.prototype.getData = function(args){
 
 						if(data.dasgff != null){//Some times DAS server does not respond
 							var result = new Array();
-								
+
 							if (typeof(data.dasgff.gff.segment)  != 'undefined'){
-								if (typeof(data.dasgff.gff.segment.feature)  != 'undefined'){	  
-									result = data.dasgff.gff.segment.feature;	
+								if (typeof(data.dasgff.gff.segment.feature)  != 'undefined'){
+									result = data.dasgff.gff.segment.feature;
 								}
 								else if (typeof(data.dasgff.gff.segment[0])  != 'undefined'){
 									if (data.dasgff.gff.segment[0].feature != null){

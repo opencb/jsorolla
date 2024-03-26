@@ -1,22 +1,17 @@
 /*
- * Copyright (c) 2012 Francisco Salavert (ICM-CIPF)
- * Copyright (c) 2012 Ruben Sanchez (ICM-CIPF)
- * Copyright (c) 2012 Ignacio Medina (ICM-CIPF)
+ * Copyright 2015-2024 OpenCB
  *
- * This file is part of JS Common Libs.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * JS Common Libs is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * JS Common Libs is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 function FileFeatureCache(args) {
@@ -27,7 +22,7 @@ function FileFeatureCache(args) {
 	this.gzip = true;
 	this.maxSize = 10*1024*1024;
 	this.size = 0;
-	
+
 	if (args != null){
 		if(args.chunkSize != null){
 			this.chunkSize = args.chunkSize;
@@ -36,12 +31,12 @@ function FileFeatureCache(args) {
 			this.gzip = args.gzip;
 		}
 	}
-	
+
 	this.cache = {};
 	this.chunksDisplayed = {};
-	
+
 	this.maxFeaturesInterval = 0;
-	
+
 	//XXX
 	this.gzip = false;
 
@@ -68,7 +63,7 @@ FileFeatureCache.prototype.getFirstFeature = function(){
 };
 
 
-//new 
+//new
 FileFeatureCache.prototype.getFeatureChunk = function(key){
 	if(this.cache[key] != null) {
 		return this.cache[key];
@@ -94,7 +89,7 @@ FileFeatureCache.prototype.getFeatureChunksByRegion = function(region){
 		if(this.cache[key] != null ){
 			chunks.push(this.cache[key]);
 		}
-		
+
 	}
 	//if(chunks.length == 0){
 		//return null;
@@ -138,13 +133,13 @@ FileFeatureCache.prototype.putFeaturesByRegion = function(featureDataList, regio
 		feature.featureType = featureType;
 		firstChunk = this._getChunk(feature.start);
 		lastChunk = this._getChunk(feature.end);
-		
+
 		if(this.gzip) {
 			gzipFeature = RawDeflate.deflate(JSON.stringify(feature));
 		}else{
 			gzipFeature = feature;
 		}
-		
+
 		for(var i=firstChunk; i<=lastChunk; i++) {
 			if(i >= firstRegionChunk && i<= lastRegionChunk){//only if is inside the called region
 				key = region.chromosome+":"+i;
@@ -218,7 +213,7 @@ FileFeatureCache.prototype.remove = function(region){
 };
 
 FileFeatureCache.prototype.clear = function(){
-		this.size = 0;		
+		this.size = 0;
 		this.cache = {};
 };
 
@@ -235,7 +230,7 @@ FileFeatureCache.prototype.clear = function(){
 FileFeatureCache.prototype.getFeaturesByChunk = function(key, dataType){
 	var features =  [];
 	var feature, firstChunk, lastChunk;
-	
+
 	if(this.cache[key] != null && this.cache[key][dataType] != null) {
 		for ( var i = 0, len = this.cache[key][dataType].length; i < len; i++) {
 			if(this.gzip) {
@@ -243,8 +238,8 @@ FileFeatureCache.prototype.getFeaturesByChunk = function(key, dataType){
 			}else{
 				feature = this.cache[key][dataType][i];
 			}
-			
-			//check if any feature chunk has been already displayed 
+
+			//check if any feature chunk has been already displayed
 			var displayed = false;
 			firstChunk = this._getChunk(feature.start);
 			lastChunk = this._getChunk(feature.end);
@@ -255,7 +250,7 @@ FileFeatureCache.prototype.getFeaturesByChunk = function(key, dataType){
 					break;
 				}
 			}
-			
+
 			if(!displayed){
 				features.push(feature);
 				returnNull = false;
@@ -264,7 +259,7 @@ FileFeatureCache.prototype.getFeaturesByChunk = function(key, dataType){
 		this.chunksDisplayed[key+dataType]=true;
 		return features;
 	}
-	
+
 	return null;
 };
 
@@ -282,21 +277,21 @@ FileFeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
 					try {
 						feature = JSON.parse(RawDeflate.inflate(this.cache[key][dataType][j]));
 					} catch (e) {
-						//feature es "" 
+						//feature es ""
 						console.log(e)
 						debugger
-						
+
 					}
-					
+
 				}else{
 					feature = this.cache[key][dataType][j];
 				}
 				// we only get those features in the region AND check if chunk has been already displayed
 				if(feature.end > region.start && feature.start < region.end){
 
-			//		 check displayCheck argument 
+			//		 check displayCheck argument
 					if(region.displayedCheck != false){
-				//		check if any feature chunk has been already displayed 
+				//		check if any feature chunk has been already displayed
 						displayed = false;
 						firstChunk = this._getChunk(feature.start);
 						lastChunk = this._getChunk(feature.end);
@@ -307,7 +302,7 @@ FileFeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
 								break;
 							}
 						}
-						
+
 						if(!displayed){
 							features.push(feature);
 							returnNull = false;
@@ -317,11 +312,11 @@ FileFeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
 						returnNull = false;
 					}
 
-					
+
 				}
 			}
 		}
-		 //check displayCheck argument 
+		 //check displayCheck argument
 		if(region.displayedCheck != false){
 			this.chunksDisplayed[key+dataType]=true;//mark chunk as displayed
 		}
@@ -367,7 +362,7 @@ FileFeatureCache.prototype.putChunk = function(featureDataList, chunkRegion, dat
 			}
 		}
 	}
-	
+
 };
 
 */

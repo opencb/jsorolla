@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2023 OpenCB
+/*
+ * Copyright 2015-2024 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -305,7 +305,7 @@ context("Cohort Browser Grid", () => {
             cy.get(`tbody tr[data-uniqueid="${cohort}"]`)
                 .find(`td:first`)
                 .trigger("click");
-        
+
             cy.get(`detail-tabs h3`)
                 .should("contain.text", `Cohort ${cohort}`);
         });
@@ -315,7 +315,7 @@ context("Cohort Browser Grid", () => {
                 .find("li")
                 .contains("JSON Data")
                 .trigger("click");
-            
+
             cy.get("json-viewer")
                 .should("be.visible");
         });

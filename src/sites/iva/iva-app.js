@@ -1,9 +1,5 @@
-/* eslint-disable no-constant-condition */
-/* eslint-disable no-prototype-builtins */
-/* eslint-disable guard-for-in */
-/* eslint-disable valid-jsdoc */
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2024 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +14,10 @@
  * limitations under the License.
  */
 
+/* eslint-disable no-constant-condition */
+/* eslint-disable no-prototype-builtins */
+/* eslint-disable guard-for-in */
+/* eslint-disable valid-jsdoc */
 import {html, LitElement, nothing} from "lit";
 import "./getting-started.js";
 // import "./iva-settings.js";

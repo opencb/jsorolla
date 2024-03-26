@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015-2024 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 context("GenomeBrowser", () => {
     const region = {
         chromosome: "17",
@@ -60,7 +76,7 @@ context("GenomeBrowser", () => {
             cy.get("@navigation")
                 .find(`ul[data-cy="gb-features-list"] > li.dropdown-submenu`)
                 .as("features");
-            
+
             cy.get("@features")
                 .should("have.length", 2);
 
@@ -129,7 +145,7 @@ context("GenomeBrowser", () => {
                 .find(`li[data-cy="gb-chromosome"]`)
                 .as("chromosome");
         });
- 
+
         it("should display current chromosome in title", () => {
             cy.get("@chromosome")
                 .find(`div[data-cy="gb-chromosome-title"]`)
@@ -165,7 +181,7 @@ context("GenomeBrowser", () => {
 
         it("should display features of interest", () => {
             const displayedFeatures = ["BRCA1", "TP53"];
-    
+
             cy.get("@chromosome")
                 .find(`g[data-cy="gb-chromosome-feature-of-interest"]`)
                 .each((el, index) => {
@@ -194,7 +210,7 @@ context("GenomeBrowser", () => {
                 .find(`div[data-cy="gb-tracklist-position-center"]`)
                 .should("contain.text", `${(region.start + region.end) / 2}`);
         });
-        
+
         context("gene overview track", () => {
             beforeEach(() => {
                 cy.get("@regionOverview")
@@ -335,12 +351,12 @@ context("GenomeBrowser", () => {
                 cy.get("@geneTrack")
                     .find(`div[data-cy="gb-track-content"] g[data-cy="gb-feature-gene"][data-id="${gene}"]`)
                     .trigger("mouseover", {force: true});
-                
+
                 // eslint-disable-next-line cypress/no-unnecessary-waiting
                 cy.wait(2000).then(() => {
                     cy.get("div.qtip")
                         .should("exist");
-                    
+
                     cy.get("div.qtip")
                         .find("div.qtip-title")
                         .should("contain.text", `Gene - ${geneTitle}`);
@@ -366,12 +382,12 @@ context("GenomeBrowser", () => {
                 cy.get("@geneTrack")
                     .find(`div[data-cy="gb-track-content"] g[data-cy="gb-feature-transcript"][data-id="${transcript}"]`)
                     .trigger("mouseover", {force: true});
-                
+
                 // eslint-disable-next-line cypress/no-unnecessary-waiting
                 cy.wait(2000).then(() => {
                     cy.get("div.qtip")
                         .should("exist");
-                    
+
                     cy.get("div.qtip")
                         .find("div.qtip-title")
                         .should("contain.text", `Transcript - ${transcriptTitle}`);
@@ -393,7 +409,7 @@ context("GenomeBrowser", () => {
                     cy.get("@geneTrack")
                         .find(`div[data-cy="gb-track-content"] g[data-cy="gb-feature-exon"][data-id="${exonId}"]`)
                         .as("exon");
-                    
+
                     cy.get("@exon")
                         .invoke("attr", "data-transcript-biotype")
                         .should("equal", biotypes[index]);
@@ -415,7 +431,7 @@ context("GenomeBrowser", () => {
                 cy.wait(2000).then(() => {
                     cy.get("div.qtip")
                         .should("exist");
-                    
+
                     cy.get("div.qtip")
                         .find("div.qtip-title")
                         .should("contain.text", `Exon - ${exon}`);
@@ -559,7 +575,7 @@ context("GenomeBrowser", () => {
                 cy.wait(2000).then(() => {
                     cy.get("div.qtip")
                         .should("exist");
-                    
+
                     cy.get("div.qtip")
                         .find("div.qtip-title")
                         .should("contain.text", indelVariant);
@@ -584,7 +600,7 @@ context("GenomeBrowser", () => {
                 cy.wait(2000).then(() => {
                     cy.get("div.qtip")
                         .should("exist");
-                    
+
                     cy.get("div.qtip")
                         .find("div.qtip-title")
                         .should("contain.text", highlightedVariant);
@@ -605,7 +621,7 @@ context("GenomeBrowser", () => {
                         cy.get(`rect[data-cy="gb-variant-genotype"][data-sample-genotype="1/1"]`)
                             .invoke("attr", "fill")
                             .should("equal", colorsByGenotype["homozygous"]);
-                        
+
                         cy.get(`rect[data-cy="gb-variant-genotype"][data-sample-genotype="0/1"]`)
                             .invoke("attr", "fill")
                             .should("equal", colorsByGenotype["heterozygous"]);
@@ -620,7 +636,7 @@ context("GenomeBrowser", () => {
                         cy.get(`rect[data-cy="gb-variant-genotype"][data-sample-index="0"]`)
                             .invoke("attr", "opacity")
                             .should("equal", "0.3");
-                        
+
                         // In the third sample, this variant pass quality checks
                         cy.get(`rect[data-cy="gb-variant-genotype"][data-sample-index="2"]`)
                             .invoke("attr", "opacity")
@@ -642,7 +658,7 @@ context("GenomeBrowser", () => {
                         .should("exist");
                 });
             });
- 
+
         });
 
         context("Cellbase variants track", () => {
@@ -706,7 +722,7 @@ context("GenomeBrowser", () => {
                 cy.wait(2000).then(() => {
                     cy.get("div.qtip")
                         .should("exist");
-                    
+
                     cy.get("div.qtip")
                         .find("div.qtip-title")
                         .should("contain.text", variantId);

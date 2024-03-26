@@ -1,7 +1,5 @@
-/* eslint-disable no-useless-escape */
-/* eslint-disable valid-jsdoc */
 /*
- * Copyright 2015-2016 OpenCB
+ * Copyright 2015-2024 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +14,8 @@
  * limitations under the License.
  */
 
+/* eslint-disable no-useless-escape */
+/* eslint-disable valid-jsdoc */
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";

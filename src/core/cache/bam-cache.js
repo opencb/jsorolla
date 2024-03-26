@@ -1,22 +1,17 @@
 /*
- * Copyright (c) 2012 Francisco Salavert (ICM-CIPF)
- * Copyright (c) 2012 Ruben Sanchez (ICM-CIPF)
- * Copyright (c) 2012 Ignacio Medina (ICM-CIPF)
+ * Copyright 2015-2024 OpenCB
  *
- * This file is part of JS Common Libs.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * JS Common Libs is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * JS Common Libs is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 BamCache.prototype.putHistogramFeaturesByRegion = FileFeatureCache.prototype.putFeaturesByRegion;
@@ -29,7 +24,7 @@ function BamCache(args) {
 	this.gzip = true;
 	this.maxSize = 10*1024*1024;
 	this.size = 0;
-	
+
 	if (args != null){
 		if(args.chunkSize != null){
 			this.chunkSize = args.chunkSize;
@@ -38,14 +33,14 @@ function BamCache(args) {
 			this.gzip = args.gzip;
 		}
 	}
-	
+
 	this.cache = {};
 
 	//deprecated trackSvg has this object now
 	//this.chunksDisplayed = {};
-	
+
 	this.maxFeaturesInterval = 0;//for local histogram
-	
+
 	//XXX
 	this.gzip = false;
 };
@@ -54,7 +49,7 @@ BamCache.prototype._getChunk = function(position){
 	return Math.floor(position/this.chunkSize);
 };
 
-//new 
+//new
 BamCache.prototype.getFeatureChunk = function(key){
 	if(this.cache[key] != null) {
 		return this.cache[key];
@@ -72,7 +67,7 @@ BamCache.prototype.getFeatureChunksByRegion = function(region){
 		if(this.cache[key] != null ){
 			chunks.push(this.cache[key]);
 		}
-		
+
 	}
 	//if(chunks.length == 0){
 		//return null;
@@ -86,11 +81,11 @@ BamCache.prototype.putFeaturesByRegion = function(resultObj, region, featureType
 	var key, firstChunk, lastChunk, firstRegionChunk, lastRegionChunk, read, gzipRead;
 	var reads = resultObj.reads;
 	var coverage = resultObj.coverage;
-	
+
 	//initialize region
 	firstRegionChunk = this._getChunk(region.start);
 	lastRegionChunk = this._getChunk(region.end);
-	
+
 	var chunkIndex = 0;
 	console.time("BamCache.prototype.putFeaturesByRegion1")
 	//TODO the region for now is a chunk region, so this for is always 1 loop
@@ -173,7 +168,7 @@ BamCache.prototype.putFeaturesByRegion = function(resultObj, region, featureType
 };
 
 BamCache.prototype.clear = function(){
-	this.size = 0;		
+	this.size = 0;
 	this.cache = {};
 	console.log("bamCache cleared")
 };
@@ -184,22 +179,22 @@ BamCache.prototype.getFeaturesByChunk = function(key, dataType){
 	var feature, firstChunk, lastChunk, chunk;
 	var chr = key.split(":")[0], chunkId = key.split(":")[1];
 	var region = {chromosome:chr,start:chunkId*this.chunkSize,end:chunkId*this.chunkSize+this.chunkSize-1};
-	
+
 	if(this.cache[key] != null && this.cache[key][dataType] != null) {
 		if(this.gzip) {
 			coverage = JSON.parse(RawDeflate.inflate(this.cache[key]["coverage"]));
 		}else{
 			coverage = this.cache[key]["coverage"];
 		}
-		
+
 		for ( var i = 0, len = this.cache[key]["data"].length; i < len; i++) {
 			if(this.gzip) {
 				feature = JSON.parse(RawDeflate.inflate(this.cache[key]["data"][i]));
 			}else{
 				feature = this.cache[key]["data"][i];
 			}
-			
-			//check if any feature chunk has been already displayed 
+
+			//check if any feature chunk has been already displayed
 			var displayed = false;
 			firstChunk = this._getChunk(feature.start);
 			lastChunk = this._getChunk(feature.end);
@@ -210,7 +205,7 @@ BamCache.prototype.getFeaturesByChunk = function(key, dataType){
 					break;
 				}
 			}
-			
+
 			if(!displayed){
 				features.push(feature);
 				returnNull = false;
@@ -220,7 +215,7 @@ BamCache.prototype.getFeaturesByChunk = function(key, dataType){
 		chunk = {reads:features,coverage:coverage,region:region};
 		return chunk;
 	}
-	
+
 };
 
 BamCache.prototype.getFeaturesByRegion = function(region, dataType){
@@ -242,9 +237,9 @@ BamCache.prototype.getFeaturesByRegion = function(region, dataType){
 				}else{
 					feature = this.cache[key]["data"][j];
 				}
-				
-				
-//				check if any feature chunk has been already displayed 
+
+
+//				check if any feature chunk has been already displayed
 				displayed = false;
 				firstChunk = this._getChunk(feature.start);
 				lastChunk = this._getChunk(feature.end);
@@ -255,11 +250,11 @@ BamCache.prototype.getFeaturesByRegion = function(region, dataType){
 						break;
 					}
 				}
-				
+
 				if(!displayed){
 					features.push(feature);
 				}
-				
+
 			}
 		}
 		this.chunksDisplayed[key+dataType]=true;//mark chunk as displayed
