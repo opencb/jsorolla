@@ -378,13 +378,6 @@ export default class SampleGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("fileIds")
             },
             {
-                id: "caseId",
-                title: "Case ID",
-                field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
-                formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession),
-                visible: this.gridCommons.isColumnVisible("caseId")
-            },
-            {
                 id: "collection.method",
                 title: "Collection Method",
                 field: "collection.method",
@@ -395,6 +388,13 @@ export default class SampleGrid extends LitElement {
                 title: "Preparation Method",
                 field: "processing.preparationMethod",
                 visible: this.gridCommons.isColumnVisible("processing.preparationMethod")
+            },
+            {
+                id: "caseId",
+                title: "Case ID",
+                field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
+                formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession),
+                visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
                 id: "creationDate",
