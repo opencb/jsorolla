@@ -1181,6 +1181,12 @@ class SteinerReport extends LitElement {
                         },
                         {
                             title: "Discussion",
+                            field: "discussionPhrase",
+                            type: "select",
+                            allowedValues: this.stockPhrases,
+                        },
+                        {
+                            title: " ",
                             type: "input-text",
                             field: "discussion",
                             defaultValue: "",
