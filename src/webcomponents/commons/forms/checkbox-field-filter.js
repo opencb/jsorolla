@@ -77,7 +77,7 @@ export default class CheckboxFieldFilter extends LitElement {
 
     render() {
         return html`
-            <div class="cy-magic-checkbox-wrapper ms-2">
+            <div class="magic-checkbox-wrapper ms-2">
                 ${this.data.map((el, i) => {
                     const {id, name} = UtilsNew.isObject(el) ? el : {id: el, name: el};
                     return html`

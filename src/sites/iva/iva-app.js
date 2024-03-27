@@ -1276,7 +1276,7 @@ class IvaApp extends LitElement {
             <!-- Rodiel 2023-03-01 Note:  Is it necessary to add 'isCreatingSession' to all components,
             or should those components be added in the 'else' block?" -->
             ${ this.isCreatingSession ? html `
-            <div class="cy-login-overlay position-absolute top-50 start-50 translate-middle">
+            <div class="login-overlay position-absolute top-50 start-50 translate-middle">
                 <loading-spinner
                         .description="${"Creating session..."}">
                 </loading-spinner>

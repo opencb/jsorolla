@@ -248,7 +248,7 @@ export default class OpencgaFileFilter extends LitElement {
                         </a>
                         ` : null }
                 </div>
-                <div id="${this._prefix}${subsection.id}" class="cy-subsection-content" data-cy="${subsection.id}">
+                <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                     ${content}
                 </div>
             </div>
@@ -262,7 +262,7 @@ export default class OpencgaFileFilter extends LitElement {
     render() {
         return html`
             ${this.config?.searchButton ? html`
-                <div class="cy-search-button-wrapper">
+                <div class="search-button-wrapper">
                     <button type="button" class="btn btn-primary" @click="${this.onSearch}">
                         <i class="fa fa-search" aria-hidden="true"></i> Search
                     </button>

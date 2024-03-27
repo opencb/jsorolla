@@ -361,7 +361,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                                 <i class="fa fa-info-circle" aria-hidden="true"></i>
                             </a>
                         ` : null}
-                    <div id="${this._prefix}${subsection.id}" class="cy-subsection-content" data-cy="${subsection.id}">
+                    <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                         ${content}
                     </div>
                 </div>

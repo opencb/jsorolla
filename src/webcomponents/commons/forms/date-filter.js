@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../forms/select-field-filter.js";
 
-
+// DEPRECATED : Use date-picker
 export default class DateFilter extends LitElement {
 
     constructor() {

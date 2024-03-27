@@ -571,7 +571,7 @@ class TestApp extends LitElement {
             <!-- End of navigation bar -->
 
             ${this.signingIn ? html`
-                <div class="cy-login-overlay">
+                <div class="login-overlay">
                     <loading-spinner
                         .description="${this.signingIn}">
                     </loading-spinner>
