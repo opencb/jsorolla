@@ -178,7 +178,7 @@ export default class DiseasePanelGrid extends LitElement {
                 detailView: this._config.detailView,
                 gridContext: this,
                 formatLoadingMessage: () => String.raw`<div><loading-spinner></loading-spinner></div>`,
-                ajax: async params => {
+                ajax: params => {
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
@@ -189,13 +189,13 @@ export default class DiseasePanelGrid extends LitElement {
 
                     // Store the current filters
                     this.lastFilters = {...this.filters};
-                    try {
-                        const data = await this.fetchDiseasePanels(this.filters);
-                        params.success(data);
-                    } catch (e) {
-                        console.log(e);
-                        params.error(e);
-                    }
+                    this.opencgaSession.opencgaClient.panels()
+                        .search(this.filters)
+                        .then(response => params.success(response))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
+                        });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
@@ -233,16 +233,6 @@ export default class DiseasePanelGrid extends LitElement {
         }
     }
 
-    async fetchDiseasePanels(query) {
-        try {
-            return await this.opencgaSession.opencgaClient.panels()
-                .search(query);
-        } catch (e) {
-            console.error(e);
-            await Promise.reject(e);
-        }
-    }
-
     renderLocalTable() {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
@@ -264,7 +254,7 @@ export default class DiseasePanelGrid extends LitElement {
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            }
+            },
         });
     }
 
