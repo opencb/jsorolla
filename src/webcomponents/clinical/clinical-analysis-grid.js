@@ -270,7 +270,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     <span class="help-block" style="margin: 5px 0">
                         ${Object.keys(value.stats.primaryFindings.geneCount).length} genes
                     </span>
-                </div>`;
+                </div>
+            `;
         } else {
             if (row.interpretation?.primaryFindings?.length > 0) {
                 const reviewedVariants = row.interpretation.primaryFindings.filter(v => v.status === "REVIEWED");
@@ -280,17 +281,19 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     </div>
                     <div>
                         <span class="help-block" style="margin: 5px 0">${reviewedVariants.length} reviewed</span>
-                    </div>`;
+                    </div>
+                `;
             } else {
                 html = "<span>0 variants</span>";
             }
         }
 
+        const interpretationUrl = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`;
         return `
-            <a class="btn force-text-left" data-action="interpreter" title="Go to Case Interpreter"
-                    href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+            <a class="btn force-text-left" data-action="interpreter" title="Go to Case Interpreter" href="${interpretationUrl}">
                 ${html}
-            </a>`;
+            </a>
+        `;
     }
 
     priorityFormatter(value, row) {
@@ -402,7 +405,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     html += `
                         <div style="margin: 2px 0; white-space: nowrap">
                             <span data-cy="analyst-id">${analyst.id}</span>
-                        </div>`;
+                        </div>
+                    `;
                 }
             });
             html += "</div>";
@@ -440,22 +444,25 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     },
                     ok: () => {
                         const clinicalAnalysisId = row.id;
-                        this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {
-                            study: this.opencgaSession.study.fqn,
-                            force: row.interpretation?.primaryFindings?.length === 0 // Only empty Cases can be deleted for now
-                        }).then(response => {
-                            if (response.getResultEvents("ERROR").length) {
-                                return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                            }
-                            // Display confirmation message and update the table
-                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                                message: `Case '${clinicalAnalysisId}' has been deleted.`,
+                        this.opencgaSession.opencgaClient.clinical()
+                            .delete(clinicalAnalysisId, {
+                                study: this.opencgaSession.study.fqn,
+                                force: row.interpretation?.primaryFindings?.length === 0 // Only empty Cases can be deleted for now
+                            })
+                            .then(response => {
+                                if (response.getResultEvents("ERROR").length) {
+                                    return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                                }
+                                // Display confirmation message and update the table
+                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                    message: `Case '${clinicalAnalysisId}' has been deleted.`,
+                                });
+                                LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+                                this.removeRowTable(clinicalAnalysisId);
+                            })
+                            .catch(response => {
+                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                             });
-                            LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                            this.removeRowTable(clinicalAnalysisId);
-                        }).catch(response => {
-                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                        });
                     },
                 });
                 break;
@@ -769,8 +776,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     @export="${this.onDownload}"
                     @actionClick="${e => this.onActionClick(e)}"
                     @clinicalAnalysisCreate="${this.renderRemoteTable}">
-                </opencb-grid-toolbar>` : nothing
-            }
+                </opencb-grid-toolbar>
+            ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
