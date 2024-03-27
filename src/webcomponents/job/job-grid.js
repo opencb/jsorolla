@@ -79,13 +79,19 @@ export default class JobGrid extends LitElement {
         };
     }
 
-    updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
             changedProperties.has("toolId") ||
             changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) && this.active) {
+            changedProperties.has("config")) {
             this.propertyObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.size > 0 && this.active) {
+            this.renderTable();
         }
     }
 
@@ -147,10 +153,7 @@ export default class JobGrid extends LitElement {
             //             @configChange="${this.onGridConfigChange}">
             //         </catalog-browser-grid-config>`
             // }
-
         };
-        this.requestUpdate();
-        this.renderTable();
     }
 
     renderTable() {
@@ -159,7 +162,6 @@ export default class JobGrid extends LitElement {
         } else {
             this.renderRemoteTable();
         }
-        this.requestUpdate();
     }
 
     renderLocalTable() {
@@ -190,21 +192,12 @@ export default class JobGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        // this.jobs = [];
-
         if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
             // const filters = {...this.query};
             if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
             }
-
-            // Make a copy of the jobs (if they exist), we will use this private copy until it is assigned to this.jobs
-            // if (UtilsNew.isNotUndefined(this.jobs)) {
-            //     this._jobs = this.jobs;
-            // } else {
-            //     this._jobs = [];
-            // }
 
             this._columns = this._getDefaultColumns();
             this.table = $("#" + this.gridId);
@@ -216,14 +209,6 @@ export default class JobGrid extends LitElement {
                 uniqueId: "id",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
-                // NOTE native Bootstrap table autorefresh doesn't clear interval correctly
-                // showRefresh: true,
-                // autoRefresh: true,
-                // autoRefreshSilent: false,
-                // autoRefreshStatus: true,
-                // autoRefreshInterval: 5,
-
-                // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
