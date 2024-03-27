@@ -72,13 +72,20 @@ export default class IndividualGrid extends LitElement {
         };
     }
 
-    updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
             changedProperties.has("toolId") ||
             changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) && this.active) {
+            changedProperties.has("config")) {
             this.propertyObserver();
+        }
+
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.size > 0 && this.active) {
+            this.renderTable();
         }
     }
 
@@ -141,17 +148,14 @@ export default class IndividualGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
-        this.renderTable();
     }
 
     renderTable() {
-        // If this.individuals is provided as property we render the array directly
         if (this.individuals?.length > 0) {
             this.renderLocalTable();
         } else {
             this.renderRemoteTable();
         }
-        this.requestUpdate();
     }
 
     renderRemoteTable() {
