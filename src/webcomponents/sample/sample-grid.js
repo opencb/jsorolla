@@ -169,7 +169,6 @@ export default class SampleGrid extends LitElement {
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
-                // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
@@ -179,17 +178,12 @@ export default class SampleGrid extends LitElement {
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
-                    const sort = this.table.bootstrapTable("getOptions").sortName ? {
-                        sort: this.table.bootstrapTable("getOptions").sortName,
-                        order: this.table.bootstrapTable("getOptions").sortOrder
-                    } : {};
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         // exclude: "qualityControl",
-                        ...sort,
                         ...this.query
                     };
 
@@ -285,8 +279,6 @@ export default class SampleGrid extends LitElement {
             sidePagination: "local",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
-
-            // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
@@ -341,10 +333,10 @@ export default class SampleGrid extends LitElement {
                     return `
                         <div>
                             <span style="font-weight: bold; margin: 5px 0">${sampleId}</span>
-                            ${somaticHtml ? `<span class="help-block" style="margin: 5px 0">${somaticHtml}</span>` : nothing}
-                        </div>`;
+                            ${somaticHtml ? `<span class="help-block" style="margin: 5px 0">${somaticHtml}</span>` : ""}
+                        </div>
+                    `;
                 },
-                sortable: true,
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
@@ -374,12 +366,6 @@ export default class SampleGrid extends LitElement {
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession),
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
-            // {
-            //     id: "cohortIds",
-            //     title: "Cohorts",
-            //     field: "cohortIds",
-            //     // visible: this.gridCommons.isColumnVisible("cohorts")
-            // },
             {
                 id: "collection.method",
                 title: "Collection Method",
@@ -392,19 +378,11 @@ export default class SampleGrid extends LitElement {
                 field: "processing.preparationMethod",
                 visible: this.gridCommons.isColumnVisible("processing.preparationMethod")
             },
-            // {
-            //     id: "cellLine",
-            //     title: "Cell Line",
-            //     field: "cellLine",
-            //     formatter: (value, row) => row.somatic ? "Somatic" : "Germline",
-            //     visible: this.gridCommons.isColumnVisible("cellLine")
-            // },
             {
                 id: "creationDate",
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
-                sortable: true,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
@@ -418,8 +396,9 @@ export default class SampleGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
+                align: "center",
                 formatter: (value, row) => `
-                    <div class="dropdown">
+                    <div class="inline-block dropdown">
                         <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
                             <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
                             <span>Actions</span>
@@ -543,8 +522,7 @@ export default class SampleGrid extends LitElement {
                     @actionClick="${e => this.onActionClick(e)}"
                     @sampleCreate="${this.renderTable}">
                 </opencb-grid-toolbar>
-            ` : nothing
-            }
+            ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">
                 <table id="${this.gridId}"></table>
