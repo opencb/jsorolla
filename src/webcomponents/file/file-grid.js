@@ -291,13 +291,6 @@ export default class OpencgaFileGrid extends LitElement {
                 },
                 visible: this.gridCommons.isColumnVisible("name")
             },
-            // {
-            //     id: "directory",
-            //     title: "Directory",
-            //     field: "path",
-            //     formatter: (_, row) => "/" + row.path.replace("/" + row.name, ""),
-            //     visible: this.gridCommons.isColumnVisible("directory")
-            // },
             {
                 id: "sampleIds",
                 title: "Samples",
@@ -325,13 +318,7 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "jobId",
                 title: "Job ID",
                 field: "jobId",
-                formatter: jobId => {
-                    if (jobId) {
-                        return `<div>${jobId}</div>`;
-                    } else {
-                        return "-";
-                    }
-                },
+                formatter: jobId => jobId || "-",
                 visible: this.gridCommons.isColumnVisible("jobId")
             },
             {
@@ -347,12 +334,6 @@ export default class OpencgaFileGrid extends LitElement {
                 field: "format",
                 visible: this.gridCommons.isColumnVisible("format")
             },
-            // {
-            //     id: "bioformat",
-            //     title: "Bioformat",
-            //     field: "bioformat",
-            //     visible: this.gridCommons.isColumnVisible("bioformat")
-            // },
             {
                 id: "index",
                 title: "Variant Index Status",
@@ -400,8 +381,9 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
+                align: "center",
                 formatter: (value, row) => `
-                    <div class="dropdown">
+                    <div class="inline-block dropdown">
                         <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
                             <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
                             <span>Actions</span>
@@ -443,8 +425,8 @@ export default class OpencgaFileGrid extends LitElement {
                                 </a>
                             </li>
                         </ul>
-                    </div>`,
-                // valign: "middle",
+                    </div>
+                `,
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
@@ -507,8 +489,8 @@ export default class OpencgaFileGrid extends LitElement {
                     @export="${this.onDownload}"
                     @actionClick="${e => this.onActionClick(e)}"
                     @fileCreate="${this.renderTable}">
-                </opencb-grid-toolbar>` : nothing
-            }
+                </opencb-grid-toolbar>
+            ` : nothing}
 
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this.gridId}"></table>
