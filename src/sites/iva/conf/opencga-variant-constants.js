@@ -857,6 +857,7 @@ const tooltips = {
             "<strong>Polyphen:</strong> Choose, either a Benign/probably damaging qualitative score or provide below a " +
             "quantitative impact value. Polyphen scores can be Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)",
     study: "Only considers variants from the selected studies",
+    variant: "Filter out variants using the format 'chr:pos:ref:alt'",
     region: "Filter out variants falling outside the genomic interval(s) defined",
     feature: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
     diseasePanels: "Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen",

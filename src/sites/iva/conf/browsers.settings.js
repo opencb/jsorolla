@@ -217,7 +217,7 @@ const CATALOG_SETTINGS = {
                 {
                     title: "Genomic",
                     collapsed: true,
-                    filters: ["region", "feature", "biotype", "type"]
+                    filters: ["variant", "region", "feature", "biotype", "type"]
                 },
                 {
                     title: "Consequence Type",
