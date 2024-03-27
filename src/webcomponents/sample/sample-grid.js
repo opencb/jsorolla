@@ -113,7 +113,8 @@ export default class SampleGrid extends LitElement {
                     <sample-create
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                         .opencgaSession="${this.opencgaSession}">
-                    </sample-create>`
+                    </sample-create>
+                `,
             },
             // Uncomment in case we need to change defaults
             // export: {
@@ -457,7 +458,8 @@ export default class SampleGrid extends LitElement {
                                 </a>
                             </li>
                         </ul>
-                    </div>`,
+                    </div>
+                `,
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
