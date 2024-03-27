@@ -69,13 +69,20 @@ export default class FamilyGrid extends LitElement {
         };
     }
 
-    updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
             changedProperties.has("toolId") ||
             changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) && this.active) {
+            changedProperties.has("config")) {
             this.propertyObserver();
+        }
+
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.size > 0 && this.active) {
+            this.renderTable();
         }
     }
 
@@ -136,9 +143,7 @@ export default class FamilyGrid extends LitElement {
             //             @configChange="${this.onGridConfigChange}">
             //         </catalog-browser-grid-config>`
             // }
-
         };
-        this.renderTable();
     }
 
     renderTable() {
@@ -147,7 +152,6 @@ export default class FamilyGrid extends LitElement {
         } else {
             this.renderRemoteTable();
         }
-        this.requestUpdate();
     }
 
     renderRemoteTable() {
