@@ -73,13 +73,21 @@ export default class CohortGrid extends LitElement {
         };
     }
 
-    updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
             changedProperties.has("toolId") ||
             changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) && this.active) {
+            changedProperties.has("config")) {
             this.propertyObserver();
+        }
+
+        super.update(changedProperties);
+    }
+
+
+    updated(changedProperties) {
+        if (changedProperties.size > 0 && this.active) {
+            this.renderTable();
         }
     }
 
@@ -142,7 +150,6 @@ export default class CohortGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
-        this.renderTable(this.active);
     }
 
     renderTable(active) {
@@ -180,11 +187,7 @@ export default class CohortGrid extends LitElement {
         });
     }
 
-    renderRemoteTable(active) {
-        if (!active) {
-            return;
-        }
-
+    renderRemoteTable() {
         this.cohorts = [];
         if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
             // const filters = {...this.query};
