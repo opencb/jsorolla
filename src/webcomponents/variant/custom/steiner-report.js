@@ -178,6 +178,7 @@ class SteinerReport extends LitElement {
                 deletionAggreationCount: 0,
                 deletionAggregationStats: null,
                 qcPlots: {},
+                results: "",
             };
 
             const allPromises = [
@@ -1012,6 +1013,15 @@ class SteinerReport extends LitElement {
                                         stop position of segment, total copy number, minor copy number).
                                     </div>
                                 `,
+                            },
+                        },
+                        {
+                            title: "Results Interpretation",
+                            type: "input-text",
+                            field: "results",
+                            display: {
+                                rows: 5,
+                                defaultValue: "",
                             },
                         },
                     ]
