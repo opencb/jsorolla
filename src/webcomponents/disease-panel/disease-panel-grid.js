@@ -75,13 +75,20 @@ export default class DiseasePanelGrid extends LitElement {
         };
     }
 
-    updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
             changedProperties.has("toolId") ||
             changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) && this.active) {
+            changedProperties.has("config")) {
             this.propertyObserver();
+        }
+
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.size > 0 && this.active) {
+            this.renderTable();
         }
     }
 
@@ -141,18 +148,14 @@ export default class DiseasePanelGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
-
-        this.renderTable();
     }
 
     renderTable() {
-        // If this.diseasePanel is provided as property we render the array directly
         if (this.diseasePanels?.length > 0) {
             this.renderLocalTable();
         } else {
             this.renderRemoteTable();
         }
-        this.requestUpdate();
     }
 
     renderRemoteTable() {
@@ -171,8 +174,6 @@ export default class DiseasePanelGrid extends LitElement {
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
-
-                // Table properties
                 uniqueId: "id",
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
@@ -257,7 +258,6 @@ export default class DiseasePanelGrid extends LitElement {
             sidePagination: "local",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
-            // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
