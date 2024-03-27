@@ -211,6 +211,34 @@ export default class VariantBrowserGrid extends LitElement {
                         // summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
+
+                    // TASK-5791: Temporary SNP ID Search fix
+                    if (this.query.xref) {
+                        const snpIds = this.query.xref.split(",").filter(xref => xref.startsWith("rs"));
+                        if (snpIds.length > 0) {
+                            const snpRegion = [];
+                            const request = new XMLHttpRequest();
+                            for (const snpId of snpIds) {
+                                const url = `https://rest.ensembl.org/variation/human/${snpId}?content-type=application/json`;
+
+                                request.onload = event => {
+                                    if (request.status === 200) {
+                                        const restObject = JSON.parse(event.currentTarget.response);
+                                        const mapping = restObject.mappings?.find(m => m.assembly_name === "GRCh38");
+                                        snpRegion.push(mapping.seq_region_name + ":" + mapping.start);
+                                    }
+                                };
+                                request.open("GET", url, false);
+                                request.send();
+                            }
+                            if (this.filters.region) {
+                                this.filters.region += "," + snpRegion.join(",");
+                            } else {
+                                this.filters.region = snpRegion.join(",");
+                            }
+                        }
+                    }
+
                     this.opencgaSession.opencgaClient.variants().query(this.filters)
                         .then(res => {
                             // FIXME A quick temporary fix -> TASK-947
@@ -1060,7 +1088,6 @@ export default class VariantBrowserGrid extends LitElement {
             <div data-cy="vb-grid">
                 <table id="${this.gridId}"></table>
             </div>
-
         `;
     }
 
