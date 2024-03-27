@@ -196,13 +196,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
     }
 
-    async fetchData(query) {
-        try {
-            return await this.opencgaSession.opencgaClient.clinical().search(query);
-        } catch (e) {
-            console.error(e);
-            await Promise.reject(e);
-        }
+    fetchData(query) {
+        return this.opencgaSession.opencgaClient.clinical().search(query);
     }
 
     onColumnChange(e) {
