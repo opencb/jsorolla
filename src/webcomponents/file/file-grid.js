@@ -67,13 +67,20 @@ export default class OpencgaFileGrid extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
             changedProperties.has("toolId") ||
             changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) && this.active) {
+            changedProperties.has("config")) {
             this.propertyObserver();
+        }
+
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.size > 0 && this.active) {
+            this.renderTable();
         }
     }
 
@@ -106,11 +113,10 @@ export default class OpencgaFileGrid extends LitElement {
                     <file-create
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                         .opencgaSession="${this.opencgaSession}">
-                    </file-create>`
+                    </file-create>
+                `,
             },
         };
-
-        this.renderTable();
     }
 
     renderTable() {
@@ -120,7 +126,6 @@ export default class OpencgaFileGrid extends LitElement {
         } else {
             this.renderRemoteTable();
         }
-        this.requestUpdate();
     }
 
     renderRemoteTable() {
@@ -140,7 +145,6 @@ export default class OpencgaFileGrid extends LitElement {
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
-                // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
@@ -207,9 +211,6 @@ export default class OpencgaFileGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                // onPostBody: data => {
-                //     // Add tooltips?
-                // }
             });
         }
     }
@@ -227,8 +228,6 @@ export default class OpencgaFileGrid extends LitElement {
             sidePagination: "local",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
-
-            // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
@@ -246,7 +245,7 @@ export default class OpencgaFileGrid extends LitElement {
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-            }
+            },
         });
     }
 
@@ -292,13 +291,6 @@ export default class OpencgaFileGrid extends LitElement {
                 },
                 visible: this.gridCommons.isColumnVisible("name")
             },
-            // {
-            //     id: "directory",
-            //     title: "Directory",
-            //     field: "path",
-            //     formatter: (_, row) => "/" + row.path.replace("/" + row.name, ""),
-            //     visible: this.gridCommons.isColumnVisible("directory")
-            // },
             {
                 id: "sampleIds",
                 title: "Samples",
@@ -326,13 +318,7 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "jobId",
                 title: "Job ID",
                 field: "jobId",
-                formatter: jobId => {
-                    if (jobId) {
-                        return `<div>${jobId}</div>`;
-                    } else {
-                        return "-";
-                    }
-                },
+                formatter: jobId => jobId || "-",
                 visible: this.gridCommons.isColumnVisible("jobId")
             },
             {
@@ -348,12 +334,6 @@ export default class OpencgaFileGrid extends LitElement {
                 field: "format",
                 visible: this.gridCommons.isColumnVisible("format")
             },
-            // {
-            //     id: "bioformat",
-            //     title: "Bioformat",
-            //     field: "bioformat",
-            //     visible: this.gridCommons.isColumnVisible("bioformat")
-            // },
             {
                 id: "index",
                 title: "Variant Index Status",
@@ -401,8 +381,9 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
+                align: "center",
                 formatter: (value, row) => `
-                    <div class="dropdown">
+                    <div class="inline-block dropdown">
                         <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
                             <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
                             <span>Actions</span>
@@ -444,8 +425,8 @@ export default class OpencgaFileGrid extends LitElement {
                                 </a>
                             </li>
                         </ul>
-                    </div>`,
-                // valign: "middle",
+                    </div>
+                `,
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
@@ -508,10 +489,10 @@ export default class OpencgaFileGrid extends LitElement {
                     @export="${this.onDownload}"
                     @actionClick="${e => this.onActionClick(e)}"
                     @fileCreate="${this.renderTable}">
-                </opencb-grid-toolbar>` : nothing
-            }
+                </opencb-grid-toolbar>
+            ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
         `;
