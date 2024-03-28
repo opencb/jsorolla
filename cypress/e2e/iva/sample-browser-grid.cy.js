@@ -225,7 +225,7 @@ context("Sample Browser Grid", () => {
             });
             cy.get("button[data-action='settings']")
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filterselect2-container")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-container")
                 .click();
             columns.forEach(col => {
                 UtilsTest.getByDataTest("test-columns", "select-field-filter span.select2-results li")
