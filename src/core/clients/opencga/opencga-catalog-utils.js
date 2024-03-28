@@ -73,26 +73,31 @@ export default class OpencgaCatalogUtils {
             if (admins.userIds.includes(user)) {
                 return true;
             } else {
-                // Check if user is in acl
+                // Check if user no owner/admin has the permission in acl
                 const aclUserIds = study.groups
                     .filter(group => group.userIds.includes(user))
                     .map(group => group.id);
                 aclUserIds.push(user);
                 for (const aclId of aclUserIds) {
-                    // Find the permissions for this user
-                    const userPermissions = study?.acl
+                    // 1. Acl permissions at study level for the member
+                    const userPermissionsStudy = study?.acl
+                        ?.find(acl => acl.member === user)
+                        ?.permissions || [];
+
+                    // 2. Acl permissions at study group level for member
+                    const userPermissionsGroup = study?.acl
                         ?.find(acl => acl.member === user)?.groups
                         ?.find(group => group.id === aclId)?.permissions || [];
-                    if (Array.isArray(permissions)) {
-                        for (const permission of permissions) {
-                            if (userPermissions?.includes(permission)) {
-                                return true;
-                            }
-                        }
-                    } else {
-                        if (userPermissions?.includes(permissions)) {
-                            return true;
-                        }
+
+                    // 3. Joint permissions
+                    const allUserPermissions = [
+                        ...userPermissionsStudy,
+                        ...userPermissionsGroup
+                    ];
+
+                    const permissionArray = Array.isArray(permissions) ? permissions : [permissions];
+                    if (permissionArray.some(permission => allUserPermissions.includes(permission))) {
+                        return true;
                     }
                 }
             }
