@@ -16,7 +16,6 @@
 
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";
@@ -87,7 +86,6 @@ export default class VariantInterpreterGrid extends LitElement {
         this.review = false;
 
         this.gridCommons = null;
-        this.clinicalAnalysisManager = null;
 
         // Set colors
         // eslint-disable-next-line no-undef
@@ -130,8 +128,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-
             if (!this.clinicalAnalysis.interpretation) {
                 this.clinicalAnalysis.interpretation = {};
             }
