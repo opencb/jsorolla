@@ -16,9 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import VariantUtils from "./variant-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/tool-header.js";
 import "./variant-browser-filter.js";
@@ -112,7 +110,7 @@ export default class VariantBrowser extends LitElement {
             this.opencgaSessionObserver();
             this.settingsObserver();
         }
-        if (changedProperties.has("query")) {
+        if (changedProperties.has("query") || changedProperties.has("opencgaSession")) {
             this.queryObserver();
         }
         if (changedProperties.has("selectedFacet")) {
@@ -145,14 +143,11 @@ export default class VariantBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         });
-
-        this.requestUpdate();
     }
 
     opencgaSessionObserver() {
         if (this?.opencgaSession?.study?.fqn) {
-            this.checkProjects = true;
-            this.query = {study: this.opencgaSession.study.fqn};
+            this._query = {}; // study: this.opencgaSession.study.fqn};
 
             // TODO FIXME
             /** temp fix this.onRun(): when you switch study this.facetQuery contains the old study when you perform a new Aggregation query.
@@ -161,18 +156,11 @@ export default class VariantBrowser extends LitElement {
             this.preparedQuery = {study: this.opencgaSession.study.fqn};
             this.facetQuery = null;
             this.preparedFacetQueryFormatted = null;
-            // this.requestUpdate();
-            // this.onRun();
-
-            // this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
-        } else {
-            this.checkProjects = false;
         }
     }
 
     queryObserver() {
         if (this.opencgaSession?.study?.fqn) {
-            debugger
             // NOTE UtilsNew.objectCompare avoid repeating remote requests.
             if (!UtilsNew.objectCompare(this.query, this._query)) {
                 this._query = {...this.query};
@@ -217,7 +205,6 @@ export default class VariantBrowser extends LitElement {
     async onRun() {
         // NOTE notifySearch() triggers this chain: notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in variant-browser
         // queryObserver() here stops the repetition of the remote request by checking if it has changed
-        debugger
         this.query = {...this.preparedQuery};
         // updates this.queries in iva-app
         this.notifySearch(this.preparedQuery);
@@ -253,7 +240,6 @@ export default class VariantBrowser extends LitElement {
     }
 
     onActiveFilterChange(e) {
-        debugger
         VariantUtils.validateQuery(e.detail);
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.notifySearch(this.query);
