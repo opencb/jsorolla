@@ -119,7 +119,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
             this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
         }
-        this.settingsObserver();
 
         // When refreshing AFTER saving variants we set the same query as before refreshing, check 'onSaveVariants'
         if (this.currentQueryBeforeSaveEvent) {
@@ -134,7 +133,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.searchActive = false;
         }
-        this.requestUpdate();
     }
 
     opencgaSessionObserver() {
@@ -144,9 +142,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     settingsObserver() {
-        if (!this.clinicalAnalysis) {
-            return;
-        }
         // merge filters
         this._config = {
             ...this.getDefaultConfig(),
@@ -192,26 +187,22 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     getInclusionVariantIds() {
         if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.inclusion?.length > 0) {
             const localVariantInclusionState = [];
-            const promises = [];
             const inclusionList = this.opencgaSession.study.internal.configuration.clinical.interpretation.inclusion;
-            for (const inclusion of inclusionList) {
-                localVariantInclusionState.push(
-                    {
-                        ...inclusion,
-                        variants: []
-                    }
-                );
+            const promises = inclusionList.map(inclusion => {
+                localVariantInclusionState.push({
+                    ...inclusion,
+                    variants: [],
+                });
                 const inclusionQuery = {
                     ...inclusion.query,
-
                     // Additional filters
-                    sample: this.clinicalAnalysis.proband.samples[0].id,
+                    sample: this.clinicalAnalysis?.proband?.samples?.[0]?.id,
                     include: "id,studies.files,studies.samples",
                     count: false,
                     study: this.opencgaSession.study.fqn,
                 };
-                promises.push(this.opencgaSession.opencgaClient.clinical().queryVariant(inclusionQuery));
-            }
+                return this.opencgaSession.opencgaClient.clinical().queryVariant(inclusionQuery);
+            });
 
             // Process all results and update object state
             Promise.all(promises).then(values => {
