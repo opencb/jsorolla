@@ -35,6 +35,9 @@ export default class CustomVerticalNavBar extends LitElement {
     // --- PROPERTIES ---
     static get properties() {
         return {
+            organization: {
+                type: Object,
+            },
             studyId: {
                 type: String,
             },
@@ -80,7 +83,7 @@ export default class CustomVerticalNavBar extends LitElement {
 
     // --- LIT LIFECYCLE ---
     update(changedProperties) {
-        if (changedProperties.has("studyId") || changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("studyId")) {
             this.studyIdObserver();
         }
         if (changedProperties.has("activeMenuItem")) {
@@ -99,11 +102,13 @@ export default class CustomVerticalNavBar extends LitElement {
 
     // --- OBSERVERS ---
     studyIdObserver() {
-        for (const project of this.opencgaSession?.projects) {
-            for (const study of project.studies) {
-                if (study.id === this.studyId || study.fqn === this.studyId) {
-                    this.study = study;
-                    break;
+        if (this.studyId && this.opencgaSession) {
+            for (const project of this.opencgaSession?.projects) {
+                for (const study of project.studies) {
+                    if (study.id === this.studyId || study.fqn === this.studyId) {
+                        this.study = study;
+                        break;
+                    }
                 }
             }
         }
@@ -301,7 +306,11 @@ export default class CustomVerticalNavBar extends LitElement {
                                     <hr class="mt-0 mb-3">
                                     <!-- TODO: CONTENT in a div -->
                                     <div class="settings-content-wrapper" id="settings-content-wrapper">
-                                        ${subItem.render(this.opencgaSession, this.study)}
+                                        ${
+                                        (this.organization) ?
+                                            subItem.render(this.opencgaSession, this.organization) :
+                                            subItem.render(this.opencgaSession, this.study)
+                                        }
                                     </div>
                                 </div>
                             `)
@@ -339,9 +348,7 @@ export default class CustomVerticalNavBar extends LitElement {
     // --- DEFAULT CONFIG ---
     getDefaultConfig() {}
 
-
 }
 
 customElements.define("custom-vertical-navbar", CustomVerticalNavBar);
-
 
