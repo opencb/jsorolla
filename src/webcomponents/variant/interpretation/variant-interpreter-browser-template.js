@@ -116,9 +116,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         }
 
         // Init saved variants with the primary findings of the main interpretation
-        if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
-            this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
-        }
+        this.resetSavedVariants();
 
         // When refreshing AFTER saving variants we set the same query as before refreshing, check 'onSaveVariants'
         if (this.currentQueryBeforeSaveEvent) {
@@ -215,6 +213,13 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         }
     }
 
+    resetSavedVariants() {
+        this.savedVariants = [];
+        if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
+            this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
+        }
+    }
+
     notifyQueryChange() {
         LitUtils.dispatchCustomEvent(this, "queryChange", null, {
             query: this.query,
@@ -270,7 +275,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         delete this.preparedQuery.id;
         delete this.executedQuery.id;
 
-        this.clinicalAnalysis = {...this.clinicalAnalysis};
+        this.resetSavedVariants();
+        this.requestUpdate();
     }
 
     onSaveVariants(e) {
