@@ -115,6 +115,11 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        // Reset clinical analysis manager
+        if (this.opencgaSession && this.clinicalAnalysis) {
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+        }
+
         // Init saved variants with the primary findings of the main interpretation
         if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
             this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
