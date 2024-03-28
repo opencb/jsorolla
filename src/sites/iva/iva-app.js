@@ -1801,7 +1801,7 @@ class IvaApp extends LitElement {
                     <div class="content col-md-8 col-md-offset-2" id="inferred-sex-analysis">
                         <inferred-sex-analysis
                             .opencgaSession="${this.opencgaSession}"
-                            .title="">
+                            .config=${{title: ""}}>
                         </inferred-sex-analysis>
                     </div>
                 ` : null}
@@ -1810,7 +1810,7 @@ class IvaApp extends LitElement {
                     <div class="content col-md-8 col-md-offset-2" id="individual-relatedness-analysis">
                         <individual-relatedness-analysis
                             .opencgaSession="${this.opencgaSession}"
-                            .title="">
+                            .config=${{title: ""}}>
                         </individual-relatedness-analysis>
                     </div>
                 ` : null}
@@ -1825,7 +1825,7 @@ class IvaApp extends LitElement {
                     <div class="content col-md-8 col-md-offset-2" id="sample-qc-analysis">
                         <sample-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
-                            .title="">
+                            .config=${{title: ""}}>
                         </sample-qc-analysis>
                     </div>
                 ` : null}
@@ -1834,7 +1834,7 @@ class IvaApp extends LitElement {
                     <div class="content col-md-8 col-md-offset-2" id="individual-qc-analysis">
                         <individual-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
-                            .title="">
+                            .config=${{title: ""}}>
                         </individual-qc-analysis>
                     </div>
                 ` : null}
@@ -1843,7 +1843,7 @@ class IvaApp extends LitElement {
                     <div class="content col-md-8 col-md-offset-2" id="family-qc-analysis">
                         <family-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
-                            .title="">
+                            .config=${{title: ""}}>
                         </family-qc-analysis>
                     </div>
                 ` : null}

@@ -15,9 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
+import AnalysisUtils from "../../commons/analysis/analysis-utils";
 import UtilsNew from "../../../core/utils-new.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
-import AnalysisUtils from "../../commons/analysis/analysis-utils";
 import "../../commons/analysis/opencga-analysis-tool.js";
 
 
@@ -41,9 +41,9 @@ export default class SampleQcAnalysis extends LitElement {
             opencgaSession: {
                 type: Object,
             },
-            title: {
-                type: String,
-            }
+            config: {
+                type: Object
+            },
         };
     }
 
@@ -169,10 +169,11 @@ export default class SampleQcAnalysis extends LitElement {
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
+            this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
-            this.check()
+            this.check(),
+            this.config
         );
     }
 
