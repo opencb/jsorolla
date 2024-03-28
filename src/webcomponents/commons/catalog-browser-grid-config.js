@@ -19,7 +19,7 @@ import LitUtils from "./utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "./utils/notification-utils.js";
 import "./forms/data-form.js";
-import "./forms/select-field-filter2.js";
+import "./forms/select-field-filter.js";
 
 export default class CatalogBrowserGridConfig extends LitElement {
 
@@ -212,7 +212,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                 containerStyle: "margin: 5px 5px 5px 0px",
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
-                                        <select-field-filter2
+                                        <select-field-filter
                                             .data="${this.config.pageList}"
                                             .value="${this.config.pageSize}"
                                             .config="${{
@@ -220,7 +220,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                                 liveSearch: false,
                                             }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </select-field-filter2>
+                                        </select-field-filter>
                                     `;
                                 }
                             }
@@ -240,7 +240,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                 containerStyle: "margin: 5px 5px 5px 0px",
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
-                                        <select-field-filter2
+                                        <select-field-filter
                                             .data="${this.selectColumnData}"
                                             .value="${this.selectedColumns?.join(",")}"
                                             .config="${{
@@ -249,7 +249,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                                 multiple: true,
                                             }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </select-field-filter2>
+                                        </select-field-filter>
                                     `;
                                 }
                             }

@@ -394,7 +394,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
             <select-field-filter
                 .data="${data}"
                 .value=${selectedSamples}
-                ?multiple="${isMultiple}"
+                .config="${{
+                    multiple: isMultiple,
+                }}"
                 @filterChange="${e => this.onSampleChange(e)}">
             </select-field-filter>
         `;

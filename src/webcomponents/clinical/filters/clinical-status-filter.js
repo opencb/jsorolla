@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import "../../commons/forms/select-field-filter2.js";
+import "../../commons/forms/select-field-filter.js";
 
 export default class ClinicalStatusFilter extends LitElement {
 
@@ -83,7 +83,7 @@ export default class ClinicalStatusFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter2
+            <select-field-filter
                 .data="${this.uniqueStatuses}"
                 .value="${this.status}"
                 .config="${{
@@ -94,7 +94,7 @@ export default class ClinicalStatusFilter extends LitElement {
                 }}"
                 .classes="${this.classes}"
                 @filterChange="${e => this.filterChange(e)}">
-            </select-field-filter2>
+            </select-field-filter>
 
             <!-- Only show description when one single values is expected -->
             ${!this.multiple && this.statusObject?.description ? html`

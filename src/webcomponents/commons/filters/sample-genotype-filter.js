@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
-import "../forms/select-field-filter2.js";
+import "../forms/select-field-filter.js";
 
 export default class SampleGenotypeFilter extends LitElement {
 
@@ -105,7 +105,7 @@ export default class SampleGenotypeFilter extends LitElement {
     render() {
         const genotypes = this.genotypes ?? [];
         return html`
-            <select-field-filter2
+            <select-field-filter
                 .data="${this._config?.genotypes}"
                 .value=${genotypes}
                 .config="${{
@@ -113,7 +113,7 @@ export default class SampleGenotypeFilter extends LitElement {
                     liveSearch: false
                 }}"
                 @filterChange="${this.filterChange}">
-            </select-field-filter2>
+            </select-field-filter>
         `;
     }
 

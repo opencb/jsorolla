@@ -18,7 +18,7 @@ import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 
-export default class SelectFieldFilter2 extends LitElement {
+export default class SelectFieldFilter extends LitElement {
 
     constructor() {
         super();
@@ -407,4 +407,4 @@ export default class SelectFieldFilter2 extends LitElement {
 
 }
 
-customElements.define("select-field-filter2", SelectFieldFilter2);
+customElements.define("select-field-filter", SelectFieldFilter);

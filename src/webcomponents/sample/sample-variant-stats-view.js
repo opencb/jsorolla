@@ -203,7 +203,7 @@ class SampleVariantStatsView extends LitElement {
                     <div class="row my-3">
                         <label class="col-md-2 col-form-label fw-bold">Select Variant Stat</label>
                         <div class="col-md-2">
-                            <select-field-filter2
+                            <select-field-filter
                                 .data="${this.statsSelect}"
                                 .value=${this.variantStats.id}
                                 .config="${{
@@ -211,7 +211,7 @@ class SampleVariantStatsView extends LitElement {
                                     multiple: false
                                 }}"
                                 @filterChange="${this.statChange}">
-                            </select-field-filter2>
+                            </select-field-filter>
                         </div>
                     </div>` : nothing
             }

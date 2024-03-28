@@ -1067,7 +1067,7 @@ export default class DataForm extends LitElement {
         const disabled = this._getBooleanValue(element?.display?.disabled, false, element);
         const content = html`
             <div class="">
-                <select-field-filter2
+                <select-field-filter
                     .data="${allowedValues}"
                     .config="${{
                         liveSearch: element?.search,
@@ -1080,7 +1080,7 @@ export default class DataForm extends LitElement {
                     .value="${defaultValue}"
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
                     @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
-                </select-field-filter2>
+                </select-field-filter>
             </div>
         `;
 

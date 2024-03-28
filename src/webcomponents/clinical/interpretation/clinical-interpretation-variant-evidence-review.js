@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/filters/acmg-filter.js";
-import "../../commons/forms/select-field-filter2.js";
+import "../../commons/forms/select-field-filter.js";
 
 export default class ClinicalInterpretationVariantEvidenceReview extends LitElement {
 
@@ -149,11 +149,11 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                         type: "custom",
                         display: {
                             render: clinicalSignificance => html`
-                                <select-field-filter2
+                                <select-field-filter
                                     .data="${CLINICAL_SIGNIFICANCE}"
                                     .value="${(clinicalSignificance || "").toLowerCase()}"
                                     @filterChange="${e => this.onFieldChange(e, "clinicalSignificance")}">
-                                </select-field-filter2>
+                                </select-field-filter>
                             `,
                             defaultValue: "",
                         },

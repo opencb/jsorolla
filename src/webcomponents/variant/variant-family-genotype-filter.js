@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utils-new.js";
 import PolymerUtils from "../PolymerUtils.js";
 import Pedigree from "../../core/visualisation/pedigree.js";
 import "../commons/view/pedigree-view.js";
-import "../commons/forms/select-field-filter2.js";
+import "../commons/forms/select-field-filter.js";
 
 /**
  * @deprecated
@@ -475,7 +475,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                 <div class="col-md-4">
                     <div class="form-check-label mode-button">
                                 <!--<select-field-filter ?multiple="\${true}" ?disabled=\${false} ?required=\${true} .data="\${["GT", "LT"]}" .value="\${"LT"}" maxOptions="2" @filterChange="\${e => console.log("ID", e.detail.value)}"></select-field-filter>-->
-                        <select-field-filter2
+                        <select-field-filter
                             .data="${this.modeSelectData}"
                             value="${this.mode}"
                             .config="${{
@@ -483,7 +483,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                                 multiple: false
                             }}"
                             @filterChange="${this.setMode}">
-                        </select-field-filter2>
+                        </select-field-filter>
                                 <!--<div>
                                     <button class="btn btn-default ripple \${this.mode === "custom" ? "active" : ""}" value="custom" @click="\${this.setSample}">Custom</button>
                                 </div>

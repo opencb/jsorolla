@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../../../core/utils-new.js";
-import "./../../../commons/forms/select-field-filter2.js";
+import "./../../../commons/forms/select-field-filter.js";
 
 export default class OpencgaAnnotationFilterModal extends LitElement {
 
@@ -266,7 +266,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
                                 </a> ${variable.id}
                             </label>
-                            <select-field-filter2
+                            <select-field-filter
                                 .data="${variable?.allowedKeys}"
                                 .value="${this.variableMap?.[variableSet.id]?.[variable.id] ?? []}"
                                 .config="${{
@@ -274,7 +274,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                     liveSearch: false
                                 }}"
                                 @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}">
-                            </select-field-filter2>
+                            </select-field-filter>
                             <!-- form-inline -->
                             <div class="row row-cols-lg-auto g-1 align-items-center">
                                 ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {
@@ -316,7 +316,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
                                 </a> ${variable.id}
                             </label>
-                            <select-field-filter2
+                            <select-field-filter
                                 .data="${variable?.allowedKeys}"
                                 .value=${this.variableMap?.[variableSet.id]?.[variable.id] ?? []}
                                 .config="${{
@@ -324,7 +324,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                     liveSearch: false
                                 }}"
                                 @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}">
-                            </select-field-filter2>
+                            </select-field-filter>
                             <div class="row">
                                 ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {
                                     return html`

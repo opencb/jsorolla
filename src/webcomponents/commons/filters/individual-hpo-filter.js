@@ -16,7 +16,7 @@
 
 import {html, LitElement} from "lit";
 import LitUtils from "../utils/lit-utils";
-import "../forms/select-field-filter2.js";
+import "../forms/select-field-filter.js";
 
 export default class IndividualHpoFilter extends LitElement {
 
@@ -122,7 +122,7 @@ export default class IndividualHpoFilter extends LitElement {
                 <div style="margin: 10px 0">
                     <span>Or select terms manually:</span>
                 </div>
-                <select-field-filter2
+                <select-field-filter
                     .value="${this.value || ""}"
                     .data="${this.phenotypes}"
                     .config="${{
@@ -131,7 +131,7 @@ export default class IndividualHpoFilter extends LitElement {
                         disabled: this.phenotypes?.length === 0 || this.allChecked || this.disabled
                     }}"
                     @filterChange="${e => this.filterChange(e)}">
-                </select-field-filter2>
+                </select-field-filter>
             </div>
         `;
     }

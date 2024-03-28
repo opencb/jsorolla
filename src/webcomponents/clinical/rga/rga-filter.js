@@ -26,7 +26,7 @@ import "../../commons/filters/consequence-type-select-filter.js";
 import "../../commons/filters/clinvar-accessions-filter.js";
 import "../../commons/filters/population-frequency-filter.js";
 import "../../commons/filters/region-filter.js";
-import "../../commons/forms/select-field-filter2.js";
+import "../../commons/forms/select-field-filter.js";
 
 export default class RgaFilter extends LitElement {
 
@@ -153,12 +153,12 @@ export default class RgaFilter extends LitElement {
             },
         };
         return html`
-            <select-field-filter2
+            <select-field-filter
                 .opencgaSession="${this.opencgaSession}"
                 .config=${config}
                 .value="${this.preparedQuery[subsection.id]}"
                 @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-            </select-field-filter2>`;
+            </select-field-filter>`;
     }
 
     _createSubSection(subsection) {
@@ -237,7 +237,7 @@ export default class RgaFilter extends LitElement {
                 break;
             case "knockoutType":
                 content = html`
-                    <select-field-filter2
+                    <select-field-filter
                         .data="${subsection.allowedValues}"
                         .value="${this.preparedQuery[subsection.id]}"
                         .config="${{
@@ -245,7 +245,7 @@ export default class RgaFilter extends LitElement {
                             multiple: true
                         }}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </select-field-filter2>`;
+                    </select-field-filter>`;
                 break;
             case "probandOnly":
                 content = html`

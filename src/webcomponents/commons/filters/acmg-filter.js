@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
-import "../forms/select-field-filter2.js";
+import "../forms/select-field-filter.js";
 
 export default class AcmgFilter extends LitElement {
 
@@ -53,7 +53,7 @@ export default class AcmgFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter2
+            <select-field-filter
                 .data="${this.config.data}"
                 .value=${this.acmg || []}
                 .config="${{
@@ -61,7 +61,7 @@ export default class AcmgFilter extends LitElement {
                     liveSearch: this.config.liveSearch
                 }}"
                 @filterChange="${this.filterChange}">
-            </select-field-filter2>
+            </select-field-filter>
         `;
     }
 

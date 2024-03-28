@@ -21,7 +21,7 @@ import "../opencga/catalog/variableSets/opencga-annotation-filter-dynamic.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 import "../commons/forms/date-picker.js.js";
 import "../commons/forms/text-field-filter.js";
-import "../commons/forms/select-field-filter2.js";
+import "../commons/forms/select-field-filter.js";
 import "../commons/filters/catalog-distinct-autocomplete";
 import "../commons/filters/catalog-search-autocomplete.js";
 
@@ -208,12 +208,12 @@ export default class OpencgaFileFilter extends LitElement {
             case "bioformat":
             case "internal.variant.index.status.id":
                 content = html`
-                    <select-field-filter2
+                    <select-field-filter
                         .value="${this.preparedQuery[subsection.id]}"
                         .config="${{multiple: true}}"
                         .data="${subsection.allowedValues}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </select-field-filter2>
+                    </select-field-filter>
                 `;
                 break;
             case "annotations":

@@ -19,7 +19,7 @@ import UtilsNew from "../../../../core/utils-new.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import "./opencga-variable-selector.js";
 import NotificationUtils from "../../../commons/utils/notification-utils.js";
-import "../../../commons/forms/select-field-filter2.js";
+import "../../../commons/forms/select-field-filter.js";
 
 /**
  * @deprecated
@@ -319,14 +319,14 @@ export default class OpencgaAnnotationFilter extends LitElement {
             <!-- Annotations -->
             ${this.multipleVariableSets ? html`
                 <label for="${this._prefix}-variableSetSelect">Select Variable Set</label>
-                <select-field-filter2
+                <select-field-filter
                     .data="${this.variableSets.map(_ => _.name)}"
                     .config="${{
                         liveSearch: false,
                         multiple: false,
                     }}"
                     @filterChange="${this.onSelectedVariableSetChange}">
-                </select-field-filter2>
+                </select-field-filter>
             ` :
             null}
 

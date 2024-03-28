@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "./select-field-filter2.js";
+import "./select-field-filter.js";
 
 export default class NumberFieldFilter extends LitElement {
 
@@ -147,20 +147,20 @@ export default class NumberFieldFilter extends LitElement {
 
                 ${this._config.comparator ? html`
                     <div class="col-md-${this._config.layout[1]}">
-                        <select-field-filter2
+                        <select-field-filter
                             .data="${this._config.values}"
                             .value="${this.state.comparator}"
                             .config="${{
                                 liveSearch: false
                             }}"
                             @filterChange="${e => this.filterChange(e, "comparator", e.detail.value)}">
-                        </select-field-filter2>
+                        </select-field-filter>
                     </div>` : nothing
                 }
 
                 ${this.allowedValues?.length > 0 ? html`
                     <div class="col-md-${this._config.layout[2]}">
-                        <select-field-filter2
+                        <select-field-filter
                             .data="${this.allowedValues}"
                             .value="${this.state.value ?? ""}"
                             .config="${{
@@ -168,7 +168,7 @@ export default class NumberFieldFilter extends LitElement {
                                 liveSearch: false,
                             }}"
                             @filterChange="${e => this.filterChange(e, "value", e.detail.value)}">
-                        </select-field-filter2>
+                        </select-field-filter>
                     </div>` : html`
                     <div class="col-md-${this._config.layout[2]}">
                         <input  type="${this.type ?? "number"}"

@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utils-new";
 import NotificationUtils from "./utils/notification-utils";
 import LitUtils from "./utils/lit-utils";
 import "./tool-settings-preview.js";
-import "./forms/select-field-filter2.js";
+import "./forms/select-field-filter.js";
 
 export default class ToolSettingsEditor extends LitElement {
 
@@ -127,7 +127,7 @@ export default class ToolSettingsEditor extends LitElement {
     renderSelect() {
         return html `
         <div style="width:20rem">
-            <select-field-filter2
+            <select-field-filter
                 .data="${Object.keys(this.toolSettings)}"
                 .value="${this._toolName}"
                 .config="${{
@@ -135,7 +135,7 @@ export default class ToolSettingsEditor extends LitElement {
                     liveSearch: false
                 }}"
                 @filterChange="${this.onToolChange}">
-            </select-field-filter2>
+            </select-field-filter>
         </div>
         `;
     }
