@@ -49,21 +49,16 @@ export default class ToolHeader extends LitElement {
 
     render() {
         return html`
-            <div class="page-title ${this.class ?? ""}">
-                <h2>
-                    ${this.icon ?
-                        this.icon.match(/\./)?.length ?
-                            html`
-                                <img src="${this.icon}" alt="${this.title}">` :
-                            html`
-                                <i class="${this.icon}" aria-hidden="true"></i>` :
-                        ""
-                    }
+            <!-- ms-n3 it's a negative margin (it works with sass) -->
+            <div class="d-flex align-items-center ms-n3 mt-0 mb-3 p-2  ${this.class ?? ""}" style="background-color:#f5f5f5; margin-right: -0.7rem; margin-left: -1rem;">
+                <h1 class="ps-2">
+                    ${this.icon ? this.icon.match(/\./)?.length ?
+                        html`<img width="50" height="50" src="${this.icon}" alt="${this.title}">` :
+                        html`<i class="${this.icon}" aria-hidden="true"></i>` : ""}
                     ${UtilsNew.renderHTML(this.title)}
-                </h2>
+                </h1>
                 ${this.subtitle ? html`<h3>${this.subtitle}</h3>` : null}
-
-                <div class="page-title-right">
+                <div class="ms-auto p-2">
                     ${this.rhs}
                 </div>
             </div>

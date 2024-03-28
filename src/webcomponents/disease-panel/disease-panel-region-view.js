@@ -86,6 +86,8 @@ export default class DiseasePanelRegionView extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this.getDefaultColumns(),
             data: this.regions,
             sidePagination: "local",
@@ -100,7 +102,7 @@ export default class DiseasePanelRegionView extends LitElement {
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             // onPageChange: (page, size) => {
             //     const result = this.gridCommons.onPageChange(page, size);
@@ -157,14 +159,14 @@ export default class DiseasePanelRegionView extends LitElement {
                     align: "center",
                     formatter: (value, row) => {
                         const statusConfidence = {
-                            "HIGH": "label label-success",
-                            "MEDIUM": "label label-warning",
-                            "LOW": "label label-danger",
+                            "HIGH": "badge text-bg-success",
+                            "MEDIUM": "badge text-bg-warning",
+                            "LOW": "badge text-bg-danger",
                         };
                         if (row.confidence) {
                             return `
                                 <h4>
-                                    <span class="${statusConfidence[row.confidence] || "label label-default"}">${row.confidence}</span>
+                                    <span class="${statusConfidence[row.confidence] || "badge bg-secondary"}">${row.confidence}</span>
                                 </h4>`;
                         } else {
                             return "-";

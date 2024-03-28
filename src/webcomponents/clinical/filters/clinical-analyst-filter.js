@@ -75,11 +75,13 @@ export default class ClinicalAnalystFilter extends LitElement {
         return html`
             <select-field-filter
                 .data="${this.analysts}"
-                .value=${this.analyst}
-                .placeholder="${this.placeholder}"
-                .multiple="${this.multiple}"
+                .value="${this.analyst}"
+                .config="${{
+                    multiple: this.multiple,
+                    disabled: this.disabled,
+                    placeholder: this.placeholder
+                }}"
                 .classes="${this.classes}"
-                .disabled="${this.disabled}"
                 @filterChange="${e => this.filterChange(e)}">
             </select-field-filter>
         `;

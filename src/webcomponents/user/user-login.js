@@ -152,38 +152,39 @@ export default class UserLogin extends LitElement {
                 }
             </style>
             <div class="container-fluid" style="max-width:480px;">
-                <div class="panel panel-default">
-                    <div class="panel-body" style="padding:32px;">
-                        <div class="form-group ${this.hasEmptyUser ? "has-error" : ""}">
-                            <label for="user" class="control-label label-login">User ID</label>
-                            <div class="input-group">
-                                <span class="input-group-addon" id="username">
-                                    <i class="fa fa-user fa-lg"></i>
-                                </span>
-                                <input id="user" type="text" class="form-control" placeholder="User ID" @keyup="${e => this.onKeyUp(e)}">
-                            </div>
+                <div class="card">
+                    <div class="card-body">
+                        <label for="user" class="form-label fw-bold">User ID</label>
+                        <div class="input-group mb-3 ${this.hasEmptyUser ? "is-invalid" : ""}">
+                            <span class="input-group-text" id="username">
+                                <i class="fa fa-user fa-lg"></i>
+                            </span>
+                            <input id="user" class="form-control" type="text" placeholder="User ID"
+                                @keyup="${e => this.onKeyUp(e)}">
                         </div>
-                        <div class="form-group ${this.hasEmptyPassword ? "has-error" : ""}">
-                            <label for="pass" class="control-label label-login">Password</label>
-                            <div class="input-group">
-                                <span class="input-group-addon" id="username">
+                        <label for="pass" class="form-label fw-bold">Password</label>
+                        <div class="form-group ${this.hasEmptyPassword ? "is-invalid" : ""}">
+                            <div class="input-group mb-3">
+                                <span id="username" class="input-group-text" >
                                     <i class="fa fa-key fa-lg"></i>
                                 </span>
-                                <input id="password" type="password" class="form-control" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
+                                <input id="password" class="form-control" type="password" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
                             </div>
                         </div>
                         <div class="form-group organization-field">
-                            <label for="organization" class="control-label label-login">Organization</label>
-                            <div class="input-group">
-                                <span class="input-group-addon">
+                            <label for="organization" class="form-label fw-bold">Organization</label>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">
                                     <i class="fa fa-building fa-lg"></i>
                                 </span>
-                                <input id="organization" type="text" class="form-control" placeholder="Organization ID" @keyup="${e => this.onKeyUp(e)}">
+                                <input id="organization" class="form-control" type="text" placeholder="Organization ID" @keyup="${e => this.onKeyUp(e)}">
                             </div>
                         </div>
-                        <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
-                            <strong>Sign In</strong>
-                        </button>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
+                                <strong>Sign In</strong>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 ${this.renderResetPasswordLink()}

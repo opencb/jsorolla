@@ -106,6 +106,7 @@ export default class DiseasePanelGrid extends LitElement {
                     modalTitle: "Disease Panel Create",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                 },
                 render: () => html `
                     <disease-panel-create
@@ -166,6 +167,8 @@ export default class DiseasePanelGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -181,7 +184,8 @@ export default class DiseasePanelGrid extends LitElement {
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 gridContext: this,
-                formatLoadingMessage: () => String.raw`<div><loading-spinner></loading-spinner></div>`,
+                // formatLoadingMessage: () => String.raw`<div><loading-spinner></loading-spinner></div>`,
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let panelsResponse = null;
                     this.filters = {
@@ -257,6 +261,8 @@ export default class DiseasePanelGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._getDefaultColumns(),
             // data: this.diseasePanels,
             sidePagination: "server",
@@ -290,7 +296,8 @@ export default class DiseasePanelGrid extends LitElement {
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
@@ -395,8 +402,8 @@ export default class DiseasePanelGrid extends LitElement {
                     let idLinkHtml = "";
                     if (row?.source && row?.source?.project === "PanelApp") {
                         idLinkHtml = `
-                            <a href="${BioinfoUtils.getPanelAppLink(row?.source?.id)}" title="Panel ID: ${row?.id}" target="_blank">
-                                ${row?.id ?? "-"} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
+                            <a class="text-decoration-none" href="${BioinfoUtils.getPanelAppLink(row?.source?.id)}" title="Panel ID: ${row?.id}" target="_blank">
+                                ${row?.id ?? "-"} <i class="fas fa-external-link-alt ps-1"></i>
                             </a>`;
                     }
                     return `
@@ -489,37 +496,37 @@ export default class DiseasePanelGrid extends LitElement {
                 halign: this.displayConfigDefault.header.horizontalAlign,
                 formatter: (value, row) => `
                     <div class="dropdown" style="display: flex; justify-content: center;">
-                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
                             <span>Actions</span>
                             <span class="caret" style="margin-left: 5px"></span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
+                                    <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
                                 </a>
                             </li>
                             <li>
-                                <a data-action="download-json" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
+                                    <i class="fas fa-download" aria-hidden="true"></i> Download JSON
                                 </a>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="copy" href="javascript: void 0" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Make a Copy
+                                <a data-action="copy" href="javascript: void 0" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                    <i class="fas fa-user" aria-hidden="true"></i> Make a Copy
                                 </a>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
+                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                    <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
                             <li>
-                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                <a data-action="delete" href="javascript: void 0" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                    <i class="fas fa-trash" aria-hidden="true"></i> Delete
                                 </a>
                             </li>
                         </ul>
@@ -578,6 +585,7 @@ export default class DiseasePanelGrid extends LitElement {
                 modalTitle: `Disease Panel Update: ${this.diseasePanelUpdateId}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
+                modalSize: "modal-lg"
             },
             render: active => html`
                 <disease-panel-update

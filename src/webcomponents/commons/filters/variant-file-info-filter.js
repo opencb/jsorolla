@@ -447,9 +447,9 @@ export default class VariantFileInfoFilter extends LitElement {
             return {
                 title: this.#decodeCallerId(caller.id),
                 display: {
-                    titleHeader: "h4",
+                    titleHeader: "h5",
                     titleStyle: "margin: 5px 0",
-                    titleClassName: "break-word"
+                    titleClassName: "text-break"
                 },
                 elements: [
                     {
@@ -457,8 +457,8 @@ export default class VariantFileInfoFilter extends LitElement {
                         type: "text",
                         text: caller.fileId || "",
                         display: {
-                            textClassName: "help-block small",
-                            textStyle: "margin: 5px 0; overflow-wrap: break-word; font-style: italic",
+                            textClassName: "d-block text-secondary small text-break",
+                            textStyle: "margin: 5px 0; font-style: italic",
                         }
                     },
                     ...caller.dataFilters.map(field => ({

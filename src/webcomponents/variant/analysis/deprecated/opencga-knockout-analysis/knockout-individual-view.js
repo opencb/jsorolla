@@ -99,6 +99,8 @@ export default class KnockoutIndividualView extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             // data: this.tableData,
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._initTableColumns(),
             sidePagination: "local",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -122,7 +124,8 @@ export default class KnockoutIndividualView extends LitElement {
                         params.error(e);
                     });
             },
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement, field) => {
                 this.individual = {id: row.sampleId, ...row}; // TODO temp fix for missing id;
                 this.gridCommons.onClickRow(row.id, row, selectedElement);

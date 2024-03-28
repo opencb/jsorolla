@@ -261,20 +261,20 @@ export default class SampleVariantStatsBrowser extends LitElement {
 
     renderQcVariantStatsSelectItem(qcVvariantStats) {
         return html`
-            <div class="break-word" style="border-left: 2px solid #0c2f4c">
+            <div class="text-break" style="border-left: 2px solid #0c2f4c">
                 <div style="font-weight: bold; margin: 5px 10px">${qcVvariantStats.id}</div>
                 <div style="margin: 5px 10px">${qcVvariantStats.description}</div>
-                <div class="help-block break-word" style="margin: 5px 10px;overflow-wrap: break-word;">
+                <div class="d-block text-secondary text-break" style="margin: 5px 10px;overflow-wrap: break-word;">
                     ${qcVvariantStats.query ? Object.entries(qcVvariantStats.query).map(([k, v]) => {
-                        if (k !== "study") {
-                            return html`<span class="break-word" style="overflow-wrap: break-word;"><span style="font-weight: bold">${k}:</span> ${UtilsNew.substring(v, 40)}</span><br>`;
-                        } else {
-                            if (Object.keys(qcVvariantStats.query).length === 1) {
-                                // No fitlers applied
-                                return html`<span></span>`;
-                            }
-                        }
-                    }) : null
+            if (k !== "study") {
+                return html`<span class="text-break" style="overflow-wrap: break-word;"><span style="font-weight: bold">${k}:</span> ${UtilsNew.substring(v, 40)}</span><br>`;
+            } else {
+                if (Object.keys(qcVvariantStats.query).length === 1) {
+                    // No fitlers applied
+                    return html`<span></span>`;
+                }
+            }
+        }) : null
                     }
                 </div>
             </div>
@@ -296,7 +296,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
             ` : null}
             <div class="row">
                 <div class="col-md-2 left-menu">
-                    <div class="search-button-wrapper">
+                    <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" @click="${() => this.renderVariantStats()}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
                             <strong>${this._config.filter.searchButtonText || "Search"}</strong>
@@ -317,35 +317,37 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 </div>
 
                 <div class="col-md-10">
-                    <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
-                        <div class="pull-right" role="group">
-                            <div class="btn-group" style="margin-right: 2px">
-                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false" title="Show saved variants" @click="${this.onLoad}">
-                                    <span><i class="fas fa-folder-open icon-padding"></i>Load <span class="caret" style="padding-left: 5px"></span></span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
-                                    <li style="padding: 3px 20px;"><b>Saved Variant Stats</b></li>
-                                    ${this.sample?.qualityControl?.[this._variantStatsPath]?.variantStats?.length > 0 ?
-                                        this.sample.qualityControl[this._variantStatsPath].variantStats.map(qcVariantStat => html`
-                                            <li>
-                                                <a href="javascript:void(0);" data-id="${qcVariantStat.id}" @click="${() => this.selectVariantStats(qcVariantStat.id)}">
-                                                    ${this.renderQcVariantStatsSelectItem(qcVariantStat)}
-                                                </a>
-                                            </li>`) :
-                                        html`<li style="padding: 3px 20px;" class="text-muted">No Variant Stats found</li>`
-                                    }
-                                </ul>
-                            </div>
-                            <div class="btn-group">
-                                <data-form
-                                    .data=${this.save}
-                                    .config="${this.getSaveConfig()}"
-                                    @fieldChange="${e => this.onSaveFieldChange(e)}"
-                                    @submit="${this.onSave}">
-                                </data-form>
-                            </div>
+                    <div class="btn-toolbar justify-content-end mb-3" role="toolbar" aria-label="toolbar">
+                        <div class="dropdown btn-group me-1">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false" title="Show saved variants" @click="${this.onLoad}">
+                                <span><i class="fas fa-folder-open pe-1"></i>Load</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}ResetMenu" style="width: 260px">
+                                <li class="py-1 px-3"><b>Saved Variant Stats</b></li>
+                                ${
+                                    this.sample?.qualityControl?.[this._variantStatsPath]?.variantStats?.length > 0 ?
+                                        this.sample.qualityControl[this._variantStatsPath].variantStats.map(
+                                        qcVariantStat => html`
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);" data-id="${qcVariantStat.id}"
+                                                @click="${() => this.selectVariantStats(qcVariantStat.id)}">
+                                                ${this.renderQcVariantStatsSelectItem(qcVariantStat)}
+                                            </a>
+                                        </li>`) :
+                                    html`<li class="py-1 px-3 form-text" >No Variant Stats found</li>`
+                                }
+                            </ul>
                         </div>
+                        <div class="btn-group">
+                            <data-form
+                                .data=${this.save}
+                                .config="${this.getSaveConfig()}"
+                                @fieldChange="${e => this.onSaveFieldChange(e)}"
+                                @submit="${this.onSave}">
+                            </data-form>
+                        </div>
+
                     </div>
                     <div>
                         <opencga-active-filters
@@ -368,7 +370,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                 </div>
                             ` : html`
                                 ${this.sampleQcVariantStats ? html`
-                                    <div style="padding: 0px 15px">
+                                    <div class="py-0 px-3">
                                         <sample-variant-stats-view
                                             .sampleVariantStats="${this.sampleQcVariantStats}"
                                             .query="${this.sampleQcVariantStats.query}"
@@ -376,8 +378,9 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                         </sample-variant-stats-view>
                                     </div>
                                 ` : html`
-                                    <div class="alert alert-info" role="alert" style="margin: 0px 15px">
-                                        <i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.
+                                    <div class="alert alert-info my-0 mx-3" role="alert">
+                                        <i class="fas fa-3x fa-info-circle align-middle"></i>
+                                            Please select some filters on the left.
                                     </div>
                                 `}
                             `}
@@ -408,7 +411,8 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultValue: "",
-                defaultLayout: "horizontal"
+                defaultLayout: "horizontal",
+                modalSize: "modal-lg"
             },
             sections: [
                 {

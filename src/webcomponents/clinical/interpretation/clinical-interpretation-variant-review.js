@@ -146,6 +146,8 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                         title: "Status",
                         field: "status",
                         type: "select",
+                        search: false,
+                        multiple: false,
                         allowedValues: [
                             "NOT_REVIEWED",
                             "REVIEW_REQUESTED",
@@ -159,6 +161,8 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                         title: "Confidence",
                         field: "confidence.value",
                         type: "select",
+                        search: false,
+                        multiple: false,
                         allowedValues: [
                             "HIGH",
                             "MEDIUM",

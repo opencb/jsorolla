@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import {guardPage} from "../../commons/html-utils.js";
 import "../../commons/opencga-active-filters.js";
-import "../../commons/forms/select-field-filter.js";
 import "../../loading-spinner.js";
 import "../../commons/tool-header.js";
 import "./rga-gene-view.js";
@@ -25,7 +25,6 @@ import "./rga-filter.js";
 import "./rga-individual-view.js";
 import "./rga-variant-view.js";
 import "../../commons/opencb-grid-toolbar.js";
-
 
 export default class RgaBrowser extends LitElement {
 
@@ -363,19 +362,11 @@ export default class RgaBrowser extends LitElement {
     render() {
 
         if (!this?.opencgaSession?.study?.fqn) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue.</h3>
-                </div>`;
+            return guardPage();
         }
 
         if (this.opencgaSession.study?.attributes?.RGA?.status !== "INDEXED") {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>Study ${this?.opencgaSession?.study.name} is not enabled to Recessive Variant Analysis.</h3>
-                </div>`;
+            return guardPage(`Study ${this?.opencgaSession?.study.name} is not enabled to Recessive Variant Analysis.`);
         }
 
         return html`
@@ -392,26 +383,30 @@ export default class RgaBrowser extends LitElement {
             <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
             <div class="row">
                 <div class="col-md-2">
-                    <div class="search-button-wrapper">
-                        <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
+                    <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
+                        <button type="button" class="btn btn-primary" @click="${this.onRun}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.searchButtonText || "Run"}
                         </button>
                     </div>
-                    <ul class="nav nav-tabs left-menu-tabs" role="tablist">
-                        <li role="presentation" class="active">
-                            <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">Filters</a>
+                    <ul class="nav nav-tabs mb-3" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" href="#filters_tab" aria-controls="profile" role="tab"
+                                data-bs-target="#filters_tab"
+                                data-bs-toggle="tab">
+                                Filters
+                            </button>
                         </li>
                     </ul>
 
                     <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="filters_tab">
+                        <div class="tab-pane fade show active" role="tabpanel" id="filters_tab">
                             <rga-filter
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .config="${this._config.filter}"
-                                    .query="${this.query}"
-                                    .searchButton="${false}"
-                                    @queryChange="${this.onQueryFilterChange}">
+                                .opencgaSession="${this.opencgaSession}"
+                                .cellbaseClient="${this.cellbaseClient}"
+                                .config="${this._config.filter}"
+                                .query="${this.query}"
+                                .searchButton="${false}"
+                                @queryChange="${this.onQueryFilterChange}">
                             </rga-filter>
                         </div>
 
@@ -420,55 +415,56 @@ export default class RgaBrowser extends LitElement {
 
                 <div class="col-md-10">
                     <!-- tabs buttons -->
-                    <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                        <div class="btn-group" role="group" style="margin-left: 0px">
-                            ${this._config.views && this._config.views.length ? this._config.views.map(tab => html`
-                                <button type="button" class="btn btn-success ripple content-pills ${this.activeTab[tab.id] ? "active" : ""}" ?disabled=${tab.disabled} @click="${this.onClickPill}" data-tab-id="${tab.id}">
-                                    <i class="${tab.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> ${tab.name}
-                                </button>
-                            `) : html`No view has been configured`}
-                        </div>
+                    <div class="content-pills mb-3" role="toolbar" aria-label="toolbar">
+                        ${this._config.views && this._config.views.length ? this._config.views.map(tab => html`
+                            <button type="button" class="btn btn-success ${this.activeTab[tab.id] ? "active" : ""}" ?disabled=${tab.disabled} @click="${this.onClickPill}" data-tab-id="${tab.id}">
+                                <i class="${tab.icon ?? "fa fa-table"} pe-1" aria-hidden="true"></i> ${tab.name}
+                            </button>
+                        `) : html`No view has been configured`}
                     </div>
 
                     <div>
-                        <opencga-active-filters .resource="${this.resource}"
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .defaultStudy="${this.opencgaSession?.study?.fqn}"
-                                                .query="${this.preparedQuery}"
-                                                .executedQuery="${this.executedQuery}"
-                                                .alias="${this.activeFilterAlias}"
-                                                .config="${this._config.activeFilters}"
-                                                .filters="${this._config.filter.examples}"
-                                                @activeFilterChange="${this.onActiveFilterChange}"
-                                                @activeFilterClear="${this.onActiveFilterClear}">
+                        <opencga-active-filters
+                            .resource="${this.resource}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .defaultStudy="${this.opencgaSession?.study?.fqn}"
+                            .query="${this.preparedQuery}"
+                            .executedQuery="${this.executedQuery}"
+                            .alias="${this.activeFilterAlias}"
+                            .config="${this._config.activeFilters}"
+                            .filters="${this._config.filter.examples}"
+                            @activeFilterChange="${this.onActiveFilterChange}"
+                            @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
 
                         <div class="main-view">
                             <div id="gene-tab" class="content-tab">
-                                <rga-gene-view .query=${this.executedQuery}
-                                               .config=${this._config}
-                                               .opencgaSession="${this.opencgaSession}"
-                                               .active="${this.activeTab["gene-tab"]}">
+                                <rga-gene-view
+                                    .query=${this.executedQuery}
+                                    .config=${this._config}
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .active="${this.activeTab["gene-tab"]}">
                                 </rga-gene-view>
                             </div>
 
                             <div id="individual-tab" class="content-tab">
-                                <rga-individual-view .query=${this.executedQuery}
-                                                     .config=${this._config}
-                                                     .opencgaSession="${this.opencgaSession}"
-                                                     .active="${this.activeTab["individual-tab"]}">
+                                <rga-individual-view
+                                    .query=${this.executedQuery}
+                                    .config=${this._config}
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .active="${this.activeTab["individual-tab"]}">
                                 </rga-individual-view>
                             </div>
 
                             <div id="variant-tab" class="content-tab active">
-                                <rga-variant-view .query=${this.executedQuery}
-                                                  .config=${this._config}
-                                                  .opencgaSession="${this.opencgaSession}"
-                                                  .cellbaseClient=${this.cellbaseClient}
-                                                  .active="${this.activeTab["variant-tab"]}">
+                                <rga-variant-view
+                                    .query=${this.executedQuery}
+                                    .config=${this._config}
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .cellbaseClient=${this.cellbaseClient}
+                                    .active="${this.activeTab["variant-tab"]}">
                                 </rga-variant-view>
                             </div>
-
                         </div>
 
                         <div class="v-space"></div>

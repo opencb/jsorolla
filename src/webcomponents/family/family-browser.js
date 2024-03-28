@@ -21,7 +21,6 @@ import "../commons/facet-filter.js";
 import "./family-grid.js";
 import "./family-detail.js";
 
-
 export default class FamilyBrowser extends LitElement {
 
     constructor() {
@@ -220,6 +219,10 @@ export default class FamilyBrowser extends LitElement {
                 detail: {
                     title: "Family",
                     showTitle: true,
+                    display: {
+                        titleClass: "mt-4",
+                        contentClass: "p-3"
+                    },
                     items: [
                         {
                             id: "family-view",

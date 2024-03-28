@@ -117,32 +117,32 @@ class SamtoolsFlagstatsView extends LitElement {
         return html`
             <div>
                 <!-- Render the Download button -->
-                <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                <div class="dropdown float-end mb-3">
+                    <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Download <span class="caret"></span>
+                        <i class="fa fa-download pe-1" aria-hidden="true"></i> Download
                     </button>
-                    <ul class="dropdown-menu btn-sm">
+                    <ul class="dropdown-menu">
                         ${this.config.download?.length ?
-                            this.config.download.map(item => html`
+            this.config.download.map(item => html`
                                 <li>
-                                    <a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a>
+                                    <a class="dropdown-item" href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a>
                                 </li>`
-                            ) : null
+            ) : null
                         }
                     </ul>
                 </div>
 
                 <!-- Render the table -->
                 <div>
-                    <table class="table table-hover table-no-bordered">
+                    <table class="table table-hover">
                         <thead>
                         <tr>
-                            <th></th>
+                        <th></th>
                             ${this.config?.columns?.length ?
-                                this.config.columns.map(col => html`
+                            this.config.columns.map(col => html`
                                     <th class="${col.classes}">${col.name}</th>`) :
-                                this.flagstats.map(() => html`<th>Values</th>`)
+                            this.flagstats.map(() => html`<th>Values</th>`)
                             }
                         </tr>
                         </thead>
@@ -150,7 +150,7 @@ class SamtoolsFlagstatsView extends LitElement {
                         ${this.config.rows.map(variable => html`
                             <tr>
                                 <td>
-                                    <label>${variable.name}</label>
+                                    <label class="fw-bold">${variable.name}</label>
                                 </td>
                                 ${this.flagstats.map(stat => html`<td>${stat[variable.field].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? "N/A"}</td>`) }
                             </tr>

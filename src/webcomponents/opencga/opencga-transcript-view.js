@@ -22,7 +22,6 @@ import "../variant/variant-protein-view.js";
 import {RestResponse} from "../../core/clients/rest-response";
 import NotificationUtils from "../commons/utils/notification-utils";
 
-
 export default class OpencgaTranscriptView extends LitElement {
 
     constructor() {
@@ -233,31 +232,31 @@ export default class OpencgaTranscriptView extends LitElement {
         <div id="${this._prefix}TranscriptSvg"></div>
 
         <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active">
-                <a href="#${this._prefix}Variants" role="tab" data-toggle="tab">
+            <li role="presentation" class="nav-item">
+                <a class="nav-link active" href="#${this._prefix}Variants" role="tab" data-bs-toggle="tab" data-bs-target="#${this._prefix}Variants">
                     Variants
                 </a>
             </li>
-            <li role="presentation">
-                <a href="#${this._prefix}Protein" role="tab" data-toggle="tab">
+            <li role="presentation" class="nav-item">
+                <a class="nav-link" href="#${this._prefix}Protein" role="tab" data-bs-toggle="tab" data-bs-target="#${this._prefix}Protein">
                     Protein
                 </a>
             </li>
         </ul>
 
-        <div class="tab-content" style="height: 1024px">
+        <div class="tab-content mt-3" style="height: 1024px">
             <div role="tabpanel" class="tab-pane active" id="${this._prefix}Variants">
-                    <div class="btn-group pad15" role="group">
-                        <button id="${this._prefix}AllConsTypeButton" type="button" class="btn btn-primary ripple gene-ct-buttons active" data-value="${"all"}" @click="${this.updateQuery}">
-                            All
-                        </button>
-                        <button id="${this._prefix}MissenseConsTypeButton" type="button" class="btn btn-primary ripple gene-ct-buttons" data-value="${"missense"}" @click="${this.updateQuery}">
-                            Missense
-                        </button>
-                        <button id="${this._prefix}LoFConsTypeButton" type="button" class="btn btn-primary ripple gene-ct-buttons" data-value="${"lof"}" @click="${this.updateQuery}">
-                            LoF
-                        </button>
-                    </div>
+                <div class="btn-group pad15" role="group">
+                    <button id="${this._prefix}AllConsTypeButton" type="button" class="btn btn-primary gene-ct-buttons active" data-value="${"all"}" @click="${this.updateQuery}">
+                        All
+                    </button>
+                    <button id="${this._prefix}MissenseConsTypeButton" type="button" class="btn btn-primary gene-ct-buttons" data-value="${"missense"}" @click="${this.updateQuery}">
+                        Missense
+                    </button>
+                    <button id="${this._prefix}LoFConsTypeButton" type="button" class="btn btn-primary gene-ct-buttons" data-value="${"lof"}" @click="${this.updateQuery}">
+                        LoF
+                    </button>
+                </div>
                 <br>
                 <br>
 

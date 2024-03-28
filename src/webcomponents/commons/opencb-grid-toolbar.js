@@ -128,20 +128,14 @@ export default class OpencbGridToolbar extends LitElement {
         }
 
         return html`
-            <style>
-                .opencb-grid-toolbar {
-                    margin: 0;
-                }
-            </style>
-
             <div class="opencb-grid-toolbar">
-                <div class="row">
+                <div class="row mb-3">
                     <div id="${this._prefix}ToolbarLeft" class="col-md-6">
                         <!-- Display components on the LEFT -->
                     </div>
                     <div id="${this._prefix}toolbar" class="col-md-6" data-cy="toolbar">
                         <!-- Display components on the RIGHT -->
-                        <div class="form-inline text-right pull-right" data-cy="toolbar-wrapper">
+                        <div class="d-flex gap-1 justify-content-end" data-cy="toolbar-wrapper">
                             <!-- First, display custom elements passed as 'rightToolbar' parameter, this must be the first ones displayed -->
                             ${rightButtons?.length > 0 ? rightButtons.map(rightButton => html`
                                 <div class="btn-group">
@@ -150,8 +144,8 @@ export default class OpencbGridToolbar extends LitElement {
                             `) : nothing}
 
                             ${this._settings.showRefresh ? html`
-                                <button type="button" class="btn btn-default btn-sm" @click="${() => LitUtils.dispatchCustomEvent(this, "refresh")}">
-                                    <i class="fas fa-sync-alt icon-padding"></i> Refresh
+                                <button type="button" class="btn btn-light btn-sm" @click="${() => LitUtils.dispatchCustomEvent(this, "refresh")}">
+                                    <i class="fas fa-sync-alt pe-1"></i> Refresh
                                 </button>
                             ` :nothing}
 
@@ -162,16 +156,16 @@ export default class OpencbGridToolbar extends LitElement {
                                     <!-- Note 20230517 Vero: it is not possible to trigger a tooltip on a disabled button.
                                     As a workaround, the tooltip will be displayed from a wrapper -->
                                     ${isCreateDisabled ? html `
-                                        <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="${isCreateDisabledTooltip}">
-                                            <button data-action="create" type="button" class="btn btn-default btn-sm" disabled>
-                                                <i class="fas fa-file icon-padding" aria-hidden="true"></i> New ...
+                                        <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="${isCreateDisabledTooltip}">
+                                            <button data-action="create" type="button" class="btn btn-light" disabled>
+                                                <i class="fas fa-file pe-1" aria-hidden="true"></i> New ...
                                             </button>
                                         </span>
                                     ` : html `
-                                        <button data-action="create" type="button" class="btn btn-default btn-sm"
+                                        <button data-action="create" type="button" class="btn btn-light"
                                                 @click="${this.onActionClick}">
                                             ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
-                                            <i class="fas fa-file icon-padding" aria-hidden="true"></i> New ...
+                                            <i class="fas fa-file pe-1" aria-hidden="true"></i> New ...
                                         </button>
                                     `}
                                 </div>
@@ -179,17 +173,17 @@ export default class OpencbGridToolbar extends LitElement {
 
                             ${this._settings.showExport ? html`
                                 <div class="btn-group">
-                                    <button data-action="export" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
+                                    <button data-action="export" type="button" class="btn btn-light" @click="${this.onActionClick}">
                                         ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
-                                        <i class="fas fa-download icon-padding" aria-hidden="true"></i> Export ...
+                                        <i class="fas fa-download pe-1" aria-hidden="true"></i> Export ...
                                     </button>
                                 </div>
                             ` : nothing}
 
                             ${this._settings?.showSettings ? html`
                                 <div class="btn-group">
-                                    <button data-action="settings" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
-                                        <i class="fas fa-cog icon-padding"></i> Settings ...
+                                    <button data-action="settings" type="button" class="btn btn-light" @click="${this.onActionClick}">
+                                        <i class="fas fa-cog pe-1"></i> Settings ...
                                     </button>
                                 </div>
                             ` : nothing}
@@ -228,6 +222,7 @@ export default class OpencbGridToolbar extends LitElement {
                 display: {
                     modalDraggable: true,
                     modalTitle: this.config?.resource + " Export",
+                    modalSize: "modal-lg"
                 },
                 render: () => html`
                     <opencga-export
@@ -242,6 +237,7 @@ export default class OpencbGridToolbar extends LitElement {
                 display: {
                     modalDraggable: true,
                     modalTitle: this.config?.resource + " Settings",
+                    modalSize: "modal-lg"
                 },
                 render: () => !this._config?.showInterpreterConfig ? html `
                     <catalog-browser-grid-config

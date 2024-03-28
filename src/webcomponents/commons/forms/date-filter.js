@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../forms/select-field-filter.js";
 
-
+// DEPRECATED : Use date-picker
 export default class DateFilter extends LitElement {
 
     constructor() {
@@ -202,101 +202,153 @@ export default class DateFilter extends LitElement {
 
     render() {
         return html`
-        <style>
-            .range-box:nth-child(2) {
-                margin-top: 20px;
-            }
-
-            .date-field-wrapper .col-md-4 {
-                padding: 0 5px 0 0;
-            }
-
-            .date-field-wrapper [data-type=recent] {
-                max-width: 70px;
-            }
-
-            .date-field-wrapper .col-md-4:last-child {
-                padding: 0;
-            }
-        </style>
-
-        <div class="form-group">
+        <div class="mb-3">
             <form id="${this._prefix}DateRadioButton">
-                <fieldset class="switch-toggle-wrapper">
-                    <div class="switch-toggle text-white">
-                        <input type="radio" data-tab="all" name="selectionButtons" id="${this._prefix}allRadio" value="all" class="${this._prefix}FilterRadio" .checked="${this.activeTab === "all"}" @change="${this.onFilterChange}">
-                        <label for="${this._prefix}allRadio" ><span class="${this._prefix}-text">All</span></label>
+                <fieldset class="d-grid my-1 mx-0">
+                    <div class="btn-group" role="group">
+                        <input class="${this._prefix}FilterRadio btn-check" id="${this._prefix}allRadio"
+                            type="radio" data-tab="all" name="selectionButtons" value="all" .checked="${this.activeTab === "all"}" @change="${this.onFilterChange}">
+                        <label class="btn btn-outline-primary" for="${this._prefix}allRadio">
+                            <span class="${this._prefix}-text">All</span>
+                        </label>
 
-                        <input type="radio" data-tab="recent" name="selectionButtons" id="${this._prefix}recentlyRadio" value="recent" class="${this._prefix}FilterRadio" .checked="${this.activeTab === "recent"}" @change="${this.onFilterChange}">
-                        <label for="${this._prefix}recentlyRadio" ><span class="${this._prefix}-text">Recent</span></label>
+                        <input class="${this._prefix}FilterRadio btn-check"  id="${this._prefix}recentlyRadio"
+                            type="radio" data-tab="recent" name="selectionButtons" value="recent" .checked="${this.activeTab === "recent"}" @change="${this.onFilterChange}">
+                        <label class="btn btn-outline-primary" for="${this._prefix}recentlyRadio">
+                            <span class="${this._prefix}-text">Recent</span>
+                        </label>
 
-                        <input type="radio" data-tab="date" name="selectionButtons" id="${this._prefix}dateRadio" value="date" class="${this._prefix}FilterRadio" .checked="${this.activeTab === "date"}" @change="${this.onFilterChange}">
-                        <label for="${this._prefix}dateRadio" ><span class="${this._prefix}-text">Date</span></label>
+                        <input class="${this._prefix}FilterRadio btn-check" id="${this._prefix}dateRadio"
+                            type="radio" data-tab="date" name="selectionButtons" value="date" .checked="${this.activeTab === "date"}" @change="${this.onFilterChange}">
+                        <label class="btn btn-outline-primary" for="${this._prefix}dateRadio">
+                            <span class="${this._prefix}-text">Date</span>
+                        </label>
 
-                        <input type="radio" data-tab="range" name="selectionButtons" id="${this._prefix}rangesRadio" value="range" class="${this._prefix}FilterRadio" .checked="${this.activeTab === "range"}" @change="${this.onFilterChange}">
-                        <label for="${this._prefix}rangesRadio" ><span class="${this._prefix}-text">Range</span></label>
-
-                        <a class="btn btn-primary ripple btn-small"></a>
+                        <input class="${this._prefix}FilterRadio btn-check" id="${this._prefix}rangesRadio"
+                            type="radio" data-tab="range" name="selectionButtons" value="range" .checked="${this.activeTab === "range"}" @change="${this.onFilterChange}">
+                        <label class="btn btn-outline-primary" for="${this._prefix}rangesRadio">
+                            <span class="${this._prefix}-text">Range</span>
+                        </label>
                     </div>
                 </fieldset>
 
-                <div class="container-fluid">
+                <div>
                     ${this.activeTab === "recent" ? html`
-                        <div data-cy="date-recent">
-                            <form class="form-inline row date-field-wrapper text-center">
-                                <div class="form-group">
-                                    <span>Last </span>
-                                        <input data-type="recent" type="number" class="form-control" min="1" max="100" .value=${this.selectedRecentDays} @change="${e => this.onFilterChange(e)}">
-                                    <span> day(s)</span>
-                                </div>
-                            </form>
+                        <div class="row g-1 justify-content-center align-items-center" data-cy="date-recent">
+                            <div class="col-auto">
+                                <label for="lastday1" class="col-form-label fw-bold">Last</label>
+                            </div>
+                            <div class="col-auto">
+                                <input class="form-control" data-type="recent" id="lastday1"
+                                    type="number" min="1" max="100" .value=${this.selectedRecentDays} @change="${e => this.onFilterChange(e)}">
+                            </div>
+                            <div class="col-auto">
+                                <span for="lastday1" class="col-form-label fw-bold">day(s)</span>
+                            </div>
                         </div>
                     ` : null}
 
                     ${this.activeTab === "date" ? html`
                         <div data-cy="date-single">
-                            <form class="row date-field-wrapper">
+                            <form class="row">
                                 <div class="col-md-4">
-                                    <select-field-filter data-type="date" data-field="year" .data="${this.years}" .value=${this.selectedDate.year} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                    <select-field-filter
+                                        data-type="date"
+                                        data-field="year"
+                                        .data="${this.years}"
+                                        .value=${this.selectedDate.year}
+                                        @filterChange="${e => this.onFilterChange(e)}">
+                                    </select-field-filter>
                                 </div>
                                 <div class="col-md-4">
-                                    <select-field-filter data-type="date" data-field="month" .data="${this.months}" .value=${this.selectedDate.month} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                    <select-field-filter
+                                        data-type="date"
+                                        data-field="month"
+                                        .data="${this.months}"
+                                        .value=${this.selectedDate.month}
+                                        @filterChange="${e => this.onFilterChange(e)}">
+                                    </select-field-filter>
                                 </div>
                                 <div class="col-md-4">
-                                    <select-field-filter data-type="date" data-field="day" .data="${this.daysInMonth(this.selectedDate.year, this.selectedDate.month)}" .value=${this.selectedDate.day} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                    <select-field-filter
+                                        data-type="date" data-field="day"
+                                        .data="${this.daysInMonth(this.selectedDate.year, this.selectedDate.month)}"
+                                        .value=${this.selectedDate.day}
+                                        @filterChange="${e => this.onFilterChange(e)}">
+                                    </select-field-filter>
                                 </div>
                             </form>
                         </div>
                     ` : null}
 
-
                     ${this.activeTab === "range" ? html`
                         <div data-cy="date-range">
                             <div class="range-box">
-                                <label class="${this._prefix}-text">Begin period</label>
-                                <form class="row date-field-wrapper">
+                                <form class="row">
+                                    <label class="${this._prefix}-text fw-bold">Begin period</label>
                                     <div class="col-md-4">
-                                        <select-field-filter data-type="range" data-endpoint="start" data-field="year" .data="${this.years}" .value=${this.selectedPeriod.start.year} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                        <select-field-filter
+                                            data-type="range"
+                                            data-endpoint="start"
+                                            data-field="year"
+                                            .data="${this.years}"
+                                            .value=${this.selectedPeriod.start.year}
+                                            @filterChange="${e => this.onFilterChange(e)}">
+                                        </select-field-filter>
                                     </div>
                                     <div class="col-md-4">
-                                        <select-field-filter data-type="range" data-endpoint="start" data-field="month" .data="${this.months}" .value=${this.selectedPeriod.start.month} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                        <select-field-filter
+                                            data-type="range"
+                                            data-endpoint="start" data-field="month"
+                                            .data="${this.months}"
+                                            .value=${this.selectedPeriod.start.month}
+                                            @filterChange="${e => this.onFilterChange(e)}">
+                                        </select-field-filter>
                                     </div>
                                     <div class="col-md-4">
-                                        <select-field-filter data-type="range" data-endpoint="start" data-field="day" .data="${this.daysInMonth(this.selectedPeriod.start.year, this.selectedPeriod.start.month)}" .value=${this.selectedPeriod.start.day} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                        <select-field-filter
+                                            data-type="range"
+                                            data-endpoint="start"
+                                            data-field="day"
+                                            .data="${this.daysInMonth(this.selectedPeriod.start.year, this.selectedPeriod.start.month)}"
+                                            .value=${this.selectedPeriod.start.day}
+                                            @filterChange="${e => this.onFilterChange(e)}">
+                                        </select-field-filter>
                                     </div>
                                 </form>
                             </div>
                             <div class="range-box">
-                                <label class="${this._prefix}-text">End period</label>
-                                <form class="row date-field-wrapper">
+                                <form class="row">
+                                    <label class="${this._prefix}-text fw-bold">End period</label>
                                     <div class="col-md-4">
-                                        <select-field-filter data-type="range" data-endpoint="end" data-field="year" .data="${this.years}" .value=${this.selectedPeriod.end.year} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                        <select-field-filter
+                                            data-type="range"
+                                            data-endpoint="end"
+                                            data-field="year"
+                                            .data="${this.years}"
+                                            .value=${this.selectedPeriod.end.year}
+                                            @filterChange="${e => this.onFilterChange(e)}">
+                                        </select-field-filter>
                                     </div>
                                     <div class="col-md-4">
-                                        <select-field-filter data-type="range" data-endpoint="end" data-field="month" .data="${this.months}" .value=${this.selectedPeriod.end.month} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                        <select-field-filter
+                                            data-type="range"
+                                            data-endpoint="end"
+                                            data-field="month"
+                                            .data="${this.months}"
+                                            .value=${this.selectedPeriod.end.month}
+                                            @filterChange="${e => this.onFilterChange(e)}">
+                                        </select-field-filter>
                                     </div>
                                     <div class="col-md-4">
-                                        <select-field-filter data-type="range" data-endpoint="end" data-field="day" .data="${this.daysInMonth(this.selectedPeriod.end.year, this.selectedPeriod.end.month)}" .value=${this.selectedPeriod.end.day} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                        <select-field-filter
+                                            data-type="range"
+                                            data-endpoint="end"
+                                            data-field="day"
+                                            .data="${this.daysInMonth(this.selectedPeriod.end.year, this.selectedPeriod.end.month)}"
+                                            .value=${this.selectedPeriod.end.day}
+                                            @filterChange="${e => this.onFilterChange(e)}">
+                                        </select-field-filter>
                                     </div>
                                 </form>
                             </div>

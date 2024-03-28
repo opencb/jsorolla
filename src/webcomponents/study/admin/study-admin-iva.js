@@ -128,7 +128,7 @@ export default class StudyAdminIva extends LitElement {
                         visibility: "private",
                         render: (opencgaSession, study) => {
                             return html `
-                                <div style="padding: 1em 0">Reset all settings to their original defaults and restore the backup version</div>
+                                <div class="py-3">Reset all settings to their original defaults and restore the backup version</div>
                                 <tool-settings-restore
                                     .study="${study}"
                                     .opencgaSession="${opencgaSession}"

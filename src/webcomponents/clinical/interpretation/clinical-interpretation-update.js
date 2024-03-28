@@ -71,7 +71,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
             defaultLayout: "horizontal",
             buttonsVisible: true,
             buttonsWidth: 8,
-            buttonsAlign: "right",
+            buttonsAlign: "end",
         };
         this.config = this.getDefaultConfig();
     }

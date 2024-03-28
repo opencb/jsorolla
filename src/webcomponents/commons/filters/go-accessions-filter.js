@@ -84,7 +84,8 @@ export default class GoAccessionsFilter extends LitElement {
     }
 
     openModal() {
-        $("#GO_ontologyModal").modal("show");
+        const ontologyModal = new bootstrap.Modal(`#GO_ontologyModal`);
+        ontologyModal.show();
     }
 
     getDefaultConfig() {
@@ -102,11 +103,11 @@ export default class GoAccessionsFilter extends LitElement {
                 .config="${this._config}"
                 @filterChange="${this.onFilterChange}">
             </ontology-autocomplete-filter>
-
-            <button class="btn btn-primary ripple full-width" id="${this._prefix}buttonOpenGoAccesions" @click="${this.openModal}">
-                <i class="fa fa-search" aria-hidden="true"></i>  Browse GO Terms
-            </button>
-
+            <div class="d-grid">
+                <button class="btn btn-primary full-width" id="${this._prefix}buttonOpenGoAccesions" @click="${this.openModal}">
+                    <i class="fa fa-search" aria-hidden="true"></i> Browse GO Terms
+                </button>
+            </div>
             <variant-modal-ontology
                 .config="${this._config}"
                 .cellbaseClient="${this.cellbaseClient}"

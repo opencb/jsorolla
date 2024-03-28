@@ -33,6 +33,10 @@ export default class GridCommons {
         detailClose: "fa-minus"
     }
 
+    static loadingFormatter() {
+        return "<div style='margin-top:5%'><loading-spinner></loading-spinner></div>";
+    }
+
     constructor(gridId, context, config) {
         this.gridId = gridId;
         this.context = context;
@@ -82,8 +86,8 @@ export default class GridCommons {
     }
 
     onClickRow(rowId, row, selectedElement) {
-        $("#" + this.gridId + " tr").removeClass("success");
-        $(selectedElement).addClass("success");
+        $("#" + this.gridId + " tr").removeClass("table-success");
+        $(selectedElement).addClass("table-success");
         this.selectedRow = selectedElement;
         // $("#" + this.gridId + " tr td").removeClass("success");
         // $("td", selectedElement).addClass("success");
@@ -169,9 +173,9 @@ export default class GridCommons {
                 const selectedDataId = this.selectedRow?.[0]?.attributes["data-uniqueid"]?.["nodeValue"];
                 const selectedData = selectedDataId ? data.rows.find(row => row?.id === selectedDataId) : null;
                 if (selectedData) {
-                    table.find(`tr[data-uniqueid="${selectedDataId}"]`).addClass("success");
+                    table.find(`tr[data-uniqueid="${selectedDataId}"]`).addClass("table-success");
                 } else {
-                    table.find("tr[data-index=0]").addClass("success");
+                    table.find("tr[data-index=0]").addClass("table-success");
                 }
                 this.context.dispatchEvent(new CustomEvent("selectrow", {
                     detail: {

@@ -125,15 +125,15 @@ export default class StudyAdminIndividual extends LitElement {
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">
-                                <div class="col-md-6" style="margin: 20px 10px">
-                                    <div style="float: right">
+                                <div class="col-md-6 mx-3 my-4">
+                                    <div class="d-flex justify-content-end">
                                         <div class="btn-group">
                                             ${UtilsNew.isNotEmpty(this.individual) ? html `
-                                                <button class="btn btn-default ripple btn-sm" type="button" @click="${e => this.clearForm(e)}">
-                                                    <i class="fas fa-arrow-left icon-hover"></i>  Back
+                                                <button class="btn btn-light" type="button" @click="${e => this.clearForm(e)}">
+                                                    <i class="fas fa-arrow-left"></i>  Back
                                                 </button>
-                                                <button class="btn btn-default ripple btn-sm" type="button" @click="${e => this.editForm(e)}">
-                                                    <i class="${this.editIndividual? "far fa-eye": "fa fa-edit"} icon-hover"></i> ${this.editIndividual? "View" : "Edit"}
+                                                <button class="btn btn-light" type="button" @click="${e => this.editForm(e)}">
+                                                    <i class="${this.editIndividual? "far fa-eye": "fa fa-edit"}"></i> ${this.editIndividual? "View" : "Edit"}
                                                 </button>`: nothing}
                                         </div>
                                     </div>
@@ -159,9 +159,9 @@ export default class StudyAdminIndividual extends LitElement {
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">
-                                <div class="col-md-6" style="margin: 20px 10px">
+                                <div class="col-md-6 mx-3 my-4">
                                     <individual-create
-                                            .opencgaSession="${opencgaSession}">
+                                        .opencgaSession="${opencgaSession}">
                                     </individual-create>
                                 </div>
                             </div>`;
@@ -192,7 +192,7 @@ export default class StudyAdminIndividual extends LitElement {
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                             <h4 class="modal-title">New ${name}</h4>
                         </div>
                         <div class="modal-body">

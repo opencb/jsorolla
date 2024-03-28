@@ -64,9 +64,9 @@ CircosNavigationBar.prototype = {
         var navgationHtml = '' +
             '<div class="btn-toolbar" role="toolbar">' +
             '   <div class="btn-group btn-group-sm">' +
-            '       <button id="zoomOutButton" type="button" class="btn btn-default btn-xs"><i style="color:#428BCA" class="fa fa-minus" aria-hidden="true"></i></button>' +
-            '       <button id="zoomInButton" type="button" class="btn btn-default btn-xs"><i style="color:#428BCA" class="fa fa-plus" aria-hidden="true"></i></button>' +
-            '       <button id="zoomRestoreButton" type="button" class="btn btn-default btn-xs"><i style="color:#428BCA" class="fa fa-repeat" aria-hidden="true"></i></button>' +
+            '       <button id="zoomOutButton" type="button" class="btn btn-light btn-sm"><i style="color:#428BCA" class="fa fa-minus" aria-hidden="true"></i></button>' +
+            '       <button id="zoomInButton" type="button" class="btn btn-light btn-sm"><i style="color:#428BCA" class="fa fa-plus" aria-hidden="true"></i></button>' +
+            '       <button id="zoomRestoreButton" type="button" class="btn btn-light btn-sm"><i style="color:#428BCA" class="fa fa-repeat" aria-hidden="true"></i></button>' +
             '   </div>' +
 //            '   <div class="btn-group btn-group-sm">' +
 //            '       <button id="chromosomesButton" type="button" class="btn btn-default btn-xs" data-toggle="button">Chromosomes</button>' +
@@ -94,7 +94,7 @@ CircosNavigationBar.prototype = {
             '';
 
         var chromosomesHtml = '' +
-            '<button id="chromosomesButton" type="button" class="btn btn-default btn-xs" data-toggle="button">1</button>' +
+            '<button id="chromosomesButton" type="button" class="btn btn-light btn-sm" data-toggle="button">1</button>' +
             '';
 
         this.targetDiv = this.targetId;
@@ -140,7 +140,7 @@ CircosNavigationBar.prototype = {
         var chromosomes = this.genomesChromosomes['hsapiens'];
         for (var i = 0; i < chromosomes.length; i++) {
             var chr = chromosomes[i];
-           html+= '<button id="chromosomesButton" type="button" class="btn btn-default btn-sm" style="width:34px">'+chr.name+'</button>';
+           html+= '<button id="chromosomesButton" type="button" class="btn btn-light btn-sm" style="width:34px">'+chr.name+'</button>';
         }
         html += '</div>';
         return html;

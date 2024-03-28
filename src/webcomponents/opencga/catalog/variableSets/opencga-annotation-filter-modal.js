@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../../../core/utils-new.js";
@@ -234,48 +233,76 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         switch (variable.type) {
             case "OBJECT":
                 content = html`
-                                ${variable?.variableSet?.length ?
-                                    html`
-                                        <div class="col-md-12 variable-object">
-                                            <label class="variable-object-title">${variable.id}</label>
-                                            ${variable.variableSet.map(v => this.renderVariable(v, variableSet))}
-                                        </div>` :
-                                    html`
-                                        <div class="form-group col-md-3">
-                                            <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
-                                            <textarea rows="1" class="form-control" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"></textarea>
-                                        </div>
-                                    `}
-                            </div>`;
+                    ${variable?.variableSet?.length ? html`
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">
+                                    ${variable.id}
+                                </label>
+                                ${variable.variableSet.map(v => this.renderVariable(v, variableSet))}
+                            </div>
+                        ` : html`
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold" for="${variable.id}Textarea">
+                                    <a tooltip-title="${variable.id}" tooltip-text="${variable.description}">
+                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                    </a> ${variable.id}
+                                </label>
+                                <textarea class="form-control" id="${variable.id}Textarea" rows="1"
+                                    data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
+                                    @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}">
+                                </textarea>
+                            </div>
+                        `}
+                    </div>`;
                 break;
             case "MAP_STRING":
                 // copy of MAP_INTEGER without operator select
                 content = html`
                     <!--<pre> \${JSON.stringify(variable)}</pre>-->
                     ${variable?.allowedKeys?.length ? html`
-                        <div class="col-md-12 map-field-wrapper">
-                            <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
-                            <select-field-filter multiple .data="${variable?.allowedKeys}" value=${this.variableMap?.[variableSet.id]?.[variable.id] ?? []} @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}"></select-field-filter>
-                            <div class="form-inline row map-field-inputs">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">
+                                <a tooltip-title="${variable.id}" tooltip-text="${variable.description}">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a> ${variable.id}
+                            </label>
+                            <select-field-filter
+                                .data="${variable?.allowedKeys}"
+                                .value="${this.variableMap?.[variableSet.id]?.[variable.id] ?? []}"
+                                .config="${{
+                                    multiple: true,
+                                    liveSearch: false
+                                }}"
+                                @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}">
+                            </select-field-filter>
+                            <!-- form-inline -->
+                            <div class="row row-cols-lg-auto g-1 align-items-center">
                                 ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {
                                     return html`
-                                            <div class="form-group col-md-3">
-                                                <label> ${key} </label>
-                                                <input type="text" class="form-control map-field-input" placeholder="${key}" data-variable-id="${variable.id + "." + key}" data-variable-set-id="${variableSet.id}"
-                                            @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
-                                            </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold" for="${variable.id}Input">${key}</label>
+                                            <input class="form-control" type="text" placeholder="${key}" id="${variable.id}Input"
+                                                data-variable-id="${variable.id + "." + key}"
+                                                data-variable-set-id="${variableSet.id}"
+                                                @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
+                                        </div>
                                         `;
                                 })
                                 }
                             </div>
                         </div>
-                    ` : html`<div class="form-group col-md-3">
-                        <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
-                        <input type="text" class="form-control"
-                            placeholder="${variable.id}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
-                            pattern="${variable?.attributes?.pattern ?? null}"
-                            aria-describedby="basic-addon1" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
-                    </div>`}
+                    ` : html`
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold" for="${variable.id}Input">
+                                <a tooltip-title="${variable.id}" tooltip-text="${variable.description}">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a> ${variable.id}
+                            </label>
+                            <input class="form-control" type="text" id="${variable.id}Input" placeholder="${variable.id}"
+                                data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
+                                pattern="${variable?.attributes?.pattern ?? null}"
+                                aria-describedby="basic-addon1" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
+                        </div>`}
                     `;
                 break;
             case "MAP_DOUBLE":
@@ -283,86 +310,133 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                 content = html`
                     <!--<pre> \${JSON.stringify(variable)}</pre>-->
                     ${variable?.allowedKeys?.length ? html`
-                        <div class="col-md-12 map-field-wrapper">
-                            <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
-                            <select-field-filter multiple .data="${variable?.allowedKeys}" value=${this.variableMap?.[variableSet.id]?.[variable.id] ?? []} @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}"></select-field-filter>
-                            <div class="row map-field-inputs">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">
+                                <a tooltip-title="${variable.id}" tooltip-text="${variable.description}">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a> ${variable.id}
+                            </label>
+                            <select-field-filter
+                                .data="${variable?.allowedKeys}"
+                                .value=${this.variableMap?.[variableSet.id]?.[variable.id] ?? []}
+                                .config="${{
+                                    multiple: true,
+                                    liveSearch: false
+                                }}"
+                                @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}">
+                            </select-field-filter>
+                            <div class="row">
                                 ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {
                                     return html`
-                                        <div class="form-group col-md-3">
-                                            <label> ${key} </label>
-                                            <div class="form-inline numeric-variable">
-                                                <select class="form-control input-sm operator-select" data-variable-id="${variable.id + "." + key}" data-variable-set-id="${variableSet.id}" @change="${this.changeOperator}">
-                                                    <option value="=">=</option>
-                                                    <option value="<">&lt;</option>
-                                                    <option value="<=">&le;</option>
-                                                    <option value=">" selected>&gt;</option>
-                                                    <option value=">=">&ge;</option>
-                                                </select>
-                                                <input type="text" class="form-control map-field-input num-value" placeholder="${key}" data-variable-id="${variable.id + "." + key}" data-variable-set-id="${variableSet.id}" data-operator=">"
-                                            @input="${this.addNumericFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold"  for="${variable.id}Input">
+                                                ${key}
+                                            </label>
+                                            <div class="row row-cols-lg-auto g-1 align-items-center">
+                                                <div class="col-6">
+                                                    <select class="form-select form-select-sm"  id="${variable.id}Input"
+                                                        data-variable-id="${variable.id + "." + key}" data-variable-set-id="${variableSet.id}"
+                                                        @change="${this.changeOperator}">
+                                                            <option value="=">=</option>
+                                                            <option value="<">&lt;</option>
+                                                            <option value="<=">&le;</option>
+                                                            <option value=">" selected>&gt;</option>
+                                                            <option value=">=">&ge;</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-6">
+                                                    <input type="text" class="form-control" placeholder="${key}"
+                                                    data-variable-id="${variable.id + "." + key}" data-variable-set-id="${variableSet.id}" data-operator=">"
+                                                    @input="${this.addNumericFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
+                                                </div>
                                             </div>
                                         </div>
-                                    `;
-                                })
+                                        `;
+                                    })
                                 }
                             </div>
                         </div>
-                    ` : html`<div class="form-group col-md-3">
-                        <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
-                        <input type="text" class="form-control"
-                            placeholder="${variable.id}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
-                            pattern="${variable?.attributes?.pattern ?? null}"
-                            aria-describedby="basic-addon1" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
-                    </div>`}
+                    ` : html`
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold" for="${variable.id}Input">
+                                <a tooltip-title="${variable.id}" tooltip-text="${variable.description}">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a> ${variable.id}
+                            </label>
+                            <input class="form-control" type="text" id="${variable.id}Input"
+                                placeholder="${variable.id}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
+                                pattern="${variable?.attributes?.pattern ?? null}" aria-describedby="basic-addon1" @input="${this.addInputFilter}"
+                                .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
+                        </div>`}
 
 
                     `;
                 break;
             case "TEXT":
             case "STRING":
-                content = html`<div class="form-group col-md-3">
-                                <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
-                                <input type="text" class="form-control"
-                                    placeholder="${variable.id}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
-                                    pattern="${variable?.attributes?.pattern ?? null}"
-                                    aria-describedby="basic-addon1" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
-                            </div>`;
+                content = html`
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold" for="${variable.id}Input">
+                            <a tooltip-title="${variable.id}" tooltip-text="${variable.description}">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            </a> ${variable.id}
+                        </label>
+                        <input type="text" class="form-control" id="${variable.id}Input"
+                            placeholder="${variable.id}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
+                            pattern="${variable?.attributes?.pattern ?? null}" aria-describedby="basic-addon1" @input="${this.addInputFilter}"
+                            .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
+                    </div>`;
                 break;
             case "NUMERIC":
             case "INTEGER":
             case "DOUBLE":
-                content = html` <div class="form-group col-md-3">
-                                    <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
-                                    <div class="form-inline numeric-variable">
-                                        <select class="form-control input-sm operator-select" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}" @change="${this.changeOperator}">
-                                            <option value="=">=</option>
-                                            <option value="<">&lt;</option>
-                                            <option value="<=">&le;</option>
-                                            <option value=">" selected>&gt;</option>
-                                            <option value=">=">&ge;</option>
-                                        </select>
-                                        <input type="text" class="form-control map-field-input num-value" placeholder="${variable.id}" pattern="${variable?.attributes?.pattern ?? null}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}" data-operator=">"
+                content = html`
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold" for="${variable.id}Select ${variable.id}Input">
+                            <a tooltip-title="${variable.id}" tooltip-text="${variable.description}">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            </a> ${variable.id}
+                        </label>
+                        <div class="row row-cols-lg-auto g-1 align-items-center">
+                            <div class="col-6">
+                                <select class="form-select" id="${variable.id}Select" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}" @change="${this.changeOperator}">
+                                    <option value="=">=</option>
+                                    <option value="<">&lt;</option>
+                                    <option value="<=">&le;</option>
+                                    <option value=">" selected>&gt;</option>
+                                    <option value=">=">&ge;</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <input type="text" class="form-control" id="${variable.id}Input" placeholder="${variable.id}" pattern="${variable?.attributes?.pattern ?? null}"
+                                    data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}" data-operator=">"
                                     @input="${this.addNumericFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
-                                    </div>
-                                </div>`;
+                            </div>
+                        </div>
+                    </div>`;
                 break;
             case "CATEGORICAL":
-                content = html`<select id="${this._prefix}-categorical-selector" class="selectpicker ${variable.id}" multiple @change="${this.addCategoricalFilter}" data-variable-set-id="${variableSet.id}" data-width="100%">
-                ${variable.allowedValues && variable.allowedValues.length && variable.allowedValues.map(item => html`
-                    <option value="${item}">${item}</option>
-                    `)}
+                content = html`
+                    <select class="selectpicker ${variable.id} form-select" id="${this._prefix}-categorical-selector"  multiple @change="${this.addCategoricalFilter}" data-variable-set-id="${variableSet.id}" data-width="100%">
+                        ${variable.allowedValues && variable.allowedValues.length && variable.allowedValues.map(item => html`<option value="${item}">${item}</option>`)}
                     </select>`;
                 break;
             case "BOOLEAN":
                 content = html`
-                    <div class="form-check form-check-inline col-md-3">
-                        <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
-                        <div class="form-group">
-                            <input id="${this._prefix}${variable.id}yes" class="form-check-input" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
-                            type="radio" name="${variable.id}Options" data-value="True" .checked="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value === "true"}" @input="${this.addBooleanFilter}">
+                        <!-- form-check form-check-inline col-md-3 -->
+                    <div class="row row-cols-lg-auto g-1 align-items-center">
+                        <label class="form-check-label fw-bold" for="${this._prefix}${variable.id}yes ${this._prefix}${variable.id}no">
+                            <a tooltip-title="${variable.id}" tooltip-text="${variable.description}">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            </a> ${variable.id}
+                        </label>
+                        <div class="form-control">
+                            <input class="form-check-input" data-variable-id="${variable.id}" id="${this._prefix}${variable.id}yes"
+                                data-variable-set-id="${variableSet.id}" type="radio" name="${variable.id}Options" data-value="True"
+                                .checked="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value === "true"}" @input="${this.addBooleanFilter}">
                             True
-                            <input id="${this._prefix}${variable.id}no" class="form-check-input" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
+                            <input class="form-check-input" id="${this._prefix}${variable.id}no"
+                            data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
                             type="radio" name="${variable.id}Options" data-value="False" .checked="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value === "false"}" @input="${this.addBooleanFilter}">
                             False
                         </div>
@@ -371,10 +445,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
             default:
                 throw new Error("Type not recognized " + variable.type + "(" + variable.id + ")");
         }
-        return html`
-            <div class=" variable">
-                ${content}
-            </div>`;
+        return html`${content}`;
     }
 
     filterChange() {
@@ -382,12 +453,9 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
     }
 
     showModal() {
-        $("#" + this._prefix + "annotation-modal").modal("show");
+        const annotationModal = new bootstrap.Modal(`#${this._prefix}annotation-modal`);
+        annotationModal.show();
         UtilsNew.initTooltip(this);
-    }
-
-    closeModal() {
-        $("#" + this._prefix + "annotation-modal").modal("hide");
     }
 
     getDefaultConfig() {
@@ -398,62 +466,37 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
 
     render() {
         return html`
-            <style>
-                .annotation-modal .modal-dialog {
-                    width: 1000px;
-                    margin: 2em auto;
-                }
-                .variable-object {
-                    padding: 10px;
-                    margin: 5px 0;
-                    border: 1px solid #d2d2d2;
-                    border-radius: 3px;
-                }
-                .variable-object-title {
-                    font-size: 1.5em;
-                }
-
-                .annotation-modal .tab-pane {
-                    padding-top: 20px;
-                }
-
-                .variable-set-description {
-                    margin: 5px 0 20px 0;
-                }
-
-                .numeric-variable .operator-select {
-                    width: 20% !important;
-                }
-                .numeric-variable .num-value {
-                    width: 78% !important;
-                }
-            </style>
-
             ${this.variableSets?.length ? html`
-                <button type="button" class="btn btn-default" @click="${this.showModal}"> Annotation </button>
+                <button type="button" class="btn btn-light" @click="${this.showModal}">Annotation</button>
+
                 <div class="modal fade annotation-modal" id="${this._prefix}annotation-modal" role="dialog"
-                 aria-labelledby="annotation-modal" data-keyboard="false">
-                <div class="modal-dialog">
+                    tabindex="-1" aria-labelledby="annotation-modal" data-keyboard="false">
+                <div class="modal-dialog modal-xl" role="document">
                     <div class="modal-content container">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            Annotation filter
+                            <h4 class="modal-title">Annotation filter</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <ul class="nav nav-tabs" role="tablist">
+                            <ul class="nav nav-tabs mb-3" role="tablist">
                                 ${this.variableSets.map((variableSet, i) => html`
-                                    <li role="presentation" class="${classMap({"active": i === 0})}">
-                                        <a href="#${variableSet.id}_tab" aria-controls="profile" role="tab" data-toggle="tab" data-cy="variable-set-tab">${variableSet.name}</a>
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link ${classMap({"active": i === 0})}"
+                                            id="${variableSet.id}_tab" data-bs-toggle="tab" data-bs-target="#${variableSet.id}_tabpanel"
+                                            href="javascript: void 0" aria-controls="${variableSet.id}_tab"
+                                            role="tab" data-cy="variable-set-tab">${variableSet.name}</a>
                                     </li>
                                 `)}
                             </ul>
 
                             <div class="tab-content">
                                 ${this.variableSets.map((variableSet, i) => html`
-                                    <div role="tabpanel" class="tab-pane ${classMap({"active": i === 0})}" id="${variableSet.id}_tab">
-                                    ${variableSet.description ? html`<h4 class="variable-set-description">${variableSet.description}</h4>` : null}
-                                    <div class="row">
-                                    ${variableSet.variables.map(variable => html`<div> ${this.renderVariable(variable, variableSet)}</div>`)}
+                                    <div class="tab-pane ${classMap({"active": i === 0})}" id="${variableSet.id}_tabpanel"
+                                        role="tabpanel" tabindex="0"  aria-labelledby="${variableSet.id}_tab">
+                                        ${variableSet.description ? html`
+                                        <h4 class="mb-3">${variableSet.description}</h4>` : null}
+                                    <div class="row g-3">
+                                        ${variableSet.variables.map(variable => html`${this.renderVariable(variable, variableSet)}`)}
                                     </div>
                                 </div>
                                 `)}
@@ -461,7 +504,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary ripple" @click="${this.closeModal}">OK</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">OK</button>
                         </div>
                     </div>
                 </div>

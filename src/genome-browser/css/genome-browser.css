@@ -8,15 +8,19 @@
     background-size: cover;
     line-height: 1;
 }
+
 .gb-icon-karyotype {
     background-image: url(../img/icon-karyotype.png) !important;
 }
+
 .gb-icon-chromosome {
     background-image: url(../img/icon-chromosome.png) !important;
 }
+
 .gb-icon-region {
     background-image: url(../img/icon-region.png) !important;
 }
+
 .gb-icon-resize {
     background-image: url(../img/track-resize.png) !important;
 }
@@ -25,12 +29,15 @@
 .dropdown-submenu {
     position: relative;
 }
-.dropdown-submenu > .dropdown-menu {
+
+.dropdown-submenu>.dropdown-menu {
     top: 0;
     left: 100%;
     margin-top: -6px;
-    border-radius: 0 6px 6px 6px;
+    /* border-radius: 0 6px 6px 6px; */
+    border-radius: 6px;
 }
-.dropdown-submenu:hover > .dropdown-menu {
+
+.dropdown-submenu:hover>.dropdown-menu {
     display: block;
 }

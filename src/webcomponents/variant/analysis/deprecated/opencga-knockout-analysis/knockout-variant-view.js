@@ -201,6 +201,8 @@ export default class KnockoutVariantView extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             // data: this.tableData,
             columns: this._initTableColumns(),
             sidePagination: "local",
@@ -225,7 +227,8 @@ export default class KnockoutVariantView extends LitElement {
                         params.error(e);
                     });
             },
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement, field) => {
                 console.log(row);
                 this.variant = row;

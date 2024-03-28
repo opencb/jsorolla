@@ -150,8 +150,8 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                         display: {
                             render: clinicalSignificance => html`
                                 <select-field-filter
-                                    .data=${CLINICAL_SIGNIFICANCE}
-                                    .value=${(clinicalSignificance || "").toLowerCase()}
+                                    .data="${CLINICAL_SIGNIFICANCE}"
+                                    .value="${(clinicalSignificance || "").toLowerCase()}"
                                     @filterChange="${e => this.onFieldChange(e, "clinicalSignificance")}">
                                 </select-field-filter>
                             `,
@@ -186,7 +186,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                         </div>
                                         <div>${acmg.comment || "No comment found"}</div>
                                     </div>
-                                    <div class="help-block" style="margin: 5px">
+                                    <div class="d-block text-secondary" style="margin: 5px">
                                         Added by <b>${acmg.author || this.opencgaSession?.user?.id || "-"}</b> on
                                         <b>${UtilsNew.dateFormatter(acmg.date || UtilsNew.getDatetime())}</b>
                                     </div>

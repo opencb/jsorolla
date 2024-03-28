@@ -63,10 +63,13 @@ export default class RoleInCancerFilter extends LitElement {
     render() {
         return html`
             <select-field-filter
-                ?multiple="${this._config.multiple}"
                 .data="${this._config.rolesInCancer}"
                 .value=${this.roleInCancer}
-                .disabled="${this.disabled}"
+                .config="${{
+                    multiple: this._config.multiple,
+                    disabled: this.disabled,
+                    liveSearch: false
+                }}"
                 @filterChange="${this.filterChange}">
             </select-field-filter>
         `;

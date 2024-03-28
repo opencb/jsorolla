@@ -88,6 +88,7 @@ export default class SelectTokenFilterStatic extends LitElement {
     initSelect() {
         this.select = $("#" + this._prefix);
         this.select.select2({
+            theme: "bootstrap-5",
             tags: this._config.customTokens,
             multiple: this._config.multiple,
             placeholder: this._config.placeholder,

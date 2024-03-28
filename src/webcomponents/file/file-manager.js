@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import { LitElement, html } from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "./file-view.js";
 import "../loading-spinner.js";
@@ -105,7 +105,7 @@ export default class FileManager extends LitElement {
     async fetchFolder(node) {
         try {
             if (!node.visited) {
-                const restResponse = await this.opencgaSession.opencgaClient.files().tree(node.file.id, {study: this.opencgaSession.study.fqn, maxDepth: 1, include: "id,name,path,size,format"});
+                const restResponse = await this.opencgaSession.opencgaClient.files().tree(node.file.id, { study: this.opencgaSession.study.fqn, maxDepth: 1, include: "id,name,path,size,format" });
                 const result = restResponse.getResult(0);
                 node.children = result.children;
                 node.visited = true;
@@ -138,21 +138,207 @@ export default class FileManager extends LitElement {
         }
     }
 
+    renderStyles() {
+        return html`
+            <style>
+               /****** file manager ********/
+                .file-manager {
+                    padding: 0;
+                }
+
+                .file-manager > li {
+                    border-radius: 3px;
+                    background-color: #373743;
+                    width: 307px;
+                    height: 118px;
+                    list-style-type: none;
+                    margin: 10px;
+                    display: inline-block;
+                    position: relative;
+                    overflow: hidden;
+                    padding: 0.3em;
+                    z-index: 1;
+                    cursor: pointer;
+                    box-sizing: border-box;
+                    transition: 0.3s background-color;
+                }
+
+                .file-manager-breadcrumbs {
+                    padding: 10px;
+                }
+
+                .file-manager-breadcrumbs a,
+                .file-manager-breadcrumbs .path-separator {
+                    font-size: 1.5em;
+                    cursor: pointer;
+                }
+
+                .file-manager li a {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                }
+
+                .file-manager li:hover {
+                    background-color: #42424E;
+                }
+
+                .file-manager li:hover .icon {
+                    color: #286090;
+                }
+
+                .file-manager .icon {
+                    margin: 1em;
+                    background-color: transparent;
+                    overflow: hidden;
+                }
+                .file-manager .content {
+                    width: 210px;
+                }
+
+                .file-manager .name {
+                    color: #ffffff;
+                    font-size: 15px;
+                    font-weight: 700;
+                    line-height: 20px;
+                    word-break: break-all;
+                }
+
+                .file-manager .name .max-lines-2 {
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                }
+
+                .file-manager .details {
+                    color: #b6c1c9;
+                    font-size: 13px;
+                    font-weight: 400;
+                    width: 55px;
+                    height: 10px;
+                    white-space: nowrap;
+                    display: block;
+                }
+                .file-manager .format {
+                    display: block;
+                    color: #fff;
+                    text-align: center;
+                    margin-top: 3px;
+                    width: 45px;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                }
+                .file-manager .file.active {
+                    background-color: #3aafdc;
+                    color: white;
+                    outline: thick solid #d0d0d0;
+                }
+
+                .file-manager-tree {
+                    border-right: 1px solid gainsboro;
+                }
+
+                .file-manager-tree ul {
+                    font-size: 14px;
+                    margin-top: 30px;
+                }
+
+                .file-manager-tree ul {
+                    margin: 0;
+                    padding: 0;
+                    list-style-type: none;
+                }
+
+                .file-manager-tree .folder {
+                    padding: 10px 0 0 15px;
+                }
+
+                .file-manager-tree .folder-name {
+                    font-weight: bold;
+                    word-break: break-all;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                .file-manager-tree .folder-name,
+                .file-manager-tree .home{
+                    cursor: pointer;
+                }
+
+                .file-manager-tree .folder-name + ul {
+                    display: none;
+                }
+
+                .file-manager-tree .folder-name.exploded + ul {
+                    display: block;
+                }
+
+                .file-manager-tree .file {
+                    word-break: break-all;
+                    padding: 5px 0 0 12px;
+                    cursor: pointer;
+                    color: #337ab7;
+                    transition: 0.3s background-color;
+                }
+
+                .file-manager-tree .file i{
+                    margin-right: 10px;
+                    color: #747474;
+                }
+
+                .file-manager-tree .file.active {
+                    background-color: #f1f1f1;
+                    color: black;
+                }
+
+                .opencga-file-manager .opencga-file-view {
+                    margin-left: 5px;
+                }
+
+                .opencga-file-manager .file-manager-full-height,
+                .opencga-file-manager .file-manager-tree{
+                    min-height: calc(100vh - 160px);
+                }
+
+                /* temp fix for long filenames in opencga-file-manager  */
+                .opencga-file-manager .file-manager-tree .file {
+                    display: flex;
+                }
+                .file-manager-tree .file {
+                    word-break: normal;
+                }
+                .file-manager-tree .folder {
+                    overflow: auto;
+                }
+
+            </style>
+
+        `;
+    }
+
     renderFileManager(root) {
         const children = root.children;
         return html`
             ${this.path(root)}
-            <ul class="file-manager">
-                ${children.map(node => {
-                    if (node.file.type.toUpperCase() === "DIRECTORY") {
-                        return html`${this.folder(node)}`;
-                    } else if (["FILE", "VIRTUAL"].includes(node.file.type.toUpperCase())) {
-                        return html`${this.file(node)}`;
-                    } else {
-                        throw new Error("Type not recognized " + node.file.type);
-                    }
-                })}
-            </ul>
+            <div class="file-manager text-center p-2">
+                <div class="row row-cols-5 gap-1">
+                    ${children.map(node => {
+            if (node.file.type.toUpperCase() === "DIRECTORY") {
+                return html`${this.folder(node)}`;
+            } else if (["FILE", "VIRTUAL"].includes(node.file.type.toUpperCase())) {
+                return html`${this.file(node)}`;
+            } else {
+                throw new Error("Type not recognized " + node.file.type);
+            }
+        })}
+                </div>
+            </div>
         `;
     }
 
@@ -162,27 +348,27 @@ export default class FileManager extends LitElement {
         return html`
             ${root.file.name !== "." ? html`
                     <i @click="${() => this.toggleFolder(domId, root)}" class="fas fa-angle-${root.exploded ? "down" : "right"}"></i>
-                    <a class="folder-name ${domId} ${root.exploded ? "exploded" : ""}" @click="${() => this.toggleFolder(domId, root)}"> ${root.file.name} </a>
+                    <a class="text-decoration-none folder-name ${domId} ${root.exploded ? "exploded" : ""}" @click="${() => this.toggleFolder(domId, root)}"> ${root.file.name} </a>
                 ` : html`
-                    <i class="fas fa-home"></i> <a class="home" @click="${this.reset}"> Home</a>`}
+                    <i class="fas fa-home"></i> <a class="text-decoration-none home" @click="${this.reset}"> Home</a>`}
 
-            <ul class="">
+            <ul>
                 ${children.map(node => {
-                    if (node.file.type === "DIRECTORY") {
-                        return html`
-                            <li class="folder">
-                                <!-- <span class="badge">\${node.children.length}</span>-->
-                                ${this.renderTree(node)}
-                            </li>`;
-                    } else if (["FILE", "VIRTUAL"].includes(node.file.type.toUpperCase())) {
-                        return html`
-                            <p class="file ${this.fileId === node.file.id ? "active" : ""}" @click="${() => this.onClickFile(node.file.id)}">
-                                ${this.icon(node.file.format)} ${node.file.name}
-                            </p>`;
-                    } else {
-                        throw new Error("Type not recognized " + node.file.type);
-                    }
-                })}
+            if (node.file.type === "DIRECTORY") {
+                return html`
+                    <li class="folder">
+                        <!-- <span class="badge">\${node.children.length}</span>-->
+                        ${this.renderTree(node)}
+                    </li>`;
+            } else if (["FILE", "VIRTUAL"].includes(node.file.type.toUpperCase())) {
+                return html`
+                    <p class="file ${this.fileId === node.file.id ? "active" : ""}" @click="${() => this.onClickFile(node.file.id)}">
+                        ${this.icon(node.file.format)} ${node.file.name}
+                    </p>`;
+            } else {
+                throw new Error("Type not recognized " + node.file.type);
+            }
+        })}
             </ul>
         `;
     }
@@ -222,33 +408,39 @@ export default class FileManager extends LitElement {
 
     folder(node) {
         return html`
-            <li class="folder">
-                <a @click="${() => this.route(node.file.id)}">
-                    <span class="icon"><i class="fas fa-folder fa-4x"></i></span>
-                    <span class="content">
-                        <span class="name"><span class="max-lines-2"> ${node.file.name} </span>
-                        <!-- <span class="details">\${node.children.length} items</span> -->
-                    </span>
-                </a>
-            </li>
+            <div class="col card mb-3 rounded-3 shadow-sm">
+                <div class="card-body text-center w-100" @click="${() => this.route(node.file.id)}">
+                    <div class="d-flex gap-2 align-items-center">
+                        <span><i class="fas fa-folder fa-4x"></i></span>
+                        <div class="fs-6 text-break p-1" style="width:80%">
+                            ${node.file.name}
+                            <!-- <span class="details">\${node.children.length} items</span> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         `;
     }
 
     file(node) {
         return html`
-            <li class="file ${this.fileId === node.file.id ? "active" : ""}">
-                <a @click="${() => this.onClickFile(node.file.id)}">
-                    <span class="icon">${this.icon(node.file.format, 4)}<span class="format">${node.file.format !== "UNKNOWN" ? node.file.format : ""}</span></span>
-                    <span class="content">
-                        <span class="name">
-                            <span class="max-lines-2">
-                                ${node.file.name}
+            <div class="col card mb-3 rounded-3 shadow-sm file ${this.fileId === node.file.id ? "active" : ""}">
+                <div class="card-body text-center w-100" @click="${() => this.onClickFile(node.file.id)}">
+                    <div class="d-flex gap-2 align-items-center">
+                        <div class="d-flex flex-column">
+                            ${this.icon(node.file.format, 4)}
+                            <span>
+                                ${node.file.format !== "UNKNOWN" ? node.file.format : ""}
                             </span>
-                        </span>
-                        <span class="details">${UtilsNew.getDiskUsage(node.file.size)}</span>
+                        </div>
+                        <span class="fs-6 text-break p-3">
+                        ${node.file.name}
+                        <span class="">${UtilsNew.getDiskUsage(node.file.size)}</span>
                     </span>
-                </a>
-            </li>
+                    </div>
+
+                </div>
+            </div>
         `;
     }
 
@@ -297,6 +489,7 @@ export default class FileManager extends LitElement {
         }
 
         return html`
+        ${this.renderStyles()}
             <div class="opencga-file-manager">
                 <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
 

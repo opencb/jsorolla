@@ -102,6 +102,7 @@ export default class FamilyGrid extends LitElement {
                     modalTitle: "Family Create",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                 },
                 render: () => html `
                     <family-create
@@ -188,6 +189,8 @@ export default class FamilyGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -205,7 +208,8 @@ export default class FamilyGrid extends LitElement {
                 detailView: this._config.detailView,
                 detailFormatter: this.detailFormatter,
                 gridContext: this,
-                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let familyResponse = null;
                     this.filters = {
@@ -277,6 +281,8 @@ export default class FamilyGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._getDefaultColumns(),
             // data: this.families,
             sidePagination: "server",
@@ -311,7 +317,8 @@ export default class FamilyGrid extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
@@ -341,7 +348,7 @@ export default class FamilyGrid extends LitElement {
             result += `
                 <div style="width: 90%;padding-left: 20px">
                     <table class="table table-hover table-no-bordered">
-                        <thead>
+                        <thead class="table-light">
                             <tr class="table-header">
                                 ${tableCheckboxHeader}
                                 <th>ID</th>
@@ -516,50 +523,50 @@ export default class FamilyGrid extends LitElement {
                 field: "actions",
                 formatter: (value, row) => `
                     <div class="dropdown">
-                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-toolbox" aria-hidden="true"></i>
                             <span>Actions</span>
                             <span class="caret" style="margin-left: 5px"></span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
+                                    <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
                                 </a>
                             </li>
                             <li>
-                                <a data-action="download-json" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
+                                    <i class="fas fa-download" aria-hidden="true"></i> Download JSON
                                 </a>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="qualityControl" class="btn force-text-left ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
+                                <a data-action="qualityControl" class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
                                         title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                    <i class="fas fa-rocket icon-padding" aria-hidden="true"></i> Calculate Quality Control
+                                    <i class="fas fa-rocket" aria-hidden="true"></i> Calculate Quality Control
                                 </a>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
-                                        <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
+                                        <a data-action="interpreter" class="dropdown-item ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
                                            href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
-                                            <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
+                                            <i class="fas fa-user-md" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
                                         </a>
-                                    `).join("") : `<a data-action="interpreter" class="btn force-text-left disabled" href="#">
-                                        <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> No cases found
+                                    `).join("") : `<a data-action="interpreter" class="dropdown-item disabled" href="#">
+                                        <i class="fas fa-user-md" aria-hidden="true"></i> No cases found
                                     </a>`
                 }
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
+                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                    <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
                             <li>
-                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
-                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                <a data-action="delete" href="javascript: void 0" class="dropdown-item disabled">
+                                    <i class="fas fa-trash" aria-hidden="true"></i> Delete
                                 </a>
                             </li>
                         </ul>
@@ -620,6 +627,7 @@ export default class FamilyGrid extends LitElement {
                 modalTitle: `Family Update: ${this.familyUpdateId}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
+                modalSize: "modal-lg"
             },
             render: active => html`
                 <family-update

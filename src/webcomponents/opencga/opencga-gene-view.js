@@ -196,7 +196,7 @@ export default class OpencgaGeneView extends LitElement {
             return html`
                 <div class="container-fluid" style="margin-top:32px;">
                     <div class="row">
-                        <div class="col-md-10 col-md-offset-1">
+                        <div class="col-md-10 offset-md-1">
                             <div class="alert alert-danger">
                                 <i class="fas fa-exclamation-triangle icon-padding"></i> No gene provided.
                             </div>
@@ -215,14 +215,14 @@ export default class OpencgaGeneView extends LitElement {
                 .title="${`Gene <span class="inverse">${this.gene.name}</span>`}"
                 .icon="${this.config?.icon}"
                 .rhs="${html`
-                    <button type="button" class="btn btn-default" @click="${() => this.showBrowser()}">
+                    <button type="button" class="btn btn-light" @click="${() => this.showBrowser()}">
                         <i class="fas fa-dna icon-padding"></i> Variant Browser
                     </button>
                 `}">
             </tool-header>
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-md-10 col-md-offset-1">
+                    <div class="col-md-10 offset-md-1">
                         <div class="row" style="padding: 5px 0px 25px 0px">
                             <div class="col-md-4">
                                 <h3 class="section-title">Summary</h3>

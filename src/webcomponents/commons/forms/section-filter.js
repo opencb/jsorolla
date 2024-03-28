@@ -54,17 +54,17 @@ export default class SectionFilter extends LitElement {
     render() {
         const id = this.config.title.replace(/ /g, "");
         return this.config && this.filters?.length > 0 ? html`
-            <div class="panel panel-default filter-section shadow-sm" data-cy-section-id="${id}">
-                <div class="panel-body" role="tab" id="${this._prefix}Heading">
-                    <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion" data-cy-section-title="${id}"
-                           href="#${this._prefix}" aria-expanded="true" aria-controls="${this._prefix}">
+            <div class="card shadow-sm" data-cy-section-id="${id}">
+                <div class="card-header" role="tab" id="${this._prefix}Heading">
+                    <h4 class="card-title">
+                        <a class="collapsed text-decoration-none" role="button" data-bs-toggle="collapse" data-parent="#${this._prefix}Accordion" data-cy-section-title="${id}"
+                            href="#${this._prefix}" aria-expanded="true" aria-controls="${this._prefix}">
                             ${this.config.title}
                         </a>
                     </h4>
                 </div>
-                <div id="${this._prefix}" class="panel-collapse collapse ${this.config.collapsed ? "" : "in"}" role="tabpanel" aria-labelledby="${this._prefix}Heading">
-                    <div class="panel-body">
+                <div class="collapse ${this.config.collapsed ? "" : "show"}" id="${this._prefix}"  role="tabpanel" aria-labelledby="${this._prefix}Heading">
+                    <div class="card-body">
                         ${this.filters?.map(filter => html`${filter}`)}
                     </div>
                 </div>

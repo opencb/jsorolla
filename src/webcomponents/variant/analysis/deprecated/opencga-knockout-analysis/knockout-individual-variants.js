@@ -20,7 +20,6 @@ import GridCommons from "../../../../commons/grid-commons.js";
 import "../../../../commons/view/detail-tabs.js";
 import knockoutDataIndividuals from "../test/knockout.20201103172343.kFIvpr.individuals.js";
 
-
 export default class KnockoutIndividualVariants extends LitElement {
 
     constructor() {
@@ -77,6 +76,8 @@ export default class KnockoutIndividualVariants extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: this.tableData,
             columns: this._initTableColumns(),
             sidePagination: "local",
@@ -89,7 +90,8 @@ export default class KnockoutIndividualVariants extends LitElement {
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement, field) => {
             },
             onLoadSuccess: data => {

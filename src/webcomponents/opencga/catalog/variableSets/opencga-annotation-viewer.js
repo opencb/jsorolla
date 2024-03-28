@@ -289,7 +289,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
         }
 
         let html = "<table class=\"table\">";
-        html += "<thead><tr>" + head + "</tr></thead>";
+        html += "<thead class='table-light'><tr>" + head + "</tr></thead>";
         html += "<tbody><tr>" + body + "</tr></tbody>";
         html += "</table>";
 

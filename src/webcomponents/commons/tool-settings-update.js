@@ -19,8 +19,8 @@ import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "./utils/notification-utils";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 import LitUtils from "./utils/lit-utils";
+import {guardPage} from "./html-utils.js";
 import "./tool-settings-editor.js";
-
 
 export default class ToolSettingsUpdate extends LitElement {
 
@@ -196,11 +196,7 @@ export default class ToolSettingsUpdate extends LitElement {
     // --- RENDER ---
     render() {
         if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
-            return html`
-            <div class="guard-page">
-                <i class="fas fa-lock fa-5x"></i>
-                <h3>No permission to view this page</h3>
-            </div>`;
+            return guardPage("No permission to view this page");
         }
 
         return html`
@@ -237,7 +233,7 @@ export default class ToolSettingsUpdate extends LitElement {
                     display: {
                         // titleHeader: "",
                         // titleStyle: "",
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "d-block text-secondary",
                         // descriptionStyle: "",
                         // visible: () =>
                     },
@@ -263,7 +259,7 @@ export default class ToolSettingsUpdate extends LitElement {
                     display: {
                         // titleHeader: "",
                         // titleStyle: "",
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "d-block text-secondary",
                         // descriptionStyle: "",
                         // visible: () =>
                     },
@@ -289,7 +285,6 @@ export default class ToolSettingsUpdate extends LitElement {
             ],
         };
     }
-
 
 }
 
