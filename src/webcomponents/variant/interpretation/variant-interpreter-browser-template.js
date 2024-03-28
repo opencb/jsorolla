@@ -89,13 +89,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.variantInclusionState = [];
 
         this.currentQueryBeforeSaveEvent = null;
+        this.clinicalAnalysisManager = null;
         this._config = this.getDefaultConfig();
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     update(changedProperties) {
