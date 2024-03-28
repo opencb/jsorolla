@@ -81,6 +81,7 @@ import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/file/file-manager.js";
 import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
+import "../../webcomponents/organization/admin/organization-admin.js"
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/study/admin/study-admin-iva.js";
@@ -233,6 +234,7 @@ class IvaApp extends LitElement {
             "diseasePanelUpdate",
             "clinicalAnalysis",
             // Admin
+            "organization-admin",
             "study-admin",
             "study-admin-iva",
             // "catalog-admin",
@@ -2016,6 +2018,17 @@ class IvaApp extends LitElement {
                 }
 
                 <!-- Admin -->
+                ${this.config.enabledComponents["organization-admin"] ? html`
+                    <tool-header title="Organization Admin" icon="${"fas fa-rocket"}"></tool-header>
+                    <div id="organization-admin">
+                        <organization-admin
+                            .organizationId="${this.opencgaSession?.user?.organization}"
+                            .opencgaSession="${this.opencgaSession}"
+                            @sessionUpdateRequest="${this.onSessionUpdateRequest}">
+                        </organization-admin>
+                    </div>
+                ` : null}
+
                 ${this.config.enabledComponents["projects-admin"] ? html`
                     <tool-header title="Projects Admin" icon="${"fas fa-rocket"}"></tool-header>
                     <div id="projects-admin">

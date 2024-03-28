@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 const hosts = [
     {
         id: "prod",
@@ -32,11 +31,11 @@ const hosts = [
 ];
 
 const opencga = {
-    host: hosts[1].url,
+    host: hosts[2].url,
     version: "v2",
     organizations: [],
     cookie: {
-        prefix: "iva-" + hosts[1].id,
+        prefix: "iva-" + hosts[2].id,
         secure: true,
     },
     sso: {
@@ -752,6 +751,15 @@ const SUITE = {
                     <br>`
             },
             menu: [
+                {
+                    id: "organization-admin",
+                    name: "Organizations Admin",
+                    fa_icon: "fas fa-file-invoice",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    description: "",
+                    visibility: "public",
+                    featured: true,
+                },
                 {
                     id: "study-admin",
                     name: "Study admin",
