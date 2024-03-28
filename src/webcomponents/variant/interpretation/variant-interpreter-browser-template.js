@@ -78,9 +78,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.searchActive = true;
         this.variant = null;
         this.query = {};
-        this.savedVariants = [];
-        this.notSavedVariantIds = 0;
-        this.removedVariantIds = 0;
 
         // Saves the current active view
         this.activeView = "table";
@@ -94,7 +91,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis")) {
+        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("opencgaSession")) {
             this.clinicalAnalysisObserver();
         }
         if (changedProperties.has("query")) {
@@ -115,9 +112,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
 
-        // Init saved variants with the primary findings of the main interpretation
-        this.resetSavedVariants();
-
         // When refreshing AFTER saving variants we set the same query as before refreshing, check 'onSaveVariants'
         if (this.currentQueryBeforeSaveEvent) {
             this.query = {...this.currentQueryBeforeSaveEvent};
@@ -134,8 +128,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     opencgaSessionObserver() {
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-
         this.getInclusionVariantIds();
     }
 
@@ -213,13 +205,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         }
     }
 
-    resetSavedVariants() {
-        this.savedVariants = [];
-        if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
-            this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
-        }
-    }
-
     notifyQueryChange() {
         LitUtils.dispatchCustomEvent(this, "queryChange", null, {
             query: this.query,
@@ -275,8 +260,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         delete this.preparedQuery.id;
         delete this.executedQuery.id;
 
-        this.resetSavedVariants();
-        this.requestUpdate();
+        this.clinicalAnalysis = {...this.clinicalAnalysis};
     }
 
     onSaveVariants(e) {
