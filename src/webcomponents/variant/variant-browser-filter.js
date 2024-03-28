@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
@@ -339,17 +339,22 @@ export default class VariantBrowserFilter extends LitElement {
                 case "study":
                     content = html`
                         <study-filter
+                            .value="${this.preparedQuery.study}"
                             .opencgaSession="${this.opencgaSession}"
                             @filterChange="${e => this.onFilterChange("study", e.detail.value)}">
                         </study-filter>`;
                     break;
                 case "sample":
+                    const multiStudySelected = this.preparedQuery?.study?.split(",")?.length > 1;
                     content = html`
-                        <catalog-search-autocomplete
+                        ${multiStudySelected ? html`
+                            <div class="alert alert-warning" role="alert">You cannot select samples with more than one study</div>
+                        ` : nothing}
+                        <catalog-search-autocomplete title=${multiStudySelected ? "You cannot select samples with more than one study" : null}
                             .value="${this.preparedQuery.sample}"
                             .opencgaSession="${this.opencgaSession}"
                             .resource="${"SAMPLE"}"
-                            .config="${{multiple: true, maxItems: 3, disabled: this.preparedQuery?.study?.split(",")?.length > 1}}"
+                            .config="${{multiple: true, maxItems: 3, disabled: multiStudySelected}}"
                             @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
                         </catalog-search-autocomplete>`;
                     break;
