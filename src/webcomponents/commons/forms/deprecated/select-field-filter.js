@@ -15,8 +15,8 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import UtilsNew from "../../../core/utils-new.js";
-import LitUtils from "../utils/lit-utils.js";
+import UtilsNew from "../../../../core/utils-new.js";
+import LitUtils from "../../utils/lit-utils.js";
 
 // TODO reorganize props multiple/forceSelection
 
@@ -30,6 +30,7 @@ import LitUtils from "../utils/lit-utils.js";
  * <select-field-filter .data="${[{id: "a", name: "A"}, {id:"b", name: "B"}, {id: "c", name: "C"}]}" .value=${"a"} @filterChange="${e => console.log(e)}"></select-field-filter>
  */
 
+// DEPRECATED
 export default class SelectFieldFilter extends LitElement {
 
     constructor() {
