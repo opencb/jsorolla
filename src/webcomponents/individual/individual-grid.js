@@ -64,21 +64,22 @@ export default class IndividualGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
-        this.displayConfigDefault = {
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom",
-            },
-        };
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config")) {
+            this.propertyObserver();
+        }
+
+        super.update(changedProperties);
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
-            changedProperties.has("toolId") ||
-            changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) && this.active) {
-            this.propertyObserver();
+        if (changedProperties.size > 0 && this.active) {
+            this.renderTable();
         }
     }
 
@@ -141,17 +142,14 @@ export default class IndividualGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
-        this.renderTable();
     }
 
     renderTable() {
-        // If this.individuals is provided as property we render the array directly
         if (this.individuals?.length > 0) {
             this.renderLocalTable();
         } else {
             this.renderRemoteTable();
         }
-        this.requestUpdate();
     }
 
     renderRemoteTable() {
@@ -172,7 +170,6 @@ export default class IndividualGrid extends LitElement {
                 icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
                 silentSort: false,
-                // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
@@ -184,16 +181,11 @@ export default class IndividualGrid extends LitElement {
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
-                    const sort = this.table.bootstrapTable("getOptions").sortName ? {
-                        sort: this.table.bootstrapTable("getOptions").sortName,
-                        order: this.table.bootstrapTable("getOptions").sortOrder
-                    } : {};
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        ...sort,
                         ...this.query
                     };
 
@@ -286,7 +278,6 @@ export default class IndividualGrid extends LitElement {
             sidePagination: "local",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
-            // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
@@ -435,8 +426,7 @@ export default class IndividualGrid extends LitElement {
                             <span class="help-block" style="margin: 5px 0">${sexHtml}</span>
                         </div>`;
                 },
-                sortable: true,
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
@@ -452,13 +442,14 @@ export default class IndividualGrid extends LitElement {
                                 <div style="white-space: nowrap">
                                     <span style="font-weight: bold">${sample.id}</span>
                                     <span title="${sample.somatic ? "Somatic sample" : "Germline sample"}"> (${sample.somatic ? "S" : "G"})</span>
-                                </div>`;
+                                </div>
+                            `;
                         }
                         html += `</div>`;
                     }
                     return html;
                 },
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("samples")
             },
             {
@@ -466,7 +457,7 @@ export default class IndividualGrid extends LitElement {
                 title: "Father",
                 field: "father.id",
                 formatter: fatherId => fatherId || "-",
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("father")
             },
             {
@@ -474,7 +465,7 @@ export default class IndividualGrid extends LitElement {
                 title: "Mother",
                 field: "mother.id",
                 formatter: motherId => motherId || "-",
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("mother")
             },
             {
@@ -482,7 +473,7 @@ export default class IndividualGrid extends LitElement {
                 title: "Disorders",
                 field: "disorders",
                 formatter: CatalogGridFormatter.disorderFormatter,
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("disorders")
             },
             {
@@ -490,23 +481,15 @@ export default class IndividualGrid extends LitElement {
                 title: "Phenotypes",
                 field: "phenotypes",
                 formatter: CatalogGridFormatter.phenotypesFormatter,
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("phenotypes")
             },
-            // {
-            //     id: "sex",
-            //     title: "Sex (Karyotypic)",
-            //     field: "sex",
-            //     formatter: this.sexFormatter,
-            //     halign: this.displayConfigDefault.header.horizontalAlign,
-            //     visible: this.gridCommons.isColumnVisible("sex")
-            // },
             {
                 id: "caseId",
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
@@ -514,25 +497,15 @@ export default class IndividualGrid extends LitElement {
                 title: "Ethnicity",
                 field: "ethnicity",
                 formatter: (ethnicity, row) => ethnicity?.id || row.population?.name || "-",
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("ethnicity")
             },
-            // {
-            //     id: "dateOfBirth",
-            //     title: "Date of Birth",
-            //     field: "dateOfBirth",
-            //     sortable: true,
-            //     formatter: CatalogGridFormatter.dateFormatter,
-            //     halign: this.displayConfigDefault.header.horizontalAlign,
-            //     visible: this.gridCommons.isColumnVisible("dateOfBirth")
-            // },
             {
                 id: "creationDate",
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
-                sortable: true,
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
@@ -560,8 +533,9 @@ export default class IndividualGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
+                align: "center",
                 formatter: (value, row) => `
-                    <div class="dropdown">
+                    <div class="inline-block dropdown">
                         <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
                             <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
                             <span>Actions</span>
@@ -588,14 +562,15 @@ export default class IndividualGrid extends LitElement {
                             <li role="separator" class="divider"></li>
                             <li>
                                 ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
-                                        <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
-                                           href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
-                                            <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
-                                        </a>
-                                    `).join("") : `<a data-action="interpreter" class="btn force-text-left disabled" href="#">
+                                    <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
+                                        href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
+                                        <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
+                                    </a>
+                                `).join("") : `
+                                    <a data-action="interpreter" class="btn force-text-left disabled" href="#">
                                         <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> No cases found
-                                    </a>`
-                }
+                                    </a>
+                                `}
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
@@ -609,11 +584,12 @@ export default class IndividualGrid extends LitElement {
                                 </a>
                             </li>
                         </ul>
-                    </div>`,
+                    </div>
+                `,
                 events: {
-                    "click a": this.onActionClick.bind(this)
+                    "click a": this.onActionClick.bind(this),
                 },
-                visible: !this._config.columns?.hidden?.includes("actions")
+                visible: !this._config.columns?.hidden?.includes("actions"),
             });
         }
 
@@ -678,7 +654,7 @@ export default class IndividualGrid extends LitElement {
                 </opencb-grid-toolbar>
             ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv" data-cy="ib-grid">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="ib-grid">
                 <table id="${this.gridId}"></table>
             </div>
 
