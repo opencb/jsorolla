@@ -189,6 +189,9 @@ export default class SampleGrid extends LitElement {
                         ...this.query
                     };
 
+                    // Calculate the number of cases to fetch
+                    const casesLimit = this.table?.bootstrapTable("getOptions")?.pageSize || this._config.pageSize || 10;
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.samples()
@@ -208,7 +211,7 @@ export default class SampleGrid extends LitElement {
                                             individual: individualIds,
                                             study: this.opencgaSession.study.fqn,
                                             include: "id,proband.id,family.members",
-                                            limit: (this._config.pageSize || 10) * 10
+                                            limit: casesLimit * 10
                                         })
                                     .then(caseResponse => {
                                         sampleResponse.getResults().forEach(sample => {

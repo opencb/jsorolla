@@ -193,6 +193,9 @@ export default class FamilyGrid extends LitElement {
                         ...this.query
                     };
 
+                    // Calculate the number of cases to fetch
+                    const casesLimit = this.table?.bootstrapTable("getOptions")?.pageSize || this._config.pageSize || 10;
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.families()
@@ -210,7 +213,7 @@ export default class FamilyGrid extends LitElement {
                                         family: familyIds,
                                         study: this.opencgaSession.study.fqn,
                                         include: "id,proband.id,family.members,family.id",
-                                        limit: (this._config.pageSize || 10) * 10
+                                        limit: casesLimit * 10
                                     })
                                     .then(caseResponse => {
                                         familyResponse.getResults().forEach(family => {
