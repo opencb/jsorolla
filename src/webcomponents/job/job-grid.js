@@ -306,10 +306,6 @@ export default class JobGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    onRefresh() {
-        this.table.bootstrapTable("refresh");
-    }
-
     detailFormatter(value, row) {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
@@ -369,6 +365,12 @@ export default class JobGrid extends LitElement {
     async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "retry":
+                this.jobRetryObj = row;
+                this.requestUpdate();
+                // await this.updateComplete;
+                ModalUtils.show(`${this._prefix}RetryModal`);
+                break;
             case "edit":
                 this.jobUpdateId = row.id;
                 this.requestUpdate();
@@ -436,7 +438,7 @@ export default class JobGrid extends LitElement {
                                     <div style="padding-left: 10px">
                                         ${nestedObject}
                                     </div>` :
-                                    `<span style="margin: 2px 0; font-weight: bold">${key}:</span> ${params[key]}`}
+                                `<span style="margin: 2px 0; font-weight: bold">${key}:</span> ${params[key]}`}
                                 </div>
                             `;
                         }
@@ -534,6 +536,12 @@ export default class JobGrid extends LitElement {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
+                                <a data-action="retry" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-sync icon-padding" aria-hidden="true"></i> Retry ...
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
                                 <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
                                     <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
                                 </a>
@@ -607,6 +615,28 @@ export default class JobGrid extends LitElement {
             });
     }
 
+    onJobRetry() {
+        const params = {
+            study: this.opencgaSession.study.fqn
+        };
+        let error;
+        this.opencgaSession.opencgaClient.jobs()
+            .retry(
+                {
+                    job: this.jobRetryObj?.id
+                }, params)
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Job Retry",
+                    message: "Job executed correctly"
+                });
+            })
+            .catch(reason => {
+                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            });
+    }
+
     getRightToolbar() {
         return [
             {
@@ -624,13 +654,13 @@ export default class JobGrid extends LitElement {
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.filters}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
-                    @refresh="${this.onRefresh}"
                     @actionClick="${e => this.onActionClick(e)}"
                     @jobCreate="${this.renderRemoteTable}">
                 </opencb-grid-toolbar>
@@ -639,6 +669,22 @@ export default class JobGrid extends LitElement {
             <div>
                 <table id="${this.gridId}"></table>
             </div>
+
+            ${ModalUtils.create(this, `${this._prefix}RetryModal`, {
+                display: {
+                    modalTitle: "Job Retry",
+                    modalDraggable: true,
+                    modalbtnsVisible: true
+                },
+                render: () => {
+                    return html`
+                        <div>This will execute a new Job with the same parameters as the original job.
+                            Are you sure do you want to execute again <span style="font-weight: bold">${this.jobRetryObj?.id}</span>?
+                        </div>
+                    `;
+                },
+                onOk: e => this.onJobRetry(e)
+            })}
 
             ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
                 display: {
