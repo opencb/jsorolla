@@ -127,13 +127,15 @@ export default class AnalysisUtils {
         ];
     }
 
-    static getAnalysisConfiguration(id, title, description, paramSections, check) {
+    static getAnalysisConfiguration(id, title, description, paramSections, check, config = {}) {
         return {
             id: id,
-            title: title,
-            description: description,
+            icon: config.icon,
+            title: config.title || title,
+            description: config.description || description,
             display: {
                 // defaultLayout: "vertical"
+                ...config.display
             },
             sections: [
                 {

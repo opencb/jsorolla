@@ -42,9 +42,9 @@ export default class FamilyQcAnalysis extends LitElement {
             opencgaSession: {
                 type: Object,
             },
-            title: {
-                type: String,
-            }
+            config: {
+                type: Object
+            },
         };
     }
 
@@ -177,10 +177,11 @@ export default class FamilyQcAnalysis extends LitElement {
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
+            this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
-            this.check()
+            this.check(),
+            this.config
         );
     }
 

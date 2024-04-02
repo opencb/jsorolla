@@ -15,6 +15,7 @@ parser.add_argument('--organisation', help="Organisation, e.g. opencb", default=
 parser.add_argument('--images', help="comma separated list of images to be made, e.g. app", default="app")
 parser.add_argument('--tag', help="the tag for this code, e.g. v2.0.0")
 parser.add_argument('--build-folder', help="the location of the build folder, if not default location")
+parser.add_argument('--platform', help="specify the target platform for the build image, e.g. 'linux/amd64'", default="linux/amd64")
 parser.add_argument('--username', help="credentials for dockerhub (REQUIRED if deleting from DockerHub)")
 parser.add_argument('--password', help="credentials for dockerhub (REQUIRED if deleting from DockerHub)")
 
@@ -81,7 +82,7 @@ def build():
             site = "build/custom-sites" + "/" + image
 
         print(shell_colors['blue'] + "Building " + organisation + "/iva-" + image + ":" + tag + " ..." + shell_colors['reset'])
-        run("docker build -t " + organisation + "/iva-" + image + ":" + tag + " --build-arg SITE=" + site + " -f " + build_folder + "/docker/iva-app/Dockerfile " + build_folder)
+        run("docker build --platform " + platform + " -t " + organisation + "/iva-" + image + ":" + tag + " --build-arg SITE=" + site + " -f " + build_folder + "/docker/iva-app/Dockerfile " + build_folder)
 
 def tag_latest(image):
     latest_tag = os.popen(("curl -s https://registry.hub.docker.com/v1/repositories/" + organisation + "/iva-" + image + "/tags"
@@ -163,6 +164,11 @@ elif args.images == "all":
 else:
     images = args.images.split(",")
 
+# 5. init platform: set platform to default value if not set
+if args.platform is not None:
+    platform = args.platform
+else:
+    platform = "linux/amd64"
 
 ## Execute the action
 if args.action == "build":

@@ -128,7 +128,7 @@ class VariantInterpreterMethods extends LitElement {
                                     <exomiser-analysis
                                         .toolParams="${{clinicalAnalysis: clinicalAnalysis.id}}"
                                         .opencgaSession="${opencgaSession}"
-                                        .title="${""}">
+                                        .config="${{title: "", display: {buttonOkDisabled: this.clinicalAnalysis.locked}}}">
                                     </exomiser-analysis>
                                 </div>
                             `;

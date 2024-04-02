@@ -21,42 +21,9 @@ import VariantGridFormatter from "./variant-grid-formatter.js";
 
 export default class VariantUtils {
 
-    static jsonToTabConvert(variants, studiesPopFrequencies, samples, nucleotideGenotype, fieldList) {
+    static jsonToTabConvert(variants, populationFrequenciesStudies, samples, nucleotideGenotype, fieldList) {
         const rows = [];
         let populationMap = {};
-        const headerString = [];
-        // const sampleIds = samples?.map(sample => sample.id);
-
-        // took from the first result. Is there a better way?
-        // allele count / allele freqs
-        const cohortAlleleStatsColumns = [];
-        const alleleStats = [];
-        const studyIds = [];
-
-        // Code to Remove
-        // ###
-        if (variants[0].studies?.length) {
-            variants[0].studies.forEach(study => {
-                if (study.studyId.includes("@")) {
-                    const studyId = study.studyId.split(":")[1];
-                    studyIds.push(studyId);
-                    cohortAlleleStatsColumns.push(`cohorts.${studyId}.alleleCount`, `cohorts.${studyId}.altAlleleFreq`);
-                    // alleleCount, altAlleleFreq
-
-                    // cohort ALL is always the first element in study.stats
-                    // Remove
-                    alleleStats.push({
-                        id: studyId,
-                        stats: study.stats,
-                    });
-                } else {
-                    console.error("Unexpected studyId format");
-                }
-            });
-        }
-        // #####
-
-        const popStudyIds = studiesPopFrequencies?.map(study => "popfreq." + study.id);
 
         /* // explicit list gives less maintainability but we need customisation (also in some cases for each column there is more than 1 field) */
         let flatFieldList = [];
@@ -66,11 +33,12 @@ export default class VariantUtils {
             // default list
             flatFieldList = [
                 "id",
+                "snpId",
                 "gene",
                 "type",
-                // Adding SAMPLES (includeSample=all in VB and Case samples in Sample VB)
-                ...samples.map(sample => sample.id || sample),
-                "consequenceType",
+                "hgvs",
+                "samples",
+                "consequenceTypes",
                 "deleteriousness.SIFT",
                 "deleteriousness.polyphen",
                 "deleteriousness.revel",
@@ -79,136 +47,99 @@ export default class VariantUtils {
                 "conservation.phylop",
                 "conservation.phastCons",
                 "conservation.gerp",
-                // AC / AF
-                // fieldList (columns in the grid) is in the form: cohorts.RD38, cohorts.CG38
-                // TSV in the form: cohort.RD38.alleleCount,cohort.RD38.altAlleleFreq
-                ...studyIds.map(studyId => `cohorts.${studyId}`),
-                // fieldList (columns in the grid) is in the form: popfreq.1kG_phase3, popfreq.GNOMAD_GENOMES
-                // TSV in the form: popfreq.1kG_phase3_SAS,popfreq.GNOMAD_GENOMES_ALL,popfreq.GNOMAD_GENOMES_AFR
-                ...popStudyIds,
+                "cohortStats.alt",
+                "populationFrequencies",
                 "clinicalInfo.clinvar",
                 "clinicalInfo.cosmic",
+                "acmgPrediction",
             ];
-
-
         } else {
             flatFieldList = fieldList
                 .filter(f => f.export && !f.excludeFromExport)
                 .flatMap(f => f.children?.filter(f => f.export && !f.excludeFromExport).map(x => f.id + "." + x.id) ?? f.id);
-            // ESlint parse error. Cannot read property 'range' of null https://github.com/babel/babel-eslint/issues/681
-            // flatFieldList = fieldList.filter(f => f.export).flatMap(f => f.children?.filter(f => f.export).map(x => `${f.id}.${x.id}`) ?? f.id);
         }
 
-        flatFieldList.forEach(f => {
-            if ("id" === f) {
-                headerString.push("id");
-                headerString.push("SNP_ID");
-            } else if (f.startsWith("cohorts.")) {
-                // Cohorts Variant Browser
-                studyIds.forEach(id => {
-                    if (f === "cohorts." + id) {
-                        headerString.push(`cohorts.${id}.alleleCount`, `cohorts.${id}.altAlleleFreq`);
-                    }
-                });
-            } else if ("frequencies.cohort" === f) {
-                // Cohorts in Sample Variant Browser
-                studyIds.forEach(id => headerString.push(`cohorts.${id}.alleleCount`, `cohorts.${id}.altAlleleFreq`));
-            } else if (f.startsWith("popfreq.")) {
-                // Pop freq in Variant Browser
-                studiesPopFrequencies.forEach(study => {
-                    if (f === "popfreq." + study.id) {
-                        headerString.push(...study.populations.map(pop => "popfreq." + study.id + "_" + pop.id));
-                    }
-                });
-            } else if ("frequencies.populationFrequencies" === f) {
-                // Pop freq in Sample Variant Browser
-                studiesPopFrequencies.forEach(study => headerString.push(...study.populations.map(pop => "popfreq." + study.id + "_" + pop.id)));
-            } else {
-                headerString.push(f);
-            }
-
-        });
-
         //  TSV header
-        rows.push(headerString.join("\t"));
+        rows.push(flatFieldList.join("\t"));
 
-        for (const v of variants) {
-            const row = [];
-            let genes = new Set();
-            let ct = new Set();
-            let sift, polyphen;
-            let cadd = "-";
-            let phylop = "-";
-            let phastCons = "-";
-            let gerp = "-";
-            // cohorts
-            // popfreqs
+        for (const variant of variants) {
+            const genes = new Set();
+            const consequenceTypeNames = new Set();
+            const proteinSubstitutionScores = {sift: "", polyphen: "", revel: ""};
+            let cadd = "";
+            let phylop = "";
+            let phastCons = "";
+            let gerp = "";
             let clinvar = new Set();
             let cosmic = new Map();
-            let prediction = "-";
+            let acmgPrediction = "";
 
             populationMap = {};
             const dataToTsv = {};
 
-            const description = {sift: "-", polyphen: "-"};
-            let min = 10;
-            let max = 0;
-            if (typeof v.annotation !== "undefined") {
-                if (typeof v.annotation.consequenceTypes !== "undefined" && v.annotation.consequenceTypes.length > 0) {
-                    for (let j = 0; j < v.annotation.consequenceTypes.length; j++) {
-                        const cT = v.annotation.consequenceTypes[j];
-                        // gene
-                        if (typeof cT?.geneName === "string" && ct?.geneName !== "") {
-                            genes.add(cT.geneName);
+            if (variant.annotation) {
+                // Process the information in the ConsequenceType arrays
+                if (variant.annotation.consequenceTypes?.length > 0) {
+                    for (const consequenceType of variant.annotation.consequenceTypes) {
+                        // Genes
+                        if (typeof consequenceType?.geneName === "string" && consequenceTypeNames?.geneName !== "") {
+                            genes.add(consequenceType.geneName);
                         }
 
-                        // Consequence Type
-                        for (let z = 0; z < cT.sequenceOntologyTerms.length; z++) {
-                            const consequenceTypeName = cT.sequenceOntologyTerms[z].name;
-                            if (consequenceTypeName !== "") {
-                                ct.add(consequenceTypeName);
+                        // Consequence Types
+                        for (const consequenceTypeName of consequenceType.sequenceOntologyTerms) {
+                            if (consequenceTypeName.name) {
+                                let ct = consequenceTypeName.name;
+                                if (consequenceType.geneName) {
+                                    ct += "(" + consequenceType.geneName + ")";
+                                }
+                                consequenceTypeNames.add(ct);
                             }
                         }
 
-                        // Sift, Polyphen
-                        if (typeof cT.proteinVariantAnnotation !== "undefined" &&
-                            typeof cT.proteinVariantAnnotation.substitutionScores !== "undefined") {
-                            for (let ss = 0; ss < cT.proteinVariantAnnotation.substitutionScores.length; ss++) {
-                                const substitutionScore = cT.proteinVariantAnnotation.substitutionScores[ss];
-                                const source = substitutionScore.source;
-                                switch (source) {
+                        // Sift, Polyphen, Revel
+                        if (consequenceType.proteinVariantAnnotation?.substitutionScores) {
+                            let siftMin = 10;
+                            let polyphenMax = 0;
+                            let revelMax = 0;
+                            for (const substitutionScore of consequenceType.proteinVariantAnnotation.substitutionScores) {
+                                switch (substitutionScore.source) {
                                     case "sift":
-                                        if (substitutionScore.score < min) {
-                                            min = substitutionScore.score;
-                                            description.sift = substitutionScore.description + " (" + substitutionScore.score + ")";
+                                        if (substitutionScore.score < siftMin) {
+                                            siftMin = substitutionScore.score;
+                                            proteinSubstitutionScores.sift = substitutionScore.description + " (" + substitutionScore.score + ")";
                                         }
                                         break;
                                     case "polyphen":
-                                        if (substitutionScore.score >= max) {
-                                            max = substitutionScore.score;
-                                            description.polyphen = substitutionScore.description + " (" + substitutionScore.score + ")";
+                                        if (substitutionScore.score >= polyphenMax) {
+                                            polyphenMax = substitutionScore.score;
+                                            proteinSubstitutionScores.polyphen = substitutionScore.description + " (" + substitutionScore.score + ")";
+                                        }
+                                        break;
+                                    case "revel":
+                                        if (substitutionScore.score >= revelMax) {
+                                            revelMax = substitutionScore.score;
+                                            proteinSubstitutionScores.revel = substitutionScore.score;
                                         }
                                         break;
                                 }
                             }
                         }
-
                     }
                 }
 
                 // CADD
-                if (v.annotation?.functionalScore) {
-                    for (let fs = 0; fs < v.annotation.functionalScore.length; fs++) {
-                        if (v.annotation.functionalScore[fs] && v.annotation.functionalScore[fs].source === "cadd_scaled") {
-                            cadd = Number(v.annotation.functionalScore[fs].score).toFixed(2);
+                if (variant.annotation?.functionalScore) {
+                    for (let fs = 0; fs < variant.annotation.functionalScore.length; fs++) {
+                        if (variant.annotation.functionalScore[fs]?.source === "cadd_scaled") {
+                            cadd = Number(variant.annotation.functionalScore[fs].score).toFixed(2);
                         }
                     }
                 }
 
                 // Conservation
-                if (v.annotation?.conservation) {
-                    for (let cons = 0; cons < v.annotation.conservation.length; cons++) {
-                        const conservation = v.annotation.conservation[cons];
+                if (variant.annotation?.conservation) {
+                    for (const conservation of variant.annotation.conservation) {
                         switch (conservation.source) {
                             case "phylop":
                                 phylop = Number(conservation.score).toFixed(3);
@@ -227,19 +158,20 @@ export default class VariantUtils {
                 const populations = [];
                 const populationStudyBidimensional = [];
                 const populationMapExists = [];
-                studiesPopFrequencies.forEach(study => {
+                populationFrequenciesStudies.forEach(study => {
                     populations[study.id] = study.populations.map(pop => pop.id);
                     study.populations.forEach(pop => {
                         populationMapExists[pop.id] = true;
                     });
                     populationStudyBidimensional[study.id] = populationMapExists;
                 });
-                if (typeof studiesPopFrequencies !== "undefined" && studiesPopFrequencies.length > 0) {
-                    for (let j = 0; j < studiesPopFrequencies.length; j++) {
-                        const study = studiesPopFrequencies[j];
-                        for (const popFreqIdx in v.annotation.populationFrequencies) {
-                            if (Object.prototype.hasOwnProperty.call(v.annotation.populationFrequencies, popFreqIdx)) {
-                                const popFreq = v.annotation.populationFrequencies[popFreqIdx];
+
+                if (populationFrequenciesStudies?.length > 0) {
+                    for (let j = 0; j < populationFrequenciesStudies.length; j++) {
+                        const study = populationFrequenciesStudies[j];
+                        for (const popFreqIdx in variant.annotation.populationFrequencies) {
+                            if (Object.prototype.hasOwnProperty.call(variant.annotation.populationFrequencies, popFreqIdx)) {
+                                const popFreq = variant.annotation.populationFrequencies[popFreqIdx];
                                 if (UtilsNew.isNotUndefinedOrNull(popFreq)) {
                                     const population = popFreq.population;
                                     if (study.id === popFreq.study && populationStudyBidimensional[study.id][population] === true) {
@@ -251,18 +183,18 @@ export default class VariantUtils {
                     }
                 }
 
-                if (v.annotation?.populationFrequencies?.length) {
-                    for (let pf = 0; pf < v.annotation.populationFrequencies.length; pf++) {
-                        const pop = v.annotation.populationFrequencies[pf].study + "_" + v.annotation.populationFrequencies[pf].population;
+                if (variant.annotation?.populationFrequencies?.length) {
+                    for (let pf = 0; pf < variant.annotation.populationFrequencies.length; pf++) {
+                        const pop = variant.annotation.populationFrequencies[pf].study + "_" + variant.annotation.populationFrequencies[pf].population;
                         if (typeof populationMap[pop] !== "undefined" && populationMap[pop] === "NA") {
-                            populationMap[pop] = Number(v.annotation.populationFrequencies[pf].altAlleleFreq).toFixed(4);
+                            populationMap[pop] = Number(variant.annotation.populationFrequencies[pf].altAlleleFreq).toFixed(4);
                         }
                     }
                 }
 
-                // Clinvar, cosmic
-                if (v.annotation?.traitAssociation?.length) {
-                    v.annotation.traitAssociation.forEach(clinicalData => {
+                // Clinvar, Cosmic
+                if (variant.annotation?.traitAssociation?.length) {
+                    variant.annotation.traitAssociation.forEach(clinicalData => {
                         if (clinicalData.source.name === "clinvar") {
                             // Verify isn't undefined
                             const clinicalSignificance = clinicalData?.variantClassification?.clinicalSignificance ? ` (${clinicalData?.variantClassification?.clinicalSignificance})`: "";
@@ -279,137 +211,129 @@ export default class VariantUtils {
                     });
                 }
 
-                genes = genes.size > 0 ? [...genes].join(",") : "-";
-                ct = ct.size > 0 ? [...ct].join(",") : "-";
-                sift = typeof description.sift !== "undefined" ? description.sift : "-";
-                polyphen = typeof description.polyphen !== "undefined" ? description.polyphen : "-";
-                clinvar = clinvar.size > 0 ? [...clinvar].join(",") : "-";
-                cosmic = cosmic.size > 0 ? [...cosmic.entries()].map(([traitId, histologies]) => traitId + "(" + [...histologies].join(",") + ")").join(",") : "-";
+                clinvar = clinvar.size > 0 ? [...clinvar].join(",") : "";
+                cosmic = cosmic.size > 0 ? [...cosmic.entries()].map(([traitId, histologies]) => traitId + "(" + [...histologies].join(",") + ")").join(",") : "";
             }
 
             // prediction
-            if (v.evidences) {
-                prediction = this.getClassificationByClinicalSignificance(v);
+            if (variant.evidences) {
+                acmgPrediction = this.getClassificationByClinicalSignificance(variant);
             }
 
-            // ID
-            if (flatFieldList.includes("id")) {
-                dataToTsv["id"] = v.chromosome + ":" + v.start + " " + v.reference + "/" + v.alternate;
 
+            // START PREPARING THE LINE
+            if (flatFieldList.includes("id")) {
+                dataToTsv["id"] = variant.chromosome + ":" + variant.start + ":" + (variant.reference || "-") + (":" + variant.alternate || "-");
+            }
+
+            if (flatFieldList.includes("snpId")) {
                 // SNP ID
-                if (v?.id?.startsWith("rs")) {
-                    dataToTsv["SNP_ID"] = v.id;
-                } else if (typeof v.annotation !== "undefined" && typeof v.annotation.xrefs !== "undefined" && v.annotation.xrefs.length > 0) {
-                    const annotation = v.annotation.xrefs.find(el => el.source === "dbSNP");
-                    if (typeof annotation !== "undefined") {
-                        dataToTsv["SNP_ID"] = annotation.id;
-                    } else {
-                        dataToTsv["SNP_ID"] = "-";
-                    }
+                const dbSnpId = variant.names
+                    ?.filter(name => name.startsWith("rs"))
+                    ?.map(name => name)
+                    .join(",");
+
+                if (dbSnpId) {
+                    dataToTsv["snpId"] = dbSnpId;
                 } else {
-                    dataToTsv["SNP_ID"] = "-";
+                    if (variant.annotation?.xrefs?.length > 0) {
+                        const dbSnpXref = variant.annotation.xrefs.find(el => el.source === "dbSNP");
+                        if (dbSnpXref) {
+                            dataToTsv["snpId"] = dbSnpXref.id;
+                        } else {
+                            dataToTsv["snpId"] = "";
+                        }
+                    } else {
+                        dataToTsv["snpId"] = "";
+                    }
                 }
             }
 
-            // Genes
             if (flatFieldList.includes("gene")) {
-                dataToTsv["gene"] = genes;
+                dataToTsv["gene"] = genes.size > 0 ? [...genes].join(",") : "";
             }
 
-            // type
             if (flatFieldList.includes("type")) {
-                dataToTsv["type"] = v.type;
-            }
-
-            // consequence type
-            if (flatFieldList.includes("consequenceType")) {
-                dataToTsv["consequenceType"] = ct;
-            }
-
-            if (samples?.length > 0) {
-                const gtSamples = this.getGenotypeSamples(v, samples, nucleotideGenotype);
-                gtSamples.forEach(sample => {
-                    Object.keys(sample).forEach(sampleId => {
-                        if (flatFieldList.includes("sampleGenotypes." + sampleId)) {
-                            dataToTsv["sampleGenotypes."+ sampleId] = sample[sampleId];
-                        }
-
-                        if (flatFieldList.includes("samples." + sampleId)) {
-                            dataToTsv["samples."+ sampleId] = sample[sampleId];
-                        }
-                    });
-                });
-            }
-
-            // deleteriousness
-            if (flatFieldList.includes("deleteriousness.SIFT")) {
-                dataToTsv["deleteriousness.SIFT"] = sift;
-            }
-            if (flatFieldList.includes("deleteriousness.polyphen")) {
-                dataToTsv["deleteriousness.polyphen"] = polyphen;
-            }
-            if (flatFieldList.includes("deleteriousness.revel")) {
-                row.push("-"); // TODO deleteriousness Revel is missing
-                dataToTsv["deleteriousness.revel"] = "-";
-            }
-            if (flatFieldList.includes("deleteriousness.cadd")) {
-                dataToTsv["deleteriousness.cadd"] = cadd;
-            }
-            if (flatFieldList.includes("conservation.phylop")) {
-                dataToTsv["conservation.phylop"] = phylop;
-            }
-            if (flatFieldList.includes("conservation.phastCons")) {
-                dataToTsv["conservation.phastCons"] = phastCons;
-            }
-            if (flatFieldList.includes("conservation.gerp")) {
-                dataToTsv["conservation.gerp"] = gerp;
-            }
-            if (flatFieldList.includes("deleteriousness.spliceai")) {
-                dataToTsv["deleteriousness.spliceai"] = this.getSpliceAI(v);
+                dataToTsv["type"] = variant.type;
             }
 
             if (flatFieldList.includes("hgvs")) {
-                dataToTsv["hgvs"] = this.gethgvsValues(v);
+                dataToTsv["hgvs"] = this.gethgvsValues(variant);
             }
 
-            // Allele stats (VB)
-            // frequencies.cohort (SVB)
-            // alleleStats.forEach(study => {
-
-            //     if (flatFieldList.includes(`cohorts.${study.id}`) || flatFieldList.includes("frequencies.cohort")) {
-            //         const ac = [];
-            //         const af = [];
-            //         study.stats.map(cohort => {
-            //             ac.push(`${cohort.cohortId}:${cohort.alleleCount}`);
-            //             af.push(`${cohort.cohortId}:${cohort.altAlleleFreq}`);
-            //         });
-            //         dataToTsv[`cohorts.${study.id}.alleleCount`] = ac.join(";");
-            //         dataToTsv[`cohorts.${study.id}.altAlleleFreq`] = af.join(";");
-            //     }
-            // });
-
-            v?.studies.forEach(study => {
-                const studyId = study.studyId.split(":")[1];
-                if (flatFieldList.includes(`cohorts.${studyId}`) || flatFieldList.includes("frequencies.cohort")) {
-                    const ac = [];
-                    const af = [];
-                    study?.stats.map(cohort => {
-                        ac.push(`${cohort.cohortId}:${cohort.alleleCount}`);
-                        af.push(`${cohort.cohortId}:${cohort.altAlleleFreq}`);
+            // Sample
+            if (samples?.length > 0) {
+                const gtSamples = this.getGenotypeSamples(variant, samples, nucleotideGenotype);
+                const sampleGenotypes = [];
+                gtSamples.forEach(sample => {
+                    Object.keys(sample).forEach(sampleId => {
+                        if (sample[sampleId] !== "-") {
+                            sampleGenotypes.push(sampleId + ":" + sample[sampleId]);
+                        }
                     });
-                    dataToTsv[`cohorts.${studyId}.alleleCount`] = ac.join(";");
-                    dataToTsv[`cohorts.${studyId}.altAlleleFreq`] = af.join(";");
-                }
-            });
-
-            studiesPopFrequencies.forEach(study => {
-                study.populations.forEach(pop => {
-                    if (flatFieldList.includes("popfreq." + study.id) || flatFieldList.includes("frequencies.populationFrequencies")) {
-                        const valuePopFreq = populationMap[study.id + "_" + pop.id];
-                        dataToTsv[`popfreq.${study.id}_${pop.id}`] = UtilsNew.isNotEmpty(valuePopFreq) ? valuePopFreq : "-";
-                    }
                 });
-            });
+                dataToTsv["samples"] = sampleGenotypes.join(",");
+            }
+
+            if (flatFieldList.includes("consequenceTypes")) {
+                dataToTsv["consequenceTypes"] = consequenceTypeNames.size > 0 ? [...consequenceTypeNames].join(",") : "";
+            }
+
+            if (flatFieldList.includes("deleteriousness.SIFT")) {
+                dataToTsv["deleteriousness.SIFT"] = proteinSubstitutionScores.sift || "";
+            }
+
+            if (flatFieldList.includes("deleteriousness.polyphen")) {
+                dataToTsv["deleteriousness.polyphen"] = proteinSubstitutionScores.polyphen || "";
+            }
+
+            if (flatFieldList.includes("deleteriousness.revel")) {
+                dataToTsv["deleteriousness.revel"] = proteinSubstitutionScores.revel || "";
+            }
+
+            if (flatFieldList.includes("deleteriousness.cadd")) {
+                dataToTsv["deleteriousness.cadd"] = cadd;
+            }
+
+            if (flatFieldList.includes("deleteriousness.spliceai")) {
+                dataToTsv["deleteriousness.spliceai"] = this.getSpliceAI(variant);
+            }
+
+            if (flatFieldList.includes("conservation.phylop")) {
+                dataToTsv["conservation.phylop"] = phylop;
+            }
+
+            if (flatFieldList.includes("conservation.phastCons")) {
+                dataToTsv["conservation.phastCons"] = phastCons;
+            }
+
+            if (flatFieldList.includes("conservation.gerp")) {
+                dataToTsv["conservation.gerp"] = gerp;
+            }
+
+            if (flatFieldList.includes("cohortStats.alt")) {
+                const cohortStats = [];
+                for (const study of variant.studies) {
+                    const studyId = study.studyId.split(":")[1];
+                    for (const stats of study.stats) {
+                        cohortStats.push(studyId + ":" + stats.cohortId + "=" + stats.altAlleleFreq);
+                    }
+                }
+                dataToTsv["cohortStats.alt"] = cohortStats.join(",");
+            }
+
+            if (flatFieldList.includes("populationFrequencies")) {
+                const populationFrequencies = [];
+                for (const study of populationFrequenciesStudies) {
+                    for (const pop of study.populations) {
+                        const valuePopFreq = populationMap[study.id + "_" + pop.id];
+                        if (valuePopFreq) {
+                            populationFrequencies.push(study.id + ":" + pop.id + "=" + valuePopFreq);
+                        }
+                    }
+                }
+                dataToTsv["populationFrequencies"] = populationFrequencies.join(",");
+            }
 
             if (flatFieldList.includes("clinicalInfo.clinvar")) {
                 dataToTsv["clinicalInfo.clinvar"] = clinvar;
@@ -420,12 +344,12 @@ export default class VariantUtils {
             }
 
             if (flatFieldList.includes("interpretation.prediction")) {
-                dataToTsv["interpretation.prediction"] = prediction;
+                dataToTsv["acmgPrediction"] = acmgPrediction;
             }
-            const rowValues = headerString.map(head => dataToTsv[head]);
+
+            const rowValues = flatFieldList.map(header => dataToTsv[header]);
             rows.push(rowValues.join("\t"));
         }
-
         return rows;
     }
 
@@ -539,7 +463,6 @@ export default class VariantUtils {
     }
 
     static gethgvsValues(variant) {
-
         BioinfoUtils.sort(variant.annotation?.consequenceTypes, v => v.geneName);
         const gridConfig = {
             geneSet: {
@@ -565,10 +488,15 @@ export default class VariantUtils {
             const results = [];
             for (const index of showArrayIndexes) {
                 const consequenceType = variant.annotation.consequenceTypes[index];
+
                 const hgvsTranscriptIndex = variant.annotation.hgvs.findIndex(hgvs => hgvs.startsWith(consequenceType.transcriptId));
+                if (hgvsTranscriptIndex > -1) {
+                    results.push(`${this.getHgvs(consequenceType.transcriptId, variant.annotation.hgvs) || ""}`);
+                }
+
                 const hgvsProteingIndex = variant.annotation.hgvs.findIndex(hgvs => hgvs.startsWith(consequenceType.proteinVariantAnnotation?.proteinId));
-                if (hgvsTranscriptIndex > -1 || hgvsProteingIndex > -1) {
-                    results.push(`${this.getHgvs(consequenceType.transcriptId, variant.annotation.hgvs) || "-"} ${this.getHgvs(consequenceType.proteinVariantAnnotation?.proteinId, variant.annotation.hgvs) || "-"}`);
+                if (hgvsProteingIndex > -1) {
+                    results.push(`${this.getHgvs(consequenceType.proteinVariantAnnotation?.proteinId, variant.annotation.hgvs) || ""}`);
                 }
             }
             return results.join();
@@ -612,21 +540,7 @@ export default class VariantUtils {
             }
             return dscore;
         }
-        return "-";
-    }
-
-    static removeUnlockQuery(lockedFields, preparedQuery, executedQuery) {
-        // Get all keys
-        const queryKeys = new Set([...Object.keys(preparedQuery), ...Object.keys(executedQuery)]);
-
-        // Remove keys belong to lockedFields
-        lockedFields.forEach(key => queryKeys.delete(key.id));
-
-        // Remove all key not belong to lockedFields
-        queryKeys.forEach(key => {
-            delete preparedQuery[key];
-            delete executedQuery[key];
-        });
+        return "";
     }
 
     static validateQuery(query) {

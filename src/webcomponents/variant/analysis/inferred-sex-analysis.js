@@ -15,10 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
+import AnalysisUtils from "../../commons/analysis/analysis-utils";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
-import FormUtils from "../../commons/forms/form-utils";
-import AnalysisUtils from "../../commons/analysis/analysis-utils";
 
 
 export default class InferredSexAnalysis extends LitElement {
@@ -41,8 +40,8 @@ export default class InferredSexAnalysis extends LitElement {
             opencgaSession: {
                 type: Object,
             },
-            title: {
-                type: String
+            config: {
+                type: Object
             },
         };
     }
@@ -182,10 +181,11 @@ export default class InferredSexAnalysis extends LitElement {
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
+            this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
-            this.check()
+            this.check(),
+            this.config
         );
     }
 

@@ -40,11 +40,11 @@ export default class HRDetectAnalysis extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            title: {
-                type: String
-            },
             active: {
                 type: Boolean,
+            },
+            config: {
+                type: Object
             },
         };
     }
@@ -339,10 +339,11 @@ export default class HRDetectAnalysis extends LitElement {
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
+            this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
-            this.check()
+            this.check(),
+            this.config
         );
     }
 

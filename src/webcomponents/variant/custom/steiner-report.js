@@ -171,6 +171,7 @@ class SteinerReport extends LitElement {
                 deletionAggreationCount: 0,
                 deletionAggregationStats: null,
                 qcPlots: {},
+                results: "",
             };
 
             const allPromises = [
@@ -291,13 +292,6 @@ class SteinerReport extends LitElement {
         }
     }
 
-    onFieldChange() {
-        this._data = {
-            ...this._data,
-        };
-        this.requestUpdate();
-    }
-
     onSignatureChange(event, type) {
         this.selectedSignatures[type] = event.detail.value;
         this._config = {
@@ -365,7 +359,6 @@ class SteinerReport extends LitElement {
             <data-form
                 .data="${this._data}"
                 .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onRun}">
             </data-form>
@@ -1006,6 +999,15 @@ class SteinerReport extends LitElement {
                                         stop position of segment, total copy number, minor copy number).
                                     </div>
                                 `,
+                            },
+                        },
+                        {
+                            title: "Results Interpretation",
+                            type: "input-text",
+                            field: "results",
+                            display: {
+                                rows: 5,
+                                defaultValue: "",
                             },
                         },
                     ]
