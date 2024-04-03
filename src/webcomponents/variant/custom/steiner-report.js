@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import "../interpretation/variant-interpreter-grid.js";
 import "../interpretation/variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
+import "../../commons/forms/select-field-filter.js";
 import "../../commons/simple-chart.js";
 import "../../loading-spinner.js";
 import "../../file/file-preview.js";
@@ -306,6 +307,15 @@ class SteinerReport extends LitElement {
             ...this.config,
         };
 
+        this.requestUpdate();
+    }
+
+    onStockPhraseSelect(phrase) {
+        const discussion = this._data.discussion || "";
+        this._data = {
+            ...this._data,
+            discussion: discussion + (discussion === "" ? "" : "\n") + phrase + "\n",
+        };
         this.requestUpdate();
     }
 
@@ -1191,9 +1201,17 @@ class SteinerReport extends LitElement {
                         },
                         {
                             title: "Discussion",
-                            field: "discussionPhrase",
-                            type: "select",
-                            allowedValues: this.stockPhrases,
+                            type: "custom",
+                            // allowedValues: this.stockPhrases,
+                            display: {
+                                render: () => html`
+                                    <select-field-filter
+                                        .data="${[...this.stockPhrases]}"
+                                        .value="${""}"
+                                        @filterChange="${e => this.onStockPhraseSelect(e.detail.value)}">
+                                    </select-field-filter>
+                                `,
+                            },
                         },
                         {
                             title: " ",
