@@ -31,8 +31,6 @@ context("Job Browser Grid", () => {
 
     // TOOLBAR
     context("Job Toolbar", () => {
-        const toolbarComponent = "";
-
         beforeEach(() => {
             cy.get(browserGrid)
                 .find(`div[data-cy="toolbar"]`)
@@ -47,10 +45,22 @@ context("Job Browser Grid", () => {
                     .find(`div[data-cy="toolbar-wrapper"]`)
                     .should("be.visible");
             });
-            // 1.1. If configured, it should render a New button
-            it("should render New button", () => {
+
+            it("should render Refresh button", () => {
                 cy.get(browserGrid)
-                    .find(`button[data-action="create"]`)
+                    .find(`button[data-cy="toolbar-btn-refresh"]`)
+                    .should("be.visible");
+            });
+
+            it("should render Export button", () => {
+                cy.get(browserGrid)
+                    .find(`button[data-cy="toolbar-btn-export"]`)
+                    .should("be.visible");
+            });
+
+            it("should render Settings button", () => {
+                cy.get(browserGrid)
+                    .find(`button[data-cy="toolbar-btn-settings"]`)
                     .should("be.visible");
             });
         });
