@@ -22,7 +22,7 @@ export default class ClinicalInterpretationSummary extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -46,7 +46,7 @@ export default class ClinicalInterpretationSummary extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.displayConfigDefault = {
             titleVisible: false,
             titleWidth: 3,
@@ -71,7 +71,10 @@ export default class ClinicalInterpretationSummary extends LitElement {
 
     interpretationIdObserver() {
         if (this.opencgaSession && this.interpretationId) {
-            this.opencgaSession.opencgaClient.clinical().infoInterpretation(this.interpretationId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.clinical()
+                .infoInterpretation(this.interpretationId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
                     this.interpretation = response.responses[0].results[0];
                 })
