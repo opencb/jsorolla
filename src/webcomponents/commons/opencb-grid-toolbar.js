@@ -57,6 +57,8 @@ export default class OpencbGridToolbar extends LitElement {
     #init() {
         this._prefix = UtilsNew.randomString(8);
 
+        this.rightToolbar = [];
+
         this._settings = this.getDefaultSettings();
         this._config = this.getDefaultConfig();
     }
@@ -106,7 +108,7 @@ export default class OpencbGridToolbar extends LitElement {
                 ModalUtils.show(`${this._prefix}SettingModal`);
                 break;
         }
-        LitUtils.dispatchCustomEvent(this, toolbar + UtilsNew.capitalize(action));
+        LitUtils.dispatchCustomEvent(this, "toolbar" + UtilsNew.capitalize(action));
     }
 
     render() {
@@ -122,7 +124,7 @@ export default class OpencbGridToolbar extends LitElement {
         let isCreateDisabledTooltip = "";
         if (this._config?.create?.display?.disabled) {
             isCreateDisabled = true;
-            isCreateDisabledTooltip = this._config?.create?.display?.disabledTooltip;
+            isCreateDisabledTooltip = this._config.create.display.disabledTooltip;
         } else {
             const hasPermissions = OpencgaCatalogUtils
                 .checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`);
@@ -205,10 +207,10 @@ export default class OpencbGridToolbar extends LitElement {
 
             <!-- Add modals-->
             ${(this._config?.create &&
-            (this._settings.showCreate || this._settings.showNew) &&
-            OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`)) ?
-            ModalUtils.create(this, `${this._prefix}CreateModal`, this._config.create) :
-            nothing}
+                (this._settings.showCreate || this._settings.showNew) &&
+                OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`)) ?
+                ModalUtils.create(this, `${this._prefix}CreateModal`, this._config.create) :
+                nothing}
 
             ${this._settings?.showExport && this._config?.export ? ModalUtils.create(this, `${this._prefix}ExportModal`, this._config.export) : nothing}
 
