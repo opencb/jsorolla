@@ -170,7 +170,6 @@ class SteinerReport extends LitElement {
                     .map(analyst=> analyst.name)
                     .join(", "),
                 signedBy: "",
-                discussionPhrase: "",
                 discussion: "",
                 hrdetects: [],
                 selectedHrdetect: null,
