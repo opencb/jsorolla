@@ -245,7 +245,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
             return {
                 title: "Edit",
                 icon: "fas fa-edit",
-                type: "modal",
+                mode: "modal",
                 display: {
                     // style: "margin: 25px 50px 0px 0px",
                     titleWidth: 3,

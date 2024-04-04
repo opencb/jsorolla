@@ -94,17 +94,17 @@ export default class FormUtils {
                         let [arrayFieldName, removedIndex] = param.split("[].");
                         removedIndex = Number.parseInt(removedIndex);
 
-                        // 1. Create 'delete' arrays if it does not exist
-                        if (!_updatedFields[arrayFieldName + "[].deleted"]) {
-                            _updatedFields[arrayFieldName + "[].deleted"] = [];
-                        }
-
-                        // 2. Check if we are deleting a new added item, if yes, we DO NOT save it as deleted
+                        // 1. Check if we are deleting a new added item, if yes, we DO NOT save it as deleted
                         if (!_updatedFields[param]) {
+                            // 1.1 Create 'delete' arrays if it does not exist
+                            if (!_updatedFields[arrayFieldName + "[].deleted"]) {
+                                _updatedFields[arrayFieldName + "[].deleted"] = [];
+                            }
+                            // 1.2 Save existing object as deleted
                             _updatedFields[arrayFieldName + "[].deleted"].push(value);
                         }
 
-                        // 3. Remove from updatedFields any key starting with the param
+                        // 2. Remove from updatedFields any key starting with the param
                         const deletedKeys = Object.keys(_updatedFields).filter(key => key.startsWith(param));
                         if (deletedKeys.length > 0) {
                             for (const deletedKey of deletedKeys) {
@@ -112,7 +112,7 @@ export default class FormUtils {
                             }
                         }
 
-                        // 4. Rename (decrease) the index key of all elements
+                        // 3. Rename (decrease) the index key of all elements
                         const keys = Object.keys(_updatedFields).filter(key => key.startsWith(arrayFieldName + "[]."));
                         for (const key of keys) {
                             const right = key.split("[].")[1];
@@ -192,132 +192,6 @@ export default class FormUtils {
         return data;
     }
 
-    //  Rodiel 2022-05-16 DEPRECATED use updateObjectParams
-    // eslint-disable-next-line valid-jsdoc
-    /**
-     * ! Rodiel 2022-09-27 DEPRECATED use updateObjectParams
-     * TODO Before removing updateScalar change to updateObjectParams to these components
-     * Clinical-analysis-update
-     * Clinical-interpretation-update
-     * exomiser-analysis
-     * rd-tiering-analysis
-     * clinical-interpretation-variant-review
-     */
-    static updateScalar(_original, original, updateParams, param, value) {
-        // Prepare an internal object to store the updateParams.
-        // NOTE: it is important to create a new object reference to force a new render()
-        const _updateParams = {
-            ...updateParams
-        };
-
-        if (_original?.[param] !== value && value !== null) {
-            original[param] = value; // This the problem
-            _updateParams[param] = value;
-        } else {
-            // We need to restore the original value in our copy
-            original[param] = _original[param];
-            delete _updateParams[param];
-        }
-
-        // We need to create a new 'updateParams' reference to force an update
-        return _updateParams;
-    }
-
-    /** !DEPRECATED
-     * TODO Before removing updateObject change to updateObjectParams to these components
-     * Clinical-analysis-update
-     * Clinical-interpretation-update
-     * @param {Object} _original Original
-     * @param {Object} original Modified
-     * @param {Object} updateParams Parameters to update in original
-     * @param {String} param    Path
-     * @param {any} value Value
-     * @returns {*} Parameters
-     */
-    static updateObject(_original, original, updateParams, param, value) {
-        const [field, prop] = param.split(".");
-
-        // Prepare an internal object to store the updateParams.
-        // NOTE: it is important to create a new object reference to force a new render()
-        const _updateParams = {
-            ...updateParams
-        };
-
-        if (_original?.[field]?.[prop] !== value && value !== null) {
-            original[field] = {
-                ...original[field],
-                [prop]: value
-            };
-
-            _updateParams[field] = {
-                ..._updateParams[field],
-                [prop]: value
-            };
-        } else {
-            delete _updateParams[field];
-        }
-
-        // We need to create a new 'updateParams' reference to force an update
-        return _updateParams;
-    }
-
-    // Update object with Object as props
-    static updateObjectWithObj(_original, original, updateParams, param, value) {
-        const [field, prop] = param.split(".");
-        // Prepare an internal object to store the updateParams.
-        // NOTE: it is important to create a new object reference to force a new render()
-        const _updateParams = {
-            ...updateParams
-        };
-
-        // The value it's object too.
-        const childKey = Object.keys(value)[0];
-        const childValue = Object.values(value)[0];
-
-        if (prop) {
-            if (_original?.[field]?.[prop]?.[childKey] !== childValue && childValue !== null) {
-                original[field][prop] = {
-                    ...original[field][prop],
-                    ...value
-                };
-
-                // init new object
-                _updateParams[field] = {
-                    ...updateParams[field],
-                    [prop]: {}
-                };
-
-                _updateParams[field][prop] = {
-                    ..._updateParams[field][prop],
-                    ...value
-                };
-            } else {
-                delete _updateParams[field][prop];
-
-                if (UtilsNew.isEmpty(_updateParams[field])) {
-                    delete _updateParams[field];
-                }
-            }
-        } else {
-            if (_original?.[field]?.[childKey] !== childValue && childValue !== null) {
-                original[field] = {
-                    ...original[field],
-                    ...value
-                };
-
-                _updateParams[field] = {
-                    ..._updateParams[field],
-                    ...value
-                };
-            } else {
-                delete _updateParams[field];
-            }
-        }
-
-        // We need to create a new 'updateParams' reference to force an update
-        return _updateParams;
-    }
-
     static updateObjectParams(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");
 
@@ -362,172 +236,6 @@ export default class FormUtils {
                 _updateParams[field] = value;
             } else {
                 original[field] =_original[field];
-                delete _updateParams[field];
-            }
-        }
-
-        return _updateParams;
-    }
-
-    static updateObjExperimental(_original, original, updateParams, param, value) {
-        const isValueDifferent = (_obj, val) => _obj !== val && val !== null;
-        const isNotEmpty = (_obj, val) => typeof _obj !== "undefined" || val !== "";
-        const arraysEqual = (a, b) => a.length === b.length && a.every(
-            (o, idx) => UtilsNew.objectCompare(o, b[idx])
-        );
-
-        // 1. Make a deep copy of the updateParams
-        const _updateParams = {
-            ...updateParams
-        };
-
-        // 2. Get current value in the original object, this will be used to check if the value has changed
-        const currentValue = UtilsNew.getObjectValue(_original, param, "");
-
-        // 3. Check if the values are actually different.
-        // We must implement different comparison depending on the field type.
-        let isDifferent;
-        if (Array.isArray(currentValue)) {
-            isDifferent = !arraysEqual(currentValue, value);
-        } else {
-            if (typeof currentValue === "object") {
-                isDifferent = !UtilsNew.objectCompare(currentValue, value);
-            } else {
-                // Compare primitive fields: string, number, boolean
-                isDifferent = isValueDifferent(currentValue, value) && isNotEmpty(currentValue, value);
-            }
-        }
-
-        // 4. Set or delete values
-        if (isDifferent) {
-            // 4.1 If value isDifferent we must set the new value in the _updateParams
-            UtilsNew.setObjectValue(original, param, value);
-
-            // 4.2 We must return the root parent object. OpenCGA needs the root object!
-            const rootFieldName = param.split(".")[0];
-            UtilsNew.setObjectValue(_updateParams, rootFieldName, original[rootFieldName]);
-
-            // Deprecated:
-            // Use spread operator to avoid reference between original and _updateParams
-            // If it's object, use spread operator
-            // const originalValue = UtilsNew.isObject(original[rootFieldName]) ? {...original[rootFieldName]} : original[rootFieldName];
-            // UtilsNew.setObjectValue(_updateParams, rootFieldName, originalValue);
-        } else {
-            // 4.1 Values are equals, so we must restore the original value in our copy.
-            const restoredOriginalValue = UtilsNew.getObjectValue(_original, param, undefined);
-            if (restoredOriginalValue) {
-                UtilsNew.setObjectValue(original, param, JSON.parse(JSON.stringify(restoredOriginalValue)));
-            } else {
-                UtilsNew.deleteObjectValue(original, param);
-            }
-
-            // 4.2 Check if any parent object is empty or equals to original data, then we must remove from _updateParams
-            if (param.includes(".")) {
-                // 4.2.1 Check all parents
-                const props = param.split(".").slice(0, -1);
-                const length = props.length;
-                for (let i = 0; i < length; i++) {
-                    const prefix = props.join(".");
-                    const originalDataValue = UtilsNew.getObjectValue(_original, prefix, "");
-                    const updateValue = UtilsNew.getObjectValue(_updateParams, prefix, "");
-                    if (UtilsNew.isEmpty() || UtilsNew.objectCompare(originalDataValue, updateValue)) {
-                        UtilsNew.deleteObjectValue(_updateParams, prefix);
-                        props.pop();
-                    } else {
-                        break;
-                    }
-                }
-            } else {
-                // 4.2.2 We need to remove from _updateParams after the loop above, delete this??
-                UtilsNew.deleteObjectValue(_updateParams, param);
-            }
-        }
-        return _updateParams;
-    }
-
-    // This function implements a general method for object array updates in forms.
-    // Usage example, updating: panels.id or flags.id
-    static updateObjectArray(_original, original, updateParams, param, values, data) {
-        const [field, prop] = param.split(".");
-
-        // Prepare an internal object to store the updateParams.
-        // NOTE: it is important to create a new object reference to force a new render()
-        const _updateParams = {
-            ...updateParams
-        };
-
-        const valuesSplit = values?.split(",") || [];
-
-        // Set array of objects WITH only THE 'prop' field
-        _updateParams[field] = valuesSplit.map(value => ({[prop]: value}));
-
-        // If possible we store the complete objects in 'original'
-        if (data) {
-            original[field] = [];
-            for (const value of valuesSplit) {
-                const item = data.find(d => d[prop] === value);
-                original[field].push(item);
-            }
-        } else {
-            original[field] = valuesSplit.map(value => ({[prop]: value}));
-        }
-
-        // Let's find out if the content of the array is different from the '_original' array in the server
-        let hasChanged = false;
-        if (original[field]?.length === _original[field]?.length) {
-            for (const v of original[field]) {
-                const index = _original[field].findIndex(vv => vv[prop] === v[prop]);
-                if (index === -1) {
-                    hasChanged = true;
-                    break;
-                }
-            }
-        } else {
-            hasChanged = true;
-        }
-
-        // Delete updateParams field if nothing has changed
-        if (!hasChanged) {
-            delete _updateParams[field];
-        }
-
-        return _updateParams;
-    }
-
-    static updateArraysObject(_original, original, updateParams, param, value) {
-        const [field, prop] = param.split(".");
-        const _updateParams = {
-            ...updateParams,
-        };
-
-        const arraysEqual = (a, b) => a.length === b.length && a.every(
-            (o, idx) => UtilsNew.objectCompare(o, b[idx])
-        );
-
-        if (prop) {
-            if (!arraysEqual(_original[field][prop], value)) {
-                original[field] = {
-                    ...original[field],
-                    [prop]: value
-                };
-
-                _updateParams[field] = {
-                    ..._updateParams[field],
-                    [prop]: value
-                };
-            } else {
-                original[field][prop] = _original[field][prop];
-                delete _updateParams[field][prop];
-                if (UtilsNew.isEmpty(_updateParams[field])) {
-                    delete _updateParams[field];
-                }
-            }
-        } else {
-            if (!arraysEqual(_original[field], value)) {
-                original[field] = value;
-                _updateParams[field] = value;
-            } else {
-                original[field] = _original[field];
                 delete _updateParams[field];
             }
         }

@@ -6,7 +6,7 @@ import pkg from "./package.json";
 
 // eslint-disable-next-line no-undef
 const env = process.env || {};
-const sites = ["iva", "api", "test"];
+const sites = ["iva", "api", "test-app"];
 
 const getCustomSitePath = (name, folder) => {
     if (env.npm_config_custom_site) {
@@ -15,16 +15,61 @@ const getCustomSitePath = (name, folder) => {
     return folder; // Default path configuration
 };
 
+const getExtensionsPath = name => {
+    // NOTE: at this moment, extensions are only available for IVA
+    if (env.npm_extensions && name.toUpperCase() === "IVA") {
+        return "../../../extensions/build";
+    }
+    return "extensions";
+};
+
+const getTestDataFile = (req, res) => {
+    // eslint-disable-next-line no-undef
+    const filePath = path.join(process.cwd(), "test-data", req.url.replace(/^[\w/\-_]*test-data\//, ""));
+    // At this moment we only support JSON files
+    if (fs.existsSync(filePath) && path.extname(filePath) === ".json") {
+        res.setHeader("Content-Type", "application/json");
+        res.writeHead(200);
+        const fileReader = fs.createReadStream(filePath);
+        fileReader.on("data", data => res.write(data));
+        fileReader.on("end", () => res.end(""));
+    } else {
+        res.writeHead(404);
+        res.end("");
+    }
+};
+
 const transformHtmlContent = html => {
-    let outputHtml = html;
-    sites.forEach(name => {
-        const regex = new RegExp(`{{ ${name.toUpperCase()}_CONFIG_PATH }}`, "g");
-        outputHtml = outputHtml.replace(regex, getCustomSitePath(name, "conf"));
+    return sites.reduce((prevHtml, name) => {
+        const parsedName = name.replace(/-/g, "_").toUpperCase();
+        const configRegex = new RegExp(`{{ ${parsedName}_CONFIG_PATH }}`, "g");
+        const extensionsRegex = new RegExp(`{{ ${parsedName}_EXTENSIONS_PATH }}`, "g");
+
+        return prevHtml
+            .replace(configRegex, getCustomSitePath(name, "conf"))
+            .replace(extensionsRegex, getExtensionsPath(name));
+    }, html);
+};
+
+const configurePreviewServer = server => {
+    // Middleware to intercept all calls that contains the 'test-data' word
+    server.middlewares.use((req, res, next) => {
+        if (req.url.includes("test-data/")) {
+            return getTestDataFile(req, res);
+        }
+        return next();
     });
-    return outputHtml;
 };
 
 const configureServer = server => {
+    // Middleware to intercept all calls that contains the 'test-data' word
+    server.middlewares.use((req, res, next) => {
+        if (req.url.includes("test-data/")) {
+            return getTestDataFile(req, res);
+        }
+        return next();
+    });
+    // Middleware to fix the path to images used in custom-sites
     server.middlewares.use((req, res, next) => {
         if (env.npm_config_custom_site && req.url.startsWith("/src/sites") && req.url.includes("img")) {
             const customUrl = req.url.replace("/src/sites", `/custom-sites/${env.npm_config_custom_site}`);
@@ -52,6 +97,9 @@ export default defineConfig({
     build: {
         outDir: "build"
     },
+    preview: {
+        port: 4000,
+    },
     plugins: [
         {
             ...replace({
@@ -72,5 +120,11 @@ export default defineConfig({
             configureServer,
             apply: "serve",
         },
+        {
+            name: "configure-preview-server",
+            configurePreviewServer,
+            apply: "serve",
+        },
     ],
 });
+

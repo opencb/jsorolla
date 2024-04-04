@@ -56,14 +56,13 @@ export default class ClinicalInterpretationCreate extends LitElement {
     _init() {
         this.mode = "";
         this.interpretation = {};
+        this._users = [];
 
         this.displayConfigDefault = {
-            width: 10,
             buttonsAlign: "right",
             buttonClearText: "Clear",
             buttonOkText: "Create Interpretation",
-            titleVisible: false,
-            titleWidth: 4,
+            titleVisible: true,
             defaultLayout: "horizontal"
         };
         this.config = this.getDefaultConfig();
@@ -81,7 +80,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
             this.config = this.getDefaultConfig();
         }
         if (changedProperties.has("opencgaSession")) {
-            this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
+            this._users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
             this.initClinicalInterpretation();
         }
         if (changedProperties.has("displayConfig")) {
@@ -175,7 +174,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
             id: "clinical-interpretation",
             title: "Create Interpretation",
             icon: "fas fa-file-medical",
-            type: this.mode,
+            mode: this.mode,
             requires: "2.2.0",
             description: "Create a new interpretation for this case",
             display: this.displayConfig || this.displayConfigDefault,
@@ -183,14 +182,6 @@ export default class ClinicalInterpretationCreate extends LitElement {
                 {
                     title: "General Information",
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => Object.keys(this.interpretation).length > 0,
-                                notificationType: "warning",
-                            }
-                        },
                         {
                             title: "Case Id",
                             field: "id",
@@ -206,7 +197,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             field: "analyst.id",
                             type: "select",
                             defaultValue: this.opencgaSession?.user?.id,
-                            allowedValues: () => this.users,
+                            allowedValues: () => this._users,
                             display: {},
                         },
                         {
@@ -233,11 +224,11 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                     const panelLock = !!this.clinicalAnalysis?.panelLock;
                                     const panelList = panelLock ? this.clinicalAnalysis.panels : this.opencgaSession.study?.panels;
                                     const handlePanelsFilterChange = e => {
-                                        e.detail.value = e.detail.value
+                                        const panelList = e.detail.value
                                             ?.split(",")
                                             .filter(panelId => panelId)
                                             .map(panelId => ({id: panelId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(panelList);
                                     };
                                     return html`
                                         <disease-panel-filter

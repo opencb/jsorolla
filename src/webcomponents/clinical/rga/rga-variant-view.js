@@ -135,9 +135,7 @@ export default class RgaVariantView extends LitElement {
                     field: "individualStats.missingParents.numCompHet"
                 }
             ],
-            showColumns: true,
             showExport: false,
-            showDownload: true
         };
     }
 
@@ -205,7 +203,7 @@ export default class RgaVariantView extends LitElement {
                     title: "Variant",
                     field: "id",
                     rowspan: 2,
-                    formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly)
+                    formatter: (value, row, index) => VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly)
                 },
                 {
                     title: "Gene",
@@ -613,7 +611,6 @@ export default class RgaVariantView extends LitElement {
             pageList: [10, 25, 50],
             showExport: false,
             detailView: false,
-            detailFormatter: undefined, // function with the detail formatter
             multiSelection: false,
             populationFrequencies: [
                 "GNOMAD_EXOMES:ALL",

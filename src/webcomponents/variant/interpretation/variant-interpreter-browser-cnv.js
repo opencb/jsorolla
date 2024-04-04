@@ -50,11 +50,15 @@ class VariantInterpreterBrowserCNV extends LitElement {
             },
             settings: {
                 type: Object
-            }
+            },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
     _init() {
+        this.COMPONENT_ID = "variant-interpreter-cancer-cnv";
         this._prefix = UtilsNew.randomString(8);
 
         this.query = {};
@@ -228,20 +232,24 @@ class VariantInterpreterBrowserCNV extends LitElement {
                 .query="${this.query}"
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
-                .toolId="${"variantInterpreterCancerCNV"}"
+                .toolId="${this.COMPONENT_ID}"
                 .config="${this._config}"
+                .active="${this.active}"
                 @queryChange="${this.onQueryChange}">
             </variant-interpreter-browser-template>
         `;
     }
 
     getDefaultConfig() {
-        // Add case panels to query object
         const lockedFields = [
             {id: "sample"},
+            {id: "sampleData"},
+            {id: "file"},
+            {id: "fileData"},
             {id: "type"},
         ];
 
+        // Add panels to locked fields
         if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLock) {
             lockedFields.push({id: "panel"});
             lockedFields.push({id: "panelIntersection"});
@@ -412,29 +420,25 @@ class VariantInterpreterBrowserCNV extends LitElement {
                 ],
                 result: {
                     grid: {
-                        pagination: true,
-                        pageSize: 10,
-                        pageList: [5, 10, 25],
-                        showExport: false,
-                        detailView: true,
-                        showReview: false,
-                        showActions: true,
+                        // pagination: true,
+                        // pageSize: 10,
+                        // pageList: [5, 10, 25],
+                        // showExport: false,
+                        // detailView: true,
+                        // showReview: false,
+                        // showActions: true,
                         showSelectCheckbox: true,
-                        multiSelection: false,
-                        nucleotideGenotype: true,
-                        alleleStringLengthMax: 10,
+                        // multiSelection: false,
+                        // nucleotideGenotype: true,
+                        // alleleStringLengthMax: 10,
 
                         hideType: true,
                         hidePopulationFrequencies: true,
                         hideClinicalInfo: true,
+                        hideDeleteriousness: true,
 
                         genotype: {
                             type: "VAF"
-                        },
-
-                        header: {
-                            horizontalAlign: "center",
-                            verticalAlign: "bottom"
                         },
 
                         quality: {
@@ -455,7 +459,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
                             active: true,
                             render: variant => html`
                                 <cellbase-variant-annotation-summary
-                                    .variantAnnotation="${variant.annotation}"
+                                    .variantAnnotation="${variant?.annotation}"
                                     .consequenceTypes="${CONSEQUENCE_TYPES}"
                                     .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
                                     .assembly=${this.opencgaSession.project.organism.assembly}>
@@ -512,7 +516,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
                             name: "Beacon",
                             render: (variant, active, opencgaSession) => html`
                                 <variant-beacon-network
-                                    .variant="${variant.id}"
+                                    .variant="${variant?.id}"
                                     .assembly="${opencgaSession.project.organism.assembly}"
                                     .config="${this.beaconConfig}"
                                     .active="${active}">

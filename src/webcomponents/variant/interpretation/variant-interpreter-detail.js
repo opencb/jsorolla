@@ -15,6 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
+import UtilsNew from "../../../core/utils-new.js";
+import ExtensionsManager from "../../extensions-manager.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
 import "../annotation/cellbase-variantannotation-view.js";
 import "../annotation/variant-consequence-type-view.js";
@@ -30,8 +32,7 @@ export default class VariantInterpreterDetail extends LitElement {
 
     constructor() {
         super();
-
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -46,14 +47,14 @@ export default class VariantInterpreterDetail extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
+            toolId: {
+                type: String,
+            },
             variant: {
                 type: Object
             },
             variantId: {
                 type: String
-            },
-            cellbaseClient: {
-                type: Object
             },
             config: {
                 type: Object
@@ -61,62 +62,75 @@ export default class VariantInterpreterDetail extends LitElement {
         };
     }
 
-    _init() {
-        // Initially we set the default config, this will be overridden if 'config' is passed
+    #init() {
+        this.COMPONENT_ID = "";
+        this._variant = null;
         this._config = this.getDefaultConfig();
-    }
-
-    firstUpdated() {
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
+        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("toolId") && this.toolId) {
+            this.COMPONENT_ID = this.toolId + "-detail";
+        }
+
         if (changedProperties.has("variantId")) {
             this.variantIdObserver();
         }
 
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("variant")) {
+            this.variantObserver();
+        }
+
+        if (changedProperties.has("config") || changedProperties.has("toolId")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
+            this.#updateDetailTabs();
         }
 
         super.update(changedProperties);
     }
 
     variantIdObserver() {
-        if (this.cellbaseClient && this.variantId) {
-            this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
-                .then(restReponse => {
-                    this.variant = {
-                        id: this.variantId,
-                        annotation: restReponse.getResult(0)
-                    };
+        if (this.opencgaSession && this.variantId) {
+            this.opencgaSession.opencgaClient.clinical()
+                .queryVariant({
+                    study: this.opencgaSession.study.fqn,
+                    id: this.variantId,
+                    includeSampleId: "true",
+                })
+                .then(response => {
+                    this._variant = response?.responses?.[0]?.results?.[0];
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error(response);
                 });
         }
     }
 
-    render() {
+    variantObserver() {
+        this._variant = UtilsNew.objectClone(this.variant);
+        this.requestUpdate();
+    }
 
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
+    }
+
+    render() {
         if (!this.opencgaSession) {
             return "";
         }
 
-        if (!this.variant?.annotation && !Array.isArray(this.variant)) {
-            return;
-        }
-
-        if (!this._config?.items) {
-            return html`<h3>Error: No valid tab configuration</h3>`;
-        }
-
         return html`
             <detail-tabs
-                .data="${this.variant}"
+                .data="${this._variant}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>
@@ -134,7 +148,7 @@ export default class VariantInterpreterDetail extends LitElement {
                     active: true,
                     render: variant => html`
                         <cellbase-variant-annotation-summary
-                            .variantAnnotation="${variant.annotation}"
+                            .variantAnnotation="${variant?.annotation}"
                             .consequenceTypes="${CONSEQUENCE_TYPES}"
                             .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
                             .assembly="${this.opencgaSession.project.organism.assembly}">
@@ -146,7 +160,7 @@ export default class VariantInterpreterDetail extends LitElement {
                     name: "Consequence Type",
                     render: (variant, active) => html`
                         <variant-consequence-type-view
-                            .consequenceTypes="${variant.annotation.consequenceTypes}"
+                            .consequenceTypes="${variant?.annotation?.consequenceTypes}"
                             .active="${active}">
                         </variant-consequence-type-view>
                     `,
@@ -156,7 +170,7 @@ export default class VariantInterpreterDetail extends LitElement {
                     name: "Population Frequencies",
                     render: (variant, active) => html`
                         <cellbase-population-frequency-grid
-                            .populationFrequencies="${variant.annotation.populationFrequencies}"
+                            .populationFrequencies="${variant?.annotation?.populationFrequencies}"
                             .active="${active}">
                         </cellbase-population-frequency-grid>
                     `,
@@ -166,8 +180,8 @@ export default class VariantInterpreterDetail extends LitElement {
                     name: "Clinical",
                     render: variant => html`
                         <variant-annotation-clinical-view
-                            .traitAssociation="${variant.annotation.traitAssociation}"
-                            .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                            .traitAssociation="${variant?.annotation?.traitAssociation}"
+                            .geneTraitAssociation="${variant?.annotation?.geneTraitAssociation}">
                         </variant-annotation-clinical-view>
                     `,
                 },
@@ -188,7 +202,7 @@ export default class VariantInterpreterDetail extends LitElement {
                     render: (variant, active, opencgaSession) => html`
                         <variant-cohort-stats
                             .opencgaSession="${opencgaSession}"
-                            .variantId="${variant.id}"
+                            .variantId="${variant?.id}"
                             .active="${active}">
                         </variant-cohort-stats>
                     `,
@@ -199,7 +213,7 @@ export default class VariantInterpreterDetail extends LitElement {
                     render: (variant, active, opencgaSession) => html`
                         <variant-samples
                             .opencgaSession="${opencgaSession}"
-                            .variantId="${variant.id}"
+                            .variantId="${variant?.id}"
                             .active="${active}">
                         </variant-samples>
                     `,
@@ -220,7 +234,7 @@ export default class VariantInterpreterDetail extends LitElement {
                     name: "Beacon",
                     render: (variant, active, opencgaSession) => html`
                         <variant-beacon-network
-                            .variant="${variant.id}"
+                            .variant="${variant?.id}"
                             .assembly="${opencgaSession.project.organism.assembly}"
                             .config="${this.beaconConfig}"
                             .active="${active}">
@@ -246,21 +260,8 @@ export default class VariantInterpreterDetail extends LitElement {
                     render: (variant, active) => html`
                         <json-viewer .data="${variant}" .active="${active}"></json-viewer>
                     `,
-                }
-                // TODO Think about the possibility of allowing plugins here
-                // {
-                //     id: "variantDetail",
-                //     name: "Variant Detail",
-                //     render: (variant, active,opencgaSession) => {
-                //         return html`
-                //             <opencga-variant-detail-template
-                //                 .opencgaSession="${opencgaSession}"
-                //                 .variant="${variant.id}"
-                //                 .active="${active}">
-                //             </opencga-variant-detail-template>`;
-                //     }
-                // }
-            ]
+                },
+            ],
         };
     }
 

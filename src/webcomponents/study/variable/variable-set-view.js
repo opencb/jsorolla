@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import "../../commons/forms/data-form.js";
 import "../../loading-spinner.js";
-import "../deprecated/variable-list-update.js";
 
 export default class VariableSetView extends LitElement {
 

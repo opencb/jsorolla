@@ -20,9 +20,9 @@ import {html, LitElement} from "lit";
 
 import {DATA_FORM_EXAMPLE} from "../conf/data-form.js";
 import UtilsNew from "../../../core/utils-new.js";
+import "../../../webcomponents/commons/forms/data-form.js";
 import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/variant/variant-browser-grid.js";
-
 
 class VariantBrowserGridTest extends LitElement {
 
@@ -37,7 +37,7 @@ class VariantBrowserGridTest extends LitElement {
 
     static get properties() {
         return {
-            testDataFile: {
+            testVariantFile: {
                 type: String
             },
             opencgaSession: {
@@ -53,24 +53,12 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "variant-browser";
         this.isLoading = false;
         this.variants = [];
         this._dataFormConfig = DATA_FORM_EXAMPLE;
-        this.configVariantGrid = {
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            multiSelection: false,
-            showSelectCheckbox: false,
-            toolbar: {
-                // showNew: true,
-                showColumns: true,
-                showDownload: false,
-                showExport: false,
-                showSettings: false,
-                exportTabs: ["download", "link", "code"]
-                // columns list for the dropdown will be added in grid webcomponents based on settings.table.columns
-            },
-        };
+
+        this._config = {};
     }
 
     #setLoading(value) {
@@ -79,7 +67,7 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("testDataFile") &&
+        if (changedProperties.has("testVariantFile") &&
             changedProperties.has("testDataVersion") &&
             changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
@@ -89,40 +77,71 @@ class VariantBrowserGridTest extends LitElement {
 
     opencgaSessionObserver() {
         this.#setLoading(true);
-        UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testDataFile}.json`)
+        UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testVariantFile}.json`)
             .then(content => {
                 this.variants = content;
-                this.mutate();
-                this.requestUpdate();
+                // Fixme 20240107: no distinction between germline and cancer
+                if (this.testVariantFile === "variant-browser-germline") {
+                    this.germlineMutate();
+                } else {
+                    // this.cancerMutate();
+                }
             })
             .catch(err => {
                 // this.variants = [];
                 console.log(err);
-            }).finally(() => {
+            })
+            .finally(() => {
                 this.#setLoading(false);
             });
     }
 
-    mutate() {
-        // 1. no CT array
-        // this.variants[0].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
+    germlineMutate() {
+        // 1. no gene names in the CT array
+        this.variants[10].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
 
+        // 2. SIFT with no description available
+        // this.variants[10].annotation.consequenceTypes
+        //     .filter(ct => ct.proteinVariantAnnotation)
+        //     .forEach(ct => delete ct.proteinVariantAnnotation.substitutionScores[0].description);
+        // Finally, we update variants mem address to force a rendering
+        this.variants = [...this.variants];
+    }
+
+
+    changeView(id) {
+        this.activeTab = id;
+        // this.mutate();
+    }
+
+    onSettingsUpdate() {
+        this._config = {
+            ...this._config,
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
+        };
+        this.opencgaSessionObserver();
     }
 
     render() {
-
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }
 
         return html`
-        <variant-browser-grid
-            .variants="${this.variants}"
-            .opencgaSession="${this.opencgaSession}"
-            .config="${this.configVariantGrid}"
-            .populationFrequencies="${this.config.populationFrequencies}">
-        </variant-browser-grid>
-    `;
+            <div data-cy="variant-browser-container">
+                <h2 style="font-weight: bold;">
+                    Variant Browser (${this.testVariantFile?.split("-")?.at(-1)})
+                </h2>
+                <variant-browser-grid
+                    .toolId="${this.COMPONENT_ID}"
+                    .variants="${this.variants}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config}"
+                    @settingsUpdate="${() => this.onSettingsUpdate()}"
+                    .populationFrequencies="${this.config.populationFrequencies}">
+                </variant-browser-grid>
+            </div>
+        `;
     }
 
 }

@@ -33,11 +33,11 @@ export default class FamilyUpdate extends LitElement {
 
     static get properties() {
         return {
-            family: {
-                type: Object
-            },
             familyId: {
                 type: String
+            },
+            active: {
+                type: Boolean,
             },
             opencgaSession: {
                 type: Object
@@ -49,7 +49,7 @@ export default class FamilyUpdate extends LitElement {
     }
 
     #init() {
-        this.family = {};
+        this._family = {};
         this.familyId = "";
         this.displayConfig = {};
 
@@ -64,14 +64,21 @@ export default class FamilyUpdate extends LitElement {
         super.update(changedProperties);
     }
 
+    onComponentIdObserver(e) {
+        this._family = UtilsNew.objectClone(e.detail.value);
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
+    }
+
     render() {
         return html`
             <opencga-update
                 .resource="${"FAMILY"}"
-                .component="${this.family}"
                 .componentId="${this.familyId}"
                 .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}">
+                .active="${this.active}"
+                .config="${this._config}"
+                @componentIdObserver="${e => this.onComponentIdObserver(e)}">
             </opencga-update>
         `;
     }
@@ -90,7 +97,7 @@ export default class FamilyUpdate extends LitElement {
                             display: {
                                 disabled: true,
                                 placeholder: "Add a short ID...",
-                                helpMessage: this.family.creationDate? "Created on " + UtilsNew.dateFormatter(this.family.creationDate):"No creation date",
+                                helpMessage: this._family.creationDate? "Created on " + UtilsNew.dateFormatter(this._family.creationDate):"No creation date",
                                 validation: {}
                             },
                         },
@@ -114,12 +121,11 @@ export default class FamilyUpdate extends LitElement {
                                         members?.map(member => member.id).join(",") : members;
                                     const handleSamplesFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
-                                        // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const memberList = e.detail.value
                                             ?.split(",")
                                             .filter(memberId => memberId)
                                             .map(memberId => ({id: memberId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(memberList);
                                     };
                                     return html`
                                         <catalog-search-autocomplete
@@ -198,11 +204,6 @@ export default class FamilyUpdate extends LitElement {
                 //                 width: 12,
                 //                 style: "padding-left: 0px",
                 //                 render: family => html`
-                //                     <annotation-set-update
-                //                         .annotationSets="${family?.annotationSets}"
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
-                //                     </annotation-set-update>
                 //                 `
                 //             }
                 //         }

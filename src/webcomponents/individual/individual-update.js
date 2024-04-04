@@ -35,11 +35,11 @@ export default class IndividualUpdate extends LitElement {
 
     static get properties() {
         return {
-            individual: {
-                type: Object
-            },
             individualId: {
                 type: String
+            },
+            active: {
+                type: Boolean,
             },
             opencgaSession: {
                 type: Object
@@ -51,7 +51,7 @@ export default class IndividualUpdate extends LitElement {
     }
 
     #init() {
-        this.individual = {};
+        this._individual = {};
         this.individualId = "";
         this.displayConfig = {};
 
@@ -66,14 +66,21 @@ export default class IndividualUpdate extends LitElement {
         super.update(changedProperties);
     }
 
+    onComponentIdObserver(e) {
+        this._individual = UtilsNew.objectClone(e.detail.value);
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
+    }
+
     render() {
         return html`
             <opencga-update
                 .resource="${"INDIVIDUAL"}"
-                .component="${this.individual}"
                 .componentId="${this.individualId}"
                 .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}">
+                .active="${this.active}"
+                .config="${this._config}"
+                @componentIdObserver="${e => this.onComponentIdObserver(e)}">
             </opencga-update>
         `;
     }
@@ -92,7 +99,7 @@ export default class IndividualUpdate extends LitElement {
                             display: {
                                 disabled: true,
                                 placeholder: "Add a short ID...",
-                                helpMessage: this.individual.creationDate ? `Created on ${UtilsNew.dateFormatter(this.individual.creationDate)}` : "No creation date",
+                                helpMessage: this._individual.creationDate ? `Created on ${UtilsNew.dateFormatter(this._individual.creationDate)}` : "No creation date",
                                 help: {
                                     text: "Short individual ID for..."
                                 },
@@ -155,12 +162,11 @@ export default class IndividualUpdate extends LitElement {
                                 render: (samples, dataFormFilterChange, updateParams) => {
                                     const handleSamplesFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
-                                        // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const sampleList = e.detail.value
                                             ?.split(",")
                                             .filter(sampleId => sampleId)
                                             .map(sampleId => ({id: sampleId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(sampleList);
                                     };
 
                                     return html`
@@ -366,6 +372,17 @@ export default class IndividualUpdate extends LitElement {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
                                 view: pheno => html`<div>${pheno.id} - ${pheno?.name}</div>`,
+                                search: {
+                                    title: "Autocomplete",
+                                    button: false,
+                                    render: (currentData, dataFormFilterChange) => html`
+                                        <cellbase-search-autocomplete
+                                            .resource="${"PHENOTYPE"}"
+                                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.data)}">
+                                        </cellbase-search-autocomplete>
+                                    `,
+                                },
                             },
                             elements: [
                                 {
@@ -395,8 +412,7 @@ export default class IndividualUpdate extends LitElement {
                                 {
                                     title: "Age of onset",
                                     field: "phenotypes[].ageOfOnset",
-                                    type: "input-num",
-                                    allowedValues: [0],
+                                    type: "input-text",
                                     display: {
                                         placeholder: "Add an age of onset..."
                                     },
@@ -434,6 +450,17 @@ export default class IndividualUpdate extends LitElement {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
                                 view: disorder => html`<div>${disorder.id} - ${disorder?.name}</div>`,
+                                search: {
+                                    title: "Autocomplete",
+                                    button: false,
+                                    render: (currentData, dataFormFilterChange) => html`
+                                        <cellbase-search-autocomplete
+                                            .resource="${"DISORDER"}"
+                                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.data)}">
+                                        </cellbase-search-autocomplete>
+                                    `,
+                                },
                             },
                             elements: [
                                 {

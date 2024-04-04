@@ -17,6 +17,10 @@ export default class UtilsNew {
         return "warning";
     }
 
+    static isError(obj) {
+        return obj && Object.prototype.toString.call(obj) === "[object Error]";
+    }
+
     static isUndefined(obj) {
         return typeof obj === "undefined";
     }
@@ -208,11 +212,11 @@ export default class UtilsNew {
             ];
         }, true);
 
-        self.addEventListener("mouseup", () => {
+        modalHeader.addEventListener("mouseup", () => {
             isDown = false;
         }, true);
 
-        self.addEventListener("mousemove", e => {
+        modalHeader.addEventListener("mousemove", e => {
             e.preventDefault();
             if (isDown) {
                 modalDialog.style.left = (e.clientX + offset[0]) + "px";
@@ -286,7 +290,8 @@ export default class UtilsNew {
 
     static dateFormatter(date, format) {
         const _format = format ? format : "D MMM YYYY";
-        return moment(date, "YYYYMMDDHHmmss").format(_format);
+        const _date = moment(date).isValid() ? moment(date) : moment(date, "YYYYMMDDHHmmss");
+        return _date.format(_format);
     }
 
     static arrayDimension(array) {

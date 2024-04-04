@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-grid.js";
+import "./variant-interpreter-rearrangement-grid.js";
 import "./variant-interpreter-detail.js";
 import "../../clinical/interpretation/clinical-interpretation-view.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
@@ -74,7 +75,10 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
@@ -127,11 +131,10 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         }
 
         // Check for user configuration
-        if (this.toolId && this.opencgaSession.user?.configs?.IVA?.[this.toolId]?.grid) {
+        if (this.toolId && this.opencgaSession.user?.configs?.IVA?.settings?.[this.toolId]?.grid) {
             this._config.result.grid = {
                 ...this._config.result.grid,
-                ...this.opencgaSession.user.configs.IVA[this.toolId].grid,
-                showGenomeBrowserLink: false,
+                ...this.opencgaSession.user.configs.IVA.settings[this.toolId].grid,
             };
         }
 
@@ -145,6 +148,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                 }
             });
         }
+        this.requestUpdate();
     }
 
     onSelectVariant(e) {
@@ -195,14 +199,30 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
 
     async onGridConfigSave(e) {
         const newGridConfig = {...e.detail.value};
-
         // Remove highlights and copies configuration from new config
-        delete newGridConfig.highlights;
-        // delete newConfig.copies;
+        // delete newGridConfig.highlights;
 
         // Update user configuration
         try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.toolId, newGridConfig);
+            // await OpencgaCatalogUtils.updateGridConfig("IVA", this.opencgaSession, this.toolId, newGridConfig);
+            // Update user configuration
+            await OpencgaCatalogUtils
+                .updateGridConfig(
+                    "IVA",
+                    this.opencgaSession,
+                    this.toolId,
+                    {
+                        // All Variant Grids
+                        pageSize: newGridConfig.pageSize,
+                        columns: newGridConfig.columns,
+                        geneSet: newGridConfig.geneSet,
+                        consequenceType: newGridConfig.consequenceType,
+                        populationFrequenciesConfig: newGridConfig.populationFrequenciesConfig,
+                        highlights: newGridConfig.highlights,
+                        // Only Variant Interpreter Grids
+                        genotype: newGridConfig.genotype,
+                    }
+                );
             this.settingsObserver();
             this.requestUpdate();
 
@@ -212,6 +232,10 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         } catch (error) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         }
+    }
+
+    onSettingsUpdate() {
+        this.settingsObserver();
     }
 
     render() {
@@ -247,24 +271,43 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                 <div class="col-md-12">
                     <div style="padding-top: 5px">
                         ${this.clinicalAnalysis?.interpretation ? html`
-                            <variant-interpreter-grid
-                                .opencgaSession="${this.opencgaSession}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .clinicalVariants="${this.clinicalVariants}"
-                                .review="${true}"
-                                .config="${this._config.result.grid}"
-                                @selectrow="${this.onSelectVariant}"
-                                @updaterow="${this.onUpdateVariant}"
-                                @checkrow="${this.onCheckVariant}"
-                                @gridconfigsave="${this.onGridConfigSave}">
-                            </variant-interpreter-grid>
-                            <variant-interpreter-detail
-                                .opencgaSession="${this.opencgaSession}"
-                                .variant="${this.variant}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .config="${this._config.detail}">
-                            </variant-interpreter-detail>
+                            ${this._config.result?.grid?.isRearrangement ? html`
+                                <variant-interpreter-rearrangement-grid
+                                    .toolId="${this.toolId}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .clinicalVariants="${this.clinicalVariants}"
+                                    .review="${true}"
+                                    .active="${this.active}"
+                                    .config="${this._config.result.grid}"
+                                    @selectrow="${this.onSelectVariant}"
+                                    @updaterow="${this.onUpdateVariant}"
+                                    @checkrow="${this.onCheckVariant}"
+                                    @settingsUpdate="${this.onSettingsUpdate}">
+                                </variant-interpreter-rearrangement-grid>
+                            ` : html`
+                                <variant-interpreter-grid
+                                    .toolId="${this.toolId}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .clinicalVariants="${this.clinicalVariants}"
+                                    .review="${true}"
+                                    .active="${this.active}"
+                                    .config="${this._config.result.grid}"
+                                    @selectrow="${this.onSelectVariant}"
+                                    @updaterow="${this.onUpdateVariant}"
+                                    @checkrow="${this.onCheckVariant}"
+                                    @settingsUpdate="${this.onSettingsUpdate}">
+                                </variant-interpreter-grid>
+                                <variant-interpreter-detail
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .variant="${this.variant}"
+                                    .toolId="${this.toolId}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .config="${this._config.detail}">
+                                </variant-interpreter-detail>
+                            `}
                         ` : html`
                             <div class="alert alert-info">
                                 <i class="fas fa-3x fa-info-circle align-middle"></i> No Selected variants yet.
@@ -272,20 +315,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         `}
                     </div>
                 </div>
-                <div class="col-md-12">
-                    ${this.interpretationView ? html`
-                        <clinical-interpretation-view
-                            id="id"
-                            interpretation="${this.interpretationView}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .opencgaClient="${this.opencgaSession.opencgaClient}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .consequenceTypes="${this.consequenceTypes}"
-                            .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
-                        </clinical-interpretation-view>
-                    ` : null}
-                </div>
-            </div>
             </div>
 
             <div class="modal fade" id="${this._prefix}PreviewModal" tabindex="-1" role="dialog" aria-hidden="true">
@@ -327,7 +356,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     detailView: true,
                     showReview: true,
                     showActions: true,
-                    showGenomeBrowserLink: false,
 
                     showSelectCheckbox: true,
                     multiSelection: false,
@@ -336,18 +364,14 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
 
                     renderLocal: false,
 
-                    header: {
-                        horizontalAlign: "center",
-                        verticalAlign: "bottom"
-                    },
-
                     quality: {
                         qual: 30,
                         dp: 20
                     },
                     evidences: {
                         showSelectCheckbox: true
-                    }
+                    },
+                    isRearrangement: false,
                 }
             },
             detail: {
@@ -359,7 +383,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         active: true,
                         render: variant => html`
                             <cellbase-variant-annotation-summary
-                                .variantAnnotation="${variant.annotation}"
+                                .variantAnnotation="${variant?.annotation}"
                                 .consequenceTypes="${CONSEQUENCE_TYPES}"
                                 .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
                                 .assembly=${this.opencgaSession.project.organism.assembly}>
@@ -371,7 +395,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         name: "Consequence Type",
                         render: (variant, active) => html`
                             <variant-consequence-type-view
-                                .consequenceTypes="${variant.annotation.consequenceTypes}"
+                                .consequenceTypes="${variant?.annotation?.consequenceTypes}"
                                 .active="${active}">
                             </variant-consequence-type-view>
                         `,
@@ -381,7 +405,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         name: "Population Frequencies",
                         render: (variant, active) => html`
                             <cellbase-population-frequency-grid
-                                .populationFrequencies="${variant.annotation.populationFrequencies}"
+                                .populationFrequencies="${variant?.annotation?.populationFrequencies}"
                                 .active="${active}">
                             </cellbase-population-frequency-grid>
                         `,
@@ -391,8 +415,8 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         name: "Clinical",
                         render: variant => html`
                             <variant-annotation-clinical-view
-                                .traitAssociation="${variant.annotation.traitAssociation}"
-                                .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                                .traitAssociation="${variant?.annotation?.traitAssociation}"
+                                .geneTraitAssociation="${variant?.annotation?.geneTraitAssociation}">
                             </variant-annotation-clinical-view>
                         `,
                     },
@@ -424,7 +448,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         render: (variant, active, opencgaSession) => html`
                             <variant-samples
                                 .opencgaSession="${opencgaSession}"
-                                .variantId="${variant.id}"
+                                .variantId="${variant?.id}"
                                 .active="${active}">
                             </variant-samples>
                         `,
@@ -434,7 +458,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         name: "Beacon",
                         render: (variant, active, opencgaSession) => html`
                             <variant-beacon-network
-                                .variant="${variant.id}"
+                                .variant="${variant?.id}"
                                 .assembly="${opencgaSession.project.organism.assembly}"
                                 .config="${this.beaconConfig}"
                                 .active="${active}">

@@ -1,0 +1,13 @@
+name: "Long tests execution (weekends)"
+
+## Every Saturday at 01:10
+on:
+  schedule:
+    - cron: '10 1 * * 6'
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+    with:
+      test_profile: runShortTests,runMediumTests,runLongTests
+    secrets: inherit

@@ -41,16 +41,16 @@ export default class RdTieringAnalysis extends LitElement {
             opencgaSession: {
                 type: Object,
             },
-            title: {
-                type: String
+            config: {
+                type: Object
             },
         };
     }
 
     #init() {
-        this.TOOL = "rd-tiering";
-        this.TITLE = "RD Tiering Interpretation";
-        this.DESCRIPTION = "Executes an RD Tiering Interpreation analysis job";
+        this.ANALYSIS_TOOL = "rd-tiering";
+        this.ANALYSIS_TITLE = "RD Tiering Interpretation";
+        this.ANALYSIS_DESCRIPTION = "Executes an RD Tiering Interpreation analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -98,10 +98,10 @@ export default class RdTieringAnalysis extends LitElement {
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
         };
         AnalysisUtils.submit(
-            this.TITLE,
+            this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient.clinical()
                 .runInterpreterTiering(toolParams, params),
             this,
@@ -165,7 +165,7 @@ export default class RdTieringAnalysis extends LitElement {
                                 // Get the list of disease panels for the dropdown
                                 let diseasePanels = [];
                                 if (casePanelLock) {
-                                    for (const panelId of panels.split(",")) {
+                                    for (const panelId of (panels || "").split(",")) {
                                         const diseasePanel = this.opencgaSession.study?.panels?.find(p => p.id === panelId);
                                         if (diseasePanel) {
                                             diseasePanels.push(diseasePanel);
@@ -177,7 +177,7 @@ export default class RdTieringAnalysis extends LitElement {
                                 return html`
                                     <select-field-filter
                                         .data="${diseasePanels}"
-                                        .value=${panels}
+                                        .value=${panels || ""}
                                         .liveSearch=${diseasePanels?.length > 5}
                                         .multiple="${true}"
                                         .disabled="${casePanelLock}"
@@ -193,11 +193,12 @@ export default class RdTieringAnalysis extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.TOOL,
-            this.title ?? this.TITLE,
-            this.DESCRIPTION,
+            this.ANALYSIS_TOOL,
+            this.ANALYSIS_TITLE,
+            this.ANALYSIS_DESCRIPTION,
             params,
-            this.check()
+            this.check(),
+            this.config
         );
     }
 

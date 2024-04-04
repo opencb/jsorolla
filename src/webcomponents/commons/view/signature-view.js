@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../loading-spinner.js";
+import Signature from "../../../core/visualisation/signature";
 
 export default class SignatureView extends LitElement {
 
@@ -74,264 +75,270 @@ export default class SignatureView extends LitElement {
     }
 
     signatureCountsObserver() {
-        if (!this.signature || this.signature?.errorState) {
-            return;
-        }
+        const signature = new Signature(this.signature, this.mode);
+        signature.render(`${this._prefix}SignatureCountsPlot`);
 
-        const mode = this.mode.toUpperCase();
-        const counts = this.signature?.counts || [];
-        const categories = counts.map(point => point?.context);
-        const data = counts.map(point => point?.total);
 
-        const substitutionClass = string => {
-            const [, pair, letter] = string.match(/[ACTG]\[(([ACTG])>[ACTG])\][ACTG]+/);
-            return {pair, letter};
-        };
-
-        const rearragementClass = string => {
-            const fields = string.split("_");
-            const pair = fields[0] + "_" + fields[1];
-            const letter = fields[2] || "";
-            return {pair, letter};
-        };
-
-        const dataset = {
-            "C>A": {
-                color: "#31bef0",
-                data: []
-            },
-            "C>G": {
-                color: "#000000",
-                data: []
-            },
-            "C>T": {
-                color: "#e62725",
-                data: []
-            },
-            "T>A": {
-                color: "#cbcacb",
-                data: []
-            },
-            "T>C": {
-                color: "#a1cf63",
-                data: []
-            },
-            "T>G": {
-                color: "#edc8c5",
-                data: []
-            },
-            "clustered_del": {
-                color: "#e41a1c",
-                data: [],
-                label: "del",
-                group: "clustered",
-            },
-            "clustered_tds": {
-                color: "#4daf4a",
-                data: [],
-                label: "tds",
-                group: "clustered",
-            },
-            "clustered_inv": {
-                color: "#377eb8",
-                data: [],
-                label: "inv",
-                group: "clustered",
-            },
-            "clustered_trans": {
-                color: "#984ea3",
-                data: [],
-                label: "tr",
-                group: "clustered",
-            },
-            "non-clustered_del": {
-                color: "#e41a1c",
-                data: [],
-                label: "del",
-                group: "non-clustered",
-            },
-            "non-clustered_tds": {
-                color: "#4daf4a",
-                data: [],
-                label: "tds",
-                group: "non-clustered",
-            },
-            "non-clustered_inv": {
-                color: "#377eb8",
-                data: [],
-                label: "inv",
-                group: "non-clustered",
-            },
-            "non-clustered_trans": {
-                color: "#984ea3",
-                data: [],
-                label: "tr",
-                group: "non-clustered",
-            },
-        };
-
-        const groups = {
-            "clustered": {
-                bgColor: "#000",
-                textColor: "#fff",
-            },
-            "non-clustered": {
-                bgColor: "#f0f0f0",
-                textColor: "#000",
-            },
-        };
-
-        counts.forEach(count => {
-            if (count) {
-                if (this.mode === "SBS") {
-                    const {pair} = substitutionClass(count.context);
-                    dataset[pair].data.push(count.total);
-                } else {
-                    const {pair} = rearragementClass(count.context);
-                    dataset[pair].data.push(count.total);
-                }
-            }
-        });
-
-        const addRects = function (chart) {
-            $(".rect", chart.renderTo).remove();
-            $(".rect-label", chart.renderTo).remove();
-
-            const totalLength = Object.values(dataset).reduce((sum, item) => sum + item.data.length, 0);
-            const top = mode === "SBS" ? 50 : chart.plotTop + chart.plotHeight;
-            let lastWidth = 0;
-            let lastGroup = null;
-            let lastGroupWidth = 0;
-
-            Object.keys(dataset).forEach(k => {
-                if (dataset[k].data.length === 0) {
-                    return;
-                }
-
-                // Display group
-                if (dataset[k].group && lastGroup !== dataset[k].group) {
-                    const group = dataset[k].group;
-                    const groupLength = Object.values(dataset).reduce((sum, item) => {
-                        return item.group === group ? sum + item.data.length : sum;
-                    }, 0);
-                    const groupWidth = groupLength * (chart.plotWidth / totalLength);
-                    const groupHeight = 20;
-                    const groupPosition = top + 22;
-
-                    // Render group background
-                    chart.renderer
-                        .rect(chart.plotLeft + lastGroupWidth, groupPosition, groupWidth, groupHeight, 0)
-                        .attr({
-                            fill: groups[group].bgColor,
-                            zIndex: 2,
-                        })
-                        .addClass("rect")
-                        .add();
-
-                    // Render group label
-                    chart.renderer
-                        .text(group, chart.plotLeft + lastGroupWidth + groupWidth / 2, groupPosition + groupHeight / 2)
-                        .css({
-                            color: groups[group].textColor,
-                            fontSize: "13px",
-                        })
-                        .attr({
-                            "dominant-baseline": "middle",
-                            "text-anchor": "middle",
-                            "zIndex": 3,
-                        })
-                        .addClass("rect-label")
-                        .add();
-
-                    lastGroup = group;
-                    lastGroupWidth = lastGroupWidth + groupWidth;
-                }
-
-                const width = dataset[k].data.length * (chart.plotWidth / totalLength);
-                const height = 20;
-                const position = top + 2;
-
-                chart.renderer
-                    .rect(chart.plotLeft + lastWidth, position, width, height, 0)
-                    .attr({
-                        fill: dataset[k].color,
-                        zIndex: 2
-                    })
-                    .addClass("rect")
-                    .add();
-
-                chart.renderer
-                    .text(dataset[k].label || k, chart.plotLeft + lastWidth + width / 2, position + height / 2)
-                    .css({
-                        color: "#fff",
-                        fontSize: "13px",
-                    })
-                    .attr({
-                        "dominant-baseline": "middle",
-                        "text-anchor": "middle",
-                        "zIndex": 3,
-                    })
-                    .addClass("rect-label")
-                    .add();
-
-                lastWidth = lastWidth + width;
-            });
-        };
-
-        $(`#${this._prefix}SignatureCountsPlot`).highcharts({
-            title: {
-                text: `${counts.reduce((c, s) => c + s.total, 0)} ${mode === "SBS" ? "Substitutions" : "Rearrangements"}`,
-            },
-            chart: {
-                height: this._config.height, // use plain CSS to avoid resize when <loading-spinner> is visible
-                type: "column",
-                events: {
-                    redraw: function () {
-                        addRects(this);
-                    },
-                    load: function () {
-                        addRects(this);
-                    }
-                },
-                marginTop: mode === "SBS" ? 80 : 50,
-            },
-            credits: {
-                enabled: false
-            },
-            legend: {
-                enabled: false
-            },
-            tooltip: {
-                formatter: function () {
-                    if (this.x.includes("[")) {
-                        const {pair, letter} = substitutionClass(this.x);
-                        return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "") + `<strong>: ${this.y}</strong>`;
-                    } else {
-                        return `${this.x}<strong>: ${this.y}</strong>`;
-                    }
-                }
-            },
-            xAxis: {
-                categories: categories,
-                labels: {
-                    rotation: -90,
-                    formatter: data => {
-                        if (mode === "SBS") {
-                            const {pair, letter} = substitutionClass(data.value);
-                            return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "");
-                        } else {
-                            return data.value.split("_")[2];
-                        }
-                    },
-                    y: mode === "SBS" ? 10 : 50,
-                }
-            },
-            colors: Object.keys(dataset).flatMap(key => Array(dataset[key].data.length).fill(dataset[key].color)),
-            series: [{
-                colorByPoint: "true",
-                data: data
-            }]
-        });
+        // if (!this.signature) {
+        //     return;
+        // }
+        //
+        // const mode = this.mode.toUpperCase();
+        // const counts = this.signature?.counts || [];
+        // const categories = counts.map(point => point?.context);
+        // const data = counts.map(point => point?.total);
+        //
+        // const substitutionClass = string => {
+        //     const [, pair, letter] = string.match(/[ACTG]\[(([ACTG])>[ACTG])\][ACTG]+/);
+        //     return {pair, letter};
+        // };
+        //
+        // const rearragementClass = string => {
+        //     const fields = string.split("_");
+        //     const pair = fields[0] + "_" + fields[1];
+        //     const letter = fields[2] || "";
+        //     return {pair, letter};
+        // };
+        //
+        // const dataset = {
+        //     "C>A": {
+        //         color: "#31bef0",
+        //         data: []
+        //     },
+        //     "C>G": {
+        //         color: "#000000",
+        //         data: []
+        //     },
+        //     "C>T": {
+        //         color: "#e62725",
+        //         data: []
+        //     },
+        //     "T>A": {
+        //         color: "#cbcacb",
+        //         data: []
+        //     },
+        //     "T>C": {
+        //         color: "#a1cf63",
+        //         data: []
+        //     },
+        //     "T>G": {
+        //         color: "#edc8c5",
+        //         data: []
+        //     },
+        //     "clustered_del": {
+        //         color: "#e41a1c",
+        //         data: [],
+        //         label: "del",
+        //         group: "clustered",
+        //     },
+        //     "clustered_tds": {
+        //         color: "#4daf4a",
+        //         data: [],
+        //         label: "tds",
+        //         group: "clustered",
+        //     },
+        //     "clustered_inv": {
+        //         color: "#377eb8",
+        //         data: [],
+        //         label: "inv",
+        //         group: "clustered",
+        //     },
+        //     "clustered_trans": {
+        //         color: "#984ea3",
+        //         data: [],
+        //         label: "tr",
+        //         group: "clustered",
+        //     },
+        //     "non-clustered_del": {
+        //         color: "#e41a1c",
+        //         data: [],
+        //         label: "del",
+        //         group: "non-clustered",
+        //     },
+        //     "non-clustered_tds": {
+        //         color: "#4daf4a",
+        //         data: [],
+        //         label: "tds",
+        //         group: "non-clustered",
+        //     },
+        //     "non-clustered_inv": {
+        //         color: "#377eb8",
+        //         data: [],
+        //         label: "inv",
+        //         group: "non-clustered",
+        //     },
+        //     "non-clustered_trans": {
+        //         color: "#984ea3",
+        //         data: [],
+        //         label: "tr",
+        //         group: "non-clustered",
+        //     },
+        // };
+        //
+        // const groups = {
+        //     "clustered": {
+        //         bgColor: "#000",
+        //         textColor: "#fff",
+        //     },
+        //     "non-clustered": {
+        //         bgColor: "#f0f0f0",
+        //         textColor: "#000",
+        //     },
+        // };
+        //
+        // counts.forEach(count => {
+        //     if (count) {
+        //         if (this.mode === "SBS") {
+        //             const {pair} = substitutionClass(count.context);
+        //             dataset[pair].data.push(count.total);
+        //         } else {
+        //             const {pair} = rearragementClass(count.context);
+        //             dataset[pair].data.push(count.total);
+        //         }
+        //     }
+        // });
+        //
+        // const addRects = function (chart) {
+        //     $(".rect", chart.renderTo).remove();
+        //     $(".rect-label", chart.renderTo).remove();
+        //
+        //     const totalLength = Object.values(dataset).reduce((sum, item) => sum + item.data.length, 0);
+        //     const top = mode === "SBS" ? 50 : chart.plotTop + chart.plotHeight;
+        //     let lastWidth = 0;
+        //     let lastGroup = null;
+        //     let lastGroupWidth = 0;
+        //
+        //     Object.keys(dataset).forEach(k => {
+        //         if (dataset[k].data.length === 0) {
+        //             return;
+        //         }
+        //
+        //         // Display group
+        //         if (dataset[k].group && lastGroup !== dataset[k].group) {
+        //             const group = dataset[k].group;
+        //             const groupLength = Object.values(dataset).reduce((sum, item) => {
+        //                 return item.group === group ? sum + item.data.length : sum;
+        //             }, 0);
+        //             const groupWidth = groupLength * (chart.plotWidth / totalLength);
+        //             const groupHeight = 20;
+        //             const groupPosition = top + 22;
+        //
+        //             // Render group background
+        //             chart.renderer
+        //                 .rect(chart.plotLeft + lastGroupWidth, groupPosition, groupWidth, groupHeight, 0)
+        //                 .attr({
+        //                     fill: groups[group].bgColor,
+        //                     zIndex: 2,
+        //                 })
+        //                 .addClass("rect")
+        //                 .add();
+        //
+        //             // Render group label
+        //             chart.renderer
+        //                 .text(group, chart.plotLeft + lastGroupWidth + groupWidth / 2, groupPosition + groupHeight / 2)
+        //                 .css({
+        //                     color: groups[group].textColor,
+        //                     fontSize: "13px",
+        //                 })
+        //                 .attr({
+        //                     "dominant-baseline": "middle",
+        //                     "text-anchor": "middle",
+        //                     "zIndex": 3,
+        //                 })
+        //                 .addClass("rect-label")
+        //                 .add();
+        //
+        //             lastGroup = group;
+        //             lastGroupWidth = lastGroupWidth + groupWidth;
+        //         }
+        //
+        //         const width = dataset[k].data.length * (chart.plotWidth / totalLength);
+        //         const height = 20;
+        //         const position = top + 2;
+        //
+        //         chart.renderer
+        //             .rect(chart.plotLeft + lastWidth, position, width, height, 0)
+        //             .attr({
+        //                 fill: dataset[k].color,
+        //                 zIndex: 2
+        //             })
+        //             .addClass("rect")
+        //             .add();
+        //
+        //         chart.renderer
+        //             .text(dataset[k].label || k, chart.plotLeft + lastWidth + width / 2, position + height / 2)
+        //             .css({
+        //                 color: "#fff",
+        //                 fontSize: "13px",
+        //             })
+        //             .attr({
+        //                 "dominant-baseline": "middle",
+        //                 "text-anchor": "middle",
+        //                 "zIndex": 3,
+        //             })
+        //             .addClass("rect-label")
+        //             .add();
+        //
+        //         lastWidth = lastWidth + width;
+        //     });
+        // };
+        //
+        // $(`#${this._prefix}SignatureCountsPlot`).highcharts({
+        //     title: {
+        //         text: `${counts.reduce((c, s) => c + s.total, 0)} ${mode === "SBS" ? "Substitutions" : "Rearrangements"}`,
+        //     },
+        //     chart: {
+        //         height: this._config.height, // use plain CSS to avoid resize when <loading-spinner> is visible
+        //         type: "column",
+        //         events: {
+        //             redraw: function () {
+        //                 addRects(this);
+        //             },
+        //             load: function () {
+        //                 addRects(this);
+        //             }
+        //         },
+        //         marginTop: mode === "SBS" ? 80 : 50,
+        //     },
+        //     credits: {
+        //         enabled: false
+        //     },
+        //     legend: {
+        //         enabled: false
+        //     },
+        //     tooltip: {
+        //         formatter: function () {
+        //             if (this.x.includes("[")) {
+        //                 const {pair, letter} = substitutionClass(this.x);
+        //                 return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "") + `<strong>: ${this.y}</strong>`;
+        //             } else {
+        //                 return `${this.x}<strong>: ${this.y}</strong>`;
+        //             }
+        //         }
+        //     },
+        //     xAxis: {
+        //         categories: categories,
+        //         labels: {
+        //             // xAxis labels are disabled in SBS mode
+        //             enabled: mode !== "SBS",
+        //             rotation: -90,
+        //             formatter: data => {
+        //                 if (mode === "SBS") {
+        //                     const {pair, letter} = substitutionClass(data.value);
+        //                     return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "");
+        //                 } else {
+        //                     return data.value.split("_")[2];
+        //                 }
+        //             },
+        //             y: mode === "SBS" ? 10 : 50,
+        //         }
+        //     },
+        //     colors: Object.keys(dataset).flatMap(key => Array(dataset[key].data.length).fill(dataset[key].color)),
+        //     series: [{
+        //         colorByPoint: "true",
+        //         data: data
+        //     }]
+        // });
     }
 
     signatureFittingObserver() {

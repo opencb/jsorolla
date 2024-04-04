@@ -16,10 +16,8 @@
 
 import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
-import FormUtils from "../../commons/forms/form-utils.js";
-import "../../commons/forms/data-form.js";
 import UtilsNew from "../../../core/utils-new";
-import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
+import "../../commons/forms/data-form.js";
 
 
 export default class VariantExportAnalysis extends LitElement {
@@ -42,8 +40,8 @@ export default class VariantExportAnalysis extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            title: {
-                type: String
+            config: {
+                type: Object
             },
         };
     }
@@ -164,10 +162,11 @@ export default class VariantExportAnalysis extends LitElement {
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
+            this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
-            this.check()
+            this.check(),
+            this.config
         );
     }
 

@@ -50,11 +50,10 @@ export default class SampleBrowser extends LitElement {
     }
 
     _init() {
-        this.config = this.getDefaultConfig();
+        this.COMPONENT_ID = "sample-browser";
+        this._config = this.getDefaultConfig();
     }
 
-    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
-    // is executed twice in case there is external settings
     update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
@@ -63,16 +62,39 @@ export default class SampleBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this.config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
+
+        // Apply Study settings
         if (this.settings?.menu) {
-            this.config.filter = UtilsNew.mergeFiltersAndDetails(this.config?.filter, this.settings);
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
+
+        // Grid configuration and take out toolbar admin/user settings to grid level.
         if (this.settings?.table) {
-            this.config.filter.result.grid = {...this.config.filter.result.grid, ...this.settings.table};
+            const {toolbar, ...otherTableProps} = this.settings.table;
+            UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+                ...this._config.filter.result.grid,
+                ...otherTableProps,
+                ...toolbar,
+            });
         }
-        if (this.settings?.table?.toolbar) {
-            this.config.filter.result.grid.toolbar = {...this.config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        }
+        // this._config = UtilsNew.mergeTableSetting(this._config, this.settings);
+
+        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
+        });
+
+        this.requestUpdate();
+    }
+
+    onSettingsUpdate() {
+        this.settingsObserver();
+    }
+
+    onSampleUpdate() {
+        this.settingsObserver();
     }
 
     render() {
@@ -85,7 +107,8 @@ export default class SampleBrowser extends LitElement {
                 resource="SAMPLE"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this.config}">
+                .config="${this._config}"
+                @sampleUpdate="${this.onSampleUpdate}">
             </opencga-browser>
         `;
     }
@@ -100,19 +123,25 @@ export default class SampleBrowser extends LitElement {
                     name: "Table result",
                     icon: "fa fa-table",
                     active: true,
-                    render: params => html`
-                        <sample-grid
-                            .opencgaSession="${params.opencgaSession}"
-                            .query="${params.executedQuery}"
-                            .config="${params.config.filter.result.grid}"
-                            .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "sample")}">
-                        </sample-grid>
-                        <sample-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .sampleId="${params.detail.sample?.id}">
-                        </sample-detail>`
+                    render: params => {
+                        return html`
+                            <sample-grid
+                                .toolId="${this.COMPONENT_ID}"
+                                .opencgaSession="${params.opencgaSession}"
+                                .query="${params.executedQuery}"
+                                .config="${params.config.filter.result.grid}"
+                                .active="${true}"
+                                @selectrow="${e => params.onClickRow(e, "sample")}"
+                                @sampleUpdate="${e => params.onComponentUpdate(e, "sample")}"
+                                @settingsUpdate="${() => this.onSettingsUpdate()}">
+                            </sample-grid>
+                            <sample-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .sampleId="${params.detail.sample?.id}">
+                            </sample-detail>
+                        `;
+                    }
                 },
                 {
                     id: "facet-tab",
@@ -126,11 +155,7 @@ export default class SampleBrowser extends LitElement {
                             .query="${params.facetQuery}"
                             .data="${params.facetResults}">
                         </opencb-facet-results>`
-                }/*
-                {
-                    id: "comparator-tab",
-                    name: "Comparator"
-                }*/
+                }
             ],
             filter: {
                 searchButton: false,
@@ -184,17 +209,14 @@ export default class SampleBrowser extends LitElement {
                 result: {
                     grid: {
                         pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageList: [5, 10, 25],
                         multiSelection: false,
                         showSelectCheckbox: false,
-                        toolbar: {
-                            showNew: true,
-                            showColumns: true,
-                            showDownload: false,
-                            showExport: true,
-                            exportTabs: ["download", "link", "code"]
-                            // columns list for the dropdown will be added in grid components based on settings.table.columns
-                        },
+                        showToolbar: true,
+                        showCreate: true,
+                        showExport: true,
+                        showSettings: true,
+                        exportTabs: ["download", "link", "code"]
                     }
                 },
                 detail: {
@@ -251,7 +273,7 @@ export default class SampleBrowser extends LitElement {
                                 <file-grid
                                     .query="${{sampleIds: sample.id, type: "FILE,VIRTUAL"}}"
                                     .active="${active}"
-                                    .config="${{downloadFile: this.config.downloadFile}}"
+                                    .config="${{downloadFile: this.config?.downloadFile}}"
                                     .opencgaSession="${opencgaSession}">
                                 </file-grid>
                             `,
@@ -424,6 +446,5 @@ export default class SampleBrowser extends LitElement {
     }
 
 }
-
 
 customElements.define("sample-browser", SampleBrowser);

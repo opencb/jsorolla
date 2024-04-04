@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2016 OpenCB
+ * Copyright 2015-2023 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,127 +17,326 @@
 import UtilsTest from "../../support/utils-test.js";
 import BrowserTest from "../../support/browser-test.js";
 
-
 context("Variant Browser Grid Cancer", () => {
     const browserGrid = "variant-browser-grid";
     const browserDetail = "variant-browser-detail";
 
     beforeEach(() => {
-        cy.visit("#variant-browser-grid-cancer")
-        cy.waitUntil(() => cy.get(browserGrid).should("be.visible"))
+        cy.visit("#variant-browser-grid-cancer");
+        cy.get(`div[data-cy="variant-browser-container"]`)
+            .as("container");
+        cy.waitUntil(() => {
+            return cy.get("@container")
+                .should("be.visible");
+        });
     });
 
+    context("Modal Setting", () => {
 
-    it("1.Should be render variant-browser-grid", () => {
-        cy.get(browserGrid).should("be.visible")
-    })
+        it("should move modal setting", () => {
+            cy.get("button[data-action='settings']")
+                .click();
 
-    it("2.Change page variant-browser-grid", () => {
-        UtilsTest.changePage(browserGrid,2)
-        UtilsTest.changePage(browserGrid,3)
-    })
+            BrowserTest.getElementByComponent({
+                selector: `${browserGrid} opencb-grid-toolbar`,
+                tag:"div",
+                elementId: "SettingModal"
+            }).as("settingModal");
 
-    // Columns tooltips
-    it("3.Tooltip: Check variant tooltip", () => {
-        // Select first row, first column: Variant
-        // variant == id
-        BrowserTest.getColumnIndexByHeader("id")
-        cy.get("@indexColumn").then(index => {
-            cy.get("tbody tr:first > td").eq(index).within(() => {
-                cy.get("a").eq(0).trigger("mouseover")
-            })
-            cy.get(".qtip-content").should('be.visible')
-        })
-    })
+            cy.get("@settingModal")
+                .then(($modal) => {
+                    const startPosition = $modal.offset();
+                    cy.log("start Position:", startPosition);
+                    // Drag the modal to a new position using Cypress's drag command
+                    cy.get("@settingModal")
+                        .find(".modal-header")
+                        .as("modalHeader");
 
-    it("4.Tooltip: Check gene", () => {
-        BrowserTest.getColumnIndexByHeader("gene")
-        cy.get("@indexColumn").then(index => {
-            cy.get("tbody tr:first > td").eq(index).within(() => {
-                cy.get("a").eq(0).trigger("mouseover")
-            })
-            cy.get(".qtip-content").should('be.visible')
-        })
-    })
+                    cy.get("@modalHeader")
+                        .trigger("mousedown", { which: 1 }); // Trigger mouse down event
+                    cy.get("@modalHeader")
+                        .trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
+                    cy.get("@modalHeader")
+                        .trigger("mouseup"); // Release the mouse
 
-    it("5.Tooltip: Check consequenceType", () => {
-        BrowserTest.getColumnIndexByHeader("consequenceType")
-        cy.get("@indexColumn").then(index => {
-            cy.get("tbody tr:first > td").eq(index).within(() => {
-                cy.get("a").eq(0).trigger("mouseover")
-            })
-            cy.get(".qtip-content").should('be.visible')
-        })
-    })
+                    // Get the final position of the modal
+                    cy.get("@modalHeader")
+                        .then(($modal) => {
+                            const finalPosition = $modal.offset();
+                            cy.log("final Position:", finalPosition);
+                            // Assert that the modal has moved
+                            expect(finalPosition.left).to.not.equal(startPosition.left);
+                            expect(finalPosition.top).to.not.equal(startPosition.top);
+                        });
+                });
+        });
 
-    it("6.Tooltip: Check population frequencies", () => {
-        cy.get("tbody tr:first > td").eq(13).within(() => {
-            cy.get("a").eq(0).trigger("mouseover")
-        })
-        cy.get(".qtip-content").should('be.visible')
-    })
+        it("should hide columns [Variant,Gene,Type]",() => {
+            const columns = ["Variant","Gene","Type"];
+            cy.get("variant-browser-grid thead th")
+                .as("headerColumns");
+            columns.forEach(col => {
+                cy.get("@headerColumns")
+                    .contains("div",col)
+                    .should("be.visible");
+            });
+            cy.get("button[data-action='settings']")
+                .click();
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
+            columns.forEach(col => {
+                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                    .contains(col)
+                    .click();
+            });
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
+            BrowserTest.getElementByComponent({
+                selector: `${browserGrid} opencb-grid-toolbar`,
+                tag:"div",
+                elementId: "SettingModal"
+            }).as("settingModal");
 
-    // Columns helpers
-    it("7.Helpers: Check Deleteriousness column", () => {
-        cy.get("thead th").contains("div","Deleteriousness").within(() => {
-            cy.get("a").trigger("mouseover")
-        })
-        cy.get(".qtip-content").should('be.visible')
-    })
+            cy.get("@settingModal")
+                .contains("button", "OK")
+                .click();
 
-    it("8.Helpers: Check Conservation column", () => {
-        cy.get("thead th").contains("div","Conservation").within(() => {
-            cy.get("a").trigger("mouseover")
-        })
-        cy.get(".qtip-content").should('be.visible')
-    })
+            cy.get("@headerColumns")
+                .should($header => {
+                    const _columns = Array.from($header, th => th.textContent?.trim());
+                    debugger;
+                    columns.forEach(col => {
+                        expect(col).not.to.be.oneOf(_columns);
+                    });
+                });
+        });
+    });
 
-    it("9.Helpers: Check Population Frequencies column", () => {
-        cy.get("thead th").contains("div","Population Frequencies").within(() => {
-            cy.get("a").trigger("mouseover")
-        })
-        cy.get(".qtip-content").should('be.visible')
-    })
+    context("Grid", () => {
+        it("should render variant-browser-grid", () => {
+            cy.get(browserGrid)
+                .should("be.visible");
+        });
 
-    it("10.Helpers: Check Clinical Info column", () => {
-        cy.get("thead th").contains("div","Clinical Info").within(() => {
-            cy.get("a").trigger("mouseover")
-        })
-        cy.get(".qtip-content").should('be.visible')
-    })
+        it("should change page variant-browser-grid", () => {
+            UtilsTest.changePage(browserGrid,2);
+            UtilsTest.changePage(browserGrid,3);
+        });
+    });
 
-    // Rows
-    it("11.Row: Copy Variant Json", () => {
-        cy.get("tbody tr:first > td").eq(18).within(() => {
-            cy.get("button").click()
-            cy.get("ul[class='dropdown-menu dropdown-menu-right']")
-                .contains("a","Copy JSON")
-                .click()
-            UtilsTest.assertValueCopiedToClipboard().then(content => {
-                const dataClipboard = JSON.parse(content);
-                expect(dataClipboard.id).eq("1:234971680:TGTGTCTGTGTGTGCTTGTGTGTGTGTGTGTATTGGGGGAGGGATAGGTGCATAGCAGCATCATAAGCAGATAACATAAGAGCACAGCACACAGTAGATATTTATTAGGTTGTGCAAAAGTAATTGCGGTTTTTGCCACTAAAGGTAATGGTGAGAACCGCGATTACTTTCACACCAGTGTAATAAGGATTGGGCGGATGAACAAATGAGCAAGTGAATGAATTACAGGAATGAATTGGTTTAGAAAACAAAGCAAAAAGGAGCTGAAACTTTCTCAGGGGTGGATGGGGGTAGAGCTGCTGGATCAGTTTGGAAGAGAACAGACTTCTAAAGTGTAAACTTTAGAGCACTTTGTAAACCAAAGCTTCTAAATGCTGTAAATGCTGCAGACACCAGGTTCATGTGAAAAGCGTATCTGCCATGGAAAAAAATACACGCACGAGAAAATGGAGCAAGGTCACATGAATCTACTCAGAAATGAGACCTGGAACCTGAAAAAGAAAG:-")
-                expect(dataClipboard.chromosome).eq("1")
-            })
-        })
-    })
+    context("Variant Browser Bootstrap Grid", () => {
 
-    it.skip("12.Row: Download Variant Json", () => {
-        cy.get("tbody tr:first > td").eq(18).within(() => {
-            cy.get("button").click()
-            cy.get("ul[class='dropdown-menu dropdown-menu-right']")
-                .contains("a","Download JSON")
-                .click()
-            // cy.readFile("cypress/downloads/1_234971680_TGTGTCTGTGTGTGCTTGTGTGTGTGTGTGTATTGGGGGAGGGATAGGTGCATAGCAGCATCATAAGCAGATAACATAAGAGCACAGCACACAGTAGATATTTATTAGGTTGTGCAAAAGTAATTGCGGTTTTTGCCACTAAAGGTAATGGTGAGAACCGCGATTACTTTCACACCAGTGTAATAAGGATTGGGCGGATGAACAAATGAGCAAGTGAATGAATTACAGGAATGAATTG.json")
-            //     .should("exist")
-        })
-    })
+        beforeEach(() => {
+            cy.get("@container")
+                .find(`div[data-cy="vb-grid"]`)
+                .as("grid");
+        });
 
-    it.skip("13.Row: External Links", () => {
-        cy.get("tbody tr:first > td").eq(18).within(() => {
-            cy.get("button").click()
-            cy.get("ul[class='dropdown-menu dropdown-menu-right']")
-                .contains("a","Ensembl Genome Browser").click()
-        })
-    })
+        context("Tooltip", () => {
 
+            const tooltips = [
+                {title: "Variant", },
+                {title: "Gene"},
+                {title: "Consequence Type"},
+            ];
+            const helps = [
+                {title: "Deleteriousness"},
+                {title: "Conservation"},
+                {title: "Population Frequencies"},
+                {title: "Clinical Info"},
+            ];
+
+            beforeEach(() => {
+                cy.get("@grid")
+                    .find("tbody")
+                    .as("body");
+            });
+
+            it("should display headers' help", () => {
+                // Select first row, first column: Variant
+                // variant == id
+                cy.wrap(helps).each(help => {
+                    cy.get("@grid")
+                        .contains("th", help.title)
+                        .within(() => {
+                            cy.get("a")
+                                .trigger("mouseover");
+                        });
+                    cy.get(".qtip-content")
+                        .should("be.visible");
+                });
+            });
+
+            it("should display content tooltips", () => {
+                // Select first row, first column: Variant
+                // variant == id
+                cy.wrap(tooltips).each(tooltip => {
+                    cy.get("@grid")
+                        .contains("th", tooltip.title)
+                        .invoke("index")
+                        .then(i => {
+                            cy.get("@body")
+                                .find(`tr:first td:nth-child(${i+1}) a`)
+                                .trigger("mouseover");
+                            cy.get(".qtip-content")
+                                .should("be.visible");
+                        });
+                });
+            });
+        });
+    });
+
+    context("Row",() => {
+
+        it.skip("should copy variant Json", () => {
+            cy.get("tbody tr:first > td")
+                .eq(18)
+                .within(() => {
+                    cy.get("button")
+                        .click();
+                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                        .contains("a","Copy JSON")
+                        .click();
+                    UtilsTest.assertValueCopiedToClipboard()
+                        .then(content => {
+                            const dataClipboard = JSON.parse(content);
+                            expect(dataClipboard.id)
+                                .eq("1:234971680:TGTGTCTGTGTGTGCTTGTGTGTGTGTGTGTATTGGGGGAGGGATAGGTGCATAGCAGCATCATAAGCAGATAACATAAGAGCACAGCACACAGTAGATATTTATTAGGTTGTGCAAAAGTAATTGCGGTTTTTGCCACTAAAGGTAATGGTGAGAACCGCGATTACTTTCACACCAGTGTAATAAGGATTGGGCGGATGAACAAATGAGCAAGTGAATGAATTACAGGAATGAATTGGTTTAGAAAACAAAGCAAAAAGGAGCTGAAACTTTCTCAGGGGTGGATGGGGGTAGAGCTGCTGGATCAGTTTGGAAGAGAACAGACTTCTAAAGTGTAAACTTTAGAGCACTTTGTAAACCAAAGCTTCTAAATGCTGTAAATGCTGCAGACACCAGGTTCATGTGAAAAGCGTATCTGCCATGGAAAAAAATACACGCACGAGAAAATGGAGCAAGGTCACATGAATCTACTCAGAAATGAGACCTGGAACCTGAAAAAGAAAG:-");
+                            expect(dataClipboard.chromosome)
+                                .eq("1");
+                    });
+            });
+        });
+
+        it("should download variant json", () => {
+            cy.get("tbody tr:first > td")
+                .eq(-1)
+                .within(() => {
+                    cy.get("button")
+                        .click();
+                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                        .contains("a","Download JSON")
+                        .click();
+            });
+        });
+
+        it("should click external links", () => {
+            cy.get("tbody tr:first > td")
+                .eq(-1)
+                .within(() => {
+                    cy.get("button")
+                        .click();
+                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                        .contains("a","Ensembl Genome Browser")
+                        .click();
+            });
+        });
+    });
+
+    context("extension", () => {
+        it("should display 'Extra Column' column", () => {
+            cy.get("thead th")
+                .contains("div","Extra column")
+                .should("be.visible");
+        });
+    });
+
+    context("Varsome Links", () => {
+        it("should display a link to varsome in the variant tooltip", () => {
+            cy.get("tbody tr:first td")
+                .eq(1)
+                .find("a[tooltip-title]")
+                .trigger("mouseover");
+            cy.get("div.qtip-content")
+                .find(`div[data-cy="varsome-variant-link"]`)
+                .within(() => {
+                    cy.get("a")
+                        .should("exist")
+                        .and("contain.text", "Varsome");
+                    cy.get("a")
+                        .invoke("attr", "href")
+                        .should("have.string", "https://varsome.com/variant/");
+                });
+        });
+
+        it("should disable Varsome links for CNVs", () => {
+            cy.get("tbody tr:nth-of-type(3) td:nth-of-type(2)")
+                .find("a[tooltip-title]")
+                .trigger("mouseover");
+            cy.get("div.qtip-content")
+                .find(`div[data-cy="varsome-variant-link"]`)
+                .within(() => {
+                    cy.get("a")
+                        .should("exist")
+                        .and("contain.text", "Varsome (Disabled)");
+                    cy.get("a")
+                        .invoke("attr", "class")
+                        .should("have.string", "disabled");
+                });
+        });
+
+        it("should display a link to varsome in the gene tooltip", () => {
+            cy.get("tbody tr:first td")
+                .eq(2)
+                .find("a[tooltip-title]")
+                .eq(0)
+                .trigger("mouseover");
+            cy.get("div.qtip-content")
+                .find(`div[data-cy="varsome-gene-link"]`)
+                .within(() => {
+                    cy.get("a")
+                        .should("exist")
+                        .and("contain.text", "Varsome");
+                    cy.get("a")
+                        .invoke("attr", "href")
+                        .should("have.string", "https://varsome.com/gene/");
+                });
+        });
+
+        it("should display a link to varsome in the Actions dropdown", () => {
+            cy.get("tbody tr:first td")
+                .last()
+                .find(`div.dropdown ul.dropdown-menu li[data-cy="varsome-variant-link"]`)
+                .within(() => {
+                    cy.get("a")
+                        .should("exist")
+                        .and("contain.text", "Varsome");
+                    cy.get("a")
+                        .invoke("attr", "href")
+                        .should("have.string", "https://varsome.com/variant/");
+                });
+        });
+
+        it("should disable Varsome links for CNVs in the Actions dropdown", () => {
+            cy.get("tbody tr:nth-of-type(3) td")
+                .last()
+                .find(`div.dropdown ul.dropdown-menu li[data-cy="varsome-variant-link"] a`)
+                .should("have.attr", "disabled");
+        });
+
+        it("should display an action to copy variant ID in Varsome format", () => {
+            cy.get("tbody tr:first td")
+                .last()
+                .find(`div.dropdown ul.dropdown-menu li[data-cy="varsome-copy"]`)
+                .within(() => {
+                    cy.get("a")
+                        .should("exist")
+                        .and("contain.text", "Copy Varsome ID");
+                    // eslint-disable-next-line cypress/no-force
+                    cy.get("a")
+                        .click({force: true});
+                    UtilsTest.assertValueCopiedToClipboard()
+                        .then(content => {
+                            expect(content).to.match(/^chr/);
+                        });
+                });
+        });
+
+        it("should disable Copy Varsome ID action for CNVs", () => {
+            cy.get("tbody tr:nth-of-type(3) td")
+                .last()
+                .find(`div.dropdown ul.dropdown-menu li[data-cy="varsome-copy"] a`)
+                .should("have.attr", "disabled");
+        });
+    });
 });

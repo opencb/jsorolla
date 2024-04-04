@@ -45,6 +45,9 @@ export default class VariantFileInfoFilter extends LitElement {
             fileData: {
                 type: String
             },
+            visibleCallers: {
+                type: Array,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -60,6 +63,8 @@ export default class VariantFileInfoFilter extends LitElement {
         };
 
         this.fileDataSeparator = ",";
+        this.callers = [];
+        this.visibleCallers = null;
     }
 
     #encodeCallerId(name) {
@@ -305,7 +310,7 @@ export default class VariantFileInfoFilter extends LitElement {
     //
     #splitFilters(filtersString) {
         // 1. Find the key/values: ["FILTER=PASS", "CLPM<=0.5", "ASMD>=1,400"]
-        const re = /(?<file>[\w]+)(?<op>[=<>]+)(?<field>[a-zA-Z0-9,.]+)/g;
+        const re = /(?<file>[\w]+)(?<op>[=<>]+)(?<field>[a-zA-Z0-9,.-]+)/g;
         const match1 = filtersString.match(re);
         // 2. Get the indexes: [0, 16, 26]
         const filters = [];
@@ -422,7 +427,7 @@ export default class VariantFileInfoFilter extends LitElement {
     render() {
         return html`
             <data-form
-                .data=${this.fileDataQuery}
+                .data="${this.fileDataQuery}"
                 .config="${this._config}"
                 @fieldChange="${this.filterChange}">
             </data-form>
@@ -430,7 +435,14 @@ export default class VariantFileInfoFilter extends LitElement {
     }
 
     getDefaultConfig() {
-        const _sections = this.callers?.map(caller => {
+        let callers = this.callers || [];
+
+        // Check if we have provided a list of specific callers to display
+        if (this.visibleCallers && Array.isArray(this.visibleCallers)) {
+            callers = this.callers.filter(caller => this.visibleCallers.includes(caller.id));
+        }
+
+        const _sections = callers?.map(caller => {
             // Generate the caller section
             return {
                 title: this.#decodeCallerId(caller.id),
@@ -457,7 +469,9 @@ export default class VariantFileInfoFilter extends LitElement {
                         allowedValues: field.allowedValues,
                         multiple: field.multiple ?? false,
                         maxOptions: field.maxOptions ?? 1,
-                        defaultValue: "",
+                        display: {
+                            defaultValue: "",
+                        },
                     }))
                 ],
             };
@@ -471,7 +485,7 @@ export default class VariantFileInfoFilter extends LitElement {
                 collapsable: true,
                 titleVisible: false,
                 titleWidth: 2,
-                defaultValue: "-",
+                defaultValue: "",
                 defaultLayout: "vertical"
             },
             sections: _sections,

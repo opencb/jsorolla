@@ -19,72 +19,85 @@ import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 
 export default class CatalogGridFormatter {
 
-    static phenotypesFormatter(value, row) {
-        if (!value || !value?.length) {
+    static phenotypesFormatter(phenotypes) {
+        if (!phenotypes || phenotypes.length === 0) {
             return "-";
         }
         const status = ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"];
-        const tooltip = [...value].sort((a, b) => status.indexOf(a.status) - status.indexOf(b.status)).map(phenotype => {
-            const result = [];
-            if (phenotype.name) {
-                result.push(UtilsNew.escapeHtml(phenotype.name));
-                // Check if we have also the phenotype ID --> add the '-' separator
+        const phenotypesHtml = phenotypes
+            .sort((a, b) => status.indexOf(a.status) - status.indexOf(b.status))
+            .map(phenotype => {
+                const result = [];
+                if (phenotype.name) {
+                    result.push(UtilsNew.escapeHtml(phenotype.name));
+                }
+                // Add phenotype ID if exists
                 if (phenotype.id && phenotype.id !== phenotype.name) {
-                    result.push("-");
+                    if (phenotype.source && phenotype.source.toUpperCase() === "HPO") {
+                        result.push(`
+                            <a target="_blank" href="${BioinfoUtils.getHpoLink(phenotype.id)}"> (${phenotype.id})</a>
+                        `);
+                    } else {
+                        result.push(phenotype.id);
+                    }
                 }
-            }
-            // Add phenotype ID if exists
-            if (phenotype.id && phenotype.id !== phenotype.name) {
-                if (phenotype.source && phenotype.source.toUpperCase() === "HPO") {
-                    result.push(`
-                        <a target="_blank" href="${BioinfoUtils.getHpoLink(phenotype.id)}">${phenotype.id}</a>`);
+                // Add phenotype status if exists
+                // if (phenotype.status) {
+                //     result.push(`(${phenotype.status})`);
+                // }
+                return `<div style="margin: 2px 0; white-space: nowrap">${result.join("")}</div>`;
+            });
+
+        if (phenotypesHtml?.length > 0) {
+            let html = "<div>";
+            for (let i = 0; i < phenotypesHtml.length; i++) {
+                // Display first 3 phenotypes
+                if (i < 3) {
+                    html += phenotypesHtml[i];
                 } else {
-                    result.push(phenotype.id);
+                    html += `<a tooltip-title="Phenotypes" tooltip-text='${phenotypesHtml.join("")}'>... view all phenotypes (${phenotypesHtml.length})</a>`;
+                    break;
                 }
             }
-            // Add phenotype status if exists
-            if (phenotype.status) {
-                result.push(`(${phenotype.status})`);
-            }
-            return `<p>${result.join(" ")}</p>`;
-        }).join("");
-        if (value && value.length > 0) {
-            return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s" : ""} found</a>`;
+            html += "</div>";
+            return html;
         } else {
             // TODO Think about this
-            return `<div>${tooltip}</div>`;
+            return `-`;
         }
     }
 
-    static disorderFormatter(value, row) {
-        if (value && value.id) {
-            let idHtml;
-            const split = value.id.split(":");
-            switch (split[0]) {
-                case "HP":
-                    idHtml = `
-                        <a href="${BioinfoUtils.getHpoLink(value.id)}" target="_blank">${value.id}
-                            <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
-                        </a>`;
-                    break;
-                case "OMIM":
-                    idHtml = `
-                        <a href="https://omim.org/entry/${split[1]}" target="_blank">${value.id}
-                            <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
-                        </a>`;
-                    break;
-                default:
-                    idHtml = value.id;
-                    break;
+    static disorderFormatter(disorders) {
+        let html = "-";
+        if (disorders?.length > 0) {
+            html = "<div>";
+            for (const disorder of disorders) {
+                if (disorder?.id) {
+                    // Default value if the disorder ID does not include ':' (source:ID)
+                    let idHtml = disorder.id;
+                    // We try to get a HTTP link
+                    const ontologyLink = BioinfoUtils.getOntologyLink(disorder.id);
+                    if (ontologyLink.startsWith("http")) {
+                        // We have identified the ontology source and created a link
+                        idHtml = `<a href="${ontologyLink}" target="_blank">${disorder.id}</a>`;
+                    }
+                    if (disorder.name && disorder.name !== disorder.id) {
+                        html += `
+                            <div style="margin: 2px 0; white-space: nowrap">
+                                <span data-cy="disorder-name">${disorder.name}</span> (<span data-cy="disorder-id">${idHtml}</span>)
+                            </div>`;
+                    } else {
+                        html += `
+                            <div style="margin: 2px 0; white-space: nowrap">
+                                <span data-cy="disorder-id">${idHtml}</span>
+                            </div>
+                        `;
+                    }
+                }
             }
-            if (value.name) {
-                return `<span data-cy="disorder-name">${value.name}</span> (<span style="white-space: nowrap" data-cy="disorder-id">${idHtml}</span>)`;
-            } else {
-                return `${idHtml}`;
-            }
-        } else {
-            return "-";
+            html += "</div>";
         }
+        return html;
     }
 
     static panelFormatter(panels) {
@@ -113,21 +126,38 @@ export default class CatalogGridFormatter {
     // @param {String} key The property to map onto in case `files` is an array of objects.
     // @returns {string} html code
     static fileFormatter(files, extensions, key) {
-        let results = [];
-        if (files && files.length > 0) {
-            if (extensions && extensions.length > 0) {
+        let bamAndVcfFiles = [];
+        if (files?.length > 0) {
+            if (extensions?.length > 0) {
                 files.forEach(file => {
                     const f = key ? file[key] : file;
                     for (const extension of extensions) {
                         if (f.endsWith(extension)) {
-                            results.push(f);
+                            bamAndVcfFiles.push(f);
+                            break;
                         }
                     }
                 });
             } else {
-                results = key ? files.map(file => file?.name) : files;
+                bamAndVcfFiles = key ? files.map(file => file[key]) : files;
             }
-            return results.length > 20 ? results.length + " files" : `<ul class="pad-left-15">${results.map(file => `<li class="break-word">${file}</li>`).join("")}</ul>`;
+
+            if (bamAndVcfFiles?.length > 0) {
+                let html = `<div style="white-space: nowrap">`;
+                for (let i = 0; i < bamAndVcfFiles.length; i++) {
+                    // Display first 3 files
+                    if (i < 3) {
+                        html += `
+                            <div style="margin: 2px 0">${bamAndVcfFiles[i]}</div>
+                        `;
+                    } else {
+                        html += `<a tooltip-title="Files" tooltip-text='${bamAndVcfFiles.join("<br>")}'>... view all files (${bamAndVcfFiles.length})</a>`;
+                        break;
+                    }
+                }
+                html += "</div>";
+                return html;
+            }
         } else {
             return "-";
         }
@@ -145,9 +175,9 @@ export default class CatalogGridFormatter {
             let result = "";
             for (const clinicalAnalysis of clinicalAnalysisArray) {
                 result += `
-                    <div>
-                        <a title="Go to Case Interpreter" class="btn btn-default btn-small ripple dropdown-toggle one-line" href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
-                            <i aria-hidden="true" class="fas fa-user-md"></i> ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
+                    <div style="margin: 5px 0">
+                        <a title="Go to Case Interpreter" style="white-space: nowrap" href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
+                            <i aria-hidden="true" class="fas fa-user-md icon-padding"></i> ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
                        </a>
                     </div>
                 `;
@@ -156,6 +186,47 @@ export default class CatalogGridFormatter {
         } else {
             return "-";
         }
+    }
+
+    static customAnnotationFormatter(annotationSets, selectedVariableSetId, selectedVariables) {
+        let html = `<div>`;
+        if (selectedVariableSetId) {
+            // Select the first annotationSet for the selectedVariableSetId. In the future there will be only one.
+            const annotationSet = annotationSets?.find(v => v.variableSetId === selectedVariableSetId);
+            if (annotationSet) {
+                // If 'variables' is not provided we display all of them
+                const variables = (selectedVariables?.length > 0) ? selectedVariables : Object.keys(annotationSet.annotations).sort();
+                for (const variable of variables) {
+                    html += `
+                        <div style="white-space: nowrap">
+                            <span style="margin: 2px 0; font-weight: bold">${variable}:</span> ${annotationSet.annotations[variable]}
+                        </div>
+                    `;
+                }
+            } else {
+                // This entity has not this variableSetId annotated
+                html += `-`;
+            }
+        } else {
+            if (annotationSets?.length > 0) {
+                // We display all variableSetIds
+                for (const annotationSet of annotationSets) {
+                    html += `<div class="help-block" style="margin: 5px 0 2px 0">${annotationSet.variableSetId}</div>`;
+                    for (const variable of Object.keys(annotationSet.annotations).sort()) {
+                        html += `
+                            <div style="white-space: nowrap">
+                                <span style="margin: 2px 0; font-weight: bold">${variable}:</span> ${annotationSet.annotations[variable]}
+                            </div>
+                        `;
+                    }
+                }
+            } else {
+                // This entity has not annotations
+                html += `-`;
+            }
+        }
+        html += `</div>`;
+        return html;
     }
 
 }

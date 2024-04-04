@@ -44,14 +44,14 @@ export default class ChromosomePanel {
         const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}" style="user-select:none;">
                 <div style="display:flex;justify-content:space-between;">
-                    <div id="${this.prefix}Title" style="font-weight:bold;cursor:pointer;">
+                    <div id="${this.prefix}Title" style="font-weight:bold;cursor:pointer;" data-cy="gb-chromosome-title">
                         ${this.config?.title || ""}
                     </div>
-                    <div id="${this.prefix}Collapse" style="cursor:pointer;">
+                    <div id="${this.prefix}Collapse" style="cursor:pointer;" data-cy="gb-chromosome-toggle">
                         <span id="${this.prefix}CollapseIcon" class="fa fa-minus"></span>
                     </div>
                 </div>
-                <div id="${this.prefix}Content" style="display:block;margin-top:8px;"></div>
+                <div id="${this.prefix}Content" style="display:block;margin-top:8px;" data-cy="gb-chromosome-content"></div>
             </div>
         `);
 
@@ -259,7 +259,6 @@ export default class ChromosomePanel {
         });
 
         const cytobandsByStain = {};
-        let textDrawingOffset = offset;
         (this.chromosome.cytobands || []).forEach(rawCytoband => {
             const cytoband = {
                 ...rawCytoband,
@@ -273,17 +272,18 @@ export default class ChromosomePanel {
             }
             cytobandsByStain[cytoband.stain].push(cytoband);
 
-            const middleX = textDrawingOffset + (cytoband.pixelSize / 2);
+            const textX = offset + ((cytoband.pixelStart + cytoband.pixelEnd) / 2);
             const textY = 35;
             const text = SVG.addChild(group, "text", {
-                "x": middleX,
+                "data-cy": "gb-chromosome-cytoband-label",
+                "data-chromosome-arm": cytoband.name[0],
+                "x": textX,
                 "y": textY,
                 "font-size": 10,
-                "transform": `rotate(-90, ${middleX}, ${textY})`,
-                "fill": "black"
+                "transform": `rotate(-90, ${textX}, ${textY})`,
+                "fill": "black",
             });
             text.textContent = cytoband.name;
-            textDrawingOffset += cytoband.pixelSize;
         });
 
         Object.keys(cytobandsByStain).forEach(name => {
@@ -293,6 +293,8 @@ export default class ChromosomePanel {
                 });
 
                 SVG.addChild(group, "path", {
+                    "data-cy": "gb-chromosome-cytoband-path",
+                    "data-stain": name,
                     "d": paths.join(" "),
                     "stroke": GenomeBrowserConstants.CYTOBANDS_COLORS[name] || "",
                     "stroke-width": 20,
@@ -307,11 +309,11 @@ export default class ChromosomePanel {
 
             // Append background rectangle
             SVG.addChild(group, "rect", {
-                x: (firstStain.pixelStart + offset + 1),
-                y: 39,
-                width: (lastStain.pixelEnd + offset) - (firstStain.pixelStart + offset + 1),
-                height: 22,
-                fill: "white",
+                "x": (firstStain.pixelStart + offset + 1),
+                "y": 39,
+                "width": (lastStain.pixelEnd + offset) - (firstStain.pixelStart + offset + 1),
+                "height": 22,
+                "fill": "white",
             });
 
             const firstStainXStart = (firstStain.pixelStart + offset + 1);
@@ -321,12 +323,16 @@ export default class ChromosomePanel {
 
             // Append centromere triangles
             SVG.addChild(group, "path", {
-                d: `M${firstStainXStart},39 L${firstStainXEnd - 5},39 L${firstStainXEnd},50 L${firstStainXEnd - 5},61 L${firstStainXStart},61 z`,
-                fill: GenomeBrowserConstants.CYTOBANDS_COLORS["acen"] || "",
+                "data-cy": "gb-chromosome-cytoband-path",
+                "data-stain": "acen",
+                "d": `M${firstStainXStart},39 L${firstStainXEnd - 5},39 L${firstStainXEnd},50 L${firstStainXEnd - 5},61 L${firstStainXStart},61 z`,
+                "fill": GenomeBrowserConstants.CYTOBANDS_COLORS["acen"] || "",
             });
             SVG.addChild(group, "path", {
-                d: `M${lastStainXStart},50 L${lastStainXStart + 5},39 L${lastStainXEnd},39 L${lastStainXEnd},61 L${lastStainXStart + 5},61 z`,
-                fill: GenomeBrowserConstants.CYTOBANDS_COLORS["acen"] || "",
+                "data-cy": "gb-chromosome-cytoband-path",
+                "data-stain": "acen",
+                "d": `M${lastStainXStart},50 L${lastStainXStart + 5},39 L${lastStainXEnd},39 L${lastStainXEnd},61 L${lastStainXStart + 5},61 z`,
+                "fill": GenomeBrowserConstants.CYTOBANDS_COLORS["acen"] || "",
             });
         }
 
@@ -338,8 +344,16 @@ export default class ChromosomePanel {
                         const featureWidth = Math.max(1, this.pixelBase * Math.abs(feature.end - feature.start));
                         const featureX = offset + Math.min(feature.start, feature.end) * this.pixelBase;
 
+                        // Create a new group for this feature of interest
+                        const featureGroup = SVG.addChild(group, "g", {
+                            "data-cy": "gb-chromosome-feature-of-interest",
+                            "data-feature-id": feature.id,
+                            "data-feature-start": feature.start,
+                            "data-feature-end": feature.end,
+                        });
+
                         // Display region rectangle
-                        SVG.addChild(group, "rect", {
+                        SVG.addChild(featureGroup, "rect", {
                             x: featureX,
                             y: 39,
                             width: featureWidth,
@@ -349,7 +363,7 @@ export default class ChromosomePanel {
                         });
 
                         // Display triangle at the right side of the chromosome
-                        SVG.addChild(group, "path", {
+                        SVG.addChild(featureGroup, "path", {
                             d: `M${featureX + featureWidth / 2},62 l6,6 l-12,0 z`,
                             fill: item.display?.color || "red",
                             opacity: 0.6,
@@ -375,7 +389,10 @@ export default class ChromosomePanel {
         });
 
         const positionBoxWidth = this.region.length() * this.pixelBase;
-        const positionGroup = SVG.addChild(group, "g", {});
+        const positionGroup = SVG.addChild(group, "g", {
+            "data-cy": "gb-chromosome-position",
+            "data-position": centerPosition,
+        });
         this.positionBox = SVG.addChild(positionGroup, "rect", {
             "x": pointerPosition - (positionBoxWidth / 2),
             "y": 2,

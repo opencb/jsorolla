@@ -1,4 +1,4 @@
-name: "Release"
+name: "Release workflow"
 
 on:
   push:
@@ -9,30 +9,22 @@ jobs:
   build:
     uses: ./.github/workflows/build-jsorolla-workflow.yml
 
-  test:
-    uses: ./.github/workflows/test.yml
-    needs: build
-    secrets: inherit
-
   deploy-docker:
-    uses: opencb/java-common-libs/.github/workflows/deploy-docker-hub-workflow.yml@develop
-    needs: [ build, test ]
+    uses: ./.github/workflows/deploy-docker-jsorolla.yml
+    needs: build
     with:
-      repository: opencb/jsorolla
-      branch: ${{ github.ref_name }}
-      cli: python3 ./docker/docker-build.py push --tag ${{ needs.build.outputs.version }}
+      cli: python3 ./docker/docker-build.py push
     secrets: inherit
 
-  deploy:
-    needs: [ build, test ]
-    uses: ./.github/workflows/deploy-jsorolla-workflow.yml
+  deploy-web:
+    uses: ./.github/workflows/deploy-jsorolla-web-workflow.yml
+    needs: build
     with:
       version: ${{ needs.build.outputs.version }}
     secrets: inherit
 
   release:
-    needs: [build, test]
-    uses: opencb/java-common-libs/.github/workflows/release-github-workflow.yml@develop
+    uses: ./.github/workflows/release-github-workflow.yml
+    needs: [ build, deploy-web, deploy-docker ]
     with:
-      artifact: build-folder
-      file: iva-${{ needs.build.outputs.version }}.tar.gz
+      version: ${{ needs.build.outputs.version }}

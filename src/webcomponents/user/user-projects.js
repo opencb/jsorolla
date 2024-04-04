@@ -93,18 +93,18 @@ export default class UserProjects extends LitElement {
                 },
                 {
                     title: "Project ID",
-                    text: project.id || "-",
                     type: "text",
+                    text: project.id,
                     display: {
-                        textStyle: "padding-left:16px;",
+                        defaultValue: "-",
                     },
                 },
                 {
                     title: "Project Description",
-                    text: project.description || "-",
                     type: "text",
+                    text: project.description,
                     display: {
-                        textStyle: "padding-left:16px;",
+                        defaultValue: "-",
                     },
                 },
                 {
@@ -112,8 +112,7 @@ export default class UserProjects extends LitElement {
                     text: project.attributes.release,
                     type: "text",
                     display: {
-                        textStyle: "padding-left:16px;",
-                        visible: !!project?.attributes?.release
+                        visible: !!project?.attributes?.release,
                     },
                 },
                 {
@@ -121,24 +120,20 @@ export default class UserProjects extends LitElement {
                     text: owner || "-",
                     type: "text",
                     display: {
-                        textStyle: "padding-left:16px;font-weight:bold;",
+                        style: {
+                            "font-weight": "bold"
+                        }
                     },
                 },
                 {
                     title: "Species",
                     text: `${project.organism?.scientificName || "-"} (${project.organism?.assembly || "-"})`,
                     type: "text",
-                    display: {
-                        textStyle: "padding-left:16px;",
-                    },
                 },
                 {
                     title: "CellBase",
                     text: `${project.cellbase?.url || "-"} (${project.cellbase?.version || "-"}, Data Release: ${project.cellbase?.dataRelease || "-"})`,
                     type: "text",
-                    display: {
-                        textStyle: "padding-left:16px;",
-                    },
                 },
                 // Generate a table with all studies of this project of this user
                 {
@@ -153,8 +148,13 @@ export default class UserProjects extends LitElement {
                 {
                     type: "table",
                     // title: "Studies",
-                    defaultValue: project.studies,
                     display: {
+                        defaultLayout: "vertical",
+                        headerStyle: {
+                            background: "#f5f5f5",
+                            lineHeight: "0.5"
+                        },
+                        getData: () => project.studies,
                         columns: [
                             {
                                 title: "ID",
@@ -167,35 +167,36 @@ export default class UserProjects extends LitElement {
                             {
                                 title: "Description",
                                 field: "description",
-                                defaultValue: "-",
+                                display: {
+                                    defaultValue: "-",
+                                },
                             },
                             {
                                 title: "Creation",
                                 field: "creationDate",
-                                defaultValue: "-",
-                                type: "custom",
                                 display: {
-                                    render: value => UtilsNew.dateFormatter(value),
+                                    format: date => UtilsNew.dateFormatter(date),
                                 },
                             },
                             {
                                 title: "FQN",
                                 field: "fqn",
                             },
+                            // Caution 20240229 Vero: commented out because:
+                            //  (a) not working
+                            //  (b) further discussion needed to migrate to new config data model
+                            /*
                             {
                                 title: "Links",
-                                type: "custom",
                                 field: "id",
-                                display: {
-                                    render: id => html`
-                                        <a href="#browser/${project.id}/${id}" title="Variant Browser" style="white-space:nowrap;">
-                                            <i class="fas fa-external-link-alt icon-padding"></i> VB
-                                        </a>
-                                    `,
-                                },
+                                formatter: (value, row) => `
+                                    <a href="#browser/${row.id}/${value}" title="Variant Browser" style="white-space:nowrap;">
+                                        <i class="fas fa-external-link-alt icon-padding"></i> VB
+                                    </a>
+                                `,
                             },
+                            */
                         ],
-                        defaultLayout: "vertical",
                     },
                 },
             ],

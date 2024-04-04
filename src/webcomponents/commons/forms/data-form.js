@@ -27,10 +27,12 @@ import "../../download-button.js";
 import "../forms/text-field-filter.js";
 import "./toggle-switch.js";
 import "./toggle-buttons.js";
+import "../data-table.js";
+import PdfBuilder from "./pdf-builder.js";
 
 export default class DataForm extends LitElement {
 
-    static re = /(?<arrayFieldName>[a-zA-Z.]+)\[\].(?<index>[0-9]+).(?<field>[a-zA-Z.]+)/;
+    static ARRAY_FIELD_REGULAR_EXPRESSION = /(?<arrayFieldName>[a-zA-Z.]+)\[\].(?<index>[0-9]+).(?<field>[a-zA-Z.]+)/;
 
     static NOTIFICATION_TYPES = {
         error: "alert alert-danger",
@@ -82,6 +84,8 @@ export default class DataForm extends LitElement {
 
         // We need to initialise 'data' in case undefined value is passed
         this.data = {};
+        // Maintains a data model of the data that has been filled out using the search autocomplete
+        this.dataAutocomplete = {};
     }
 
     update(changedProperties) {
@@ -102,67 +106,137 @@ export default class DataForm extends LitElement {
         this.data = this.data ?? {};
     }
 
-    getValue(field, object, defaultValue, format) {
-        let value = object;
+    getValue(field, object = this.data, defaultValue, display) {
+        let value;
         if (field) {
-            const _object = object ? object : this.data;
             // If field contains [] means the element type is object-list,
             // we need to get the value from the array, information is encoded as:
-            //  phenotypes[].1.id: field id from second item of phenotypes
+            //   phenotypes[].1.id: field id from second item of phenotypes
             if (field.includes("[]")) {
                 const [parentItemArray, right] = field.split("[].");
                 if (right?.includes(".")) {
                     const [itemIndex, ...itemFieldIds] = right.split(".");
-                    // support object nested
+                    // Support nested object
                     if (itemFieldIds.length === 1) {
-                        value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]];
+                        value = UtilsNew.getObjectValue(object, parentItemArray, "")[itemIndex][itemFieldIds[0]];
                     } else {
-                        value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
+                        value = UtilsNew.getObjectValue(object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
                     }
                 } else {
                     // FIXME this should never be reached
-                    console.error("this should never be reached");
-                    // value = this.objectListItems[parentItemArray]?.[right];
+                    console.error("This should never be reached");
                 }
             } else {
                 // Optional chaining is needed when "res" is undefined
-                value = field.split(".").reduce((res, prop) => res?.[prop], _object);
+                value = field.split(".").reduce((res, prop) => res?.[prop], object);
             }
 
-            // needed for handling falsy values
-            if (value !== undefined && value !== "") {
-                if (format) {
-                    if (format.classes || format.style) {
-                        value = html`<span class="${format.classes}" style="${format.style}">${value}</span>`;
-                    }
-                    if (format.link) {
-                        value = html`<a href="${format.link.replace(field.toUpperCase(), value)}" target="_blank">${value}</a>`;
-                    }
-                    if (format.decimals && !isNaN(value)) {
-                        value = value.toFixed(format.decimals);
-                    }
+            // If 'value' exists we must apply the functions, DO NOT change the order
+            if (value || typeof value === "boolean") {
+                if (display?.format) {
+                    // Check if response is actually an HTML
+                    // value = UtilsNew.renderHTML(display.format(value));
+                    value = display.format(value, object);
+                }
+                if (display?.link) {
+                    const href = display.link.replace(field.toUpperCase(), value);
+                    value = html`<a href="${href}" target="_blank">${value}</a>`;
+                }
+                if (display?.className || display?.classes || display?.style) {
+                    const style = this._parseStyleField(display.style, value, object);
+                    value = html`<span class="${display.className || display.classes}" style="${style}">${value}</span>`;
+                }
+                // TODO this should be deprecated, we can use 'format' now
+                if (display?.decimals && !isNaN(value)) {
+                    value = value.toFixed(display.decimals);
                 }
             } else {
                 value = defaultValue;
             }
-        } else if (defaultValue) {
+        } else {
             value = defaultValue;
         }
+
         return value;
     }
 
-    applyTemplate(template, object, matches, defaultValue) {
-        if (!matches) {
-            // eslint-disable-next-line no-param-reassign
-            matches = template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
-        }
+    applyTemplate(template, data, defaultValue, element) {
+        // Parse template string and find matches groups
+        const matches = template
+            .match(/\$\{[a-zA-Z_.\[\]]+}/g)
+            .map(elem => elem.substring(2, elem.length - 1));
+
         for (const match of matches) {
-            const v = this.getValue(match, object, defaultValue);
+            // Check if 'style' has been defined for this match variable, example:
+            //     {
+            //         title: "Format",
+            //         type: "complex",
+            //         display: {
+            //             template: "${format} (${bioformat})",
+            //             format: {
+            //                 "format": value => value.toUpperCase()
+            //             },
+            //             style: {
+            //                  format: {
+            //                      "font-weight": "bold",
+            //                      "color": "red"
+            //                  },
+            //                  bioformat: {
+            //                      "color": "green"
+            //                  }
+            //              },
+            //              link: {
+            //                  format: (value, data) => https://...
+            //              }
+            //          },
+            //     },
+            let value = this.getValue(match, data, defaultValue);
+            if (element?.display?.format?.[match]) {
+                value = element?.display?.format?.[match](value, data);
+            }
+            if (element?.display?.link?.[match]) {
+                const href = element?.display?.link?.[match](value, data);
+                value = href ? `<a href="${href}" target="_blank">${value}</a>` : value;
+            }
+            if (element?.display?.className?.[match] || element?.display?.style?.[match]) {
+                const style = this._parseStyleField(element.display?.style?.[match], value, data);
+                const className = this._parseClassField(element.display?.className?.[match], value, data);
+                value = `<span class="${className||""}" style="${style}">${value}</span>`;
+            }
+
             // eslint-disable-next-line no-param-reassign
-            template = template.replace("${" + match + "}", v);
+            template = template.replace("${" + match + "}", value);
         }
 
         return template;
+    }
+
+    // Convert a 'string' or 'object' field to the HTML style string, ie. "font-weight: bold;color:red"
+    _parseStyleField(elementStyle, value, data = this.data) {
+        let style = elementStyle || "";
+        if (elementStyle && typeof elementStyle === "object") {
+            const styles = [];
+            for (const [k, v] of Object.entries(elementStyle)) {
+                if (typeof v === "string") {
+                    styles.push(`${k}: ${v}`);
+                } else {
+                    if (typeof v === "function" && value) {
+                        const value2 = v(value, data);
+                        styles.push(`${k}: ${value2}`);
+                    }
+                }
+            }
+            style = styles.join(";");
+        }
+        return style;
+    }
+
+    _parseClassField(elementClass, value, data = this.data) {
+        let resultClass = elementClass || "";
+        if (elementClass && typeof elementClass == "function") {
+            resultClass = elementClass(value, data);
+        }
+        return resultClass;
     }
 
     _getType() {
@@ -174,7 +248,7 @@ export default class DataForm extends LitElement {
     // FIXME To be removed when deprecating old config.buttons.top property
     _getButtonsLayout() {
         const layout = this.config.display?.buttonsLayout || "";
-        if (!layout || (layout !== "bottom" && layout !== "top")) {
+        if (!layout || (layout !== "bottom" && layout !== "top" && layout !== "upper")) {
             return this.config?.buttons?.top ? "top" : "bottom";
         }
 
@@ -182,20 +256,22 @@ export default class DataForm extends LitElement {
         return layout || "bottom";
     }
 
-    _getDefaultValue(element) {
-        // WARNING: element.defaultValue is deprecated, use element.display.defaultValue
-        return element?.display?.defaultValue ?? element?.defaultValue ?? this.config?.display?.defaultValue ?? "";
+    _getDefaultValue(element, section) {
+        // Preference order: element, section and then global config
+        return element?.display?.defaultValue ?? section?.display?.defaultValue ?? this.config?.display?.defaultValue ?? "";
     }
 
-    _getErrorMessage(element, section) {
-        const text = element?.display?.errorMessage ?? section?.display?.errorMessage ?? this.config?.display?.errorMessage ?? "Error: No valid data found";
-        return html`<div><em>${text}</em></div>`;
+    _getDefaultErrorMessage(element, section) {
+        // const text = element?.display?.errorMessage ?? section?.display?.errorMessage ?? this.config?.display?.errorMessage ?? "Error: No valid data found";
+        // return html`<div><em>${text}</em></div>`;
+        return element?.display?.errorMessage ?? section?.display?.errorMessage ?? this.config?.display?.errorMessage ?? "Error: No valid data found";
     }
 
     /**
      * Check if visible field is defined and not null, be careful since 'visible' can be a 'boolean' or a 'function'.
      * @param value
      * @param defaultValue
+     * @param element
      * @returns {boolean} Default value is 'true' so it is visible.
      * @private
      */
@@ -208,7 +284,7 @@ export default class DataForm extends LitElement {
                 if (typeof value === "function") {
                     // example: phenotypes[].1.description
                     if (element?.field?.includes("[].")) {
-                        const match = element.field.match(DataForm.re);
+                        const match = element.field.match(DataForm.ARRAY_FIELD_REGULAR_EXPRESSION);
                         if (match) {
                             const itemArray = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
                             _value = value(this.data, itemArray);
@@ -226,12 +302,16 @@ export default class DataForm extends LitElement {
         return _value;
     }
 
-    _getWidth(element) {
-        return element?.display?.width ?? this.config?.display?.defaultWidth ?? null;
-    }
-
     _getSectionWidth(section) {
         return section?.display?.width ?? this.config?.display?.width ?? 12;
+    }
+
+    _getDefaultLayout(element, section) {
+        return element?.display?.defaultLayout ?? section?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
+    }
+
+    _getElementWidth(element, section) {
+        return element?.display?.width ?? section?.display?.elementWidth ?? this.config?.display?.elementWidth ?? null;
     }
 
     _getElementTitleWidth(element, section) {
@@ -261,7 +341,12 @@ export default class DataForm extends LitElement {
     }
 
     _getHelpMessage(element) {
-        return element.display?.helpMessage ?? element.display?.help?.text ?? null;
+        if (typeof element.display?.helpMessage === "function") {
+            const fieldValue = element.field ? this.getValue(element.field) : null;
+            return element.display.helpMessage(fieldValue, this.data);
+        } else {
+            return element.display?.helpMessage ?? element.display?.help?.text ?? null;
+        }
     }
 
     _getHelpMode(element) {
@@ -274,10 +359,6 @@ export default class DataForm extends LitElement {
 
     _getErrorIcon(element, section) {
         return element?.display?.errorIcon ?? section?.display?.errorIcon ?? this.config?.display?.errorIcon ?? "fas fa-times-circle";
-    }
-
-    _getDefaultLayout(element, section) {
-        return element?.display?.defaultLayout ?? section?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
     }
 
     _getVisibleSections() {
@@ -295,7 +376,7 @@ export default class DataForm extends LitElement {
             } else {
                 // 2. Check if field is part of a new ADDED object-list, example:  'phenotypes[].1'  (no fields)
                 if (element.field.includes("[]")) {
-                    const match = element.field.match(DataForm.re);
+                    const match = element.field.match(DataForm.ARRAY_FIELD_REGULAR_EXPRESSION);
                     return !!this.updateParams[match?.groups?.arrayFieldName + "[]." + match?.groups?.index]?.after?.[match?.groups?.field];
                 } else {
                     // 3. To display object-list root elements check if the prefix exists, example: 'phenotypes'
@@ -343,7 +424,7 @@ export default class DataForm extends LitElement {
             // When an object-list, get the item being validated.
             let item;
             if (element.field.includes("[]")) {
-                const match = element.field.match(DataForm.re);
+                const match = element.field.match(DataForm.ARRAY_FIELD_REGULAR_EXPRESSION);
                 if (match) {
                     item = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
                 }
@@ -364,52 +445,64 @@ export default class DataForm extends LitElement {
     renderData() {
         // WARNING: display.classes is deprecated, use display.className instead
         const className = this.config?.display?.className ?? this.config?.display?.classes ?? "";
-        const style = this.config?.display?.style ?? "";
+        const style = this._parseStyleField(this.config?.display?.style);
         const layout = this.config?.display?.defaultLayout || "";
         const layoutClassName = (layout === "horizontal") ? "form-horizontal" : "";
 
-        if (this.config.type === "tabs" || this.config.type === "pills") {
+        // if (this.config.type === "tabs" || this.config.type === "pills") {
+        if (this.config.type === "tabs" || this.config.display.type === "tabs" ||
+            this.config.type === "pills" || this.config.display.type === "pills") {
             // Render all sections but display only active section
             return html`
                 <div class="${layoutClassName} ${className}" style="${style}">
-                    ${this._getVisibleSections().map((section, index) => html`
-                        <div style="display:${this.activeSection === index ? "block": "none"}">
-                            ${this._createSection(section)}
-                        </div>
-                    `)}
+                    ${this._getVisibleSections()
+                        .map((section, index) => html`
+                            <div style="display:${this.activeSection === index ? "block": "none"}">
+                                ${this._createSection(section)}
+                            </div>
+                        `)}
                 </div>
             `;
         } else {
+            // Check if a custom layout has been provided. We render each section in the right layout region
             if (this.config?.display?.layout && Array.isArray(this.config.display.layout)) {
                 // Render with a specific layout
                 return html`
                     <div class="${className}" style="${style}">
-                        ${this.config?.display.layout.map(section => {
-                            const sectionClassName = section.className ?? section.classes ?? "";
-                            const sectionStyle = section.style ?? "";
+                        ${this.config?.display.layout
+                            .map(section => {
+                                const sectionClassName = section.className ?? section.classes ?? "";
+                                const sectionStyle = section.style ?? "";
 
-                            if (section.id) {
-                                return html`
-                                    <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
-                                        ${this._createSection(this.config.sections.find(s => s.id === section.id))}
-                                    </div>
-                                `;
-                            } else {
-                                return html`
-                                    <div class="${sectionClassName}" style="${sectionStyle}">
-                                        ${(section.sections || []).map(subsection => {
-                                            const subsectionClassName = subsection.className ?? subsection.classes ?? "";
-                                            const subsectionStyle = subsection.style ?? "";
-                                            return subsection.id && html`
-                                                <div class="${layoutClassName} ${subsectionClassName}" style="${subsectionStyle}">
-                                                    ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
-                                                </div>
-                                            `;
-                                        })}
-                                    </div>
-                                `;
-                            }
-                        })}
+                                if (section.id) {
+                                    return html`
+                                        <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
+                                            ${this._createSection(this.config.sections.find(s => s.id === section.id))}
+                                        </div>
+                                    `;
+                                } else {
+                                    // this section contains nested subsections: 'sections'
+                                    return html`
+                                        <div class="${sectionClassName}" style="${sectionStyle}">
+                                            ${(section.sections || [])
+                                                .map(subsection => {
+                                                    const subsectionClassName = subsection.className ?? subsection.classes ?? "";
+                                                    const subsectionStyle = this._parseStyleField(subsection.style);
+                                                    if (subsection.id) {
+                                                        return html`
+                                                            <div class="${layoutClassName} ${subsectionClassName}" style="${subsectionStyle}">
+                                                                ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
+                                                            </div>
+                                                        `;
+                                                    } else {
+                                                        return nothing;
+                                                    }
+                                                })
+                                            }
+                                        </div>
+                                    `;
+                                }
+                            })}
                     </div>
                 `;
             } else {
@@ -441,10 +534,61 @@ export default class DataForm extends LitElement {
 
         // Section description values
         const description = section.description ?? section.text ?? null;
-        const descriptionClassName = section.display?.descriptionClassName ?? section.display?.textClass ?? "";
+        const descriptionClassName = section.display?.descriptionClassName ?? "help-block";
         const descriptionStyle = section.display?.descriptionStyle ?? section.display?.textStyle ?? "";
 
-        const buttonsSectionVisible = this._getBooleanValue(section.display?.buttonsVisible ?? false);
+        const buttonsVisible = this._getBooleanValue(section.display?.buttonsVisible ?? false);
+
+        let content;
+        // Check if a custom layout has been provided
+        if (section.display?.layout && Array.isArray(section.display.layout)) {
+            // Render with a specific layout
+            content = html`
+                <div class="${sectionClassName}" style="${sectionStyle}">
+                    ${section.display.layout
+                        .map(element => {
+                            const elementClassName = element.className ?? element.classes ?? "";
+                            const elementStyle = element.style ?? "";
+
+                            if (element.id) {
+                                return html`
+                                    <div class="${elementClassName}" style="${elementStyle}">
+                                        ${this._createElement(section.elements.find(s => s.id === element.id))}
+                                    </div>
+                                `;
+                            } else {
+                                // this section contains nested subsections: 'sections'
+                                return html`
+                                    <div class="${elementClassName}" style="${elementStyle}">
+                                        ${(element.elements || [])
+                                            .map(subelement => {
+                                                const subsectionClassName = subelement.className ?? subelement.classes ?? "";
+                                                const subsectionStyle = this._parseStyleField(subelement.style);
+                                                if (subelement.id) {
+                                                    return html`
+                                                        <div class="${subsectionClassName}" style="${subsectionStyle}">
+                                                            ${this._createElement(section.elements.find(s => s.id === subelement.id))}
+                                                        </div>
+                                                    `;
+                                                } else {
+                                                    return nothing;
+                                                }
+                                            })
+                                        }
+                                    </div>
+                                `;
+                            }
+                        })}
+                </div>
+            `;
+        } else {
+            // Otherwise render vertically
+            content = html`
+                <div class="${sectionClassName}" style="${sectionStyle}">
+                    ${section.elements.map(element => this._createElement(element, section))}
+                </div>
+            `;
+        }
 
         return html`
             <div class="row" style="margin-bottom: 12px;">
@@ -461,12 +605,10 @@ export default class DataForm extends LitElement {
                             </div>
                         </div>
                     ` : null}
-                    <div class="${sectionClassName}" style="${sectionStyle}">
-                        ${section.elements.map(element => this._createElement(element, section))}
-                    </div>
+                    ${content}
                 </div>
             </div>
-            ${buttonsSectionVisible ? this.renderButtons(null, section?.id) : null}
+            ${buttonsVisible ? this.renderButtons(null, section?.id) : null}
         `;
     }
 
@@ -486,33 +628,66 @@ export default class DataForm extends LitElement {
 
         // if not 'type' is defined we assumed is 'basic' and therefore field exist
         if (!element.type || element.type === "basic") {
-            const format = element.display?.format ?? element.display; // 'format' is the old way, to be removed
-            content = html`${this.getValue(element.field, this.data, this._getDefaultValue(element), format)}`;
+            content = html`${this.getValue(element.field, this.data, this._getDefaultValue(element, section), element.display)}`;
         } else {
             // Other 'type' are rendered by specific functions
             switch (element.type) {
+                // View elements
                 case "text":
                 case "title":
                 case "notification":
                     content = this._createTextElement(element);
                     break;
+                case "complex":
+                    content = this._createComplexElement(element, this.data, section);
+                    break;
+                case "list":
+                    content = this._createListElement(element, this.data, section);
+                    break;
+                case "table":
+                    content = this._createTableElement(element, this.data, section);
+                    break;
+                case "image":
+                    content = this._createImageElement(element);
+                    break;
+                case "chart":
+                case "plot":
+                    content = this._createPlotElement(element);
+                    break;
+                case "json":
+                    content = this._createJsonElement(element, section);
+                    break;
+                case "tree":
+                    content = this._createTreeElement(element);
+                    break;
+                case "download":
+                    content = this._createDownloadElement(element);
+                    break;
+                case "custom":
+                    content = html`${this._createCustomElement(element)}`;
+                    break;
+
+                // Form controls and editors
                 case "input-text":
-                    content = this._createInputElement(element, "text");
+                    content = this._createInputElement(element, "text", section);
                     break;
                 case "input-num":
-                    content = this._createInputElement(element, "number");
+                    content = this._createInputElement(element, "number", section);
                     break;
                 case "input-password":
-                    content = this._createInputElement(element, "password");
+                    content = this._createInputElement(element, "password", section);
                     break;
                 case "input-number":
-                    content = this._createInputNumberElement(element);
+                    content = this._createInputNumberElement(element, section);
                     break;
                 case "input-date":
-                    content = this._createInputDateElement(element);
+                    content = this._createInputDateElement(element, section);
                     break;
                 case "checkbox":
                     content = this._createCheckboxElement(element);
+                    break;
+                case "select":
+                    content = this._createInputSelectElement(element);
                     break;
                 case "toggle-switch":
                     content = this._createToggleSwitchElement(element);
@@ -520,36 +695,8 @@ export default class DataForm extends LitElement {
                 case "toggle-buttons":
                     content = this._createToggleButtonsElement(element);
                     break;
-                case "select":
-                    content = this._createInputSelectElement(element);
-                    break;
-                case "complex":
-                    content = this._createComplexElement(element);
-                    break;
-                case "list":
-                    content = this._createListElement(element);
-                    break;
-                case "table":
-                    content = this._createTableElement(element);
-                    break;
-                case "chart":
-                case "plot":
-                    content = this._createPlotElement(element);
-                    break;
-                case "json":
-                    content = this._createJsonElement(element);
-                    break;
                 case "json-editor":
                     content = this._createJsonEditorElement(element);
-                    break;
-                case "tree":
-                    content = this._createTreeElement(element);
-                    break;
-                case "custom":
-                    content = this._createCustomElement(element);
-                    break;
-                case "download":
-                    content = this._createDownloadElement(element);
                     break;
                 case "object":
                     content = this._createObjectElement(element);
@@ -562,15 +709,14 @@ export default class DataForm extends LitElement {
             }
         }
 
-        // Only nested in 'object' and 'object-list', in these cases we do not want to create
-        // the rest of the HTML
+        // Only nested in 'object' and 'object-list', in these cases we do not want to create the rest of the HTML
         if (element?.display?.nested) {
             return content;
         }
 
         // Initialize element values
         const layout = this._getDefaultLayout(element, section);
-        const width = this._getWidth(element) || 12;
+        const width = this._getElementWidth(element, section) || 12;
 
         // Initialize container values
         const elementContainerClassName = element.display?.containerClassName ?? "";
@@ -648,10 +794,23 @@ export default class DataForm extends LitElement {
             `;
         }
 
+        // Check if 'content' is passed as a string or an array, then we must convert it to HTML
+        let contentHtml = content;
+        if (typeof content === "string") {
+            contentHtml = UtilsNew.renderHTML(content);
+        } else {
+            // Note 20240125 Vero:
+            // Added a second condition that ensures that all elements of the array are strings.
+            // Some of the content arrays are arrays of lit objects (e.g, content received from object-list elements)
+            if (Array.isArray(content) && content.every(element => typeof element === "string")) {
+                contentHtml = UtilsNew.renderHTML(content.join(""));
+            }
+        }
+
         return html`
             <div class="${hasErrorMessages ? "has-error" : nothing}">
                 <div data-testid="${this.config.test?.active ? `${this.config.test.prefix || "test"}-${element.field}` : nothing}">
-                    ${content}
+                    ${contentHtml}
                 </div>
                 ${helpMessage && helpMode !== "block" ? html`
                     <div class="help-block" style="margin:8px">${helpMessage}</div>
@@ -671,7 +830,7 @@ export default class DataForm extends LitElement {
     }
 
     _createTextElement(element) {
-        const value= element.text;
+        const value = typeof element.text === "function" ? element.text(this.data, element.field) : element.text;
         const textClass = element.display?.textClassName ?? "";
         const textStyle = element.display?.textStyle ?? "";
         const notificationClass = element.type === "notification" ? DataForm.NOTIFICATION_TYPES[element?.display?.notificationType] || "alert alert-info" : "";
@@ -681,7 +840,7 @@ export default class DataForm extends LitElement {
                 ${element.display?.icon ? html`
                     <i class="fas fa-${element.display.icon} icon-padding"></i>
                 ` : null}
-                <span>${UtilsNew.renderHTML(value || "")}</span>
+                <span>${value || ""}</span>
             </div>
         `;
 
@@ -689,8 +848,8 @@ export default class DataForm extends LitElement {
     }
 
     // Josemi 20220202 NOTE: this function was prev called _createInputTextElement
-    _createInputElement(element, type) {
-        const value = this.getValue(element.field) || this._getDefaultValue(element);
+    _createInputElement(element, type, section) {
+        const value = this.getValue(element.field) || this._getDefaultValue(element, section);
         const disabled = this._getBooleanValue(element.display?.disabled, false, element);
         const [min = undefined, max = undefined] = element.allowedValues || [];
         const step = element.step || "1";
@@ -715,8 +874,8 @@ export default class DataForm extends LitElement {
         return this._createElementTemplate(element, value, content);
     }
 
-    _createInputNumberElement(element) {
-        const value = this.getValue(element.field) ?? this._getDefaultValue(element);
+    _createInputNumberElement(element, section) {
+        const value = this.getValue(element.field) ?? this._getDefaultValue(element, section);
         const disabled = this._getBooleanValue(element?.display?.disabled, false, element);
         const [min = "", max = ""] = element.allowedValues || [];
         const step = element.step || "1";
@@ -739,8 +898,8 @@ export default class DataForm extends LitElement {
         return this._createElementTemplate(element, value, content);
     }
 
-    _createInputDateElement(element) {
-        const value = this.getValue(element.field) || this._getDefaultValue(element);
+    _createInputDateElement(element, section) {
+        const value = this.getValue(element.field) || this._getDefaultValue(element, section);
         const disabled = this._getBooleanValue(element.display?.disabled, false, element);
         const parseInputDate = e => {
             // Date returned by <input> is in YYYY-MM-DD format, but we need YYYYMMDDHHmmss format
@@ -760,12 +919,13 @@ export default class DataForm extends LitElement {
     }
 
     _createCheckboxElement(element) {
-        let value = this.getValue(element.field); // || this._getDefaultValue(element);
+        let value = this.getValue(element.field);
         const disabled = this._getBooleanValue(element.display?.disabled, false, element);
 
         // TODO to be fixed.
         if (element.field === "FILTER") {
             value = value === "PASS";
+            // eslint-disable-next-line no-param-reassign
             element.text = "Include only PASS variants";
         }
 
@@ -792,7 +952,7 @@ export default class DataForm extends LitElement {
      * @private
      */
     _createToggleSwitchElement(element) {
-        const value = this.getValue(element.field); // || this._getDefaultValue(element);
+        const value = this.getValue(element.field);
         const disabled = this._getBooleanValue(element.display?.disabled, false, element);
         const activeClassName = element.display?.activeClassName ?? element.display?.activeClass ?? "";
         const inactiveClassName = element.display?.inactiveClassName ?? element.display?.inactiveClass ?? "";
@@ -822,7 +982,7 @@ export default class DataForm extends LitElement {
     }
 
     _createToggleButtonsElement(element) {
-        const value = this.getValue(element.field) || this._getDefaultValue(element);
+        const value = this.getValue(element.field);
         const names = element.allowedValues;
         const activeClassName = element.display?.activeClassName ?? element.display?.activeClass ?? "";
         const inactiveClassName = element.display?.inactiveClassName ?? element.display?.inactiveClass ?? "";
@@ -880,7 +1040,7 @@ export default class DataForm extends LitElement {
                     if (typeof element.allowedValues === "function") {
                         let item;
                         if (element.field?.includes("[]")) {
-                            const match = element.field.match(DataForm.re);
+                            const match = element.field.match(DataForm.ARRAY_FIELD_REGULAR_EXPRESSION);
                             if (match) {
                                 item = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
                             }
@@ -931,109 +1091,184 @@ export default class DataForm extends LitElement {
         return this._createElementTemplate(element, null, content);
     }
 
-    _createComplexElement(element, data = this.data) {
+    _createComplexElement(element, data = this.data, section) {
         if (!element.display?.template) {
-            return html`<span class="text-danger">No template provided</span>`;
+            return this._createElementTemplate(element, null, null, {
+                message: "No template provided",
+                className: "text-danger"
+            });
         }
+
         const content = html`
-            <span>
-                ${UtilsNew.renderHTML(this.applyTemplate(element.display.template, data, null, this._getDefaultValue(element)))}
+            <span class="${element.display?.className}" style="${element.display?.style}">
+                ${UtilsNew.renderHTML(this.applyTemplate(element.display.template, data, this._getDefaultValue(element, section), element))}
             </span>
         `;
 
         return this._createElementTemplate(element, null, content);
     }
 
-    _createListElement(element) {
+    _createListElement(element, data = this.data, section) {
         // Get values
-        const array = this.getValue(element.field);
-        const contentLayout = element.display?.contentLayout || "horizontal";
-
-        // Check values
-        if (!array || !array.length) {
-            const message = this._getDefaultValue(element);
+        let values;
+        if (element.field) {
+            values = this.getValue(element.field, data);
+        } else {
+            values = element.display.getData(data);
+        }
+        const contentLayout = element.display?.contentLayout || "vertical";
+        // 1. Check array and layout exist
+        if (!Array.isArray(values)) {
             return this._createElementTemplate(element, null, null, {
-                message: message,
+                message: this._getDefaultValue(element, section) ?? `Field '${element.field}' is not an array`,
+                className: "text-danger"
             });
         }
-        if (!Array.isArray(array)) {
-            const message = `Field '${element.field}' is not an array`;
+        if (contentLayout !== "horizontal" && contentLayout !== "vertical" && contentLayout !== "bullets" && contentLayout !== "numbers") {
             return this._createElementTemplate(element, null, null, {
-                message: message,
-                classname: "text-danger"
-            });
-        }
-        if (contentLayout !== "horizontal" && contentLayout !== "vertical" && contentLayout !== "bullets") {
-            const message = "Content layout must be 'horizontal', 'vertical' or 'bullets'";
-            return this._createElementTemplate(element, null, null, {
-                message: message,
+                message: "Content layout must be 'horizontal', 'vertical' or 'bullets'",
                 className: "text-danger"
             });
         }
 
+        // 2. Apply 'filter' and 'transform' functions if defined
+        if (typeof element.display?.filter === "function") {
+            values = element.display.filter(values);
+        }
+
+        if (typeof element.display?.transform === "function") {
+            values = element.display.transform(values);
+        }
+
+        // 3. Check length of the array. This MUST be done after filtering
+        if (values.length === 0) {
+            // If empty we just print the defaultValue, this is not an error
+            return this._createElementTemplate(element, null, null, {
+                message: this._getDefaultValue(element, section) ?? "Empty array",
+            });
+        }
+
+        // 4. Format list elements. Initialise values with array, this is valid for scalars, or when 'template' and 'format' do not exist
         // Apply the template to all Array elements and store them in 'values'
-        let values = [];
-        if (element.display?.render) {
-            for (const object of array) {
-                const value = element.display.render(object);
-                values.push(value);
+        if (element.display?.format || element.display?.render) {
+            // NOTE: 'element.display.render' is now deprecated, use 'format' instead
+            if (element.display?.format) {
+                values = values.map(item => element.display.format(item, data));
+            } else {
+                values = values.map(item => element.display.render(item, data));
             }
         } else {
             if (element.display?.template) {
-                const matches = element.display.template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
-                for (const object of array) {
-                    const value = this.applyTemplate(element.display.template, object, matches, this._getDefaultValue(element));
-                    values.push(value);
-                }
-            } else {
-                // if 'display.template' does not exist means it is an array of scalars
-                values = array;
+                values = values
+                    .map(item => this.applyTemplate(element.display.template, item, this._getDefaultValue(element, section), element));
             }
         }
 
-        // Render element values
-        let content = "-";
+        // 5. Precompute styles
+        const styles = {};
+        if (element.display?.style) {
+            if (typeof element.display.style === "string") {
+                // All elements will have the same style
+                values.forEach(item => styles[item] = element.display.style);
+            } else {
+                // It is an object, we must find the right style for each element
+                for (const item of values) {
+                    // This call already checks if style is a function
+                    styles[item] = this._parseStyleField(element.display?.style, item, data);
+                }
+            }
+        }
+
+        // 6. Precompute separators
+        const separators = {};
+        if (element.display?.separator) {
+            // Last element cannot add a separator, so we iterate until length -1
+            for (let i = 0; i < values.length - 1; i++) {
+                let separator = null;
+                if (typeof element.display.separator === "string") {
+                    separator = element.display.separator;
+                } else {
+                    separator = element.display.separator(values[i], i, values, data);
+                }
+                // if (separator) {
+                //     separators[values[i]] = separator.includes("---") ? "<hr>" : separator;
+                // }
+                separators[i] = separator.includes("---") ? "<hr>" : separator;
+            }
+        }
+
+        // 7. Render element values
+        let content = this._getDefaultValue(element, section);
         switch (contentLayout) {
             case "horizontal":
-                const separator = element?.display?.separator ?? ", ";
-                content = html`
-                    ${values.map(elem => html`
-                        <span>${elem}</span>
-                        ${separator ? html`<span>${separator}</span>` : ""}
-                    `)}
+                content = `
+                    ${values
+                    .map((elem, index) => `
+                        <span style="${styles[elem]}">${elem}</span>
+                        <span>${index < values.length - 1 ? separators[index] ?? ", " : ""}</span>
+                    `)
+                    .join("")}
                 `;
                 break;
             case "vertical":
-                content = html`
-                    ${values.map(elem => html`
-                        <div>${elem}</div>
-                    `)}
-                `;
+                content = `
+                    ${values
+                    .map((elem, index) => `
+                        <div><span style="${styles[elem]}">${elem}</span></div>
+                        ${separators[index] ? `<div>${separators[index]}</div>` : ""}
+                    `)
+                    .join("")
+                }`;
                 break;
             case "bullets":
-                content = html`
+                content = `
                     <ul class="pad-left-15">
-                        ${values.map(elem => html`
-                            <li>${elem}</li>
-                        `)}
+                        ${values
+                        .map((elem, index) => `
+                            <li><span style="${styles[elem]}">${elem}</span></li>
+                             ${separators[index] ? `<div>${separators[index]}</div>` : ""}
+                        `)
+                        .join("")
+                        }
                     </ul>
                 `;
                 break;
+            case "numbers":
+                content = `
+                    <ol class="pad-left-15">
+                        ${values
+                    .map((elem, index) => `
+                            <li><span style="${styles[elem]}">${elem}</span></li>
+                             ${separators[index] ? `<div>${separators[index]}</div>` : ""}
+                        `)
+                    .join("")
+                }
+                    </ol>
+                `;
+                break;
         }
-        return this._createElementTemplate(element, null, content);
 
+        return this._createElementTemplate(element, null, content);
     }
 
-    _createTableElement(element) {
-        // Get values
-        let array = this.getValue(element.field, null, element.defaultValue);
-        const errorMessage = this._getErrorMessage(element);
-        const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
-        const headerVisible = this._getBooleanValue(element.display?.headerVisible, true);
-        const tableClassName = element.display?.className || "";
-        const tableStyle = element.display?.style || "";
+    _createTableElement(element, data = this.data, section) {
+        // Get array values
+        let array;
+        if (element.field) {
+            array = this.getValue(element.field, data);
+        } else {
+            array = element.display.getData(data);
+        }
 
-        // Check values
+        const tableClassName = element.display?.className || "";
+        const tableStyle = this._parseStyleField(element.display?.style) || "";
+        const headerClassName = element.display?.headerClassName || "";
+        const headerStyle = this._parseStyleField(element.display?.headerStyle) || "";
+        const headerVisible = this._getBooleanValue(element.display?.headerVisible, true);
+        const errorMessage = this._getDefaultErrorMessage(element, section);
+        const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
+
+        // 1. Check field exists, and it is an array. Also, check 'columns' is defined
         if (!array) {
             const message = errorMessage ?? `Type 'table' requires a valid array field: ${element.field} not found`;
             return this._createElementTemplate(element, null, null, {
@@ -1048,15 +1283,6 @@ export default class DataForm extends LitElement {
                 className: errorClassName,
             });
         }
-        if (typeof element.display?.transform === "function") {
-            array = element.display.transform(array);
-        }
-        if (!array.length) {
-            const message = this._getDefaultValue(element);
-            return this._createElementTemplate(element, null, null, {
-                message: message,
-            });
-        }
         if (!element.display && !element.display.columns) {
             const message = "Type 'table' requires a 'columns' array";
             return this._createElementTemplate(element, null, null, {
@@ -1065,49 +1291,124 @@ export default class DataForm extends LitElement {
             });
         }
 
+        // 2. Apply 'filter' and 'transform' functions if defined
+        if (typeof element.display?.filter === "function") {
+            array = element.display.filter(array);
+        }
+        if (typeof element.display?.transform === "function") {
+            array = element.display.transform(array);
+        }
+
+        // 3. Check length of the array. This MUST be done after filtering
+        if (!array.length) {
+            const message = this._getDefaultValue(element, section);
+            return this._createElementTemplate(element, null, null, {
+                message: message,
+            });
+        }
+
+        // 4. Check for double columns
+        const supraColumns = [];
+        const subColumns = [];
+        const columns = [];
+        for (const column of element.display.columns) {
+            // Add first level columns as supra columns
+            supraColumns.push(column);
+            if (column.display?.columns) {
+                // Add nested columns as sub columns for the table header
+                subColumns.push(...column.display.columns);
+                // Add nested columns as real data columns
+                columns.push(...column.display.columns);
+            } else {
+                // When no sub columns are found then just add the data column
+                columns.push(column);
+            }
+        }
+
+        // 5. Render the table
         const content = html`
             <table class="table ${tableClassName}" style="${tableStyle}">
                 ${headerVisible ? html`
-                    <thead>
-                    <tr>
-                        ${element.display.columns.map(elem => html`
-                            <th scope="col">${elem.title || elem.name}</th>
-                        `)}
-                    </tr>
-                    </thead>` : null}
+                    <thead class="${headerClassName}" style="${headerStyle}">
+                    ${supraColumns.length > 0 ? html`
+                        <tr>
+                            ${supraColumns.map(elem => html`
+                                <th scope="col" rowspan="${subColumns.length && !elem.display?.columns?.length ? "2" : "1"}" colspan="${elem.display?.columns?.length || "1"}">${elem.title || elem.name}</th>
+                            `)}
+                        </tr>
+                    ` : nothing}
+                    ${subColumns.length > 0 ? html`
+                        <tr>
+                            ${subColumns.map(elem => html`
+                                <th scope="col" rowspan="1" colspan="1">${elem.title || elem.name}</th>`
+                            )}
+                        </tr>
+                    ` : nothing}
+                    </thead>` : nothing}
                 <tbody>
                 ${array
                     .map(row => html`
                         <tr scope="row">
-                            ${element.display.columns
-                                .map(elem => {
-                                    const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
-                                    const elemStyle = elem.display?.style ?? "";
-                                    let content = null;
+                            ${columns.map(elem => {
+                                const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
+                                const elemStyle = this._parseStyleField(elem.display?.style);
 
-                                    // Check the element type
-                                    switch (elem.type) {
-                                        case "complex":
-                                            content = this._createComplexElement(elem, row);
-                                            break;
-                                        case "custom":
-                                            content = elem.display?.render && elem.display.render(this.getValue(elem.field, row));
-                                            break;
-                                        default:
-                                            content = this.getValue(elem.field, row, elem.defaultValue, elem.format);
-                                    }
+                                // Check the element type
+                                let content;
+                                switch (elem.type) {
+                                    case "complex":
+                                        content = this._createComplexElement(elem, row);
+                                        break;
+                                    case "list":
+                                        content = this._createListElement(elem, row, section);
+                                        break;
+                                    case "image":
+                                        content = this._createImageElement(elem);
+                                        break;
+                                    case "custom":
+                                        content = elem.display?.render(this.getValue(elem.field, row));
+                                        break;
+                                    default:
+                                        content = this.getValue(elem.field, row, this._getDefaultValue(element, section), elem.display);
+                                }
 
-                                    return html`
-                                        <td class="${elemClassName}" style="${elemStyle}">
-                                            ${content}
-                                        </td>
-                                    `;
-                                })}
+                                return html`
+                                    <td class="${elemClassName}" style="${elemStyle}">
+                                        ${content}
+                                    </td>
+                                `;
+                            })}
                         </tr>
                     `)}
                 </tbody>
             </table>
         `;
+
+        // const config = {
+        //     pagination: element.display?.pagination ?? false,
+        //     search: element.display?.search ?? false,
+        //     searchAlign: element.display?.searchAlign ?? "right",
+        //     showHeader: element.display?.showHeader ?? true,
+        // };
+        //
+        // const content = html `
+        //     <data-table
+        //         .data="${array}"
+        //         .columns="${element.display.columns}"
+        //         .config="${config}">
+        //     </data-table>
+        // `;
+        return this._createElementTemplate(element, null, content);
+    }
+
+    _createImageElement(element) {
+        const value = (element.field) ? this.getValue(element.field) : element.display?.getData(this.data);
+        const content = html`
+            <image-viewer
+                .data="${value}">
+            </image-viewer>
+        `;
+
         return this._createElementTemplate(element, null, content);
     }
 
@@ -1153,7 +1454,7 @@ export default class DataForm extends LitElement {
             `;
             return this._createElementTemplate(element, null, content);
         } else {
-            const message = this._getErrorMessage(element);
+            const message = this._getDefaultErrorMessage(element);
             const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
             return this._createElementTemplate(element, null, null, {
                 message: message,
@@ -1162,8 +1463,8 @@ export default class DataForm extends LitElement {
         }
     }
 
-    _createJsonElement(element) {
-        const json = this.getValue(element.field, this.data, this._getDefaultValue(element));
+    _createJsonElement(element, section) {
+        const json = this.getValue(element.field, this.data, this._getDefaultValue(element, section));
         let content = "";
         (json.length || UtilsNew.isObject(json)) ?
             content = html`
@@ -1171,6 +1472,7 @@ export default class DataForm extends LitElement {
                     .data="${json}">
                 </json-viewer>
             ` : content = this._getDefaultValue(element);
+
         return this._createElementTemplate(element, null, content);
     }
 
@@ -1242,7 +1544,7 @@ export default class DataForm extends LitElement {
         // When an object-list, get the item being validated.
         let item;
         if (element.field?.includes("[]")) {
-            const match = element.field.match(DataForm.re);
+            const match = element.field.match(DataForm.ARRAY_FIELD_REGULAR_EXPRESSION);
             if (match) {
                 item = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
             }
@@ -1251,10 +1553,13 @@ export default class DataForm extends LitElement {
         // Call to render function, it must be defined!
         // We also allow to call to 'onFilterChange' function.
         const content = element.display.render(data, value => this.onFilterChange(element, value), this.updateParams, this.data, item);
+        // unsafeHTML or utilsNew.renderHTML
+        // html`` won't render html string inside literal string, so i't necessary to use renderHTML.
+        // const content = typeof contentHTML === "string" ? UtilsNew.renderHTML(contentHTML) : contentHTML;
         if (content) {
             return this._createElementTemplate(element, data, content);
         } else {
-            const message = this._getErrorMessage(element);
+            const message = this._getDefaultErrorMessage(element);
             const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
             return this._createElementTemplate(element, null, null, {
                 message: message,
@@ -1276,6 +1581,30 @@ export default class DataForm extends LitElement {
     _createObjectElement(element) {
         const isDisabled = this._getBooleanValue(element.display?.disabled, false, element);
         const contents = [];
+
+        if (element.display?.search && typeof element.display.search === "object") {
+            // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
+            const data = this.data[element.field][element.index];
+            const searchContent = html `
+                <div class="row form-group" style="margin-left: 0;margin-right: 0">
+                    <!-- 1. Render the title -->
+                    ${element.display.title ? html`
+                        <div>
+                            <label class="control-label" style="padding-top: 0;">
+                                ${element.display.title}
+                            </label>
+                        </div>
+                    ` : null}
+                    <!-- 2. Todo: Render an icon -->
+                    <!-- 3. Render -->
+                    <div>
+                    ${element.display.search.render(data, object => this.onObjectChange(element, object, {action: "AUTOCOMPLETE"}))}
+                    </div>
+                </div>
+            `;
+            contents.push(searchContent);
+        }
+
         for (const childElement of element.elements) {
             // 1. Check if this filed is visible
             const isVisible = this._getBooleanValue(childElement.display?.visible, true, childElement);
@@ -1288,6 +1617,10 @@ export default class DataForm extends LitElement {
                 ...childElement.display,
                 nested: true
             };
+
+            if (!UtilsNew.isEmpty(this.dataAutocomplete) && this._isFieldAutocomplete(childElement.field)) {
+                childElement.display.disabled = true;
+            }
 
             // 2.1 If parent is disabled then we must overwrite disabled field
             if (isDisabled) {
@@ -1369,13 +1702,18 @@ export default class DataForm extends LitElement {
                                 const _element = JSON.parse(JSON.stringify(element));
                                 // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
                                 // items have a virtual element associated, this will allow to get the proper value later.
+                                if (_element.display?.search && typeof element.display?.search?.render === "function") {
+                                    _element.index = index;
+                                    _element.display.search.render = element.display.search.render;
+                                }
                                 for (let i = 0; i< _element.elements.length; i++) {
-                                    // This support object nested
+                                    // This support nested object
                                     const [left, right] = _element.elements[i].field.split("[].");
                                     _element.elements[i].field = left + "[]." + index + "." + right;
                                     if (_element.elements[i].type === "custom") {
                                         _element.elements[i].display.render = element.elements[i].display.render;
                                     }
+                                    // Copy JSON stringify and parse ignores functions, we need to copy them
                                     if (_element.elements[i].type === "select" && typeof element.elements[i].allowedValues === "function") {
                                         _element.elements[i].allowedValues = element.elements[i].allowedValues;
                                     }
@@ -1385,10 +1723,6 @@ export default class DataForm extends LitElement {
                                     if (typeof element.elements[i]?.save === "function") {
                                         _element.elements[i].save = element.elements[i].save;
                                     }
-                                    // if (typeof element.elements[i]?.validation?.message === "function") {
-                                    //     _element.elements[i].validation.message = element.elements[i].validation.message;
-                                    // }
-                                    // Copy JSON stringify and parse ignores functions, we need to copy them
                                     if (typeof element.elements[i]?.display?.disabled === "function") {
                                         _element.elements[i].display.disabled = element.elements[i].display.disabled;
                                     }
@@ -1397,6 +1731,7 @@ export default class DataForm extends LitElement {
                                     }
                                 }
                                 return html`
+                                    <!--VIEW-->
                                     <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
                                         <div>
                                             ${element.display.view(item)}
@@ -1418,6 +1753,7 @@ export default class DataForm extends LitElement {
                                             }
                                         </div>
                                     </div>
+                                    <!--FORM-->
                                     <div id="${element?.field}_${index}"
                                          style="border-left: 2px solid #0c2f4c; margin-left: 10px; padding-left: 12px; display: ${index === this.editOpen ? "block" : "none"}">
                                         ${this._createObjectElement(_element)}
@@ -1479,7 +1815,7 @@ export default class DataForm extends LitElement {
                             </button>`: nothing
                         }
                         ${this._getBooleanValue(element.display.showResetListButton, false) ? html`
-                            <button type="button" class="btn btn-sm btn-primary" title="Discord changes in this list"
+                            <button type="button" class="btn btn-sm btn-primary" title="Discard changes in this list"
                                     ?disabled="${isDisabled}"
                                     @click="${e => this.#resetObjectList(e, element)}">
                                 <i aria-hidden="true" class="fas fa-undo icon-padding"></i>
@@ -1524,6 +1860,10 @@ export default class DataForm extends LitElement {
             index: index,
         };
         this.onFilterChange(element, null, event);
+
+        if (!UtilsNew.isEmpty(this.dataAutocomplete)) {
+            this.onObjectChange(element, null, event);
+        }
     }
 
     #toggleObjectListCollapse(element, collapsed) {
@@ -1537,6 +1877,9 @@ export default class DataForm extends LitElement {
             action: "RESET",
         };
         this.onFilterChange(element, null, event);
+        if (!UtilsNew.isEmpty(this.dataAutocomplete)) {
+            this.onObjectChange(element, null, event);
+        }
     }
 
     #addToObjectList(e, element) {
@@ -1585,7 +1928,7 @@ export default class DataForm extends LitElement {
         if (typeof element.save === "function") {
             let currentValue;
             if (element.field.includes("[]")) {
-                const match = element.field.match(DataForm.re);
+                const match = element.field.match(DataForm.ARRAY_FIELD_REGULAR_EXPRESSION);
                 if (match) {
                     currentValue = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
                 }
@@ -1597,6 +1940,88 @@ export default class DataForm extends LitElement {
         } else {
             return value;
         }
+    }
+
+    _isFieldAutocomplete(field) {
+        // example: phenotypes[].1.description
+        if (field?.includes("[].")) {
+            const match = field.match(DataForm.ARRAY_FIELD_REGULAR_EXPRESSION);
+            return !!(match && typeof this.dataAutocomplete?.[match?.groups?.arrayFieldName]?.[match?.groups?.index]?.[match?.groups?.field] !== "undefined");
+        }
+        return false;
+    }
+
+    onObjectChange(element, object, objectListEvent) {
+        let eventDetail = {};
+        // Check field exists
+        if (!element.field) {
+            return;
+        }
+        // Process the value to save it correctly.
+        object = this.parseValue(element, object);
+        let param = "";
+
+        // 1. Check if AUTOCOMPLETE, REMOVE, RESET has been clicked, this happens in 'object-list'
+        if (objectListEvent) {
+            switch (objectListEvent.action) {
+                case "AUTOCOMPLETE":
+                    // 1. Update the data model
+                    const props = `${element.field}.${element.index}`;
+                    UtilsNew.setObjectValue(this.data, props, object);
+
+                    // 2. Update data autocomplete model
+                    // If the object has inputs already filled  and undefined in cellbase, do not overwrite them.
+                    const newElement = {};
+                    const data = this.data[element.field][element.index];
+                    Object.entries(object).forEach(([key, value]) => {
+                        if (typeof value !== "undefined" || typeof data[key] !== "undefined") {
+                            newElement[key] = value ?? data[key];
+                        }
+                    });
+                    if (!this.dataAutocomplete[element.field]) {
+                        this.dataAutocomplete[element.field] = [];
+                    }
+                    this.dataAutocomplete[element.field][element.index] = newElement;
+
+                    // 3. Set event detail
+                    param = `${element.field}[].${element.index}`;
+                    eventDetail = {
+                        index: element.index,
+                        param: param,
+                        value: object,
+                        action: objectListEvent.action,
+                    };
+                    break;
+                case "CLOSE":
+                    break;
+                case "REMOVE":
+                    // 1. Remove element from the autocomplete data model
+                    this.dataAutocomplete[element.field].splice(objectListEvent.index, 1);
+                    // 2. Set event detail
+                    param = `${element.field}[].${objectListEvent.index}`;
+                    eventDetail = {
+                        param: param,
+                        value: object,
+                        index: objectListEvent.index,
+                        action: objectListEvent.action
+                    };
+                    break;
+                case "RESET":
+                    // 2. Delete field from autocomplete data model
+                    delete this.dataAutocomplete[element.field];
+                    param = `${element.field}[]`;
+                    eventDetail = {
+                        param: param,
+                        value: object,
+                        action: objectListEvent.action
+                    };
+                    break;
+            }
+        }
+        LitUtils.dispatchCustomEvent(this, "fieldChange", null, {
+            ...eventDetail,
+            data: this.data,
+        }, null, {bubbles: true, composed: true});
     }
 
     onFilterChange(element, value, objectListEvent) {
@@ -1706,6 +2131,7 @@ export default class DataForm extends LitElement {
     onClear(e) {
         this.formSubmitted = false;
         this.showGlobalValidationError = false;
+        this.dataAutocomplete = {};
         LitUtils.dispatchCustomEvent(this, "clear", null, {}, null);
     }
 
@@ -1731,9 +2157,9 @@ export default class DataForm extends LitElement {
         LitUtils.dispatchCustomEvent(this, "submit", section, {}, null);
     }
 
-    onCustomEvent(e, eventName, data) {
-        LitUtils.dispatchCustomEvent(this, eventName, data);
-    }
+    // onCustomEvent(e, eventName, data) {
+    //     LitUtils.dispatchCustomEvent(this, eventName, data);
+    // }
 
     onSectionChange(e) {
         e.preventDefault();
@@ -1810,149 +2236,34 @@ export default class DataForm extends LitElement {
         `;
     }
 
-    render() {
-        // Check configuration
-        if (!this.config) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-exclamation fa-5x"></i>
-                    <h3>No valid configuration provided. Please check configuration:</h3>
-                    <div style="padding: 10px">
-                        <pre>${JSON.stringify(this.config, null, 2)}</pre>
-                    </div>
-                </div>
-            `;
+    getFormNotificationHtml() {
+        if (this.config?.notification) {
+            const visible = this._getBooleanValue(this.config.notification.display?.visible, false);
+            return visible ? this._createTextElement(this.config.notification) : nothing;
+        } else {
+            return nothing;
         }
+    }
 
-        // Global values
-        const type = this._getType(); // Get form type
-        const icon = this.config?.icon ?? "fas fa-info-circle";
+    onDownloadPdf() {
+        const pdfDocument = new PdfBuilder(this.data, this.config);
+        pdfDocument.exportToPdf();
+    }
 
-        // Title values
-        const titleClassName = this.config.display?.titleClassName ?? this.config.display?.title?.class ?? "";
-        const titleStyle = this.config.display?.titleStyle ?? this.config.display?.title?.style ?? "";
-        const titleVisible = this._getBooleanValue(this.config.display?.titleVisible ?? this.config.display?.showTitle, true);
-
+    renderContentAsForm(dismiss) {
         // Buttons values
         const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
         const buttonsLayout = this._getButtonsLayout();
 
-        // Check for card type
-        if (type === "card") {
-            return html`
-                <div class="row">
-                    <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#${this._prefix}Help">
-                        <i class="${icon} icon-padding" aria-hidden="true"></i>
-                        ${this.config.title}
-                    </button>
-                    <div class="">
-                        <div id="${this._prefix}Help" class="collapse">
-                            <div class="well">
-                                ${this.renderData()}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+        const titleClassName = this.config.display?.titleClassName ?? this.config.display?.title?.class ?? "";
+        const titleStyle = this.config.display?.titleStyle ?? this.config.display?.title?.style ?? "";
+        const titleVisible = this._getBooleanValue(this.config.display?.titleVisible ?? this.config.display?.showTitle, true);
 
-        // Check for modal type
-        if (type === "modal") {
-            const modalBtnClassName = this.config.display?.modalButtonClassName ?? this.config.display?.mode?.buttonClass ?? "";
-            const modalBtnStyle = this.config.display?.modalButtonStyle ?? this.config.display?.mode?.buttonStyle ?? "";
-            const modalWidth = this.config.display?.modalWidth ?? this.config.display?.mode?.width ?? "768px";
-            const isDisabled = this._getBooleanValue(this.config.display?.modalDisabled, false);
+        const notificationHtml = this.getFormNotificationHtml();
 
-            return html`
-                <button type="button"
-                        title="${this.config.description}"
-                        class="btn ${modalBtnClassName} ${isDisabled ? "disabled" : ""}"
-                        style="${modalBtnStyle}"
-                        data-toggle="modal"
-                        ?disabled="${isDisabled}"
-                        data-target="#${this._prefix}DataModal">
-                    <i class="${icon} icon-padding" aria-hidden="true"></i>
-                    ${this.config.title}
-                </button>
-
-                <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}DataModalLabel"
-                     aria-hidden="true">
-                    <div class="modal-dialog" style="width: ${modalWidth}">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title ${titleClassName}" style="${titleStyle}">${this.config.title}</h4>
-                            </div>
-                            <div class="modal-body">
-                                <div class="container-fluid">
-                                    ${this.renderData()}
-                                </div>
-                            </div>
-                            ${buttonsVisible ? html`
-                                <div class="modal-footer">
-                                    ${this.renderButtons("modal")}
-                                </div>
-                            ` : null}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Check for tabs style
-        if (type === "tabs") {
-            return html`
-                <div>
-                    <ul class="nav nav-tabs">
-                        ${this._getVisibleSections()
-                            .map((section, index) => {
-                                const active = index === this.activeSection;
-                                return html`
-                                    <li role="presentation" class="${active ? "active" : ""}">
-                                        <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                            ${section.title || ""}
-                                        </a>
-                                    </li>
-                                `;
-                            })}
-                    </ul>
-                    ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null, this.activeSection) : null}
-                </div>
-                <div style="margin-top:24px;">
-                    ${this.renderData()}
-                </div>
-                ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
-            `;
-        }
-
-        // Check for pills style
-        if (type === "pills") {
-            return html`
-                ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
-                <div class="row">
-                    <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
-                        <ul class="nav nav-pills nav-stacked">
-                            ${this._getVisibleSections().map((section, index) => {
-                                const active = index === this.activeSection;
-                                return html`
-                                    <li role="presentation" class="${active ? "active" : ""}">
-                                        <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                            ${section.title || ""}
-                                        </a>
-                                    </li>
-                                `;
-                            })}
-                        </ul>
-                    </div>
-                    <div class="col-md-9">
-                        ${this.renderData()}
-                    </div>
-                </div>
-                ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
-            `;
-        }
-
-        // Default form style
         return html`
+            ${notificationHtml}
+
             <!-- Header -->
             ${this.config.title && titleVisible ? html`
                 <div style="display: flex; margin-bottom: 12px;">
@@ -1967,14 +2278,20 @@ export default class DataForm extends LitElement {
                 </div>` : null
             }
 
+            <button class="btn btn-primary" style="margin-bottom:14px; display: ${this.config.display?.pdf === true ? "block": "none"}"
+                    @click="${this.onDownloadPdf}">
+                <i class="fas fa-file-pdf"></i>
+                Export PDF (Beta)
+            </button>
+
             <!-- Render buttons -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
 
             <!-- Render data form -->
             ${this.data ? this.renderData() : null}
 
             <!-- Render buttons -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : null}
 
             <!-- PREVIEW modal -->
             <div class="modal fade" id="${this._prefix}PreviewDataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}PreviewDataModalLabel"
@@ -1998,6 +2315,203 @@ export default class DataForm extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    renderContentAsTabs(dismiss) {
+        // Buttons values
+        const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
+        const buttonsLayout = this._getButtonsLayout();
+
+        const notificationHtml = this.getFormNotificationHtml();
+
+        // NOTE: the buttons can be rendered at three different positions:
+        // UPPER (above tabs) | TOP (below tabs) | BOTTOM (below data)
+        return html`
+            ${notificationHtml}
+
+            <!-- Render buttons UPPER, above the tabs -->
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "UPPER" ? this.renderButtons(dismiss, this.activeSection) : null}
+
+            <!-- Render tabs -->
+            <div>
+                <ul class="nav nav-tabs">
+                    ${this._getVisibleSections()
+                        .map((section, index) => {
+                            const active = index === this.activeSection;
+                            return html`
+                                <li role="presentation" class="${active ? "active" : ""}">
+                                    <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                        ${section.title || ""}
+                                    </a>
+                                </li>
+                            `;
+                        })}
+                </ul>
+            </div>
+            <!-- Render buttons at the TOP -->
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss, this.activeSection) : null}
+
+            <!-- Render data form -->
+            <div style="margin-top:24px;">
+                ${this.renderData()}
+            </div>
+
+            <!-- Render buttons at the BOTTOM -->
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : null}
+        `;
+    }
+
+    renderContentAsPills(dismiss) {
+        // Buttons values
+        const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
+        const buttonsLayout = this._getButtonsLayout();
+
+        const notificationHtml = this.getFormNotificationHtml();
+
+        return html`
+            ${notificationHtml}
+
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
+            <div class="row">
+                <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
+                    <ul class="nav nav-pills nav-stacked">
+                        ${this._getVisibleSections().map((section, index) => {
+                            const active = index === this.activeSection;
+                            return html`
+                                <li role="presentation" class="${active ? "active" : ""}">
+                                    <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                        ${section.title || ""}
+                                    </a>
+                                </li>
+                            `;
+                        })}
+                    </ul>
+                </div>
+                <div class="col-md-9">
+                    ${this.renderData()}
+                </div>
+            </div>
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : null}
+        `;
+    }
+
+    renderContent(type, dismiss = "") {
+        let result;
+        switch (type?.toUpperCase()) {
+            case "FORM":
+            default:
+                result = this.renderContentAsForm(dismiss);
+                break;
+            case "TABS":
+                result = this.renderContentAsTabs(dismiss);
+                break;
+            case "PILLS":
+                result = this.renderContentAsPills(dismiss);
+                break;
+        }
+        return result;
+    }
+
+    render() {
+        // Check configuration
+        if (!this.config) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-exclamation fa-5x"></i>
+                    <h3>No valid configuration provided. Please check configuration:</h3>
+                    <div style="padding: 10px">
+                        <pre>${JSON.stringify(this.config, null, 2)}</pre>
+                    </div>
+                </div>
+            `;
+        }
+
+        // General values 'mode' and 'type' determine how the page/form is displayed and rendered.
+        // 'mode' allowed values: page (default), modal, card
+        const mode = this.config.mode || this.config.display.mode || "page";
+        // 'type' allowed values: form (default), tabs, pills
+        const type = this.config.type || this.config.display.type || "form";
+
+        // 1. 'mode === page', render a normal web page.
+        if (mode === "page" || !mode) {
+            return this.renderContent(type);
+        }
+
+        // 2. Check for modal type
+        if (mode === "modal") {
+            // Parse modal parameters, all of them must start with prefix 'modal'
+            const showModalButton = this.config.display?.showModalButton || true;
+            const modalId = this.config.display?.modalId || `${this._prefix}DataModal`;
+            const modalWidth = this.config.display?.modalWidth || "768px";
+            const modalTitle = this.config.display?.modalTitle || "";
+            const modalTitleHeader = this.config.display?.modalTitleHeader || "h4";
+            const modalTitleClassName = this.config.display?.modalTitleClassName || "";
+            const modalTitleStyle = this.config.display?.modalTitleStyle || "";
+            const modalBtnName = this.config.display?.modalButtonName || "Open ...";
+            const modalBtnDescription = this.config.display?.modalButtonDescription || "";
+            const modalBtnClassName = this.config.display?.modalButtonClassName || "btn-link btn-lg";
+            const modalBtnStyle = this.config.display?.modalButtonStyle || "";
+            const modalBtnIcon = this.config.display?.modalButtonIcon || "";
+            const modalButtonsVisible = this._getBooleanValue(this.config.display?.modalButtonsVisible, true);
+            const modalDisabled = this._getBooleanValue(this.config.display?.modalDisabled, false);
+
+            return html `
+                ${showModalButton ? html `
+                    <button type="button"
+                            title="${modalBtnDescription}"
+                            class="btn ${modalBtnClassName}"
+                            style="${modalBtnStyle}"
+                            ?disabled="${modalDisabled}"
+                            data-toggle="modal"
+                            data-target="${`#${modalId}`}">
+                        ${modalBtnIcon ? html`<i class="${modalBtnIcon} icon-padding" aria-hidden="true"></i>` : nothing}
+                        ${modalBtnName}
+                    </button>
+                ` : nothing
+                }
+                <div class="modal fade" id="${modalId}" tabindex="-1" role="dialog"
+                     aria-labelledby="${this._prefix}DataModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" style="width: ${modalWidth}">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                ${this._getTitleHeader(modalTitleHeader, modalTitle, "modal-title " + modalTitleClassName, modalTitleStyle)}
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    ${this.renderContent(type, "modal")}
+                                </div>
+                            </div>
+                            ${modalButtonsVisible ? html`
+                                <div class="modal-footer">
+                                    ${this.renderButtons("modal")}
+                                </div>
+                            ` : nothing}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 3. Check for card type
+        if (mode === "card") {
+            const icon = this.config?.icon || "fas fa-info-circle";
+            return html`
+                <div class="row">
+                    <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#${this._prefix}Help">
+                        <i class="${icon} icon-padding" aria-hidden="true"></i>
+                        ${this.config.title}
+                    </button>
+                    <div class="">
+                        <div id="${this._prefix}Help" class="collapse">
+                            <div class="well">
+                                ${this.renderContent(type)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
     }
 
 }

@@ -40,11 +40,11 @@ export default class HRDetectAnalysis extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            title: {
-                type: String
-            },
             active: {
                 type: Boolean,
+            },
+            config: {
+                type: Object
             },
         };
     }
@@ -122,6 +122,20 @@ export default class HRDetectAnalysis extends LitElement {
                 bootstrap: !!this.toolParams.bootstrap,
             };
 
+            // Temporal hack for adding cnvQuery and indelQuery to HRDetect params
+            if (this.selectedSample?.qualityControl?.variant?.genomePlot?.config) {
+                const tracks = this.selectedSample.qualityControl.variant.genomePlot.config.tracks || [];
+                const cnvTrack = tracks.find(track => track.type === "COPY-NUMBER");
+                const indelTrack = tracks.find(track => track.type === "INDEL");
+
+                if (cnvTrack?.query) {
+                    toolParams.cnvQuery = JSON.stringify(cnvTrack.query);
+                }
+                if (indelTrack?.query) {
+                    toolParams.indelQuery = JSON.stringify(indelTrack.query);
+                }
+            }
+
             const params = {
                 study: this.opencgaSession.study.fqn,
                 ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
@@ -152,7 +166,7 @@ export default class HRDetectAnalysis extends LitElement {
                 this.opencgaSession.opencgaClient.samples()
                     .search({
                         id: this.toolParams.query.sample,
-                        include: "id,qualityControl.variant.signatures",
+                        include: "id,qualityControl.variant",
                         study: this.opencgaSession.study.fqn,
                     })
                     .then(response => {
@@ -325,10 +339,11 @@ export default class HRDetectAnalysis extends LitElement {
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
+            this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
-            this.check()
+            this.check(),
+            this.config
         );
     }
 

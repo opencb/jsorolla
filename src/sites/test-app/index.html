@@ -52,15 +52,11 @@
     <!-- END meta -->
 
     <!-- Load IVA configuration file, this must be located in the same folder -->
-    <script src="{{ IVA_CONFIG_PATH }}/config.js"></script>
-    <script src="{{ IVA_CONFIG_PATH }}/opencga-variant-constants.js"></script>
-    <script src="{{ IVA_CONFIG_PATH }}/pages.js"></script>
-    <script type="module" src="{{ TEST_CONFIG_PATH }}/data-form.js"></script>
-    <script src="{{ TEST_CONFIG_PATH }}/genome-browser.js"></script>
-
-    <!-- build:js[webcomponents/webcomponents-loader.js] -->
-    <script type="text/javascript" src="../../../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-    <!-- /build -->
+    <script src="{{ TEST_APP_CONFIG_PATH }}/config.js"></script>
+    <script src="{{ TEST_APP_CONFIG_PATH }}/opencga-variant-constants.js"></script>
+    <script src="{{ TEST_APP_CONFIG_PATH }}/pages.js"></script>
+    <script type="module" src="{{ TEST_APP_CONFIG_PATH }}/data-form.js"></script>
+    <script src="{{ TEST_APP_CONFIG_PATH }}/genome-browser.js"></script>
 
     <!-- build:js[assets/js/vendor.js] -->
     <script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.min.js"></script>
@@ -89,8 +85,12 @@
 <!-- <script type="text/javascript" src="../node_modules/@highlightjs/cdn-assets/highlight.min.js"></script> -->
     <script type="text/javascript" src="../../../node_modules/clipboard/dist/clipboard.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/select2/dist/js/select2.min.js"></script>
-
     <!-- /build -->
+
+    <!-- pdfMake Libraries -->
+    <script type="text/javascript" src="../../../node_modules/pdfmake/build/pdfmake.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/pdfmake/build/vfs_fonts.js"></script>
+    <script type="text/javascript" src="../../../node_modules/html-to-pdfmake/browser.js"></script>
 
     <!-- build:css[assets/css/vendor.css] -->
     <link rel="stylesheet" href="../../../node_modules/bootstrap/dist/css/bootstrap.min.css">
@@ -156,17 +156,23 @@
     <link rel="stylesheet" href="../../../styles/css/toggle-switch.css">
     <link rel="stylesheet" href="../../../styles/css/magic-check.css">
     <link rel="stylesheet" href="../../genome-browser/css/genome-browser.css">
+    <link rel="stylesheet" href="../../core/visualisation/viz-styles.css">
     <!-- <link rel="stylesheet" href="styles/global.css"> -->
     <!-- /build -->
     <!-- LitElement assets -->
     <!-- build:void[] -->
+    <script type="text/javascript">
+        // We need to initialize IVA_EXTENSIONS as an empty array
+        window.IVA_EXTENSIONS = [];
+    </script>
+    <script src="{{ TEST_APP_EXTENSIONS_PATH }}/extensions.js"></script>
     <script type="module" src="./test-app.js"></script>
     <!-- /build -->
 
 </head>
 
 <body>
-    <script type="module">
+    <script type="text/javascript">
         $(function(){
             document.title = SUITE.name;
             // Back to top button

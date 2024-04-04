@@ -22,20 +22,21 @@ const hosts = [
         url: "https://ws.opencb.org/opencga-prod"
     },
     {
-        id: "test",
-        url: "https://ws.opencb.org/opencga-test"
-    },
-    {
         id: "demo",
         url: "https://demo.app.zettagenomics.com/opencga"
+    },
+    {
+        id: "reference",
+        url: "https://test.app.zettagenomics.com/reference/opencga"
     },
 ];
 
 const opencga = {
-    host: hosts[2].url,
+    host: hosts[1].url,
     version: "v2",
     cookie: {
-        prefix: "iva-" + hosts[2].id
+        prefix: "iva-" + hosts[1].id,
+        secure: true,
     },
     sso: {
         active: false,
@@ -783,15 +784,15 @@ const SUITE = {
                     visibility: "public",
                     featured: false,
                 },
-                {
-                    id: "catalog-admin",
-                    name: "Catalog Management",
-                    fa_icon: "fas fa-file-invoice",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    description: "",
-                    visibility: "public",
-                    featured: false,
-                },
+                // {
+                //     id: "catalog-admin",
+                //     name: "Catalog Management",
+                //     fa_icon: "fas fa-file-invoice",
+                //     icon: "img/tools/icons/variant_browser.svg",
+                //     description: "",
+                //     visibility: "public",
+                //     featured: false,
+                // },
                 {
                     id: "study-variant-admin",
                     name: "Study Variant Admin",

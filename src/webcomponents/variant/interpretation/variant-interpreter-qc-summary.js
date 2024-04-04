@@ -25,7 +25,7 @@ class VariantInterpreterQcSummary extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -49,16 +49,10 @@ class VariantInterpreterQcSummary extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
 
         this._config = this.getDefaultConfig();
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -71,7 +65,10 @@ class VariantInterpreterQcSummary extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config
+            };
         }
     }
 
@@ -143,7 +140,11 @@ class VariantInterpreterQcSummary extends LitElement {
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
             <div class="container" style="margin: 20px 10px">
-                <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
+                <data-form
+                    .data=${this.clinicalAnalysis}
+                    .config="${this._config}">
+                </data-form>
+
             </div>
         `;
     }
@@ -171,18 +172,25 @@ class VariantInterpreterQcSummary extends LitElement {
                         },
                         {
                             title: "Proband",
-                            field: "proband.id",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: probandId => html`<strong>${probandId}</strong>`,
+                                template: "${proband.id}",
+                                style: {
+                                    "proband.id": {
+                                        "font-weight": "bold",
+                                    }
+                                }
                             },
                         },
                         {
                             title: "Disorder",
-                            field: "disorder",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder)),
+                                template: "${disorder}",
+                                format: {
+                                    disorder: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
+                                },
+                                defaultValue: "N/A",
                             },
                         },
                         {
@@ -206,55 +214,31 @@ class VariantInterpreterQcSummary extends LitElement {
                                 columns: [
                                     {
                                         title: "BAM File",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`
-                                                <div><span style="font-weight: bold">${data.file}</span></div>
-                                            `,
-                                        }
+                                        field: "file",
                                     },
+
                                     {
                                         title: "SD insert size",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`
-                                                <div>${data.sdInsertSize}</div>
-                                            `,
-                                        }
+                                        field: "sdInsertSize",
                                     },
                                     {
                                         title: "Average insert size",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`
-                                                <div>${data.avgInsertSize}</div>
-                                            ,`
-                                        }
+                                        field: "avgInsertSize",
                                     },
                                     {
                                         title: "Duplicate read rate",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`
-                                                <div>${data.duplicateReadRate}</div>
-                                            `,
-                                        }
+                                        field: "duplicateReadRate",
                                     },
                                     {
                                         title: "Average sequence depth",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`
-                                                <div>${data.avgSequenceDepth}</div>
-                                            `,
-                                        }
-                                    }
-                                ]
-                            }
+                                        field: "avgSequenceDepth",
+                                    },
+                                ],
+                            },
                         },
-                    ]
-                }
-            ]
+                    ],
+                },
+            ],
         };
     }
 

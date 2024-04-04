@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import VariantFormatter from "./variant-formatter.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter";
 import CustomActions from "../commons/custom-actions.js";
@@ -62,33 +63,39 @@ export default class VariantGridFormatter {
         return result;
     }
 
-    static variantFormatter(value, row, index, assembly, config = {}) {
-        if (!row) {
+    static variantIdFormatter(id, variant, index, assembly, config = {}) {
+        if (!variant) {
             return;
         }
 
-        let ref = row.reference ? row.reference : "-";
-        let alt = row.alternate ? row.alternate : "-";
-
-        // Check size
-        const maxAlleleLength = config?.alleleStringLengthMax ? config.alleleStringLengthMax : 20;
-        ref = (ref.length > maxAlleleLength) ? ref.substring(0, 4) + "..." + ref.substring(ref.length - 4) : ref;
-        alt = (alt.length > maxAlleleLength) ? alt.substring(0, 4) + "..." + alt.substring(alt.length - 4) : alt;
-
-        // Ww need to escape < and > symbols from <INS>, <DEL>, ...
-        alt = alt.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+        // let ref = variant.reference ? variant.reference : "-";
+        // let alt = variant.alternate ? variant.alternate : "-";
+        //
+        // // Check size
+        // const maxAlleleLength = config?.alleleStringLengthMax ? config.alleleStringLengthMax : 20;
+        // ref = (ref.length > maxAlleleLength) ? ref.substring(0, 4) + "..." + ref.substring(ref.length - 4) : ref;
+        // alt = (alt.length > maxAlleleLength) ? alt.substring(0, 4) + "..." + alt.substring(alt.length - 4) : alt;
+        //
+        // // Ww need to escape < and > symbols from <INS>, <DEL>, ...
+        // alt = alt.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+        const variantId = VariantFormatter.variantIdFormatter(id, variant);
 
         // Create links for tooltip
         let tooltipText = "";
-        const variantRegion = row.chromosome + ":" + row.start + "-" + row.end;
+        const variantRegion = variant.chromosome + ":" + variant.start + "-" + variant.end;
         // 1. Add Decipher only if variant is a SNV or we have the original call. INDELS cannot be linked in the Variant Browser
-        if (row.id || row.studies[0]?.files[0]?.call?.variantId) {
-            const variantId = row.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || row.id;
+        if (variant.id || variant.studies[0]?.files[0]?.call?.variantId) {
+            const variantId = variant.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || variant.id;
             tooltipText += `
                 <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Links</div>
                 <div style="padding: 5px">
                     <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "decipher")}">
                         Decipher
+                    </a>
+                </div>
+                <div style="padding: 5px" data-cy="varsome-variant-link">
+                    <a target="_blank" ${variant.type === "COPY_NUMBER" ? `class="${"disabled"}"` : `href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "varsome", assembly)}"`}>
+                        Varsome ${variant.type === "COPY_NUMBER" ? "<small>(Disabled)</small>" : ""}
                     </a>
                 </div>
             `;
@@ -97,18 +104,27 @@ export default class VariantGridFormatter {
         tooltipText += `
             <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Genome Browsers</div>
             <div style="padding: 5px">
-                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ensembl_genome_browser", assembly)}">
+                <a target="_blank" href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "ensembl_genome_browser", assembly)}">
                     Ensembl Genome Browser
                 </a>
             </div>
             <div style="padding: 5px">
-                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ucsc_genome_browser")}">
+                <a target="_blank" href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "ucsc_genome_browser")}">
                     UCSC Genome Browser
                 </a>
             </div>
         `;
 
-        const snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
+        // const snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
+        const snpId = VariantFormatter.snpFormatter(id, variant, index, assembly);
+        let snpHtml;
+        if (snpId) {
+            if (assembly.toUpperCase() === "GRCH37") {
+                snpHtml = "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
+            } else {
+                snpHtml = "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
+            }
+        }
 
         // Add highlight icons
         let iconHighlights = [];
@@ -116,7 +132,7 @@ export default class VariantGridFormatter {
             iconHighlights = config.highlights
                 .filter(h => h.active)
                 .map(highlight => {
-                    if (CustomActions.get(highlight).execute(row, highlight) && highlight.style?.icon) {
+                    if (CustomActions.get(highlight).execute(variant, highlight) && highlight.style?.icon) {
                         const description = highlight.description || highlight.name || "";
                         const icon = highlight.style.icon;
                         const color = highlight.style.iconColor || "";
@@ -129,7 +145,7 @@ export default class VariantGridFormatter {
         return `
             <div style="margin:5px 0px;white-space:nowrap;">
                 <a tooltip-title='Links' tooltip-text='${tooltipText}'>
-                    ${row.chromosome}:${row.start}&nbsp;&nbsp;${ref}/${alt}
+                    ${variantId}
                 </a>
                 ${iconHighlights.join("")}
             </div>
@@ -137,44 +153,44 @@ export default class VariantGridFormatter {
         `;
     }
 
-    static snpFormatter(value, row, index, assembly) {
-        // We try first to read SNP ID from the 'names' of the variant (this identifier comes from the file).
-        // If this ID is not a "rs..." then we search the rs in the CellBase XRef annotations.
-        // This field is in annotation.xref when source: "dbSNP".
-        let snpId = "";
-        if (row.names && row.names.length > 0) {
-            for (const name of row.names) {
-                if (name.startsWith("rs")) {
-                    snpId = name;
-                    break;
-                }
-            }
-        } else {
-            if (row.annotation) {
-                if (row.annotation.id && row.annotation.id.startsWith("rs")) {
-                    snpId = row.annotation.id;
-                } else {
-                    if (row.annotation.xrefs) {
-                        for (const xref of row.annotation.xrefs) {
-                            if (xref.source === "dbSNP") {
-                                snpId = xref.id;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (snpId) {
-            if (assembly.toUpperCase() === "GRCH37") {
-                return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
-            } else {
-                return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
-            }
-        }
-        return snpId;
-    }
+    // static snpFormatter(value, row, index, assembly) {
+    //     // We try first to read SNP ID from the 'names' of the variant (this identifier comes from the file).
+    //     // If this ID is not a "rs..." then we search the rs in the CellBase XRef annotations.
+    //     // This field is in annotation.xref when source: "dbSNP".
+    //     let snpId = "";
+    //     if (row.names && row.names.length > 0) {
+    //         for (const name of row.names) {
+    //             if (name.startsWith("rs")) {
+    //                 snpId = name;
+    //                 break;
+    //             }
+    //         }
+    //     } else {
+    //         if (row.annotation) {
+    //             if (row.annotation.id && row.annotation.id.startsWith("rs")) {
+    //                 snpId = row.annotation.id;
+    //             } else {
+    //                 if (row.annotation.xrefs) {
+    //                     for (const xref of row.annotation.xrefs) {
+    //                         if (xref.source === "dbSNP") {
+    //                             snpId = xref.id;
+    //                             break;
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //
+    //     if (snpId) {
+    //         if (assembly.toUpperCase() === "GRCH37") {
+    //             return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
+    //         } else {
+    //             return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
+    //         }
+    //     }
+    //     return snpId;
+    // }
 
     static geneFormatter(variant, index, query, opencgaSession, gridCtSettings) {
         // FIXME
@@ -286,6 +302,9 @@ export default class VariantGridFormatter {
             </div>
             <div style='padding: 5px'>
                  <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
+            </div>
+            <div style='padding: 5px' data-cy='varsome-gene-link'>
+                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "varsome", assembly)}'>Varsome</a>
             </div>
 
             <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>Clinical Resources</div>
@@ -881,36 +900,38 @@ export default class VariantGridFormatter {
 
     // Creates the colored table with one row and as many columns as populations.
     static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
-        const tooltipRows = (populations || []).map(population => {
-            const popFreq = populationFrequenciesMap.get(population) || null;
-            const altFreq = popFreq?.altAlleleFreq?.toPrecision(4) || 0;
-            const altCount = popFreq?.altAlleleCount || 0;
-            const homAltFreq = popFreq?.altHomGenotypeFreq?.toPrecision(4) || 0;
-            const homAltCount = popFreq?.altHomGenotypeCount || 0;
-            const color = VariantGridFormatter._getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
-            let altFreqText = "";
-            let homAltFreqText = "";
+        const tooltipRows = (populations || [])
+            .map(population => {
+                const popFreq = populationFrequenciesMap.get(population) || null;
+                const altFreq = popFreq?.altAlleleFreq?.toPrecision(4) || 0;
+                const altCount = popFreq?.altAlleleCount || 0;
+                // TASK-5854: Check if altHomGenotypeFreq (population freqs) or genotypeFreq (cohort stats)
+                const homAltFreq = popFreq?.altHomGenotypeFreq?.toPrecision(4) ?? popFreq?.genotypeFreq?.["1/1"]?.toPrecision(4) ?? 0;
+                const homAltCount = popFreq?.altHomGenotypeCount ?? popFreq?.genotypeCount?.["1/1"] ?? 0;
+                const color = VariantGridFormatter._getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
+                let altFreqText = "";
+                let homAltFreqText = "";
 
-            // ALT freq tell us if the VARIANT has been OBSERVED.
-            if (altFreq > 0) {
-                altFreqText = `${altFreq || "-"} / ${altCount} (${altFreq > 0 ? (altFreq * 100).toPrecision(4) + "%" : "-"})`;
-                homAltFreqText = `${homAltFreq > 0 ? homAltFreq : "-"} / ${homAltCount} ${homAltFreq > 0 ? `(${(homAltFreq * 100).toPrecision(4)} %)` : ""}`;
-            } else {
-                altFreqText = "<span style='font-style: italic'>Not Observed</span>";
-                homAltFreqText = "<span style='font-style: italic'>Not Observed</span>";
-            }
+                // ALT freq tell us if the VARIANT has been OBSERVED.
+                if (altFreq > 0) {
+                    altFreqText = `${altFreq || "-"} / ${altCount} (${altFreq > 0 ? (altFreq * 100).toPrecision(4) + "%" : "-"})`;
+                    homAltFreqText = `${homAltFreq > 0 ? homAltFreq : "-"} / ${homAltCount} ${homAltFreq > 0 ? `(${(homAltFreq * 100).toPrecision(4)} %)` : ""}`;
+                } else {
+                    altFreqText = "<span style='font-style: italic'>Not Observed</span>";
+                    homAltFreqText = "<span style='font-style: italic'>Not Observed</span>";
+                }
 
-            return `
-                <tr style='border-top:1px solid #ededed;'>
-                    <td style='width:140px;padding:8px 8px 8px 0;'>
-                        <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                        <label style='padding-left: 5px;'>${population}</label>
+                return `
+                    <tr style='border-top:1px solid #ededed;'>
+                        <td style='width:140px;padding:8px 8px 8px 0;'>
+                            <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
+                            <label style='padding-left: 5px;'>${population}</label>
+                        </td>
+                        <td style='font-weight:bold;padding:8px 8px 8px 0;'>${altFreqText}</td>
+                        <td style='font-weight:bold;padding:8px 0 8px 0;'>${homAltFreqText}</td>
                     </td>
-                    <td style='font-weight:bold;padding:8px 8px 8px 0;'>${altFreqText}</td>
-                    <td style='font-weight:bold;padding:8px 0 8px 0;'>${homAltFreqText}</td>
-                </td>
-            `;
-        });
+                `;
+            });
         const tooltip = `
             <table class='population-freq-tooltip'>
                 <thead>
@@ -1200,10 +1221,11 @@ export default class VariantGridFormatter {
             const cosmicIntermediate = new Map();
             for (const trait of row.annotation.traitAssociation) {
                 const values = [];
+                const source = (trait?.source?.name || "").toUpperCase();
                 const vcvId = trait.additionalProperties.find(p => p.name === "VCV ID");
                 const genomicFeature = trait.genomicFeatures.find(f => f.featureType.toUpperCase() === "GENE");
                 const reviewStatus = trait.additionalProperties.find(p => p.name === "ReviewStatus_in_source_file");
-                if (trait.source.name.toUpperCase() === "CLINVAR") {
+                if (source === "CLINVAR") {
                     values.push(`<a href="${trait.url ?? BioinfoUtils.getClinvarVariationLink(trait.id)}" target="_blank">${trait.id}</a>`);
                     values.push(vcvId ? vcvId.value : trait.id);
                     values.push(genomicFeature?.xrefs ? genomicFeature.xrefs?.symbol : "-");
@@ -1214,7 +1236,7 @@ export default class VariantGridFormatter {
                     clinvar.push({
                         values: values
                     });
-                } else { // COSMIC section
+                } else if (source === "COSMIC") {
                     // Prepare data to group by histologySubtype field
                     const key = trait.id + ":" + trait.somaticInformation.primaryHistology + ":" + trait.somaticInformation.primaryHistology;
                     const reviewStatus = trait.additionalProperties.find(p => p.id === "MUTATION_SOMATIC_STATUS");
@@ -1494,6 +1516,37 @@ export default class VariantGridFormatter {
             return reportedHtml;
         }
         return "-";
+    }
+
+
+    static clinicalOmimFormatter(value, row) {
+        const entries = (row?.annotation?.geneTraitAssociation || [])
+            .filter(item => (item?.id || "").startsWith("OMIM:"))
+            .map(item => item.id.replace("OMIM:", ""));
+
+        if (entries.length > 0) {
+            const uniqueEntries = new Set(entries);
+            const entriesLinks = Array.from(uniqueEntries).map(entry => {
+                return `
+                    <div style="">
+                        <a href="${BioinfoUtils.getOmimLink(entry)}" target="_blank">${entry}</a>
+                    </div>
+                `;
+            });
+            const tooltipText = entriesLinks.join("");
+
+            return `
+                <a class="hotspots-tooltip" tooltip-title='Info' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                    <span style='color:green;'>${uniqueEntries.size}<br>${uniqueEntries.size === 1 ? "entry" : "entries"}</span>
+                </a>
+            `;
+        } else {
+            return `
+                <span title='No clinical records found for this variant'>
+                    <i class='fa fa-times' style='color: gray'></i>
+                </span>
+            `;
+        }
     }
 
 }

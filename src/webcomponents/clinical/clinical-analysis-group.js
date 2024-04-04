@@ -15,6 +15,9 @@ export default class ClinicalAnalysisGroup extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object,
             },
@@ -31,6 +34,7 @@ export default class ClinicalAnalysisGroup extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "clinical-analysis-group";
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
         this.activeGroup = this._config.groups[0];
@@ -48,10 +52,7 @@ export default class ClinicalAnalysisGroup extends LitElement {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
-                toolbar: {
-                    ...(this.config.toolbar || {}),
-                    showCreate: false, // Hide create button in each grid
-                },
+                showCreate: false, // Caution: force create false independently of admin/default decision.
             };
 
             this.updateGroups();
@@ -92,11 +93,36 @@ export default class ClinicalAnalysisGroup extends LitElement {
         this.updateGroups();
     }
 
+    renderGroupItem(item) {
+        const query = {
+            ...this.query,
+            [this.activeGroup.queryField]: item,
+        };
+        return html`
+            <div>
+                <h3>
+                    <i class="fas ${this.activeGroup.display.icon} icon-padding"></i>
+                    <strong>${item || this.activeGroup.display.emptyTitle}</strong>
+                    <span id="${this._prefix}GroupCount${item}"></span>
+                </h3>
+                <clinical-analysis-grid
+                    .toolId="${this.toolId}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config}"
+                    .query="${query}"
+                    .active="${true}"
+                    @rowUpdate="${() => this.onRowUpdate()}"
+                    @queryComplete="${e => this.onQueryComplete(e, item)}">
+                </clinical-analysis-grid>
+            </div>
+        `;
+    }
+
     render() {
         return html`
             <div>
                 <div style="display:flex;">
-                    ${this.config?.toolbar?.showCreate ? html`
+                    ${this.config?.showCreate ? html`
                         <a type="button" href="#clinical-analysis-create/" class="btn btn-default btn-sm text-black">
                             <i class="fas fa-columns icon-padding"></i>
                             <span>New</span>
@@ -126,36 +152,19 @@ export default class ClinicalAnalysisGroup extends LitElement {
                         </ul>
                     </div>
                 </div>
-                ${this.groups.map(item => html`
-                    <div>
-                        <h3>
-                            <i class="fas ${this.activeGroup.display.icon} icon-padding"></i>
-                            <strong>${item || this.activeGroup.display.emptyTitle}</strong>
-                            <span id="${this._prefix}GroupCount${item}"></span>
-                        </h3>
-                        <clinical-analysis-grid
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this._config}"
-                            .query="${{
-                                ...this.query,
-                                [this.activeGroup.queryField]: item,
-                            }}"
-                            .active="${true}"
-                            @rowUpdate="${() => this.onRowUpdate()}"
-                            @queryComplete="${e => this.onQueryComplete(e, item)}">
-                        </clinical-analysis-grid>
-                    </div>
-                `)}
+                ${this.groups.map(item => this.renderGroupItem(item))}
             </div>
         `;
     }
 
     getDefaultConfig() {
         return {
+            showToolbar: false,
+            showCreate: false,
             groups: [
                 {
                     id: "analyst",
-                    distinctField: "analyst.id",
+                    distinctField: "analysts.id",
                     queryField: "analystId",
                     display: {
                         title: "Analyst",

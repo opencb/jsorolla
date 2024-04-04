@@ -53,11 +53,15 @@ class VariantInterpreterBrowserRd extends LitElement {
             },
             settings: {
                 type: Object
-            }
+            },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
     _init() {
+        this.COMPONENT_ID = "variant-interpreter-rd";
         this._prefix = UtilsNew.randomString(8);
 
         this.query = {};
@@ -282,18 +286,23 @@ class VariantInterpreterBrowserRd extends LitElement {
                 .query="${this.query}"
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
-                .toolId="${"variantInterpreterRD"}"
+                .toolId="${this.COMPONENT_ID}"
                 .config="${this._config}"
+                .active="${this.active}"
                 @queryChange="${this.onQueryChange}">
             </variant-interpreter-browser-template>
         `;
     }
 
     getDefaultConfig() {
-        // Add case panels to query object
-        // TODO should we also check main interpretation panels?
-        const lockedFields = [{id: "sample"}];
+        const lockedFields = [
+            {id: "sample"},
+            {id: "sampleData"},
+            {id: "file"},
+            {id: "fileData"},
+        ];
 
+        // Add panels to locked fields
         if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLock) {
             lockedFields.push({id: "panel"});
             lockedFields.push({id: "panelIntersection"});
@@ -332,20 +341,20 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 params: {
                                     genotypes: [
                                         {
-                                            id: "0/1", name: "HET"
+                                            id: "0/1", name: "HET (0/1)"
                                         },
                                         {
-                                            id: "1/1", name: "HOM ALT"
+                                            id: "1/1", name: "HOM_ALT (1/1)"
                                         },
                                         {
                                             separator: true
                                         },
                                         {
-                                            id: "1/2", name: "BIALLELIC HET (Genotype 1/2)"
+                                            id: "1/2", name: "BIALLELIC (1/2)"
                                         },
-                                        {
-                                            id: "1", name: "HEMI"
-                                        }
+                                        // {
+                                        //     id: "1", name: "HEMI"
+                                        // }
                                     ]
                                 },
                                 tooltip: tooltips.sample,
@@ -544,22 +553,17 @@ class VariantInterpreterBrowserRd extends LitElement {
                 ],
                 result: {
                     grid: {
-                        pagination: true,
-                        pageSize: 10,
-                        pageList: [5, 10, 25],
-                        showExport: false,
-                        detailView: true,
-                        showReview: true,
-                        showActions: true,
+                        // pagination: true,
+                        // pageSize: 10,
+                        // pageList: [5, 10, 25],
+                        // showExport: false,
+                        // detailView: true,
+                        // showReview: true,
+                        // showActions: true,
                         showSelectCheckbox: true,
-                        multiSelection: false,
-                        nucleotideGenotype: true,
-                        alleleStringLengthMax: 10,
-
-                        header: {
-                            horizontalAlign: "center",
-                            verticalAlign: "bottom"
-                        },
+                        // multiSelection: false,
+                        // nucleotideGenotype: true,
+                        // alleleStringLengthMax: 10,
 
                         quality: {
                             qual: 30,
@@ -582,7 +586,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                             active: true,
                             render: variant => html`
                                 <cellbase-variant-annotation-summary
-                                    .variantAnnotation="${variant.annotation}"
+                                    .variantAnnotation="${variant?.annotation}"
                                     .consequenceTypes="${CONSEQUENCE_TYPES}"
                                     .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
                                     .assembly=${this.opencgaSession.project.organism.assembly}>
@@ -594,7 +598,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                             name: "Consequence Type",
                             render: (variant, active) => html`
                                 <variant-consequence-type-view
-                                    .consequenceTypes="${variant.annotation.consequenceTypes}"
+                                    .consequenceTypes="${variant?.annotation?.consequenceTypes}"
                                     .active="${active}">
                                 </variant-consequence-type-view>
                             `,
@@ -604,7 +608,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                             name: "Population Frequencies",
                             render: (variant, active) => html`
                                 <cellbase-population-frequency-grid
-                                    .populationFrequencies="${variant.annotation.populationFrequencies}"
+                                    .populationFrequencies="${variant?.annotation?.populationFrequencies}"
                                     .active="${active}">
                                 </cellbase-population-frequency-grid>
                             `,
@@ -614,8 +618,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                             name: "Clinical",
                             render: variant => html`
                                 <variant-annotation-clinical-view
-                                    .traitAssociation="${variant.annotation.traitAssociation}"
-                                    .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                                    .traitAssociation="${variant?.annotation?.traitAssociation}"
+                                    .geneTraitAssociation="${variant?.annotation?.geneTraitAssociation}">
                                 </variant-annotation-clinical-view>
                             `,
                         },
@@ -647,7 +651,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                             render: (variant, active, opencgaSession) => html`
                                 <variant-samples
                                     .opencgaSession="${opencgaSession}"
-                                    .variantId="${variant.id}"
+                                    .variantId="${variant?.id}"
                                     .active="${active}">
                                 </variant-samples>
                             `,

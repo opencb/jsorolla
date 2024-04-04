@@ -21,11 +21,14 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
+import "../commons/forms/select-token-filter.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../commons/image-viewer.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
+import "./filters/clinical-analyst-filter.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter";
 
 
 export default class ClinicalAnalysisCreate extends LitElement {
@@ -43,40 +46,53 @@ export default class ClinicalAnalysisCreate extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             config: {
-                type: Object
-            }
+                type: Object,
+            },
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
     _init() {
         this.clinicalAnalysis = {};
-    }
+        this._users = [];
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.displayConfigDefault = {
+            style: "margin: 10px",
+            buttonsWidth: 8,
+            buttonClearText: "Clear",
+            buttonOkText: "Create Clinical Analysis",
+            width: 8,
+            titleVisible: false,
+            titleAlign: "left",
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+        };
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             // We store the available users from opencgaSession in 'clinicalAnalysis._users'
-            this.clinicalAnalysis._users = [];
             if (this.opencgaSession?.study) {
                 this._users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
                 this.initClinicalAnalysis();
-                this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
             }
 
             this.requestUpdate();
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
+
         super.update(changedProperties);
     }
 
@@ -91,10 +107,27 @@ export default class ClinicalAnalysisCreate extends LitElement {
             // analyst: {
             //     id: this.opencgaSession?.user?.id
             // },
-            _users: this._users,
             comments: [],
             panelLock: false,
+            samples: [],
         };
+    }
+
+    initSamples(samples, isSomatic) {
+        // 1 Check if there is a sample with status READY
+        const readySample = samples.find(sample => {
+            return sample.somatic === isSomatic && sample?.internal?.status?.id === "READY";
+        });
+        if (readySample) {
+            return [readySample];
+        }
+        // 2. If not, select the first sample in the list instead
+        const firstSample = samples.find(sample => sample.somatic === isSomatic);
+        if (firstSample) {
+            return [firstSample];
+        }
+        // 3. Other case, no samples are available
+        return [];
     }
 
     onFieldChange(e) {
@@ -105,6 +138,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
             delete this.clinicalAnalysis["proband"];
             delete this.clinicalAnalysis["disorder"];
             delete this.clinicalAnalysis["family"];
+
+            // We would need also to reset samples
+            this.clinicalAnalysis.samples = [];
         }
 
         // In FAMILY, changing the proband only sets the 'proband.id' field of the clinicalAnalysis object
@@ -116,22 +152,16 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 const proband = this.clinicalAnalysis.family.members.find(member => member.id === this.clinicalAnalysis.proband?.id);
                 this.clinicalAnalysis.proband = UtilsNew.objectClone(proband);
                 this.clinicalAnalysis.proband.disorders = this.clinicalAnalysis.proband.disorders || [];
+                this.clinicalAnalysis.samples = this.initSamples(this.clinicalAnalysis?.proband?.samples || [], false);
+
             } else {
-                // If we have removed the 'proband.id' field, we have to remove also the full proband object
+                // If we have removed the 'proband.id' field, we have to remove also the full proband object and reset samples
                 delete this.clinicalAnalysis.proband;
+                this.clinicalAnalysis.samples = [];
             }
         }
 
         this.requestUpdate();
-    }
-
-    onCustomFieldChange(field, e) {
-        this.onFieldChange({
-            detail: {
-                value: e.detail.value,
-                param: field
-            }
-        });
     }
 
     onIndividualChange(e) {
@@ -139,11 +169,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
         delete this.clinicalAnalysis["proband"];
         delete this.clinicalAnalysis["disorder"];
 
+        // Reset samples
+        this.clinicalAnalysis.samples = [];
+
         if (e.detail.value) {
             this.clinicalAnalysis.type = "SINGLE";
             this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis.proband = response.responses[0].results[0];
+                    this.clinicalAnalysis.samples = this.initSamples(this.clinicalAnalysis?.proband?.samples || [], false);
 
                     if (this.clinicalAnalysis.proband?.disorders?.length === 1) {
                         this.clinicalAnalysis.disorder = {
@@ -169,6 +203,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
         delete this.clinicalAnalysis["disorder"];
         delete this.clinicalAnalysis["family"];
 
+        // Reset samples
+        this.clinicalAnalysis.samples = [];
+
         if (e.detail.value) {
             this.clinicalAnalysis.type = "FAMILY";
             this.opencgaSession.opencgaClient.families().info(e.detail.value, {study: this.opencgaSession.study.fqn})
@@ -180,6 +217,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                         for (const member of this.clinicalAnalysis.family.members) {
                             if (member.disorders && member.disorders.length > 0 && member.father.id && member.mother.id) {
                                 this.clinicalAnalysis.proband = UtilsNew.objectClone(member);
+                                this.clinicalAnalysis.samples = this.initSamples(this.clinicalAnalysis?.proband?.samples || [], false);
                                 break;
                             }
                         }
@@ -208,14 +246,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
         delete this.clinicalAnalysis["proband"];
         delete this.clinicalAnalysis["disorder"];
 
+        // Reset selected samples
+        this.clinicalAnalysis.samples = [];
+
         if (e.detail.value) {
             this.clinicalAnalysis.type = "CANCER";
             this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this.clinicalAnalysis = {
-                        ...this.clinicalAnalysis,
-                        proband: response.responses[0].results[0]
-                    };
+                    this.clinicalAnalysis.proband = response?.responses?.[0]?.results?.[0] || {};
+                    this.clinicalAnalysis.samples = this.initSamples(this.clinicalAnalysis?.proband?.samples || [], true);
 
                     if (this.clinicalAnalysis?.proband?.disorders?.length === 1) {
                         this.clinicalAnalysis = {
@@ -238,6 +277,17 @@ export default class ClinicalAnalysisCreate extends LitElement {
         }
     }
 
+    onSampleChange(e) {
+        this.clinicalAnalysis.samples = (e.detail.value || "")
+            .split(",")
+            .filter(s => !!s)
+            .map(sampleId => {
+                return this.clinicalAnalysis.proband?.samples?.find(sample => sample.id === sampleId);
+            });
+        this.clinicalAnalysis = {...this.clinicalAnalysis};
+        this.requestUpdate();
+    }
+
     notifyClinicalAnalysisWrite() {
         LitUtils.dispatchCustomEvent(this, "clinicalAnalysisCreate", null, {
             id: this.clinicalAnalysis.id,
@@ -255,25 +305,42 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
     onSubmit() {
         // Prepare the data for the REST create
-        let data = {...this.clinicalAnalysis};
-
-        // remove private fields
-        delete data._users;
-        data = {
-            ...data,
+        const data = {
+            ...this.clinicalAnalysis,
             proband: {
-                id: this.clinicalAnalysis?.proband?.id ? this.clinicalAnalysis?.proband?.id : null
-            }
+                id: this.clinicalAnalysis?.proband?.id ? this.clinicalAnalysis?.proband?.id : null,
+                samples: this.clinicalAnalysis.samples.map(sample => {
+                    return {
+                        id: sample.id,
+                    };
+                }),
+            },
         };
 
-        if (data.type === "FAMILY") {
+        // Remove private fields
+        delete data.samples;
 
-            data = {
-                ...data,
-                family: {
-                    id: this.clinicalAnalysis.family.id,
-                    members: this.clinicalAnalysis.family.members.map(e => ({id: e.id}))
-                }
+        // For FAMILY case, we need to include the family id and the members
+        if (data.type === "FAMILY") {
+            data.family = {
+                id: this.clinicalAnalysis.family.id,
+                members: this.clinicalAnalysis.family.members.map(member => {
+                    const familyMember = {
+                        id: member.id,
+                    };
+
+                    // We need to include the selected samples for the member of the family that is also
+                    // the proband in the clinical analysis
+                    if (member.id === this.clinicalAnalysis.proband.id) {
+                        familyMember.samples = this.clinicalAnalysis.samples.map(sample => {
+                            return {
+                                id: sample.id,
+                            };
+                        });
+                    }
+
+                    return familyMember;
+                }),
             };
         }
 
@@ -306,6 +373,33 @@ export default class ClinicalAnalysisCreate extends LitElement {
             });
     }
 
+    renderSamplesSelection(samples = [], isMultiple, somatic = false) {
+        // Check for no available samples
+        if (this.clinicalAnalysis?.proband?.id) {
+            if (samples.length === 0 || !samples.some(sample => sample.somatic === somatic)) {
+                return `No ${somatic ? "somatic" : "germline"} samples availabe for proband '${this.clinicalAnalysis.proband.id}'.`;
+            }
+        }
+        const selectedSamples = (this.clinicalAnalysis?.samples || [])
+            .map(sample => sample.id)
+            .join(",");
+        const data = (samples || []).map(sample => {
+            return {
+                id: sample.id,
+                name: `${sample.name || sample.id} (${sample.somatic ? "Somatic" : "Germline"})`,
+                disabled: sample.somatic && !somatic,
+            };
+        });
+        return html`
+            <select-field-filter
+                .data="${data}"
+                .value=${selectedSamples}
+                ?multiple="${isMultiple}"
+                @filterChange="${e => this.onSampleChange(e)}">
+            </select-field-filter>
+        `;
+    }
+
     render() {
         if (!this.opencgaSession?.study) {
             return html `
@@ -333,29 +427,11 @@ export default class ClinicalAnalysisCreate extends LitElement {
             title: "Create Case",
             icon: "fas fa-user-md",
             requires: "2.0.0",
-            description: "Sample Variant Stats description",
-            display: {
-                buttonsWidth: 10,
-                buttonClearText: "Clear",
-                buttonOkText: "Create Clinical Analysis",
-                width: 10,
-                titleVisible: false,
-                titleAlign: "left",
-                titleWidth: 4,
-                defaultLayout: "horizontal",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.objectCompare(this.clinicalAnalysis, this._clinicalAnalysis),
-                                notificationType: "warning",
-                            }
-                        },
                         {
                             title: "Case ID",
                             field: "id",
@@ -386,11 +462,11 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 render: (panels, dataFormFilterChange) => {
                                     const handlePanelsFilterChange = e => {
                                         // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const panelList = e.detail.value
                                             ?.split(",")
                                             .filter(panelId => panelId)
                                             .map(panelId => ({id: panelId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(panelList);
                                     };
                                     return html`
                                         <disease-panel-filter
@@ -423,21 +499,20 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             display: {
                                 render: (flags, dataFormFilterChange) => {
                                     const handleFlagsFilterChange = e => {
-                                        // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const flagList = e.detail.value
                                             ?.split(",")
                                             .filter(flagId => flagId)
                                             .map(flagId => ({id: flagId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(flagList);
                                     };
                                     return html`
-                                    <clinical-flag-filter
-                                        .flag="${flags?.map(f => f.id).join(",")}"
-                                        .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type?.toUpperCase()]}"
-                                        .multiple=${true}
-                                        @filterChange="${e => handleFlagsFilterChange(e, "flags.id")}">
-                                    </clinical-flag-filter>
-                                `;
+                                        <clinical-flag-filter
+                                            .flag="${flags?.map(f => f.id).join(",")}"
+                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type?.toUpperCase()]}"
+                                            .multiple=${true}
+                                            @filterChange="${e => handleFlagsFilterChange(e, "flags.id")}">
+                                        </clinical-flag-filter>
+                                    `;
                                 },
                             },
                         },
@@ -479,6 +554,23 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             },
                         },
                         {
+                            title: "Select Samples",
+                            field: "proband.samples",
+                            type: "custom",
+                            required: true,
+                            validation: {
+                                validate: () => {
+                                    return this.clinicalAnalysis?.samples?.length === 1;
+                                },
+                                message: "A germline sample must be selected.",
+                            },
+                            display: {
+                                render: samples => {
+                                    return this.renderSamplesSelection(samples, false, false);
+                                },
+                            },
+                        },
+                        {
                             title: "Select Disorder",
                             field: "disorder.id",
                             type: "select",
@@ -494,36 +586,36 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Samples",
-                            field: "proband.samples",
+                            title: "Selected Samples",
+                            field: "samples",
                             type: "table",
                             display: {
-                                // defaultLayout: "vertical",
-                                errorMessage: "No proband selected",
-                                errorClassName: "",
+                                defaultValue: "No proband or sample selected.",
                                 columns: [
                                     {
                                         title: "ID",
-                                        type: "custom",
+                                        field: "id",
                                         display: {
-                                            render: sample => html`<span style="font-weight: bold">${sample.id}</span>`,
+                                            defaultValue: "-",
+                                            style: {
+                                                "font-weight": "bold"
+                                            }
                                         },
                                     },
                                     {
                                         title: "Files",
                                         field: "fileIds",
-                                        type: "custom",
+                                        type: "list",
                                         display: {
-                                            render: fileIds => {
-                                                const fileVcfs = fileIds.filter(file => file.includes(".vcf")).join("<br>");
-                                                return UtilsNew.renderHTML(`${fileVcfs}`);
-                                            },
+                                            defaultValue: "-",
+                                            contentLayout: "vertical",
+                                            transform: values => (values || []).filter(file => file?.includes(".vcf")),
                                         },
                                     },
                                     {
+                                        id: "Status",
                                         title: "Status",
-                                        field: "status.name",
-                                        defaultValue: "-",
+                                        field: "internal.status.id",
                                     },
                                 ]
                             }
@@ -563,6 +655,23 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             },
                         },
                         {
+                            title: "Select Samples",
+                            field: "proband.samples",
+                            type: "custom",
+                            required: true,
+                            validation: {
+                                validate: () => {
+                                    return this.clinicalAnalysis?.samples?.length === 1;
+                                },
+                                message: "A germline sample must be selected.",
+                            },
+                            display: {
+                                render: samples => {
+                                    return this.renderSamplesSelection(samples, false, false);
+                                },
+                            },
+                        },
+                        {
                             title: "Select Disorder",
                             field: "disorder.id",
                             type: "select",
@@ -589,60 +698,56 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 columns: [
                                     {
                                         title: "Individual ID",
-                                        type: "custom",
+                                        type: "complex",
                                         display: {
-                                            render: individual => html`
-                                                <div style="font-weight: bold">${individual.id}</div>
-                                                <div class="help-block">
-                                                    ${individual?.sex?.id || "Not specified"} (${individual.karyotypicSex || "Not specified"})
-                                                </div>
-                                            `,
+                                            defaultValue: "-",
+                                            template: "${id} ${sex}",
+                                            format: {
+                                                "sex": (sex, member) => `${sex?.id ?? sex}(${member.karyotypicSex})`
+                                            },
+                                            className: {
+                                                "sex": "help-block"
+                                            },
+                                            style: {
+                                                "id": {
+                                                    "font-weight": "bold"
+                                                },
+                                                "sex": {
+                                                    "margin": "5px 0"
+                                                },
+                                            }
                                         },
                                     },
                                     {
-                                        title: "Individual Name",
-                                        field: "name",
-                                    },
-                                    {
+                                        id: "samples",
                                         title: "Samples",
                                         field: "samples",
-                                        type: "custom",
+                                        type: "list",
                                         display: {
-                                            render: samples => {
-                                                if (!samples || samples.length === 0) {
-                                                    return "-";
-                                                }
-                                                return samples.map(sample => html`<div>${sample.id}</div>`);
-                                            },
-                                        },
+                                            defaultValue: "-",
+                                            contentLayout: "vertical",
+                                            template: "${id}"
+                                        }
                                     },
                                     {
+                                        id: "fatherId",
                                         title: "Father",
                                         field: "father.id",
                                     },
                                     {
+                                        id: "motherId",
                                         title: "Mother",
                                         field: "mother.id",
                                     },
                                     {
                                         title: "Disorders",
                                         field: "disorders",
-                                        type: "custom",
+                                        type: "list",
                                         display: {
-                                            render: disorders => {
-                                                if (disorders && disorders.length > 0) {
-                                                    let id = disorders[0].id;
-                                                    const name = disorders[0].name;
-                                                    if (id?.startsWith("OMIM:")) {
-                                                        id = html`<a href="https://omim.org/entry/${id.split(":")[1]}" target="_blank">${id}</a>`;
-                                                    }
-                                                    return html`${name} (${id})`;
-                                                } else {
-                                                    return html`<span>N/A</span>`;
-                                                }
-                                            }
+                                            defaultValue: "N/A",
+                                            format: disorder => CatalogGridFormatter.disorderFormatter([disorder])
                                         }
-                                    }
+                                    },
                                 ]
                             }
                         },
@@ -688,6 +793,35 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             },
                         },
                         {
+                            title: "Select Samples",
+                            field: "proband.samples",
+                            type: "custom",
+                            required: true,
+                            validation: {
+                                validate: () => {
+                                    // Case :: Only one sample has been selected, check if this sample is somatic
+                                    if (this.clinicalAnalysis?.samples?.length === 1) {
+                                        return this.clinicalAnalysis.samples[0].somatic;
+                                    }
+                                    // Case 2: two samples selected: verify that one sample is somatic and the other
+                                    // sample is germline
+                                    if (this.clinicalAnalysis?.samples?.length === 2) {
+                                        const hasSomatic = this.clinicalAnalysis.samples.some(s => s.somatic);
+                                        const hasGermline = this.clinicalAnalysis.samples.some(s => !s.somatic);
+                                        return hasSomatic && hasGermline;
+                                    }
+                                    // Case 3: no samples or more than two samples selected.
+                                    return false;
+                                },
+                                message: "At least a somatic sample must be selected. Only one somatic and one germline samples are allowed.",
+                            },
+                            display: {
+                                render: samples => {
+                                    return this.renderSamplesSelection(samples, true, true);
+                                },
+                            },
+                        },
+                        {
                             title: "Select Disorder",
                             field: "disorder.id",
                             type: "select",
@@ -704,25 +838,28 @@ export default class ClinicalAnalysisCreate extends LitElement {
                         },
                         {
                             title: "Samples",
-                            field: "proband.samples",
+                            field: "samples",
                             type: "table",
                             display: {
-                                errorClassName: "",
-                                errorMessage: "No proband selected",
+                                defaultValue: "No proband or sample(s) selected.",
                                 columns: [
                                     {
                                         title: "ID",
-                                        type: "custom",
+                                        field: "id",
                                         display: {
-                                            render: sample => html`<span style="font-weight: bold">${sample.id}</span>`,
-                                        }
+                                            style: {
+                                                "font-weight": "bold"
+                                            }
+                                        },
                                     },
                                     {
                                         title: "Files",
                                         field: "fileIds",
-                                        type: "custom",
+                                        type: "list",
                                         display: {
-                                            render: fileIds => html`${fileIds.join("\n")}`,
+                                            defaultValue: "-",
+                                            contentLayout: "vertical",
+                                            transform: values => (values || []).filter(file => file?.includes(".vcf")),
                                         },
                                     },
                                     {
@@ -731,8 +868,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     },
                                     {
                                         title: "Status",
-                                        field: "status.name",
-                                        defaultValue: "-",
+                                        field: "internal.status.id",
                                     }
                                 ]
                             }
@@ -761,10 +897,27 @@ export default class ClinicalAnalysisCreate extends LitElement {
                         },
                         {
                             title: "Assigned To",
-                            field: "analyst.id",
-                            type: "select",
-                            // defaultValue: this.opencgaSession?.user?.id,
-                            allowedValues: "_users",
+                            field: "analysts",
+                            type: "custom",
+                            display: {
+                                render: (analysts, dataFormFilterChange) => {
+                                    const handleAnalystsFilterChange = e => {
+                                        const analystList = e.detail.value
+                                            ?.split(",")
+                                            .filter(analystId => analystId)
+                                            .map(analystId => ({id: analystId}));
+                                        dataFormFilterChange(analystList);
+                                    };
+                                    return html`
+                                        <clinical-analyst-filter
+                                            .analyst="${analysts?.map(f => f.id).join(",")}"
+                                            .analysts="${this._users}"
+                                            .multiple=${true}
+                                            @filterChange="${e => handleAnalystsFilterChange(e, "analyst.id")}">
+                                        </clinical-analyst-filter>
+                                    `;
+                                },
+                            }
                         },
                         {
                             title: "Due Date",

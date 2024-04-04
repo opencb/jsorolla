@@ -10,6 +10,7 @@ grunt/
 dist-genome/
 custom-conf
 custom-sites
+/extensions
 *.tar.gz
 package-lock.json
 npm-debug.log

@@ -46,12 +46,6 @@ export default class JobBrowser extends LitElement {
             query: {
                 type: Object,
             },
-            /* facetQuery: {
-                type: Object
-            },
-            selectedFacet: {
-                type: Object
-            },*/
             settings: {
                 type: Object,
             },
@@ -59,31 +53,50 @@ export default class JobBrowser extends LitElement {
     }
 
     _init() {
+        this.COMPONENT_ID = "job-browser";
         this._config = this.getDefaultConfig();
     }
 
-    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
-    // is executed twice in case there is external settings
     update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
-
         super.update(changedProperties);
     }
 
     settingsObserver() {
         this._config = this.getDefaultConfig();
-        // merge filter list, canned filters, detail tabs
+
+        // Apply Study settings
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
+
+        // Grid configuration and take out toolbar admin/user settings to grid level.
         if (this.settings?.table) {
-            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+            const {toolbar, ...otherTableProps} = this.settings.table;
+            UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+                ...this._config.filter.result.grid,
+                ...otherTableProps,
+                ...toolbar,
+            });
         }
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        }
+
+        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
+        });
+
+        this.requestUpdate();
+    }
+
+    onSettingsUpdate() {
+        this.settingsObserver();
+    }
+
+    onJobUpdate() {
+        this.settingsObserver();
     }
 
     render() {
@@ -102,7 +115,8 @@ export default class JobBrowser extends LitElement {
                 resource="JOB"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @jobUpdate="${this.onJobUpdate}">
             </opencga-browser>
         `;
     }
@@ -120,13 +134,16 @@ export default class JobBrowser extends LitElement {
                     active: true,
                     render: params => html`
                         <job-grid
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.result.grid}"
                             .query="${params.executedQuery}"
                             .search="${params.executedQuery}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .files="${params.files}"
-                            @selectrow="${e => params.onClickRow(e, "job")}">
+                            @selectrow="${e => params.onClickRow(e, "job")}"
+                            @jobUpdate="${e => params.onComponentUpdate(e, "job")}"
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </job-grid>
                         <job-detail
                             .opencgaSession="${params.opencgaSession}"
@@ -249,17 +266,14 @@ export default class JobBrowser extends LitElement {
                 result: {
                     grid: {
                         pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageList: [5, 10, 25],
                         multiSelection: false,
                         showSelectCheckbox: false,
-                        toolbar: {
-                            showNew: true,
-                            showColumns: true,
-                            showDownload: false,
-                            showExport: true,
-                            exportTabs: ["download", "link", "code"]
-                            // columns list for the dropdown will be added in grid components based on settings.table.columns
-                        },
+
+                        showNew: true,
+                        showExport: true,
+                        exportTabs: ["download", "link", "code"]
+                        // columns list for the dropdown will be added in grid components based on settings.table.columns
                     }
                 },
                 detail: {

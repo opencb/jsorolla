@@ -34,6 +34,29 @@ export default class BioinfoUtils {
         });
     }
 
+    static getIdName(id, name) {
+        let text = "";
+        if (name) {
+            text = name;
+        }
+
+        if (id) {
+            if (name) {
+                text += ` (${id})`;
+            } else {
+                text = id;
+            }
+        }
+
+        return text;
+    }
+
+    // Generate Variant ID in Varsome format
+    // https://varsome.com/how-do-i-create-link-varsome/
+    static getVariantInVarsomeFormat(variantId) {
+        const [chr, position, ref, alt] = variantId.split(":");
+        return `chr${chr}:${position.replace("-", ":")}:${ref.replace("-", "")}:${alt.replace("-", "")}`;
+    }
 
     static getGeneNameLink(geneName) {
         return "https://www.genenames.org/tools/search/#!/all?query=" + geneName;
@@ -121,6 +144,12 @@ export default class BioinfoUtils {
                 }
             case "UCSC_GENOME_BROWSER":
                 return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr${region}`;
+            case "VARSOME":
+                if (assembly?.toUpperCase() === "GRCH38") {
+                    return `https://varsome.com/variant/hg38/${BioinfoUtils.getVariantInVarsomeFormat(id)}`;
+                } else {
+                    return `https://varsome.com/variant/hg19/${BioinfoUtils.getVariantInVarsomeFormat(id)}`;
+                }
         }
     }
 
@@ -157,6 +186,12 @@ export default class BioinfoUtils {
                 return `https://omim.org/search?index=entry&sort=score+desc%2C+prefix_sort+desc&start=1&limit=10&search=${geneId}`;
             case "REFSEQ":
                 return `https://www.ncbi.nlm.nih.gov/gene/${geneId}`;
+            case "VARSOME":
+                if (assembly?.toUpperCase() === "GRCH38") {
+                    return `https://varsome.com/gene/hg38/${geneId}`;
+                } else {
+                    return `https://varsome.com/gene/hg19/${geneId}`;
+                }
         }
     }
 
@@ -212,17 +247,52 @@ export default class BioinfoUtils {
         return `https://panelapp.genomicsengland.co.uk/panels/${panelAppId}/`;
     }
 
+    static getOntologyLink(ontologyTermId) {
+        if (ontologyTermId.includes(":")) {
+            const [source, id] = ontologyTermId?.split(":");
+            switch (source?.toUpperCase()) {
+                case "HP":
+                    return this.getHpoLink(ontologyTermId);
+                case "SO":
+                    return this.getSequenceOntologyLink(ontologyTermId);
+                case "OMIM":
+                    return this.getOmimOntologyLink(id);
+                case "ORPHA":
+                    return this.getOrphanetLink(id);
+                case "MONDO":
+                    // MONDO ontology does not have a specific URL
+                    return this.getOboLink(ontologyTermId);
+                default:
+                    return ontologyTermId;
+            }
+        } else {
+            return ontologyTermId;
+        }
+    }
+
     static getOboLink(ontologyId) {
         const ontologyShort = ontologyId.replace(":", "_");
-        return `http://purl.obolibrary.org/obo/${ontologyShort}`;
+        return `https://purl.obolibrary.org/obo/${ontologyShort}`;
     }
 
     static getHpoLink(hpoTerm) {
         return `https://hpo.jax.org/app/browse/term/${hpoTerm}`;
     }
 
+    static getOmimLink(omimEntry) {
+        return `https://www.omim.org/entry/${omimEntry}`;
+    }
+
     static getSequenceOntologyLink(soTerm) {
         return `http://www.sequenceontology.org/browser/current_svn/term/${soTerm}`;
+    }
+
+    static getOmimOntologyLink(soTerm) {
+        return `https://omim.org/entry/${soTerm}"`;
+    }
+
+    static getOrphanetLink(orphaId) {
+        return `https://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=${orphaId}`;
     }
 
 }

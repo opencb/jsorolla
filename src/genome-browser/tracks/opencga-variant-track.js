@@ -60,7 +60,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             includeIndividual: true,
         });
 
-        response.getResults().forEach(result => {
+        (response?.responses?.[0]?.results || []).forEach(result => {
             this.samplesInfo.set(result.id, {
                 disorders: result.attributes?.OPENCGA_INDIVIDUAL?.disorders || [],
                 sex: result.attributes?.OPENCGA_INDIVIDUAL?.sex?.id || "UNKNOWN",
@@ -70,19 +70,20 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
 
         const topPosition = this.#getHeaderHeight();
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}SampleNames" style="position:absolute;top:0px;">
-                ${this.sampleNames.map(name => {
+            <div id="${this.prefix}SampleNames" style="position:absolute;top:0px;" data-cy="gb-opencga-variants-samples">
+                ${this.sampleNames.map((name, index) => {
                     const info = this.samplesInfo.get(name);
                     const sampleColor = info.disorders?.length > 0 ? "#CC0000" : "inherit";
                     const sampleSexIcon = GenomeBrowserUtils.getIndividualSexIcon(info.sex);
                     const sampleSexColor = GenomeBrowserUtils.getIndividualSexColor(info.sex);
+                    const sampleStyle = `height:${this.config.sampleHeight}px;display:flex;flex-direction:column;justify-content:center;`;
                     return `
-                        <div style="height:${this.config.sampleHeight}px;display:flex;flex-direction:column;justify-content:center;">
+                        <div style="${sampleStyle}" data-cy="gb-opencga-variants-sample" data-index="${index}">
                             <div style="font-size:14px;">
-                                <i class="fas ${sampleSexIcon}" style="padding-right:4px;color:${sampleSexColor};"></i>
-                                <b style="color:${sampleColor};">${name}</b>
+                                <i class="fas ${sampleSexIcon}" data-cy="gb-opencga-variants-sample-sex" style="padding-right:4px;color:${sampleSexColor};"></i>
+                                <b style="color:${sampleColor};" data-cy="gb-opencga-variants-sample-name">${name}</b>
                             </div>
-                            <div style="color:#6C757D;font-size:10px;padding-left:12px;">
+                            <div style="color:#6C757D;font-size:10px;padding-left:12px;" data-cy="gb-opencga-variants-sample-type">
                                 <b>${info.somatic ? "Somatic" : "Germline"} sample</b>
                             </div>
                         </div>

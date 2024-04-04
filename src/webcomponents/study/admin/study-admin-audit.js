@@ -142,7 +142,7 @@ export default class StudyAdminAudit extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
+                detailFormatter: this.detailFormatter,
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
@@ -265,7 +265,6 @@ export default class StudyAdminAudit extends LitElement {
             pageList: [10, 25, 50],
             showExport: false,
             detailView: true,
-            detailFormatter: this.detailFormatter,
             multiSelection: false,
             showSelectCheckbox: true,
             showToolbar: true,

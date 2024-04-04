@@ -34,11 +34,11 @@ export default class CohortUpdate extends LitElement {
 
     static get properties() {
         return {
-            cohort: {
-                type: Object
-            },
             cohortId: {
                 type: String
+            },
+            active: {
+                type: Boolean,
             },
             opencgaSession: {
                 type: Object
@@ -50,7 +50,7 @@ export default class CohortUpdate extends LitElement {
     }
 
     #init() {
-        this.cohort = {};
+        this._cohort = {};
         this.cohortId = "";
         this.displayConfig = {};
 
@@ -65,14 +65,22 @@ export default class CohortUpdate extends LitElement {
         super.update(changedProperties);
     }
 
+    onComponentIdObserver(e) {
+        this._cohort = UtilsNew.objectClone(e.detail.value);
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
+    }
+
+
     render() {
         return html`
             <opencga-update
                     .resource="${"COHORT"}"
-                    .component="${this.cohort}"
                     .componentId="${this.cohortId}"
                     .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config}">
+                    .active="${this.active}"
+                    .config="${this._config}"
+                    @componentIdObserver="${this.onComponentIdObserver}">
             </opencga-update>
         `;
     }
@@ -92,7 +100,7 @@ export default class CohortUpdate extends LitElement {
                             display: {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
-                                helpMessage: this.cohort.creationDate? "Created on " + UtilsNew.dateFormatter(this.cohort.creationDate) : "No creation date",
+                                helpMessage: this._cohort.creationDate? "Created on " + UtilsNew.dateFormatter(this._cohort.creationDate) : "No creation date",
                                 validation: {
                                 }
                             }
@@ -110,11 +118,11 @@ export default class CohortUpdate extends LitElement {
                                     const handleSamplesFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
                                         // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
+                                        const sampleList = e.detail.value
                                             ?.split(",")
                                             .filter(sampleId => sampleId)
                                             .map(sampleId => ({id: sampleId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(sampleList);
                                     };
 
                                     return html `

@@ -73,10 +73,10 @@ export default class CustomWelcome extends LitElement {
                     ${visibleApps.map(item => html`
                         <a class="icon-wrapper" href="#home" data-id="${item.id}" @click="${this.onChangeApp}">
                             <div class="hi-icon">
-                                <img alt="${item.name}" src="${item.icon}"  />
+                                <img alt="${item.name}" src="${item.icon}"/>
                             </div>
                             <div style="margin-top:10px;">
-                                <div>${item.name}</div>
+                                <span style="font-weight:bold;">${item.name}</span>
                             </div>
                         </a>
                     `)}
@@ -245,7 +245,7 @@ export default class CustomWelcome extends LitElement {
     render() {
         const welcomePage = this.getWelcomePageConfig();
 
-        if (!UtilsNew.isNotEmptyArray(this.opencgaSession.projects) ||
+        if (!UtilsNew.isNotEmptyArray(this.opencgaSession?.projects) ||
             this.opencgaSession.projects.every(p => !UtilsNew.isNotEmptyArray(p.studies))) {
             return html`
                 <div class="guard-page">

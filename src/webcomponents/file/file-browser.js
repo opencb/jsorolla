@@ -46,12 +46,6 @@ export default class FileBrowser extends LitElement {
             query: {
                 type: Object
             },
-            /* facetQuery: {
-                type: Object
-            },
-            selectedFacet: {
-                type: Object
-            },*/
             settings: {
                 type: Object
             }
@@ -59,33 +53,10 @@ export default class FileBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "fb" + UtilsNew.randomString(6);
-
-        // These are for making the queries to server
-        /* this.facetFields = [];
-        this.facetRanges = [];
-
-        this.facetFieldsName = [];
-        this.facetRangeFields = [];
-
-        this.facets = new Set();
-        this.facetFilters = [];
-
-        this.facetActive = true;
-        this.selectedFacet = {};
-        this.selectedFacetFormatted = {};
-        this.errorState = false;*/
-
+        this.COMPONENT_ID = "file-browser";
         this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
-    // is executed twice in case there is external settings
     update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
@@ -94,19 +65,39 @@ export default class FileBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
-        // merge filter list, canned filters, detail tabs
+        this._config = this.getDefaultConfig();
+
+        // Apply Study settings
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
+
+        // Grid configuration and take out toolbar admin/user settings to grid level.
         if (this.settings?.table) {
-            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+            const {toolbar, ...otherTableProps} = this.settings.table;
+            UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+                ...this._config.filter.result.grid,
+                ...otherTableProps,
+                ...toolbar,
+            });
         }
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        }
+
+        // Apply User grid configuration. Only 'pageSize' and 'columns' are set
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
+        });
+
+        this.requestUpdate();
     }
 
+    onSettingsUpdate() {
+        this.settingsObserver();
+    }
+
+    onFileUpdate() {
+        this.settingsObserver();
+    }
     render() {
         if (!this.opencgaSession || !this._config) {
             return "";
@@ -117,7 +108,8 @@ export default class FileBrowser extends LitElement {
                 resource="FILE"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @fileUpdate="${this.onFileUpdate}">
             </opencga-browser>
         `;
     }
@@ -135,11 +127,14 @@ export default class FileBrowser extends LitElement {
                     active: true,
                     render: params => html`
                         <file-grid
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.result.grid}"
                             .query="${params.executedQuery}"
+                            .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
-                            @selectrow="${e => params.onClickRow(e, "file")}">
+                            @selectrow="${e => params.onClickRow(e, "file")}"
+                            @fileUpdate="${e => params.onComponentUpdate(e, "file")}"
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </file-grid>
                         <file-detail
                             .opencgaSession="${params.opencgaSession}"
@@ -182,14 +177,14 @@ export default class FileBrowser extends LitElement {
                                 type: "string",
                                 placeholder: "HG01879, HG01880, HG01881...",
                                 description: ""
-                            }, /*
+                            },
                             {
-                                id: "path",
-                                name: "Path",
+                                id: "jobId",
+                                name: "Job ID",
                                 type: "string",
-                                placeholder: "genomes/resources/files/...",
-                                description: ""
-                            },*/
+                                placeholder: "Job ID ...",
+                                description: "",
+                            },
                             {
                                 id: "directory",
                                 name: "Directory",
@@ -198,33 +193,10 @@ export default class FileBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "jobId",
-                                name: "Job ID",
-                                placeholder: "Job ID ...",
-                                allowedValues: "",
-                                defaultValue: "",
-                                description: "",
-                            },
-                            {
                                 id: "format",
                                 name: "Format",
-                                type: "category",
-                                multiple: true,
-                                allowedValues: ["VCF", "BCF", "GVCF", "TBI", "BIGWIG", "SAM", "BAM", "BAI", "CRAM", "CRAI", "FASTQ", "FASTA", "PED", "TAB_SEPARATED_VALUES",
-                                    "COMMA_SEPARATED_VALUES", "XML", "PROTOCOL_BUFFER", "JSON", "AVRO", "PARQUET", "IMAGE", "PLAIN", "BINARY", "EXECUTABLE", "GZIP", "NONE", "UNKNOWN"],
-                                placeholder: "genomes/resources/files/...",
-                                description: ""
-                            },
-                            {
-                                id: "bioformat",
-                                name: "Bioformat",
-                                type: "category",
-                                multiple: true,
-                                allowedValues: ["MICROARRAY_EXPRESSION_ONECHANNEL_AGILENT", "MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX", "MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX",
-                                    "MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT", "MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX", "DATAMATRIX_EXPRESSION", "IDLIST", "IDLIST_RANKED",
-                                    "ANNOTATION_GENEVSANNOTATION", "OTHER_NEWICK", "OTHER_BLAST", "OTHER_INTERACTION", "OTHER_GENOTYPE", "OTHER_PLINK", "OTHER_VCF", "OTHER_PED",
-                                    "VARIANT", "ALIGNMENT", "COVERAGE", "SEQUENCE", "PEDIGREE", "REFERENCE_GENOME", "NONE", "UNKNOWN"],
-                                placeholder: "ALIGNMENT,VARIANT...",
+                                type: "string",
+                                placeholder: "Format ...",
                                 description: ""
                             },
                             {
@@ -246,7 +218,7 @@ export default class FileBrowser extends LitElement {
                             {
                                 id: "annotations",
                                 name: "File Annotations",
-                                description: ""
+                                description: "",
                             }
                         ]
                     }
@@ -312,13 +284,12 @@ export default class FileBrowser extends LitElement {
                                     .active="${active}">
                                 </json-viewer>
                             `,
-                        }
+                        },
                     ]
                 }
             },
             aggregation: {
-                default: ["creationYear>>creationMonth", "format", "bioformat", "format>>bioformat", "status", "size[0..214748364800]:10737418240", "numSamples[0..10]:1"],
-                // default: ["type>>size[0..214748364800]:10737418240", "format>>avg(size)", "release"],
+                default: ["creationYear>>creationMonth", "format", "status", "size[0..214748364800]:10737418240", "numSamples[0..10]:1"],
                 render: params => html `
                     <facet-filter
                         .config="${params.config.aggregation}"
@@ -400,16 +371,6 @@ export default class FileBrowser extends LitElement {
                                 allowedValues: ["VCF", "BCF", "GVCF", "TBI", "BIGWIG", "SAM", "BAM", "BAI", "CRAM", "CRAI", "FASTQ", "FASTA", "PED", "TAB_SEPARATED_VALUES",
                                     "COMMA_SEPARATED_VALUES", "XML", "PROTOCOL_BUFFER", "JSON", "AVRO", "PARQUET", "IMAGE", "PLAIN", "BINARY", "EXECUTABLE", "GZIP", "NONE", "UNKNOWN"],
                                 description: "Format"
-                            },
-                            {
-                                id: "bioformat",
-                                name: "Bioformat",
-                                type: "category",
-                                allowedValues: ["MICROARRAY_EXPRESSION_ONECHANNEL_AGILENT", "MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX", "MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX",
-                                    "MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT", "MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX", "DATAMATRIX_EXPRESSION", "IDLIST", "IDLIST_RANKED",
-                                    "ANNOTATION_GENEVSANNOTATION", "OTHER_NEWICK", "OTHER_BLAST", "OTHER_INTERACTION", "OTHER_GENOTYPE", "OTHER_PLINK", "OTHER_VCF", "OTHER_PED",
-                                    "VARIANT", "ALIGNMENT", "COVERAGE", "SEQUENCE", "PEDIGREE", "REFERENCE_GENOME", "NONE", "UNKNOWN"],
-                                description: "Bioformat"
                             },
                             {
                                 id: "external",
@@ -534,7 +495,6 @@ export default class FileBrowser extends LitElement {
             }
         };
     }
-
 
 }
 

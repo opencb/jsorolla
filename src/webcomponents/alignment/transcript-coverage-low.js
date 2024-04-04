@@ -92,7 +92,7 @@ export default class TranscripCoverageLow extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
-                                    let region = `${data.chromosome}:${data.start}-${data.end}`;
+                                    const region = `${data.chromosome}:${data.start}-${data.end}`;
                                     return html`${region} <a href="http://www.ensembl.org/Homo_sapiens/Location/View?db=core;r=${region}" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i> Ensembl</a>`;
                                 }
                             }
@@ -112,57 +112,48 @@ export default class TranscripCoverageLow extends LitElement {
                             display: {
                                 columns: [
                                     {
-                                        name: "Region",
-                                        type: "custom",
-                                        display: {
-                                            render: data => {
-                                                let region = `${data.chromosome}:${data.start}-${data.end}`;
-                                                return html`<a href="http://www.ensembl.org/Homo_sapiens/Location/View?db=core;r=${region}" target="_blank">${region}</a>`;
+                                        id: "region",
+                                        title: "Region",
+                                        field: "region",
+                                        formatter: (value, row) => {
+                                            const region = `${row.chromosome}:${row.start}-${row.end}`;
+                                            return `<a href="http://www.ensembl.org/Homo_sapiens/Location/View?db=core;r=${region}" target="_blank">${region}</a>`;
+                                        }
+                                    },
+                                    {
+                                        id: "sizeBp",
+                                        title: "Size (bp)",
+                                        formatter: (value, row) => {
+                                            if (row) {
+                                                return row.end - row.start + 1;
+                                            } else {
+                                                return "N/A";
                                             }
                                         }
                                     },
                                     {
-                                        name: "Size (bp)",
-                                        type: "custom",
-                                        display: {
-                                            render: data => {
-                                                if (data) {
-                                                    return data.end - data.start + 1
-                                                } else {
-                                                    return "N/A";
-                                                }
+                                        id: "percTranscript",
+                                        title: "% of Transcript",
+                                        formatter: (value, row) => {
+                                            if (row) {
+                                                const perc = (row.end - row.start + 1) * 100 / this.transcriptCoverageStats.length;
+                                                return perc.toFixed(2);
+                                            } else {
+                                                return "N/A";
                                             }
                                         }
                                     },
                                     {
-                                        name: "% of Transcript",
-                                        type: "custom",
-                                        display: {
-                                            render: data => {
-                                                if (data) {
-                                                    let perc = (data.end - data.start + 1) * 100 / this.transcriptCoverageStats.length;
-                                                    return perc.toFixed(2);
-                                                } else {
-                                                    return "N/A";
-                                                }
-                                            }
-                                        }
-                                    },
-                                    {
-                                        name: "Mean depth",
+                                        id: "depthAvg",
+                                        title: "Mean depth",
                                         field: "depthAvg",
-                                        type: "custom",
-                                        display: {
-                                            render: field => field.toFixed(2)
-                                        }
+                                        formatter: value => value.toFixed(2),
                                     },
                                     {
-                                        name: "Min depth",
+                                        id: "depthMin",
+                                        title: "Min depth",
                                         field: "depthMin",
-                                        type: "custom",
-                                        display: {
-                                            render: field => field.toFixed(2)
-                                        }
+                                        formatter: value => value.toFixed(2),
                                     }
                                 ]
                             }
@@ -175,7 +166,10 @@ export default class TranscripCoverageLow extends LitElement {
 
     render() {
         return html`
-            <data-form .data=${this.transcriptCoverageStats} .config="${this.getDefaultConfig()}"></data-form>
+            <data-form
+                .data=${this.transcriptCoverageStats}
+                .config="${this.getDefaultConfig()}">
+            </data-form>
         `;
     }
 

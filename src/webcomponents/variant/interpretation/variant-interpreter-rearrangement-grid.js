@@ -31,8 +31,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
     constructor() {
         super();
-
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -41,6 +40,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String
+            },
             opencgaSession: {
                 type: Object
             },
@@ -58,18 +60,34 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
-    _init() {
+    #init() {
+        this.COMPONENT_ID = "";
         this._prefix = UtilsNew.randomString(8);
+        this._config = this.getDefaultConfig();
+        this._rows = [];
 
         this.toolbarConfig = {};
+        this.toolbarSetting = {};
+
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
         this.review = false;
+        this.active = true;
         this.variantsReview = null;
+
+        this.gridCommons = null;
+        this.clinicalAnalysisManager = null;
+
+        // OpenCGA returns the same genes in both variants of the rearrangement
+        // This map is used to assign the correct genes to each variant
+        this.genesByVariant = {};
 
         // Set colors
         // consequenceTypesImpact;
@@ -77,70 +95,34 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-    }
-
-    firstUpdated() {
-        this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
-        this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-        this.table = $("#" + this.gridId);
-        // this.checkedVariants = new Map();
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
+    update(changedProperties) {
+        if (changedProperties.has("toolId")) {
+            this.COMPONENT_ID = this.toolId + "-grid";
         }
 
-        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("query")) {
-            // this.opencgaSessionObserver();
+        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("opencgaSession")) {
             this.clinicalAnalysisObserver();
-            this.renderVariants();
         }
 
         if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            this.gridCommons = new GridCommons(this.gridId, this, this._config);
-            this.toolbarConfig = {
-                ...this._config,
-                ...this._config.toolbar, // it comes from external settings
-                resource: "CLINICAL_VARIANT",
-            };
-            this.requestUpdate();
+            this.configObserver();
+        }
+
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        // We ned to perform an update of the table only when any of the properties of this grid has changed
+        // This means that we only need to check if the changedProperties set is not empty
+        if (changedProperties.size > 0) {
             this.renderVariants();
         }
     }
 
-    opencgaSessionObserver() {
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-    }
-
     clinicalAnalysisObserver() {
-        // We need to load server config always.
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+        if (this.opencgaSession && this.clinicalAnalysis) {
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
-        // Make sure somatic sample is the first one
-        if (this.clinicalAnalysis) {
             if (!this.clinicalAnalysis.interpretation) {
                 this.clinicalAnalysis.interpretation = {};
             }
@@ -159,6 +141,30 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 }
             }
         }
+    }
+
+    configObserver() {
+        // 1. Merge default configuration with the configuration provided via props
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+
+        // 2. Initialize grid commons with the new configutation
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
+        // 3. Set toolbar settings
+        this.toolbarSetting = {
+            ...this._config,
+        };
+
+        // 4. Set toolbar configuration
+        this.toolbarConfig = {
+            toolId: this.toolId,
+            resource: "CLINICAL_VARIANT",
+            showInterpreterConfig: true,
+            columns: this._getDefaultColumns()
+        };
     }
 
     onColumnChange(e) {
@@ -186,11 +192,68 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         return pairs;
     }
 
+    generateGenesMapFromVariants(variants, offset = 5000) {
+        this.genesByVariant = {};
+        const genesList = new Set();
+        (variants || []).forEach(variant => {
+            if (variant?.annotation?.consequenceTypes) {
+                variant.annotation.consequenceTypes.forEach(ct => {
+                    if (ct.geneName || ct.geneId) {
+                        genesList.add(ct.geneName || ct.geneId);
+                    }
+                });
+            }
+        });
+
+        // Request gene info to cellbase
+        if (genesList.size > 0) {
+            const genesIds = Array.from(genesList);
+            return this.opencgaSession.cellbaseClient
+                .getGeneClient(genesIds.join(","), "info", {
+                    "include": "id,name,chromosome,start,end",
+                })
+                .then(response => {
+                    // 1. Map each gene with it's correct position
+                    const genes = new Map();
+                    genesIds.forEach((geneId, index) => {
+                        if (response?.responses?.[index]?.results?.[0]) {
+                            genes.set(geneId, response.responses[index].results[0]);
+                        }
+                    });
+
+                    // 2. Assign genes to each variant
+                    variants.forEach(variant => {
+                        const id = variant.id;
+                        this.genesByVariant[id] = new Set();
+                        (variant?.annotation?.consequenceTypes || []).forEach(ct => {
+                            const gene = genes.get(ct.geneName || ct.geneId);
+
+                            // Check if this gene exists and overlaps this variant
+                            if (gene) {
+                                const start = gene.start - offset;
+                                const end = gene.end + offset;
+                                const variantStart = Math.min(variant.start, variant.end);
+                                const variantEnd = Math.max(variant.start, variant.end);
+                                if (variant.chromosome === gene.chromosome && variantStart <= end && start <= variantEnd) {
+                                    this.genesByVariant[id].add(ct.geneName || ct.geneId);
+                                }
+                            }
+                        });
+                    });
+                });
+        }
+
+        // In other case, we will return a dummy promise
+        return Promise.resolve(null);
+    }
+
     renderVariants() {
-        if (this.clinicalVariants && this.clinicalVariants.length > 0) {
-            this.renderLocalVariants();
-        } else {
-            this.renderRemoteVariants();
+        if (this.active) {
+            if (this.clinicalVariants && this.clinicalVariants.length > 0) {
+                this.renderLocalVariants();
+            } else {
+                this.renderRemoteVariants();
+            }
         }
     }
 
@@ -209,7 +272,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: this._createDefaultColumns(),
+                columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -232,11 +295,13 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 variantGrid: this,
 
                 ajax: params => {
+                    let rearrangementResponse = null;
+
                     // Make a deep clone object to manipulate the query sent to OpenCGA
                     const internalQuery = JSON.parse(JSON.stringify(this.query));
 
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
-                    const filters = {
+                    this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit * 2 || tableOptions.pageSize * 2,
                         skip: params.data.offset || 0,
@@ -251,18 +316,28 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         type: "BREAKEND"
                     };
 
-                    this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
+                    this.opencgaSession.opencgaClient.clinical()
+                        .queryVariant(this.filters)
                         .then(res => {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
+                            rearrangementResponse = res;
 
-                            // pairs will have the following format: [[v1, v2], [v3, v4], [v5, v6]];
-                            const pairs = this.generateRowsFromVariants(res.responses[0].results);
-                            // It's important to overwrite results array
-                            res.responses[0].results = pairs;
-
-                            params.success(res);
+                            // Generate map of genes to variants
+                            return this.generateGenesMapFromVariants(res.responses[0].results);
                         })
-                        .catch(e => params.error(e))
+                        .then(() => {
+                            // pairs will have the following format: [[v1, v2], [v3, v4], [v5, v6]];
+                            const results = rearrangementResponse.responses[0].results;
+                            const pairs = this.generateRowsFromVariants(results);
+                            // It's important to overwrite results array
+                            rearrangementResponse.responses[0].results = pairs;
+
+                            params.success(rearrangementResponse);
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
+                        })
                         .finally(() => {
                             LitUtils.dispatchCustomEvent(this, "queryComplete", null);
                         });
@@ -271,11 +346,15 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onLoadSuccess: data => {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
                     this.gridCommons.onLoadSuccess(data, 2);
+
+                    // Josemi Note 20240214 - We need to force an update of the grid component to propagate the applied
+                    // filters in 'this.filters' to the component 'opencga-grid-toolbar'.
+                    this.requestUpdate();
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
@@ -291,9 +370,29 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: variants,
-            columns: this._createDefaultColumns(),
-            sidePagination: "local",
+            columns: this._getDefaultColumns(),
+            sidePagination: "server",
+            // Josemi Note 2024-01-31: we have added the ajax function for local variants for getting genes info
+            // and map the genes to each variant
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = variants.slice(skip, skip + limit);
+
+                // Generate map of genes to variants
+                this.generateGenesMapFromVariants(rows.flat())
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-31: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: variants.length,
+                    rows: response,
+                };
+            },
+
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
 
@@ -305,14 +404,14 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             paginationVAlign: "both",
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
+            // detailView: this._config.detailView,
+            // detailFormatter: this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
             variantGrid: this,
 
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 this._rows = data;
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
@@ -406,7 +505,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         `;
     }
 
-    _createDefaultColumns() {
+    _getDefaultColumns() {
         // This code creates dynamically the columns for the VCF INFO and FORMAT column data.
         // Multiple file callers are supported.
         const vcfDataColumns = {
@@ -436,14 +535,16 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                                 sampleId: this.clinicalAnalysis?.proband?.samples?.[0]?.id,
                                 variantCaller: variantCaller,
                             };
+                            const id = name + column.replace("EXT_", "");
                             vcfDataColumns[name].push({
-                                id: column.replace("EXT_", ""),
+                                id: id,
                                 title: column.replace("EXT_", ""),
                                 field: field,
                                 rowspan: 1,
                                 colspan: 1,
                                 formatter: (value, row) => this.vcfDataFormatter(value, row[index], field),
                                 halign: "center",
+                                visible: this.gridCommons.isColumnVisible(id),
                             });
                         });
                     });
@@ -459,65 +560,77 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         }
 
         // Prepare Grid columns
-        const _columns = [
+        this._columns = [
             [
                 {
+                    id: "variant1",
                     title: "Variant 1",
                     field: "id",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row[0], index, this.opencgaSession.project.organism.assembly, this._config),
+                    formatter: (value, row, index) => VariantGridFormatter.variantIdFormatter(value, row[0], index, this.opencgaSession.project.organism.assembly, this._config),
                     halign: "center",
-                    sortable: true
+                    sortable: true,
+                    visible: this.gridCommons.isColumnVisible("variant1"),
                 },
                 {
+                    id: "variant2",
                     title: "Variant 2",
                     field: "id",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row[1], index, this.opencgaSession.project.organism.assembly, this._config),
+                    formatter: (value, row, index) => VariantGridFormatter.variantIdFormatter(value, row[1], index, this.opencgaSession.project.organism.assembly, this._config),
                     halign: "center",
-                    sortable: true
+                    sortable: true,
+                    visible: this.gridCommons.isColumnVisible("variant2"),
                 },
                 {
+                    id: "gene",
                     title: "Gene",
                     field: "gene",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row[0], index, this.query, this.opencgaSession),
-                    halign: "center"
+                    formatter: (value, row) => {
+                        return VariantInterpreterGridFormatter.rearrangementGeneFormatter(row, this.genesByVariant, this.opencgaSession);
+                    },
+                    halign: "center",
+                    visible: this.gridCommons.isColumnVisible("gene"),
                 },
-                // {
-                //     title: "Gene",
-                //     field: "gene",
-                //     rowspan: 2,
-                //     colspan: 1,
-                //     formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row[1], index, this.query, this.opencgaSession),
-                //     halign: "center"
-                // },
                 {
-                    title: "Type<br><span class='help-block' style='margin: 0px'>SVCLASS</span>",
-                    field: "type",
+                    id: "evidences",
+                    title: "Role in Cancer",
+                    field: "evidences",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => this.vcfDataFormatter(value, row[0], {vcfColumn: "info", key: ["EXT_SVTYPE", "SVCLASS"]}, "<br>"),
-                    halign: "center"
+                    formatter: (value, row, index) => VariantInterpreterGridFormatter.roleInCancerFormatter(row[0]?.evidences, index),
+                    halign: "center",
+                    visible: this.clinicalAnalysis.type?.toUpperCase() === "CANCER" && this.gridCommons.isColumnVisible("evidences"),
                 },
                 {
+                    id: "geneFeatureOverlap",
+                    title: "Gene Feature Overlap",
+                    rowspan: 1,
+                    colspan: 2,
+                    halign: "center",
+                },
+                {
+                    id: "vcfData1",
                     title: "VCF Data 1",
                     rowspan: 1,
                     colspan: vcfDataColumns.vcf1?.length,
                     halign: "center",
-                    visible: vcfDataColumns.vcf1?.length > 1
+                    visible: vcfDataColumns.vcf1?.length > 1 && this.gridCommons.isColumnVisible("vcfData1"),
                 },
                 {
+                    id: "vcfData2",
                     title: "VCF Data 2",
                     rowspan: 1,
                     colspan: vcfDataColumns.vcf2?.length,
                     halign: "center",
-                    visible: vcfDataColumns.vcf2?.length > 1
+                    visible: vcfDataColumns.vcf2?.length > 1 && this.gridCommons.isColumnVisible("vcfData2"),
                 },
                 {
+                    id: "interpretation",
                     title: `Interpretation
                         <a class='interpretation-info-icon'
                             tooltip-title='Interpretation'
@@ -534,57 +647,87 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     title: "Actions",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => `
-                        <div class="dropdown">
-                            <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-right">
-                                <li>
-                                    <a href="javascript: void 0" class="btn force-text-left" data-action="download">
-                                        <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
-                                    </a>
-                                </li>
-                                <li role="separator" class="divider"></li>
-                                <li>
-                                    <a href="javascript: void 0" class="btn force-text-left reviewButton" data-variant-id="${row.id} data-action="edit">
-                                        <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="javascript: void 0" class="btn disabled force-text-left" data-action="remove">
-                                        <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Remove
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>`,
+                    formatter: (value, row) => {
+                        const reviewId = `${this._prefix}${row[0].id}VariantReviewActionButton`;
+                        const reviewDisabled = (!this.checkedVariants.has(row[0].id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+
+                        return `
+                            <div class="dropdown">
+                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                    <span>Actions</span>
+                                    <span class="caret" style="margin-left: 5px"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a id="${reviewId}" href="javascript:void 0;" class="btn force-text-left reviewButton" data-action="edit" ${reviewDisabled}>
+                                            <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit ...
+                                        </a>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
+                                    <li class="dropdown-header">Fetch Variant</li>
+                                    <li>
+                                        <a href="javascript: void 0" class="btn force-text-left" data-action="download">
+                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        `;
+                    },
                     align: "center",
                     events: {
                         "click a": this.onActionClick.bind(this)
                     },
-                    visible: this._config.showActions && !this._config?.columns?.hidden?.includes("actions"),
                     excludeFromExport: true,
+                    excludeFromSettings: true,
                 }
             ],
             [
+                {
+                    id: "geneFeatureOverlapVariant1",
+                    title: "Variant 1",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: (value, rows) => {
+                        return VariantInterpreterGridFormatter.rearrangementFeatureOverlapFormatter(rows[0], this.genesByVariant[rows[0].id], this.opencgaSession);
+                    },
+                    halign: "center",
+                    valign: "top",
+                    visible: this.gridCommons.isColumnVisible("geneFeatureOverlapVariant1"),
+                },
+                {
+                    id: "geneFeatureOverlapVariant2",
+                    title: "Variant 2",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: (value, rows) => {
+                        return VariantInterpreterGridFormatter.rearrangementFeatureOverlapFormatter(rows[1], this.genesByVariant[rows[1].id], this.opencgaSession);
+                    },
+                    halign: "center",
+                    valign: "top",
+                    visible: this.gridCommons.isColumnVisible("geneFeatureOverlapVariant2"),
+                },
                 ...vcfDataColumns.vcf1,
                 ...vcfDataColumns.vcf2,
                 {
+                    id: "cohorts",
                     title: "Cohorts",
                     field: "cohort",
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
-                    visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                    visible: (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY") && this.gridCommons.isColumnVisible("cohorts",)
                 },
                 {
+                    id: "prediction",
                     title: `${this.clinicalAnalysis.type !== "CANCER" ? "ACMG <br> Prediction" : "Prediction"}`,
                     field: "prediction",
                     rowspan: 1,
                     colspan: 1,
                     formatter: VariantInterpreterGridFormatter.predictionFormatter,
                     halign: "center",
-                    visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                    visible: (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY") && this.gridCommons.isColumnVisible("prediction"),
                 },
                 {
                     title: "Select",
@@ -606,36 +749,44 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row, index) => {
-                        const disabled = !this.checkedVariants?.has(row[0].id) ? "disabled" : "";
-                        return `
-                            <button id="${this._prefix}VariantReviewButton${index}" class="btn btn-link" data-row-index="${index}" ${disabled}>
-                                <i class="fa fa-edit icon-padding" data-row-index="${index}"></i>
-                                Edit ...
-                            </button>
-                            ${this.checkedVariants?.has(row[0].id) ? `
-                                <div class="help-block" style="margin: 5px 0">${this.checkedVariants.get(row[0].id).status}</div>
-                            ` : ""
-                            }
-                        `;
+                        const disabled = (!this.checkedVariants?.has(row[0].id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+                        const checked = this.checkedVariants.has(row[0].id);
+                        const variant = checked ? this.checkedVariants.get(row[0].id) : row[0];
+                        return VariantInterpreterGridFormatter.reviewFormatter(variant, index, checked, disabled, this._prefix, this._config);
                     },
                     align: "center",
                     events: {
-                        "click button": this.onReviewClick.bind(this)
+                        "click button": e => this.onReviewClick(e),
                     },
-                    // visible: this._config.showReview
-                    visible: !!this.review,
+                    visible: this.review || this._config.showReview,
                     excludeFromExport: true // this is used in opencga-export
                 },
             ]
         ];
 
-        return _columns;
+        // Update columns
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+
+        return this._columns;
     }
 
     onActionClick(e, value, row) {
-        const {action} = e.target.dataset;
-        if (action === "download") {
-            UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+        const action = (e.target.dataset.action || "").toLowerCase();
+        switch (action) {
+            case "edit":
+                this.variantsReview = null;
+                if (this.checkedVariants && this.checkedVariants.has(row[0].id)) {
+                    this.variantsReview = [
+                        UtilsNew.objectClone(this.checkedVariants.get(row[0].id)),
+                        UtilsNew.objectClone(this.checkedVariants.get(row[1].id)),
+                    ];
+                    this.requestUpdate();
+                    $("#" + this._prefix + "ReviewSampleModal").modal("show");
+                }
+                break;
+            case "download":
+                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
         }
     }
 
@@ -763,15 +914,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         $("#" + this.gridId).bootstrapTable("showLoading");
     }
 
-
-    onGridConfigChange(e) {
-        this.__config = e.detail.value;
-    }
-
-    onGridConfigSave() {
-        LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
-    }
-
     onRowCheck(event) {
         const index = parseInt(event.target.dataset.rowIndex);
 
@@ -784,8 +926,23 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             }
         });
 
-        // Set 'Edit' button as enabled/disabled
-        document.getElementById(`${this._prefix}VariantReviewButton${index}`).disabled = !event.currentTarget.checked;
+        // Set 'Edit' button as enabled/disabled in 'Review' column
+        // Josemi NOTE 20240205 - Edit buton in column is not rendered when 'Review' column is hidden
+        const reviewButton = document.getElementById(`${this._prefix}${this._rows[index][0].id}VariantReviewButton`);
+        if (reviewButton) {
+            reviewButton.disabled = !event.currentTarget.checked;
+        }
+
+        // Set 'Edit' button as enabled/disabled in 'Actions' dropdown
+        // Josemi NOTE 20240205 - Edit buton in actions dropdown is not rendered when when actions column is hidden
+        const reviewActionButton = document.getElementById(`${this._prefix}${this._rows[index][0].id}VariantReviewActionButton`);
+        if (reviewActionButton) {
+            if (event.currentTarget.checked) {
+                reviewActionButton.removeAttribute("disabled");
+            } else {
+                reviewActionButton.setAttribute("disabled", "true");
+            }
+        }
 
         // Dispatch row check event
         LitUtils.dispatchCustomEvent(this, "checkrow", null, {
@@ -796,7 +953,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     onReviewClick(e) {
-        const index = parseInt(e.target.dataset.rowIndex);
+        const index = parseInt(e.currentTarget.dataset.index);
         const variants = this._rows[index];
         this.variantsReview = null;
 
@@ -826,6 +983,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             discussion: this.variantsReview[0].discussion,
             status: this.variantsReview[0].status,
             comments: this.variantsReview[0].comments,
+            confidence: this.variantsReview[0].confidence,
         };
 
         // Update checked variants
@@ -851,21 +1009,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         // this._variantChanged = null;
     }
 
-    getRightToolbar() {
-        if (this._config?.showSettings) {
-            return [
-                {
-                    render: () => html`
-                        <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
-                            <i class="fas fa-cog icon-padding"></i> Settings ...
-                        </button>
-                    `,
-                }
-            ];
-        }
-        return [];
-    }
-
     render() {
         return html`
             <style>
@@ -883,14 +1026,16 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
             <opencb-grid-toolbar
                 .config="${this.toolbarConfig}"
-                .rightToolbar="${this.getRightToolbar()}"
+                .settings="${this.toolbarSetting}"
+                .opencgaSession="${this.opencgaSession}"
+                .query="${this.filters}"
                 @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}"
                 @export="${this.onDownload}"
                 @sharelink="${this.onShare}">
             </opencb-grid-toolbar>
 
-            <div id="${this._prefix}GridTableDiv">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
 
@@ -928,7 +1073,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         <div class="modal-body">
                             <div class="container-fluid">
                                 <variant-interpreter-grid-config
+                                    .opencgaSession="${this.opencgaSession}"
                                     .config="${this._config}"
+                                    .gridColumns="${this._columns}"
                                     @configChange="${this.onGridConfigChange}">
                                 </variant-interpreter-grid-config>
                             </div>
@@ -952,6 +1099,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             showSettings: true,
             detailView: true,
             showReview: true,
+            showEditReview: true,
             showSelectCheckbox: false,
             showActions: false,
             multiSelection: false,
@@ -959,14 +1107,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
             alleleStringLengthMax: 50,
 
-            genotype: {
-                type: "VCF_CALL"
-            },
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
-
+            // genotype: {
+            //     type: "VCF_CALL"
+            // },
             quality: {
                 qual: 30,
                 dp: 20

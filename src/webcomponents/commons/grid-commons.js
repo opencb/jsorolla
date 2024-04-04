@@ -16,7 +16,7 @@
 
 import UtilsNew from "../../core/utils-new.js";
 import CustomActions from "./custom-actions.js";
-
+import ExtensionsManager from "../extensions-manager.js";
 
 export default class GridCommons {
 
@@ -181,12 +181,11 @@ export default class GridCommons {
             }
 
             // Add events for displaying genes and roles list
-            // const gridElement = document.querySelector(`#${this.gridId}`);
-            ["genes", "roles"].forEach(key => {
+            ["genes", "roles", "gene-feature-overlaps"].forEach(key => {
                 Array.from(document.querySelectorAll(`#${this.gridId} div[data-role="${key}-list"]`)).forEach(el => {
-                    const extraList = el.querySelector(`span[data-role="${key}-list-extra"]`);
-                    const showLink = el.querySelector(`a[data-role="${key}-list-show"]`);
-                    const hideLink = el.querySelector(`a[data-role="${key}-list-hide"]`);
+                    const extraList = el.querySelector(`[data-role="${key}-list-extra"]`);
+                    const showLink = el.querySelector(`[data-role="${key}-list-show"]`);
+                    const hideLink = el.querySelector(`[data-role="${key}-list-hide"]`);
 
                     showLink.addEventListener("click", () => {
                         showLink.style.display = "none";
@@ -295,6 +294,34 @@ export default class GridCommons {
                 }
             });
         return rowStyle;
+    }
+
+    addColumnsFromAnnotations(columns, formatter, gridConfig) {
+        if (gridConfig?.annotations?.length > 0) {
+            for (const annotation of gridConfig.annotations) {
+                const column = {
+                    id: "annotations",
+                    title: annotation.title || "Custom Annotation",
+                    field: "annotationSets",
+                    formatter: annotationSets => formatter(annotationSets, annotation.variableSetId, annotation.variables),
+                    halign: gridConfig.header?.horizontalAlign || "center",
+                    visible: true,
+                    excludeFromSettings: true,
+                    // visible: this.gridCommons.isColumnVisible("annotations")
+                };
+                columns.splice(annotation.position, 0, column);
+            }
+        }
+        return columns;
+    }
+
+    addColumnsFromExtensions(columns, componentId) {
+        if (!this.context?._config?.skipExtensions) {
+            const id = componentId || this.context?.COMPONENT_ID;
+            return ExtensionsManager.injectColumns(columns, id, columnId => this.isColumnVisible(columnId));
+        }
+        // No extensions to inject, just return the original columns list
+        return columns;
     }
 
 }

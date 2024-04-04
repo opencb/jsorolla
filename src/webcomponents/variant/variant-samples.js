@@ -27,7 +27,7 @@ export default class VariantSamples extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -44,34 +44,31 @@ export default class VariantSamples extends LitElement {
             },
             active: {
                 type: Boolean
-            }
+            },
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
 
         this.active = false;
         this.gridId = this._prefix + "SampleTable";
-        this.toolbarConfig = {
-            showColumns: true,
-            showExport: false,
-            showDownload: true
-        };
-    }
 
-    connectedCallback() {
+        this.toolbarSettings = {
+            showCreate: false,
+            showExport: true,
+            showSettings: false,
+        };
+        this.toolbarConfig = {
+            resource: "SAMPLE",
+        };
+
         this.config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this.config);
-        super.connectedCallback();
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            // this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
-        }
-
-        if ((changedProperties.has("variantId") || changedProperties.has("active")) && this.active) {
+        if (changedProperties.size > 0 && this.active) {
             this.renderTable();
         }
     }
@@ -120,7 +117,7 @@ export default class VariantSamples extends LitElement {
     }
 
     renderTable() {
-        if (!this.opencgaSession) {
+        if (!this.opencgaSession || !this.variantId) {
             return;
         }
         this.table = $("#" + this.gridId);
@@ -330,7 +327,7 @@ export default class VariantSamples extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: disorders => {
-                        const result = disorders?.map(disorder => CatalogGridFormatter.disorderFormatter(disorder)).join("<br>");
+                        const result = disorders?.map(disorder => CatalogGridFormatter.disorderFormatter([disorder])).join("<br>");
                         return result ? result : "-";
                     },
                     halign: "center"
@@ -349,7 +346,10 @@ export default class VariantSamples extends LitElement {
 
     async onDownload(e) {
         try {
-            this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+            this.toolbarConfig = {
+                ...this.toolbarConfig,
+                downloading: true
+            };
             this.requestUpdate();
             await this.updateComplete;
             // batch size for sample query
@@ -374,7 +374,7 @@ export default class VariantSamples extends LitElement {
                         this.sexFormatter(sample?.attributes?.OPENCGA_INDIVIDUAL),
                         sample?.attributes?.OPENCGA_INDIVIDUAL?.phenotypes?.map(p => p.id) ?? "-",
                         sample?.attributes?.OPENCGA_INDIVIDUAL?.disorders?.map(d => d.id) ?? "-",
-                        sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS?.id ?? "-"
+                        sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS?.map(d => d.id) ?? "-",
                     ].join("\t");
                 });
                 if (e.detail.option.toLowerCase() === "tab") {
@@ -389,17 +389,11 @@ export default class VariantSamples extends LitElement {
         } catch (e) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
         }
-        this.toolbarConfig = {...this.toolbarConfig, downloading: false};
-        this.requestUpdate();
-    }
-
-    getDefaultConfig() {
-        return {
-            pagination: true,
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            showExport: false
+        this.toolbarConfig = {
+            ...this.toolbarConfig,
+            downloading: false
         };
+        this.requestUpdate();
     }
 
     render() {
@@ -415,16 +409,26 @@ export default class VariantSamples extends LitElement {
                     </div>
                 ` : null}
                 <opencb-grid-toolbar
+                    .opencgaSession="${this.opencgaSession}"
+                    .settings="${this.toolbarSettings}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @sharelink="${this.onShare}">
+                    @export="${this.onDownload}">
                 </opencb-grid-toolbar>
                 <div>
                     <table id="${this._prefix}SampleTable"></table>
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25, 50],
+        };
     }
 
 }
