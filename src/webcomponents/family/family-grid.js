@@ -185,19 +185,27 @@ export default class FamilyGrid extends LitElement {
                         ...this.query
                     };
 
+                    // Calculate the number of cases to fetch
+                    const casesLimit = this.table?.bootstrapTable("getOptions")?.pageSize || this._config.pageSize || 10;
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.families()
                         .search(this.filters)
                         .then(familyResponse => {
                             // Fetch Clinical Analysis ID per Family in 1 single query
-                            const familyIds = familyResponse.responses[0].results.map(family => family.id).join(",");
+                            const familyIds = familyResponse.responses[0].results
+                                .map(family => family.id)
+                                .join(",");
+
                             if (familyIds) {
-                                this.opencgaSession.opencgaClient.clinical()
+                                this.opencgaSession.opencgaClient
+                                    .clinical()
                                     .search({
                                         family: familyIds,
                                         study: this.opencgaSession.study.fqn,
-                                        include: "id,proband.id,family.members,family.id"
+                                        include: "id,proband.id,family.members,family.id",
+                                        limit: casesLimit * 10
                                     })
                                     .then(caseResponse => {
                                         familyResponse.getResults().forEach(family => {
@@ -541,11 +549,10 @@ export default class FamilyGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
-                visible: !this._config.columns?.hidden?.includes("actions")
+                visible: this.gridCommons.isColumnVisible("actions")
             });
         }
 
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
     }
