@@ -19,6 +19,8 @@ import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils";
 import NotificationUtils from "../../commons/utils/notification-utils";
+import "../../user/user-password-change.js";
+import "../../user/user-password-reset.js";
 
 export default class UserAdminUpdate extends LitElement {
 
@@ -37,6 +39,9 @@ export default class UserAdminUpdate extends LitElement {
             userId: {
                 type: String
             },
+            organization: {
+                type: Object,
+            },
             studyId: {
                 type: String,
             },
@@ -53,8 +58,8 @@ export default class UserAdminUpdate extends LitElement {
     }
 
     #init() {
-        this.group = {};
-        this.groupId = "";
+        this._user = {};
+        this.userId = "";
         this.studyId = "";
         this.displayConfig = {};
         this.updatedFields = {};
@@ -88,33 +93,32 @@ export default class UserAdminUpdate extends LitElement {
         };
     }
 
-    #initGroup() {
+    #initUser() {
         // 1. Group contains params: (a) id: e.g. "@admins", (b) userIds: e.g. ["test"]
-        this.group = this._study.groups.find(group => group.id === this.groupId);
+        this._user = UtilsNew.objectClone(this.user);
         // 2. In the update form, we need to manage as well the permissions of this group.
         // Retrieve ACL permissions. Check if this study group has acl
         // CAUTION: study does not have acl?
-        const groupPermissions = this._study?.acl
-            ?.find(acl => acl.member === this.opencgaSession.user.id)?.groups
-            ?.find(group => group.id === this.group.id)?.permissions || [];
-        // 3. Add current permissions and template key to the object group
-        this.group = {
-            ...this.group,
-            permissions: groupPermissions,
-            template: "", // Fixme: not sure how to retrieve template
-        };
+        // const groupPermissions = this._study?.acl
+        //     ?.find(acl => acl.member === this.opencgaSession.user.id)?.groups
+        //     ?.find(group => group.id === this.group.id)?.permissions || [];
+        // // 3. Add current permissions and template key to the object group
+        // this.group = {
+        //     ...this.group,
+        //     permissions: groupPermissions,
+        //     template: "", // Fixme: not sure how to retrieve template
+        // };
         this.initOriginalObjects();
-
     }
 
     initOriginalObjects() {
-        this._group = UtilsNew.objectClone(this.group);
+        this._user = UtilsNew.objectClone(this.user);
         this.updatedFields = {};
     }
 
     update(changedProperties) {
-        if ((changedProperties.has("groupId") || (changedProperties.has("studyId")) && this.active)) {
-            this.groupIdObserver();
+        if ((changedProperties.has("userId") && this.active)) {
+            this.userIdObserver();
         }
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
@@ -125,15 +129,20 @@ export default class UserAdminUpdate extends LitElement {
         super.update(changedProperties);
     }
 
-    groupIdObserver() {
-        if (this.groupId && this.studyId && this.opencgaSession) {
+    userIdObserver() {
+        if (this.userId && this.opencgaSession) {
+            const params = {
+                users: this.userId,
+                organization: this.organization.id,
+            };
             let error;
             this.#setLoading(true);
-            this.opencgaSession.opencgaClient.studies()
-                .info(this.studyId)
+            this.opencgaSession.opencgaClient.users()
+                .info(params)
                 .then(response => {
-                    this._study = UtilsNew.objectClone(response.responses[0].results[0]);
-                    this.#initGroup();
+                    this.user = UtilsNew.objectClone(response.responses[0].results[0]);
+                    debugger
+                    this.#initUser();
                 })
                 .catch(reason => {
                     error = reason;
@@ -216,7 +225,7 @@ export default class UserAdminUpdate extends LitElement {
     render() {
         return html `
             <data-form
-                .data="${this._group}"
+                .data="${this._user}"
                 .config="${this._config}"
                 .updateParams="${this.updatedFields}"
                 @fieldChange="${e => this.onFieldChange(e)}"
@@ -239,15 +248,78 @@ export default class UserAdminUpdate extends LitElement {
                     title: "Details",
                     elements: [
                         {
-                            title: "Group ID",
-                            field: "id",
+                            title: "User Name",
+                            field: "name",
                             type: "input-text",
-                            required: true,
                             display: {
-                                placeholder: "Add a short ID...",
-                                helpMessage: "short group id...",
+                                helpMessage: "Edit the user name...",
                             },
                         },
+                        {
+                            title: "User email",
+                            field: "email",
+                            type: "input-text",
+                            display: {
+                                helpMessage: "Edit the user email...",
+                            },
+                        },
+                        {
+                            title: "Enable user",
+                            field: "enabled",
+                            type: "toggle-switch",
+                            display: {
+                                disabled: true,
+                                helpMessage: "Coming soon: Enable/Disable a user in an organization",
+                            },
+                        },
+
+                    ],
+                },
+                {
+                    title: "Credentials",
+                    elements: [
+                        {
+                            title: "Set password",
+                            type: "custom",
+                            display: {
+                                render: (data, active, opencgaSession) => html`
+                                    <user-password-change
+                                        .opencgaSession="${opencgaSession}">
+                                    </user-password-change>
+                                `,
+                            },
+                        },
+                        {
+                            title: "Reset password",
+                            type: "custom",
+                            display: {
+                                render: (data, active, opencgaSession) => html`
+                                    <user-password-reset
+                                        .opencgaSession="${opencgaSession}">
+                                    </user-password-reset>
+                                `,
+                            },
+                        },
+                        /*
+                        {
+                            title: "Reset password",
+                            field: "pwdReset",
+                            type: "toggle-switch",
+                            display: {
+                                disabled: true,
+                                helpMessage: "Coming soon: Force user to reset the password",
+                            },
+                        },
+                        {
+                            title: "Expires in",
+                            field: "pwdExpiration",
+                            type: "input-text",
+                            display: {
+                                disabled: true,
+                                helpMessage: "Coming soon: Enable password expiration",
+                            },
+                        },
+                         */
                     ],
                 },
                 {

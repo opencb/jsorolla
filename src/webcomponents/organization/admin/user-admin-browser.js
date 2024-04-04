@@ -70,31 +70,10 @@ export default class UserAdminBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    // TODO to remove when BUG 2 fixed
-    onUserCreated(e) {
-        this.users.push(e.detail.user);
-    }
     #getUsers(isSingleStudy) {
-        // FIXME: refactor
-        // If the component is used for managing the groups of the whole organization
-        this._users = [];
+        // FIXME: Big refactor when BUG 2 fixed.
         if (isSingleStudy) {
-            this._study.groups?.forEach(group => {
-                let protectedGroup = false;
-                if (group.id === "@admins" || group.id === "@members") {
-                    protectedGroup = true;
-                }
-                const newGroup = {
-                    studyId: this._study.id,
-                    groupId: group.id,
-                    users: group.userIds.map(user => {
-                        debugger
-                        return {id: user, name: user};
-                    }),
-                    protectedGroup: protectedGroup,
-                };
-                this._groups.push(newGroup);
-            });
+            // TODO
         } else {
             // FIXME 20240321 Vero:
             //  *********************************************************************************
@@ -111,7 +90,6 @@ export default class UserAdminBrowser extends LitElement {
             //      - For listing in the user-grid a new user that still hasn't joined a group in study,
             //        we temporarily retrieve the users in study groups and fake a new user created.
             //  *********************************************************************************
-
             // TODO: to remove and to use enpoint admin/users/search when [ BUG 2 ] fixed
             const users = this.opencgaSession?.projects
                 .map(project => project.studies).flat()
@@ -126,9 +104,10 @@ export default class UserAdminBrowser extends LitElement {
             const params = {
                 organization: this.organization.id,
             };
-            // this.opencgaSession.opencgaClient.admin()
-            //     .searchUsers(params)
+            debugger
             // TODO: not needed when [ BUG 2 ] fixed
+            // this.opencgaSession.opencgaClient.admin()
+            //     .searchUsers({organization: "test"})
             this.opencgaSession.opencgaClient.users()
                 .info(this.allUsersIds.join(","), params)
                 .then(response => {
@@ -151,6 +130,7 @@ export default class UserAdminBrowser extends LitElement {
         if (changedProperties.has("organization") ||
             changedProperties.has("study") ||
             changedProperties.has("opencgaSession")) {
+            debugger
             this.#getUsers(!this.organization);
         }
         if (changedProperties.has("settings")) {
@@ -222,6 +202,7 @@ export default class UserAdminBrowser extends LitElement {
     }
 
     render() {
+        debugger
         if (Object.keys(this.users).length === 0) {
             return html `
                 <div class="alert alert-info">
@@ -240,8 +221,7 @@ export default class UserAdminBrowser extends LitElement {
                 .toolId="${this.COMPONENT_ID}"
                 .organization="${this.organization}"
                 .users="${this.users}"
-                .opencgaSession="${this.opencgaSession}"
-                @userCreate="${e => this.onUserCreated(e)}">
+                .opencgaSession="${this.opencgaSession}">
             </user-admin-grid>
         `;
     }

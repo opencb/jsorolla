@@ -113,34 +113,27 @@ export default class UserAdminCreate extends LitElement {
         debugger
         this.#setLoading(true);
         this.user.organization = this.organization.id;
-        let error;
-        const promise = this.opencgaSession.opencgaClient.users()
+        let error = {};
+        let newUser = {};
+        this.opencgaSession.opencgaClient.users()
             .create(this.user)
             .then(response => {
-                this.newUser = UtilsNew.objectClone(response.responses[0]?.results);
+                newUser = UtilsNew.objectClone(response.responses[0].results[0]);
                 debugger
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: `User Create`,
-                    message: `User ${this.newUser.id} created in organization ${this.organization.id} correctly`,
+                    message: `User ${newUser.id} created in organization ${this.organization.id} successfully`,
                 });
             })
             .catch(reason => {
-                debugger
                 error = reason;
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
-                    message: `Error creating user: ${reason}`,
-                });
-                // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "userCreate", this.newUser, {}, error);
+                LitUtils.dispatchCustomEvent(this, "userCreate", newUser, {}, error);
+                this.#initOriginalObjects();
+                this.#setLoading(false);
             });
-
-        promise.finally(() => {
-            this.#setLoading(false);
-            this.#initOriginalObjects();
-            LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", {}, {}, null);
-        });
     }
 
     render() {

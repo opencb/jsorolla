@@ -128,7 +128,17 @@ export default class UserAdminGrid extends LitElement {
         this.renderTable();
     }
 
+    // TODO to remove when BUG 2 fixed
+    onUserCreate(e) {
+        debugger
+        const user = e.detail.value;
+        if (UtilsNew.isNotEmpty(user)) {
+            this.users.push(user);
+            this.renderTable();
+        }
+    }
     renderTable() {
+        debugger
         if (this.users?.length > 0) {
             this.renderLocalTable();
         }
@@ -181,6 +191,7 @@ export default class UserAdminGrid extends LitElement {
         const action = e.currentTarget.dataset.action;
         switch (action) {
             case "edit":
+                debugger
                 this.userId = row.userId;
                 this.requestUpdate();
                 await this.updateComplete;
@@ -261,15 +272,19 @@ export default class UserAdminGrid extends LitElement {
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"
             },
-            render: active => html`
-                <user-admin-update
-                    .userId="${this.userId}"
-                    .studyId="${this.studyId}"
-                    .active="${active}"
-                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                    .opencgaSession="${this.opencgaSession}">
-                </user-admin-update>
-            `,
+            render: active => {
+                debugger
+                return html`
+                    <user-admin-update
+                        .userId="${this.userId}"
+                        .organization="${this.organization}"
+                        .studyId="${this.studyId}"
+                        .active="${active}"
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </user-admin-update>
+                `;
+            },
         });
     }
 
@@ -302,13 +317,14 @@ export default class UserAdminGrid extends LitElement {
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @actionClick="${e => this.onActionClick(e)}"
-                    @sampleCreate="${this.renderTable}">
+                    @userCreate="${e => this.onUserCreate(e)}">
                 </opencb-grid-toolbar>
             `;
         }
     }
 
     render() {
+        debugger
         return html`
             <!-- 1. Render toolbar if enabled -->
             ${this.renderToolbar()}
