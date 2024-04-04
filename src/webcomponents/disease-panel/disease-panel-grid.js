@@ -502,7 +502,7 @@ export default class DiseasePanelGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
-                visible: !this._config.columns?.hidden?.includes("actions"),
+                visible: this.gridCommons.isColumnVisible("actions"),
             });
         }
 
