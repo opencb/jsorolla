@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 
 
@@ -23,7 +23,7 @@ class VariantCohortStatsGrid extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -32,22 +32,16 @@ class VariantCohortStatsGrid extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             stats: {
                 type: Array
             },
-            // study: {
-            //     type: String
-            // },
             config: {
                 type: Object
             }
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
     }
 
@@ -58,50 +52,54 @@ class VariantCohortStatsGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("stats")) {
+        if (changedProperties.has("stats")) {
             this.renderVariantTable();
         }
     }
 
     renderVariantTable() {
-        if (typeof this.stats !== "undefined") {
+        if (this.stats) {
             const _table = $("#" + this._prefix + "CohortStatsGrid");
-            const _this = this;
+            // const _this = this;
             _table.bootstrapTable("destroy");
             _table.bootstrapTable({
-                columns: _this._createDefaultColumns(),
-                data: _this.stats,
-                pagination: _this._config.pagination,
-                pageSize: _this._config.pageSize,
-                pageList: _this._config.pageList,
+                columns: this._createDefaultColumns(),
+                data: this.stats,
+                pagination: this._config.pagination,
+                pageSize: this._config.pageSize,
+                pageList: this._config.pageList,
                 formatLoadingMessage: () =>"<loading-spinner></loading-spinner>",
-
-                onLoadError: function(status, res) {
-                    console.log(status);
-                    console.log(res);
-                    console.trace();
+                onLoadError: function (status, res) {
+                    console.log(status, res);
                 }
             });
         }
     }
 
-    // FIXME numSamples is coming son to data model, remove this formatter
-    numSamplesFormatter(value, row, index) {
-        let total = 0;
-        for (let genotype of Object.keys(row.genotypeCount)) {
-            total += row.genotypeCount[genotype];
+    numSamplesFormatter(value, row) {
+        if (row.sampleCount > 0) {
+            return row.sampleCount;
+        } else {
+            let total = 0;
+            for (const genotype of Object.keys(row.genotypeCount)) {
+                total += row.genotypeCount[genotype];
+            }
+            return total || "NA";
         }
-        return total;
     }
 
-    filterFormatter(value, row, index) {
+    filterFormatter(value, row) {
         let content = "";
-        for (let filter of Object.keys(row.filterFreq)) {
-            let fixedFreq = row.filterFreq[filter];
-            if (fixedFreq !== 0 && fixedFreq !== 1) {
-                fixedFreq = Number(fixedFreq).toFixed(4);
+        for (const filter of Object.keys(row.filterFreq)) {
+            let freq = row.filterFreq[filter];
+            if (freq !== 0 && freq !== 1) {
+                freq = Number(freq).toPrecision(4);
             }
-            let s = `<span style="padding-right: 20px">${filter}</span><span>${fixedFreq} (${row.filterCount[filter]})</span><br>`;
+            const s = `
+                <span style="padding-right: 20px">${filter}</span>
+                <span>${freq} (${row.filterCount[filter]})</span><br>
+            `;
+
             // PASS must be the first element
             if (filter === "PASS") {
                 content = s + content;
@@ -112,11 +110,11 @@ class VariantCohortStatsGrid extends LitElement {
         return content;
     }
 
-    idFormatter(value, row, index) {
+    idFormatter(value, row) {
         return `<span style="font-weight: bold">${value}</span>`;
     }
 
-    statsFormatter(value, row, index) {
+    statsFormatter(value, row) {
         let freq, count;
         switch (this.field) {
             case "maf":
@@ -144,21 +142,25 @@ class VariantCohortStatsGrid extends LitElement {
                 count = row.genotypeCount["1/1"];
                 break;
         }
-        let fixedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toFixed(4) : freq;
-        return `${fixedFreq} (${count})`;
+        const formattedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toPrecision(5) : freq;
+        if (formattedFreq >= 0) {
+            return `${formattedFreq} (${count})`;
+        } else {
+            return "NA";
+        }
     }
 
-    othersFormatter(value, row, index) {
+    othersFormatter(value, row) {
         let str = "";
-        for (let genotype of Object.keys(row.genotypeFreq)) {
+        for (const genotype of Object.keys(row.genotypeFreq)) {
             if (genotype !== "0/0" && genotype !== "0/1" && genotype !== "1/1") {
-                let freq = row.genotypeFreq[genotype];
-                let count = row.genotypeCount[genotype];
-                let fixedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toFixed(4) : freq;
+                const freq = row.genotypeFreq[genotype];
+                const count = row.genotypeCount[genotype];
+                const fixedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toPrecision(5) : freq;
                 str += `${fixedFreq} (${count})<br>`;
             }
         }
-        return str !== "" ? str:  "NA";
+        return str !== "" ? str : "NA";
     }
 
     _createDefaultColumns() {
@@ -269,19 +271,6 @@ class VariantCohortStatsGrid extends LitElement {
         ];
     }
 
-    getDefaultConfig() {
-        return {
-            pagination: true,
-            pageSize: 10,
-            pageList: [5, 10, 25],
-
-            // header: {
-            //     horizontalAlign: "center",
-            //     verticalAlign: "bottom"
-            // }
-        };
-    }
-
     render() {
         return html`
             <div>
@@ -289,6 +278,15 @@ class VariantCohortStatsGrid extends LitElement {
             </div>
         `;
     }
+
+    getDefaultConfig() {
+        return {
+            pagination: true,
+            pageSize: 10,
+            pageList: [5, 10, 25],
+        };
+    }
+
 }
 
 customElements.define("variant-cohort-stats-grid", VariantCohortStatsGrid);
