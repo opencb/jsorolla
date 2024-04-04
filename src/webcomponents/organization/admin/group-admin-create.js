@@ -136,14 +136,12 @@ export default class GroupAdminCreate extends LitElement {
                     .then(() => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             title: `Group Create`,
-                            message: `Group ${this.group.id} created in study ${study} correctly`,
+                            message: `Group ${this.group.id} created in study ${study} successfully`,
                         });
                     })
                     .catch(reason => {
                         error = reason;
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
-                            message: `Error creating group: ${reason.message || reason}`,
-                        });
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
                     })
                     .finally(() => {
                         LitUtils.dispatchCustomEvent(this, "groupCreate", {}, {

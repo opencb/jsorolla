@@ -137,7 +137,7 @@ export default class GroupAdminUpdate extends LitElement {
                 })
                 .catch(reason => {
                     error = reason;
-                    console.error(reason);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
                 })
                 .finally(() => {
                     LitUtils.dispatchCustomEvent(this, "studyInfo", this.study, {}, error);
