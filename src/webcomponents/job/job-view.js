@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import AnalysisRegistry from "../variant/analysis/analysis-registry.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/forms/data-form.js";
 import "./job-detail-log.js";
@@ -345,6 +344,7 @@ export default class JobView extends LitElement {
                         },
                     ],
                 },
+                /*
                 {
                     title: "Results",
                     display: {
@@ -355,11 +355,12 @@ export default class JobView extends LitElement {
                             type: "custom",
                             display: {
                                 defaultLayout: "vertical",
-                                render: () => AnalysisRegistry.get(this.job.tool.id)?.result(this.job, this.opencgaSession)
+                                render: () => {}
                             },
                         },
                     ],
                 },
+                 */
                 {
                     title: "Job Dependencies",
                     display: {
@@ -370,8 +371,8 @@ export default class JobView extends LitElement {
                             name: "Dependencies",
                             field: "dependsOn",
                             type: "table",
-                            defaultValue: "No Job dependencies",
                             display: {
+                                defaultValue: "No Job dependencies",
                                 columns: [
                                     {
                                         name: "Job ID", field: "id"

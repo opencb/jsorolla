@@ -43,10 +43,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
         };
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-    }
-
     update(changedProperties) {
         if (changedProperties.has("config")) {
             this.onConfigObserver();
@@ -60,7 +56,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
             .map(h => h.id)
             .join(",") || [];
 
-
         // Prepare data for the column select
         this.selectColumnData = [];
         this.selectedColumns = [];
@@ -68,19 +63,29 @@ export default class VariantInterpreterGridConfig extends LitElement {
             let lastSubColumn = 0;
             for (const gridColumn of this.gridColumns[0]) {
                 if (gridColumn.rowspan === 2) {
-                    this.selectColumnData.push({id: gridColumn.id, name: gridColumn.title});
-                    if (typeof gridColumn.visible === "undefined" || gridColumn.visible) {
-                        this.selectedColumns.push(gridColumn.id);
+                    if (!gridColumn.excludeFromSettings) {
+                        this.selectColumnData.push({
+                            id: gridColumn.id,
+                            name: gridColumn.columnTitle || gridColumn.title,
+                        });
+                        if (typeof gridColumn.visible === "undefined" || gridColumn.visible) {
+                            this.selectedColumns.push(gridColumn.id);
+                        }
                     }
                 } else {
-                    const option = {id: gridColumn.id, name: gridColumn.title, fields: []};
+                    const option = {id: gridColumn.id, name: gridColumn.columnTitle || gridColumn.title, fields: []};
                     for (let i = lastSubColumn; i < lastSubColumn + gridColumn.colspan; i++) {
-                        option.fields.push({id: this.gridColumns[1][i].id, name: this.gridColumns[1][i].title});
+                        if (!this.gridColumns[1][i].excludeFromSettings) {
+                            option.fields.push({
+                                id: this.gridColumns[1][i].id,
+                                name: this.gridColumns[1][i].title,
+                            });
+                        }
                         if (typeof this.gridColumns[1][i].visible === "undefined" || this.gridColumns[1][i].visible) {
                             this.selectedColumns.push(this.gridColumns[1][i].id);
                         }
                     }
-                    if (option.fields[0].id) {
+                    if (option.fields[0]?.id) {
                         this.selectColumnData.push(option);
                     }
                     lastSubColumn += gridColumn.colspan;
@@ -96,9 +101,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 break;
             case "genotype.type":
                 this.config.genotype.type = e.detail.value;
-                break;
-            case "showHgvs":
-                this.config.showHgvs = e.detail.value;
                 break;
             case "geneSet.ensembl":
             case "geneSet.refseq":
@@ -254,15 +256,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 width: 6,
                             }
                         },
-                        {
-                            title: "Show HGVS column",
-                            field: "showHgvs",
-                            type: "checkbox",
-                            text: "Show HGVS",
-                            display: {
-                                width: 6,
-                            }
-                        }
                     ]
                 },
                 {

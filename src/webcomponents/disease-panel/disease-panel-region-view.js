@@ -132,9 +132,19 @@ export default class DiseasePanelRegionView extends LitElement {
                     halign: this._config.header.horizontalAlign,
                 },
                 {
-                    id: "modeOfInheritance",
+                    id: "modesOfInheritance",
                     title: "Mode of Inheritance",
-                    field: "modeOfInheritance",
+                    field: "modesOfInheritance",
+                    formatter: (value, row) => {
+                        const modesOfInheritanceContent = this.generateList(row.modesOfInheritance, "");
+                        return String.raw `
+                            ${modesOfInheritanceContent ? String.raw `
+                                <ul>
+                                    ${modesOfInheritanceContent}
+                                </ul>` : "-"
+                        }
+                        `;
+                    },
                 },
                 {
                     id: "confidence",
@@ -190,17 +200,16 @@ export default class DiseasePanelRegionView extends LitElement {
 
     render() {
         return html`
-            ${this._config.showToolbar ?
-                html`
-                    <opencb-grid-toolbar
-                        .config="${this.toolbarConfig}"
-                        .query="${this.query}"
-                        .opencgaSession="${this.opencgaSession}"
-                        @columnChange="${this.onColumnChange}"
-                        @download="${this.onDownload}"
-                        @export="${this.onDownload}">
-                    </opencb-grid-toolbar>` : nothing
-            }
+            ${this._config.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    .query="${this.query}"
+                    .opencgaSession="${this.opencgaSession}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}">
+                </opencb-grid-toolbar>
+            ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}GenePanelBrowserGrid"></table>
