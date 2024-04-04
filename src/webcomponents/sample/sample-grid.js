@@ -189,6 +189,9 @@ export default class SampleGrid extends LitElement {
                         ...this.query
                     };
 
+                    // Calculate the number of cases to fetch
+                    const casesLimit = this.table?.bootstrapTable("getOptions")?.pageSize || this._config.pageSize || 10;
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.samples()
@@ -197,14 +200,18 @@ export default class SampleGrid extends LitElement {
                             // Fetch clinical analysis to display the Case ID
                             const individualIds = sampleResponse.getResults()
                                 .map(sample => sample.individualId)
-                                .filter(Boolean).join(",");
+                                .filter(Boolean)
+                                .join(",");
+
                             if (individualIds) {
-                                this.opencgaSession.opencgaClient.clinical()
+                                this.opencgaSession.opencgaClient
+                                    .clinical()
                                     .search(
                                         {
                                             individual: individualIds,
                                             study: this.opencgaSession.study.fqn,
-                                            include: "id,proband.id,family.members"
+                                            include: "id,proband.id,family.members",
+                                            limit: casesLimit * 10
                                         })
                                     .then(caseResponse => {
                                         sampleResponse.getResults().forEach(sample => {

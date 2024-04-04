@@ -197,19 +197,28 @@ export default class IndividualGrid extends LitElement {
                         ...this.query
                     };
 
+                    // Calculate the number of cases to fetch
+                    const casesLimit = this.table?.bootstrapTable("getOptions")?.pageSize || this._config.pageSize || 10;
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.individuals()
                         .search(this.filters)
                         .then(individualResponse => {
                             // Fetch Clinical Analysis ID per individual in 1 single query
-                            const individualIds = individualResponse.getResults().map(individual => individual.id).filter(Boolean).join(",");
+                            const individualIds = individualResponse.getResults()
+                                .map(individual => individual.id)
+                                .filter(Boolean)
+                                .join(",");
+
                             if (individualIds) {
-                                this.opencgaSession.opencgaClient.clinical()
+                                this.opencgaSession.opencgaClient
+                                    .clinical()
                                     .search({
                                         individual: individualIds,
                                         study: this.opencgaSession.study.fqn,
-                                        include: "id,proband.id,family.members"
+                                        include: "id,proband.id,family.members",
+                                        limit: casesLimit * 10
                                     })
                                     .then(caseResponse => {
                                         individualResponse.getResults().forEach(individual => {
