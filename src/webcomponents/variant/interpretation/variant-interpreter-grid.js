@@ -45,9 +45,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
     static get properties() {
         return {
-            toolId: {
-                type: String
-            },
             opencgaSession: {
                 type: Object
             },
@@ -63,11 +60,14 @@ export default class VariantInterpreterGrid extends LitElement {
             review: {
                 type: Boolean
             },
-            config: {
-                type: Object
+            toolId: {
+                type: String
             },
             active: {
                 type: Boolean,
+            },
+            config: {
+                type: Object
             },
         };
     }
@@ -156,26 +156,39 @@ export default class VariantInterpreterGrid extends LitElement {
 
     configObserver() {
         // 1. Merge default configuration with the configuration provided via props
+        // this._config = {
+        //     ...this.getDefaultConfig(),
+        //     ...this.config
+        // };
+        //
+        // // 2. Create a new grid commons instance with the new configuration
+        // this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        //
+        // // Settings for the grid toolbar
+        // const {toolbar, ...otherTableProps} = this._config;
+        // this.toolbarSetting = {
+        //     ...otherTableProps,
+        //     ...toolbar,
+        //     showCreate: false,
+        // };
+
+        // Deep merge of external settings and default internal configuration
+        const defaultConfig = this.getDefaultConfig();
         this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
+            ...defaultConfig,
+            ...this.config,
+            toolbar: {
+                ...defaultConfig.toolbar,
+                ...this.config.toolbar
+            }
         };
-
-        // 2. Create a new grid commons instance with the new configuration
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
-        // Settings for the grid toolbar
-        const {toolbar, ...otherTableProps} = this._config;
-        this.toolbarSetting = {
-            ...otherTableProps,
-            ...toolbar,
-            showCreate: false,
-        };
 
         // 4. Set toolbar config
         this.toolbarConfig = {
             toolId: this.toolId,
             resource: "CLINICAL_VARIANT",
+            grid: this._config,
             showInterpreterConfig: true,
             columns: this._getDefaultColumns()
         };

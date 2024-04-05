@@ -38,9 +38,6 @@ export default class JobGrid extends LitElement {
 
     static get properties() {
         return {
-            toolId: {
-                type: String,
-            },
             opencgaSession: {
                 type: Object
             },
@@ -50,9 +47,8 @@ export default class JobGrid extends LitElement {
             jobs: {
                 type: Array
             },
-            // TODO check do we really need it..
-            eventNotifyName: {
-                type: String
+            toolId: {
+                type: String,
             },
             active: {
                 type: Boolean
@@ -69,7 +65,6 @@ export default class JobGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this.autoRefresh = false;
-        this.eventNotifyName = "messageevent";
         this._config = this.getDefaultConfig();
         this.displayConfigDefault = {
             header: {
@@ -90,26 +85,23 @@ export default class JobGrid extends LitElement {
     }
 
     propertyObserver() {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
+        // Deep merge of external settings and default internal configuration
+        const defaultConfig = this.getDefaultConfig();
         this._config = {
-            ...this.getDefaultConfig(),
+            ...defaultConfig,
             ...this.config,
+            toolbar: {
+                ...defaultConfig.toolbar,
+                ...this.config.toolbar
+            }
         };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
-        // Settings for the grid toolbar
-        const {toolbar, ...otherTableProps} = this._config;
-        this.toolbarSetting = {
-            ...otherTableProps,
-            ...toolbar,
-            showRefresh: true, // Note Vero 20240117: Once the migration has been implemented, this key must be deleted
-        };
-
         // Config for the grid toolbar
         this.toolbarConfig = {
-            ...this.config?.toolbar,
             toolId: this.toolId,
             resource: "JOB",
+            grid: this._config,
             columns: this._getDefaultColumns(),
             create: {
                 display: {

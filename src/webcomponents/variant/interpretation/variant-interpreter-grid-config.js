@@ -32,7 +32,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
 
     static get properties() {
         return {
-            // FIXME Temporary object used to check CellBase version and hide RefSeq filter
             opencgaSession: {
                 type: Object
             },
@@ -158,23 +157,22 @@ export default class VariantInterpreterGridConfig extends LitElement {
 
         try {
             // Update user configuration
-            await OpencgaCatalogUtils
-                .updateGridConfig(
-                    "IVA",
-                    this.opencgaSession,
-                    this.toolId,
-                    {
-                        // All Variant Grids
-                        pageSize: this.config.pageSize,
-                        columns: this.config.columns,
-                        geneSet: this.config.geneSet,
-                        consequenceType: this.config.consequenceType,
-                        populationFrequenciesConfig: this.config.populationFrequenciesConfig,
-                        highlights: this.config.highlights,
-                        // Only Variant Interpreter Grids
-                        genotype: this.config.genotype,
-                    }
-                );
+            await OpencgaCatalogUtils.updateGridConfig(
+                "IVA",
+                this.opencgaSession,
+                this.toolId,
+                {
+                    // All Variant Grids
+                    pageSize: this.config.grid.pageSize,
+                    columns: this.config.columns,
+                    geneSet: this.config.geneSet,
+                    consequenceType: this.config.consequenceType,
+                    populationFrequenciesConfig: this.config.populationFrequenciesConfig,
+                    highlights: this.config.highlights,
+                    // Only Variant Interpreter Grids
+                    genotype: this.config.genotype,
+                }
+            );
             LitUtils.dispatchCustomEvent(this, "settingsUpdate");
 
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -233,7 +231,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             }
                         },
                         {
-                            field: "pageSize",
+                            field: "grid.pageSize",
                             type: "custom",
                             text: "Page Size",
                             display: {
@@ -241,8 +239,8 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
                                         <select-field-filter
-                                            .data="${this.config?.pageList}"
-                                            .value="${this.config?.pageSize}"
+                                            .data="${this.config.grid?.pageList}"
+                                            .value="${this.config.grid?.pageSize}"
                                             .multiple="${false}"
                                             .classes="${"btn-sm"}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">

@@ -39,15 +39,15 @@ export default class OpencbGridToolbar extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            rightToolbar: {
-                type: Array
-            },
             query: {
                 type: Object
             },
-            settings: {
-                type: Object
+            rightToolbar: {
+                type: Array
             },
+            // settings: {
+            //     type: Object
+            // },
             config: {
                 type: Object
             }
@@ -59,22 +59,22 @@ export default class OpencbGridToolbar extends LitElement {
 
         this.rightToolbar = [];
 
-        this._settings = this.getDefaultSettings();
+        // this._settings = this.getDefaultSettings();
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("settings")) {
-            // const _toolbarSettings = {
-            //     ...this.getDefaultSettings().toolbar,
-            //     ...this.settings.toolbar
-            // };
-            this._settings = {
-                ...this.getDefaultSettings(),
-                ...this.settings,
-                // toolbar: _toolbarSettings
-            };
-        }
+        // if (changedProperties.has("settings")) {
+        //     // const _toolbarSettings = {
+        //     //     ...this.getDefaultSettings().toolbar,
+        //     //     ...this.settings.toolbar
+        //     // };
+        //     this._settings = {
+        //         ...this.getDefaultSettings(),
+        //         ...this.settings,
+        //         // toolbar: _toolbarSettings
+        //     };
+        // }
 
         if (changedProperties.has("config")) {
             this._config = {
@@ -82,7 +82,6 @@ export default class OpencbGridToolbar extends LitElement {
                 ...this.config,
             };
         }
-
         super.update(changedProperties);
     }
 
@@ -156,15 +155,14 @@ export default class OpencbGridToolbar extends LitElement {
                                 </div>
                             `) : nothing}
 
-                            ${this._settings.showRefresh ? html`
+                            ${this._config.grid?.toolbar?.showRefresh ? html`
                                 <button type="button" class="btn btn-default btn-sm" @click="${() => LitUtils.dispatchCustomEvent(this, "refresh")}">
                                     <i class="fas fa-sync-alt icon-padding"></i> Refresh
                                 </button>
                             ` :nothing}
 
-
                             <!-- Second, display elements configured -->
-                            ${this._config?.create && (this._settings.showCreate || this._settings.showNew) ? html`
+                            ${this._config?.create && this._config.grid?.toolbar?.showCreate ? html`
                                 <div class="btn-group">
                                     <!-- Note 20230517 Vero: it is not possible to trigger a tooltip on a disabled button.
                                     As a workaround, the tooltip will be displayed from a wrapper -->
@@ -177,23 +175,23 @@ export default class OpencbGridToolbar extends LitElement {
                                     ` : html `
                                         <button data-action="create" type="button" class="btn btn-default btn-sm"
                                                 @click="${this.onActionClick}">
-                                            ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
+                                            ${this._config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                             <i class="fas fa-file icon-padding" aria-hidden="true"></i> New ...
                                         </button>
                                     `}
                                 </div>
                             ` : nothing}
 
-                            ${this._settings.showExport ? html`
+                            ${this._config.grid?.toolbar?.showExport ? html`
                                 <div class="btn-group">
                                     <button data-action="export" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
-                                        ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
+                                        ${this._config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i class="fas fa-download icon-padding" aria-hidden="true"></i> Export ...
                                     </button>
                                 </div>
                             ` : nothing}
 
-                            ${this._settings?.showSettings ? html`
+                            ${this._config.grid?.toolbar?.showSettings ? html`
                                 <div class="btn-group">
                                     <button data-action="settings" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
                                         <i class="fas fa-cog icon-padding"></i> Settings ...
@@ -206,28 +204,26 @@ export default class OpencbGridToolbar extends LitElement {
             </div>
 
             <!-- Add modals-->
-            ${(this._config?.create &&
-                (this._settings.showCreate || this._settings.showNew) &&
+            ${(this._config?.create && this._config.grid?.toolbar?.showCreate &&
                 OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`)) ?
-                ModalUtils.create(this, `${this._prefix}CreateModal`, this._config.create) :
-                nothing}
+                ModalUtils.create(this, `${this._prefix}CreateModal`, this._config.create) : nothing}
 
-            ${this._settings?.showExport && this._config?.export ? ModalUtils.create(this, `${this._prefix}ExportModal`, this._config.export) : nothing}
+            ${this._config?.export && this._config.grid?.toolbar?.showExport ? ModalUtils.create(this, `${this._prefix}ExportModal`, this._config.export) : nothing}
 
-            ${this._settings?.showSettings && this._config?.settings ? ModalUtils.create(this, `${this._prefix}SettingModal`, this._config.settings) : nothing}
+            ${this._config?.settings && this._config.grid?.toolbar?.showSettings ? ModalUtils.create(this, `${this._prefix}SettingModal`, this._config.settings) : nothing}
         `;
     }
 
-    getDefaultSettings() {
-        return {
-            // label: "records",
-            showCreate: true,
-            showExport: true,
-            showSettings: true,
-            // download: ["Tab", "JSON"],
-            // buttons: ["columns", "download"],
-        };
-    }
+    // getDefaultSettings() {
+    //     return {
+    //         // label: "records",
+    //         showCreate: true,
+    //         showExport: true,
+    //         showSettings: true,
+    //         // download: ["Tab", "JSON"],
+    //         // buttons: ["columns", "download"],
+    //     };
+    // }
 
     getDefaultConfig() {
         return {
@@ -255,13 +251,13 @@ export default class OpencbGridToolbar extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .gridColumns="${this._config.columns}"
                         .toolId="${this._config?.toolId}"
-                        .config="${this._settings}"
+                        .config="${this._config}"
                         @settingsUpdate="${this.onCloseSetting}">
                     </catalog-browser-grid-config>` : html `
                     <variant-interpreter-grid-config
                         .opencgaSession="${this.opencgaSession}"
                         .gridColumns="${this._config.columns}"
-                        .config="${this._settings}"
+                        .config="${this._config}"
                         .toolId="${this._config?.toolId}"
                         @settingsUpdate="${this.onCloseSetting}">
                     </variant-interpreter-grid-config>`

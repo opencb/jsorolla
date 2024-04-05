@@ -37,9 +37,6 @@ export default class CohortGrid extends LitElement {
 
     static get properties() {
         return {
-            toolId: {
-                type: String,
-            },
             opencgaSession: {
                 type: Object
             },
@@ -48,6 +45,9 @@ export default class CohortGrid extends LitElement {
             },
             cohorts: {
                 type: Array
+            },
+            toolId: {
+                type: String,
             },
             active: {
                 type: Boolean
@@ -83,24 +83,23 @@ export default class CohortGrid extends LitElement {
     }
 
     propertyObserver() {
-        // With each property change we must update config and create the columns again. No extra checks are needed.
+        // Deep merge of external settings and default internal configuration
+        const defaultConfig = this.getDefaultConfig();
         this._config = {
-            ...this.getDefaultConfig(),
+            ...defaultConfig,
             ...this.config,
+            toolbar: {
+                ...defaultConfig.toolbar,
+                ...this.config.toolbar
+            }
         };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
-        // Settings for the grid toolbar
-        const {toolbar, ...otherTableProps} = this._config;
-        this.toolbarSetting = {
-            ...otherTableProps,
-            ...toolbar,
-        };
 
         // Config for the grid toolbar
         this.toolbarConfig = {
             toolId: this.toolId,
             resource: "COHORT",
+            grid: this._config,
             columns: this._getDefaultColumns(),
             create: {
                 display: {

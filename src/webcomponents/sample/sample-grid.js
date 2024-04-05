@@ -22,7 +22,7 @@ import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./sample-update.js";
-import ModalUtils from "../commons/modal/modal-utils";
+import ModalUtils from "../commons/modal/modal-utils.js";
 
 
 export default class SampleGrid extends LitElement {
@@ -39,9 +39,6 @@ export default class SampleGrid extends LitElement {
 
     static get properties() {
         return {
-            toolId: {
-                type: String,
-            },
             opencgaSession: {
                 type: Object
             },
@@ -50,6 +47,9 @@ export default class SampleGrid extends LitElement {
             },
             samples: {
                 type: Array
+            },
+            toolId: {
+                type: String,
             },
             active: {
                 type: Boolean
@@ -80,25 +80,34 @@ export default class SampleGrid extends LitElement {
 
     propertyObserver() {
         // With each property change we must be updated config and create the columns again. No extra checks are needed.
+        // this._config = {
+        //     ...this.getDefaultConfig(),
+        //     ...this.config,
+        // };
+        // this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        //
+        // const {toolbar, ...otherTableProps} = this._config;
+        // this.toolbarSetting = {
+        //     ...otherTableProps,
+        //     ...toolbar,
+        // };
+
+        // Deep merge of external settings and default internal configuration
+        const defaultConfig = this.getDefaultConfig();
         this._config = {
-            ...this.getDefaultConfig(),
+            ...defaultConfig,
             ...this.config,
+            toolbar: {
+                ...defaultConfig.toolbar,
+                ...this.config.toolbar
+            }
         };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
-        // Settings for the grid toolbar
-        // this.toolbarSetting = {
-        //     ...this._config,
-        // };
-        const {toolbar, ...otherTableProps} = this._config;
-        this.toolbarSetting = {
-            ...otherTableProps,
-            ...toolbar,
-        };
 
         this.toolbarConfig = {
             toolId: this.toolId,
             resource: "SAMPLE",
+            grid: this._config,
             columns: this._getDefaultColumns(),
             create: {
                 display: {
@@ -553,7 +562,6 @@ export default class SampleGrid extends LitElement {
                 <opencb-grid-toolbar
                     .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"

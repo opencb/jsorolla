@@ -85,7 +85,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
             let lastSubColumn = 0;
             // Check if the grid has 2 headers
             // get a list of array
-            const [columnsHead, columnsChild] = this.gridColumns.length === 2 ? this.gridColumns: [this.gridColumns, []];
+            const [columnsHead, columnsChild] = this.gridColumns.length === 2 ? this.gridColumns : [this.gridColumns, []];
             if (columnsChild.length > 0) {
                 columnsHead.forEach(column => {
                     if (column?.rowspan === 2) {
@@ -96,7 +96,12 @@ export default class CatalogBrowserGridConfig extends LitElement {
                         if (column?.colspan !== undefined) {
                             const option = {id: column.id, name: column.title, fields: []};
                             for (let i = lastSubColumn; i < lastSubColumn + column.colspan; i++) {
-                                option.fields.push({id: columnsChild[i].id, name: columnsChild[i].title});
+                                option.fields.push(
+                                    {
+                                        id: columnsChild[i].id,
+                                        name: columnsChild[i].title
+                                    }
+                                );
                                 if (isColumnVisible(columnsChild[i])) {
                                     this.selectedColumns.push(columnsChild[i].id);
                                 }
@@ -147,7 +152,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                 this.opencgaSession,
                 this.toolId,
                 {
-                    pageSize: this.config.pageSize,
+                    pageSize: this.config.grid.pageSize,
                     columns: this.config.columns,
                     highlights: this.config.highlights,
                 }
@@ -205,7 +210,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                             }
                         },
                         {
-                            field: "pageSize",
+                            field: "grid.pageSize",
                             type: "custom",
                             text: "Page Size",
                             display: {
@@ -213,8 +218,8 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
                                         <select-field-filter
-                                            .data="${this.config.pageList}"
-                                            .value="${this.config.pageSize}"
+                                            .data="${this.config.grid?.pageList}"
+                                            .value="${this.config.grid?.pageSize}"
                                             .multiple="${false}"
                                             .classes="${"btn-sm"}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">

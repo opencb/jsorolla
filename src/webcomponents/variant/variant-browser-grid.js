@@ -111,11 +111,13 @@ export default class VariantBrowserGrid extends LitElement {
 
     opencgaSessionObserver() {
         // With each property change we must be updated config and create the columns again. No extra checks are needed.
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
-        };
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        // this._config = {
+        //     ...this.getDefaultConfig(),
+        //     ...this.config
+        // };
+        // this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
+        this.#initInternalConfig();
     }
 
     queryObserver() {
@@ -135,29 +137,46 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     configObserver() {
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
+        // this._config = {
+        //     ...this.getDefaultConfig(),
+        //     ...this.config,
+        // };
+        //
+        // this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        //
+        // // Settings for the grid toolbar
+        // const {toolbar, ...otherTableProps} = this._config;
+        // this.toolbarSetting = {
+        //     ...otherTableProps,
+        //     ...toolbar,
+        //     // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
+        //     // gridColumns: this._getDefaultColumns() // original column structure
+        // };
 
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
-        // Settings for the grid toolbar
-        const {toolbar, ...otherTableProps} = this._config;
-        this.toolbarSetting = {
-            ...otherTableProps,
-            ...toolbar,
-            // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
-            // gridColumns: this._getDefaultColumns() // original column structure
-        };
+        this.#initInternalConfig();
 
         this.toolbarConfig = {
             toolId: this.toolId,
             resource: "VARIANT",
+            grid: this._config,
             disableCreate: true,
             showInterpreterConfig: true,
             columns: this._getDefaultColumns()
         };
+    }
+
+    #initInternalConfig() {
+        // Deep merge of external settings and default internal configuration
+        const defaultConfig = this.getDefaultConfig();
+        this._config = {
+            ...defaultConfig,
+            ...this.config,
+            toolbar: {
+                ...defaultConfig.toolbar,
+                ...this.config.toolbar
+            }
+        };
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     onColumnChange(e) {
