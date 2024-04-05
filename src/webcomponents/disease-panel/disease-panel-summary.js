@@ -47,9 +47,9 @@ export default class DiseasePanelSummary extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
-            }
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
@@ -57,13 +57,19 @@ export default class DiseasePanelSummary extends LitElement {
         this.diseasePanel = {};
         this.isLoading = false;
 
+        this.displayConfigDefault = {
+            collapsable: true,
+            titleVisible: false,
+            titleWidth: 2,
+            defaultValue: "-",
+            defaultLayout: "horizontal",
+            buttonsVisible: false,
+            showTitle: false,
+            labelWidth: 3,
+            pdf: false,
+        };
         this._config = this.getDefaultConfig();
     }
-
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
 
     #setLoading(value) {
         this.isLoading = value;
@@ -74,8 +80,12 @@ export default class DiseasePanelSummary extends LitElement {
         if (changedProperties.has("diseasePanelId")) {
             this.diseasePanelIdObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig
+            };
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
@@ -140,13 +150,7 @@ export default class DiseasePanelSummary extends LitElement {
         return Types.dataFormConfig({
             title: "Summary",
             icon: "",
-            display: {
-                buttonsVisible: false,
-                collapsable: true,
-                titleVisible: false,
-                titleWidth: 2,
-                defaultValue: "-"
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General",
@@ -157,18 +161,12 @@ export default class DiseasePanelSummary extends LitElement {
                     elements: [
                         {
                             title: "Disease Panel ID",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                visible: diseasePanel => diseasePanel?.id,
-                                render: data => {
-                                    if (data?.source?.project === "PanelApp") {
-                                        return html`
-                                            <a class="text-decoration-none" href="${BioinfoUtils.getPanelAppLink(data.source.id)}" title="Panel ID: ${data.id}" target="_blank">
-                                                ${data?.id ?? "-"} <i class="fas fa-external-link-alt ps-1"></i>
-                                            </a> (UUID: ${data.uuid})`;
-                                    }
-                                    return data?.id ?? "-";
-                                }
+                                template: "${id} (UUID: ${uuid})",
+                                link: {
+                                    id: (id, data) => data?.source?.project === "PanelApp"? BioinfoUtils.getPanelAppLink(data.source.id) : false,
+                                },
                             }
                         },
                         {
@@ -177,9 +175,9 @@ export default class DiseasePanelSummary extends LitElement {
                             type: "list",
                             display: {
                                 contentLayout: "vertical",
-                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder])),
-                                defaultValue: "N/A"
-                            }
+                                format: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
+                                defaultValue: "N/A",
+                            },
                         },
                         {
                             title: "Number of Genes",
@@ -197,15 +195,17 @@ export default class DiseasePanelSummary extends LitElement {
                             defaultValue: "N/A",
                         },
                         {
-                            title: "Creation/Modification Date",
-                            // field: "creationDate",
-                            type: "custom",
+                            title: "Creation Date",
+                            field: "creationDate",
                             display: {
-                                render: field => {
-                                    const creationDate = UtilsNew.dateFormatter(field?.creationDate);
-                                    const modificationDate = field.modificationDate ? UtilsNew.dateFormatter(field?.modificationDate) : "-";
-                                    return field ? html`${creationDate}/${modificationDate}`: "N/A";
-                                },
+                                format: date => UtilsNew.dateFormatter(date),
+                            },
+                        },
+                        {
+                            title: "Modification Date",
+                            field: "modificationDate",
+                            display: {
+                                format: date => UtilsNew.dateFormatter(date),
                             },
                         },
                         {

@@ -262,6 +262,10 @@ export default class BioinfoUtils {
         return `https://hpo.jax.org/app/browse/term/${hpoTerm}`;
     }
 
+    static getOmimLink(omimEntry) {
+        return `https://www.omim.org/entry/${omimEntry}`;
+    }
+
     static getSequenceOntologyLink(soTerm) {
         return `http://www.sequenceontology.org/browser/current_svn/term/${soTerm}`;
     }
@@ -273,4 +277,5 @@ export default class BioinfoUtils {
     static getOrphanetLink(orphaId) {
         return `https://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=${orphaId}`;
     }
+
 }

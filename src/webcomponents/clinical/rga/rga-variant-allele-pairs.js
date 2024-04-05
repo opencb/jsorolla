@@ -236,7 +236,7 @@ export default class RgaVariantAllelePairs extends LitElement {
             {
                 title: "Allele",
                 field: "id",
-                formatter: (value, row, index) => row.chromosome ? VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly) : value
+                formatter: (value, row, index) => row.chromosome ? VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly) : value
             },
             {
                 title: "Pair type",

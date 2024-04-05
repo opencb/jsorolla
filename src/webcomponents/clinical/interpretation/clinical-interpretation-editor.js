@@ -21,7 +21,7 @@ import ClinicalAnalysisUtils from "../clinical-analysis-utils.js";
 import "../clinical-analysis-comment-editor.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/forms/text-field-filter.js";
-import "../../commons/forms/select-field-filter2.js";
+import "../../commons/forms/select-field-filter.js";
 
 class ClinicalInterpretationEditor extends LitElement {
 
@@ -118,7 +118,7 @@ class ClinicalInterpretationEditor extends LitElement {
     renderStatus(status) {
         return html`
             <div class="">
-                <select-field-filter2
+                <select-field-filter
                     .data="${ClinicalAnalysisUtils.getInterpretationStatuses()}"
                     .value="${status.id}"
                     .classes="${this.updateParams.status ? "updated" : ""}"
@@ -126,7 +126,7 @@ class ClinicalInterpretationEditor extends LitElement {
                         e.detail.param = "interpretation.status.id";
                         this.onFieldChange(e);
                     }}">
-                </select-field-filter2>
+                </select-field-filter>
                 ${status.description ?
                         html`<span class="d-block text-secondary" style="padding: 0px 5px">${status.description}</span>` :
             null

@@ -147,7 +147,7 @@ export default class GeneCoverageBrowser extends LitElement {
     onRun() {
         // this.selectedGene is always an array of size 1
         this.fetchData(this.selectedGene[0]);
-        console.log("run! run!", this.geneIds, "this.selectedGene", this.selectedGene);
+        console.log(this.geneIds, "this.selectedGene", this.selectedGene);
         this.requestUpdate();
     }
 

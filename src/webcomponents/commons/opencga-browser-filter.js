@@ -25,7 +25,7 @@ import "./opencga-facet-view.js";
 import "./forms/text-field-filter.js";
 import "./filters/somatic-filter.js";
 import "./forms/section-filter.js";
-import "./forms/select-field-filter2.js";
+import "./forms/select-field-filter.js";
 import "./forms/select-token-filter-static.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 
@@ -261,14 +261,14 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "visited":
                 case "job_priority":
                     content = html`
-                        <select-field-filter2
+                        <select-field-filter
                             .value="${this.preparedQuery[subsection.id]}"
                             .data="${subsection.allowedValues}"
                             .config="${{
                                 multiple: subsection?.multiple
                             }}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                        </select-field-filter2>
+                        </select-field-filter>
                     `;
                     break;
                 case "path":
@@ -361,7 +361,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                                 <i class="fa fa-info-circle" aria-hidden="true"></i>
                             </a>
                         ` : null}
-                    <div id="${this._prefix}${subsection.id}" class="cy-subsection-content" data-cy="${subsection.id}">
+                    <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                         ${content}
                     </div>
                 </div>

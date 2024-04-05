@@ -113,12 +113,12 @@ export default class ClinvarAccessionsFilter extends LitElement {
     render() {
         return html`
             <div class="form-group">
-                <select-field-filter2
+                <select-field-filter
                     .data="${Object.entries(this._config.clinicalSignificanceValues).map(([code, label]) => ({id: code, name: label}))}"
                     .value="${this.clinicalSignificance}"
                     .config="${{multiple: true}}"
                     @filterChange="${e => this.filterChange(e, "clinicalSignificance")}">
-                </select-field-filter2>
+                </select-field-filter>
             </div>
             ${this._config.clinvar ? html`
                 <div class="form-group">

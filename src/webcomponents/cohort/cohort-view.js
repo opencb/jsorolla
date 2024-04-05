@@ -18,9 +18,11 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import Types from "../commons/types.js";
+import PdfBuilder, {stylePdf} from "../commons/forms/pdf-builder.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
 import "../study/annotationset/annotation-set-view.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter";
 
 export default class CohortView extends LitElement {
 
@@ -66,6 +68,7 @@ export default class CohortView extends LitElement {
             titleVisible: false,
             titleWidth: 2,
             defaultValue: "-",
+            pdf: false,
         };
         this._config = this.getDefaultConfig();
     }
@@ -117,6 +120,13 @@ export default class CohortView extends LitElement {
         this.cohortId = e.detail.value;
     }
 
+    onDownloadPdf() {
+        const dataFormConf = this.getDefaultConfig();
+        const pdfDocument = new PdfBuilder(this.cohort, dataFormConf);
+        pdfDocument.exportToPdf();
+    }
+
+
     render() {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
@@ -132,6 +142,13 @@ export default class CohortView extends LitElement {
         }
 
         return html`
+<!--
+            <button class="btn btn-primary" style="margin-bottom:14px; display: $UtilsNew.isNotEmpty(this.cohort) ? "block": "none"}"
+                @click="$this.onDownloadPdf}">
+                <i class="fas fa-file-pdf"></i>
+                Export PDF (Beta)
+            </button>
+-->
             <data-form
                 .data=${this.cohort}
                 .config="${this._config}">
@@ -144,11 +161,33 @@ export default class CohortView extends LitElement {
             title: "Summary",
             icon: "",
             display: this.displayConfig || this.displayConfigDefault,
+            // displayDoc: {
+            //     headerTitle: {
+            //         title: `Cohort ${this.cohort?.id}`,
+            //         display: {
+            //             classes: "h1",
+            //             propsStyle: {
+            //                 ...stylePdf({
+            //                     alignment: "center",
+            //                     bold: true,
+            //                 })
+            //             },
+            //         },
+            //     },
+            //     watermark: {
+            //         text: "Demo",
+            //         color: "blue",
+            //         opacity: 0.3,
+            //         bold: true,
+            //         italics: false
+            //     },
+            // },
             sections: [
                 {
                     title: "Search",
                     display: {
                         visible: cohort => !cohort?.id && this.search === true,
+                        showPDF: false,
                     },
                     elements: [
                         {
@@ -178,7 +217,15 @@ export default class CohortView extends LitElement {
                         // available types: basic (optional/default), complex, list (horizontal and vertical), table, plot, custom
                         {
                             title: "Cohort Id",
-                            field: "id",
+                            type: "complex",
+                            display: {
+                                template: "${id} (UUID: ${uuid})",
+                                style: {
+                                    id: {
+                                        "font-weight": "bold",
+                                    },
+                                },
+                            },
                         },
                         {
                             title: "Cohort Type",
@@ -190,33 +237,35 @@ export default class CohortView extends LitElement {
                         },
                         {
                             title: "Status",
-                            field: "internal.status",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: field => html`${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
+                                template: "${internal.status.name} (${internal.status.date})",
+                                format: {
+                                    "internal.status.date": date => UtilsNew.dateFormatter(date),
+                                }
                             },
                         },
                         {
-                            title: "Creation date",
+                            title: "Creation Date",
                             field: "creationDate",
-                            type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
+                                format: date => UtilsNew.dateFormatter(date),
                             },
                         },
                         {
                             title: "Modification Date",
                             field: "modificationDate",
-                            type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
+                                format: date => UtilsNew.dateFormatter(date),
                             },
                         },
                         {
                             title: "Annotation sets",
                             field: "annotationSets",
                             type: "custom",
+                            // FIXME: fix export to PDF
                             display: {
+                                showPDF: false,
                                 render: field => html`
                                     <annotation-set-view
                                         .annotationSets="${field}">
@@ -229,33 +278,32 @@ export default class CohortView extends LitElement {
                             title: "Samples",
                             field: "samples",
                             type: "table",
+                            // FIXME: fix export to PDF
                             display: {
                                 columns: [
                                     {
                                         id: "sample",
                                         title: "Samples ID",
                                         field: "id",
-                                        sortable: true,
+                                        // width: "*",
+                                        // sortable: true,
                                     },
                                     {
-                                        id: "somatic",
                                         title: "Somatic",
                                         field: "somatic",
-                                        sortable: true,
-                                        formatter: value => value ? "true" : "false",
                                     },
                                     {
-                                        id: "phenotypes",
                                         title: "Phenotypes",
                                         field: "phenotypes",
-                                        sortable: true,
-                                        formatter: (value, row) => {
-                                            return row?.phenotypes?.length > 0 ? row.phenotypes.map(d => d.id).join(", ") : "-";
-                                        }
-                                    }
+                                        type: "list",
+                                        display: {
+                                            contentLayout: "bullets",
+                                            format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
+                                        },
+                                    },
                                 ],
-                                pagination: true,
-                                search: true,
+                                // pagination: true,
+                                // search: true,
                             },
                         }
                     ],

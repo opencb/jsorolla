@@ -745,7 +745,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     </div>
                 </div>
                 <div class="flex-shrink-0 text-secondary mb-auto">
-                    <span  class="cy-action-buttons" tooltip-title="${filterTitle}" tooltip-text="${filterTooltip || "Empty query."}">
+                    <span  class="action-buttons" tooltip-title="${filterTitle}" tooltip-text="${filterTooltip || "Empty query."}">
                         <i class="fas fa-eye" data-action="view-filter"></i>
                     </span>
                 </div>
@@ -773,7 +773,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     <div class="d-flex flex-column gap-1">
                         <div class="d-flex flex-wrap gap-1 align-items-center">
                             <div class="dropdown me-1">
-                                <button type="button" class="cy-active-filter-label btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
+                                <button type="button" class="active-filter-label btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
                                         role="button" aria-expanded="false" data-cy="filter-button">
                                     <i class="fa fa-filter" aria-hidden="true"></i> Filters
                                 </button>
@@ -895,7 +895,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         ${this.facetActive && this.facetQuery && Object.keys(this.facetQuery).length ? html`
                             <div class="facet-wrapper d-flex flex-wrap gap-1 align-items-center">
                                 <div class="dropdown me-1" style="margin-right: 5px">
-                                    <button class="cy-active-filter-label btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
+                                    <button class="active-filter-label btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
                                         <i class="fas fa-project-diagram"></i> Aggregation fields
                                     </button>
                                     <ul class="dropdown-menu saved-filter-wrapper">

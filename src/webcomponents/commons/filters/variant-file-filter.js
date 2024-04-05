@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../forms/select-field-filter2.js";
+import "../forms/select-field-filter.js";
 
 export default class VariantFileFilter extends LitElement {
 
@@ -70,7 +70,7 @@ export default class VariantFileFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter2
+            <select-field-filter
                 .data="${this.files}"
                 .value="${this.value}"
                 .config="${{
@@ -78,7 +78,7 @@ export default class VariantFileFilter extends LitElement {
                     liveSearch: false,
                 }}"
                 @filterChange="${this.filterChange}">
-            </select-field-filter2>
+            </select-field-filter>
         `;
     }
 

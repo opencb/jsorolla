@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
-import "../forms/select-field-filter2.js";
+import "../forms/select-field-filter.js";
 
 export default class ConsequenceTypeSelectFilter extends LitElement {
 
@@ -218,12 +218,12 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
 
             <div class="mb-3">
                 <label class="form-label">Or select terms manually:</label>
-                <select-field-filter2
+                <select-field-filter
                     .data="${this.options}"
                     .value="${this._ct}"
                     .config="${{multiple: true}}"
                     @filterChange="${this.onFilterChange}">
-                </select-field-filter2>
+                </select-field-filter>
             </div>
         `;
     }

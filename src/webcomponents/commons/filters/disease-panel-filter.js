@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils.js";
-import "../forms/select-field-filter2.js";
+import "../forms/select-field-filter.js";
 import "../forms/toggle-switch.js";
 import "../forms/toggle-radio.js";
 
@@ -210,7 +210,7 @@ export default class DiseasePanelFilter extends LitElement {
                         </label>
                     ` : nothing
                     }
-                    <select-field-filter2
+                    <select-field-filter
                         .data="${this.diseasePanelsSelectOptions}"
                         .value=${this.panel}
                         .classes="${this.classes}"
@@ -219,7 +219,7 @@ export default class DiseasePanelFilter extends LitElement {
                             separator: "\n"
                         }}"
                         @filterChange="${e => this.filterChange(e, "panel")}">
-                    </select-field-filter2>
+                    </select-field-filter>
                 </div>
 
             ${this.showSelectedPanels && this.panel?.length > 0 ? html`
@@ -253,7 +253,7 @@ export default class DiseasePanelFilter extends LitElement {
                     <label class="form-label">
                         Filter by Feature Type
                     </label>
-                    <select-field-filter2
+                    <select-field-filter
                         .data="${this.panelFeatureTypes}"
                         .value=${this.panelFeatureType}
                         .config=${{
@@ -261,14 +261,14 @@ export default class DiseasePanelFilter extends LitElement {
                             disabled: this.genes?.length === 0 || this.disabled
                             }}
                         @filterChange="${e => this.filterChange(e, "panelFeatureType")}">
-                    </select-field-filter2>
+                    </select-field-filter>
                 </div>
 
                 <div class="mb-2">
                     <label class="form-label">
                         Filter Genes by Mode of Inheritance
                     </label>
-                    <select-field-filter2
+                    <select-field-filter
                         .data="${MODE_OF_INHERITANCE}"
                         .value=${this.panelModeOfInheritance}
                         .config=${{
@@ -276,14 +276,14 @@ export default class DiseasePanelFilter extends LitElement {
                             disabled: this.genes?.length === 0 || this.disabled
                         }}
                         @filterChange="${e => this.filterChange(e, "panelModeOfInheritance")}">
-                    </select-field-filter2>
+                    </select-field-filter>
                 </div>
 
                 <div class="mb-2">
                     <label class="form-label">
                         Filter Genes by Confidence
                     </label>
-                    <select-field-filter2
+                    <select-field-filter
                         .data="${DISEASE_PANEL_CONFIDENCE}"
                         .value=${this.panelConfidence}
                         .config=${{
@@ -291,14 +291,14 @@ export default class DiseasePanelFilter extends LitElement {
                             disabled: this.genes?.length === 0 || this.disabled
                         }}
                         @filterChange="${e => this.filterChange(e, "panelConfidence")}">
-                    </select-field-filter2>
+                    </select-field-filter>
                 </div>
 
                 <div class="mb-2">
                     <label class="form-label">
                         Filter Genes by Role in Cancer
                     </label>
-                    <select-field-filter2
+                    <select-field-filter
                         .data="${ROLE_IN_CANCER}"
                         .value=${this.panelRoleInCancer}
                         .config=${{
@@ -306,7 +306,7 @@ export default class DiseasePanelFilter extends LitElement {
                             disabled: this.genes?.length === 0 || this.disabled
                         }}
                         @filterChange="${e => this.filterChange(e, "panelRoleInCancer")}">
-                    </select-field-filter2>
+                    </select-field-filter>
                 </div>
             ` : nothing}
         </div>

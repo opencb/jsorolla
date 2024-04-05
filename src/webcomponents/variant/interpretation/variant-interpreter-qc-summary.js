@@ -25,7 +25,7 @@ class VariantInterpreterQcSummary extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -49,16 +49,10 @@ class VariantInterpreterQcSummary extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
 
         this._config = this.getDefaultConfig();
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -71,7 +65,10 @@ class VariantInterpreterQcSummary extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config
+            };
         }
     }
 
@@ -143,7 +140,11 @@ class VariantInterpreterQcSummary extends LitElement {
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
             <div class="container" style="margin: 20px 10px">
-                <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
+                <data-form
+                    .data=${this.clinicalAnalysis}
+                    .config="${this._config}">
+                </data-form>
+
             </div>
         `;
     }
@@ -171,18 +172,25 @@ class VariantInterpreterQcSummary extends LitElement {
                         },
                         {
                             title: "Proband",
-                            field: "proband.id",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: probandId => html`<strong>${probandId}</strong>`,
+                                template: "${proband.id}",
+                                style: {
+                                    "proband.id": {
+                                        "font-weight": "bold",
+                                    }
+                                }
                             },
                         },
                         {
                             title: "Disorder",
-                            field: "disorder",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder])),
+                                template: "${disorder}",
+                                format: {
+                                    disorder: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
+                                },
+                                defaultValue: "N/A",
                             },
                         },
                         {
@@ -207,56 +215,30 @@ class VariantInterpreterQcSummary extends LitElement {
                                     {
                                         title: "BAM File",
                                         field: "file",
-                                        formatter: value => `
-                                            <div>
-                                                <span class="fw-bold">
-                                                    ${value}
-                                                </span>
-                                            </div>
-                                        `,
                                     },
+
                                     {
                                         title: "SD insert size",
                                         field: "sdInsertSize",
-                                        formatter: value => `
-                                            <div>
-                                                ${value}
-                                            </div>
-                                        `,
                                     },
                                     {
                                         title: "Average insert size",
                                         field: "avgInsertSize",
-                                        formatter: value => `
-                                            <div>
-                                                ${value}
-                                            </div>
-                                        `,
                                     },
                                     {
                                         title: "Duplicate read rate",
                                         field: "duplicateReadRate",
-                                        formatter: value => `
-                                                <div>
-                                                    ${value}
-                                                </div>
-                                            `,
                                     },
                                     {
                                         title: "Average sequence depth",
                                         field: "avgSequenceDepth",
-                                        formatter: value => `
-                                            <div>
-                                                ${value}
-                                            </div>
-                                        `,
-                                    }
-                                ]
-                            }
+                                    },
+                                ],
+                            },
                         },
-                    ]
-                }
-            ]
+                    ],
+                },
+            ],
         };
     }
 

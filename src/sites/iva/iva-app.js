@@ -103,10 +103,6 @@ import "../../webcomponents/clinical/rga/rga-browser.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 import ExtensionsManager from "../../webcomponents/extensions-manager.js";
 
-// alternatvie B
-// import "../../../styles/scss/custom.scss";
-// import * as bootstrap from "bootstrap";
-
 class IvaApp extends LitElement {
 
     constructor() {
@@ -1282,7 +1278,7 @@ class IvaApp extends LitElement {
             <!-- Rodiel 2023-03-01 Note:  Is it necessary to add 'isCreatingSession' to all components,
             or should those components be added in the 'else' block?" -->
             ${ this.isCreatingSession ? html `
-            <div class="cy-login-overlay position-absolute top-50 start-50 translate-middle">
+            <div class="login-overlay position-absolute top-50 start-50 translate-middle">
                 <loading-spinner
                         .description="${"Creating session..."}">
                 </loading-spinner>

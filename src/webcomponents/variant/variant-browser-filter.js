@@ -629,7 +629,7 @@ export default class VariantBrowserFilter extends LitElement {
                             ` : null}
                         </label>
                     `: null}
-                    <div id="${this._prefix}${subsection.id}" class="cy-subsection-content" data-cy="${subsection.id}">
+                    <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                         ${this._createMessage(subsection)}
                         ${subsection.description ? html`
                             <div>${this._getFilterField(subsection.description)}</div>` : null

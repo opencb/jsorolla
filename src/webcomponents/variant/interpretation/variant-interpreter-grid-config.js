@@ -19,7 +19,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "../../commons/forms/data-form.js";
-import "../../commons/forms/select-field-filter2.js";
+import "../../commons/forms/select-field-filter.js";
 
 export default class VariantInterpreterGridConfig extends LitElement {
 
@@ -241,7 +241,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 containerStyle: "margin: 5px 5px 5px 0px",
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
-                                        <select-field-filter2
+                                        <select-field-filter
                                             .data="${this.config?.pageList}"
                                             .value="${this.config?.pageSize}"
                                             .config="${{
@@ -250,7 +250,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                             }}"
                                             .classes="${"btn-sm"}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </select-field-filter2>
+                                        </select-field-filter>
                                     `;
                                 }
                             }
@@ -270,7 +270,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 containerStyle: "margin: 5px 5px 5px 0px",
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
-                                        <select-field-filter2
+                                        <select-field-filter
                                             .data="${this.selectColumnData}"
                                             .value="${this.selectedColumns?.join(",")}"
                                             .config="${{
@@ -279,7 +279,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                                 liveSearch: false,
                                             }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </select-field-filter2>
+                                        </select-field-filter>
                                     `;
                                 }
                             }

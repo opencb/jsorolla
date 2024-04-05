@@ -292,7 +292,7 @@ export default class StudyAdminAudit extends LitElement {
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "userId") ? html`
                         <!-- User ID -->
                         <div class="col-12">
-                            <select-field-filter2
+                            <select-field-filter
                                 .data="${this.sortedUserIds || []}"
                                 .config=${{
                                     ...this._config,
@@ -302,14 +302,14 @@ export default class StudyAdminAudit extends LitElement {
                                 }}
                                 .value="${this.query?.userId}"
                                 @filterChange="${e => this.onFilterChange("userId", e.detail.value)}">
-                            </select-field-filter2>
+                            </select-field-filter>
                         </div>
                     `: nothing}
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "action") ? html`
                         <!-- TODO: Action build autocomplete-->
                         <div class="col-12">
-                            <select-field-filter2
+                            <select-field-filter
                                 .data="${this.actionValues}"
                                 .config=${{
                                     ...this._config,
@@ -319,14 +319,14 @@ export default class StudyAdminAudit extends LitElement {
                                 }}
                                 .value="${this.query?.action}"
                                 @filterChange="${e => this.onFilterChange("action", e.detail.value)}">
-                            </select-field-filter2>
+                            </select-field-filter>
                         </div>
                     ` : nothing}
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "resource") ? html`
                         <!-- Resource -->
                         <div class="col-12">
-                            <select-field-filter2
+                            <select-field-filter
                                 .data="${this.resourceTypeValues}"
                                 .value=${this.query?.resource}
                                 .config=${{
@@ -334,14 +334,14 @@ export default class StudyAdminAudit extends LitElement {
                                     liveSearch: false,
                                 }}
                                 @filterChange="${e => this.onFilterChange("resource", e.detail.value)}">
-                            </select-field-filter2>
+                            </select-field-filter>
                         </div>
                     ` : nothing}
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "status") ? html`
                         <!-- Status -->
                         <div class="col-12">
-                            <select-field-filter2
+                            <select-field-filter
                                 .data="${this.statusTypeValues}"
                                 .value=${this.query?.status}
                                 .config=${{
@@ -349,7 +349,7 @@ export default class StudyAdminAudit extends LitElement {
                                     liveSearch: false,
                                 }}
                                 @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
-                            </select-field-filter2>
+                            </select-field-filter>
                         </div>
                     ` : nothing}
 

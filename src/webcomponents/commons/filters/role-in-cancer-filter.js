@@ -62,7 +62,7 @@ export default class RoleInCancerFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter2
+            <select-field-filter
                 .data="${this._config.rolesInCancer}"
                 .value=${this.roleInCancer}
                 .config="${{
@@ -71,7 +71,7 @@ export default class RoleInCancerFilter extends LitElement {
                     liveSearch: false
                 }}"
                 @filterChange="${this.filterChange}">
-            </select-field-filter2>
+            </select-field-filter>
         `;
     }
 

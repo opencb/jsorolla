@@ -373,7 +373,7 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "size",
                 title: "Size",
                 field: "size",
-                formatter: UtilsNew.getDiskUsage,
+                formatter: size => UtilsNew.getDiskUsage(size),
                 visible: this.gridCommons.isColumnVisible("size")
             },
             {
@@ -410,7 +410,7 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "creationDate",
                 title: "Creation date",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
+                formatter: date => CatalogGridFormatter.dateFormatter(date),
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];

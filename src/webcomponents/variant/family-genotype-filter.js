@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utils-new.js";
-import "../commons/forms/select-field-filter2.js";
+import "../commons/forms/select-field-filter.js";
 
 export default class FamilyGenotypeFilter extends LitElement {
 
@@ -373,7 +373,7 @@ export default class FamilyGenotypeFilter extends LitElement {
 
                 <div class="col-md-4 mb-2">
                     <div class="form-check-label mode-button">
-                        <select-field-filter2
+                        <select-field-filter
                             .data="${this.modeSelectData}"
                             value="${this.mode}"
                             .config="${{
@@ -381,7 +381,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                                 multiple: false,
                             }}"
                             @filterChange="${this.setMode}">
-                        </select-field-filter2>
+                        </select-field-filter>
                     </div>
                 </div>
                 <div class="col-md-12">

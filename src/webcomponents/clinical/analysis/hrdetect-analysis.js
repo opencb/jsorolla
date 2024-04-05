@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
-import "../../commons/forms/select-field-filter2.js";
+import "../../commons/forms/select-field-filter.js";
 
 export default class HRDetectAnalysis extends LitElement {
 
@@ -257,7 +257,7 @@ export default class HRDetectAnalysis extends LitElement {
                         type: "custom",
                         display: {
                             render: (snvFittingId, onFieldChange) => html`
-                                <select-field-filter2
+                                <select-field-filter
                                     .data="${this.generateSignaturesDropdonw("SNV")}"
                                     .value="${snvFittingId}"
                                     .config="${{
@@ -265,7 +265,7 @@ export default class HRDetectAnalysis extends LitElement {
                                         liveSearch: false
                                     }}"
                                     @filterChange="${e => onFieldChange(e.detail.value)}">
-                                </select-field-filter2>
+                                </select-field-filter>
                             `,
                         },
                     },
@@ -275,7 +275,7 @@ export default class HRDetectAnalysis extends LitElement {
                         type: "custom",
                         display: {
                             render: (svFittingId, onFieldChange) => html`
-                                <select-field-filter2
+                                <select-field-filter
                                     .data="${this.generateSignaturesDropdonw("SV")}"
                                     .value=${svFittingId}
                                     .config="${{
@@ -283,7 +283,7 @@ export default class HRDetectAnalysis extends LitElement {
                                         liveSearch: false
                                     }}"
                                     @filterChange="${e => onFieldChange(e.detail.value)}">
-                                </select-field-filter2>
+                                </select-field-filter>
                             `,
                         },
                     },

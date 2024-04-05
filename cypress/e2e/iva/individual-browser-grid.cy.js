@@ -145,7 +145,7 @@ context("Individual Browser Grid", () => {
                 .find("span.select2-selection__rendered")
                 .should("contain.text", "Glioblastoma multiforme");
             cy.get("@modal-create")
-                .find(`input[placeholder="Add phenotype ID......"]`)
+                .find(`input[placeholder="Add phenotype ID..."]`)
                 .then(element => {
                     expect(element.val()).equal("HP:0012174");
                     cy.wrap(element).should("be.disabled");
@@ -265,14 +265,14 @@ context("Individual Browser Grid", () => {
             });
             cy.get("button[data-action='settings']")
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter2 .select2-container")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter2 span.select2-results li")
+                UtilsTest.getByDataTest("test-columns", "select-field-filter span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter2 .select2-selection")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-selection")
                 .click();
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
