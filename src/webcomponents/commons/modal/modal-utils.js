@@ -1,6 +1,5 @@
 import {html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils";
-import UtilsNew from "../../../core/utils-new";
 
 
 export default class ModalUtils {
@@ -28,10 +27,8 @@ export default class ModalUtils {
         const modalDraggable = config.display?.modalDraggable || false;
         const modalCyDataName = config.display?.modalCyDataName || "";
 
-        return html `
-            <div class="modal fade" id="${id}" data-draggable="${modalDraggable}"
-                tabindex="-1" role="dialog"
-                aria-labelledby="DataModalLabel" aria-hidden="true" data-cy="${modalCyDataName}">
+        return html`
+            <div id="${id}" class="modal fade" data-draggable="${modalDraggable}" tabindex="-1" role="dialog" aria-labelledby="DataModalLabel" aria-hidden="true" data-cy="${modalCyDataName}">
                 <div class="modal-dialog" style="width: ${modalWidth}">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -49,9 +46,13 @@ export default class ModalUtils {
                         ${btnsVisible? html`
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                        @click="${e => LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}">Cancel</button>
+                                        @click="${e => config.onCancel ? config.onCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}">
+                                    Cancel
+                                </button>
                                 <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                        @click="${e => LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}">Save</button>
+                                        @click="${e => config.onOk ? config.onOk(e) : LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}">
+                                    Save
+                                </button>
                             </div>`: nothing}
                     </div>
                 </div>
@@ -123,6 +124,5 @@ export default class ModalUtils {
         modalHeader.onmousedown = dragMouseDown;
         modalHeader.style.cursor = "move";
     }
-
 
 }

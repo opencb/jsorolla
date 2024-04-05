@@ -81,30 +81,29 @@ export default class VariantBrowserGrid extends LitElement {
 
         // TODO move to the configuration?
         this.maxNumberOfPages = 1000000;
+
+        this.gridCommons = null;
+        this._config = this.getDefaultConfig();
     }
 
-    firstUpdated() {
-        // this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.table = this.querySelector("#" + this.gridId);
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
-        };
-    }
-
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-        if (changedProperties.has("query") || changedProperties.has("variants")) {
+
+        if (changedProperties.has("query")) {
             this.queryObserver();
-            // update config to add new columns by filters as sample
-            this.configObserver();
-            this.renderVariants();
         }
+
         if (changedProperties.has("config") || changedProperties.has("toolId")) {
             this.configObserver();
-            this.requestUpdate();
+        }
+
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.size > 0) {
             this.renderVariants();
         }
     }
@@ -115,6 +114,7 @@ export default class VariantBrowserGrid extends LitElement {
             ...this.getDefaultConfig(),
             ...this.config
         };
+
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -131,7 +131,6 @@ export default class VariantBrowserGrid extends LitElement {
             }
         }
         this.samples = _samples;
-        this.requestUpdate();
     }
 
     configObserver() {
@@ -146,8 +145,6 @@ export default class VariantBrowserGrid extends LitElement {
         this.toolbarSetting = {
             ...this._config,
             showCreate: false, // Caution: Ignore a possible admin configuration change to showCreate: true.
-            // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
-            // gridColumns: this._getDefaultColumns() // original column structure
         };
 
         this.toolbarConfig = {
@@ -155,7 +152,7 @@ export default class VariantBrowserGrid extends LitElement {
             resource: "VARIANT",
             disableCreate: true,
             showInterpreterConfig: true,
-            columns: this._getDefaultColumns()
+            columns: this._getDefaultColumns(),
         };
     }
 
@@ -165,13 +162,11 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     renderVariants() {
-        this.opencgaSession;
         if (this.variants?.length > 0) {
             this.renderFromLocal();
         } else {
             this.renderRemoteVariants();
         }
-        // this.requestUpdate();
     }
 
     renderRemoteVariants() {
@@ -211,7 +206,36 @@ export default class VariantBrowserGrid extends LitElement {
                         // summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
-                    this.opencgaSession.opencgaClient.variants().query(this.filters)
+
+                    // TASK-5791: Temporary SNP ID Search fix
+                    if (this.query.xref) {
+                        const snpIds = this.query.xref.split(",").filter(xref => xref.startsWith("rs"));
+                        if (snpIds.length > 0) {
+                            const snpRegion = [];
+                            const request = new XMLHttpRequest();
+                            for (const snpId of snpIds) {
+                                const url = `https://rest.ensembl.org/variation/human/${snpId}?content-type=application/json`;
+
+                                request.onload = event => {
+                                    if (request.status === 200) {
+                                        const restObject = JSON.parse(event.currentTarget.response);
+                                        const mapping = restObject.mappings?.find(m => m.assembly_name === "GRCh38");
+                                        snpRegion.push(mapping.seq_region_name + ":" + mapping.start);
+                                    }
+                                };
+                                request.open("GET", url, false);
+                                request.send();
+                            }
+                            if (this.filters.region) {
+                                this.filters.region += "," + snpRegion.join(",");
+                            } else {
+                                this.filters.region = snpRegion.join(",");
+                            }
+                        }
+                    }
+
+                    this.opencgaSession.opencgaClient.variants()
+                        .query(this.filters)
                         .then(res => {
                             // FIXME A quick temporary fix -> TASK-947
                             if (this.opencgaSession?.project?.cellbase?.version === "v4" || this.opencgaSession?.project?.internal?.cellbase?.version === "v4") {
@@ -265,7 +289,6 @@ export default class VariantBrowserGrid extends LitElement {
                                     });
                                 }
                             }
-
                             params.success(res);
                         })
                         .catch(e => params.error(e))
@@ -327,8 +350,6 @@ export default class VariantBrowserGrid extends LitElement {
             data: this.variants,
             columns: this._getDefaultColumns(),
             sidePagination: "local",
-
-            // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
@@ -1060,7 +1081,6 @@ export default class VariantBrowserGrid extends LitElement {
             <div data-cy="vb-grid">
                 <table id="${this.gridId}"></table>
             </div>
-
         `;
     }
 
