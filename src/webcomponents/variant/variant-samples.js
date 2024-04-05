@@ -27,7 +27,7 @@ export default class VariantSamples extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -44,34 +44,31 @@ export default class VariantSamples extends LitElement {
             },
             active: {
                 type: Boolean
-            }
+            },
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
 
         this.active = false;
         this.gridId = this._prefix + "SampleTable";
-        this.toolbarConfig = {
+
+        this.toolbarSettings = {
             showCreate: false,
             showExport: true,
             showSettings: false,
         };
-    }
+        this.toolbarConfig = {
+            resource: "SAMPLE",
+        };
 
-    connectedCallback() {
         this.config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this.config);
-        super.connectedCallback();
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            // this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
-        }
-
-        if ((changedProperties.has("variantId") || changedProperties.has("active")) && this.active) {
+        if (changedProperties.size > 0 && this.active) {
             this.renderTable();
         }
     }
@@ -120,7 +117,7 @@ export default class VariantSamples extends LitElement {
     }
 
     renderTable() {
-        if (!this.opencgaSession) {
+        if (!this.opencgaSession || !this.variantId) {
             return;
         }
         this.table = $("#" + this.gridId);
@@ -399,14 +396,6 @@ export default class VariantSamples extends LitElement {
         this.requestUpdate();
     }
 
-    getDefaultConfig() {
-        return {
-            pagination: true,
-            pageSize: 10,
-            pageList: [10, 25, 50],
-        };
-    }
-
     render() {
         return html`
             <div>
@@ -420,17 +409,26 @@ export default class VariantSamples extends LitElement {
                     </div>
                 ` : null}
                 <opencb-grid-toolbar
-                    .settings="${this.toolbarConfig}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .settings="${this.toolbarSettings}"
+                    .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @sharelink="${this.onShare}">
+                    @export="${this.onDownload}">
                 </opencb-grid-toolbar>
                 <div>
                     <table id="${this._prefix}SampleTable"></table>
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25, 50],
+        };
     }
 
 }

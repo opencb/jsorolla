@@ -34,6 +34,23 @@ export default class BioinfoUtils {
         });
     }
 
+    static getIdName(id, name) {
+        let text = "";
+        if (name) {
+            text = name;
+        }
+
+        if (id) {
+            if (name) {
+                text += ` (${id})`;
+            } else {
+                text = id;
+            }
+        }
+
+        return text;
+    }
+
     // Generate Variant ID in Varsome format
     // https://varsome.com/how-do-i-create-link-varsome/
     static getVariantInVarsomeFormat(variantId) {
@@ -257,7 +274,7 @@ export default class BioinfoUtils {
 
     static getOboLink(ontologyId) {
         const ontologyShort = ontologyId.replace(":", "_");
-        return `http://purl.obolibrary.org/obo/${ontologyShort}`;
+        return `https://purl.obolibrary.org/obo/${ontologyShort}`;
     }
 
     static getHpoLink(hpoTerm) {
