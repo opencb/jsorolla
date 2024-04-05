@@ -191,14 +191,13 @@ export default class UserAdminGrid extends LitElement {
         const action = e.currentTarget.dataset.action;
         switch (action) {
             case "edit":
-                debugger
-                this.userId = row.userId;
+                this.userId = row.id;
                 this.requestUpdate();
                 await this.updateComplete;
                 ModalUtils.show(`${this._prefix}UpdateModal`);
                 break;
             case "delete":
-                this.userId = row.userId;
+                this.userId = row.id;
                 this.requestUpdate();
                 await this.updateComplete;
                 ModalUtils.show(`${this._prefix}DeleteModal`);
@@ -267,7 +266,7 @@ export default class UserAdminGrid extends LitElement {
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
-                modalTitle: `Group Update: group ${this.groupId} in study ${this.studyId}`,
+                modalTitle: `User Update: User ${this.userId} in organization ${this.organization.id}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"
