@@ -147,7 +147,6 @@ export default class VariantBrowser extends LitElement {
 
     queryObserver() {
         if (this.opencgaSession?.study?.fqn) {
-            debugger
             // NOTE UtilsNew.objectCompare avoid repeating remote requests.
             if (!UtilsNew.objectCompare(this.query, this._query)) {
                 this._query = {...this.query};
@@ -192,7 +191,6 @@ export default class VariantBrowser extends LitElement {
     async onRun() {
         // NOTE notifySearch() triggers this chain: notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in variant-browser
         // queryObserver() here stops the repetition of the remote request by checking if it has changed
-        debugger
         this.query = {...this.preparedQuery};
         // updates this.queries in iva-app
         this.notifySearch(this.preparedQuery);
@@ -228,7 +226,6 @@ export default class VariantBrowser extends LitElement {
     }
 
     onActiveFilterChange(e) {
-        debugger
         VariantUtils.validateQuery(e.detail);
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.notifySearch(this.query);
@@ -286,8 +283,9 @@ export default class VariantBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
@@ -405,7 +403,7 @@ export default class VariantBrowser extends LitElement {
                                     .config="${this._config.filter.result.grid}"
                                     @queryComplete="${this.onQueryComplete}"
                                     @selectrow="${this.onSelectVariant}"
-                                    @settingsUpdate="${this.onSettingsUpdate}">
+                                    @userGridSettingsUpdate="${this.onUserGridSettingsUpdate}">
                                 </variant-browser-grid>
 
                                 <!-- Bottom tabs with specific variant information -->
@@ -562,9 +560,9 @@ export default class VariantBrowser extends LitElement {
                                 id: "role-in-cancer",
                                 title: "Gene Role In Cancer",
                                 tooltip: tooltips.roleInCancer,
-                                disabled: () => UtilsNew.compareVersions("2.6.0", this.opencgaSession.about.Version) < 0,
+                                disabled: () => UtilsNew.compareVersions("2.6.0", this.opencgaSession.about?.Version) < 0,
                                 message: {
-                                    visible: () => UtilsNew.compareVersions("2.6.0", this.opencgaSession.about.Version) < 0,
+                                    visible: () => UtilsNew.compareVersions("2.6.0", this.opencgaSession.about?.Version) < 0,
                                     text: "Gene Role in Cancer filter is only available from OpenCGA 2.6.0"
                                 },
                                 params: {

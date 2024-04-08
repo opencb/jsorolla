@@ -234,8 +234,9 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         }
     }
 
-    onSettingsUpdate() {
+        onUserGridSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
@@ -283,7 +284,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                     @selectrow="${this.onSelectVariant}"
                                     @updaterow="${this.onUpdateVariant}"
                                     @checkrow="${this.onCheckVariant}"
-                                    @settingsUpdate="${this.onSettingsUpdate}">
+                                    @userGridSettingsUpdate="${this.onSettingsUpdate}">
                                 </variant-interpreter-rearrangement-grid>
                             ` : html`
                                 <variant-interpreter-grid
@@ -297,7 +298,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                     @selectrow="${this.onSelectVariant}"
                                     @updaterow="${this.onUpdateVariant}"
                                     @checkrow="${this.onCheckVariant}"
-                                    @settingsUpdate="${this.onSettingsUpdate}">
+                                    @userGridSettingsUpdate="${this.onSettingsUpdate}">
                                 </variant-interpreter-grid>
                                 <variant-interpreter-detail
                                     .opencgaSession="${this.opencgaSession}"

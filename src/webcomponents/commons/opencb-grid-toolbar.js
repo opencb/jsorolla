@@ -45,9 +45,6 @@ export default class OpencbGridToolbar extends LitElement {
             rightToolbar: {
                 type: Array
             },
-            // settings: {
-            //     type: Object
-            // },
             config: {
                 type: Object
             }
@@ -56,26 +53,11 @@ export default class OpencbGridToolbar extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-
         this.rightToolbar = [];
-
-        // this._settings = this.getDefaultSettings();
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        // if (changedProperties.has("settings")) {
-        //     // const _toolbarSettings = {
-        //     //     ...this.getDefaultSettings().toolbar,
-        //     //     ...this.settings.toolbar
-        //     // };
-        //     this._settings = {
-        //         ...this.getDefaultSettings(),
-        //         ...this.settings,
-        //         // toolbar: _toolbarSettings
-        //     };
-        // }
-
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
@@ -214,17 +196,6 @@ export default class OpencbGridToolbar extends LitElement {
         `;
     }
 
-    // getDefaultSettings() {
-    //     return {
-    //         // label: "records",
-    //         showCreate: true,
-    //         showExport: true,
-    //         showSettings: true,
-    //         // download: ["Tab", "JSON"],
-    //         // buttons: ["columns", "download"],
-    //     };
-    // }
-
     getDefaultConfig() {
         return {
             export: {
@@ -242,25 +213,25 @@ export default class OpencbGridToolbar extends LitElement {
                     </opencga-export>`
             },
             settings: {
-                display: {
-                    modalDraggable: true,
-                    modalTitle: this.config?.resource + " Settings",
-                },
                 render: () => !this._config?.showInterpreterConfig ? html `
                     <catalog-browser-grid-config
                         .opencgaSession="${this.opencgaSession}"
                         .gridColumns="${this._config.columns}"
                         .toolId="${this._config?.toolId}"
                         .config="${this._config}"
-                        @settingsUpdate="${this.onCloseSetting}">
+                        @userGridSettingsUpdate="${this.onCloseSetting}">
                     </catalog-browser-grid-config>` : html `
                     <variant-interpreter-grid-config
                         .opencgaSession="${this.opencgaSession}"
                         .gridColumns="${this._config.columns}"
-                        .config="${this._config}"
                         .toolId="${this._config?.toolId}"
-                        @settingsUpdate="${this.onCloseSetting}">
-                    </variant-interpreter-grid-config>`
+                        .config="${this._config}"
+                        @userGridSettingsUpdate="${this.onCloseSetting}">
+                    </variant-interpreter-grid-config>`,
+                display: {
+                    modalDraggable: true,
+                    modalTitle: this.config?.resource + " Settings",
+                }
             }
         };
     }

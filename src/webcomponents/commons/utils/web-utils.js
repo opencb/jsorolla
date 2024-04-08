@@ -135,7 +135,7 @@ export default class WebUtils {
                     .table;
                 break;
             case "INTERPRETER":
-                defaultSettingsName = id.replace("variant-interpreter-", "").replace(/-/g, "_").toUpperCase() + "_SETTINGS";
+                defaultSettingsName = id.replace("variant-interpreter-", "").replace(/-/g, "_").toUpperCase();
                 defaultSettings = opencgaSession.ivaDefaultSettings
                     .settings.VARIANT_INTERPRETER_SETTINGS.tools
                     .find(tool => tool.id === "variant-browser")

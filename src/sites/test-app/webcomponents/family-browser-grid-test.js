@@ -87,7 +87,7 @@ class FamilyBrowserGridTest extends LitElement {
         return null;
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this._config.grid = {
             ...this._config.grid,
             ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
@@ -115,7 +115,7 @@ class FamilyBrowserGridTest extends LitElement {
                     .families="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config.grid}"
-                    @settingsUpdate="${() => this.onSettingsUpdate()}"
+                    @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}"
                     @selectrow="${e => this.onSelectRow(e)}">
                 </family-grid>
                 <family-detail
@@ -142,7 +142,7 @@ class FamilyBrowserGridTest extends LitElement {
                             <family-view
                                 .opencgaSession="${opencgaSession}"
                                 .family="${family}"
-                                @settingsUpdate="${() => this.onSettingsUpdate()}"
+                                @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}"
                                 .settings="${{}}">
                             </family-view>
                         `,

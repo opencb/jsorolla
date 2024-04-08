@@ -68,16 +68,17 @@ export default class DiseasePanelBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...(this.config || {}),
-        };
+        // this._config = {
+        //     ...this.getDefaultConfig(),
+        //     ...(this.config || {}),
+        // };
 
         this._config = WebUtils.mergeSettingsAndBrowserConfig(this.settings, this._config, this.COMPONENT_ID, this.opencgaSession);
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
     onDiseasePanelUpdate() {
         this.settingsObserver();
@@ -117,7 +118,7 @@ export default class DiseasePanelBrowser extends LitElement {
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "diseasePanel")}"
                             @diseasePanelUpdate="${e => params.onComponentUpdate(e, "diseasePanel")}"
-                            @settingsUpdate="${() => this.onSettingsUpdate()}">
+                            @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
                         </disease-panel-grid>
                         <disease-panel-detail
                             .opencgaSession="${params.opencgaSession}"

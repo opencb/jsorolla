@@ -149,7 +149,7 @@ class VariantInterpreterGridTest extends LitElement {
         ];
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this.configVariantInterpreterGrid = {
             ...this.configVariantInterpreterGrid,
             ...this.opencgaSession?.user?.configs?.IVA?.settings?.variantInterpreterBrowser?.grid
@@ -176,7 +176,7 @@ class VariantInterpreterGridTest extends LitElement {
                 @selectrow="${this.onSelectVariant}"
                 @updaterow="${this.onUpdateVariant}"
                 @checkrow="${this.onCheckVariant}"
-                @settingsUpdate="${() => this.onSettingsUpdate()}">
+                @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
             </variant-interpreter-grid>
         `;
     }

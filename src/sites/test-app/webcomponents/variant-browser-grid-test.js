@@ -114,7 +114,7 @@ class VariantBrowserGridTest extends LitElement {
         // this.mutate();
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this._config = {
             ...this._config,
             ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
@@ -137,7 +137,7 @@ class VariantBrowserGridTest extends LitElement {
                     .variants="${this.variants}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config}"
-                    @settingsUpdate="${() => this.onSettingsUpdate()}"
+                    @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}"
                     .populationFrequencies="${this.config.populationFrequencies}">
                 </variant-browser-grid>
             </div>

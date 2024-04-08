@@ -65,8 +65,9 @@ export default class FamilyBrowser extends LitElement {
         this._config = WebUtils.mergeSettingsAndBrowserConfig(this.settings, this.getDefaultConfig(), this.COMPONENT_ID, this.opencgaSession);
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onFamilyUpdate() {
@@ -109,7 +110,7 @@ export default class FamilyBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             @selectrow="${e => params.onClickRow(e, "family")}"
                             @familyUpdate="${e => params.onComponentUpdate(e, "family")}"
-                            @settingsUpdate="${() => this.onSettingsUpdate()}">
+                            @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
                         </family-grid>
                         <family-detail
                             .opencgaSession="${params.opencgaSession}"

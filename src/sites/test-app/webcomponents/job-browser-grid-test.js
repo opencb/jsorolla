@@ -89,7 +89,7 @@ class JobBrowserGridTest extends LitElement {
         this.requestUpdate();
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this._config.grid = {
             ...this._config.grid,
             ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
@@ -112,7 +112,7 @@ class JobBrowserGridTest extends LitElement {
                     .jobs="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config.grid}"
-                    @settingsUpdate="${() => this.onSettingsUpdate()}"
+                    @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}"
                     @selectrow="${e => this.onSelectRow(e)}">
                 </job-grid>
                 <job-detail

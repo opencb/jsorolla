@@ -103,7 +103,7 @@ class SampleBrowserGridTest extends LitElement {
         this._data = [...this._data];
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this._config.grid = {
             ...this._config.grid,
             ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
@@ -131,7 +131,7 @@ class SampleBrowserGridTest extends LitElement {
                     .samples="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config?.grid}"
-                    @settingsUpdate="${() => this.onSettingsUpdate()}"
+                    @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}"
                     @selectrow="${e => this.onSelectRow(e)}">
                 </sample-grid>
                 <sample-detail

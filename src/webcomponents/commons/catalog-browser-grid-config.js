@@ -126,15 +126,12 @@ export default class CatalogBrowserGridConfig extends LitElement {
 
     onFieldChange(e) {
         switch (e.detail.param) {
-            case "columns":
-                this.config.columns = e.detail.value?.split(",");
-                break;
             case "_highlights":
                 if (e.detail.value) {
                     const values = e.detail.value.split(",");
-                    this.config.highlights.forEach(h => h.active = values.includes(h.id));
+                    this.config.grid.highlights?.forEach(h => h.active = values.includes(h.id));
                 } else {
-                    this.config.highlights.forEach(h => h.active = false);
+                    this.config.grid.highlights?.forEach(h => h.active = false);
                 }
                 this._highlights = e.detail.value || "";
                 this.requestUpdate();
@@ -153,11 +150,11 @@ export default class CatalogBrowserGridConfig extends LitElement {
                 this.toolId,
                 {
                     pageSize: this.config.grid.pageSize,
-                    columns: this.config.columns,
-                    highlights: this.config.highlights,
+                    columns: this.config.grid.columns,
+                    highlights: this.config.grid.highlights,
                 }
             );
-            LitUtils.dispatchCustomEvent(this, "settingsUpdate");
+            LitUtils.dispatchCustomEvent(this, "userGridSettingsUpdate");
 
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 message: "Configuration saved",
@@ -236,7 +233,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                             }
                         },
                         {
-                            field: "columns",
+                            field: "grid.columns",
                             type: "custom",
                             text: "Columns",
                             display: {
@@ -249,7 +246,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                             .title="${"Columns"}"
                                             .multiple="${true}"
                                             .classes="${"btn-sm"}"
-                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                            @filterChange="${e => dataFormFilterChange(e.detail.value?.split(",") ?? [])}">
                                         </select-field-filter>
                                     `;
                                 }
@@ -269,7 +266,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                             field: "_highlights",
                             type: "select",
                             multiple: true,
-                            allowedValues: this.config?.highlights?.map(highlight => {
+                            allowedValues: this.config?.grid.highlights?.map(highlight => {
                                 return {id: highlight.id, name: highlight.name};
                             }) || [],
                             defaultValue: this._highlights,

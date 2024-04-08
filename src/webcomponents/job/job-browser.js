@@ -68,8 +68,9 @@ export default class JobBrowser extends LitElement {
         this._config = WebUtils.mergeSettingsAndBrowserConfig(this.settings, this.getDefaultConfig(), this.COMPONENT_ID, this.opencgaSession);
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onJobUpdate() {
@@ -120,7 +121,7 @@ export default class JobBrowser extends LitElement {
                             .files="${params.files}"
                             @selectrow="${e => params.onClickRow(e, "job")}"
                             @jobUpdate="${e => params.onComponentUpdate(e, "job")}"
-                            @settingsUpdate="${() => this.onSettingsUpdate()}">
+                            @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
                         </job-grid>
                         <job-detail
                             .opencgaSession="${params.opencgaSession}"

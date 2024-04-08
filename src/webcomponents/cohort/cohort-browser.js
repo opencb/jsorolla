@@ -64,8 +64,9 @@ export default class CohortBrowser extends LitElement {
         this._config = WebUtils.mergeSettingsAndBrowserConfig(this.settings, this.getDefaultConfig(), this.COMPONENT_ID, this.opencgaSession);
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onCohortUpdate() {
@@ -104,7 +105,7 @@ export default class CohortBrowser extends LitElement {
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "cohort")}"
                             @cohortUpdate="${e => params.onComponentUpdate(e, "cohort")}"
-                            @settingsUpdate="${() => this.onSettingsUpdate()}">
+                            @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
                         </cohort-grid>
                         <cohort-detail
                             .opencgaSession="${params.opencgaSession}"

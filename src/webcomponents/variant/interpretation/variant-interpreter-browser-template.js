@@ -343,7 +343,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.requestUpdate();
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this.settingsObserver();
         this.requestUpdate();
     }
@@ -499,7 +499,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                     @selectrow="${this.onSelectVariant}"
                                     @updaterow="${this.onUpdateVariant}"
                                     @checkrow="${this.onCheckVariant}"
-                                    @settingsUpdate="${this.onSettingsUpdate}">
+                                    @userGridSettingsUpdate="${this.onUserGridSettingsUpdate}">
                                 </variant-interpreter-grid>` : html`
                                 <variant-interpreter-rearrangement-grid
                                     .toolId="${this.toolId}"
@@ -513,7 +513,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                     @selectrow="${this.onSelectVariant}"
                                     @updaterow="${this.onUpdateVariant}"
                                     @checkrow="${this.onCheckVariant}"
-                                    @settingsUpdate="${this.onSettingsUpdate}">
+                                    @userGridSettingsUpdate="${this.onUserGridSettingsUpdate}">
                                 </variant-interpreter-rearrangement-grid>`
                             }
                             <!-- Bottom tabs with detailed variant information -->

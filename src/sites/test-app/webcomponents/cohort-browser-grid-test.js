@@ -87,7 +87,7 @@ class CohortBrowserGridTest extends LitElement {
         return null;
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this._config.grid = {
             ...this._config.grid,
             ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
@@ -115,7 +115,7 @@ class CohortBrowserGridTest extends LitElement {
                     .cohorts="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config.grid}"
-                    @settingsUpdate="${() => this.onSettingsUpdate()}"
+                    @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}"
                     @selectrow="${e => this.onSelectRow(e)}">
                 </cohort-grid>
                 <cohort-detail

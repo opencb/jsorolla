@@ -71,8 +71,9 @@ export default class IndividualBrowser extends LitElement {
         this._config = WebUtils.mergeSettingsAndBrowserConfig(this.settings, this.getDefaultConfig(), this.COMPONENT_ID, this.opencgaSession);
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onIndividualUpdate() {
@@ -115,7 +116,7 @@ export default class IndividualBrowser extends LitElement {
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "individual")}"
                             @individualUpdate="${e => params.onComponentUpdate(e, "individual")}"
-                            @settingsUpdate="${() => this.onSettingsUpdate()}">
+                            @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
                         </individual-grid>
                         <individual-detail
                             .opencgaSession="${params.opencgaSession}"

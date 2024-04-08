@@ -66,8 +66,9 @@ export default class SampleBrowser extends LitElement {
         this._config = WebUtils.mergeSettingsAndBrowserConfig(this.settings, this.getDefaultConfig(), this.COMPONENT_ID, this.opencgaSession);
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onSampleUpdate() {
@@ -110,7 +111,7 @@ export default class SampleBrowser extends LitElement {
                                 .active="${true}"
                                 @selectrow="${e => params.onClickRow(e, "sample")}"
                                 @sampleUpdate="${e => params.onComponentUpdate(e, "sample")}"
-                                @settingsUpdate="${() => this.onSettingsUpdate()}">
+                                @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
                             </sample-grid>
                             <sample-detail
                                 .opencgaSession="${params.opencgaSession}"

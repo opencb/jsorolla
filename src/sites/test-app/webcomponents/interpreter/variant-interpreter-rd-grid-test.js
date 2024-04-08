@@ -91,7 +91,7 @@ class VariantInterpreterRDGridTest extends LitElement {
         // Nothing to do (yet...)
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this._config = {
             ...this.getDefaultConfig(),
             ...this.opencgaSession?.user?.configs?.IVA?.variantInterpreterBrowserRD?.grid,
@@ -118,7 +118,7 @@ class VariantInterpreterRDGridTest extends LitElement {
                 @selectrow="${this.onSelectVariant}"
                 @updaterow="${this.onUpdateVariant}"
                 @checkrow="${this.onCheckVariant}"
-                @settingsUpdate="${() => this.onSettingsUpdate()}">
+                @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
             </variant-interpreter-grid>
         `;
     }

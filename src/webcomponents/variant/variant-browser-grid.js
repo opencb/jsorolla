@@ -136,6 +136,20 @@ export default class VariantBrowserGrid extends LitElement {
         this.requestUpdate();
     }
 
+    #initInternalConfig() {
+        // Deep merge of external settings and default internal configuration
+        const defaultConfig = this.getDefaultConfig();
+        this._config = {
+            ...defaultConfig,
+            ...this.config,
+            toolbar: {
+                ...defaultConfig.toolbar,
+                ...this.config.toolbar
+            }
+        };
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    }
+
     configObserver() {
         // this._config = {
         //     ...this.getDefaultConfig(),
@@ -163,20 +177,6 @@ export default class VariantBrowserGrid extends LitElement {
             showInterpreterConfig: true,
             columns: this._getDefaultColumns()
         };
-    }
-
-    #initInternalConfig() {
-        // Deep merge of external settings and default internal configuration
-        const defaultConfig = this.getDefaultConfig();
-        this._config = {
-            ...defaultConfig,
-            ...this.config,
-            toolbar: {
-                ...defaultConfig.toolbar,
-                ...this.config.toolbar
-            }
-        };
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     onColumnChange(e) {
@@ -1110,7 +1110,6 @@ export default class VariantBrowserGrid extends LitElement {
                 <opencb-grid-toolbar
                     .query="${this.query}"
                     .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"

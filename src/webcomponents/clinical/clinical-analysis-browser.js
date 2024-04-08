@@ -77,8 +77,9 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         this._config = WebUtils.mergeSettingsAndBrowserConfig(this.settings, this._config, this.COMPONENT_ID, this.opencgaSession);
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onClinicalAnalysisUpdate() {
@@ -124,7 +125,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                             @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}"
                             @rowUpdate="${e => params.onComponentUpdate(e, "clinicalAnalysis")}"
                             @clinicalAnalysisUpdate="${e => params.onComponentUpdate(e, "clinicalAnalysis")}"
-                            @settingsUpdate="${() => this.onSettingsUpdate()}">
+                            @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
                         </clinical-analysis-grid>
                         <clinical-analysis-detail
                             .opencgaSession="${params.opencgaSession}"

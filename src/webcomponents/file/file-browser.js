@@ -68,8 +68,9 @@ export default class FileBrowser extends LitElement {
         this._config = WebUtils.mergeSettingsAndBrowserConfig(this.settings, this.getDefaultConfig(), this.COMPONENT_ID, this.opencgaSession);
     }
 
-    onSettingsUpdate() {
+    onUserGridSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onFileUpdate() {
@@ -111,7 +112,7 @@ export default class FileBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             @selectrow="${e => params.onClickRow(e, "file")}"
                             @fileUpdate="${e => params.onComponentUpdate(e, "file")}"
-                            @settingsUpdate="${() => this.onSettingsUpdate()}">
+                            @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
                         </file-grid>
                         <file-detail
                             .opencgaSession="${params.opencgaSession}"
