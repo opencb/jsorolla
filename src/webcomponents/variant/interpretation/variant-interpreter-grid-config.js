@@ -55,7 +55,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
     }
 
     onConfigObserver() {
-        this._highlights = (this.config?.grid?.highlights || [])
+        this._highlights = (this.config?.highlights || [])
             .filter(h => h.active)
             .map(h => h.id)
             .join(",");
@@ -103,31 +103,31 @@ export default class VariantInterpreterGridConfig extends LitElement {
             // case "columns":
             //     this.config.columns = e.detail.value?.split(",");
             //     break;
-            case "grid.genotype.type":
-                this.config.grid.genotype.type = e.detail.value;
+            case "genotype.type":
+                this.config.genotype.type = e.detail.value;
                 break;
-            case "grid.geneSet.ensembl":
-            case "grid.geneSet.refseq":
-            case "grid.consequenceType.all":
-            case "grid.consequenceType.maneTranscript":
-            case "grid.consequenceType.ensemblCanonicalTranscript":
-            case "grid.consequenceType.gencodeBasicTranscript":
-            case "grid.consequenceType.ccdsTranscript":
-            case "grid.consequenceType.lrgTranscript":
-            case "grid.consequenceType.ensemblTslTranscript":
-            case "grid.consequenceType.illuminaTSO500Transcript":
-            case "grid.consequenceType.eglhHaemoncTranscript":
-            case "grid.consequenceType.proteinCodingTranscript":
-            case "grid.consequenceType.highImpactConsequenceTypeTranscript":
-            case "grid.consequenceType.showNegativeConsequenceTypes":
-            case "grid.populationFrequenciesConfig.displayMode":
+            case "geneSet.ensembl":
+            case "geneSet.refseq":
+            case "consequenceType.all":
+            case "consequenceType.maneTranscript":
+            case "consequenceType.ensemblCanonicalTranscript":
+            case "consequenceType.gencodeBasicTranscript":
+            case "consequenceType.ccdsTranscript":
+            case "consequenceType.lrgTranscript":
+            case "consequenceType.ensemblTslTranscript":
+            case "consequenceType.illuminaTSO500Transcript":
+            case "consequenceType.eglhHaemoncTranscript":
+            case "consequenceType.proteinCodingTranscript":
+            case "consequenceType.highImpactConsequenceTypeTranscript":
+            case "consequenceType.showNegativeConsequenceTypes":
+            case "populationFrequenciesConfig.displayMode":
                 const fields = e.detail.param.split(".");
-                if (!this.config.grid[fields[0]]) {
-                    this.config.grid[fields[0]] = {};
+                if (!this.config[fields[0]]) {
+                    this.config[fields[0]] = {};
                 }
-                this.config.grid[fields[0]][fields[1]] = e.detail.value;
+                this.config[fields[0]][fields[1]] = e.detail.value;
 
-                if (e.detail.param === "grid.consequenceType.all") {
+                if (e.detail.param === "consequenceType.all") {
                     // we need to refresh the form to display disabled checkboxes
                     this.requestUpdate();
                 }
@@ -135,9 +135,9 @@ export default class VariantInterpreterGridConfig extends LitElement {
             case "_highlights":
                 if (e.detail.value) {
                     const values = e.detail.value.split(",");
-                    this.config.grid.highlights?.forEach(h => h.active = values.includes(h.id));
+                    this.config.highlights?.forEach(h => h.active = values.includes(h.id));
                 } else {
-                    this.config.grid.highlights?.forEach(h => h.active = false);
+                    this.config.highlights?.forEach(h => h.active = false);
                 }
                 this._highlights = e.detail.value || "";
                 this.requestUpdate();
@@ -163,14 +163,14 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 this.toolId,
                 {
                     // All Variant Grids
-                    pageSize: this.config.grid.pageSize,
-                    columns: this.config.grid.columns,
-                    geneSet: this.config.grid.geneSet,
-                    consequenceType: this.config.grid.consequenceType,
-                    populationFrequenciesConfig: this.config.grid.populationFrequenciesConfig,
-                    highlights: this.config.grid.highlights,
+                    pageSize: this.config.pageSize,
+                    columns: this.config.columns,
+                    geneSet: this.config.geneSet,
+                    consequenceType: this.config.consequenceType,
+                    populationFrequenciesConfig: this.config.populationFrequenciesConfig,
+                    highlights: this.config.highlights,
                     // Only Variant Interpreter Grids
-                    genotype: this.config.grid.genotype,
+                    genotype: this.config.genotype,
                 }
             );
             LitUtils.dispatchCustomEvent(this, "userGridSettingsUpdate");
@@ -204,7 +204,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
             type: "pills",
             validation: {
                 validate: data => {
-                    return data.grid.geneSet?.ensembl || data.grid.geneSet?.refseq;
+                    return data.geneSet?.ensembl || data.geneSet?.refseq;
                 }
             },
             display: {
@@ -231,7 +231,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             }
                         },
                         {
-                            field: "grid.pageSize",
+                            field: "pageSize",
                             type: "custom",
                             text: "Page Size",
                             display: {
@@ -239,8 +239,8 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
                                         <select-field-filter
-                                            .data="${this.config.grid?.pageList}"
-                                            .value="${this.config.grid?.pageSize}"
+                                            .data="${this.config.pageList}"
+                                            .value="${this.config.pageSize}"
                                             .multiple="${false}"
                                             .classes="${"btn-sm"}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
@@ -257,7 +257,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             }
                         },
                         {
-                            field: "grid.columns",
+                            field: "columns",
                             type: "custom",
                             text: "Columns",
                             display: {
@@ -287,12 +287,12 @@ export default class VariantInterpreterGridConfig extends LitElement {
                         titleStyle: "margin: 5px 5px",
                         descriptionClassName: "help-block",
                         descriptionStyle: "margin: 0px 10px",
-                        visible: () => !!this.config?.grid?.genotype?.type
+                        visible: () => !!this.config?.genotype?.type
                     },
                     elements: [
                         {
                             title: "Select how genotypes are displayed",
-                            field: "grid.genotype.type",
+                            field: "genotype.type",
                             type: "select",
                             allowedValues: ["ALLELES", "VCF_CALL", "ZYGOSITY", "VAF", "ALLELE_FREQUENCY", "ALLELE_FREQUENCY_BAR", "CIRCLE"],
                             display: {
@@ -309,7 +309,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                         titleStyle: "margin: 5px 5px",
                         descriptionClassName: "help-block",
                         descriptionStyle: "margin: 0px 10px",
-                        visible: () => !!this.config?.grid?.geneSet
+                        visible: () => !!this.config?.geneSet
                     },
                     elements: [
                         {
@@ -321,7 +321,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             }
                         },
                         {
-                            field: "grid.geneSet.ensembl",
+                            field: "geneSet.ensembl",
                             type: "checkbox",
                             text: "Ensembl",
                             display: {
@@ -330,7 +330,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             }
                         },
                         {
-                            field: "grid.geneSet.refseq",
+                            field: "geneSet.refseq",
                             type: "checkbox",
                             text: "RefSeq",
                             display: {
@@ -346,7 +346,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             }
                         },
                         {
-                            field: "grid.consequenceType.all",
+                            field: "consequenceType.all",
                             type: "checkbox",
                             text: "Include All Transcripts",
                             display: {
@@ -360,93 +360,93 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             }
                         },
                         {
-                            field: "grid.consequenceType.maneTranscript",
+                            field: "consequenceType.maneTranscript",
                             type: "checkbox",
                             text: "Include MANE Select and Plus Clinical transcripts",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                disabled: () => this.config?.grid?.consequenceType?.all
+                                disabled: () => this.config?.consequenceType?.all
                             }
                         },
                         {
-                            field: "grid.consequenceType.ensemblCanonicalTranscript",
+                            field: "consequenceType.ensemblCanonicalTranscript",
                             type: "checkbox",
                             text: "Include Ensembl Canonical transcripts",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                disabled: () => this.config?.grid?.consequenceType?.all
+                                disabled: () => this.config?.consequenceType?.all
                             }
                         },
                         {
-                            field: "grid.consequenceType.gencodeBasicTranscript",
+                            field: "consequenceType.gencodeBasicTranscript",
                             type: "checkbox",
                             text: "Include GENCODE Basic transcripts",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                disabled: () => this.config?.grid?.consequenceType?.all
+                                disabled: () => this.config?.consequenceType?.all
                             }
                         },
                         {
-                            field: "grid.consequenceType.ccdsTranscript",
+                            field: "consequenceType.ccdsTranscript",
                             type: "checkbox",
                             text: "Include CCDS transcripts",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                disabled: () => this.config?.grid?.consequenceType?.all
+                                disabled: () => this.config?.consequenceType?.all
                             }
                         },
                         {
-                            field: "grid.consequenceType.lrgTranscript",
+                            field: "consequenceType.lrgTranscript",
                             type: "checkbox",
                             text: "Include LRG transcripts",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                disabled: () => this.config?.grid?.consequenceType?.all
+                                disabled: () => this.config?.consequenceType?.all
                             }
                         },
                         {
-                            field: "grid.consequenceType.ensemblTslTranscript",
+                            field: "consequenceType.ensemblTslTranscript",
                             type: "checkbox",
                             text: "Include Ensembl TSL:1 transcripts",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                disabled: () => this.config?.grid?.consequenceType?.all
+                                disabled: () => this.config?.consequenceType?.all
                             }
                         },
                         {
-                            field: "grid.consequenceType.illuminaTSO500Transcript",
+                            field: "consequenceType.illuminaTSO500Transcript",
                             type: "checkbox",
                             text: "Include Illumina TSO500 transcripts",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                disabled: () => this.config?.grid?.consequenceType?.all
+                                disabled: () => this.config?.consequenceType?.all
                             }
                         },
                         {
-                            field: "grid.consequenceType.eglhHaemoncTranscript",
+                            field: "consequenceType.eglhHaemoncTranscript",
                             type: "checkbox",
                             text: "Include EGLH HaemOnc transcripts",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                disabled: () => this.config?.grid?.consequenceType?.all
+                                disabled: () => this.config?.consequenceType?.all
                             }
                         },
                         {
-                            field: "grid.consequenceType.proteinCodingTranscript",
+                            field: "consequenceType.proteinCodingTranscript",
                             type: "checkbox",
                             text: "Include protein coding transcripts",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                disabled: () => this.config?.grid?.consequenceType?.all
+                                disabled: () => this.config?.consequenceType?.all
                             }
                         },
                         {
-                            field: "grid.consequenceType.highImpactConsequenceTypeTranscript",
+                            field: "consequenceType.highImpactConsequenceTypeTranscript",
                             type: "checkbox",
                             text: "Include transcripts with high impact consequence types",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                disabled: () => this.config?.grid?.consequenceType?.all
+                                disabled: () => this.config?.consequenceType?.all
                             }
                         }
                     ]
@@ -459,7 +459,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                         titleStyle: "margin: 5px 5px",
                         descriptionClassName: "help-block",
                         descriptionStyle: "margin: 0px 10px",
-                        visible: () => !!this.config?.grid?.populationFrequenciesConfig
+                        visible: () => !!this.config?.populationFrequenciesConfig
                     },
                     elements: [
                         {
@@ -471,7 +471,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                         },
                         {
                             // title: "Select the display mode of the population frequencies",
-                            field: "grid.populationFrequenciesConfig.displayMode",
+                            field: "populationFrequenciesConfig.displayMode",
                             type: "select",
                             multiple: false,
                             allowedValues: ["FREQUENCY_BOX", "FREQUENCY_NUMBER"],
@@ -493,12 +493,12 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             field: "_highlights",
                             type: "select",
                             multiple: true,
-                            allowedValues: this.config?.grid.highlights?.map(highlight => {
+                            allowedValues: this.config?.highlights?.map(highlight => {
                                 return {id: highlight.id, name: highlight.name};
                             }) || [],
                             defaultValue: this._highlights,
                             display: {
-                                visible: () => (this.config?.grid.highlights || []).length > 0,
+                                visible: () => (this.config?.highlights || []).length > 0,
                             },
                         },
                         {
@@ -506,7 +506,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             text: "No highlight conditions defined.",
                             display: {
                                 notificationType: "warning",
-                                visible: () => (this.config?.grid.highlights || []).length === 0,
+                                visible: () => (this.config?.highlights || []).length === 0,
                             },
                         },
                     ],

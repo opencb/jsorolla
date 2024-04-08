@@ -129,9 +129,9 @@ export default class CatalogBrowserGridConfig extends LitElement {
             case "_highlights":
                 if (e.detail.value) {
                     const values = e.detail.value.split(",");
-                    this.config.grid.highlights?.forEach(h => h.active = values.includes(h.id));
+                    this.config.highlights?.forEach(h => h.active = values.includes(h.id));
                 } else {
-                    this.config.grid.highlights?.forEach(h => h.active = false);
+                    this.config.highlights?.forEach(h => h.active = false);
                 }
                 this._highlights = e.detail.value || "";
                 this.requestUpdate();
@@ -149,9 +149,9 @@ export default class CatalogBrowserGridConfig extends LitElement {
                 this.opencgaSession,
                 this.toolId,
                 {
-                    pageSize: this.config.grid.pageSize,
-                    columns: this.config.grid.columns,
-                    highlights: this.config.grid.highlights,
+                    pageSize: this.config.pageSize,
+                    columns: this.config.columns,
+                    highlights: this.config.highlights,
                 }
             );
             LitUtils.dispatchCustomEvent(this, "userGridSettingsUpdate");
@@ -207,7 +207,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                             }
                         },
                         {
-                            field: "grid.pageSize",
+                            field: "pageSize",
                             type: "custom",
                             text: "Page Size",
                             display: {
@@ -215,8 +215,8 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
                                         <select-field-filter
-                                            .data="${this.config.grid?.pageList}"
-                                            .value="${this.config.grid?.pageSize}"
+                                            .data="${this.config?.pageList}"
+                                            .value="${this.config?.pageSize}"
                                             .multiple="${false}"
                                             .classes="${"btn-sm"}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
@@ -233,7 +233,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                             }
                         },
                         {
-                            field: "grid.columns",
+                            field: "columns",
                             type: "custom",
                             text: "Columns",
                             display: {
@@ -266,7 +266,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                             field: "_highlights",
                             type: "select",
                             multiple: true,
-                            allowedValues: this.config?.grid.highlights?.map(highlight => {
+                            allowedValues: this.config?.highlights?.map(highlight => {
                                 return {id: highlight.id, name: highlight.name};
                             }) || [],
                             defaultValue: this._highlights,

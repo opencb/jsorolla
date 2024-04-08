@@ -218,14 +218,14 @@ export default class OpencbGridToolbar extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .gridColumns="${this._config.columns}"
                         .toolId="${this._config?.toolId}"
-                        .config="${this._config}"
+                        .config="${this._config.grid}"
                         @userGridSettingsUpdate="${this.onCloseSetting}">
                     </catalog-browser-grid-config>` : html `
                     <variant-interpreter-grid-config
                         .opencgaSession="${this.opencgaSession}"
                         .gridColumns="${this._config.columns}"
                         .toolId="${this._config?.toolId}"
-                        .config="${this._config}"
+                        .config="${this._config.grid}"
                         @userGridSettingsUpdate="${this.onCloseSetting}">
                     </variant-interpreter-grid-config>`,
                 display: {
