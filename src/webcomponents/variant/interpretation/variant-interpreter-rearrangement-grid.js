@@ -545,7 +545,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                                 formatter: (value, row) => this.vcfDataFormatter(value, row[index], field),
                                 halign: "center",
                                 excludeFromSettings: true,
-                                // visible: this.gridCommons.isColumnVisible(id),
                                 visible: !this._config.hideVcfFileData,
                             });
                         });
@@ -1106,10 +1105,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             showActions: false,
             multiSelection: false,
             nucleotideGenotype: true,
+            hideVcfFileData: false,
 
             alleleStringLengthMax: 50,
-
-            hideVcfFileData: false,
 
             // genotype: {
             //     type: "VCF_CALL"
