@@ -90,7 +90,7 @@ export default class JobGrid extends LitElement {
     }
 
     propertyObserver() {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
+        // With each property change we must update config and create the columns again. No extra checks are needed.
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,
@@ -107,21 +107,21 @@ export default class JobGrid extends LitElement {
             toolId: this.toolId,
             resource: "JOB",
             columns: this._getDefaultColumns(),
-            create: {
-                display: {
-                    modalTitle: "Job Create",
-                    modalDraggable: true,
-                    disabled: true,
-                    disabledTooltip: "This operation will be implemented soon. Thanks for your patience.",
-                    modalCyDataName: "modal-create",
-                },
-                render: () => html `
-                    <job-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </job-create>`
-            },
             // Uncomment in case we need to change defaults
+            // create: {
+            //     display: {
+            //         modalTitle: "Job Create",
+            //         modalDraggable: true,
+            //         disabled: true,
+            //         disabledTooltip: "This operation will be implemented soon. Thanks for your patience.",
+            //         modalCyDataName: "modal-create",
+            //     },
+            //     render: () => html `
+            //         <job-create
+            //             .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+            //             .opencgaSession="${this.opencgaSession}">
+            //         </job-create>`
+            // },
             // export: {
             //     display: {
             //         modalTitle: "Job Export",
@@ -421,26 +421,46 @@ export default class JobGrid extends LitElement {
                     if (UtilsNew.isNotEmpty(params)) {
                         html = "<div>";
                         for (const key of Object.keys(params)) {
-                            let nestedObject = "";
-                            if (typeof params[key] === "object") {
-                                for (const subKey of Object.keys(params[key])) {
-                                    nestedObject += `
-                                        <div style="white-space: nowrap">
-                                            <span style="margin: 2px 0; font-weight: bold">${subKey}:</span> ${params[key][subKey]}
+                            html += `<div style="margin: 2px 0; white-space: nowrap">`;
+                            // 1. Normal parameter
+                            if (typeof params[key] !== "object") {
+                                if (params[key].length > 100) {
+                                    html += `
+                                        <span title="${params[key]}" style="margin: 2px 0; font-weight: bold">${key}:</span> <span title="${params[key]}">${params[key].substring(0, 100) + "..." || "true"}</span>
+                                    `;
+                                } else {
+                                    html += `
+                                        <span style="margin: 2px 0; font-weight: bold">${key}:</span> ${params[key] || "true"}
+                                    `;
+                                }
+                            } else {
+                                // 2. This parameter is an Object, we need to loop its internal subparams.
+                                let nestedObject = "";
+                                // 2.1 It can contain some subparams, or ...
+                                if (UtilsNew.isNotEmpty(params[key])) {
+                                    for (const subKey of Object.keys(params[key])) {
+                                        nestedObject += `
+                                            <div style="margin: 2px 0">
+                                                <span style="margin: 2px 0; font-weight: bold">${subKey}:</span> ${params[key][subKey]}
+                                            </div>
+                                        `;
+                                    }
+                                    html += `
+                                        <div>
+                                            <span style="margin: 2px 0; font-weight: bold">${key}:</span>
                                         </div>
+                                        <div style="padding-left: 10px">
+                                            ${nestedObject}
+                                        </div>
+                                    `;
+                                } else {
+                                    // 2.2 ... it can be an empty object.
+                                    html += `
+                                        <span style="margin: 2px 0; font-weight: bold">${key}:</span><spam style="font-style: italic">none</spam>
                                     `;
                                 }
                             }
-                            html += `
-                                <div style="white-space: nowrap">
-                                ${nestedObject ? `
-                                    <div><span style="margin: 2px 0; font-weight: bold">${key}:</span></div>
-                                    <div style="padding-left: 10px">
-                                        ${nestedObject}
-                                    </div>` :
-                                `<span style="margin: 2px 0; font-weight: bold">${key}:</span> ${params[key]}`}
-                                </div>
-                            `;
+                            html += "</div>";
                         }
                         html += "</div>";
                     }
@@ -641,7 +661,7 @@ export default class JobGrid extends LitElement {
         return [
             {
                 render: () => html`
-                    <button type="button" class="btn btn-default btn-sm" @click="${() => this.table.bootstrapTable("refresh")}">
+                    <button type="button" data-cy="job-refresh" class="btn btn-default btn-sm" @click="${() => this.table.bootstrapTable("refresh")}">
                         <i class="fas fa-sync-alt icon-padding"></i> Refresh
                     </button>
                 `,
