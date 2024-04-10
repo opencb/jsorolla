@@ -566,8 +566,6 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row, index) => {
                         return VariantInterpreterGridFormatter.sampleGenotypeFormatter(value, row, index, {
-                            memberIdx: i,
-                            memberName: this.samples[i].id,
                             sampleId: this.samples[i].id,
                             config: this._config
                         });
