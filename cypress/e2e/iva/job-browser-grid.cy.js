@@ -45,7 +45,7 @@ context("Job Browser Grid", () => {
 
         it("should render Refresh button", () => {
             cy.get(browserGrid)
-                .find(`button[data-cy="toolbar-btn-refresh"]`)
+                .find(`button[data-cy="job-refresh"]`)
                 .should("be.visible");
         });
 
