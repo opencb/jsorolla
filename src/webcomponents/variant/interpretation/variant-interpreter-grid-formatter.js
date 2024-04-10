@@ -514,9 +514,11 @@ export default class VariantInterpreterGridFormatter {
 
                 // Get tooltip text
                 const tooltipText = VariantInterpreterGridFormatter._getSampleGenotypeTooltipText(row, sampleEntry, file);
-                resultHtml += `<a class="zygositySampleTooltip" tooltip-title="Variant Call Information" tooltip-text='${tooltipText}'>
-                                ${content}
-                              </a><br>`;
+                resultHtml += `
+                    <a class="zygositySampleTooltip" tooltip-title="Variant Call Information" tooltip-text='${tooltipText}'>
+                        ${content}
+                    </a><br>
+                `;
             }
         }
 
