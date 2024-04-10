@@ -1082,6 +1082,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                         align: "center",
                         nucleotideGenotype: true,
+                        excludeFromSettings: true,
                         visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
                     });
                 }
@@ -1131,6 +1132,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                         align: "center",
                         nucleotideGenotype: true,
+                        excludeFromSettings: true,
                         visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
                     });
                 }
