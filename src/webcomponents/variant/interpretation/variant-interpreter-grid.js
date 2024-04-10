@@ -1073,16 +1073,12 @@ export default class VariantInterpreterGrid extends LitElement {
                         colspan: 1,
                         formatter: (value, row, index) => {
                             return VariantInterpreterGridFormatter.sampleGenotypeFormatter(value, row, index, {
-                                memberIdx: i,
-                                memberName: samples[i].id,
                                 sampleId: samples[i].id,
-                                quality: this._config.quality,
                                 clinicalAnalysis: this.clinicalAnalysis,
                                 config: this._config
                             });
                         },
                         align: "center",
-                        nucleotideGenotype: true,
                         visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
                     });
                 }
@@ -1126,13 +1122,11 @@ export default class VariantInterpreterGrid extends LitElement {
                         formatter: (value, row, index) => {
                             return VariantInterpreterGridFormatter.sampleGenotypeFormatter(value, row, index, {
                                 sampleId: sample.id,
-                                quality: this._config.quality,
                                 config: this._config,
                                 clinicalAnalysis: this.clinicalAnalysis
                             });
                         },
                         align: "center",
-                        nucleotideGenotype: true,
                         visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
                     });
                 }
