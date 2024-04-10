@@ -563,7 +563,8 @@ export default class VariantInterpreterGrid extends LitElement {
                                     formatter: this.vcfDataFormatter,
                                     halign: this.displayConfigDefault.header.horizontalAlign,
                                     excludeFromSettings: true,
-                                    visible: this.gridCommons.isColumnVisible(columnId, "VCF_Data"),
+                                    // visible: this.gridCommons.isColumnVisible(columnId, "VCF_Data"),
+                                    visible: !this._config.hideVcfFileData,
                                 });
                             }
                         }
@@ -1555,6 +1556,7 @@ export default class VariantInterpreterGrid extends LitElement {
             hideClinicalInfo: false,
             hideDeleteriousness: false,
             hideSampleGenotypes: false,
+            hideVcfFileData: false,
 
             quality: {
                 qual: 30,
