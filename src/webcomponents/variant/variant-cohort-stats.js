@@ -100,12 +100,17 @@ export default class VariantCohortStats extends LitElement {
 
     render() {
         if (!this.variant || !(this.variant?.studies?.length > 0)) {
-            return html``;
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle" style="margin-right:4px;"></i>
+                    <span>No studies available for this variant.</span>
+                </div>
+            `;
         }
 
         return html`
             ${this.variant.studies.map(study => html`
-                <h3>${this.studyNames[study.studyId]}</h3>
+                <h3>${this.studyNames[study.studyId] || ""}</h3>
                 <div style="">
                     <variant-cohort-stats-grid
                         .stats="${study.stats}">
