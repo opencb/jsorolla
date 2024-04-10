@@ -1084,7 +1084,8 @@ export default class VariantInterpreterGrid extends LitElement {
                         align: "center",
                         nucleotideGenotype: true,
                         excludeFromSettings: true,
-                        visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
+                        // visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
+                        visible: !this._config.hideSampleGenotypes,
                     });
                 }
             }
@@ -1134,7 +1135,8 @@ export default class VariantInterpreterGrid extends LitElement {
                         align: "center",
                         nucleotideGenotype: true,
                         excludeFromSettings: true,
-                        visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
+                        // visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
+                        visible: !this._config.hideSampleGenotypes,
                     });
                 }
             }
@@ -1552,6 +1554,7 @@ export default class VariantInterpreterGrid extends LitElement {
             hidePopulationFrequencies: false,
             hideClinicalInfo: false,
             hideDeleteriousness: false,
+            hideSampleGenotypes: false,
 
             quality: {
                 qual: 30,
