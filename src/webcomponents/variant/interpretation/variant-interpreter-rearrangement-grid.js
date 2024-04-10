@@ -544,6 +544,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                                 colspan: 1,
                                 formatter: (value, row) => this.vcfDataFormatter(value, row[index], field),
                                 halign: "center",
+                                excludeFromSettings: true,
                                 visible: this.gridCommons.isColumnVisible(id),
                             });
                         });
