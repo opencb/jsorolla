@@ -562,6 +562,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                     colspan: 1,
                                     formatter: this.vcfDataFormatter,
                                     halign: this.displayConfigDefault.header.horizontalAlign,
+                                    excludeFromSettings: true,
                                     visible: this.gridCommons.isColumnVisible(columnId, "VCF_Data"),
                                 });
                             }
