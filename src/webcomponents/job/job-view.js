@@ -278,6 +278,31 @@ export default class JobView extends LitElement {
                             }
                         },
                         {
+                            name: "Notification",
+                            field: "execution.events",
+                            type: "list",
+                            display: {
+                                defaultValue: "-",
+                                contentLayout: "vertical",
+                                template: "${type}: ${message}",
+                                style: {
+                                    type: {
+                                        "font-weight": "bold",
+                                        "color": (type, event) => {
+                                            switch (type) {
+                                                case "ERROR":
+                                                    return "darkred";
+                                                case "WARNING":
+                                                    return "darkorange";
+                                                case "INFO":
+                                                    return "darkblue";
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                        {
                             name: "Priority",
                             field: "priority",
                         },

@@ -149,13 +149,6 @@ export default class OpencbGridToolbar extends LitElement {
                                 </div>
                             `) : nothing}
 
-                            ${this._settings.showRefresh ? html`
-                                <button data-cy="toolbar-btn-refresh" type="button" class="btn btn-default btn-sm" @click="${() => LitUtils.dispatchCustomEvent(this, "refresh")}">
-                                    <i class="fas fa-sync-alt icon-padding"></i> Refresh
-                                </button>
-                            ` :nothing}
-
-
                             <!-- Second, display elements configured -->
                             ${this._config?.create && (this._settings.showCreate || this._settings.showNew) ? html`
                                 <div class="btn-group">
