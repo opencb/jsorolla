@@ -82,17 +82,19 @@ export default class ClinicalFlagFilter extends LitElement {
         return html`
             <select-field-filter
                 .data="${this.flags}"
-                .value=${this.flag}
-                .placeholder="${this.placeholder}"
-                .multiple="${this.multiple}"
+                .value="${this.flag}"
+                .config="${{
+                    placeholder: this.placeholder,
+                    multiple: this.multiple,
+                    disabled: this.disabled,
+                }}"
                 .classes="${this.classes}"
-                .disabled="${this.disabled}"
                 @filterChange="${e => this.filterChange(e)}">
             </select-field-filter>
 
             <!-- Only show description when one single values is expected -->
             ${!this.multiple && this.flagObject?.description ? html`
-                <span class="help-block" style="padding: 0px 5px">${this.flagObject.description}</span>` : null
+                <span class="d-block text-secondary" style="padding: 0px 5px">${this.flagObject.description}</span>` : null
             }
         `;
     }

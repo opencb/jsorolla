@@ -324,7 +324,7 @@ export default class OpencgaProjects extends LitElement {
         return html`
             <div class="v-space"></div>
             <table class="table table-no-bordered opencga-project-table">
-                <thead>
+                <thead class="table-light">
                     <tr>
                         <th rowspan="2">Field</th>
                         <th rowspan="2">Value</th>
@@ -660,7 +660,7 @@ export default class OpencgaProjects extends LitElement {
                 <ul class="nav nav-tabs nav-center tablist" role="tablist">
                     ${this.data ? Object.entries(this.data).map(([projectId, project], i) => html`
                         <li role="presentation" class="${classMap({active: this.activeTab[projectId] || (UtilsNew.isEmpty(this.activeTab) && i === 0)})}">
-                            <a href="javascript: void 0" @click="${this.onChangeProjectTab}" data-project-id="${projectId}" aria-controls="profile" role="tab" data-toggle="tab">${project.name}</a>
+                            <a href="javascript: void 0" @click="${this.onChangeProjectTab}" data-project-id="${projectId}" aria-controls="profile" role="tab" data-bs-toggle="tab">${project.name}</a>
                         </li>
                     `) : null}
                 </ul>
@@ -674,16 +674,16 @@ export default class OpencgaProjects extends LitElement {
                             id="${projectId}-tab"
                             class="content-tab project-tab tab-pane ${classMap({active: this.activeTab[projectId] || (UtilsNew.isEmpty(this.activeTab) && i === 0)})}">
                             <div class="row">
-                                <div class="col-md-10 col-md-offset-1">
+                                <div class="col-md-10 offset-md-1">
                                     <h3 class="project-name">Project <span class="inverse">${projectId}</span></h3>
                                     <div class="col-md-2 list-group projects-side-nav side-tabs side-nav">
                                         ${this.sideNavItems.map((item, sideNavIndx) => html`
                                             <button
-                                                    type="button"
-                                                    class="list-group-item ${classMap({active: this.activeTab[projectId]?.[item] || (UtilsNew.isEmpty(this.activeTab) && sideNavIndx === 0)})}"
-                                                    data-project-id="${project.id}"
-                                                    data-menu-item-id="${item}"
-                                                    @click="${this.onSideNavChange}">
+                                                type="button"
+                                                class="list-group-item ${classMap({active: this.activeTab[projectId]?.[item] || (UtilsNew.isEmpty(this.activeTab) && sideNavIndx === 0)})}"
+                                                data-project-id="${project.id}"
+                                                data-menu-item-id="${item}"
+                                                @click="${this.onSideNavChange}">
                                                 ${item}
                                             </button>
                                         `)}

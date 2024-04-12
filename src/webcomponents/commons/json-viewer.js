@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../download-button.js";
 
@@ -22,7 +22,8 @@ export default class JsonViewer extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -34,9 +35,6 @@ export default class JsonViewer extends LitElement {
             data: {
                 type: Object
             },
-            // title: {
-            //     type: String
-            // },
             showDownloadButton: {
                 type: Boolean
             },
@@ -46,31 +44,19 @@ export default class JsonViewer extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
 
         this.showDownloadButton = true;
         this.active = true;
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        // this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
     updated(changedProperties) {
         if ((changedProperties.has("data") || changedProperties.has("active")) && this.active) {
             if (this.data) {
-                // $(".json-renderer", this).jsonViewer(this.data);
                 $(`#${this._prefix}JsonView`, this).jsonViewer(this.data);
             }
         }
-        // super.update(changedProperties);
-    }
-
-    getDefaultConfig() {
-        return {};
     }
 
     render() {
@@ -80,16 +66,15 @@ export default class JsonViewer extends LitElement {
 
         return html`
             ${this.showDownloadButton ? html`
-                <div class="text-right">
+                <div class="d-flex justify-content-end">
                     <download-button
-                        .json="${this.data}"
-                        class="btn-sm">
+                        .json="${this.data}">
                     </download-button>
                 </div>
             ` : null
             }
 
-            <div id="${this._prefix}JsonView" class="json-renderer"></div>
+            <div id="${this._prefix}JsonView" class="json-renderer text-break"></div>
         `;
     }
 

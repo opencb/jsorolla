@@ -211,7 +211,7 @@ export default class GenomeBrowserUtils {
             const samplesInfo = `
                 <div style="margin-bottom:4px;margin-top:4px;">Samples:</div>
                 <table style="width:100%;">
-                    <thead>
+                    <thead class="table-light">
                         <tr>
                             <th style=""></th>
                             <th style="padding-left:4px;">GT</th>

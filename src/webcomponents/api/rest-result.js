@@ -37,9 +37,9 @@ export default class RestResult extends LitElement {
         }
         return html`
             <!-- Results Section-->
-            <div style="padding: 5px 10px">
+            <div class="py-2 px-3">
                 <h3>Results</h3>
-                <div style="padding: 20px">
+                <div class="p-4">
                     ${this.isLoading ? html`
                         <loading-spinner></loading-spinner>
                     ` : html`

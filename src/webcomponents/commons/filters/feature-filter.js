@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import "../../commons/forms/select-token-filter.js";
 import "../../commons/forms/text-field-filter.js";
 
-
 export default class FeatureFilter extends LitElement {
 
     constructor() {
