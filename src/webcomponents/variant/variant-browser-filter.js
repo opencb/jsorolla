@@ -18,6 +18,7 @@ import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
+import "../commons/filters/variant-filter.js";
 import "../commons/filters/region-filter.js";
 import "../commons/filters/clinvar-accessions-filter.js";
 import "../commons/filters/clinical-annotation-filter.js";
@@ -429,6 +430,13 @@ export default class VariantBrowserFilter extends LitElement {
                             .opencgaSession="${subsection.params.opencgaSession || this.opencgaSession}"
                             @filterChange="${e => this.onFilterChange("fileData", e.detail.value)}">
                         </variant-file-info-filter>`;
+                    break;
+                case "variant":
+                    content = html`
+                        <variant-filter
+                            .id="${this.preparedQuery.id}"
+                            @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
+                        </variant-filter>`;
                     break;
                 case "region":
                     content = html`

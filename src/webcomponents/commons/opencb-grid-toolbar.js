@@ -149,13 +149,6 @@ export default class OpencbGridToolbar extends LitElement {
                                 </div>
                             `) : nothing}
 
-                            ${this._settings.showRefresh ? html`
-                                <button type="button" class="btn btn-default btn-sm" @click="${() => LitUtils.dispatchCustomEvent(this, "refresh")}">
-                                    <i class="fas fa-sync-alt icon-padding"></i> Refresh
-                                </button>
-                            ` :nothing}
-
-
                             <!-- Second, display elements configured -->
                             ${this._config?.create && (this._settings.showCreate || this._settings.showNew) ? html`
                                 <div class="btn-group">
@@ -163,12 +156,12 @@ export default class OpencbGridToolbar extends LitElement {
                                     As a workaround, the tooltip will be displayed from a wrapper -->
                                     ${isCreateDisabled ? html `
                                         <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="${isCreateDisabledTooltip}">
-                                            <button data-action="create" type="button" class="btn btn-default btn-sm" disabled>
+                                            <button data-cy="toolbar-btn-create" data-action="create" type="button" class="btn btn-default btn-sm" disabled>
                                                 <i class="fas fa-file icon-padding" aria-hidden="true"></i> New ...
                                             </button>
                                         </span>
                                     ` : html `
-                                        <button data-action="create" type="button" class="btn btn-default btn-sm"
+                                        <button data-cy="toolbar-btn-create" data-action="create" type="button" class="btn btn-default btn-sm"
                                                 @click="${this.onActionClick}">
                                             ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                             <i class="fas fa-file icon-padding" aria-hidden="true"></i> New ...
@@ -179,7 +172,7 @@ export default class OpencbGridToolbar extends LitElement {
 
                             ${this._settings.showExport ? html`
                                 <div class="btn-group">
-                                    <button data-action="export" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
+                                    <button data-cy="toolbar-btn-export" data-action="export" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
                                         ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i class="fas fa-download icon-padding" aria-hidden="true"></i> Export ...
                                     </button>
@@ -188,7 +181,7 @@ export default class OpencbGridToolbar extends LitElement {
 
                             ${this._settings?.showSettings ? html`
                                 <div class="btn-group">
-                                    <button data-action="settings" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
+                                    <button data-cy="toolbar-btn-settings" data-action="settings" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
                                         <i class="fas fa-cog icon-padding"></i> Settings ...
                                     </button>
                                 </div>
