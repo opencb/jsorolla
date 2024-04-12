@@ -189,19 +189,28 @@ export default class IndividualGrid extends LitElement {
                         ...this.query
                     };
 
+                    // Calculate the number of cases to fetch
+                    const casesLimit = this.table?.bootstrapTable("getOptions")?.pageSize || this._config.pageSize || 10;
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.individuals()
                         .search(this.filters)
                         .then(individualResponse => {
                             // Fetch Clinical Analysis ID per individual in 1 single query
-                            const individualIds = individualResponse.getResults().map(individual => individual.id).filter(Boolean).join(",");
+                            const individualIds = individualResponse.getResults()
+                                .map(individual => individual.id)
+                                .filter(Boolean)
+                                .join(",");
+
                             if (individualIds) {
-                                this.opencgaSession.opencgaClient.clinical()
+                                this.opencgaSession.opencgaClient
+                                    .clinical()
                                     .search({
                                         individual: individualIds,
                                         study: this.opencgaSession.study.fqn,
-                                        include: "id,proband.id,family.members"
+                                        include: "id,proband.id,family.members",
+                                        limit: casesLimit * 10
                                     })
                                     .then(caseResponse => {
                                         individualResponse.getResults().forEach(individual => {
@@ -589,11 +598,10 @@ export default class IndividualGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this),
                 },
-                visible: !this._config.columns?.hidden?.includes("actions"),
+                visible: this.gridCommons.isColumnVisible("actions"),
             });
         }
 
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
     }
@@ -638,11 +646,81 @@ export default class IndividualGrid extends LitElement {
             });
     }
 
+    onCreateCohortShow() {
+        const filters = {
+            ...this.filters,
+            include: "id,samples.id,samples.internal",
+            limit: 5000,
+        };
+        this.opencgaSession.opencgaClient.individuals()
+            .search(filters)
+            .then(response => {
+                const results = response.getResults();
+                if (results) {
+                    this.createCohortSampleIds = [];
+                    for (const result of results) {
+                        for (const sample of result.samples) {
+                            this.createCohortSampleIds.push({"id": sample.id});
+                        }
+                    }
+                    this.requestUpdate();
+                    ModalUtils.show(`${this._prefix}CreateCohortModal`);
+                } else {
+                    console.error("Error in result format");
+                }
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
+    }
+
+    onCreateCohortSave() {
+        const cohortId = document.querySelector(`#${this._prefix}CohortId`).value;
+        const cohortName = document.querySelector(`#${this._prefix}CohortName`).value;
+
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            includeResult: false
+        };
+        let error;
+        this.opencgaSession.opencgaClient.cohorts()
+            .create(
+                {
+                    id: cohortId,
+                    name: cohortName ?? "",
+                    samples: this.createCohortSampleIds,
+                }, params)
+            .then(() => {
+                this.createCohortSampleIds = [];
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Cohort Create",
+                    message: "Cohort created correctly"
+                });
+            })
+            .catch(reason => {
+                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            });
+    }
+
+    getRightToolbar() {
+        return [
+            {
+                render: () => html`
+                    <button type="button" class="btn btn-default btn-sm" @click="${e => this.onCreateCohortShow(e)}">
+                        <i class="fas fa-users icon-padding"></i> Create Cohort
+                    </button>
+                `,
+            }
+        ];
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.filters}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
@@ -674,6 +752,41 @@ export default class IndividualGrid extends LitElement {
                         </individual-update>
                     `;
                 }
+            })}
+
+            ${ModalUtils.create(this, `${this._prefix}CreateCohortModal`, {
+                display: {
+                    modalTitle: "Create Cohort",
+                    modalDraggable: true,
+                    modalbtnsVisible: true
+                },
+                render: () => {
+                    return html`
+                        <div style="margin: 10px">Create a new cohort with <span style="font-weight: bold">${this.createCohortSampleIds?.length} samples</span>.
+                            This can take few seconds depending on the number of samples.</div>
+                        ${this.createCohortSampleIds?.length === 5000 ? html`
+                            <div><span class="alert alert-warning">No more than 5,000 samples allowed</span></div>
+                        ` : nothing}
+                        <div style="margin: 10px">Select the new Cohort ID and Name:</div>
+                        <div>
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label for="${this._prefix}CohortId" class="col-sm-2 control-label">Cohort ID</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" id="${this._prefix}CohortId" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="${this._prefix}CohortName" class="col-sm-2 control-label">Cohort Name</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" id="${this._prefix}CohortName" placeholder="">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    `;
+                },
+                onOk: e => this.onCreateCohortSave(e)
             })}
         `;
     }

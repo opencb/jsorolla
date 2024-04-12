@@ -90,7 +90,7 @@ export default class JobGrid extends LitElement {
     }
 
     propertyObserver() {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
+        // With each property change we must update config and create the columns again. No extra checks are needed.
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,
@@ -107,21 +107,21 @@ export default class JobGrid extends LitElement {
             toolId: this.toolId,
             resource: "JOB",
             columns: this._getDefaultColumns(),
-            create: {
-                display: {
-                    modalTitle: "Job Create",
-                    modalDraggable: true,
-                    disabled: true,
-                    disabledTooltip: "This operation will be implemented soon. Thanks for your patience.",
-                    modalCyDataName: "modal-create",
-                },
-                render: () => html `
-                    <job-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </job-create>`
-            },
             // Uncomment in case we need to change defaults
+            // create: {
+            //     display: {
+            //         modalTitle: "Job Create",
+            //         modalDraggable: true,
+            //         disabled: true,
+            //         disabledTooltip: "This operation will be implemented soon. Thanks for your patience.",
+            //         modalCyDataName: "modal-create",
+            //     },
+            //     render: () => html `
+            //         <job-create
+            //             .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+            //             .opencgaSession="${this.opencgaSession}">
+            //         </job-create>`
+            // },
             // export: {
             //     display: {
             //         modalTitle: "Job Export",
@@ -306,10 +306,6 @@ export default class JobGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    onRefresh() {
-        this.table.bootstrapTable("refresh");
-    }
-
     detailFormatter(value, row) {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
@@ -369,6 +365,12 @@ export default class JobGrid extends LitElement {
     async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "retry":
+                this.jobRetryObj = row;
+                this.requestUpdate();
+                // await this.updateComplete;
+                ModalUtils.show(`${this._prefix}RetryModal`);
+                break;
             case "edit":
                 this.jobUpdateId = row.id;
                 this.requestUpdate();
@@ -419,26 +421,46 @@ export default class JobGrid extends LitElement {
                     if (UtilsNew.isNotEmpty(params)) {
                         html = "<div>";
                         for (const key of Object.keys(params)) {
-                            let nestedObject = "";
-                            if (typeof params[key] === "object") {
-                                for (const subKey of Object.keys(params[key])) {
-                                    nestedObject += `
-                                        <div style="white-space: nowrap">
-                                            <span style="margin: 2px 0; font-weight: bold">${subKey}:</span> ${params[key][subKey]}
+                            html += `<div style="margin: 2px 0; white-space: nowrap">`;
+                            // 1. Normal parameter
+                            if (typeof params[key] !== "object") {
+                                if (params[key].length > 100) {
+                                    html += `
+                                        <span title="${params[key]}" style="margin: 2px 0; font-weight: bold">${key}:</span> <span title="${params[key]}">${params[key].substring(0, 100) + "..." || "true"}</span>
+                                    `;
+                                } else {
+                                    html += `
+                                        <span style="margin: 2px 0; font-weight: bold">${key}:</span> ${params[key] || "true"}
+                                    `;
+                                }
+                            } else {
+                                // 2. This parameter is an Object, we need to loop its internal subparams.
+                                let nestedObject = "";
+                                // 2.1 It can contain some subparams, or ...
+                                if (UtilsNew.isNotEmpty(params[key])) {
+                                    for (const subKey of Object.keys(params[key])) {
+                                        nestedObject += `
+                                            <div style="margin: 2px 0">
+                                                <span style="margin: 2px 0; font-weight: bold">${subKey}:</span> ${params[key][subKey]}
+                                            </div>
+                                        `;
+                                    }
+                                    html += `
+                                        <div>
+                                            <span style="margin: 2px 0; font-weight: bold">${key}:</span>
                                         </div>
+                                        <div style="padding-left: 10px">
+                                            ${nestedObject}
+                                        </div>
+                                    `;
+                                } else {
+                                    // 2.2 ... it can be an empty object.
+                                    html += `
+                                        <span style="margin: 2px 0; font-weight: bold">${key}:</span><spam style="font-style: italic">none</spam>
                                     `;
                                 }
                             }
-                            html += `
-                                <div style="white-space: nowrap">
-                                ${nestedObject ? `
-                                    <div><span style="margin: 2px 0; font-weight: bold">${key}:</span></div>
-                                    <div style="padding-left: 10px">
-                                        ${nestedObject}
-                                    </div>` :
-                                    `<span style="margin: 2px 0; font-weight: bold">${key}:</span> ${params[key]}`}
-                                </div>
-                            `;
+                            html += "</div>";
                         }
                         html += "</div>";
                     }
@@ -534,6 +556,12 @@ export default class JobGrid extends LitElement {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
+                                <a data-action="retry" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-sync icon-padding" aria-hidden="true"></i> Retry ...
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
                                 <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
                                     <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
                                 </a>
@@ -560,7 +588,7 @@ export default class JobGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this),
                 },
-                visible: !this._config.columns?.hidden?.includes("actions"),
+                visible: this.gridCommons.isColumnVisible("actions"),
             });
         }
 
@@ -607,11 +635,33 @@ export default class JobGrid extends LitElement {
             });
     }
 
+    onJobRetry() {
+        const params = {
+            study: this.opencgaSession.study.fqn
+        };
+        let error;
+        this.opencgaSession.opencgaClient.jobs()
+            .retry(
+                {
+                    job: this.jobRetryObj?.id
+                }, params)
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Job Retry",
+                    message: "Job executed correctly"
+                });
+            })
+            .catch(reason => {
+                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            });
+    }
+
     getRightToolbar() {
         return [
             {
                 render: () => html`
-                    <button type="button" class="btn btn-default btn-sm" @click="${() => this.table.bootstrapTable("refresh")}">
+                    <button type="button" data-cy="job-refresh" class="btn btn-default btn-sm" @click="${() => this.table.bootstrapTable("refresh")}">
                         <i class="fas fa-sync-alt icon-padding"></i> Refresh
                     </button>
                 `,
@@ -624,13 +674,13 @@ export default class JobGrid extends LitElement {
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.filters}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
-                    @refresh="${this.onRefresh}"
                     @actionClick="${e => this.onActionClick(e)}"
                     @jobCreate="${this.renderRemoteTable}">
                 </opencb-grid-toolbar>
@@ -639,6 +689,22 @@ export default class JobGrid extends LitElement {
             <div>
                 <table id="${this.gridId}"></table>
             </div>
+
+            ${ModalUtils.create(this, `${this._prefix}RetryModal`, {
+                display: {
+                    modalTitle: "Job Retry",
+                    modalDraggable: true,
+                    modalbtnsVisible: true
+                },
+                render: () => {
+                    return html`
+                        <div>This will execute a new Job with the same parameters as the original job.
+                            Are you sure do you want to execute again <span style="font-weight: bold">${this.jobRetryObj?.id}</span>?
+                        </div>
+                    `;
+                },
+                onOk: e => this.onJobRetry(e)
+            })}
 
             ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
                 display: {

@@ -488,6 +488,11 @@ export default class VariantBrowser extends LitElement {
                         collapsed: true,
                         filters: [
                             {
+                                id: "variant",
+                                title: "Variant ID",
+                                tooltip: tooltips.variant
+                            },
+                            {
                                 id: "region",
                                 title: "Genomic Location",
                                 tooltip: tooltips.region
