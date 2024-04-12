@@ -406,7 +406,8 @@ class IvaApp extends LitElement {
     }
 
     opencgaSessionObserver() {
-        this.renderHashFragments();
+        // this.renderHashFragments();
+        this.hashFragmentListener();
         // this.queries = {};
         // this.requestUpdate();
     }
@@ -805,43 +806,41 @@ class IvaApp extends LitElement {
             this.tool = "#home";
         }
 
-        this.renderHashFragments();
-    }
-
-    renderHashFragments(tool) {
-        console.log(`Update hash fragment URL with tool: '${tool ? `#${tool}` : this.tool}'`);
-
-        // Keep global 'tool' param updated.
-        if (tool && this.tool !== `#${tool}`) {
-            this.tool = `#${tool}`;
-        }
-
-        // Build hash fragment URL as: #tool/projectId/studyId
-        // let newHashFragmentUrl = tool ? `#${tool}` : this.tool;
-        // if (this.opencgaSession?.project) {
-        //     newHashFragmentUrl += "/" + this.opencgaSession.project.id;
-        //     if (this.opencgaSession.study) {
-        //         newHashFragmentUrl += "/" + this.opencgaSession.study.id;
-        //     }
-        // }
-
-        // if (window.location.hash === newHashFragmentUrl) { // || newHashFragmentUrl === "#interpreter"
-        //     this.hashFragmentListener();
-        // } else {
-        //     window.location.hash = newHashFragmentUrl;
-        // }
-        // if (window.location.hash !== newHashFragmentUrl) {
-        //     window.location.hash = newHashFragmentUrl;
-        // }
+        // this.renderHashFragments();
         this.hashFragmentListener();
     }
+
+    // renderHashFragments(tool) {
+    //     console.log(`Update hash fragment URL with tool: '${tool ? `#${tool}` : this.tool}'`);
+    //
+    //     // Keep global 'tool' param updated.
+    //     if (tool && this.tool !== `#${tool}`) {
+    //         this.tool = `#${tool}`;
+    //     }
+    //
+    //     // Build hash fragment URL as: #tool/projectId/studyId
+    //     let newHashFragmentUrl = tool ? `#${tool}` : this.tool;
+    //     if (this.opencgaSession?.project) {
+    //         newHashFragmentUrl += "/" + this.opencgaSession.project.id;
+    //         if (this.opencgaSession.study) {
+    //             newHashFragmentUrl += "/" + this.opencgaSession.study.id;
+    //         }
+    //     }
+    //
+    //     if (window.location.hash === newHashFragmentUrl) { // || newHashFragmentUrl === "#interpreter"
+    //         this.hashFragmentListener();
+    //     } else {
+    //         window.location.hash = newHashFragmentUrl;
+    //     }
+    // }
 
     route(e) {
         this.tool = e.detail.hash;
         if (e.detail?.resource) {
             this.queries = {...this.queries, [e.detail.resource]: e.detail?.query};
         }
-        this.renderHashFragments();
+        // this.renderHashFragments();
+        this.hashFragmentListener();
     }
 
 
@@ -985,14 +984,23 @@ class IvaApp extends LitElement {
         }
 
         if (studyFound) {
-            // Update the lastStudy in config iff has changed
-            this.opencgaClient.updateUserConfig("IVA", {...this.opencgaSession.user.configs["IVA"], lastStudy: studyFqn});
+            // 1. Update the lastStudy in config iff has changed
+            this.opencgaClient.updateUserConfig("IVA", {
+                ...this.opencgaSession.user.configs["IVA"],
+                lastStudy: studyFqn
+            });
 
-            // This is a terrible hack to exit interpreter when we change the current study
-            if (this.tool === "#interpreter") {
-                window.location.hash = "#clinicalAnalysisPortal";
+            // 2. Set the new Hash URL
+            let newHashFragmentUrl = this.tool !== "#interpreter" ? this.tool : "#clinicalAnalysisPortal";
+            if (this.opencgaSession?.project) {
+                newHashFragmentUrl += "/" + this.opencgaSession.project.id;
+                if (this.opencgaSession.study) {
+                    newHashFragmentUrl += "/" + this.opencgaSession.study.id;
+                }
             }
+            window.location.hash = newHashFragmentUrl;
 
+            // 3. Reset queries from old studies
             this.queries = {};
 
             // Update CellBase and refresh the session.
