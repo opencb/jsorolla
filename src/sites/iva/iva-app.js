@@ -1088,7 +1088,6 @@ class IvaApp extends LitElement {
 
     // TODO this should keep in sync the query object between variant-browser and variant-facet
     onQueryChange(e) {
-        debugger
         console.warn("onQueryChange", e);
         this.browserSearchQuery = {...e.detail.query};
         // this.browserSearchQuery = {};
@@ -1108,7 +1107,7 @@ class IvaApp extends LitElement {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
     }
 
-    toggleSideBar(e) {
+    toggleSideBar() {
         // e.preventDefault();
         // const sidenav = this.querySelector("#side-nav");
         $("#side-nav").toggleClass("active");
@@ -1125,11 +1124,10 @@ class IvaApp extends LitElement {
 
         // We only want to toggle when clicked in the sidenav
         if (toggle) {
-            this.toggleSideBar(e);
+            this.toggleSideBar();
         }
 
         this.changeTool(e);
-        this.requestUpdate();
     }
 
     getActiveAppConfig() {
