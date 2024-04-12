@@ -481,17 +481,14 @@ class IvaApp extends LitElement {
             return;
         }
         this.isCreatingSession = true;
-        console.log("Init creating opencgasession");
+        console.log("Init creating opencgaSession ...");
         this.requestUpdate();
         await this.updateComplete;
         this.opencgaClient.createSession()
             .then(response => {
-                const _response = response;
-                console.log("_createOpenCGASession", response);
-
+                // 1. Check if project array has been defined in the config.js
                 // This is only valid when public IVA/OpenCGA installations
-                // Check if project array has been defined in the config.js
-                if (UtilsNew.isNotEmptyArray(this.config.opencga.projects)) {
+                if (this.config.opencga.projects?.length > 0) {
                     // We store the project and study ids the user needs to visualise (defined in the config.js)
                     const configProjects = {};
                     for (let i = 0; i < this.config.opencga.projects.length; i++) {
@@ -524,16 +521,58 @@ class IvaApp extends LitElement {
                     }
 
                     // TODO we must query projects/info URL to get the whole object
-                    _response.projects = activeProjects || [];
+                    response.projects = activeProjects || [];
                     if (UtilsNew.isNotEmptyArray(response.projects[0].studies)) {
-                        _response.project = response.projects[0];
-                        _response.study = response.projects[0].studies[0];
+                        response.project = response.projects[0];
+                        response.study = response.projects[0].studies[0];
                     }
                 }
-                // this forces the observer to be executed.
-                if (UtilsNew.isNotEmptyArray(response.projects) && response.projects.some(p => UtilsNew.isNotEmptyArray(p.studies))) {
+
+                // 2. Set the default active project and study.
+                // 2.1 Check if the user has set a project/study in the URL
+                const [hashTool, hashProject, hashStudy, hashQuery] = window.location.hash.split("/");
+                if (hashProject && hashStudy) {
+                    const project = response.projects.find(p => p.id === hashProject);
+                    const study = project.studies.find(s => s.id === hashStudy);
+                    if (project && study) {
+                        console.log("Setting active project and study from hash");
+                        response.project = project;
+                        response.study = study;
+                    } else {
+                        console.error(`Project '${hashProject}' and Study '${hashStudy}' not found`);
+                    }
+                } else {
+                    // 2.2 Check if lastStudy form User Configuration matches
+                    for (const project of response.projects) {
+                        if (project.studies?.length > 0) {
+                            for (const study of project.studies) {
+                                if (response.user?.configs?.IVA?.lastStudy === study.fqn) {
+                                    response.project = project;
+                                    response.study = study;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // 2.3 if not 'lastStudy' found then set the first project and study.
+                    // If the user doesn't have his own default study then we select the first project and study as default
+                    if (!response.project && !response.study) {
+                        for (const project of response.projects) {
+                            if (project.studies?.length > 0) {
+                                response.project = project;
+                                response.study = project.studies[0];
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // 3. Update data structures and refresh.
+                // This forces the observer to be executed.
+                if (response.projects?.length > 0 && response.projects.some(p => UtilsNew.isNotEmptyArray(p.studies))) {
                     this.opencgaSession = {
-                        ..._response,
+                        ...response,
                         ivaDefaultSettings: {
                             version: this.version,
                             settings: UtilsNew.objectClone(this.DEFAULT_TOOL_SETTINGS),
@@ -548,11 +587,10 @@ class IvaApp extends LitElement {
                     this.config = {...this.config};
                 } else {
                     this.opencgaSession = {
-                        ..._response,
+                        ...response,
                     };
                     this.config = {...this.config};
                 }
-
             })
             .catch(e => {
                 console.error(e);
@@ -779,19 +817,23 @@ class IvaApp extends LitElement {
         }
 
         // Build hash fragment URL as: #tool/projectId/studyId
-        let newHashFragmentUrl = tool ? `#${tool}` : this.tool;
-        if (this.opencgaSession?.project) {
-            newHashFragmentUrl += "/" + this.opencgaSession.project.id;
-            if (this.opencgaSession.study) {
-                newHashFragmentUrl += "/" + this.opencgaSession.study.id;
-            }
-        }
+        // let newHashFragmentUrl = tool ? `#${tool}` : this.tool;
+        // if (this.opencgaSession?.project) {
+        //     newHashFragmentUrl += "/" + this.opencgaSession.project.id;
+        //     if (this.opencgaSession.study) {
+        //         newHashFragmentUrl += "/" + this.opencgaSession.study.id;
+        //     }
+        // }
 
-        if (window.location.hash === newHashFragmentUrl) { // || newHashFragmentUrl === "#interpreter"
-            this.hashFragmentListener();
-        } else {
-            window.location.hash = newHashFragmentUrl;
-        }
+        // if (window.location.hash === newHashFragmentUrl) { // || newHashFragmentUrl === "#interpreter"
+        //     this.hashFragmentListener();
+        // } else {
+        //     window.location.hash = newHashFragmentUrl;
+        // }
+        // if (window.location.hash !== newHashFragmentUrl) {
+        //     window.location.hash = newHashFragmentUrl;
+        // }
+        this.hashFragmentListener();
     }
 
     route(e) {
@@ -828,7 +870,7 @@ class IvaApp extends LitElement {
         }
 
         // 5. Update location.hash
-        window.location.hash = `${hashTool}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+        window.location.hash = `${hashTool || "home"}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
 
         // 6. Parse query fragment in 'featureId'
         if (hashTool && hashQuery) {
