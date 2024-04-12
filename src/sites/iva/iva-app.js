@@ -791,7 +791,7 @@ class IvaApp extends LitElement {
 
     changeTool(e) {
         // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-        e.preventDefault();
+        // e.preventDefault();
 
         const target = e.currentTarget;
         $(".navbar-inverse ul > li", this).removeClass("active");
@@ -800,14 +800,14 @@ class IvaApp extends LitElement {
             $(target).closest("ul").closest("li").addClass("active");
         }
 
-        if (target?.attributes?.href) {
-            this.tool = target.attributes.href.value;
-        } else {
-            this.tool = "#home";
-        }
+        // if (target?.attributes?.href) {
+        //     this.tool = target.attributes.href.value;
+        // } else {
+        //     this.tool = "#home";
+        // }
 
-        // this.renderHashFragments();
-        this.hashFragmentListener();
+        // // this.renderHashFragments();
+        // this.hashFragmentListener();
     }
 
     // renderHashFragments(tool) {
@@ -856,6 +856,7 @@ class IvaApp extends LitElement {
 
         // 2. Parse hash fragment URL
         const [hashTool, hashProject, hashStudy, hashQuery] = window.location.hash.split("/");
+        console.log(hashTool);
 
         // 3. Processing the actions
         // NOTE: remove this check: hashTool === "#interpreter" ||
@@ -1108,7 +1109,7 @@ class IvaApp extends LitElement {
     }
 
     toggleSideBar(e) {
-        e.preventDefault();
+        // e.preventDefault();
         // const sidenav = this.querySelector("#side-nav");
         $("#side-nav").toggleClass("active");
         $("#overlay").toggleClass("active");
