@@ -856,7 +856,6 @@ class IvaApp extends LitElement {
 
         // 2. Parse hash fragment URL
         const [hashTool, hashProject, hashStudy, hashQuery] = window.location.hash.split("/");
-        console.log(hashTool);
 
         // 3. Processing the actions
         // NOTE: remove this check: hashTool === "#interpreter" ||
@@ -866,11 +865,15 @@ class IvaApp extends LitElement {
 
         // 4. Parse project and study
         if (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
-            this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
+            if (hashProject && hashStudy) {
+                this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
+            }
         }
 
-        // 5. Update location.hash
-        window.location.hash = `${hashTool || "home"}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+        // 5. Update location.hash (only if project.id and study.id are defined)
+        if (this.opencgaSession?.project?.id && this.opencgaSession?.study?.id) {
+            window.location.hash = `${hashTool || "home"}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+        }
 
         // 6. Parse query fragment in 'featureId'
         if (hashTool && hashQuery) {
@@ -1010,7 +1013,7 @@ class IvaApp extends LitElement {
             this.opencgaSession = {...this.opencgaSession};
         } else {
             // TODO Convert this into a user notification
-            console.error("Study not found!");
+            console.error(`Study '${studyFqn}' not found!`);
         }
     }
 
