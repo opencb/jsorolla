@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import "../interpretation/variant-interpreter-grid.js";
 import "../interpretation/variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
+import "../../commons/forms/select-field-filter.js";
 import "../../commons/simple-chart.js";
 import "../../loading-spinner.js";
 import "../../file/file-preview.js";
@@ -68,6 +69,12 @@ class SteinerReport extends LitElement {
             "strelka": {type: "Substitutions and Indels", group: "germline", rank: 1},
             "manta": {type: "Rearrangements", group: "germline", rank: 2},
         };
+
+        this.stockPhrases = [
+            "No pathogenic variants identified.",
+            "Results related to other genetic conditions of medical significance (additional findings).",
+            "Results that are not expected to impact participant health but may be relevant to family members or children.",
+        ];
 
         this.somaticSample = null;
         this.germlineSample = null;
@@ -171,6 +178,7 @@ class SteinerReport extends LitElement {
                 deletionAggreationCount: 0,
                 deletionAggregationStats: null,
                 qcPlots: {},
+                results: "",
             };
 
             const allPromises = [
@@ -298,6 +306,15 @@ class SteinerReport extends LitElement {
             ...this.config,
         };
 
+        this.requestUpdate();
+    }
+
+    onStockPhraseSelect(phrase) {
+        const discussion = this._data.discussion || "";
+        this._data = {
+            ...this._data,
+            discussion: discussion + (discussion === "" ? "" : "\n") + phrase + "\n",
+        };
         this.requestUpdate();
     }
 
@@ -1007,6 +1024,15 @@ class SteinerReport extends LitElement {
                                 `,
                             },
                         },
+                        {
+                            title: "Results Interpretation",
+                            type: "input-text",
+                            field: "results",
+                            display: {
+                                rows: 5,
+                                defaultValue: "",
+                            },
+                        },
                     ]
                 },
                 {
@@ -1174,6 +1200,20 @@ class SteinerReport extends LitElement {
                         },
                         {
                             title: "Discussion",
+                            type: "custom",
+                            // allowedValues: this.stockPhrases,
+                            display: {
+                                render: () => html`
+                                    <select-field-filter
+                                        .data="${[...this.stockPhrases]}"
+                                        .value="${""}"
+                                        @filterChange="${e => this.onStockPhraseSelect(e.detail.value)}">
+                                    </select-field-filter>
+                                `,
+                            },
+                        },
+                        {
+                            title: " ",
                             type: "input-text",
                             field: "discussion",
                             defaultValue: "",

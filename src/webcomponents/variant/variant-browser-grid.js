@@ -81,30 +81,29 @@ export default class VariantBrowserGrid extends LitElement {
 
         // TODO move to the configuration?
         this.maxNumberOfPages = 1000000;
+
+        this.gridCommons = null;
+        this._config = this.getDefaultConfig();
     }
 
-    firstUpdated() {
-        // this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.table = this.querySelector("#" + this.gridId);
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
-        };
-    }
-
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-        if (changedProperties.has("query") || changedProperties.has("variants")) {
+
+        if (changedProperties.has("query")) {
             this.queryObserver();
-            // update config to add new columns by filters as sample
-            this.configObserver();
-            this.renderVariants();
         }
+
         if (changedProperties.has("config") || changedProperties.has("toolId")) {
             this.configObserver();
-            this.requestUpdate();
+        }
+
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.size > 0) {
             this.renderVariants();
         }
     }
@@ -115,6 +114,7 @@ export default class VariantBrowserGrid extends LitElement {
             ...this.getDefaultConfig(),
             ...this.config
         };
+
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -131,7 +131,6 @@ export default class VariantBrowserGrid extends LitElement {
             }
         }
         this.samples = _samples;
-        this.requestUpdate();
     }
 
     configObserver() {
@@ -146,8 +145,6 @@ export default class VariantBrowserGrid extends LitElement {
         this.toolbarSetting = {
             ...this._config,
             showCreate: false, // Caution: Ignore a possible admin configuration change to showCreate: true.
-            // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
-            // gridColumns: this._getDefaultColumns() // original column structure
         };
 
         this.toolbarConfig = {
@@ -155,7 +152,7 @@ export default class VariantBrowserGrid extends LitElement {
             resource: "VARIANT",
             disableCreate: true,
             showInterpreterConfig: true,
-            columns: this._getDefaultColumns()
+            columns: this._getDefaultColumns(),
         };
     }
 
@@ -165,13 +162,11 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     renderVariants() {
-        this.opencgaSession;
         if (this.variants?.length > 0) {
             this.renderFromLocal();
         } else {
             this.renderRemoteVariants();
         }
-        // this.requestUpdate();
     }
 
     renderRemoteVariants() {
@@ -239,7 +234,8 @@ export default class VariantBrowserGrid extends LitElement {
                         }
                     }
 
-                    this.opencgaSession.opencgaClient.variants().query(this.filters)
+                    this.opencgaSession.opencgaClient.variants()
+                        .query(this.filters)
                         .then(res => {
                             // FIXME A quick temporary fix -> TASK-947
                             if (this.opencgaSession?.project?.cellbase?.version === "v4" || this.opencgaSession?.project?.internal?.cellbase?.version === "v4") {
@@ -293,7 +289,6 @@ export default class VariantBrowserGrid extends LitElement {
                                     });
                                 }
                             }
-
                             params.success(res);
                         })
                         .catch(e => params.error(e))
@@ -355,8 +350,6 @@ export default class VariantBrowserGrid extends LitElement {
             data: this.variants,
             columns: this._getDefaultColumns(),
             sidePagination: "local",
-
-            // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
@@ -830,20 +823,14 @@ export default class VariantBrowserGrid extends LitElement {
                                     </li>
 
                                     <li class="dropdown-header">CellBase Links</li>
+                                    ${["v5.2", "v5.8"].map(v => `
                                     <li>
-                                        <a target="_blank" class="btn force-text-left"
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
+                                        <a target="_blank" class="btn force-text-left" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`)}">
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
-                                            CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
+                                            CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}
                                         </a>
                                     </li>
-                                    <li>
-                                        <a target="_blank" class="btn force-text-left"
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
-                                            CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
-                                        </a>
-                                    </li>
+                                    `).join("")}
                                     <li class="dropdown-header">External Genome Browsers</li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
