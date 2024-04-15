@@ -296,7 +296,7 @@ export default class ClinicalAnalysisView extends LitElement {
                             display: {
                                 template: "${priority.id}",
                                 className: {
-                                    "priority.id": (id, data) => this.#priorityFormatter(id, data),
+                                    "priority.id": (id, data) => `badge ${this.#priorityFormatter(id, data)}`,
                                 },
                             }
                         },
