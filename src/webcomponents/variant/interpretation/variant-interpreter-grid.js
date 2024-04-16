@@ -1070,19 +1070,16 @@ export default class VariantInterpreterGrid extends LitElement {
                         title: `<span style="color: ${color}">${samples[i].id}</span>
                                 <br>
                                 <span style="font-style: italic">${sampleInfo[samples[i].id].role}, ${affected}</span>`,
-                        field: {
-                            memberIdx: i,
-                            memberName: samples[i].id,
-                            sampleId: samples[i].id,
-                            quality: this._config.quality,
-                            clinicalAnalysis: this.clinicalAnalysis,
-                            config: this._config
-                        },
                         rowspan: 1,
                         colspan: 1,
-                        formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
+                        formatter: (value, row, index) => {
+                            return VariantInterpreterGridFormatter.sampleGenotypeFormatter(value, row, index, {
+                                sampleId: samples[i].id,
+                                clinicalAnalysis: this.clinicalAnalysis,
+                                config: this._config
+                            });
+                        },
                         align: "center",
-                        nucleotideGenotype: true,
                         excludeFromSettings: true,
                         visible: !this._config.hideSampleGenotypes,
                     });
@@ -1122,17 +1119,16 @@ export default class VariantInterpreterGrid extends LitElement {
                             <div style="word-break:break-all;max-width:192px;white-space:break-spaces;">${sample.id}</div>
                             <div style="color:${color};font-style:italic;">${sample?.somatic ? "somatic" : "germline"}</div>
                         `,
-                        field: {
-                            sampleId: sample.id,
-                            quality: this._config.quality,
-                            config: this._config,
-                            clinicalAnalysis: this.clinicalAnalysis
-                        },
                         rowspan: 1,
                         colspan: 1,
-                        formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
+                        formatter: (value, row, index) => {
+                            return VariantInterpreterGridFormatter.sampleGenotypeFormatter(value, row, index, {
+                                sampleId: sample.id,
+                                config: this._config,
+                                clinicalAnalysis: this.clinicalAnalysis
+                            });
+                        },
                         align: "center",
-                        nucleotideGenotype: true,
                         excludeFromSettings: true,
                         visible: !this._config.hideSampleGenotypes,
                     });
