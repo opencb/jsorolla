@@ -111,7 +111,7 @@ export default class UserAdminUpdate extends LitElement {
         this.initOriginalObjects();
     }
 
-    initOriginalObjects() {
+    #initOriginalObjects() {
         this._user = UtilsNew.objectClone(this.user);
         this.updatedFields = {};
     }
@@ -132,21 +132,19 @@ export default class UserAdminUpdate extends LitElement {
     userIdObserver() {
         if (this.userId && this.opencgaSession) {
             const params = {
-                users: this.userId,
                 organization: this.organization.id,
             };
             let error;
             this.#setLoading(true);
             this.opencgaSession.opencgaClient.users()
-                .info(params)
+                .info(this.userId, params)
                 .then(response => {
                     this.user = UtilsNew.objectClone(response.responses[0].results[0]);
-                    debugger
-                    this.#initUser();
+                    this.#initOriginalObjects();
                 })
                 .catch(reason => {
                     error = reason;
-                    console.error(reason);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
                 })
                 .finally(() => {
                     LitUtils.dispatchCustomEvent(this, "studyInfo", this.study, {}, error);
@@ -208,8 +206,8 @@ export default class UserAdminUpdate extends LitElement {
                 this.group = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updatedFields = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: `Group Update`,
-                    message: `Group ${this.group.id} updated correctly`,
+                    title: `User Update`,
+                    message: `User ${this.userId} updated correctly`,
                 });
             })
             .catch(reason => {
@@ -217,7 +215,7 @@ export default class UserAdminUpdate extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "updateGroup", this.group, {}, error);
+                LitUtils.dispatchCustomEvent(this, "updateUser", this.group, {}, error);
                 this.#setLoading(false);
             });
     }
