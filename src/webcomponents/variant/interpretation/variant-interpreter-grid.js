@@ -562,7 +562,8 @@ export default class VariantInterpreterGrid extends LitElement {
                                     colspan: 1,
                                     formatter: this.vcfDataFormatter,
                                     halign: this.displayConfigDefault.header.horizontalAlign,
-                                    visible: this.gridCommons.isColumnVisible(columnId, "VCF_Data"),
+                                    excludeFromSettings: true,
+                                    visible: !this._config.hideVcfFileData,
                                 });
                             }
                         }
@@ -1082,7 +1083,8 @@ export default class VariantInterpreterGrid extends LitElement {
                         formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                         align: "center",
                         nucleotideGenotype: true,
-                        visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
+                        excludeFromSettings: true,
+                        visible: !this._config.hideSampleGenotypes,
                     });
                 }
             }
@@ -1131,7 +1133,8 @@ export default class VariantInterpreterGrid extends LitElement {
                         formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                         align: "center",
                         nucleotideGenotype: true,
-                        visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
+                        excludeFromSettings: true,
+                        visible: !this._config.hideSampleGenotypes,
                     });
                 }
             }
@@ -1549,6 +1552,8 @@ export default class VariantInterpreterGrid extends LitElement {
             hidePopulationFrequencies: false,
             hideClinicalInfo: false,
             hideDeleteriousness: false,
+            hideSampleGenotypes: false,
+            hideVcfFileData: false,
 
             quality: {
                 qual: 30,
