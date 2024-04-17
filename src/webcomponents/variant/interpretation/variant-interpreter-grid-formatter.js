@@ -445,11 +445,11 @@ export default class VariantInterpreterGridFormatter {
     /*
      *  SAMPLE GENOTYPE RENDERER
      */
-    static sampleGenotypeFormatter(value, row, index) {
+    static sampleGenotypeFormatter(value, row, index, params) {
         let resultHtml = "";
 
         if (row && row.studies?.length > 0 && row.studies[0].samples?.length > 0) {
-            const sampleId = this.field.sampleId;
+            const sampleId = params?.sampleId;
             let sampleEntries = [row.studies[0].samples.find(s => s.sampleId === sampleId)];
 
             // If not sampleId is found and there is only one sample we take that one
@@ -474,7 +474,7 @@ export default class VariantInterpreterGridFormatter {
 
                 // Render genotypes
                 let content = "";
-                switch (this.field.config?.genotype?.type?.toUpperCase() || "VCF_CALL") {
+                switch (params?.config?.genotype?.type?.toUpperCase() || "VCF_CALL") {
                     case "ALLELES":
                         content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry, "alleles");
                         break;
@@ -482,7 +482,7 @@ export default class VariantInterpreterGridFormatter {
                         content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry, "call");
                         break;
                     case "ZYGOSITY":
-                        content = VariantInterpreterGridFormatter.zygosityGenotypeRenderer(row, sampleEntry, this.field.clinicalAnalysis);
+                        content = VariantInterpreterGridFormatter.zygosityGenotypeRenderer(row, sampleEntry, params?.clinicalAnalysis);
                         break;
                     case "VAF":
                         const vaf = VariantInterpreterGridFormatter._getVariantAlleleFraction(row, sampleEntry, file);
@@ -508,15 +508,17 @@ export default class VariantInterpreterGridFormatter {
                         content = VariantInterpreterGridFormatter.circleGenotypeRenderer(sampleEntry, file, 10);
                         break;
                     default:
-                        console.error("No valid genotype render option:", this.field.config.genotype.type.toUpperCase());
+                        console.error("No valid genotype render option:", params?.config?.genotype?.type?.toUpperCase());
                         break;
                 }
 
                 // Get tooltip text
                 const tooltipText = VariantInterpreterGridFormatter._getSampleGenotypeTooltipText(row, sampleEntry, file);
-                resultHtml += `<a class="zygositySampleTooltip" tooltip-title="Variant Call Information" tooltip-text='${tooltipText}'>
-                                ${content}
-                              </a><br>`;
+                resultHtml += `
+                    <a class="zygositySampleTooltip" tooltip-title="Variant Call Information" tooltip-text='${tooltipText}'>
+                        ${content}
+                    </a><br>
+                `;
             }
         }
 

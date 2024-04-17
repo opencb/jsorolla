@@ -562,18 +562,15 @@ export default class VariantBrowserGrid extends LitElement {
                 sampleColumns.push({
                     id: this.samples[i].id,
                     title: this.samples[i].id,
-                    // field: "samples",
-                    field: {
-                        memberIdx: i,
-                        memberName: this.samples[i].id,
-                        sampleId: this.samples[i].id,
-                        config: this._config
-                    },
                     rowspan: 1,
                     colspan: 1,
-                    formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
+                    formatter: (value, row, index) => {
+                        return VariantInterpreterGridFormatter.sampleGenotypeFormatter(value, row, index, {
+                            sampleId: this.samples[i].id,
+                            config: this._config
+                        });
+                    },
                     align: "center",
-                    // nucleotideGenotype: true,
                     visible: this.gridCommons.isColumnVisible(this.samples[i].id, "samples"),
                 });
             }
