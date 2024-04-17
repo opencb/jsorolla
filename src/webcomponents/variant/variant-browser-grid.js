@@ -195,6 +195,7 @@ export default class VariantBrowserGrid extends LitElement {
                 // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
                 variantGrid: this,
                 ajax: params => {
+                    this.gridCommons.clearResponseWarningEvents();
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
@@ -291,12 +292,17 @@ export default class VariantBrowserGrid extends LitElement {
                             }
                             params.success(res);
                         })
-                        .catch(e => params.error(e))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
+                        })
                         .finally(() => {
                             LitUtils.dispatchCustomEvent(this, "queryComplete", null);
                         });
                 },
                 responseHandler: response => {
+                    this.gridCommons.displayResponseEventsMessages(response);
+
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
 
                     // Only the first 1M pages must be shown
@@ -1056,6 +1062,7 @@ export default class VariantBrowserGrid extends LitElement {
 
     render() {
         return html`
+            <div id="${this.gridId}WarningEvents"></div>
             ${this._config?.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.query}"
