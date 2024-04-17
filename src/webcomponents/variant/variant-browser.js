@@ -16,9 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import VariantUtils from "./variant-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/tool-header.js";
 import "./variant-browser-filter.js";
@@ -87,8 +85,8 @@ export default class VariantBrowser extends LitElement {
         this.COMPONENT_ID = "variant-browser";
         this._prefix = UtilsNew.randomString(8);
 
-        this.results = [];
-        this._showInitMessage = true;
+        // this.results = [];
+        // this._showInitMessage = true;
 
         this.searchActive = true;
         this.facetActive = true;
@@ -112,7 +110,7 @@ export default class VariantBrowser extends LitElement {
             this.opencgaSessionObserver();
             this.settingsObserver();
         }
-        if (changedProperties.has("query")) {
+        if (changedProperties.has("query") || changedProperties.has("opencgaSession")) {
             this.queryObserver();
         }
         if (changedProperties.has("selectedFacet")) {
@@ -145,46 +143,32 @@ export default class VariantBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         });
-
-        this.requestUpdate();
     }
 
     opencgaSessionObserver() {
         if (this?.opencgaSession?.study?.fqn) {
-            this.checkProjects = true;
-            this.query = {study: this.opencgaSession.study.fqn};
+            this._query = {study: this.opencgaSession.study.fqn};
+            this.preparedQuery = {study: this.opencgaSession.study.fqn};
 
             // TODO FIXME
             /** temp fix this.onRun(): when you switch study this.facetQuery contains the old study when you perform a new Aggregation query.
              *  As a consequence, we need to update preparedQuery as this.onRun() uses it (without it the old study is in query in table result as well)
              */
-            this.preparedQuery = {study: this.opencgaSession.study.fqn};
             this.facetQuery = null;
             this.preparedFacetQueryFormatted = null;
-            // this.requestUpdate();
-            // this.onRun();
-
-            // this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
-        } else {
-            this.checkProjects = false;
         }
     }
 
     queryObserver() {
-        if (this?.opencgaSession?.study?.fqn) {
+        if (this.opencgaSession?.study?.fqn) {
             // NOTE UtilsNew.objectCompare avoid repeating remote requests.
             if (!UtilsNew.objectCompare(this.query, this._query)) {
-                this._query = this.query;
-                if (this.query) {
-                    this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-                    this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-                } else {
-                    this.preparedQuery = {study: this.opencgaSession.study.fqn};
-                    this.executedQuery = {study: this.opencgaSession.study.fqn};
-                }
-                // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
+                this._query = {study: this.opencgaSession.study.fqn, ...this.query};
+                this.preparedQuery = {...this.query};
+                this.executedQuery = {...this.query};
+
                 LitUtils.dispatchCustomEvent(this, "queryChange", undefined, this.preparedQuery);
-                this.detail = {};
+                // this.detail = {};
                 this.searchActive = false; // Disable search button
             }
         }
@@ -258,7 +242,6 @@ export default class VariantBrowser extends LitElement {
     }
 
     onActiveFilterClear() {
-        // console.log("onActiveFilterClear");
         this.query = {study: this.opencgaSession.study.fqn};
         this.preparedQuery = {...this.query};
         this.notifySearch(this.query);
@@ -266,7 +249,6 @@ export default class VariantBrowser extends LitElement {
     }
 
     onFacetQueryChange(e) {
-        // console.log("onFacetQueryChange");
         this.preparedFacetQueryFormatted = e.detail.value;
         this.requestUpdate();
     }
@@ -274,7 +256,6 @@ export default class VariantBrowser extends LitElement {
     onActiveFacetChange(e) {
         this.selectedFacet = {...e.detail};
         this.preparedFacetQueryFormatted = {...e.detail};
-        // this.onRun();
         this.facetQueryBuilder();
         this.requestUpdate();
     }
@@ -287,11 +268,6 @@ export default class VariantBrowser extends LitElement {
 
     onQueryComplete() {
         this.searchActive = true;
-        this.requestUpdate();
-    }
-
-    onClickRow(e) {
-        this.detail = {...this.detail, [e.detail.resource]: e.detail.data};
         this.requestUpdate();
     }
 
@@ -744,11 +720,6 @@ export default class VariantBrowser extends LitElement {
                                 </json-viewer>
                             `,
                         }
-                        // TODO Think about Neeworks
-                        // {
-                        //     id: "network",
-                        //     title: "Reactome Pathways"
-                        // },
                     ]
                 }
             },
