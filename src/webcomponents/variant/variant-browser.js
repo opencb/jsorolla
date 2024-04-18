@@ -286,6 +286,7 @@ export default class VariantBrowser extends LitElement {
 
     onSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
