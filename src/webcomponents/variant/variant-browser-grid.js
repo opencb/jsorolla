@@ -301,7 +301,7 @@ export default class VariantBrowserGrid extends LitElement {
                         });
                 },
                 responseHandler: response => {
-                    this.gridCommons.displayResponseEventsMessages(response);
+                    this.gridCommons.displayResponseWarningEvents(response);
 
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
 
