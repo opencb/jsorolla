@@ -126,16 +126,16 @@ export default class JsonEditor extends LitElement {
 
         return html`
             ${this._config.showDownloadButton ? html`
-                <div class="text-right">
+                <div class="text-right" style="margin-bottom:8px;">
                     <download-button
                         .json="${this.data}"
-                        class="btn-sm">
+                        .class="${"btn-sm"}">
                     </download-button>
                 </div>
             ` : null
             }
 
-            <div style="padding-top: 10px" id="${this.jsonEditorId}"></div>
+            <div id="${this.jsonEditorId}"></div>
         `;
     }
 

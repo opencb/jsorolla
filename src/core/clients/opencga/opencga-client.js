@@ -357,7 +357,8 @@ export class OpenCGAClient {
             // check that a session exists
             // TODO should we check the session has not expired?
             if (_this._config.token) {
-                _this.users().info(_this._config.userId)
+                _this.users()
+                    .info(_this._config.userId)
                     .then(async response => {
                         console.log("Creating session");
                         const session = {
@@ -370,7 +371,6 @@ export class OpenCGAClient {
                             session.server = {
                                 host: _this._config.host,
                                 version: _this._config.version,
-                                // serverVersion: _this._config.serverVersion,
                             };
                             session.opencgaClient = _this;
                             const userConfig = await this.updateUserConfig("IVA", {
@@ -392,7 +392,6 @@ export class OpenCGAClient {
                             .search({limit: 100})
                             .then(async function (response) {
                                 try {
-                                    // session.projects = response.responses[0].results;
                                     for (const project of response.responses[0].results) {
                                         const projectIndex = session.projects.findIndex(proj => proj.fqn === project.fqn);
                                         if (projectIndex < 0) {
@@ -425,25 +424,8 @@ export class OpenCGAClient {
                                                     // FIXME line above should check cohort.internal instead
                                                     // .filter(cohort => cohort.internal.index?.status === "READY");
 
-                                                    // Check if lastStudy form User Configuration matches
-                                                    if (session.user?.configs?.IVA?.lastStudy === study.fqn) {
-                                                        session.project = project;
-                                                        session.study = study;
-                                                    }
-
                                                     // Keep track of the studies to fetch Disease Panels
                                                     studies.push(study.fqn);
-                                                }
-                                            }
-                                        }
-
-                                        // If the user doesn't have his own default study then we select the first project and study as default
-                                        if (!session.project && !session.study) {
-                                            for (const project of session.projects) {
-                                                if (project.studies?.length > 0) {
-                                                    session.project = project;
-                                                    session.study = project.studies[0];
-                                                    break;
                                                 }
                                             }
                                         }
@@ -482,11 +464,12 @@ export class OpenCGAClient {
                                         console.log("Fetching disease panels");
                                         const panelPromises = [];
                                         for (const study of studies) {
-                                            const promise = _this.panels().search({
-                                                study: study,
-                                                limit: 2000,
-                                                include: "id,name,stats,source,genes.id,genes.name,genes.modeOfInheritance,genes.confidence,regions.id"
-                                            });
+                                            const promise = _this.panels()
+                                                .search({
+                                                    study: study,
+                                                    limit: 1000,
+                                                    include: "id,name,stats,source,genes.id,genes.name,genes.modeOfInheritance,genes.confidence,regions.id"
+                                                });
                                             panelPromises.push(promise);
                                         }
                                         const panelResponses = await Promise.all(panelPromises);

@@ -32,10 +32,10 @@ const hosts = [
 ];
 
 const opencga = {
-    host: hosts[2].url,
+    host: hosts[1].url,
     version: "v2",
     cookie: {
-        prefix: "iva-" + hosts[2].id,
+        prefix: "iva-" + hosts[1].id,
         secure: true,
     },
     sso: {
@@ -316,7 +316,7 @@ const SUITE = {
             },
             menu: [
                 {
-                    id: "browser",
+                    id: "variant-browser",
                     name: "Variant Browser",
                     icon: "img/tools/icons/variant_browser.svg",
                     visibility: "public",

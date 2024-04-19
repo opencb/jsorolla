@@ -258,7 +258,7 @@ export default class BioinfoUtils {
                 case "SO":
                     return this.getSequenceOntologyLink(ontologyTermId);
                 case "OMIM":
-                    return this.getOmimOntologyLink(id);
+                    return this.getOmimLink(id);
                 case "ORPHA":
                     return this.getOrphanetLink(id);
                 case "MONDO":
@@ -281,15 +281,11 @@ export default class BioinfoUtils {
         return `https://hpo.jax.org/app/browse/term/${hpoTerm}`;
     }
 
-    static getOmimLink(omimEntry) {
-        return `https://www.omim.org/entry/${omimEntry}`;
-    }
-
     static getSequenceOntologyLink(soTerm) {
         return `http://www.sequenceontology.org/browser/current_svn/term/${soTerm}`;
     }
 
-    static getOmimOntologyLink(soTerm) {
+    static getOmimLink(soTerm) {
         return `https://omim.org/entry/${soTerm}"`;
     }
 
