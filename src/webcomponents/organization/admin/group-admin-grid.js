@@ -40,16 +40,19 @@ export default class GroupAdminGrid extends LitElement {
                 type: String,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             groups: {
-                type: Array
+                type: Array,
+            },
+            studies: {
+                type: Object,
             },
             active: {
-                type: Boolean
+                type: Boolean,
             },
             config: {
-                type: Object
+                type: Object,
             },
         };
     }
@@ -62,12 +65,19 @@ export default class GroupAdminGrid extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
             changedProperties.has("toolId") ||
             changedProperties.has("config") ||
-            changedProperties.has("active")) && this.active) {
+            changedProperties.has("studies")) {
             this.propertyObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.size > 0 && this.active) {
+            this.renderTable();
         }
     }
 
@@ -98,19 +108,25 @@ export default class GroupAdminGrid extends LitElement {
                     // disabled: true,
                     // disabledTooltip: "...",
                 },
-                render: () => html `
-                    <group-admin-create
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </group-admin-create>`
+                render: () => {
+                    debugger
+                    return html `
+                        <group-admin-create
+                            .studies="${this.studies}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}">
+                        </group-admin-create>
+                    `;
+                }
             },
         };
-        this.renderTable();
     }
 
     renderTable() {
         if (this.groups?.length > 0) {
             this.renderLocalTable();
+        } else {
+            this.renderRemoteTable();
         }
         this.requestUpdate();
     }
@@ -152,7 +168,6 @@ export default class GroupAdminGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             detailView: this._config.detailView,
-            gridContext: this,
             loadingTemplate: () => GridCommons.loadingFormatter(),
         });
     }
@@ -163,7 +178,6 @@ export default class GroupAdminGrid extends LitElement {
             case "edit":
                 this.groupId = row.groupId;
                 this.studyId = row.studyId;
-                debugger
                 this.requestUpdate();
                 await this.updateComplete;
                 ModalUtils.show(`${this._prefix}UpdateModal`);
@@ -191,7 +205,12 @@ export default class GroupAdminGrid extends LitElement {
             {
                 title: "Study ID",
                 field: "studyId",
-                visible: this.gridCommons.isColumnVisible("individualId")
+                visible: this.gridCommons.isColumnVisible("studyId")
+            },
+            {
+                title: "Project ID",
+                field: "projectId",
+                visible: this.gridCommons.isColumnVisible("projectId")
             },
             {
                 title: "Creation Date",
@@ -298,7 +317,7 @@ export default class GroupAdminGrid extends LitElement {
             </div>
             <!-- 3. Render delete -->
             ${this.renderModalDelete()}
-            <!-- 2. Render update -->
+            <!-- 4. Render update -->
             ${this.renderModalUpdate()}
         `;
     }
@@ -310,7 +329,6 @@ export default class GroupAdminGrid extends LitElement {
             pageList: [5, 10, 25],
             multiSelection: false,
             showSelectCheckbox: false,
-            // detailView: true,
 
             showToolbar: true,
             showActions: true,

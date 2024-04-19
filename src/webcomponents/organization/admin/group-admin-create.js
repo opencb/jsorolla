@@ -33,11 +33,14 @@ export default class GroupAdminCreate extends LitElement {
 
     static get properties() {
         return {
+            studies: {
+                type: Array,
+            },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             displayConfig: {
-                type: Object
+                type: Object,
             },
         };
     }
@@ -45,6 +48,7 @@ export default class GroupAdminCreate extends LitElement {
     #init() {
         this.group = {};
         this.isLoading = false;
+        this.isStudyAdmin = false;
         this.displayConfigDefault = {
             style: "margin: 10px",
             titleWidth: 3,
@@ -58,22 +62,28 @@ export default class GroupAdminCreate extends LitElement {
         this.group = {};
         this.allowedValues = [];
 
-        // Read Projects and Study to prepare the allowed values in the Study select menu
-        if (this.opencgaSession?.projects) {
-            // Prepare allowedValues for the select options menu
-            for (const project of this.opencgaSession.projects) {
-                const fields = [];
-                for (const study of project.studies) {
-                    if (OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id)) {
-                        fields.push({id: study.fqn, name: study.fqn});
-                    }
-                }
-                if (fields.length > 0) {
-                    this.allowedValues.push({name: `Project '${project.name}'`, fields: fields});
-                }
+        if (this.studies && this.opencgaSession) {
+            if (Array.isArray(this.studies) && this.studies.length === 1) {
+                this.isStudyAdmin = true;
+                this.allowedValues = this.studies[0].fqn;
+            } else {
+                // 1. Prepare structure for displaying studies per project in dropdown
+                const projects = this.studies.reduce((acc, {fqn, name, projectId}) => {
+                    const study = {fqn, name};
+                    const item = acc.find(y => y.projectId === projectId);
+                    (item) ? item.studies.push(study) :
+                        acc.push({projectId: projectId, studies: [study]});
+                    return acc;
+                }, []);
+                // 2. Fill allowed values
+                this.allowedValues = projects
+                    .filter(({studies}) => studies.length > 0)
+                    .map(({projectId, studies}) => ({
+                        name: `Project '${projectId}'`,
+                        fields: studies.map(({fqn, name}) => ({id: fqn, name}))
+                    }));
             }
         }
-
         this._config = this.getDefaultConfig();
     }
 
@@ -83,21 +93,16 @@ export default class GroupAdminCreate extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("studies") || changedProperties.has("opencgaSession")) {
+            this.#initOriginalObjects();
+        }
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {
                 ...this.displayConfigDefault,
                 ...this.displayConfig
             };
         }
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
         super.update(changedProperties);
-    }
-
-    opencgaSessionObserver() {
-        // Read Projects and Study to prepare the select studies menu
-        this.#initOriginalObjects();
     }
 
     onFieldChange(e, field) {
@@ -200,6 +205,7 @@ export default class GroupAdminCreate extends LitElement {
                             required: true,
                             allowedValues: this.allowedValues,
                             display: {
+                                disabled: this.isStudyAdmin,
                                 placeholder: "Select study or studies..."
                             },
                         },

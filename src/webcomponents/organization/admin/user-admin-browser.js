@@ -104,10 +104,9 @@ export default class UserAdminBrowser extends LitElement {
             const params = {
                 organization: this.organization.id,
             };
-            debugger
             // TODO: not needed when [ BUG 2 ] fixed
             // this.opencgaSession.opencgaClient.admin()
-            //     .searchUsers({organization: "test"})
+            //     .searchUsers({organization: "test", limit: 25})
             this.opencgaSession.opencgaClient.users()
                 .info(this.allUsersIds.join(","), params)
                 .then(response => {
@@ -127,12 +126,6 @@ export default class UserAdminBrowser extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("organization") ||
-            changedProperties.has("study") ||
-            changedProperties.has("opencgaSession")) {
-            debugger
-            this.#getUsers(!this.organization);
-        }
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
@@ -202,17 +195,16 @@ export default class UserAdminBrowser extends LitElement {
     }
 
     render() {
-        debugger
-        if (Object.keys(this.users).length === 0) {
-            return html `
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    This organization does not have users yet.
-                    Please create some users.
-                </div>
-            `;
-        }
-
+        // if (Object.keys(this.users).length === 0) {
+        //     return html `
+        //         <div class="alert alert-info">
+        //             <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+        //             This organization does not have users yet.
+        //             Please create some users.
+        //         </div>
+        //     `;
+        // }
+        // .users="${this.users}"
         return html `
             <!-- 1. Render filter graphics if enabled -->
             ${this.renderFilterGraphics()}
@@ -220,8 +212,8 @@ export default class UserAdminBrowser extends LitElement {
             <user-admin-grid
                 .toolId="${this.COMPONENT_ID}"
                 .organization="${this.organization}"
-                .users="${this.users}"
-                .opencgaSession="${this.opencgaSession}">
+                .opencgaSession="${this.opencgaSession}"
+                .active="${true}">
             </user-admin-grid>
         `;
     }

@@ -110,7 +110,6 @@ export default class UserAdminCreate extends LitElement {
     }
 
     onSubmit() {
-        debugger
         this.#setLoading(true);
         this.user.organization = this.organization.id;
         let error = {};
@@ -119,7 +118,6 @@ export default class UserAdminCreate extends LitElement {
             .create(this.user)
             .then(response => {
                 newUser = UtilsNew.objectClone(response.responses[0].results[0]);
-                debugger
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: `User Create`,
                     message: `User ${newUser.id} created in organization ${this.organization.id} successfully`,

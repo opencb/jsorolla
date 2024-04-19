@@ -23,11 +23,15 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils";
-import UtilsNew from "../../../core/utils-new";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "./group-admin-grid.js";
 
 export default class GroupAdminBrowser extends LitElement {
 
+    /* -----------------------------------------------------------------------------------------------------------------
+    CONSTRUCTOR AND PROPERTIES
+    ----------------------------------------------------------------------------------------------------------------- */
     constructor() {
         super();
 
@@ -62,11 +66,14 @@ export default class GroupAdminBrowser extends LitElement {
         };
     }
 
+    /* -----------------------------------------------------------------------------------------------------------------
+    PRIVATE METHODS
+    ----------------------------------------------------------------------------------------------------------------- */
     #init() {
         this.COMPONENT_ID = "groups-admin-browser";
-
-        this._study = {};
         this._groups = [];
+        this._study = {};
+        this._studies = [];
         this._config = this.getDefaultConfig();
         this.isLoading = false;
     }
@@ -76,64 +83,22 @@ export default class GroupAdminBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    #getGroups(isSingleStudy) {
-        // FIXME: refactor
-        // If the component is used for managing the groups of the whole organization
-        this._groups = [];
-        if (isSingleStudy) {
-            this._study.groups?.forEach(group => {
-                let protectedGroup = false;
-                if (group.id === "@admins" || group.id === "@members") {
-                    protectedGroup = true;
-                }
-                const newGroup = {
-                    studyId: this._study.id,
-                    groupId: group.id,
-                    protectedGroup: protectedGroup,
-                };
-                this._groups.push(newGroup);
-            });
-        } else {
-            // FIXME 20240321 Vero:
-            //  *********************************************************************************
-            //  The method info from the ws Organizations is returning an empty array of projects.
-            //  The following bug has been created:
-            //  https://app.clickup.com/t/36631768/TASK-5923.
-            //  Meanwhile, I use the list of projects from opencgaSession.
-            //  *********************************************************************************
-            /*
-            this.organization?.projects?.forEach(project => {
-                project.studies?.forEach(study => {
-                    study.groups?.forEach(group => {
-                        const newGroup = {
-                            studyId: study.id,
-                            groupId: group.id,
-                        };
-                        this._groups.push(newGroup);
-                    });
-                });
-            });
-             */
-            this.opencgaSession?.projects?.forEach(project => {
-                project.studies?.forEach(study => {
-                    study.groups?.forEach(group => {
-                        const newGroup = {
-                            studyId: study.id,
-                            groupId: group.id,
-                            creationDate: group.creationDate,
-                        };
-                        this._groups.push(newGroup);
-                    });
-                });
-            });
-        }
-    }
-
+    /* -----------------------------------------------------------------------------------------------------------------
+    LIT LIFE-CYCLE
+    ----------------------------------------------------------------------------------------------------------------- */
     update(changedProperties) {
-        if (changedProperties.has("organization") ||
-            changedProperties.has("study") ||
-            changedProperties.has("opencgaSession")) {
-            this.#getGroups(!this.organization);
+        debugger
+        if (changedProperties.has("organization")) {
+            this.organizationObserver();
+        }
+        if (changedProperties.has("organizationId")) {
+            this.organizationIdObserver();
+        }
+        if (changedProperties.has("study")) {
+            this.studyObserver();
+        }
+        if (changedProperties.has("studyId")) {
+            this.studyIdObserver();
         }
         if (changedProperties.has("settings")) {
             this.settingsObserver();
@@ -141,35 +106,26 @@ export default class GroupAdminBrowser extends LitElement {
         super.update(changedProperties);
     }
 
-    settingsObserver() {
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.settings,
-        };
-    }
-
-    studyIdObserver() {
-        if (this.studyId && this.opencgaSession) {
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.studies()
-                .info(this.studyId)
-                .then(response => {
-                    this._study = UtilsNew.objectClone(response.responses[0].results[0]);
-                })
-                .catch(reason => {
-                    this._study = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "studyChange", this.study, {}, error);
-                    this.#setLoading(false);
+    /* -----------------------------------------------------------------------------------------------------------------
+    OBSERVERS
+    ----------------------------------------------------------------------------------------------------------------- */
+    organizationObserver() {
+        // Get all organization groups
+        this._groups = [];
+        this._studies = [];
+        this.organization?.projects?.forEach(project => {
+            project.studies?.forEach(study => {
+                this._studies.push({projectId: project.id, fqn: study.fqn, name: study.alias});
+                study.groups?.forEach(group => {
+                    const newGroup = {
+                        projectId: project.id,
+                        studyId: study.id,
+                        groupId: group.id,
+                    };
+                    this._groups.push(newGroup);
                 });
-        } else {
-            this._study = {};
-        }
+            });
+        });
     }
 
     organizationIdObserver() {
@@ -195,6 +151,51 @@ export default class GroupAdminBrowser extends LitElement {
         }
     }
 
+    studyObserver() {
+        // Get all study groups
+        this._groups = [];
+        this._studies = [this._study];
+        this.study.groups?.forEach(group => {
+            const newGroup = {
+                studyId: this.study.id,
+                groupId: group.id,
+            };
+            this._groups.push(newGroup);
+        });
+    }
+
+    studyIdObserver() {
+        if (this.studyId && this.opencgaSession) {
+            let error;
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.studies()
+                .info(this.studyId)
+                .then(response => {
+                    this.study = UtilsNew.objectClone(response.responses[0].results[0]);
+                })
+                .catch(reason => {
+                    this.study = {};
+                    error = reason;
+                    console.error(reason);
+                })
+                .finally(() => {
+                    this._config = this.getDefaultConfig();
+                    LitUtils.dispatchCustomEvent(this, "studyChange", this.study, {}, error);
+                    this.#setLoading(false);
+                });
+        }
+    }
+
+    settingsObserver() {
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.settings,
+        };
+    }
+
+    /* -----------------------------------------------------------------------------------------------------------------
+    RENDER
+    ----------------------------------------------------------------------------------------------------------------- */
     renderFilterGraphics() {
         if (this._config.showGraphicFilters) {
             return html `
@@ -204,28 +205,28 @@ export default class GroupAdminBrowser extends LitElement {
     }
 
     render() {
-        if (Object.keys(this._groups).length === 0) {
-            return html `
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    This organization does not have studies yet.
-                    Please create some projects or studies to see the list of existent groups.
-                </div>
-            `;
+        if (!this.opencgaSession) {
+            return html`<div>Not valid session</div>`;
         }
-
+debugger
         return html `
             <!-- 1. Render filter graphics if enabled -->
             ${this.renderFilterGraphics()}
             <!-- 2. Render grid -->
             <group-admin-grid
                 .toolId="${this.COMPONENT_ID}"
+                .opencgaSession="${this.opencgaSession}"
                 .groups="${this._groups}"
-                .opencgaSession="${this.opencgaSession}">
+                .studies="${this._studies}"
+                .config="${this._config}"
+                .active="${true}">
             </group-admin-grid>
         `;
     }
 
+    /* -----------------------------------------------------------------------------------------------------------------
+    DEFAULT CONFIG
+    ----------------------------------------------------------------------------------------------------------------- */
     getDefaultConfig() {
         return {
             showGraphicFilters: false,

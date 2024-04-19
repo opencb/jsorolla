@@ -58,6 +58,7 @@ export default class OrganizationAdmin extends LitElement {
     }
 
     update(changedProperties) {
+        debugger
         if (changedProperties.has("organizationId")) {
             this.organizationIdObserver();
         }
@@ -66,11 +67,20 @@ export default class OrganizationAdmin extends LitElement {
     }
 
     organizationIdObserver() {
-        if (this.organizationId && this.opencgaSession) {
+        // FIXME Vero: on creating a new group, for instance,
+        //  the session is updated but the org id does not change.
+        //  I need to get the organization info again to refresh the grid.
+        //  For now, I will query org info only with property opencgaSession change.
+        //  TO think about it.
+        // if (this.organizationId && this.opencgaSession) {
+        if (this.organizationId || this.opencgaSession) {
             let error;
             this.#setLoading(true);
             this.opencgaSession.opencgaClient.organization()
-                .info(this.organizationId)
+                // FIXME Vero: To remove hardcoded organization when the following bug is fixed:
+                //  https://app.clickup.com/t/36631768/TASK-5980
+                // .info(this.organizationId)
+                .info("test")
                 .then(response => {
                     this.organization = UtilsNew.objectClone(response.responses[0].results[0]);
                 })
@@ -83,7 +93,6 @@ export default class OrganizationAdmin extends LitElement {
                     LitUtils.dispatchCustomEvent(this, "organizationChange", this.organization, {}, error);
                     this.#setLoading(false);
                 });
-
         }
     }
 

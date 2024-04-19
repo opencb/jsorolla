@@ -21,6 +21,7 @@ import ModalUtils from "../../commons/modal/modal-utils";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter";
 import "./user-admin-create.js";
 import "./user-admin-update.js";
+import NotificationUtils from "../../commons/utils/notification-utils";
 
 export default class UserAdminGrid extends LitElement {
 
@@ -39,6 +40,9 @@ export default class UserAdminGrid extends LitElement {
             toolId: {
                 type: String,
             },
+            opencgaSession: {
+                type: Object
+            },
             organization: {
                 type: Object,
             },
@@ -50,9 +54,6 @@ export default class UserAdminGrid extends LitElement {
             },
             active: {
                 type: Boolean
-            },
-            opencgaSession: {
-                type: Object
             },
             config: {
                 type: Object
@@ -68,26 +69,24 @@ export default class UserAdminGrid extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    // update() {
-    //     if (changedProperties.has("studyId")) {
-    //         this.studyIdPropertyObserver();
-    //     }
-    // }
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
+            changedProperties.has("organization") ||
+            changedProperties.has("config")) {
+            this.propertyObserver();
+        }
+        super.update(changedProperties);
+    }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
-            changedProperties.has("organization") ||
-            changedProperties.has("toolId") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) && this.active) {
-            this.propertyObserver();
+        if (changedProperties.size > 0 && this.active) {
+            this.renderTable();
         }
     }
 
     studyIdPropertyObserver() {
         // 1. Get users from the study
-        let error;
-        //this.opencgaSession.opencgaClient.
     }
 
     propertyObserver() {
@@ -125,12 +124,10 @@ export default class UserAdminGrid extends LitElement {
                     </user-admin-create>`
             },
         };
-        this.renderTable();
     }
 
     // TODO to remove when BUG 2 fixed
     onUserCreate(e) {
-        debugger
         const user = e.detail.value;
         if (UtilsNew.isNotEmpty(user)) {
             this.users.push(user);
@@ -138,11 +135,71 @@ export default class UserAdminGrid extends LitElement {
         }
     }
     renderTable() {
-        debugger
         if (this.users?.length > 0) {
             this.renderLocalTable();
+        } else {
+            this.renderRemoteTable();
         }
         this.requestUpdate();
+    }
+
+    renderRemoteTable() {
+        if (this.opencgaSession?.opencgaClient) {
+            this._columns = this._getDefaultColumns();
+            this.table = $("#" + this.gridId);
+            this.table.bootstrapTable("destroy");
+            this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
+                columns: this._columns,
+                method: "get",
+                sidePagination: "server",
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
+                uniqueId: "id",
+                // Table properties
+                pagination: this._config.pagination,
+                pageSize: this._config.pageSize,
+                pageList: this._config.pageList,
+                paginationVAlign: "both",
+                formatShowingRows: this.gridCommons.formatShowingRows,
+                detailView: !!this.detailFormatter,
+                loadingTemplate: () => GridCommons.loadingFormatter(),
+                ajax: params => {
+                    let result = null;
+                    this.filters = {
+                        limit: params.data.limit,
+                        skip: params.data.offset || 0,
+                        count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                    };
+
+                    // Store the current filters
+                    this.opencgaSession.opencgaClient.admin()
+                        .searchUsers({organization: "test", ...this.filters})
+                        .then(response => {
+                            result = response;
+                            return response;
+                        })
+                        .then(() => {
+                            // Prepare data for columns extensions
+                            const rows = result.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
+                        .then(() => params.success(result))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
+                        });
+                },
+                responseHandler: response => {
+                    const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                    return result.response;
+                },
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
+            });
+        }
     }
 
     renderLocalTable() {
@@ -182,7 +239,6 @@ export default class UserAdminGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             detailView: this._config.detailView,
-            gridContext: this,
             loadingTemplate: () => GridCommons.loadingFormatter(),
         });
     }
@@ -272,7 +328,6 @@ export default class UserAdminGrid extends LitElement {
                 modalSize: "modal-lg"
             },
             render: active => {
-                debugger
                 return html`
                     <user-admin-update
                         .userId="${this.userId}"
@@ -323,7 +378,6 @@ export default class UserAdminGrid extends LitElement {
     }
 
     render() {
-        debugger
         return html`
             <!-- 1. Render toolbar if enabled -->
             ${this.renderToolbar()}
@@ -345,7 +399,6 @@ export default class UserAdminGrid extends LitElement {
             pageList: [5, 10, 25],
             multiSelection: false,
             showSelectCheckbox: false,
-            // detailView: true,
 
             showToolbar: true,
             showActions: true,
