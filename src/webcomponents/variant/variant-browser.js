@@ -85,9 +85,6 @@ export default class VariantBrowser extends LitElement {
         this.COMPONENT_ID = "variant-browser";
         this._prefix = UtilsNew.randomString(8);
 
-        // this.results = [];
-        // this._showInitMessage = true;
-
         this.searchActive = true;
         this.facetActive = true;
         this.query = {};
@@ -147,7 +144,6 @@ export default class VariantBrowser extends LitElement {
 
     opencgaSessionObserver() {
         if (this?.opencgaSession?.study?.fqn) {
-            // this._query = {study: this.opencgaSession.study.fqn};
             this.preparedQuery = {};
             this.executedQuery = {};
 
@@ -168,7 +164,6 @@ export default class VariantBrowser extends LitElement {
                 this.executedQuery = {...this.query};
 
                 LitUtils.dispatchCustomEvent(this, "queryChange", undefined, this.preparedQuery);
-                // this.detail = {};
                 this.searchActive = false; // Disable search button
             }
         }
@@ -198,10 +193,7 @@ export default class VariantBrowser extends LitElement {
     }
 
     async onRun() {
-        // NOTE notifySearch() triggers this chain: notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in variant-browser
-        // queryObserver() here stops the repetition of the remote request by checking if it has changed
         this.executedQuery = {...this.preparedQuery};
-        // updates this.queries in iva-app
         this.notifySearch(this.preparedQuery);
 
         this.facetQueryBuilder();
@@ -237,7 +229,6 @@ export default class VariantBrowser extends LitElement {
 
     onActiveFilterChange(e) {
         VariantUtils.validateQuery(e.detail);
-        // this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.preparedQuery = {...e.detail};
         this.executedQuery = {...e.detail};
         this.notifySearch(this.preparedQuery);
@@ -246,8 +237,7 @@ export default class VariantBrowser extends LitElement {
     }
 
     onActiveFilterClear() {
-        // this.query = {study: this.opencgaSession.study.fqn};
-        this.preparedQuery = {}; // ...this.query};
+        this.preparedQuery = {};
         this.executedQuery = {};
         this.notifySearch(this.preparedQuery);
         this.facetQueryBuilder();
