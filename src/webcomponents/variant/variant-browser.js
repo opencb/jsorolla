@@ -157,7 +157,7 @@ export default class VariantBrowser extends LitElement {
     }
 
     queryObserver() {
-        if (this.opencgaSession?.study?.fqn && this.query) {
+        if (this.opencgaSession?.study?.fqn) {
             // NOTE UtilsNew.objectCompare avoid repeating remote requests.
             if (!UtilsNew.objectCompare(this.query, this.executedQuery)) {
                 this.preparedQuery = {...this.query};
