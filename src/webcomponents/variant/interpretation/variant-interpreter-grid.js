@@ -224,6 +224,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 variantGrid: this,
 
                 ajax: params => {
+                    this.gridCommons.clearResponseWarningEvents();
                     // Make a deep clone object to manipulate the query sent to OpenCGA
                     const internalQuery = JSON.parse(JSON.stringify(this.query));
 
@@ -307,6 +308,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         });
                 },
                 responseHandler: response => {
+                    this.gridCommons.displayResponseWarningEvents(response);
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
@@ -1455,6 +1457,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     transform: scale(1.2);
                 }
             </style>
+
+            <div id="${this.gridId}WarningEvents"></div>
 
             <opencb-grid-toolbar
                 .config="${this.toolbarConfig}"

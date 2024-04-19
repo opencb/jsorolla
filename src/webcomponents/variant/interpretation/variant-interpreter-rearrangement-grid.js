@@ -295,6 +295,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 variantGrid: this,
 
                 ajax: params => {
+                    this.gridCommons.clearResponseWarningEvents();
                     let rearrangementResponse = null;
 
                     // Make a deep clone object to manipulate the query sent to OpenCGA
@@ -343,6 +344,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         });
                 },
                 responseHandler: response => {
+                    this.gridCommons.displayResponseWarningEvents(response);
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
@@ -1024,6 +1026,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     transform: scale(1.2);
                 }
             </style>
+
+            <div id="${this.gridId}WarningEvents"></div>
 
             <opencb-grid-toolbar
                 .config="${this.toolbarConfig}"
