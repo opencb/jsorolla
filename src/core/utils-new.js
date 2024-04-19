@@ -238,34 +238,16 @@ export default class UtilsNew {
         delete obj[last];
     }
 
-    // DEPRECATED
-    static getDiskUsage(bytes, numDecimals = 2) {
+    static getDiskUsage(bytes, numDecimals = 2, useInternationalSystem = false) {
         if (bytes === 0) {
             return "0 Byte";
         }
-        const k = 1024;
+        const k = useInternationalSystem ? 1000 : 1024;
         const dm = numDecimals ? numDecimals : 2;
         const sizes = [" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB"];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return (bytes / Math.pow(k, i)).toFixed(dm) + sizes[i];
     }
-
-    // /**
-    //  * Get Bytes numbers in a human readable string
-    //  * See http://stackoverflow.com/a/3758880
-    //  * @param {number} bytes Quantity of bytes
-    //  * @param {number} numDecimal Number of decimal
-    //  * @param {boolean} si Use International System (power of 10) or Binary Units (power of 2)
-    //  * @returns {string}  Get Bytes numbers in a human readable string
-    //  */
-    // static getDiskUsage(bytes, numDecimal = 2, si = false) {
-    //     const unit = si ? 1000 : 1024;
-    //     if (bytes < unit) return `${bytes} B`;
-    //     const dm = numDecimal ? numDecimal : 2;
-    //     const exp = Math.floor(Math.log(bytes) / Math.log(unit));
-    //     const pre = (si ? "kMGTPE" : "KMGTPE")[exp - 1];
-    //     return `${(bytes / Math.pow(unit, exp)).toFixed(2)} ${pre}B`;
-    // }
 
     static getDatetime(timestamp) {
         function pad2(n) { // always returns a string
