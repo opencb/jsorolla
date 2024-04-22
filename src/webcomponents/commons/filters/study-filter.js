@@ -59,10 +59,10 @@ export default class StudyFilter extends LitElement {
         }
 
         if (changedProperties.has("opencgaSession") || changedProperties.has("value")) {
-            this.selectedStudies = [
+            this.selectedStudies = Array.from(new Set([
                 this.opencgaSession.study.fqn,
-                ...(this.value || "").split(this.operator),
-            ];
+                ...(this.value || "").split(this.operator).filter(v => !!v),
+            ]));
         }
 
         super.update(changedProperties);
