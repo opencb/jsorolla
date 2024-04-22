@@ -85,9 +85,6 @@ export default class VariantBrowser extends LitElement {
         this.COMPONENT_ID = "variant-browser";
         this._prefix = UtilsNew.randomString(8);
 
-        // this.results = [];
-        // this._showInitMessage = true;
-
         this.searchActive = true;
         this.facetActive = true;
         this.query = {};
@@ -147,8 +144,8 @@ export default class VariantBrowser extends LitElement {
 
     opencgaSessionObserver() {
         if (this?.opencgaSession?.study?.fqn) {
-            this._query = {study: this.opencgaSession.study.fqn};
-            this.preparedQuery = {study: this.opencgaSession.study.fqn};
+            this.preparedQuery = {};
+            this.executedQuery = {};
 
             // TODO FIXME
             /** temp fix this.onRun(): when you switch study this.facetQuery contains the old study when you perform a new Aggregation query.
@@ -162,13 +159,11 @@ export default class VariantBrowser extends LitElement {
     queryObserver() {
         if (this.opencgaSession?.study?.fqn) {
             // NOTE UtilsNew.objectCompare avoid repeating remote requests.
-            if (!UtilsNew.objectCompare(this.query, this._query)) {
-                this._query = {study: this.opencgaSession.study.fqn, ...this.query};
+            if (!UtilsNew.objectCompare(this.query, this.executedQuery)) {
                 this.preparedQuery = {...this.query};
                 this.executedQuery = {...this.query};
 
                 LitUtils.dispatchCustomEvent(this, "queryChange", undefined, this.preparedQuery);
-                // this.detail = {};
                 this.searchActive = false; // Disable search button
             }
         }
@@ -198,10 +193,8 @@ export default class VariantBrowser extends LitElement {
     }
 
     async onRun() {
-        // NOTE notifySearch() triggers this chain: notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in variant-browser
-        // queryObserver() here stops the repetition of the remote request by checking if it has changed
-        this.query = {...this.preparedQuery};
-        // updates this.queries in iva-app
+        this.executedQuery = {...this.preparedQuery};
+        this.searchActive = false;
         this.notifySearch(this.preparedQuery);
 
         this.facetQueryBuilder();
@@ -216,6 +209,7 @@ export default class VariantBrowser extends LitElement {
         } else {
             this.facetQuery = null;
         }*/
+        this.requestUpdate();
     }
 
     changeView(id) {
@@ -226,6 +220,7 @@ export default class VariantBrowser extends LitElement {
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
+        this.searchActive = false;
         this.requestUpdate();
     }
 
@@ -236,16 +231,21 @@ export default class VariantBrowser extends LitElement {
 
     onActiveFilterChange(e) {
         VariantUtils.validateQuery(e.detail);
-        this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
-        this.notifySearch(this.query);
+        this.preparedQuery = {...e.detail};
+        this.executedQuery = {...e.detail};
+        this.searchActive = false;
+        this.notifySearch(this.preparedQuery);
         this.facetQueryBuilder();
+        this.requestUpdate();
     }
 
     onActiveFilterClear() {
-        this.query = {study: this.opencgaSession.study.fqn};
-        this.preparedQuery = {...this.query};
-        this.notifySearch(this.query);
+        this.preparedQuery = {};
+        this.executedQuery = {};
+        this.searchActive = false;
+        this.notifySearch(this.preparedQuery);
         this.facetQueryBuilder();
+        this.requestUpdate();
     }
 
     onFacetQueryChange(e) {
@@ -260,7 +260,7 @@ export default class VariantBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    onActiveFacetClear(e) {
+    onActiveFacetClear() {
         this.selectedFacet = {};
         this.onRun();
         this.requestUpdate();
@@ -325,7 +325,7 @@ export default class VariantBrowser extends LitElement {
                         <div role="tabpanel" class="tab-pane active" id="filters_tab">
                             <variant-browser-filter
                                 .opencgaSession=${this.opencgaSession}
-                                .query="${this.query}"
+                                .query="${this.preparedQuery}"
                                 .cellbaseClient="${this.cellbaseClient}"
                                 .config="${this._config.filter}"
                                 @queryChange="${this.onQueryFilterChange}"
