@@ -195,6 +195,7 @@ export default class VariantBrowserGrid extends LitElement {
                 // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
                 variantGrid: this,
                 ajax: params => {
+                    this.gridCommons.clearResponseWarningEvents();
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
@@ -291,12 +292,17 @@ export default class VariantBrowserGrid extends LitElement {
                             }
                             params.success(res);
                         })
-                        .catch(e => params.error(e))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
+                        })
                         .finally(() => {
                             LitUtils.dispatchCustomEvent(this, "queryComplete", null);
                         });
                 },
                 responseHandler: response => {
+                    this.gridCommons.displayResponseWarningEvents(response);
+
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
 
                     // Only the first 1M pages must be shown
@@ -562,18 +568,15 @@ export default class VariantBrowserGrid extends LitElement {
                 sampleColumns.push({
                     id: this.samples[i].id,
                     title: this.samples[i].id,
-                    // field: "samples",
-                    field: {
-                        memberIdx: i,
-                        memberName: this.samples[i].id,
-                        sampleId: this.samples[i].id,
-                        config: this._config
-                    },
                     rowspan: 1,
                     colspan: 1,
-                    formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
+                    formatter: (value, row, index) => {
+                        return VariantInterpreterGridFormatter.sampleGenotypeFormatter(value, row, index, {
+                            sampleId: this.samples[i].id,
+                            config: this._config
+                        });
+                    },
                     align: "center",
-                    // nucleotideGenotype: true,
                     visible: this.gridCommons.isColumnVisible(this.samples[i].id, "samples"),
                 });
             }
@@ -823,20 +826,14 @@ export default class VariantBrowserGrid extends LitElement {
                                     </li>
 
                                     <li class="dropdown-header">CellBase Links</li>
+                                    ${["v5.2", "v5.8"].map(v => `
                                     <li>
-                                        <a target="_blank" class="btn force-text-left"
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
+                                        <a target="_blank" class="btn force-text-left" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`)}">
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
-                                            CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
+                                            CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}
                                         </a>
                                     </li>
-                                    <li>
-                                        <a target="_blank" class="btn force-text-left"
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
-                                            CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
-                                        </a>
-                                    </li>
+                                    `).join("")}
                                     <li class="dropdown-header">External Genome Browsers</li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
@@ -1065,6 +1062,7 @@ export default class VariantBrowserGrid extends LitElement {
 
     render() {
         return html`
+            <div id="${this.gridId}WarningEvents"></div>
             ${this._config?.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.query}"

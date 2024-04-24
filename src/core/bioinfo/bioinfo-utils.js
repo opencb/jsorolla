@@ -111,6 +111,12 @@ export default class BioinfoUtils {
             return null;
         }
 
+        // Check for cellbase source
+        if (source.toUpperCase().startsWith("CELLBASE_V")) {
+            const version = source.toUpperCase().replace("CELLBASE_", "").toLowerCase();
+            return `https://ws.zettagenomics.com/cellbase/webservices/rest/${version}/hsapiens/genomic/variant/${id}/annotation`;
+        }
+
         if (id?.startsWith("rs")) {
             if (assembly?.toUpperCase() === "GRCH38") {
                 return `http://ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}`;
@@ -132,10 +138,6 @@ export default class BioinfoUtils {
                 // To make things easier the conversion of OpenCB Variant ID to Decipher ID must happen here
                 const decipherId = id.replace(/:/g, "-");
                 return `https://www.deciphergenomics.org/sequence-variant/${decipherId}`;
-            case "CELLBASE_V5.0":
-                return `https://ws.zettagenomics.com/cellbase/webservices/rest/v5.0/hsapiens/genomic/variant/${id}/annotation`;
-            case "CELLBASE_V5.1":
-                return `https://ws.zettagenomics.com/cellbase/webservices/rest/v5.1/hsapiens/genomic/variant/${id}/annotation`;
             case "ENSEMBL_GENOME_BROWSER":
                 if (assembly?.toUpperCase() === "GRCH38") {
                     return `http://ensembl.org/Homo_sapiens/Location/View?r=${region}`;
@@ -256,7 +258,7 @@ export default class BioinfoUtils {
                 case "SO":
                     return this.getSequenceOntologyLink(ontologyTermId);
                 case "OMIM":
-                    return this.getOmimOntologyLink(id);
+                    return this.getOmimLink(id);
                 case "ORPHA":
                     return this.getOrphanetLink(id);
                 case "MONDO":
@@ -279,15 +281,11 @@ export default class BioinfoUtils {
         return `https://hpo.jax.org/app/browse/term/${hpoTerm}`;
     }
 
-    static getOmimLink(omimEntry) {
-        return `https://www.omim.org/entry/${omimEntry}`;
-    }
-
     static getSequenceOntologyLink(soTerm) {
         return `http://www.sequenceontology.org/browser/current_svn/term/${soTerm}`;
     }
 
-    static getOmimOntologyLink(soTerm) {
+    static getOmimLink(soTerm) {
         return `https://omim.org/entry/${soTerm}"`;
     }
 
