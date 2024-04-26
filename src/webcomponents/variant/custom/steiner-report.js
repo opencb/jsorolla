@@ -74,6 +74,8 @@ class SteinerReport extends LitElement {
             "No pathogenic variants identified.",
             "Results related to other genetic conditions of medical significance (additional findings).",
             "Results that are not expected to impact participant health but may be relevant to family members or children.",
+            "The quality of the data is sufficient for mutational signature analysis and to look for potential driver mutations.",
+            "The data for this sample is below the quality required to perform WGS analysis.",
         ];
 
         this.somaticSample = null;
