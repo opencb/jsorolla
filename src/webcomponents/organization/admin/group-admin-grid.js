@@ -21,6 +21,7 @@ import ModalUtils from "../../commons/modal/modal-utils";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter";
 import "./group-admin-create.js";
 import "./group-admin-update.js";
+import "./group-admin-delete.js";
 
 export default class GroupAdminGrid extends LitElement {
 
@@ -109,7 +110,6 @@ export default class GroupAdminGrid extends LitElement {
                     // disabledTooltip: "...",
                 },
                 render: () => {
-                    debugger
                     return html `
                         <group-admin-create
                             .studies="${this.studies}"
@@ -174,19 +174,15 @@ export default class GroupAdminGrid extends LitElement {
 
     async onActionClick(e, value, row) {
         const action = e.currentTarget.dataset.action;
+        this.group = row.group;
+        this.studyFqn = row.fqn;
+        this.requestUpdate();
+        await this.updateComplete;
         switch (action) {
             case "edit":
-                this.groupId = row.groupId;
-                this.studyId = row.studyId;
-                this.requestUpdate();
-                await this.updateComplete;
                 ModalUtils.show(`${this._prefix}UpdateModal`);
                 break;
             case "delete":
-                this.groupId = row.groupId;
-                this.studyId = row.studyId;
-                this.requestUpdate();
-                await this.updateComplete;
                 ModalUtils.show(`${this._prefix}DeleteModal`);
                 break;
             default:
@@ -198,9 +194,8 @@ export default class GroupAdminGrid extends LitElement {
         this._columns = [
             {
                 title: "Group ID",
-                field: "groupId",
-                scope: "col",
-                visible: this.gridCommons.isColumnVisible("id")
+                field: "group.id",
+                visible: this.gridCommons.isColumnVisible("group.id")
             },
             {
                 title: "Study ID",
@@ -230,12 +225,12 @@ export default class GroupAdminGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
-                formatter: () => `
+                formatter: (value, row) => `
                     <div id="actions" class="d-flex justify-content-around">
-                        <button data-action="delete" class="btn btn-outline-secondary disabled" style="border:0; border-radius: 50%">
+                        <button data-action="delete" class="btn ${!row.isGroupProtected ? "btn-outline-danger" : "btn-outline-secondary disabled"}" style="border:0; border-radius: 50%">
                             <i class="far fa-trash-alt"></i>
                         </button>
-                        <button data-action="disable" class="btn btn-outline-warning" style="border:0; border-radius: 50%">
+                        <button data-action="disable" class="btn  ${!row.isGroupProtected ? "btn-outline-warning" : "btn-outline-secondary disabled"}" style="border:0; border-radius: 50%">
                             <i class="fas fa-ban"></i>
                         </button>
                         <button data-action="edit" class="btn btn-outline-success" style="border:0; border-radius: 50%">
@@ -255,14 +250,14 @@ export default class GroupAdminGrid extends LitElement {
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
-                modalTitle: `Group Update: group ${this.groupId} in study ${this.studyId}`,
+                modalTitle: `Group Update: group ${this.group?.id} in study ${this.studyFqn}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"
             },
             render: active => html`
                 <group-admin-update
-                    .groupId="${this.groupId}"
+                    .groupId="${this.group?.id}"
                     .studyId="${this.studyId}"
                     .active="${active}"
                     .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
@@ -275,15 +270,15 @@ export default class GroupAdminGrid extends LitElement {
     renderModalDelete() {
         return ModalUtils.create(this, `${this._prefix}DeleteModal`, {
             display: {
-                modalTitle: `Group Delete: ${this.groupId}`,
+                modalTitle: `Group Delete: ${this.group?.id} in study ${this.studyFqn}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"
             },
             render: active => html`
             <group-admin-delete
-                .groupId="${this.groupId}"
-                .studyId="${this.studyId}"
+                .group="${this.group}"
+                .studyFqn="${this.studyFqn}"
                 .active="${active}"
                 .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                 .opencgaSession="${this.opencgaSession}">

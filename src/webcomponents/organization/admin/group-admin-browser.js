@@ -87,7 +87,6 @@ export default class GroupAdminBrowser extends LitElement {
     LIT LIFE-CYCLE
     ----------------------------------------------------------------------------------------------------------------- */
     update(changedProperties) {
-        debugger
         if (changedProperties.has("organization")) {
             this.organizationObserver();
         }
@@ -120,7 +119,9 @@ export default class GroupAdminBrowser extends LitElement {
                     const newGroup = {
                         projectId: project.id,
                         studyId: study.id,
-                        groupId: group.id,
+                        fqn: study.fqn,
+                        group: group,
+                        isGroupProtected: !!(group.id === "@admins" || group.id === "@members"),
                     };
                     this._groups.push(newGroup);
                 });
@@ -158,7 +159,9 @@ export default class GroupAdminBrowser extends LitElement {
         this.study.groups?.forEach(group => {
             const newGroup = {
                 studyId: this.study.id,
-                groupId: group.id,
+                fqn: this.study.fqn,
+                group: group,
+                isGroupProtected: !!(group.id === "@admins" || group.id === "@members"),
             };
             this._groups.push(newGroup);
         });
@@ -208,7 +211,7 @@ export default class GroupAdminBrowser extends LitElement {
         if (!this.opencgaSession) {
             return html`<div>Not valid session</div>`;
         }
-debugger
+
         return html `
             <!-- 1. Render filter graphics if enabled -->
             ${this.renderFilterGraphics()}

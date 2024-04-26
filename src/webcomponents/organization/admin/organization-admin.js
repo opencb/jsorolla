@@ -58,8 +58,7 @@ export default class OrganizationAdmin extends LitElement {
     }
 
     update(changedProperties) {
-        debugger
-        if (changedProperties.has("organizationId")) {
+        if (changedProperties.has("organizationId") || changedProperties.has("opencgaSession")) {
             this.organizationIdObserver();
         }
 
