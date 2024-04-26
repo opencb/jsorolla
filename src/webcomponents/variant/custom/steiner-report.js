@@ -318,6 +318,18 @@ class SteinerReport extends LitElement {
         this.requestUpdate();
     }
 
+    onFieldChange(event) {
+        // Josemi Note 2024-04-26: we need to force a refresh only if user selects a value from the dropdowns displayed
+        // on the Mutational Signatures section of the report
+        const param = event?.detail?.param;
+        if (param === "selectedSnvSignature" || param === "selectedSvSignature" || param === "selectedHrdetect") {
+            this._data = {
+                ...this._data,
+            };
+            this.requestUpdate();
+        }
+    }
+
     generateSignaturesDropdown(signatures, type) {
         return (signatures || [])
             .filter(signature => (signature?.type || "").toUpperCase() === type)
@@ -375,6 +387,7 @@ class SteinerReport extends LitElement {
             <data-form
                 .data="${this._data}"
                 .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onRun}">
             </data-form>
