@@ -683,6 +683,15 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: this.gridCommons.isColumnVisible("type")
                 },
                 {
+                    id: "hgvs",
+                    title: "HGVS",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.hgvsFormatter(row, this._config),
+                    halign: "center",
+                    visible: this.gridCommons.isColumnVisible("hgvs"),
+                },
+                {
                     id: "consequenceType",
                     title: "Consequence Type",
                     field: "consequenceType",
