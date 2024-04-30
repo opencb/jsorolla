@@ -54,14 +54,14 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("testVariantFile") || changedProperties.has("testDataVersion") || changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
+        if (changedProperties.has("testVariantFile") || changedProperties.has("testDataVersion")) {
+            this.variantsObserver();
         }
 
         super.update(changedProperties);
     }
 
-    opencgaSessionObserver() {
+    variantsObserver() {
         this.variants = null;
         if (this.testDataVersion && this.testVariantFile) {
             UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testVariantFile}.json`)
