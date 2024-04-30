@@ -147,7 +147,7 @@ context("Variant Browser Grid", () => {
         });
 
         context("gene column", () => {
-            const columnIndex = 2;
+            const columnIndex = 3;
             it("should be visible by default", () => {
                 cy.get("@variantBrowser")
                     .find("thead tr:first th")
