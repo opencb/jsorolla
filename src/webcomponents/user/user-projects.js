@@ -189,7 +189,6 @@ export default class UserProjects extends LitElement {
                                 display: {
                                     render: fqn => {
                                         const match = fqn.match(/^[^@]+@([^:]+):(.*)$/);
-                                        debugger
                                         if (match) {
                                             const [, project, study] = match;
                                             return html`
