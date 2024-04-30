@@ -662,6 +662,16 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: this.gridCommons.isColumnVisible("id")
                 },
                 {
+                    id: "type",
+                    title: "Type",
+                    field: "type",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: VariantGridFormatter.typeFormatter.bind(this),
+                    halign: "center",
+                    visible: this.gridCommons.isColumnVisible("type")
+                },
+                {
                     id: "gene",
                     title: "Gene",
                     field: "gene",
@@ -671,16 +681,6 @@ export default class VariantBrowserGrid extends LitElement {
                         VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession, this._config),
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("gene")
-                },
-                {
-                    id: "type",
-                    title: "Type",
-                    field: "type",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: VariantGridFormatter.typeFormatter.bind(this),
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("type")
                 },
                 {
                     id: "hgvs",
