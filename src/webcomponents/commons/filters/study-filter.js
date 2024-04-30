@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import LitUtils from "../utils/lit-utils.js";
 import "../forms/select-field-filter.js";
 
 
@@ -35,7 +36,10 @@ export default class StudyFilter extends LitElement {
         return {
             opencgaSession: {
                 type: Object
-            }
+            },
+            value: {
+                type: String,
+            },
         };
     }
 
@@ -47,17 +51,25 @@ export default class StudyFilter extends LitElement {
         this.differentStudies = [];
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.selectedStudies = [this.opencgaSession.study.fqn];
             if (this.opencgaSession.project.studies.length) {
                 this.differentStudies = this.opencgaSession.project.studies.filter(study => this.opencgaSession.study.id !== study.id);
             }
-            this.requestUpdate();
-            this.updateComplete.then(() => {
-                $(".selectpicker", this).selectpicker("refresh");
-            });
         }
+
+        if (changedProperties.has("opencgaSession") || changedProperties.has("value")) {
+            this.selectedStudies = Array.from(new Set([
+                this.opencgaSession.study.fqn,
+                ...(this.value || "").split(this.operator).filter(v => !!v),
+            ]));
+        }
+
+        super.update(changedProperties);
+    }
+
+    updated() {
+        $(".selectpicker", this).selectpicker("val", this.selectedStudies);
     }
 
     filterChange() {
@@ -69,33 +81,13 @@ export default class StudyFilter extends LitElement {
             // NOT operator (not visible/not implemented)
             querystring = [...this.selectedStudies.map(study => `${this.operator}${study}`)].join(";");
         }
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: querystring
-            }
-        });
-        this.dispatchEvent(event);
+        LitUtils.dispatchCustomEvent(this, "filterChange", querystring);
     }
 
     onChangeOperator(e) {
         this.operator = e.target.value;
         this.filterChange();
     }
-
-    // onChangeStudy(e) {
-    //     const study = e.target.dataset.id;
-    //     if (e.target.checked) {
-    //         this.selectedStudies.push(study);
-    //     } else {
-    //         const indx = this.selectedStudies.indexOf(study);
-    //         if (!~indx) {
-    //             console.error("Trying to remove non active study");
-    //         } else {
-    //             this.selectedStudies.splice(indx);
-    //         }
-    //     }
-    //     this.filterChange();
-    // }
 
     onChangeSelectedStudy() {
         const selected = $(".selectpicker", this).selectpicker("val");
@@ -117,15 +109,6 @@ export default class StudyFilter extends LitElement {
         }
 
         return html`
-            <!-- <select class="form-control input-sm \${this._prefix}FilterSelect" id="\${this._prefix}includeOtherStudy"
-                    @change="\${this.onChangeOperator}">
-                    <option value="in" selected>In all (AND)</option>
-                    <option value="atleast">In any of (OR)</option>
-                </select>
-                <input type="checkbox" value="\${this.opencgaSession.study.alias}" data-id="\${this.opencgaSession.study.id}" checked disabled>
-                <span style="font-weight: bold;font-style: italic;color: darkred">\${this.opencgaSession.study.alias}</span>
-            -->
-
             <div id="${this._prefix}DifferentStudies" class="form-group">
                 <select multiple class="form-control input-sm selectpicker" id="${this._prefix}includeOtherStudy"
                     @change="${this.onChangeSelectedStudy}">
@@ -148,6 +131,7 @@ export default class StudyFilter extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("study-filter", StudyFilter);
