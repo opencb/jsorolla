@@ -216,6 +216,32 @@ context("Variant Browser Grid", () => {
             });
         });
 
+        context("hgvs column", () => {
+            const columnIndex = 4;
+            it("should be displayed by default", () => {
+                cy.get("@variantBrowser")
+                    .find("thead tr:first th")
+                    .contains("HGVS")
+                    .should("be.visible");
+            });
+
+            it("should render a link to Ensembl Transcript", () => {
+                cy.get("@variantBrowser")
+                    .find("tbody tr td")
+                    .eq(columnIndex)
+                    .find(`a[href^="https://www.ensembl.org/Homo_sapiens/Transcript/Summary"]`)
+                    .should("exist");
+            });
+
+            it("should render a link to NCBI Gene", () => {
+                cy.get("@variantBrowser")
+                    .find("tbody tr td")
+                    .eq(columnIndex)
+                    .find(`a[href^="https://www.ncbi.nlm.nih.gov/gene"]`)
+                    .should("exist");
+            });
+        });
+
         context("actions column", () => {
             it("should be displayed", () => {
                 cy.get("@variantBrowser")
