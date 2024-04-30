@@ -195,6 +195,7 @@ export default class VariantBrowserGrid extends LitElement {
                 // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
                 variantGrid: this,
                 ajax: params => {
+                    this.gridCommons.clearResponseWarningEvents();
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
@@ -291,12 +292,17 @@ export default class VariantBrowserGrid extends LitElement {
                             }
                             params.success(res);
                         })
-                        .catch(e => params.error(e))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
+                        })
                         .finally(() => {
                             LitUtils.dispatchCustomEvent(this, "queryComplete", null);
                         });
                 },
                 responseHandler: response => {
+                    this.gridCommons.displayResponseWarningEvents(response);
+
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
 
                     // Only the first 1M pages must be shown
@@ -562,18 +568,15 @@ export default class VariantBrowserGrid extends LitElement {
                 sampleColumns.push({
                     id: this.samples[i].id,
                     title: this.samples[i].id,
-                    // field: "samples",
-                    field: {
-                        memberIdx: i,
-                        memberName: this.samples[i].id,
-                        sampleId: this.samples[i].id,
-                        config: this._config
-                    },
                     rowspan: 1,
                     colspan: 1,
-                    formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
+                    formatter: (value, row, index) => {
+                        return VariantInterpreterGridFormatter.sampleGenotypeFormatter(value, row, index, {
+                            sampleId: this.samples[i].id,
+                            config: this._config
+                        });
+                    },
                     align: "center",
-                    // nucleotideGenotype: true,
                     visible: this.gridCommons.isColumnVisible(this.samples[i].id, "samples"),
                 });
             }
@@ -1059,6 +1062,7 @@ export default class VariantBrowserGrid extends LitElement {
 
     render() {
         return html`
+            <div id="${this.gridId}WarningEvents"></div>
             ${this._config?.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.query}"

@@ -316,7 +316,7 @@ const SUITE = {
             },
             menu: [
                 {
-                    id: "browser",
+                    id: "variant-browser",
                     name: "Variant Browser",
                     icon: "img/tools/icons/variant_browser.svg",
                     visibility: "public",
