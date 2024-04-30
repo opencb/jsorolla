@@ -872,7 +872,11 @@ class IvaApp extends LitElement {
 
         // 5. Update location.hash (only if project.id and study.id are defined)
         if (this.opencgaSession?.project?.id && this.opencgaSession?.study?.id) {
-            window.location.hash = `${hashTool || "home"}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+            // Josemi NOTE 2024-04-25 Added additional check to prevent removing the query section of the url if the tool is interpreter
+            // as we need it tell IVA which clinical analysis should open if user reloads the browser tab.
+            if (hashTool !== "#interpreter") {
+                window.location.hash = `${hashTool || "home"}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+            }
         }
 
         // 6. Parse query fragment in 'featureId'
