@@ -86,23 +86,27 @@ export default class VariantCohortStats extends LitElement {
     }
 
     render() {
-        let studyNames = {};
-        for (let study of this.opencgaSession.project.studies) {
+        const studyNames = {};
+        for (const study of this.opencgaSession.project.studies) {
             studyNames[study.id] = study.name;
             studyNames[study.fqn] = study.name;
         }
 
         return html`
-            ${this.variant?.studies?.length > 0 && this.variant.studies.map(study => html`
-                <h3>
-                    ${studyNames[study.studyId]}
-                </h3>
-                <div style="padding: 10px">
-                    <variant-cohort-stats-grid .stats="${study.stats}"></variant-cohort-stats-grid>
-                </div>
-            `)}
+            ${this.variant?.studies?.length > 0 && this.variant.studies
+                .map(study => html`
+                    <h3>
+                        ${studyNames[study.studyId]}
+                    </h3>
+                    <div style="padding: 10px">
+                        <variant-cohort-stats-grid
+                            .stats="${study.stats}">
+                        </variant-cohort-stats-grid>
+                    </div>
+                `)}
         `;
     }
+
 }
 
 customElements.define("variant-cohort-stats", VariantCohortStats);
