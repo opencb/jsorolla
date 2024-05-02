@@ -577,7 +577,8 @@ export default class VariantBrowserGrid extends LitElement {
                         });
                     },
                     align: "center",
-                    visible: this.gridCommons.isColumnVisible(this.samples[i].id, "samples"),
+                    visible: true,
+                    excludeFromSettings: true,
                 });
             }
         }
