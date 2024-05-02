@@ -604,7 +604,8 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: this.cohortFormatter,
                     align: "center",
                     eligible: true,
-                    visible: this.gridCommons.isColumnVisible(study.id, "cohorts"),
+                    visible: true,
+                    excludeFromSettings: true,
                 });
             }
         }
