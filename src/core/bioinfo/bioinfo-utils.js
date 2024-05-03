@@ -255,6 +255,8 @@ export default class BioinfoUtils {
             switch (source?.toUpperCase()) {
                 case "HP":
                     return this.getHpoLink(ontologyTermId);
+                case "DOID":
+                    return this.getDiseaseOntologyLink(ontologyTermId);
                 case "SO":
                     return this.getSequenceOntologyLink(ontologyTermId);
                 case "OMIM":
@@ -270,6 +272,10 @@ export default class BioinfoUtils {
         } else {
             return ontologyTermId;
         }
+    }
+
+    static getDiseaseOntologyLink(ontologyId) {
+        return `https://disease-ontology.org/term/${ontologyId}/`;
     }
 
     static getOboLink(ontologyId) {
