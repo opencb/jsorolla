@@ -577,7 +577,8 @@ export default class VariantBrowserGrid extends LitElement {
                         });
                     },
                     align: "center",
-                    visible: this.gridCommons.isColumnVisible(this.samples[i].id, "samples"),
+                    visible: true,
+                    excludeFromSettings: true,
                 });
             }
         }
@@ -603,7 +604,8 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: this.cohortFormatter,
                     align: "center",
                     eligible: true,
-                    visible: this.gridCommons.isColumnVisible(study.id, "cohorts"),
+                    visible: true,
+                    excludeFromSettings: true,
                 });
             }
         }
