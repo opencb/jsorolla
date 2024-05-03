@@ -31,18 +31,6 @@ export default class CatalogGridFormatter {
                 if (phenotype.name) {
                     result.push(UtilsNew.escapeHtml(phenotype.name));
                 }
-                /*
-                // Add phenotype ID if exists
-                if (phenotype.id && phenotype.id !== phenotype.name) {
-                    if (phenotype.source && phenotype.source.toUpperCase() === "HPO") {
-                        result.push(`
-                        <a target="_blank" href="${BioinfoUtils.getHpoLink(phenotype.id)}"> (${phenotype.id})</a>
-                    `);
-                    } else {
-                        result.push(phenotype.id);
-                    }
-                }
-                */
                 // Add phenotype ID if exists
                 if (phenotype.id && phenotype.id !== phenotype.name) {
                     const ontologyLink = BioinfoUtils.getOntologyLink(phenotype.id);
