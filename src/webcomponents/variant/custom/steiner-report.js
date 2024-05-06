@@ -183,7 +183,7 @@ class SteinerReport extends LitElement {
                 qcPlots: {},
                 overallText: this.clinicalAnalysis.attributes?.report?.overall ?? this.defaultOverallText,
                 ascatInterpretation: this.clinicalAnalysis.attributes?.report?.ascatInterpretation ?? this.defaultAscatInterpretation,
-                genomePlotInterpretation: "",
+                genomePlotInterpretation: this.somaticSample?.qualityControl?.variant?.genomePlot?.description ?? "",
                 results: this.clinicalAnalysis.attributes?.report?.results || "",
                 discussion: this.clinicalAnalysis.attributes?.report?.discussion || "",
                 status: this.clinicalAnalysis.status?.id || "",
