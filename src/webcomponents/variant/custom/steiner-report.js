@@ -24,6 +24,7 @@ import "../../loading-spinner.js";
 import "../../file/file-preview.js";
 import UtilsNew from "../../../core/utils-new.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 class SteinerReport extends LitElement {
 
@@ -368,8 +369,13 @@ class SteinerReport extends LitElement {
         // 3. Wait for response
         Promise.all(allPromises)
             .then(() => {
+                // 3.1 Display a confirmation message
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: "Report has been saved",
+                });
+                // 3.2 Dispatch a clinicalAnalysisUpdate event
+                LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                    clinicalAnalysisParams: this.clinicalAnalysis,
                 });
             })
             .catch(error => {
