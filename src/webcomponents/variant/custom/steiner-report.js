@@ -132,6 +132,7 @@ class SteinerReport extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        this._ready = false;
         if (this.opencgaSession && this.clinicalAnalysis) {
             // We will assume that we always have a somatic and a germline sample
             // TODO: check if both samples exists
