@@ -1248,7 +1248,7 @@ class SteinerReport extends LitElement {
                             title: "Case Status",
                             field: "status",
                             type: "select",
-                            allowedValues: ["REVIEW", "CLOSED", "DISCARDED"],
+                            allowedValues: ["READY_FOR_VALIDATION", "INCOMPLETE", "CLOSED"],
                             required: true,
                         },
                         {
