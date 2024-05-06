@@ -77,6 +77,18 @@ class SteinerReport extends LitElement {
             "Results that are not expected to impact participant health but may be relevant to family members or children.",
         ];
 
+        this.defaultOverallText = [
+            "Sequence coverage is good. Duplicate read rate <10%.",
+            "There is adequate tumour cellularity, a correct copy number result and adequate mutation data to proceed",
+            "with an interpretation of this report.",
+        ].join(" ");
+
+        this.defaultAscatInterpretation = [
+            "Sunrise plot indicates a successful copy number analysis with estimated tumour content of and ploidy of XX.",
+            "The copy number profile (bottom right) shows a degree of over segmentation, however, the quality is acceptable.",
+            "The genome contains numerous copy number changes and regions of LOH (minor allele frequency of 0) suggestive of genomic instability.",
+        ].join(" ");
+
         this.somaticSample = null;
         this.germlineSample = null;
 
@@ -138,11 +150,6 @@ class SteinerReport extends LitElement {
                 // clinicalAnalysis: this.clinicalAnalysis,
                 ascatMetrics: [],
                 ascatPlots: [],
-                ascatInterpretation: [
-                    "Sunrise plot indicates a successful copy number analysis with estimated tumour content of and ploidy of XX.",
-                    "The copy number profile (bottom right) shows a degree of over segmentation, however, the quality is acceptable.",
-                    "The genome contains numerous copy number changes and regions of LOH (minor allele frequency of 0) suggestive of genomic instability.",
-                ].join(" "),
                 sequenceMetrics: [
                     {field: "Sequence methods", value: "WGS Illumina NovaSeq paired end"}
                 ],
@@ -157,11 +164,6 @@ class SteinerReport extends LitElement {
                 //     {field: "Indels", value: "QUAL >= 250, Repeats <10"},
                 //     {field: "Rearrangements", value: "BRASSII reconstructed"},
                 // ],
-                overallText: [
-                    "Sequence coverage is good. Duplicate read rate <10%.",
-                    "There is adequate tumour cellularity, a correct copy number result and adequate mutation data to proceed",
-                    "with an interpretation of this report.",
-                ].join(" "),
                 // TODO decide what to do here
                 // primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings.filter(item => {
                 //     return item.status.toUpperCase() === "REPORTED";
@@ -170,19 +172,21 @@ class SteinerReport extends LitElement {
                 analysts: (this.clinicalAnalysis.analysts || [])
                     .map(analyst=> analyst.name)
                     .join(", "),
-                discussion: this.clinicalAnalysis.attributes?.discussion || "",
                 hrdetects: [],
-                selectedHrdetect: null,
-                selectedSnvSignature: null,
-                selectedSvSignature: null,
+                selectedHrdetect: this.clinicalAnalysis.attributes?.report?.selectedHrdetect || null,
+                selectedSnvSignature: this.clinicalAnalysis.attributes?.report?.selectedSnvSignature || null,
+                selectedSvSignature: this.clinicalAnalysis.attributes?.report?.selectedSvSignature || null,
                 deletionAggreationCount: 0,
                 deletionAggregationStats: null,
                 qcPlots: {},
+                overallText: this.clinicalAnalysis.attributes?.report?.overall ?? this.defaultOverallText,
+                ascatInterpretation: this.clinicalAnalysis.attributes?.report?.ascatInterpretation ?? this.defaultAscatInterpretation,
                 genomePlotInterpretation: "",
-                results: "",
+                results: this.clinicalAnalysis.attributes?.report?.results || "",
+                discussion: this.clinicalAnalysis.attributes?.report?.discussion || "",
                 status: this.clinicalAnalysis.status?.id || "",
-                signedBy: "",
-                date: "",
+                signedBy: this.clinicalAnalysis.attributes?.report?.signedBy || "",
+                date: this.clinicalAnalysis.attributes?.report?.date || "",
             };
 
             const allPromises = [
@@ -340,15 +344,17 @@ class SteinerReport extends LitElement {
         // 2. Save report data in attributes of the clinical analysis
         const clinicalAnalysisParams = {
             attributes: {
-                overallText: this._data.overallText || "-",
-                ascatInterpretation: this._data.ascatInterpretation || "-",
-                results: this._data.results || "-",
-                selectedSnvSignature: this._data.selectedSnvSignature || "",
-                selectedSvSignature: this._data.selectedSvSignature || "",
-                selectedHrdetect: this._data.selectedHrdetect || "",
-                discussion: this._data.discussion || "-",
-                signedBy: this._data.signedBy || "",
-                date: this._data.date || "",
+                report: {
+                    overall: this._data.overallText || "",
+                    ascatInterpretation: this._data.ascatInterpretation || "",
+                    results: this._data.results || "",
+                    selectedSnvSignature: this._data.selectedSnvSignature || "",
+                    selectedSvSignature: this._data.selectedSvSignature || "",
+                    selectedHrdetect: this._data.selectedHrdetect || "",
+                    discussion: this._data.discussion || "",
+                    signedBy: this._data.signedBy || "",
+                    date: this._data.date || "",
+                },
             },
             status: {
                 id: this._data.status,
@@ -1254,7 +1260,6 @@ class SteinerReport extends LitElement {
                         {
                             title: "Discussion",
                             type: "custom",
-                            // allowedValues: this.stockPhrases,
                             display: {
                                 render: () => html`
                                     <select-field-filter
