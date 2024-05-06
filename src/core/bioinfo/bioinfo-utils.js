@@ -259,6 +259,8 @@ export default class BioinfoUtils {
                     return this.getDiseaseOntologyLink(ontologyTermId);
                 case "SO":
                     return this.getSequenceOntologyLink(ontologyTermId);
+                case "GO":
+                    return this.getGeneOntologyLink(ontologyTermId);
                 case "OMIM":
                     return this.getOmimLink(id);
                 case "ORPHA":
@@ -276,6 +278,10 @@ export default class BioinfoUtils {
 
     static getDiseaseOntologyLink(ontologyId) {
         return `https://disease-ontology.org/term/${ontologyId}/`;
+    }
+
+    static getGeneOntologyLink(ontologyId) {
+        return `https://amigo.geneontology.org/term/${ontologyId}/`;
     }
 
     static getOboLink(ontologyId) {
