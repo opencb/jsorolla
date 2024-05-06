@@ -23,6 +23,7 @@ import "../../commons/simple-chart.js";
 import "../../loading-spinner.js";
 import "../../file/file-preview.js";
 import UtilsNew from "../../../core/utils-new.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 class SteinerReport extends LitElement {
 
@@ -169,8 +170,7 @@ class SteinerReport extends LitElement {
                 analysts: (this.clinicalAnalysis.analysts || [])
                     .map(analyst=> analyst.name)
                     .join(", "),
-                signedBy: "",
-                discussion: "",
+                discussion: this.clinicalAnalysis.attributes?.discussion || "",
                 hrdetects: [],
                 selectedHrdetect: null,
                 selectedSnvSignature: null,
@@ -178,7 +178,11 @@ class SteinerReport extends LitElement {
                 deletionAggreationCount: 0,
                 deletionAggregationStats: null,
                 qcPlots: {},
+                genomePlotInterpretation: "",
                 results: "",
+                status: this.clinicalAnalysis.status?.id || "",
+                signedBy: "",
+                date: "",
             };
 
             const allPromises = [
@@ -318,6 +322,55 @@ class SteinerReport extends LitElement {
         this.requestUpdate();
     }
 
+    onSave() {
+        const allPromises = [];
+        // 1. Save genomePlot description
+        // this.somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
+        if (this.somaticSample && this.somaticSample?.qualityControl?.variant?.genomePlot) {
+            this.somaticSample.qualityControl.variant.genomePlot.description = this._data.genomePlotInterpretation || "";
+            const sampleParams = {
+                qualityControl: this.somaticSample.qualityControl,
+            };
+            allPromises.push(
+                this.opencgaSession.opencgaClient.samples().update(this.somaticSample.id, sampleParams, {
+                    study: this.opencgaSession.study.fqn,
+                }),
+            );
+        }
+        // 2. Save report data in attributes of the clinical analysis
+        const clinicalAnalysisParams = {
+            attributes: {
+                overallText: this._data.overallText || "-",
+                ascatInterpretation: this._data.ascatInterpretation || "-",
+                results: this._data.results || "-",
+                selectedSnvSignature: this._data.selectedSnvSignature || "",
+                selectedSvSignature: this._data.selectedSvSignature || "",
+                selectedHrdetect: this._data.selectedHrdetect || "",
+                discussion: this._data.discussion || "-",
+                signedBy: this._data.signedBy || "",
+                date: this._data.date || "",
+            },
+            status: {
+                id: this._data.status,
+            },
+        };
+        allPromises.push(
+            this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, clinicalAnalysisParams, {
+                study: this.opencgaSession.study.fqn,
+            }),
+        );
+        // 3. Wait for response
+        Promise.all(allPromises)
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "Report has been saved",
+                });
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
     generateSignaturesDropdown(signatures, type) {
         return (signatures || [])
             .filter(signature => (signature?.type || "").toUpperCase() === type)
@@ -376,7 +429,7 @@ class SteinerReport extends LitElement {
                 .data="${this._data}"
                 .config="${this._config}"
                 @clear="${this.onClear}"
-                @submit="${this.onRun}">
+                @submit="${this.onSave}">
             </data-form>
         `;
     }
@@ -1193,7 +1246,7 @@ class SteinerReport extends LitElement {
                     elements: [
                         {
                             title: "Case Status",
-                            field: "status.id",
+                            field: "status",
                             type: "select",
                             allowedValues: ["REVIEW", "CLOSED", "DISCARDED"],
                             required: true,
