@@ -606,6 +606,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             display: {
                 style: "margin: 0px 25px 0px 0px",
                 modalTitle: "Display Settings",
+                modalButtonName: "Settings",
                 modalButtonIcon: "fas fa-cog",
                 modalButtonClassName: "btn btn-primary",
                 labelWidth: 4,
@@ -654,6 +655,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             display: {
                 style: "margin: 0px 25px 0px 0px",
                 modalTitle: "Save Variant Stats",
+                modalButtonName: "Save",
                 modalButtonIcon: "fas fa-save",
                 modalButtonClassName: "btn btn-primary",
                 labelWidth: 3,
