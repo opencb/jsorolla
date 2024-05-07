@@ -633,9 +633,13 @@ export default class UtilsNew {
         let examples = internal.examples;
         const detail = internal.detail;
 
+        // Get default filters
+        const defaultFilter = external?.menu?.defaultFilter || {};
+
         if (external?.menu?.sections?.length) {
             sections = UtilsNew.mergeSections(sections, external.menu.sections);
         }
+
         // merge canned filters
         if (external?.menu?.examples?.length) {
             examples = UtilsNew.mergeExampleFilters(internal.examples, external.menu.examples);
@@ -648,7 +652,7 @@ export default class UtilsNew {
                 detail.items = UtilsNew.mergeArray(internal.detail.items, external.details || external.hiddenDetails, !!external.hiddenDetails);
             }
         }
-        return {...internal, sections, examples, detail};
+        return {...internal, sections, examples, detail, defaultFilter};
     }
 
     /**
