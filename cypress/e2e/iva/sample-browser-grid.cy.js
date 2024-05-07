@@ -79,7 +79,7 @@ context("Sample Browser Grid", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("h4.modal-title")
-                .should("contain.text", "Sample Create");
+                .should("contain.text", "Sample create");
         });
         // 3. Render button clear
         it("should render button clear", () => {
@@ -106,7 +106,7 @@ context("Sample Browser Grid", () => {
         it("should have form field ID", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .find(`data-form div.form-horizontal div.row.form-group  label.control-label`)
+                .find(`data-form div.form-horizontal div.row label.col-form-label`)
                 .should("contain.text", "Sample ID");
         });
     });
@@ -123,8 +123,7 @@ context("Sample Browser Grid", () => {
                 .find(`a[data-action="edit"]`)
                 .first()
                 .click();
-            cy.get("@container")
-                .find(`div[data-cy="modal-update"]`)
+            cy.get(`div[data-cy="modal-update"]`)
                 .as("modal-update");
         });
         // 1. Open modal and render update
@@ -139,7 +138,7 @@ context("Sample Browser Grid", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("h4.modal-title")
-                .should("contain.text", "Sample Update");
+                .should("contain.text", "Sample update");
         });
         // 3. Render button clear
         it("should render button clear", () => {
@@ -166,7 +165,7 @@ context("Sample Browser Grid", () => {
         it("should have form field ID equal to sample selected", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
-                .find(`data-form div.row div.row.form-group  label.control-label`)
+                .find(`data-form div.row div.row label.col-form-label`)
                 .should("contain.text", "Sample ID");
         });
     });
@@ -226,14 +225,14 @@ context("Sample Browser Grid", () => {
             });
             cy.get("button[data-action='settings']")
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                UtilsTest.getByDataTest("test-columns", "select-field-filter span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-selection")
                 .click();
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
@@ -423,7 +422,7 @@ context("Sample Browser Grid", () => {
             cy.get(`tbody tr[data-uniqueid="${sample}"]`)
                 .find(`td:first`)
                 .trigger("click");
-        
+
             cy.get(`detail-tabs h3`)
                 .should("contain.text", `Sample ${sample}`);
         });

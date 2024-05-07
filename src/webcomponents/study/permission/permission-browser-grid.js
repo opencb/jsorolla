@@ -122,6 +122,8 @@ export default class PermissionBrowserGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._getDefaultColumns(),
             data: this.studyPermissions,
             sidePagination: "local",
@@ -135,8 +137,7 @@ export default class PermissionBrowserGrid extends LitElement {
             pageList: this._config.pageList,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
@@ -285,25 +286,25 @@ export default class PermissionBrowserGrid extends LitElement {
     renderPermission() {
         return html`
             <!-- SEARCH Permission -->
-            <div class="pull-left" style="margin: 10px 0px">
-                <div class="form-inline">
-                    <div class="form-group">
-                        <input type="text"
-                            .value="${this.searchPermission || ""}"
-                            class="form-control"
+            <div class="d-flex my-2">
+                <div class="row row-cols-lg-auto g-3 align-items-center">
+                    <div class="col-12">
+                        <input class="form-control" type="text" .value="${this.searchPermission || ""}"
                             list="${this._prefix}Permissions" placeholder="Search by Permission ..."
                             @change="${this.onPermissionFieldChange}">
                     </div>
-                    <button type="button" id="${this._prefix}ClearPermissionMenu" class="btn btn-default btn-xs ripple"
-                            aria-haspopup="true" aria-expanded="false" title="Clear permission from ${this.study?.name} study"
-                            @click="${e => this.onPermissionSearch(e, true)}">
-                        <i class="fas fa-times" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" id="${this._prefix}SearchPermissionMenu" class="btn btn-default btn-xs ripple"
-                            aria-haspopup="true" aria-expanded="false" title="Filter permission from ${this.study?.name} study"
-                            @click="${e => this.onPermissionSearch(e, false)}">
-                        <i class="fas fa-search" aria-hidden="true"></i>
-                    </button>
+                    <div class="col-12">
+                        <button type="button" id="${this._prefix}ClearPermissionMenu" class="btn btn-light btn-xs"
+                                aria-haspopup="true" aria-expanded="false" title="Clear permission from ${this.study?.name} study"
+                                @click="${e => this.onPermissionSearch(e, true)}">
+                            <i class="fas fa-times" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" id="${this._prefix}SearchPermissionMenu" class="btn btn-light btn-xs"
+                                aria-haspopup="true" aria-expanded="false" title="Filter permission from ${this.study?.name} study"
+                                @click="${e => this.onPermissionSearch(e, false)}">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                        </button>
+                    </div>
                     <datalist id="${this._prefix}Permissions">
                         ${this.permissionString?.map(perm => html`
                             <option value="${perm}"></option>
@@ -313,7 +314,7 @@ export default class PermissionBrowserGrid extends LitElement {
             </div>
 
             <!-- GRID Permission -->
-            <div id="${this._prefix}GridTableDiv" class="force-overflow" style="margin: 20px 0px">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}PermissionBrowserGrid"></table>
             </div>
         `;

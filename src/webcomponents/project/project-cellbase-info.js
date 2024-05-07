@@ -67,69 +67,64 @@ export default class ProjectCellbaseInfo extends LitElement {
         });
 
         return html`
-            <div style="margin 20px 10px">
-                <div class="row" style="margin: 20px 10px">
-                    <div class="col-md-12">
-                        <div class="col-md-2">
-                            <label>URL:</label>
-                        </div>
-                        <div class="col-md-3">
-                            ${cellbaseConfig.url}
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="col-md-2">
-                            <label>Version:</label>
-                        </div>
-                        <div class="col-md-3">
-                            ${cellbaseConfig.version}
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="col-md-2">
-                            <label>Data Release:</label>
-                        </div>
-                        <div class="col-md-3">
-                            ${cellbaseConfig.dataRelease}
-                        </div>
-                    </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <label class="fw-bold">URL:</label>
                 </div>
-                <div style="margin: 10px 10px">
-                    <div class="col-md-12">
-                        <div class="col-md-2">
-                            <label>Data Category</label>
-                        </div>
-                        <div class="col-md-2">
-                            <label>Data Source</label>
-                        </div>
-                        <div class="col-md-3">
-                            <label>Version / Date</label>
-                        </div>
-                    </div>
-                    <div style="margin: 20px 10px">
-                        ${Object.keys(sourceData).map(key => {
-                            const result = [];
-                            let printCategoryHeader = true;
-                            for (const source of sourceData[key]) {
-                                result.push(html`
-                                    <div class="col-md-12">
-                                        <div class="col-md-2">
-                                            <label>${printCategoryHeader ? source.data : ""}</label>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label>${source.name}</label>
-                                        </div>
-                                        <div class="col-md-3">
-                                            ${source.version || source.date}
-                                        </div>
-                                    </div>
-                                `);
-                                printCategoryHeader = false;
-                            }
-                            return result;
-                        })}
-                    </div>
+                <div class="col-md-3">
+                    ${cellbaseConfig.url}
                 </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <label class="fw-bold">Version:</label>
+                </div>
+                <div class="col-md-3">
+                    ${cellbaseConfig.version}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <label class="fw-bold">Data Release:</label>
+                </div>
+                <div class="col-md-3">
+                    ${cellbaseConfig.dataRelease}
+                </div>
+            </div>
+            <div class="row pt-3">
+                <div class="col-md-2">
+                    <label class="fw-bold">Data Category</label>
+                </div>
+                <div class="col-md-2">
+                    <label class="fw-bold">Data Source</label>
+                </div>
+                <div class="col-md-3">
+                    <label class="fw-bold">Version / Date</label>
+                </div>
+            </div>
+            <div class="my-3 mx-2">
+                ${Object.keys(sourceData).map(
+                    key => {
+                        const result = [];
+                        let printCategoryHeader = true;
+                        for (const source of sourceData[key]) {
+                            result.push(html`
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <label class="fw-bold">${printCategoryHeader ? source.data : ""}</label>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="fw-bold">${source.name}</label>
+                                </div>
+                                <div class="col-md-3">
+                                    ${source.version || source.date}
+                                </div>
+                            </div>
+                        `);
+                            printCategoryHeader = false;
+                        }
+                        return result;
+                    })}
             </div>
         `;
     }

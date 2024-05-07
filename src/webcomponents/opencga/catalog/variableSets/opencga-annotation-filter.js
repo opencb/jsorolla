@@ -17,9 +17,9 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../../core/utils-new.js";
 import PolymerUtils from "../../../PolymerUtils.js";
-import LitUtils from "../../../commons/utils/lit-utils.js";
 import "./opencga-variable-selector.js";
 import NotificationUtils from "../../../commons/utils/notification-utils.js";
+import "../../../commons/forms/select-field-filter.js";
 
 /**
  * @deprecated
@@ -87,7 +87,6 @@ export default class OpencgaAnnotationFilter extends LitElement {
         }
 
         this.lastAnnotationFilter = undefined;
-
 
     }
 
@@ -315,17 +314,25 @@ export default class OpencgaAnnotationFilter extends LitElement {
         </style>
         <div id="${this._prefix}-main-annotation-filter-div" class="annotation-filter-div">
         ${!this.variableSets.length ? html`
-            <label>No variableSets defined in the study<label>
+            <label>No variableSets defined in the study</label>
         ` : html`
             <!-- Annotations -->
             ${this.multipleVariableSets ? html`
                 <label for="${this._prefix}-variableSetSelect">Select Variable Set</label>
-                <select-field-filter .data="${this.variableSets.map(_ => _.name)}" @filterChange="${this.onSelectedVariableSetChange}"></select-field-filter>
-               ` :
-        null}
+                <select-field-filter
+                    .data="${this.variableSets.map(_ => _.name)}"
+                    .config="${{
+                        liveSearch: false,
+                        multiple: false,
+                    }}"
+                    @filterChange="${this.onSelectedVariableSetChange}">
+                </select-field-filter>
+            ` :
+            null}
 
-        <opencga-variable-selector .variableSet="${this.selectedVariableSet}"
-                                   @variablechange="${this.onChangeSelectedVariable}">
+        <opencga-variable-selector
+            .variableSet="${this.selectedVariableSet}"
+            @variablechange="${this.onChangeSelectedVariable}">
         </opencga-variable-selector>
 
         <!-- Show different value selector based on the type of the selected variable -->

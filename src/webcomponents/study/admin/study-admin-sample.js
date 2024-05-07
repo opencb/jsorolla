@@ -125,14 +125,14 @@ export default class StudyAdminSample extends LitElement {
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">
-                                <div class="col-md-6" style="margin: 20px 10px">
-                                    <div style="float: right">
+                                <div class="col-md-6 mx-3 my-4">
+                                    <div class="d-flex justify-content-end">
                                         <div class="btn-group">
                                         ${UtilsNew.isNotEmpty(this.sample) ? html `
-                                            <button class="btn btn-default ripple btn-sm" type="button" @click="${e => this.clearForm(e)}">
-                                            <i class="fas fa-arrow-left icon-hover"></i>  Back
+                                            <button class="btn btn-light" type="button" @click="${e => this.clearForm(e)}">
+                                                <i class="fas fa-arrow-left icon-hover"></i>  Back
                                             </button>
-                                            <button class="btn btn-default ripple btn-sm" type="button" @click="${e => this.editForm(e)}">
+                                            <button class="btn btn-light" type="button" @click="${e => this.editForm(e)}">
                                                 <i class="${this.editSample? "far fa-eye": "fa fa-edit"} icon-hover"></i> ${this.editSample? "View" : "Edit"}
                                             </button>`: nothing}
                                         </div>
@@ -160,9 +160,9 @@ export default class StudyAdminSample extends LitElement {
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">
-                                <div class="col-md-6" style="margin: 20px 10px">
+                                <div class="col-md-6 mx-3 my-4">
                                     <sample-create
-                                            .opencgaSession="${opencgaSession}">
+                                        .opencgaSession="${opencgaSession}">
                                     </sample-create>
                                 </div>
                             </div>`;
@@ -176,10 +176,10 @@ export default class StudyAdminSample extends LitElement {
         return html`
             <div style="margin: 25px 40px">
                 <detail-tabs
-                        .data="${{}}"
-                        .config="${this._config}"
-                        .mode="${DetailTabs.PILLS_MODE}"
-                        .opencgaSession="${this.opencgaSession}">
+                    .data="${{}}"
+                    .config="${this._config}"
+                    .mode="${DetailTabs.PILLS_MODE}"
+                    .opencgaSession="${this.opencgaSession}">
                 </detail-tabs>
             </div>`;
     }

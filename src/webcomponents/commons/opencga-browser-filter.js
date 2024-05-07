@@ -20,10 +20,12 @@ import LitUtils from "./utils/lit-utils.js";
 import "./filters/catalog-search-autocomplete.js";
 import "./filters/catalog-distinct-autocomplete.js";
 import "./forms/date-filter.js";
+import "./forms/date-picker.js";
 import "./opencga-facet-view.js";
 import "./forms/text-field-filter.js";
 import "./filters/somatic-filter.js";
 import "./forms/section-filter.js";
+import "./forms/select-field-filter.js";
 import "./forms/select-token-filter-static.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 
@@ -262,18 +264,22 @@ export default class OpencgaBrowserFilter extends LitElement {
                         <select-field-filter
                             .value="${this.preparedQuery[subsection.id]}"
                             .data="${subsection.allowedValues}"
-                            ?multiple="${subsection?.multiple}"
+                            .config="${{
+                                multiple: subsection?.multiple
+                            }}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                         </select-field-filter>
                     `;
                     break;
                 case "path":
                     content = html`
-                        <text-field-filter
-                            placeholder="${subsection.placeholder}"
+                        <text-field-filter2
                             .value="${this.preparedQuery[subsection.id]}"
+                            .config="${{
+                                placeholder: subsection?.placeholder
+                            }}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                        </text-field-filter>
+                        </text-field-filter2>
                     `;
                     break;
                 case "annotations":
@@ -327,18 +333,18 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "date":
                 case "creationDate":
                     content = html`
-                        <date-filter
+                        <date-picker
                             .filterDate="${this.preparedQuery.creationDate}"
                             @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
-                        </date-filter>
+                        </date-picker>
                     `;
                     break;
                 case "dueDate":
                     content = html`
-                    <date-filter
-                        .filterDate="${this.preparedQuery.dueDate}"
-                        @filterChange="${e => this.onFilterChange("dueDate", e.detail.value)}">
-                    </date-filter>
+                        <date-picker
+                            .filterDate="${this.preparedQuery.dueDate}"
+                            @filterChange="${e => this.onFilterChange("dueDate", e.detail.value)}">
+                        </date-picker>
                     `;
                     break;
                 default:
@@ -348,17 +354,13 @@ export default class OpencgaBrowserFilter extends LitElement {
 
         if (content) {
             return html`
-                <div class="form-group">
-                    <div class="browser-subsection" id="${subsection.id}">
-                        ${subsection.name}
+                <div class="mb-3">
+                    <label class="form-label fw-bold" id="${subsection.id}">${subsection.name}</label>
                         ${subsection.description ? html`
-                            <div class="tooltip-div pull-right">
-                                <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}">
-                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                </a>
-                            </div>
+                            <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            </a>
                         ` : null}
-                    </div>
                     <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                         ${content}
                     </div>
@@ -372,8 +374,8 @@ export default class OpencgaBrowserFilter extends LitElement {
     render() {
         return html`
             ${this.config?.searchButton ? html`
-                <div class="search-button-wrapper">
-                    <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
+                    <button type="button" class="btn btn-primary" @click="${this.onSearch}">
                         <i class="fa fa-search" aria-hidden="true"></i> Search
                     </button>
                 </div>

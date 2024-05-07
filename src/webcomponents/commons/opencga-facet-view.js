@@ -415,7 +415,7 @@ export default class OpencgaFacetView extends LitElement {
         return html`
             <!-- Facet Fields -->
             <div class="row" style="padding: 0px 15px">
-                <div class="col-md-12 panel panel-default">
+                <div class="col-md-12 card">
                     <h3>Select Aggregation Stats</h3>
 
                     <div class="col-md-12">
@@ -433,14 +433,16 @@ export default class OpencgaFacetView extends LitElement {
 
                         <div class="row">
                             <div class="col-md-5" style="padding: 0px 30px 0px 10px">
-                                <opencga-facet-view-selector id="${this._prefix}-ofvs-first" .terms="${this.dataModelTerms}" .variableSets="${this.variableSets}"
-                                                             @variablechange="${this.onVariableSelectedChange}" .clear="${this.clearSelectedOptions}">
+                                <opencga-facet-view-selector
+                                    id="${this._prefix}-ofvs-first" .terms="${this.dataModelTerms}" .variableSets="${this.variableSets}"
+                                    @variablechange="${this.onVariableSelectedChange}" .clear="${this.clearSelectedOptions}">
                                 </opencga-facet-view-selector>
                             </div>
                             <div class="col-md-5" style="padding: 0px 10px 0px 30px">
-                                <opencga-facet-view-selector id="${this._prefix}-ofvs-nested" .terms="${this.dataModelTerms}" .variableSets="${this.variableSets}"
-                                                             @variablechange="${this.onVariableSelectedChange}" .clear="${this.clearSelectedOptions}"
-                                                             ?disabled="${this.disableNestedSelector}">
+                                <opencga-facet-view-selector
+                                    id="${this._prefix}-ofvs-nested" .terms="${this.dataModelTerms}" .variableSets="${this.variableSets}"
+                                    @variablechange="${this.onVariableSelectedChange}" .clear="${this.clearSelectedOptions}"
+                                    ?disabled="${this.disableNestedSelector}">
                                 </opencga-facet-view-selector>
                             </div>
 
