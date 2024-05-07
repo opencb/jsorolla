@@ -346,6 +346,7 @@ class SteinerReport extends LitElement {
         // 2. Save report data in attributes of the clinical analysis
         const clinicalAnalysisParams = {
             attributes: {
+                ...(this.clinicalAnalysis.attributes || {}),
                 report: {
                     overall: this._data.overallText || "",
                     ascatInterpretation: this._data.ascatInterpretation || "",
