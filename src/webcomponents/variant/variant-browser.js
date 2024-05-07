@@ -381,6 +381,7 @@ export default class VariantBrowser extends LitElement {
                             .executedFacetQuery="${this.executedFacetQueryFormatted}"
                             .alias="${this._config.filter.activeFilters.alias}"
                             .filters="${this._config.filter.examples}"
+                            .defaultFilter="${this._config.filter.defaultFilter}"
                             .config="${this._config.filter.activeFilters}"
                             @activeFacetChange="${this.onActiveFacetChange}"
                             @activeFacetClear="${this.onActiveFacetClear}"
