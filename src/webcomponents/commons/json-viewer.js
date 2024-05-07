@@ -66,7 +66,7 @@ export default class JsonViewer extends LitElement {
             if (!this.jsonView) {
                 this.initJsonView();
             } else {
-                this.jsonView.update({json: this.data});
+                this.jsonView.update({json: this.data || {}});
             }
         }
     }
