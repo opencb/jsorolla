@@ -42,6 +42,9 @@ export default class OpencgaActiveFilters extends LitElement {
             filters: {
                 type: Array
             },
+            defaultFilter: {
+                type: Object,
+            },
             resource: {
                 type: String
             },
@@ -115,7 +118,7 @@ export default class OpencgaActiveFilters extends LitElement {
             this.facetQueryObserver();
         }
 
-        if (changedProperties.has("filters")) {
+        if (changedProperties.has("filters") || changedProperties.has("defaultFilter")) {
             this.refreshFilters();
 
             // Nacho (6/2/2021): probably observers should not dispatch new events
@@ -391,12 +394,23 @@ export default class OpencgaActiveFilters extends LitElement {
         // 0. Reset internal filters array every time
         this._filters = [];
 
-        // 1. Add passed application filters
-        if (this.filters?.length > 0) {
-            this._filters = [
-                {name: "Application Filters", category: true},
-                ...this.filters
-            ];
+        // 1. Add passed application filters (default filter or example filters)
+        if (this.filters?.length > 0 || !UtilsNew.isEmpty(this.defaultFilter)) {
+            // 1.1. Add filters section
+            this._filters.push({name: "Application Filters", category: true});
+
+            // 1.2. Add default filter
+            if (!UtilsNew.isEmpty(this.defaultFilter)) {
+                this._filters.push({
+                    id: "Default Filter",
+                    query: this.defaultFilter,
+                });
+            }
+
+            // 1.3. Add example filters
+            if (this.filters?.length > 0) {
+                this._filters.push(...this.filters);
+            }
         }
 
         // 2. Add and merge user filters
