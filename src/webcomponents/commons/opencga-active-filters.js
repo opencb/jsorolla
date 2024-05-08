@@ -699,35 +699,45 @@ export default class OpencgaActiveFilters extends LitElement {
 
     renderFilterItem(item) {
         if (item.separator) {
-            return html`<li role="separator" class="divider"></li>`;
+            return html`
+                <li role="separator" class="divider"></li>
+            `;
+        } else if (item.category) {
+            return html`
+                <li class="dropdown-header">${item.name}</li>
+            `;
         } else {
-            if (item.category) {
-                return html`<li class="dropdown-header">${item.name}</li>`;
-            } else {
-                return html`
-                    <!-- Render the filter option -->
-                    <li class="${item.disabled ? "disabled" : ""}">
-                        <a href="" data-filter-id="${item.id}" class="filtersLink"
-                           style="color:${item.active ? "green" : ""}"
-                           @click="${this.onFilterChange}">
-                            <span class="id-filter-button">${item.id}</span>
-                            <span class="action-buttons">
-                            <span tooltip-title="${item.id}"
-                                tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
+            // Generate list of filter entries
+            const filterEntries = Object.entries(item.query || {})
+                .map(entry => `<b>${entry[0]}</b> = ${entry[1]}`)
+                .join("<br>");
+
+            return html`
+                <li class="${item.disabled ? "disabled" : ""}">
+                    <a href="" data-filter-id="${item.id}" class="filtersLink" style="color:${item.active ? "green" : ""}" @click="${this.onFilterChange}">
+                        <span class="id-filter-button">${item.id}</span>
+                        <span class="action-buttons">
+                            <span
+                                tooltip-title="${item.id}"
+                                tooltip-text="${(item.description ? item.description + "<br>" : "") + filterEntries}"
                                 data-filter-id="${item.id}">
                                 <i class="fas fa-eye" data-action="view-filter"></i>
                             </span>
                             <!-- Add delete icon only to saved filters. Saved filters have a 'resource' field -->
                             ${item.resource ? html`
-                                <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash"
-                                   data-action="delete-filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}">
+                                <i
+                                    data-cy="delete"
+                                    tooltip-title="Delete filter"
+                                    class="fas fa-trash"
+                                    data-action="delete-filter"
+                                    data-filter-id="${item.id}"
+                                    @click="${this.serverFilterDelete}">
                                 </i>
-                            ` : null}
+                            ` : nothing}
                         </span>
-                        </a>
-                    </li>
-                `;
-            }
+                    </a>
+                </li>
+            `;
         }
     }
 
