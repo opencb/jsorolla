@@ -26,6 +26,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
+import WebUtils from "../commons/utils/web-utils.js";
 
 
 export default class VariantBrowserGrid extends LitElement {
@@ -848,6 +849,18 @@ export default class VariantBrowserGrid extends LitElement {
                                         </a>
                                     </li>
                                     <li role="separator" class="divider"></li>
+                                    <li class="dropdown-header">Copy Variant Info</li>
+                                    <li data-cy="copy-link">
+                                        <a class="btn force-text-left" data-action="copy-link">
+                                            <i class="fas fa-copy icon-padding"></i> Copy IVA Link
+                                        </a>
+                                    </li>
+                                    <li data-cy="varsome-copy">
+                                        <a href="javascript: void 0" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
+                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Copy Varsome ID
+                                        </a>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
                                     <li class="dropdown-header">Fetch Variant</li>
                                     <li>
                                         <a href="javascript: void 0" class="btn force-text-left" data-action="copy-json">
@@ -857,11 +870,6 @@ export default class VariantBrowserGrid extends LitElement {
                                     <li>
                                         <a href="javascript: void 0" class="btn force-text-left" data-action="download">
                                             <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
-                                        </a>
-                                    </li>
-                                    <li data-cy="varsome-copy">
-                                        <a href="javascript: void 0" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
-                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Copy Varsome ID
                                         </a>
                                     </li>
                                 </ul>
@@ -1009,6 +1017,12 @@ export default class VariantBrowserGrid extends LitElement {
     onActionClick(e, value, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "copy-link":
+                UtilsNew.copyToClipboard(WebUtils.getIVALink(this.opencgaSession, this.toolId, {id: row.id}));
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `Link to variant '${row.id}' copied to clipboard!`,
+                });
+                break;
             case "copy-json":
                 navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
                 break;
