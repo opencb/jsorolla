@@ -723,7 +723,7 @@ export default class OpencgaActiveFilters extends LitElement {
 
             return html`
                 <li class="${item.disabled ? "disabled" : ""}">
-                    <a href="" data-filter-id="${item.id}" class="filtersLink" style="color:${item.active ? "green" : ""}" @click="${this.onFilterChange}">
+                    <a href="" data-filter-id="${item.id}" class="filtersLink" style="${item.active ? "color:green;" : ""}" @click="${this.onFilterChange}">
                         <span class="id-filter-button">${item.id}</span>
                         <span class="action-buttons">
                             <span
