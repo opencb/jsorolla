@@ -185,7 +185,7 @@ class SteinerReport extends LitElement {
                 qcPlots: {},
                 overallText: this.clinicalAnalysis.attributes?.report?.overall ?? this.defaultOverallText,
                 ascatInterpretation: this.clinicalAnalysis.attributes?.report?.ascatInterpretation ?? this.defaultAscatInterpretation,
-                genomePlotInterpretation: this.somaticSample?.qualityControl?.variant?.genomePlot?.description ?? "",
+                genomePlotInterpretation: this.clinicalAnalysis.attributes?.report?.genomePlotInterpretation ?? this.somaticSample?.qualityControl?.variant?.genomePlot?.description ?? "",
                 results: this.clinicalAnalysis.attributes?.report?.results || "",
                 discussion: this.clinicalAnalysis.attributes?.report?.discussion || "",
                 status: this.clinicalAnalysis.status?.id || "",
@@ -331,27 +331,13 @@ class SteinerReport extends LitElement {
     }
 
     onSave() {
-        const allPromises = [];
-        // 1. Save genomePlot description
-        // this.somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
-        if (this.somaticSample && this.somaticSample?.qualityControl?.variant?.genomePlot) {
-            this.somaticSample.qualityControl.variant.genomePlot.description = this._data.genomePlotInterpretation || "";
-            const sampleParams = {
-                qualityControl: this.somaticSample.qualityControl,
-            };
-            allPromises.push(
-                this.opencgaSession.opencgaClient.samples().update(this.somaticSample.id, sampleParams, {
-                    study: this.opencgaSession.study.fqn,
-                }),
-            );
-        }
-        // 2. Save report data in attributes of the clinical analysis
         const clinicalAnalysisParams = {
             attributes: {
                 ...(this.clinicalAnalysis.attributes || {}),
                 report: {
                     overall: this._data.overallText || "",
                     ascatInterpretation: this._data.ascatInterpretation || "",
+                    genomePlotInterpretation: this._data.genomePlotInterpretation || "",
                     results: this._data.results || "",
                     selectedSnvSignature: this._data.selectedSnvSignature || "",
                     selectedSvSignature: this._data.selectedSvSignature || "",
@@ -365,13 +351,10 @@ class SteinerReport extends LitElement {
                 id: this._data.status,
             },
         };
-        allPromises.push(
-            this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, clinicalAnalysisParams, {
+        this.opencgaSession.opencgaClient.clinical()
+            .update(this.clinicalAnalysis.id, clinicalAnalysisParams, {
                 study: this.opencgaSession.study.fqn,
-            }),
-        );
-        // 3. Wait for response
-        Promise.all(allPromises)
+            })
             .then(() => {
                 // 3.1 Display a confirmation message
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
