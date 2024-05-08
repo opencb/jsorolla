@@ -344,11 +344,11 @@ class SteinerReport extends LitElement {
                 study: this.opencgaSession.study.fqn,
             })
             .then(() => {
-                // 3.1 Display a confirmation message
+                // Display a confirmation message
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: "The report has been saved.",
                 });
-                // 3.2 Dispatch a clinicalAnalysisUpdate event
+                // Dispatch a clinicalAnalysisUpdate event
                 LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
                     clinicalAnalysisParams: this.clinicalAnalysis,
                 });
