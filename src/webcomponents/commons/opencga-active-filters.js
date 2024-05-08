@@ -93,6 +93,15 @@ export default class OpencgaActiveFilters extends LitElement {
 
         // We need to init _previousQuery with query in order to work before executing any search
         this._previousQuery = this.query;
+
+        // Josemi NOTE 2024-05-08 This is a terrible hack to mark the default filter item as active,
+        // as it can be styled with a green color when user enters in the tool and there is a default filter defined
+        if (this.defaultFilter && !UtilsNew.isEmpty(this.defaultFilter)) {
+            const defaultFilterItem = (this._filters || []).find(filter => filter.id === "Default Filter");
+            if (defaultFilterItem) {
+                defaultFilterItem.active = true;
+            }
+        }
     }
 
     update(changedProperties) {
@@ -407,6 +416,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     query: this.defaultFilter,
                     disabled: isDisabled,
                     description: isDisabled ? "Filter not configured." : "",
+                    active: false,
                 });
             }
 
