@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
 import NotificationUtils from "./utils/notification-utils.js";
@@ -395,15 +395,18 @@ export default class OpencgaActiveFilters extends LitElement {
         this._filters = [];
 
         // 1. Add passed application filters (default filter or example filters)
-        if (this.filters?.length > 0 || !UtilsNew.isEmpty(this.defaultFilter)) {
+        if (this.filters?.length > 0 || !!this.defaultFilter) {
             // 1.1. Add filters section
             this._filters.push({name: "Application Filters", category: true});
 
             // 1.2. Add default filter
-            if (!UtilsNew.isEmpty(this.defaultFilter)) {
+            if (this.defaultFilter) {
+                const isDisabled = UtilsNew.isEmpty(this.defaultFilter);
                 this._filters.push({
                     id: "Default Filter",
                     query: this.defaultFilter,
+                    disabled: isDisabled,
+                    description: isDisabled ? "Filter not configured." : "",
                 });
             }
 
@@ -534,6 +537,7 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     onFilterChange(e, query) {
+        e.preventDefault();
         // suppress if I have clicked on an action buttons
         if (e.target?.dataset?.action === "delete-filter") {
             return;
@@ -551,7 +555,7 @@ export default class OpencgaActiveFilters extends LitElement {
         if (this._filters) {
             // We look for the filter name in the filters array
             for (const filter of this._filters) {
-                if (filter.id === e.currentTarget.dataset.filterId) {
+                if (filter.id === e.currentTarget.dataset.filterId && !filter.disabled) {
                     filter.active = true;
 
                     // Prepare new query object
@@ -702,15 +706,15 @@ export default class OpencgaActiveFilters extends LitElement {
             } else {
                 return html`
                     <!-- Render the filter option -->
-                    <li>
-                        <a data-filter-id="${item.id}" class="filtersLink"
-                           style="cursor: pointer;color: ${item.active ? "green" : "black"}"
+                    <li class="${item.disabled ? "disabled" : ""}">
+                        <a href="" data-filter-id="${item.id}" class="filtersLink"
+                           style="color:${item.active ? "green" : ""}"
                            @click="${this.onFilterChange}">
                             <span class="id-filter-button">${item.id}</span>
                             <span class="action-buttons">
                             <span tooltip-title="${item.id}"
-                                  tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
-                                  data-filter-id="${item.id}">
+                                tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
+                                data-filter-id="${item.id}">
                                 <i class="fas fa-eye" data-action="view-filter"></i>
                             </span>
                             <!-- Add delete icon only to saved filters. Saved filters have a 'resource' field -->
