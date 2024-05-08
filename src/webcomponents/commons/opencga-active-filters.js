@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
+import WebUtils from "./utils/web-utils.js";
 import NotificationUtils from "./utils/notification-utils.js";
 
 export default class OpencgaActiveFilters extends LitElement {
@@ -30,6 +31,9 @@ export default class OpencgaActiveFilters extends LitElement {
         return {
             opencgaSession: {
                 type: Object
+            },
+            toolId: {
+                type: String,
             },
             // NOTE this is actually preparedQuery (in case of variant-browser)
             query: {
@@ -679,6 +683,17 @@ export default class OpencgaActiveFilters extends LitElement {
         }));
     }
 
+    onCopyLink() {
+        // 1. Generate the url to the tool with the current query
+        const link = WebUtils.getIVALink(this.opencgaSession, this.toolId, this.query);
+        // 2. Copy this link to the user clipboard
+        UtilsNew.copyToClipboard(link);
+        // 3. Notify user that the link has been copied to the clipboard
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+            message: "Link to current query copied to clipboard.",
+        });
+    }
+
     renderFilterItem(item) {
         if (item.separator) {
             return html`<li role="separator" class="divider"></li>`;
@@ -793,8 +808,13 @@ export default class OpencgaActiveFilters extends LitElement {
                                     </div>
                                 `}
                                 <li role="separator" class="divider"></li>
-
-                                <!-- Add CLEAR and SAVE buttons -->
+                                ${this.toolId ? html`
+                                    <li>
+                                        <a style="cursor:pointer;" @click="${this.onCopyLink}" data-action="copy-link">
+                                            <i class="fas fa-copy icon-padding"></i> <b>Copy IVA Link</b>
+                                        </a>
+                                    </li>
+                                `: nothing}
                                 <li>
                                     <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
                                         <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <label>Clear</label>
