@@ -1024,7 +1024,7 @@ export default class VariantBrowserGrid extends LitElement {
                 UtilsNew.copyToClipboard(link);
                 // 3. Notify user that link has been copied to the clipboard
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: `Link to variant '${row.id}' copied to clipboard!`,
+                    message: `Link to variant '${row.id}' copied to clipboard.`,
                 });
                 break;
             case "copy-json":
