@@ -662,6 +662,16 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: this.gridCommons.isColumnVisible("id")
                 },
                 {
+                    id: "type",
+                    title: "Type",
+                    field: "type",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.typeFormatter(value, row),
+                    halign: "center",
+                    visible: this.gridCommons.isColumnVisible("type")
+                },
+                {
                     id: "gene",
                     title: "Gene",
                     field: "gene",
@@ -673,14 +683,13 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: this.gridCommons.isColumnVisible("gene")
                 },
                 {
-                    id: "type",
-                    title: "Type",
-                    field: "type",
+                    id: "hgvs",
+                    title: "HGVS",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: VariantGridFormatter.typeFormatter.bind(this),
+                    formatter: (value, row) => VariantGridFormatter.hgvsFormatter(row, this._config),
                     halign: "center",
-                    visible: this.gridCommons.isColumnVisible("type")
+                    visible: this.gridCommons.isColumnVisible("hgvs"),
                 },
                 {
                     id: "consequenceType",
