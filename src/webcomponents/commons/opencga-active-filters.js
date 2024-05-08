@@ -426,9 +426,8 @@ export default class OpencgaActiveFilters extends LitElement {
             ];
         }
 
-        // 3. Refresh and add tooltips
+        // 3. Force an update
         this.requestUpdate();
-        this.updateComplete.then(() => UtilsNew.initTooltip(this));
     }
 
     // TODO recheck & refactor
