@@ -93,15 +93,6 @@ export default class OpencgaActiveFilters extends LitElement {
 
         // We need to init _previousQuery with query in order to work before executing any search
         this._previousQuery = this.query;
-
-        // Josemi NOTE 2024-05-08 This is a terrible hack to mark the default filter item as active,
-        // as it can be styled with a green color when user enters in the tool and there is a default filter defined
-        if (this.defaultFilter && !UtilsNew.isEmpty(this.defaultFilter)) {
-            const defaultFilterItem = (this._filters || []).find(filter => filter.id === "Default Filter");
-            if (defaultFilterItem) {
-                defaultFilterItem.active = true;
-            }
-        }
     }
 
     update(changedProperties) {
@@ -145,8 +136,18 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     // Josemi 20220916 NOTE: this updated is required to update the tooltips for the history items
-    updated() {
+    updated(changedProperties) {
         UtilsNew.initTooltip(this);
+
+        // Josemi NOTE 2024-05-08 Check to force an update of the active filters
+        // This is required to style the default filter as active when user enters in the tool for the first time
+        // or when user changes the study
+        if (changedProperties.has("defaultFilter")) {
+            if (!!this.defaultFilter && !UtilsNew.isEmpty(this.defaultFilter)) {
+                this.updateActiveFilter();
+                this.requestUpdate();
+            }
+        }
     }
 
     opencgaSessionObserver() {
@@ -304,31 +305,8 @@ export default class OpencgaActiveFilters extends LitElement {
         //     }
         // }
 
-        // Set all filters not active
-        // eslint-disable-next-line no-param-reassign
-        this._filters.forEach(f => f.active = false);
-
-        // Now check if any filter matches the current query. Skip categories and separators.
-        const queryFilters = this._filters.filter(f => !!f.query);
-        for (const filtersKey of queryFilters) {
-            let match = true;
-            for (const key of Object.keys(this.query)) {
-                // Check if all existing keys (but study) have the same values as the filter
-                if (key !== "study" && this._config.lockedFields.findIndex(f => f.id === key) === -1) {
-                    if (filtersKey?.query?.[key]) {
-                        match = match && filtersKey.query[key] === this.query[key];
-                    } else {
-                        match = false;
-                        break;
-                    }
-                }
-            }
-            if (match) {
-                filtersKey.active = true;
-                break;
-            }
-        }
-
+        // Update active filter
+        this.updateActiveFilter();
 
         // Update History
         // 1. remove all identical filters
@@ -351,6 +329,33 @@ export default class OpencgaActiveFilters extends LitElement {
 
         // 5. Refresh
         this.requestUpdate();
+    }
+
+    updateActiveFilter() {
+        // Set all filters not active
+        // eslint-disable-next-line no-param-reassign
+        this._filters.forEach(filter => filter.active = false);
+
+        // Get list of keys in current query
+        // We will remove the study and the locked fields from this list
+        const keys = Object.keys(this.query)
+            .filter(key => key !== "study" && this._config.lockedFields.every(field => field?.id !== key));
+
+        // Check for non empty query. This will avoid selecting always the first filter in the list
+        if (keys.length > 0) {
+            // Now check if any filter matches the current query.
+            // Skip categories, separators, and disabled filters
+            const queryFilters = this._filters.filter(filter => !!filter.query && !filter.disabled);
+            for (const filtersKey of queryFilters) {
+                const match = keys.every(key => {
+                    return typeof filtersKey.query[key] !== "undefined" && filtersKey.query[key] === this.query[key];
+                });
+                if (match) {
+                    filtersKey.active = true;
+                    break;
+                }
+            }
+        }
     }
 
     configObserver() {
