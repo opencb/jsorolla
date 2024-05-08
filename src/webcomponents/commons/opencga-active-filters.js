@@ -816,14 +816,14 @@ export default class OpencgaActiveFilters extends LitElement {
                                     </li>
                                 `: nothing}
                                 <li>
-                                    <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
-                                        <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <label>Clear</label>
+                                    <a style="cursor:pointer;" @click="${this.clear}" data-action="active-filter-clear">
+                                        <i class="fa fa-eraser icon-padding"></i> <b>Clear</b>
                                     </a>
                                 </li>
                                 ${this.isLoggedIn() ? html`
                                     <li>
-                                        <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save">
-                                            <i class="fas fa-save icon-padding"></i> <label>Save current filter</label>
+                                        <a style="cursor:pointer;" @click="${this.launchModal}" data-action="active-filter-save">
+                                            <i class="fas fa-save icon-padding"></i> <b>Save current filter</b>
                                         </a>
                                     </li>
                                 ` : null}
