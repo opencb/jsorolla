@@ -80,18 +80,6 @@ class SteinerReport extends LitElement {
             "The data for this sample is below the quality required to perform WGS analysis.",
         ];
 
-        this.defaultOverallText = [
-            "Sequence coverage is good. Duplicate read rate <10%.",
-            "There is adequate tumour cellularity, a correct copy number result and adequate mutation data to proceed",
-            "with an interpretation of this report.",
-        ].join(" ");
-
-        this.defaultAscatInterpretation = [
-            "Sunrise plot indicates a successful copy number analysis with estimated tumour content of and ploidy of XX.",
-            "The copy number profile (bottom right) shows a degree of over segmentation, however, the quality is acceptable.",
-            "The genome contains numerous copy number changes and regions of LOH (minor allele frequency of 0) suggestive of genomic instability.",
-        ].join(" ");
-
         this.somaticSample = null;
         this.germlineSample = null;
 
@@ -183,8 +171,8 @@ class SteinerReport extends LitElement {
                 deletionAggreationCount: 0,
                 deletionAggregationStats: null,
                 qcPlots: {},
-                overallText: this.clinicalAnalysis.attributes?.report?.overall ?? this.defaultOverallText,
-                ascatInterpretation: this.clinicalAnalysis.attributes?.report?.ascatInterpretation ?? this.defaultAscatInterpretation,
+                overallText: this.clinicalAnalysis.attributes?.report?.overall || "",
+                ascatInterpretation: this.clinicalAnalysis.attributes?.report?.ascatInterpretation || "",
                 genomePlotInterpretation: this.clinicalAnalysis.attributes?.report?.genomePlotInterpretation ?? this.somaticSample?.qualityControl?.variant?.genomePlot?.description ?? "",
                 results: this.clinicalAnalysis.attributes?.report?.results || "",
                 discussion: this.clinicalAnalysis.attributes?.report?.discussion || "",
