@@ -203,7 +203,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
             // 6.1. Read defaultFilter from study internal configuration
             if (this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.defaultFilter) {
-                this.query = {...this.query, ...this.opencgaSession.study.internal.configuration.clinical.interpretation.defaultFilter};
+                this.query = {
+                    ...this.query,
+                    ...this.opencgaSession.study.internal.configuration.clinical.interpretation.defaultFilter,
+                };
             }
 
             // 6.2. Read defaultFilter from browser settings
