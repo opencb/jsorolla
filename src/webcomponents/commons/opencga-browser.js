@@ -109,8 +109,8 @@ export default class OpencgaBrowser extends LitElement {
 
     opencgaSessionObserver() {
         if (this?.opencgaSession?.study?.fqn) {
-            this.preparedQuery = {};
-            this.executedQuery = {};
+            this.preparedQuery = {...this._config?.filter?.defaultFilter};
+            this.executedQuery = {...this._config?.filter?.defaultFilter};
 
             this.facetQuery = null;
             this.preparedFacetQueryFormatted = null;
@@ -121,8 +121,8 @@ export default class OpencgaBrowser extends LitElement {
         if (this?.opencgaSession?.study?.fqn) {
             // NOTE UtilsNew.objectCompare avoid repeating remote requests.
             if (!UtilsNew.isEmpty(this.query) && !UtilsNew.objectCompare(this.query, this.executedQuery)) {
-                this.preparedQuery = {...this._config?.filter?.defaultFilter};
-                this.executedQuery = {...this._config?.filter?.defaultFilter};
+                this.preparedQuery = {...this.query};
+                this.executedQuery = {...this.query};
 
                 // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
                 LitUtils.dispatchCustomEvent(this, "queryChange", undefined, this.preparedQuery);
