@@ -77,10 +77,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             this.clinicalAnalysisObserver();
         }
 
-        if (changedProperties.has("active")) {
-            this._config = this.getDefaultConfig();
-        }
-
         super.update(changedProperties);
     }
 
