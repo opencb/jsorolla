@@ -217,9 +217,17 @@ class VariantInterpreterBrowserRd extends LitElement {
                 this.files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
             }
 
-            // 5. Read defaultFilter from study internal configuration
+            // 5.1. Read defaultFilter from study internal configuration
             if (this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.defaultFilter) {
                 this.query = {...this.query, ...this.opencgaSession.study.internal.configuration.clinical.interpretation.defaultFilter};
+            }
+
+            // 5.2. Read defaultFilter from browser settings
+            if (this.settings?.menu?.defaultFilter) {
+                this.query = {
+                    ...this.query,
+                    ...this.settings.menu.defaultFilter,
+                };
             }
 
             // Create _config again since getDefaultConfig() uses this.files
