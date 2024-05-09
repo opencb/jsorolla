@@ -190,7 +190,7 @@ export default class VariantBrowser extends LitElement {
         });
     }
 
-    async onRun() {
+    onRun() {
         this.executedQuery = {...this.preparedQuery};
         this.searchActive = false;
         this.notifySearch(this.preparedQuery);
@@ -262,7 +262,6 @@ export default class VariantBrowser extends LitElement {
     onActiveFacetClear() {
         this.selectedFacet = {};
         this.onRun();
-        this.requestUpdate();
     }
 
     onQueryComplete() {
