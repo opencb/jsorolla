@@ -92,7 +92,7 @@ export default class OpencgaBrowser extends LitElement {
             this.opencgaSessionObserver();
         }
 
-        if (changedProperties.has("query")) {
+        if (changedProperties.has("query") || changedProperties.has("opencgaSession")) {
             this.queryObserver();
         }
 
@@ -109,12 +109,9 @@ export default class OpencgaBrowser extends LitElement {
 
     opencgaSessionObserver() {
         if (this?.opencgaSession?.study?.fqn) {
-            this.query = {
-                study: this.opencgaSession.study.fqn,
-            };
-            this.preparedQuery = {
-                study: this.opencgaSession.study.fqn,
-            };
+            this.preparedQuery = {};
+            this.executedQuery = {};
+
             this.facetQuery = null;
             this.preparedFacetQueryFormatted = null;
         }
@@ -123,19 +120,12 @@ export default class OpencgaBrowser extends LitElement {
     queryObserver() {
         if (this?.opencgaSession?.study?.fqn) {
             // NOTE UtilsNew.objectCompare avoid repeating remote requests.
-            if (!UtilsNew.objectCompare(this.query, this._query)) {
-                this._query = UtilsNew.objectClone(this.query);
-                if (this.query) {
-                    this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-                    this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-                } else {
-                    this.preparedQuery = {study: this.opencgaSession.study.fqn};
-                    this.executedQuery = {study: this.opencgaSession.study.fqn};
-                }
+            if (!UtilsNew.isEmpty(this.query) && !UtilsNew.objectCompare(this.query, this.executedQuery)) {
+                this.preparedQuery = {...this.query};
+                this.executedQuery = {...this.query};
+
                 // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
-                LitUtils.dispatchCustomEvent(this, "queryChange", undefined, {
-                    ...this.preparedQuery,
-                });
+                LitUtils.dispatchCustomEvent(this, "queryChange", undefined, this.preparedQuery);
                 this.detail = {};
             }
         }
@@ -180,15 +170,12 @@ export default class OpencgaBrowser extends LitElement {
         // NOTE notifySearch() triggers this chain: notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in opencga-browser
         // queryObserver() here stops the repetition of the remote request by checking if it has changed
         // TODO do the same with facetQuery
-        this.query = {...this.preparedQuery};
+        this.executedQuery = {...this.preparedQuery};
         // updates this.queries in iva-app
         this.notifySearch(this.preparedQuery);
 
         this.facetQueryBuilder();
-    }
-
-    onFilterChange(e) {
-        this.query = e.detail;
+        this.requestUpdate();
     }
 
     changeView(id) {
@@ -210,21 +197,22 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     onActiveFilterChange(e) {
-        // console.log("onActiveFilterChange");
-        this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
-        this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
+        this.preparedQuery = {...e.detail};
+        this.executedQuery = {...e.detail};
+        this.notifySearch(this.preparedQuery);
         this.facetQueryBuilder();
+        this.requestUpdate();
     }
 
     onActiveFilterClear() {
-        // console.log("onActiveFilterClear");
-        this.query = {study: this.opencgaSession.study.fqn};
-        this.preparedQuery = {...this.query};
+        this.preparedQuery = {};
+        this.executedQuery = {};
+        this.notifySearch(this.preparedQuery);
         this.facetQueryBuilder();
+        this.requestUpdate();
     }
 
     onFacetQueryChange(e) {
-        // console.log("onFacetQueryChange");
         this.preparedFacetQueryFormatted = e.detail.value;
         // this.facetQueryBuilder();
         this.requestUpdate();
@@ -241,7 +229,6 @@ export default class OpencgaBrowser extends LitElement {
     onActiveFacetClear() {
         this.selectedFacet = {};
         this.onRun();
-        this.requestUpdate();
     }
 
     onClickRow(e, resource) {
@@ -289,7 +276,7 @@ export default class OpencgaBrowser extends LitElement {
                     ${this._config.filter.render({
                         opencgaSession: this.opencgaSession,
                         config: this._config,
-                        query: this.query,
+                        query: this.preparedQuery,
                         onQueryFilterChange: this.onQueryFilterChange,
                         onQueryFilterSearch: this.onQueryFilterSearch,
                     })}
@@ -299,7 +286,7 @@ export default class OpencgaBrowser extends LitElement {
             return html`
                 <div role="tabpanel" class="tab-pane active" id="filters_tab">
                     <opencga-browser-filter
-                        .query="${this.query}"
+                        .query="${this.preparedQuery}"
                         .resource="${this.resource}"
                         .opencgaSession="${this.opencgaSession}"
                         .cellbaseClient="${this.cellbaseClient}"
