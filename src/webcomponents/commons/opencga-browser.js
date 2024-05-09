@@ -88,6 +88,10 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this.configObserver();
+        }
+
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
@@ -98,10 +102,6 @@ export default class OpencgaBrowser extends LitElement {
 
         if (changedProperties.has("selectedFacet")) {
             this.facetQueryBuilder();
-        }
-
-        if (changedProperties.has("config")) {
-            this.configObserver();
         }
 
         super.update(changedProperties);
