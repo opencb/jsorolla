@@ -219,6 +219,7 @@ export default class VariantBrowser extends LitElement {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
         this.searchActive = false;
+        this.notifySearch(this.preparedQuery);
         this.requestUpdate();
     }
 
