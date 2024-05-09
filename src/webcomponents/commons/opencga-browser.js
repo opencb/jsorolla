@@ -188,12 +188,11 @@ export default class OpencgaBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    // TODO review
-    // this is used only in case of Search button inside filter component. Only in Clinical Analysis Browser.
     onQueryFilterSearch(e) {
-        LitUtils.dispatchCustomEvent(this, "querySearch", undefined, {
-            query: e.detail.query,
-        });
+        this.preparedQuery = {...e.detail};
+        this.executedQuery = {...e.detail};
+        this.notifySearch(this.preparedQuery);
+        this.requestUpdate();
     }
 
     onActiveFilterChange(e) {
