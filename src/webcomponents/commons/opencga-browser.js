@@ -166,7 +166,7 @@ export default class OpencgaBrowser extends LitElement {
         });
     }
 
-    async onRun() {
+    onRun() {
         // NOTE notifySearch() triggers this chain: notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in opencga-browser
         // queryObserver() here stops the repetition of the remote request by checking if it has changed
         // TODO do the same with facetQuery
