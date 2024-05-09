@@ -193,6 +193,14 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                     .filter(file => file.format.toUpperCase() === "VCF");
             }
 
+            // 5. Read defaultFilter from browser settings
+            if (this.settings?.menu?.defaultFilter) {
+                this.query = {
+                    ...this.query,
+                    ...this.settings.menu.defaultFilter,
+                };
+            }
+
             // Create _config again since getDefaultConfig() uses this.files
             this._config = this.getDefaultConfig();
 
