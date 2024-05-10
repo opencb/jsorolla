@@ -81,12 +81,11 @@ import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/file/file-manager.js";
 import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
-import "../../webcomponents/organization/admin/organization-admin.js"
-import "../../webcomponents/project/projects-admin.js";
+import "../../webcomponents/organization/admin/organization-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/study/admin/study-admin-iva.js";
 import "../../webcomponents/study/admin/catalog-admin.js";
-import "../../webcomponents/study/admin/variant/study-variant-admin.js";
+import "../../webcomponents/study/admin/variant/operations-admin.js";
 import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/user/user-profile.js";
 // import "../../webcomponents/user/user-password-reset.js";
@@ -234,10 +233,9 @@ class IvaApp extends LitElement {
             "study-admin",
             "study-admin-iva",
             // "catalog-admin",
-            "study-variant-admin",
+            "operations-admin",
             "opencga-admin",
             "variants-admin",
-            "projects-admin",
             // REST-API
             "rest-api",
         ];
@@ -2025,16 +2023,6 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents["projects-admin"] ? html`
-                    <tool-header title="Projects Admin" icon="${"fas fa-rocket"}"></tool-header>
-                    <div id="projects-admin">
-                        <projects-admin
-                            .opencgaSession="${this.opencgaSession}"
-                            @sessionUpdateRequest="${this.onSessionUpdateRequest}">
-                        </projects-admin>
-                    </div>
-                ` : null}
-
                 ${this.config.enabledComponents["catalog-admin"] ? html`
             <div class="content row" id="catalog-admin">
                 <catalog-admin
@@ -2077,15 +2065,16 @@ class IvaApp extends LitElement {
             </div>
         ` : null}
 
-                ${this.config.enabledComponents["study-variant-admin"] ? html`
-            <div class="content row">
-                <study-variant-admin
-                    .study="${this.opencgaSession.study}"
-                    .opencgaSession="${this.opencgaSession}"
-                    @studyUpdateRequest="${this.onStudyUpdateRequest}">
-                </study-variant-admin>
-            </div>
-        ` : null}
+                ${this.config.enabledComponents["operations-admin"] ? html`
+                    <div class="content row">
+                        <operations-admin
+                                .study="${this.opencgaSession.study}"
+                                .opencgaSession="${this.opencgaSession}"
+                                @studyUpdateRequest="${this.onStudyUpdateRequest}">
+                        </operations-admin>
+                    </div>
+                ` : null}
+
 
                 ${this.config.enabledComponents["rest-api"] ? html`
                     <tool-header title="REST API" icon="${"fas fa-rocket"}"></tool-header>

@@ -21,6 +21,10 @@ import "./study-admin-permissions.js";
 import "./study-admin-variable.js";
 import "./study-admin-audit.js";
 import "./study-admin-configuration.js";
+
+import "../../variant/operation/clinical-analysis-configuration-operation.js";
+import "../../variant/operation/variant-secondary-sample-index-configure-operation.js";
+
 import LitUtils from "../../commons/utils/lit-utils";
 import "../../commons/layouts/custom-vertical-navbar.js";
 
@@ -449,8 +453,6 @@ export default class StudyAdmin extends LitElement {
             logo: "",
             icon: "fas fa-sliders-h",
             visibility: "private", // public | private | none
-            // title: "Study",
-            // sections: [
             menu: [
                 {
                     id: "configuration",
@@ -460,28 +462,6 @@ export default class StudyAdmin extends LitElement {
                     featured: "", // true | false
                     visibility: "private",
                     submenu: [
-                        // {
-                        //     id: "Dashboard",
-                        //     name: "Dashboard",
-                        //     visibility: "private",
-                        //     icon: "fas fa-tachometer-alt",
-                        //     // QUESTION: Which one: (a) or (b)
-                        //     // question: (a)
-                        //     // display: {
-                        //     //     contentClass: "",
-                        //     //     contentStyle: ""
-                        //     //     defaultLayout: "vertical",
-                        //     //     render: () => html`
-                        //     //         <under-construction>
-                        //     //             .title="Study dashboard"
-                        //     //         </under-construction>`,
-                        //     // },
-                        //     // question: (b)
-                        //     render: () => html`
-                        //         <under-construction>
-                        //             .title="Study dashboard"
-                        //         </under-construction>`,
-                        // },
                         {
                             id: "UsersAndGroups",
                             // label: "Users and Groups",
@@ -530,6 +510,34 @@ export default class StudyAdmin extends LitElement {
                                     .study="${study}">
                                 </study-admin-audit>`,
                         },
+                        {
+                            id: "clinical-analysis-configuration-operation",
+                            name: "Clinical Analysis Configuration",
+                            icon: "fas fa-key",
+                            visibility: "private",
+                            render: (opencgaSession, study) => {
+                                return html `
+                                    <clinical-analysis-configuration-operation
+                                            .toolParams="${{study: this.opencgaSession.study.id}}"
+                                            .opencgaSession="${opencgaSession}">
+                                    </clinical-analysis-configuration-operation>
+                                `;
+                            }
+                        },
+                        {
+                            id: "variant-secondary-sample-configure-index",
+                            name: "Sample Index Configuration",
+                            icon: "fas fa-key",
+                            visibility: "private",
+                            render: (opencgaSession, study) => {
+                                return html `
+                                    <variant-secondary-sample-index-configure-operation
+                                        .toolParams="${{study: this.opencgaSession.study.id}}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </variant-secondary-sample-index-configure-operation>
+                              `;
+                            }
+                        },
                         // {
                         //     id: "Configuration",
                         //     // label: "Configuration",
@@ -544,28 +552,31 @@ export default class StudyAdmin extends LitElement {
                         // },
                     ],
                 },
-                {
-                    id: "Operations",
-                    name: "Operations",
-                    category: true, // true | false
-                    visibility: "none",
-                    submenu: [
-                        {
-                            id: "Solr",
-                            // label: "Solr",
-                            name: "Solr",
-                            // CAUTION: icon vs. img in config.js?
-                            img: "/sites/iva/img/logos/Solr.png",
-                            visibility: "private",
-                        },
-                        {
-                            id: "Rysnc",
-                            label: "Rysnc",
-                            icon: "",
-                            visibility: "private",
-                        },
-                    ],
-                },
+                // {
+                //     id: "Operations",
+                //     name: "Operations",
+                //     category: true, // true | false
+                //     visibility: "private",
+                //     description: "",
+                //     icon: "",
+                //     featured: "", // true | false
+                //     submenu: [
+                //         // {
+                //         //     id: "Solr",
+                //         //     // label: "Solr",
+                //         //     name: "Solr",
+                //         //     // CAUTION: icon vs. img in config.js?
+                //         //     img: "/sites/iva/img/logos/Solr.png",
+                //         //     visibility: "private",
+                //         // },
+                //         // {
+                //         //     id: "Rysnc",
+                //         //     label: "Rysnc",
+                //         //     icon: "",
+                //         //     visibility: "private",
+                //         // },
+                //     ],
+                // },
             ],
         };
     }

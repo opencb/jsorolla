@@ -16,6 +16,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new";
 import LitUtils from "../../commons/utils/lit-utils";
+import "../../project/projects-admin.js";
 import "./group-admin-browser.js";
 import "./user-admin-browser.js";
 
@@ -64,6 +65,8 @@ export default class OrganizationAdmin extends LitElement {
 
         super.update(changedProperties);
     }
+
+
 
     organizationIdObserver() {
         // FIXME Vero: on creating a new group, for instance,
@@ -117,7 +120,7 @@ export default class OrganizationAdmin extends LitElement {
                 name: "Dashboard",
                 description: "",
                 icon: "",
-                featured: "", // true | false
+                featured: "",
                 visibility: "private",
                 submenu: [
                     // TODO: pending refactor and fix
@@ -174,7 +177,15 @@ export default class OrganizationAdmin extends LitElement {
                         name: "Projects/Studies",
                         icon: "fas fa-vial",
                         visibility: "private",
-                        render: (opencgaSession, study) => html``,
+                        render: (opencgaSession, study) => {
+                            return html`
+                                <div id="projects-admin">
+                                    <projects-admin
+                                        .opencgaSession="${this.opencgaSession}">
+                                    </projects-admin>
+                                </div>
+                            `;
+                        },
                     },
                 ],
             },
@@ -183,7 +194,7 @@ export default class OrganizationAdmin extends LitElement {
                 name: "Configure",
                 description: "",
                 icon: "",
-                featured: "", // true | false
+                featured: "",
                 visibility: "private",
                 submenu: [
                     {
