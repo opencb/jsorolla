@@ -33,11 +33,14 @@ export default class OpenCGAParentClass {
                 _options.token = sid;
             }
         }
-
+        // CAUTION Vero 2024-05-10: We believe this bit of code is useless. Temporarily commented out.
+        //  In users endpoint, we cannot find GET method where the path param {user/users} should be autocompleted.
+        //  When needed, they should be explicitly set.
         // If category == users and userId is not given, we try to set it
-        if (category1 === "users" && (ids1 === undefined || ids1 === null || ids1 === "")) {
-            ids1 = this._getUserId();
-        }
+        // if (category1 === "users" && (ids1 === undefined || ids1 === null || ids1 === "")) {
+        //     ids1 = this._getUserId();
+        // }
+
         let url = this._createRestUrl(host, version, category1, ids1, category2, ids2, action);
         // if (method === "GET") {
         url = this._addQueryParams(url, _params);
