@@ -498,18 +498,28 @@ export default class StudyAdmin extends LitElement {
                                         .study="${study}">
                                 </study-admin-variable>`,
                         },
-                        {
-                            id: "Audit",
-                            // label: "Audit",
-                            name: "Audit",
-                            icon: "fas fa-book",
-                            visibility: "private",
-                            render: (opencgaSession, study) => html`
-                                <study-admin-audit
-                                    .opencgaSession="${opencgaSession}"
-                                    .study="${study}">
-                                </study-admin-audit>`,
-                        },
+                        // {
+                        //     id: "Configuration",
+                        //     // label: "Configuration",
+                        //     name: "Configuration",
+                        //     icon: "fas fa-cog",
+                        //     visibility: "private",
+                        //     render: (opencgaSession, study) => html`
+                        //         <study-admin-configuration
+                        //                 .opencgaSession="${opencgaSession}"
+                        //                 .study="${study}">
+                        //         </study-admin-configuration>`,
+                        // },
+                    ],
+                },
+                {
+                    id: "variant-configuration",
+                    name: "Variant Configuration",
+                    description: "",
+                    icon: "",
+                    featured: "", // true | false
+                    visibility: "private",
+                    submenu: [
                         {
                             id: "clinical-analysis-configuration-operation",
                             name: "Clinical Analysis Configuration",
@@ -518,7 +528,7 @@ export default class StudyAdmin extends LitElement {
                             render: (opencgaSession, study) => {
                                 return html `
                                     <clinical-analysis-configuration-operation
-                                            .toolParams="${{study: this.opencgaSession.study.id}}"
+                                            .toolParams="${{study: study.id}}"
                                             .opencgaSession="${opencgaSession}">
                                     </clinical-analysis-configuration-operation>
                                 `;
@@ -532,24 +542,33 @@ export default class StudyAdmin extends LitElement {
                             render: (opencgaSession, study) => {
                                 return html `
                                     <variant-secondary-sample-index-configure-operation
-                                        .toolParams="${{study: this.opencgaSession.study.id}}"
+                                        .toolParams="${{study: study.id}}"
                                         .opencgaSession="${opencgaSession}">
                                     </variant-secondary-sample-index-configure-operation>
                               `;
                             }
                         },
-                        // {
-                        //     id: "Configuration",
-                        //     // label: "Configuration",
-                        //     name: "Configuration",
-                        //     icon: "fas fa-cog",
-                        //     visibility: "private",
-                        //     render: (opencgaSession, study) => html`
-                        //         <study-admin-configuration
-                        //                 .opencgaSession="${opencgaSession}"
-                        //                 .study="${study}">
-                        //         </study-admin-configuration>`,
-                        // },
+                    ],
+                },
+                {
+                    id: "audit",
+                    name: "Audit",
+                    description: "",
+                    icon: "",
+                    featured: "", // true | false
+                    visibility: "private",
+                    submenu: [
+                        {
+                            id: "Audit",
+                            name: "Audit",
+                            icon: "fas fa-book",
+                            visibility: "private",
+                            render: (opencgaSession, study) => html`
+                                <study-admin-audit
+                                    .opencgaSession="${opencgaSession}"
+                                    .study="${study}">
+                                </study-admin-audit>`,
+                        },
                     ],
                 },
                 // {
