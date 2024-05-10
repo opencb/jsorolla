@@ -123,10 +123,10 @@ export default class OrganizationAdmin extends LitElement {
                 featured: "",
                 visibility: "private",
                 submenu: [
-                    // TODO: pending refactor and fix
+                    // TODO
                     {
-                        id: "audit",
-                        name: "Audit",
+                        id: "dashboard",
+                        name: "Dashboard",
                         icon: "fas fa-vial",
                         visibility: "private",
                         render: (opencgaSession, study) => html``,
@@ -213,6 +213,26 @@ export default class OrganizationAdmin extends LitElement {
                     },
                 ],
             },
+            {
+                id: "audit",
+                name: "Audit",
+                description: "",
+                icon: "",
+                featured: "",
+                visibility: "private",
+                submenu: [
+                    // TODO
+                    {
+                        id: "audit",
+                        name: "Audit",
+                        type: "category",
+                        icon: "fas fa-vial",
+                        visibility: "private",
+                        render: (opencgaSession, study) => html``,
+                    },
+                ],
+            },
+
         ];
 
         return {
