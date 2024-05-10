@@ -141,18 +141,18 @@ export default class OrganizationAdmin extends LitElement {
                 featured: "", // true | false
                 visibility: "private",
                 submenu: [
-                    {
-                        id: "groups",
-                        name: "Groups",
-                        icon: "fas fa-vial",
-                        visibility: "private",
-                        render: (opencgaSession, organization) => html`
-                            <group-admin-browser
-                                .organization="${organization}"
-                                .opencgaSession="${opencgaSession}">
-                            </group-admin-browser>
-                        `,
-                    },
+                    // {
+                    //     id: "groups",
+                    //     name: "Groups",
+                    //     icon: "fas fa-vial",
+                    //     visibility: "private",
+                    //     render: (opencgaSession, organization) => html`
+                    //         <group-admin-browser
+                    //             .organization="${organization}"
+                    //             .opencgaSession="${opencgaSession}">
+                    //         </group-admin-browser>
+                    //     `,
+                    // },
                     {
                         id: "users",
                         name: "Users",
@@ -164,13 +164,6 @@ export default class OrganizationAdmin extends LitElement {
                                 .opencgaSession="${opencgaSession}">
                             </user-admin-browser>
                         `,
-                    },
-                    {
-                        id: "settings",
-                        name: "Settings",
-                        icon: "fas fa-vial",
-                        visibility: "private",
-                        render: (opencgaSession, study) => html``,
                     },
                     {
                         id: "studies",
@@ -198,19 +191,26 @@ export default class OrganizationAdmin extends LitElement {
                 visibility: "private",
                 submenu: [
                     {
-                        id: "identity-providers",
-                        name: "Identity Providers",
+                        id: "settings",
+                        name: "Organization",
                         icon: "fas fa-vial",
                         visibility: "private",
                         render: (opencgaSession, study) => html``,
                     },
-                    {
-                        id: "optimization",
-                        name: "Optimizations",
-                        icon: "fas fa-vial",
-                        visibility: "private",
-                        render: (opencgaSession, study) => html``,
-                    },
+                    // {
+                    //     id: "identity-providers",
+                    //     name: "Identity Providers",
+                    //     icon: "fas fa-vial",
+                    //     visibility: "private",
+                    //     render: (opencgaSession, study) => html``,
+                    // },
+                    // {
+                    //     id: "optimization",
+                    //     name: "Optimizations",
+                    //     icon: "fas fa-vial",
+                    //     visibility: "private",
+                    //     render: (opencgaSession, study) => html``,
+                    // },
                 ],
             },
             {
