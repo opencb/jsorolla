@@ -144,7 +144,7 @@ export default class UserAdminGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        if (this.opencgaSession?.opencgaClient) {
+        if (this.opencgaSession?.opencgaClient && this.organization.id) {
             this._columns = this._getDefaultColumns();
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
@@ -168,14 +168,15 @@ export default class UserAdminGrid extends LitElement {
                 ajax: params => {
                     let result = null;
                     this.filters = {
+                        organization: this.organization.id,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     };
 
                     // Store the current filters
-                    this.opencgaSession.opencgaClient.admin()
-                        .searchUsers({organization: "test", ...this.filters})
+                    this.opencgaSession.opencgaClient.users()
+                        .search(this.filters)
                         .then(response => {
                             result = response;
                             return response;
