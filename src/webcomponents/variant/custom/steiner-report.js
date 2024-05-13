@@ -74,6 +74,8 @@ class SteinerReport extends LitElement {
             "No pathogenic variants identified.",
             "Results related to other genetic conditions of medical significance (additional findings).",
             "Results that are not expected to impact participant health but may be relevant to family members or children.",
+            "The quality of the data is sufficient for mutational signature analysis and to look for potential driver mutations.",
+            "The data for this sample is below the quality required to perform WGS analysis.",
         ];
 
         this.somaticSample = null;
@@ -318,6 +320,18 @@ class SteinerReport extends LitElement {
         this.requestUpdate();
     }
 
+    onFieldChange(event) {
+        // Josemi Note 2024-04-26: we need to force a refresh only if user selects a value from the dropdowns displayed
+        // on the Mutational Signatures section of the report
+        const param = event?.detail?.param;
+        if (param === "selectedSnvSignature" || param === "selectedSvSignature" || param === "selectedHrdetect") {
+            this._data = {
+                ...this._data,
+            };
+            this.requestUpdate();
+        }
+    }
+
     generateSignaturesDropdown(signatures, type) {
         return (signatures || [])
             .filter(signature => (signature?.type || "").toUpperCase() === type)
@@ -375,6 +389,7 @@ class SteinerReport extends LitElement {
             <data-form
                 .data="${this._data}"
                 .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onRun}">
             </data-form>
