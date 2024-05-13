@@ -245,9 +245,9 @@ export default class UtilsNew {
         const k = useInternationalSystem ? 1000 : 1024;
         const dm = numDecimals ? numDecimals : 2;
         const sizes = [" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB"];
-        const sizesIS = [" Bytes", " KiB", " MiB", " GiB", " TiB", " PiB", " EiB", " ZiB", " YiB"];
+        const sizesBinary = [" Bytes", " KiB", " MiB", " GiB", " TiB", " PiB", " EiB", " ZiB", " YiB"];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return (bytes / Math.pow(k, i)).toFixed(dm) + (useInternationalSystem ? sizesIS[i] : sizes[i]);
+        return (bytes / Math.pow(k, i)).toFixed(dm) + (useInternationalSystem ? sizes[i] : sizesBinary[i]);
     }
 
     static getDatetime(timestamp) {
