@@ -126,7 +126,7 @@ export default class VariantSamples extends LitElement {
             columns: this._getDefaultColumns(),
             formatShowingRows: this.gridCommons.formatShowingRows,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            ajax: async params => {
+            ajax: params => {
                 const tableOptions = this.table.bootstrapTable("getOptions");
                 this.filters = {
                     variant: this.variantId,
@@ -140,13 +140,12 @@ export default class VariantSamples extends LitElement {
                     this.filters.genotype = this.genotypeFilter;
                 }
 
-                try {
-                    const data = await this.fetchData(this.filters);
-                    params.success(data);
-                } catch (e) {
-                    console.log(e);
-                    params.error(e);
-                }
+                this.fetchData(this.filters)
+                    .then(data => params.success(data))
+                    .catch(error => {
+                        console.error(error);
+                        params.error(error);
+                    });
             },
             responseHandler: response => ({
                 total: response.total,
@@ -223,16 +222,15 @@ export default class VariantSamples extends LitElement {
 
                     // Fetch clinical analysis to display the Case ID
                     const caseResponse = await this.opencgaSession.opencgaClient.clinical()
-                        .search(
-                            {
-                                individual: sampleChunk
-                                    .map(sample => sample.individualId)
-                                    .filter(id => id && id.length > 0)
-                                    .join(","),
-                                limit: batch,
-                                study: this.opencgaSession.study.fqn,
-                                include: "id,proband.id,family.members"
-                            });
+                        .search({
+                            individual: sampleChunk
+                                .map(sample => sample.individualId)
+                                .filter(id => id && id.length > 0)
+                                .join(","),
+                            limit: batch,
+                            study: this.opencgaSession.study.fqn,
+                            include: "id,proband.id,family.members"
+                        });
 
                     sampleResponse.getResults().forEach(sample => {
                         for (const clinicalAnalysis of caseResponse.getResults()) {
@@ -263,8 +261,8 @@ export default class VariantSamples extends LitElement {
                     rows: []
                 };
             }
-        } catch (e) {
-            await Promise.reject(e);
+        } catch (error) {
+            return error;
         }
     }
 
