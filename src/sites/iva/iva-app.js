@@ -99,6 +99,8 @@ import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/commons/layouts/custom-landing.js";
 
 import "../../webcomponents/clinical/rga/rga-browser.js";
+
+import "../../webcomponents/note/note-browser.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 import ExtensionsManager from "../../webcomponents/extensions-manager.js";
 
@@ -238,6 +240,8 @@ class IvaApp extends LitElement {
             "projects-admin",
             // REST-API
             "rest-api",
+            // note
+            "note",
         ];
 
         // Add custom tools
@@ -1062,7 +1066,6 @@ class IvaApp extends LitElement {
         this.browserSearchQuery = {...e.detail.query};
     }
 
-
     onQueryFilterSearch(e, source) {
         // FIXME filters component emits a event containing {detail:{query:Object}} while active-filter emits {detail:{Object}}
         // TODO fix active-filters
@@ -1730,6 +1733,18 @@ class IvaApp extends LitElement {
                     @querySearch="${e => this.onQueryFilterSearch(e, "job")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "job")}">
                 </job-browser>
+            </div>
+        ` : null}
+
+        ${this.config.enabledComponents.note ? html`
+            <div class="content" id="note">
+                <note-browser
+                    .opencgaSession="${this.opencgaSession}"
+                    .query="${this.queries.note}"
+                    .settings="${this.settings.NOTE_BROWSER}"
+                    @querySearch="${e => this.onQueryFilterSearch(e, "note")}"
+                    @activeFilterChange="${e => this.onQueryFilterSearch(e, "note")}">
+                </note-browser>
             </div>
         ` : null}
 
