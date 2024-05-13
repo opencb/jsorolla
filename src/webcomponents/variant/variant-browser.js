@@ -373,6 +373,7 @@ export default class VariantBrowser extends LitElement {
                         <opencga-active-filters
                             facetActive
                             resource="VARIANT"
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${this.opencgaSession}"
                             .defaultStudy="${this.opencgaSession.study?.fqn}"
                             .query="${this.preparedQuery}"
