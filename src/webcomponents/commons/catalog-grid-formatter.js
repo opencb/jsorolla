@@ -41,19 +41,20 @@ export default class CatalogGridFormatter {
                 }
                 // Add phenotype ID if exists
                 if (phenotype.id && phenotype.id !== phenotype.name) {
-                    if (phenotype.source && phenotype.source.toUpperCase() === "HPO") {
+                    const ontologyLink = BioinfoUtils.getOntologyLink(phenotype.id);
+                    if (ontologyLink.startsWith("http")) {
                         result.push(`
-                            <a target="_blank" href="${BioinfoUtils.getHpoLink(phenotype.id)}"> (${phenotype.id})</a>
+                            <a target="_blank" href="${ontologyLink}"> (${phenotype.id})</a>
                         `);
                     } else {
-                        result.push(phenotype.id);
+                        result.push(`(${phenotype.id})`);
                     }
                 }
                 // Add phenotype status if exists
                 // if (phenotype.status) {
                 //     result.push(`(${phenotype.status})`);
                 // }
-                return `<div style="margin: 2px 0; white-space: nowrap">${result.join("")}</div>`;
+                return `<div style="margin: 2px 0; white-space: nowrap">${result.join(" ")}</div>`;
             });
 
         if (phenotypesHtml?.length > 0) {

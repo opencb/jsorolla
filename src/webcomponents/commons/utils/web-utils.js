@@ -32,4 +32,20 @@ export default class WebUtils {
         }
     }
 
+    static getIVALink(opencgaSession, tool, query = {}) {
+        const baseUrl = (new URL(window.location.pathname, window.location.origin));
+        let queryStr = "";
+        // Check if query object has been provided
+        if (query) {
+            const keys = Object.keys(query);
+            // Special case: only id field is in the query
+            if (keys.length === 1 && keys[0] === "id") {
+                queryStr = query.id;
+            } else {
+                queryStr = (new URLSearchParams(query)).toString();
+            }
+        }
+        return `${baseUrl}#${tool}/${opencgaSession.project.id}/${opencgaSession.study.id}/${queryStr}`;
+    }
+
 }
