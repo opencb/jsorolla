@@ -472,25 +472,6 @@ export default class NoteGrid extends LitElement {
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                    <a data-action="variantStats" class="dropdown-item"
-                            href="#sampleVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                        <i class="fas fa-user" aria-hidden="true"></i> Variant Stats Browser
-                    </a>
-                </li>
-                <li>
-                    <a data-action="cancerVariantStats" class="dropdown-item ${row.somatic ? "" : "disabled"}"
-                            href="#sampleCancerVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                        <i class="fas fa-user" aria-hidden="true"></i> Cancer Variant Plots
-                    </a>
-                </li>
-                <li>
-                    <a data-action="qualityControl" class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
-                            title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                        <i class="fas fa-rocket" aria-hidden="true"></i> Calculate Quality Control
-                    </a>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
                     <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
                         <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
                     </a>
