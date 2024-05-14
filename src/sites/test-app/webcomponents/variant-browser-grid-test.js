@@ -99,7 +99,7 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     render() {
-        if (!this.variants) {
+        if (!this.variants || !this.opencgaSession) {
             return nothing;
         }
 

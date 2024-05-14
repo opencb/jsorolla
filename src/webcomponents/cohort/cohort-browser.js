@@ -191,17 +191,7 @@ export default class CohortBrowser extends LitElement {
                         ]
                     }
                 ],
-                examples: [
-                    {
-                        id: "Full",
-                        query: {
-                            annotation: "Pedigree:versionControl.GitVersionControl=git",
-                            type: "TIME_SERIES,FAMILY",
-                            id: "lp",
-                            samples: "hg"
-                        }
-                    }
-                ],
+                examples: [],
                 result: {
                     grid: {}
                 },
