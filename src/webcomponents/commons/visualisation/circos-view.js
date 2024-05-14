@@ -155,7 +155,7 @@ export default class CircosView extends LitElement {
         return html`
             <div>
                 ${this.circosImage ? html`
-                    <img class="img-responsive" src="${this.circosImage}">
+                    <img class="img-fluid" src="${this.circosImage}">
                 ` : html`
                     <loading-spinner description="Fetching image data, this can take few seconds..."></loading-spinner>
                 `}

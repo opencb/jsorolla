@@ -216,6 +216,8 @@ export default class VariantGenomeBrowser extends LitElement {
             const _this = this;
             $(`#${_this._prefix}VariantGenomeBrowserTable`).bootstrapTable("destroy");
             $(`#${_this._prefix}VariantGenomeBrowserTable`).bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 url: urlQueryParams.host,
                 columns: [
                     {

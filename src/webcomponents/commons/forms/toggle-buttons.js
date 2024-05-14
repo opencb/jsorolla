@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import LitUtils from "../utils/lit-utils.js";
 
 /**
  *  Usage:
@@ -63,7 +64,7 @@ export default class ToggleButtons extends LitElement {
 
         // Default values
         this.activeClass = "btn-primary";
-        this.inactiveClass = "btn-default";
+        this.inactiveClass = "btn-light";
         this.classes = "";
     }
 
@@ -80,7 +81,7 @@ export default class ToggleButtons extends LitElement {
             this._propertyObserver();
         }
         if (changedProperties.has("inactiveClass")) {
-            this.inactiveClass = this.inactiveClass ? this.inactiveClass : "btn-default";
+            this.inactiveClass = this.inactiveClass ? this.inactiveClass : "btn-light";
             this._propertyObserver();
         }
     }
@@ -88,7 +89,7 @@ export default class ToggleButtons extends LitElement {
     _propertyObserver() {
         if (this.names && this.value && this.activeClass && this.inactiveClass) {
             this._nameClass = {};
-            for (let name of this.names) {
+            for (const name of this.names) {
                 if (name === this.value) {
                     this._nameClass[name] = this.activeClass + " active";
                 } else {
@@ -106,17 +107,16 @@ export default class ToggleButtons extends LitElement {
         }
 
         // Support several classes
-        let activeClasses = this.activeClass.split(" ");
-        let inactiveClasses = this.inactiveClass.split(" ");
+        const activeClasses = this.activeClass.split(" ");
+        const inactiveClasses = this.inactiveClass.split(" ");
 
         // Fetch and reset buttons status
-        let buttons = this.getElementsByClassName("btn-toggle-" + this._prefix);
+        const buttons = this.getElementsByClassName("btn-toggle-" + this._prefix);
         buttons.forEach(button => button.classList.remove(...activeClasses, ...inactiveClasses, "active"));
 
         // Set proper classes
         this.value = buttonName;
-        for (let button of buttons) {
-            debugger
+        for (const button of buttons) {
             if (button.dataset.id === this.value) {
                 button.classList.add(...activeClasses, "active");
             } else {
@@ -128,15 +128,8 @@ export default class ToggleButtons extends LitElement {
         this.filterChange();
     }
 
-    filterChange(e) {
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: this.value
-            },
-            bubbles: true,
-            composed: true
-        });
-        this.dispatchEvent(event);
+    filterChange(BtnName) {
+        LitUtils.dispatchCustomEvent(this, "filterChange", BtnName);
     }
 
     render() {
@@ -145,14 +138,26 @@ export default class ToggleButtons extends LitElement {
         }
 
         return html`
-            <div class="">
+            <div class="btn-group" role="group">
+                ${
+                    this.names?.map(name => html`
+                        <input class="btn-check ${this.classes}" ?checked="${name === this.value}"
+                            @click="${() => this.filterChange(name)}" id="${this._prefix + name}" type="radio"
+                            name="${this._prefix}BtnRadio" data-id="${name}">
+                        <label class="btn btn-outline-primary" for="${this._prefix + name}">
+                            ${name}
+                        </label>
+                    `)
+                }
+            </div>
+            <!-- <div class="">
                 <div class="btn-group">
                     ${this.names?.map(name => html`
                         <button type="button" class="btn ${this._nameClass[name]} btn-toggle-${this._prefix} ${this.classes}" data-id="${name}"
                                 @click="${e => this.onToggleClick(name, e)}">${name}</button>`
-                    )}
+                )}
                 </div>
-            </div>
+            </div> -->
         `;
     }
 

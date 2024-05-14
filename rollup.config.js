@@ -246,4 +246,5 @@ export default getSitesToBuild().map(site => ({
             return "vendors/[name]-[hash][extname]";
         },
     },
+
 }));

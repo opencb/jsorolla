@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../sample/sample-variant-stats-view.js";
@@ -235,9 +235,9 @@ class VariantInterpreterQcVariantStats extends LitElement {
         // Check Project exists
         if (!this.opencgaSession.project) {
             return html`
-                    <div>
-                        <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
-                    </div>`;
+                <div>
+                    <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
+                </div>`;
         }
 
         // Check Clinical Analysis exist
@@ -291,19 +291,20 @@ class VariantInterpreterQcVariantStats extends LitElement {
                 html`
                     <div class="btn-group" role="group" aria-label="..." style="padding-top: 15px; padding-left: 5px">
                         ${this.samplesVariantStats.map(s => html`
-                            <button type="button" class="btn btn-default ${s.sample.id === this.sample.id ? "active" : ""}" data-sample-id="${s.sample.id}" @click="${this.onSampleVariantStatsChange}" style="padding: 10px 20px">
-                                <span style="font-weight: bold">${s.sample.id} </span> <span class="text-muted"> ${s.role}</span>
+                            <button type="button" class="btn btn-light ${s.sample.id === this.sample.id ? "active" : ""}" data-sample-id="${s.sample.id}" @click="${this.onSampleVariantStatsChange}" style="padding: 10px 20px">
+                                <span class="fw-bold">${s.sample.id} </span> <span class="text-body-secondary"> ${s.role}</span>
                             </button>
                         `)}
                     </div>` :
-                null}
+            nothing}
 
 
             <div style="margin: 20px 10px;padding-top: 10px">
 <!--                <h4>Sample Variant Stats - \${this.variantStats?.stats.id}</h4>-->
                 <div>
-                    <sample-variant-stats-view  .opencgaSession="${this.opencgaSession}"
-                                                .sample="${this.sample}">
+                    <sample-variant-stats-view
+                        .opencgaSession="${this.opencgaSession}"
+                        .sample="${this.sample}">
                     </sample-variant-stats-view>
                 </div>
             </div>

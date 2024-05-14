@@ -31,10 +31,10 @@ export default class LoadingSpinner extends LitElement {
             description: {
                 type: String
             }
-        }
+        };
     }
 
-    render() {
+    renderStyle() {
         return html`
         <style>
             .loading-spinner-wrapper {
@@ -428,27 +428,33 @@ export default class LoadingSpinner extends LitElement {
             }
 
         </style>
-        <div class="loading-spinner-wrapper">
-            <div class="DNA_cont">
-                <div class="nucleobase"></div>
-                <div class="nucleobase"></div>
-                <div class="nucleobase"></div>
-                <div class="nucleobase"></div>
-                <div class="nucleobase"></div>
-                <div class="nucleobase"></div>
-                <div class="nucleobase"></div>
-                <div class="nucleobase"></div>
-                <div class="nucleobase"></div>
-                <div class="nucleobase"></div>
-            </div>
-            <div class="loading-text-wrapper">
-                <div class="loading-text">
-                    Loading...
-                </div>
+        `;
+    }
 
+    render() {
+        return html`
+            ${this.renderStyle()}
+            <div class="loading-spinner-wrapper">
+                <div class="DNA_cont">
+                    <div class="nucleobase"></div>
+                    <div class="nucleobase"></div>
+                    <div class="nucleobase"></div>
+                    <div class="nucleobase"></div>
+                    <div class="nucleobase"></div>
+                    <div class="nucleobase"></div>
+                    <div class="nucleobase"></div>
+                    <div class="nucleobase"></div>
+                    <div class="nucleobase"></div>
+                    <div class="nucleobase"></div>
+                </div>
+                <div class="loading-text-wrapper">
+                    <div class="loading-text">
+                        Loading...
+                    </div>
+
+                </div>
+                ${this.description ? html`<p class="description">${this.description}</p>` : null}
             </div>
-            ${this.description ? html`<p class="description">${this.description}</p>` : null}
-        </div>
         `;
     }
 
