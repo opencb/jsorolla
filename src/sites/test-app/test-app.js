@@ -115,8 +115,7 @@ class TestApp extends LitElement {
             "job-browser-grid",
             "disease-panel-browser-grid",
             "opencga-update",
-            "variant-browser-grid-germline",
-            "variant-browser-grid-cancer",
+            "variant-browser-grid",
             "variant-interpreter-grid-germline",
             "variant-interpreter-grid-cancer",
             "variant-interpreter-grid-cancer-cnv",
@@ -761,21 +760,10 @@ class TestApp extends LitElement {
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents["variant-browser-grid-germline"] ? html`
+                ${this.config.enabledComponents["variant-browser-grid"] ? html`
                     <div style="padding:2%" class="content" id="variant-grid">
                         <variant-browser-grid-test
-                            testVariantFile="variant-browser-germline"
-                            testDataVersion="${this.testDataVersion}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this.config}">
-                        </variant-browser-grid-test>
-                    </div>
-                ` : null}
-
-                ${this.config.enabledComponents["variant-browser-grid-cancer"] ? html`
-                    <div style="padding: 2%" class="content" id="variant-grid">
-                        <variant-browser-grid-test
-                            testVariantFile="variant-browser-cancer"
+                            testVariantFile="variant-browser-data"
                             testDataVersion="${this.testDataVersion}"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">

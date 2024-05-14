@@ -250,14 +250,8 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            id: "variant-browser-grid-germline",
-                            name: "Variant Grid Germline",
-                            description: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "variant-browser-grid-cancer",
-                            name: "Variant Grid Cancer",
+                            id: "variant-browser-grid",
+                            name: "Variant Browser Grid",
                             description: "",
                             visibility: "public"
                         },
