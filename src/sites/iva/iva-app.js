@@ -886,11 +886,9 @@ class IvaApp extends LitElement {
             let query = {};
             // Check if key=value list exist
             if (hashQuery.includes("=")) {
-                const filters = hashQuery.split("&");
-                for (const filter of filters) {
-                    const [key, value] = filter.split("=");
-                    query[key] = value;
-                }
+                Array.from(new URLSearchParams(hashQuery).entries()).forEach(entry => {
+                    query[entry[0]] = entry[1];
+                });
             } else {
                 // Default query filter is 'id'
                 query = {id: hashQuery};
