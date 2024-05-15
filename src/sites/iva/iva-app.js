@@ -241,7 +241,7 @@ class IvaApp extends LitElement {
             // REST-API
             "rest-api",
             // note
-            "note",
+            "note-browser",
         ];
 
         // Add custom tools
@@ -1736,14 +1736,13 @@ class IvaApp extends LitElement {
             </div>
         ` : null}
 
-        ${this.config.enabledComponents.note ? html`
-            <div class="content" id="note">
+        ${this.config.enabledComponents["note-browser"] ? html`
+            <div class="content" id="note-browser">
                 <note-browser
                     .opencgaSession="${this.opencgaSession}"
-                    .query="${this.queries.note}"
+                    .query="${this.queries["note-browser"]}"
                     .settings="${this.settings.NOTE_BROWSER}"
-                    @querySearch="${e => this.onQueryFilterSearch(e, "note")}"
-                    @activeFilterChange="${e => this.onQueryFilterSearch(e, "note")}">
+                    @querySearch="${e => this.onQueryFilterSearch(e, "note-browser")}">
                 </note-browser>
             </div>
         ` : null}
