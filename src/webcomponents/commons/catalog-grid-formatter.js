@@ -19,6 +19,14 @@ import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 
 export default class CatalogGridFormatter {
 
+    static sexFormatter(value, row) {
+        let sexHtml = `${UtilsNew.isEmpty(row?.sex) ? "Not specified" : row.sex.id || row.sex}`;
+        if (row?.karyotypicSex && row.karyotypicSex !== "UNKNOWN") {
+            sexHtml += ` (${row.karyotypicSex?.id || row.karyotypicSex})`;
+        }
+        return sexHtml;
+    }
+
     static phenotypesFormatter(phenotypes) {
         if (!phenotypes || phenotypes.length === 0) {
             return "-";

@@ -82,6 +82,9 @@ export default class SelectFieldFilter extends LitElement {
             size: {
                 type: Number,
             },
+            selectedTextFormat: {
+                type: String,
+            },
             separator: {
                 type: String,
             },
@@ -101,6 +104,7 @@ export default class SelectFieldFilter extends LitElement {
         this.classes = "";
         this.elm = this._prefix + "selectpicker";
         this.size = 20; // Default size
+        this.selectedTextFormat = "";
         this.separator = ","; // Default separator
     }
 
@@ -230,6 +234,18 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     render() {
+        // This code decides the text of the dropdown, it's a complex logic that can be configured with the selectedTextFormat prop
+        let selectedTextFormat = "";
+        if (this.selectedTextFormat) {
+            selectedTextFormat = this.selectedTextFormat;
+        } else {
+            if (this.title) {
+                selectedTextFormat = "static";
+            } else {
+                selectedTextFormat = "values";
+            }
+        }
+
         return html`
             <div id="${this._prefix}-select-field-filter-wrapper" class="select-field-filter">
                 <div class="${this.all ? "input-group" : ""}">
@@ -244,7 +260,7 @@ export default class SelectFieldFilter extends LitElement {
                             data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"
                             data-width="100%"
                             data-title="${this.title || nothing}"
-                            data-selected-text-format="${this.title ? "static" : "values"}"
+                            data-selected-text-format="${selectedTextFormat}"
                             data-style="btn-default ${this.classes}"
                             @change="${this.filterChange}">
                         ${this.data?.map(opt => html`
