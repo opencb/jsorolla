@@ -105,7 +105,6 @@ export default class VariantBrowser extends LitElement {
         }
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
-            this.settingsObserver();
         }
         if (changedProperties.has("query") || changedProperties.has("opencgaSession")) {
             this.queryObserver();
@@ -144,13 +143,12 @@ export default class VariantBrowser extends LitElement {
 
     opencgaSessionObserver() {
         if (this?.opencgaSession?.study?.fqn) {
-            this.preparedQuery = {};
-            this.executedQuery = {};
+            this.preparedQuery = {...this._config?.filter?.defaultFilter};
+            this.executedQuery = {...this._config?.filter?.defaultFilter};
 
-            // TODO FIXME
-            /** temp fix this.onRun(): when you switch study this.facetQuery contains the old study when you perform a new Aggregation query.
-             *  As a consequence, we need to update preparedQuery as this.onRun() uses it (without it the old study is in query in table result as well)
-             */
+            // Search must be disabled even defaultFilter is empty
+            this.searchActive = false;
+
             this.facetQuery = null;
             this.preparedFacetQueryFormatted = null;
         }
@@ -159,7 +157,7 @@ export default class VariantBrowser extends LitElement {
     queryObserver() {
         if (this.opencgaSession?.study?.fqn) {
             // NOTE UtilsNew.objectCompare avoid repeating remote requests.
-            if (!UtilsNew.objectCompare(this.query, this.executedQuery)) {
+            if (!UtilsNew.isEmpty(this.query) && !UtilsNew.objectCompare(this.query, this.executedQuery)) {
                 this.preparedQuery = {...this.query};
                 this.executedQuery = {...this.query};
 
@@ -192,7 +190,7 @@ export default class VariantBrowser extends LitElement {
         });
     }
 
-    async onRun() {
+    onRun() {
         this.executedQuery = {...this.preparedQuery};
         this.searchActive = false;
         this.notifySearch(this.preparedQuery);
@@ -221,6 +219,7 @@ export default class VariantBrowser extends LitElement {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
         this.searchActive = false;
+        this.notifySearch(this.preparedQuery);
         this.requestUpdate();
     }
 
@@ -263,7 +262,6 @@ export default class VariantBrowser extends LitElement {
     onActiveFacetClear() {
         this.selectedFacet = {};
         this.onRun();
-        this.requestUpdate();
     }
 
     onQueryComplete() {
@@ -384,6 +382,7 @@ export default class VariantBrowser extends LitElement {
                             .executedFacetQuery="${this.executedFacetQueryFormatted}"
                             .alias="${this._config.filter.activeFilters.alias}"
                             .filters="${this._config.filter.examples}"
+                            .defaultFilter="${this._config.filter.defaultFilter}"
                             .config="${this._config.filter.activeFilters}"
                             @activeFacetChange="${this.onActiveFacetChange}"
                             @activeFacetClear="${this.onActiveFacetClear}"
