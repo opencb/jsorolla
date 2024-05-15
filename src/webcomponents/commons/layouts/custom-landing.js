@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../user/user-login.js";
 
 export default class CustomLanding extends LitElement {
+
+    constructor() {
+        super();
+        this.#init();
+    }
 
     createRenderRoot() {
         return this;
@@ -35,6 +40,10 @@ export default class CustomLanding extends LitElement {
         };
     }
 
+    #init() {
+        this.mode = "sso";
+    }
+
     getSSOUrl() {
         if (this.opencgaSession?.opencgaClient) {
             const config = this.opencgaSession?.opencgaClient?._config;
@@ -42,6 +51,12 @@ export default class CustomLanding extends LitElement {
         } else {
             return "#";
         }
+    }
+
+    onModeChange(event, newMode) {
+        event.preventDefault();
+        this.mode = newMode;
+        this.requestUpdate();
     }
 
     renderLogin() {
@@ -56,22 +71,25 @@ export default class CustomLanding extends LitElement {
         }
 
         // Check if SSO is active. In this case, we will render the SSO button instead of the login form
-        if (this.opencgaSession?.opencgaClient?._config?.sso?.active) {
+        if (this.opencgaSession?.opencgaClient?._config?.sso?.active && this.mode === "sso") {
             return html`
-                <div>
+                <div class="d-flex flex-column gap-2">
                     <div align="center">
-                        <a class="btn-group" role="group" href="${this.getSSOUrl()}">
+                        <a class="btn-group text-decoration-none" role="group" href="${this.getSSOUrl()}">
                             <button type="button" class="btn btn-primary btn-lg" style="">
                                 <i class="fas fa-user"></i>
                             </button>
                             <button type="button" class="btn btn-primary btn-lg">
-                                <strong style="color:white;">Login with SSO</strong>
+                                <strong>Login with SSO</strong>
                             </button>
                         </a>
                     </div>
-                    <div class="landing-login-sso-helper">
+                    <div class="landing-login-sso-helper d-none">
                         By clicking on the <b>Login with SSO</b> button you will be redirected to your SSO login
                         page.
+                    </div>
+                    <div class="text-center">
+                        <a href="#" class="link-body-emphasis" @click="${e => this.onModeChange(e, "credentials")}">or login without SSO</a>
                     </div>
                 </div>
             `;
@@ -79,9 +97,16 @@ export default class CustomLanding extends LitElement {
 
         // No SSO and opencgaSession is ready, render the user-login component
         return html`
-            <user-login
-                .opencgaSession="${this.opencgaSession}">
-            </user-login>
+            <div class="d-flex flex-column gap-2">
+                <user-login
+                    .opencgaSession="${this.opencgaSession}">
+                </user-login>
+                ${this.opencgaSession?.opencgaClient?._config?.sso?.active ? html`
+                    <div class="text-center">
+                        <a href="#" class="link-body-emphasis" @click="${e => this.onModeChange(e, "sso")}">or login with SSO</a>
+                    </div>
+                ` : nothing}
+            </div>
         `;
     }
 
