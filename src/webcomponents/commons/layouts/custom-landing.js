@@ -84,10 +84,6 @@ export default class CustomLanding extends LitElement {
                             </button>
                         </a>
                     </div>
-                    <div class="landing-login-sso-helper d-none">
-                        By clicking on the <b>Login with SSO</b> button you will be redirected to your SSO login
-                        page.
-                    </div>
                     <div class="text-center">
                         <a href="#" class="link-body-emphasis" @click="${e => this.onModeChange(e, "credentials")}">or login without SSO</a>
                     </div>
@@ -212,15 +208,6 @@ export default class CustomLanding extends LitElement {
 
                 .landing-content {
                     max-width: 640px;
-                    width: 100%;
-                }
-
-                .landing-login-sso-helper {
-                    color: #909294;
-                    font-size: 12px;
-                    margin-top: 1rem;
-                    max-width: 240px;
-                    text-align: center;
                     width: 100%;
                 }
 
