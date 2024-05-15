@@ -41,7 +41,12 @@ export default class CustomLanding extends LitElement {
     }
 
     #init() {
-        this.mode = "sso";
+        // Josemi 2024-05-15 NOTE: this internal variable is only used when the SSO login is enabled
+        // This allows us to switch between the login with sso and login with credentials mode
+        // Allowed values:
+        // - "SSO": we will display the login with SSO button
+        // - "CREDENTIALS": we will display the default login with credentials form
+        this.loginMode = "SSO";
     }
 
     getSSOUrl() {
@@ -53,9 +58,9 @@ export default class CustomLanding extends LitElement {
         }
     }
 
-    onModeChange(event, newMode) {
+    onLoginModeChange(event, newMode) {
         event.preventDefault();
-        this.mode = newMode;
+        this.loginMode = newMode;
         this.requestUpdate();
     }
 
@@ -71,7 +76,7 @@ export default class CustomLanding extends LitElement {
         }
 
         // Check if SSO is active. In this case, we will render the SSO button instead of the login form
-        if (this.opencgaSession?.opencgaClient?._config?.sso?.active && this.mode === "sso") {
+        if (this.opencgaSession?.opencgaClient?._config?.sso?.active && this.loginMode === "SSO") {
             return html`
                 <div class="d-flex flex-column gap-2">
                     <div align="center">
@@ -85,7 +90,7 @@ export default class CustomLanding extends LitElement {
                         </a>
                     </div>
                     <div class="text-center">
-                        <a href="#" class="link-body-emphasis" @click="${e => this.onModeChange(e, "credentials")}">or login without SSO</a>
+                        <a href="#" class="link-body-emphasis" @click="${e => this.onLoginModeChange(e, "CREDENTIALS")}">or login without SSO</a>
                     </div>
                 </div>
             `;
@@ -99,7 +104,7 @@ export default class CustomLanding extends LitElement {
                 </user-login>
                 ${this.opencgaSession?.opencgaClient?._config?.sso?.active ? html`
                     <div class="text-center">
-                        <a href="#" class="link-body-emphasis" @click="${e => this.onModeChange(e, "sso")}">or login with SSO</a>
+                        <a href="#" class="link-body-emphasis" @click="${e => this.onLoginModeChange(e, "SSO")}">or login with SSO</a>
                     </div>
                 ` : nothing}
             </div>
