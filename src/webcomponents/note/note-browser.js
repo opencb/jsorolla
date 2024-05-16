@@ -129,10 +129,12 @@ export default class NoteBrowser extends LitElement {
                                 .toolId="${this.COMPONENT_ID}"
                                 .opencgaSession="${params.opencgaSession}"
                                 .query="${params.executedQuery}"
+                                .search="${params.executedQuery}"
                                 .config="${params.config.filter.result.grid}"
+                                .eventNotifyName="${params.eventNotifyName}"
                                 .active="${true}"
                                 @selectrow="${e => params.onClickRow(e, "note")}"
-                                @sampleUpdate="${e => params.onComponentUpdate(e, "note")}"
+                                @noteUpdate="${e => params.onComponentUpdate(e, "note")}"
                                 @settingsUpdate="${() => this.onSettingsUpdate()}">
                             </note-grid>
                             <!-- <div>
