@@ -28,7 +28,6 @@ export default class NoteGrid extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -355,7 +354,7 @@ export default class NoteGrid extends LitElement {
                 align: "center",
                 width: "5",
                 widthUnit: "%",
-                formatter: (field, note) => field === "PUBLIC" ? `<i class="fas fa-globe-americas"></i>` : `<i class="fas fa-eye-slash"></i>`,
+                formatter: (field, note) => field === "PUBLIC" ? `<i class="fas fa-globe-americas"></i>` : `<i class="fas fa-lock"></i>`,
                 visible: this.gridCommons.isColumnVisible("visibility")
             },
             {
