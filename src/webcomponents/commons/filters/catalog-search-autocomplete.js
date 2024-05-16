@@ -207,7 +207,18 @@ export default class CatalogSearchAutocomplete extends LitElement {
                     type: "DIRECTORY",
                     include: "id,path",
                 }
-            }
+            },
+            "NOTE": {
+                searchField: "id",
+                placeholder: "Start typing",
+                client: this.opencgaSession.opencgaClient.studies(),
+                fields: item => ({
+                    "name": item.id,
+                }),
+                query: {
+                    include: "id"
+                }
+            },
         };
         this._config = this.getDefaultConfig();
     }
@@ -244,15 +255,15 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 const page = params?.data?.page || 1;
                 const attr = params?.data?.term ? {[this.searchField || this.RESOURCES[this.resource].searchField]: "~/" + params?.data?.term + "/i"} : null;
                 const filters = {
-                    study: this.opencgaSession.study.fqn,
+                    ...this.resource !== "NOTE" ? {study: this.opencgaSession.study.fqn} : {},
                     limit: this._config.limit,
                     count: false,
                     skip: (page - 1) * this._config.limit,
                     ...this.query || this.RESOURCES[this.resource].query,
                     ...attr,
                 };
-
-                this.RESOURCES[this.resource].client.search(filters)
+                (this.resource === "NOTE" ?
+                    this.RESOURCES[this.resource].client.searchNotes(this.opencgaSession.study.fqn, filters) : this.RESOURCES[this.resource].client.search(filters))
                     .then(response => success(response))
                     .catch(error => failure(error));
             },
