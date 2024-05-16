@@ -15,13 +15,8 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
-
-
-import {DATA_FORM_EXAMPLE} from "../conf/data-form.js";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../../../webcomponents/commons/forms/data-form.js";
-import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/variant/variant-browser-grid.js";
 
 class VariantBrowserGridTest extends LitElement {
@@ -54,83 +49,64 @@ class VariantBrowserGridTest extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "variant-browser";
-        this.isLoading = false;
-        this.variants = [];
-        this._dataFormConfig = DATA_FORM_EXAMPLE;
-
+        this.variants = null;
         this._config = {};
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-
     update(changedProperties) {
-        if (changedProperties.has("testVariantFile") &&
-            changedProperties.has("testDataVersion") &&
-            changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
+        if (changedProperties.has("testVariantFile") || changedProperties.has("testDataVersion")) {
+            this.variantsObserver();
         }
+
         super.update(changedProperties);
     }
 
-    opencgaSessionObserver() {
-        this.#setLoading(true);
-        UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testVariantFile}.json`)
-            .then(content => {
-                this.variants = content;
-                // Fixme 20240107: no distinction between germline and cancer
-                if (this.testVariantFile === "variant-browser-germline") {
-                    this.germlineMutate();
-                } else {
-                    // this.cancerMutate();
-                }
-            })
-            .catch(err => {
-                // this.variants = [];
-                console.log(err);
-            })
-            .finally(() => {
-                this.#setLoading(false);
-            });
+    variantsObserver() {
+        this.variants = null;
+        if (this.testDataVersion && this.testVariantFile) {
+            UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testVariantFile}.json`)
+                .then(content => {
+                    this.variants = content;
+                    this.mutate();
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+                .finally(() => {
+                    this.requestUpdate();
+                });
+        }
     }
 
-    germlineMutate() {
+    mutate() {
         // 1. no gene names in the CT array
-        this.variants[10].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
+        // this.variants[10].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
 
         // 2. SIFT with no description available
         // this.variants[10].annotation.consequenceTypes
         //     .filter(ct => ct.proteinVariantAnnotation)
         //     .forEach(ct => delete ct.proteinVariantAnnotation.substitutionScores[0].description);
         // Finally, we update variants mem address to force a rendering
-        this.variants = [...this.variants];
-    }
-
-
-    changeView(id) {
-        this.activeTab = id;
-        // this.mutate();
+        // this.variants = [...this.variants];
     }
 
     onSettingsUpdate() {
         this._config = {
             ...this._config,
-            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
+            ...this.opencgaSession?.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         };
-        this.opencgaSessionObserver();
+        this.requestUpdate();
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+        if (!this.variants || !this.opencgaSession) {
+            return nothing;
         }
 
         return html`
             <div data-cy="variant-browser-container">
                 <h2 style="font-weight: bold;">
-                    Variant Browser (${this.testVariantFile?.split("-")?.at(-1)})
+                    Variant Browser (${this.testVariantFile})
                 </h2>
                 <variant-browser-grid
                     .toolId="${this.COMPONENT_ID}"

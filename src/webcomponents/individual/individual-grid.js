@@ -388,14 +388,6 @@ export default class IndividualGrid extends LitElement {
         return result;
     }
 
-    sexFormatter(value, row) {
-        let sexHtml = `${UtilsNew.isEmpty(row?.sex) ? "Not specified" : row.sex?.id || row.sex}`;
-        if (row?.karyotypicSex) {
-            sexHtml += ` (${row.karyotypicSex?.id || row.karyotypicSex})`;
-        }
-        return sexHtml;
-    }
-
     async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
         switch (action) {
@@ -425,10 +417,7 @@ export default class IndividualGrid extends LitElement {
                 field: "id",
                 formatter: (individualId, individual) => {
                     // Get sex info
-                    let sexHtml = `${individual?.sex ? individual.sex?.id || individual.sex : "Not specified"}`;
-                    if (individual?.karyotypicSex) {
-                        sexHtml += ` (${individual.karyotypicSex?.id || individual.karyotypicSex})`;
-                    }
+                    const sexHtml = CatalogGridFormatter.sexFormatter(individual.sex, individual);
                     return `
                         <div>
                             <span style="font-weight: bold; margin: 5px 0">${individualId}</span>
@@ -626,7 +615,7 @@ export default class IndividualGrid extends LitElement {
                     if (e.detail.option.toUpperCase() === "TAB") {
                         const fields = ["id", "samples.id", "father.id", "mother.id", "disorders.id", "phenotypes.id", "sex.id", "lifeStatus", "dateOfBirth", "creationDate"];
                         const data = UtilsNew.toTableString(results, fields, {
-                            "sex.id": this.sexFormatter,
+                            "sex.id": CatalogGridFormatter.sexFormatter,
                         });
                         UtilsNew.downloadData(data, "individuals_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {

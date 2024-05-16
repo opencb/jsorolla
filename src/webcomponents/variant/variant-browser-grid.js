@@ -26,6 +26,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
+import WebUtils from "../commons/utils/web-utils.js";
 
 
 export default class VariantBrowserGrid extends LitElement {
@@ -577,7 +578,8 @@ export default class VariantBrowserGrid extends LitElement {
                         });
                     },
                     align: "center",
-                    visible: this.gridCommons.isColumnVisible(this.samples[i].id, "samples"),
+                    visible: true,
+                    excludeFromSettings: true,
                 });
             }
         }
@@ -603,7 +605,8 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: this.cohortFormatter,
                     align: "center",
                     eligible: true,
-                    visible: this.gridCommons.isColumnVisible(study.id, "cohorts"),
+                    visible: true,
+                    excludeFromSettings: true,
                 });
             }
         }
@@ -662,6 +665,16 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: this.gridCommons.isColumnVisible("id")
                 },
                 {
+                    id: "type",
+                    title: "Type",
+                    field: "type",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.typeFormatter(value, row),
+                    halign: "center",
+                    visible: this.gridCommons.isColumnVisible("type")
+                },
+                {
                     id: "gene",
                     title: "Gene",
                     field: "gene",
@@ -673,14 +686,13 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: this.gridCommons.isColumnVisible("gene")
                 },
                 {
-                    id: "type",
-                    title: "Type",
-                    field: "type",
+                    id: "hgvs",
+                    title: "HGVS",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: VariantGridFormatter.typeFormatter.bind(this),
+                    formatter: (value, row) => VariantGridFormatter.hgvsFormatter(row, this._config),
                     halign: "center",
-                    visible: this.gridCommons.isColumnVisible("type")
+                    visible: this.gridCommons.isColumnVisible("hgvs"),
                 },
                 {
                     id: "consequenceType",
@@ -848,6 +860,18 @@ export default class VariantBrowserGrid extends LitElement {
                                         </a>
                                     </li>
                                     <li role="separator" class="divider"></li>
+                                    <li class="dropdown-header">Copy Variant Info</li>
+                                    <li data-cy="copy-link">
+                                        <a class="btn force-text-left" data-action="copy-link">
+                                            <i class="fas fa-copy icon-padding"></i> Copy IVA Link
+                                        </a>
+                                    </li>
+                                    <li data-cy="varsome-copy">
+                                        <a href="javascript: void 0" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
+                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Copy Varsome ID
+                                        </a>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
                                     <li class="dropdown-header">Fetch Variant</li>
                                     <li>
                                         <a href="javascript: void 0" class="btn force-text-left" data-action="copy-json">
@@ -857,11 +881,6 @@ export default class VariantBrowserGrid extends LitElement {
                                     <li>
                                         <a href="javascript: void 0" class="btn force-text-left" data-action="download">
                                             <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
-                                        </a>
-                                    </li>
-                                    <li data-cy="varsome-copy">
-                                        <a href="javascript: void 0" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
-                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Copy Varsome ID
                                         </a>
                                     </li>
                                 </ul>
@@ -1009,6 +1028,16 @@ export default class VariantBrowserGrid extends LitElement {
     onActionClick(e, value, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "copy-link":
+                // 1. Generate the URL to this variant
+                const link = WebUtils.getIVALink(this.opencgaSession, this.toolId, {id: row.id});
+                // 2. Copy this link to the clipboard
+                UtilsNew.copyToClipboard(link);
+                // 3. Notify user that link has been copied to the clipboard
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `Link to variant '${row.id}' copied to clipboard.`,
+                });
+                break;
             case "copy-json":
                 navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
                 break;

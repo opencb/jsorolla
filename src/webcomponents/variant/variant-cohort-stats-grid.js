@@ -35,6 +35,9 @@ class VariantCohortStatsGrid extends LitElement {
             stats: {
                 type: Array
             },
+            opencgaSession: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -52,25 +55,33 @@ class VariantCohortStatsGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("stats")) {
-            this.renderVariantTable();
+        if (changedProperties.has("opencgaSession") || changedProperties.has("stats")) {
+            this.renderCohortStatsTable();
         }
     }
 
-    renderVariantTable() {
+    renderCohortStatsTable() {
         if (this.stats) {
-            const _table = $("#" + this._prefix + "CohortStatsGrid");
+            // Sort Cohorts. Cohort 'ALL' must be the first one.
+            this.stats = this.stats.sort((a, b) => a.cohortId.localeCompare(b.cohortId));
+            const cohortAllIndex = this.stats.findIndex(c => c.cohortId === "ALL");
+            const cohortAll = this.stats[cohortAllIndex];
+            this.stats[cohortAllIndex] = this.stats[0];
+            this.stats[0] = cohortAll;
+
+            const table = $("#" + this._prefix + "CohortStatsGrid");
             // const _this = this;
-            _table.bootstrapTable("destroy");
-            _table.bootstrapTable({
-                columns: this._createDefaultColumns(),
+            table.bootstrapTable("destroy");
+            table.bootstrapTable({
                 data: this.stats,
+                columns: this._createDefaultColumns(),
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
                 formatLoadingMessage: () =>"<loading-spinner></loading-spinner>",
-                onLoadError: function (status, res) {
-                    console.log(status, res);
+                onLoadError: (status, res) => {
+                    console.log(status);
+                    console.log(res);
                 }
             });
         }
@@ -110,7 +121,7 @@ class VariantCohortStatsGrid extends LitElement {
         return content;
     }
 
-    idFormatter(value, row) {
+    idFormatter(value) {
         return `<span style="font-weight: bold">${value}</span>`;
     }
 
@@ -157,10 +168,14 @@ class VariantCohortStatsGrid extends LitElement {
                 const freq = row.genotypeFreq[genotype];
                 const count = row.genotypeCount[genotype];
                 const fixedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toPrecision(5) : freq;
-                str += `${fixedFreq} (${count})<br>`;
+                str += `<span style="margin: 0 5px">${genotype}:</span> ${fixedFreq} (${count})<br>`;
             }
         }
-        return str !== "" ? str : "NA";
+        // Check if missing alleles exist and add them to the string
+        if (row.missingGenotypeCount > 0) {
+            str += `<span style="margin: 0 5px">./.:</span> ${(row.missingGenotypeCount / row.sampleCount).toPrecision(4)}(${row.missingGenotypeCount})<br>`;
+        }
+        return str || "NA";
     }
 
     _createDefaultColumns() {
@@ -191,7 +206,7 @@ class VariantCohortStatsGrid extends LitElement {
                     halign: "center"
                 },
                 {
-                    title: "Filter",
+                    title: `Filter<br><span class="help-block" style="margin: 0">Frequency (Count)</span>`,
                     rowspan: 2,
                     colspan: 1,
                     formatter: this.filterFormatter,
@@ -199,7 +214,7 @@ class VariantCohortStatsGrid extends LitElement {
                 },
                 {
                     title: "Number of Samples",
-                    // field: "numSamples",
+                    // field: "sampleCount",
                     rowspan: 2,
                     colspan: 1,
                     formatter: this.numSamplesFormatter,
@@ -207,13 +222,13 @@ class VariantCohortStatsGrid extends LitElement {
                     halign: "center"
                 },
                 {
-                    title: "Allele Frequency",
+                    title: `Allele Frequency<br><span class="help-block" style="margin: 0">Frequency (Count)</span>`,
                     rowspan: 1,
                     colspan: 2,
                     halign: "center"
                 },
                 {
-                    title: "Genotype Frequency",
+                    title: `Genotype Frequency<br><span class="help-block" style="margin: 0">Frequency (Count)</span>`,
                     rowspan: 1,
                     colspan: 4,
                     halign: "center"

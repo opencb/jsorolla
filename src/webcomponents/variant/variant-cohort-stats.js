@@ -94,7 +94,7 @@ export default class VariantCohortStats extends LitElement {
         }
 
         return html`
-            ${this.variant?.studies?.length > 0 && this.variant.studies.map(study => html`
+            ${(this.variant?.studies || []).map(study => html`
                 <h3>
                     ${studyNames[study.studyId]}
                 </h3>

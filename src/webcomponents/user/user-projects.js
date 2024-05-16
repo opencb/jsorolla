@@ -1,4 +1,4 @@
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/forms/data-form.js";
@@ -182,20 +182,26 @@ export default class UserProjects extends LitElement {
                                 title: "FQN",
                                 field: "fqn",
                             },
-                            // Caution 20240229 Vero: commented out because:
-                            //  (a) not working
-                            //  (b) further discussion needed to migrate to new config data model
-                            /*
                             {
                                 title: "Links",
-                                field: "id",
-                                formatter: (value, row) => `
-                                    <a href="#browser/${row.id}/${value}" title="Variant Browser" style="white-space:nowrap;">
-                                        <i class="fas fa-external-link-alt icon-padding"></i> VB
-                                    </a>
-                                `,
+                                field: "fqn",
+                                type: "custom",
+                                display: {
+                                    render: fqn => {
+                                        const match = fqn.match(/^[^@]+@([^:]+):(.*)$/);
+                                        if (match) {
+                                            const [, project, study] = match;
+                                            return html`
+                                                <a href="#variant-browser/${project}/${study}" title="Variant Browser"
+                                                   style="white-space:nowrap;">
+                                                    <i class="fas fa-external-link-alt icon-padding"></i> VB
+                                                </a>
+                                            `;
+                                        }
+                                        return nothing;
+                                    },
+                                },
                             },
-                            */
                         ],
                     },
                 },
