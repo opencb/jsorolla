@@ -260,6 +260,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "internalStatus":
                 case "visited":
                 case "job_priority":
+                case "visibility":
                     content = html`
                         <select-field-filter
                             .value="${this.preparedQuery[subsection.id]}"
@@ -273,13 +274,13 @@ export default class OpencgaBrowserFilter extends LitElement {
                     break;
                 case "path":
                     content = html`
-                        <text-field-filter2
+                        <text-field-filter
                             .value="${this.preparedQuery[subsection.id]}"
                             .config="${{
                                 placeholder: subsection?.placeholder
                             }}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                        </text-field-filter2>
+                        </text-field-filter>
                     `;
                     break;
                 case "annotations":

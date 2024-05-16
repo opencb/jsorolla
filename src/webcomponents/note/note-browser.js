@@ -104,11 +104,11 @@ export default class NoteBrowser extends LitElement {
 
         return html`
             <opencga-browser
-                resource="SAMPLE"
+                resource="NOTE"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
                 .config="${this._config}"
-                @sampleUpdate="${this.onNoteUpdate}">
+                @noteUpdate="${this.onNoteUpdate}">
             </opencga-browser>
         `;
     }
@@ -164,13 +164,15 @@ export default class NoteBrowser extends LitElement {
                             {
                                 id: "id",
                                 name: "Note ID",
-                                description: "",
-                                placeholder: ""
+                                type: "string",
+                                description: "note id .....",
+                                placeholder: "note"
                             },
                             {
-                                id: "tags",
-                                name: "Tags",
-                                placeholder: "",
+                                id: "visibility",
+                                name: "Visibility",
+                                allowedValues: ["PUBLIC", "PRIVATE"],
+                                multiple: false,
                                 description: ""
                             },
                             {
