@@ -22,7 +22,7 @@ const hosts = [
         url: "https://ws.opencb.org/opencga-prod"
     },
     {
-        id: "test1",
+        id: "demo",
         url: "https://demo.app.zettagenomics.com/opencga"
     },
     {
@@ -193,6 +193,12 @@ const SUITE = {
             {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
             {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
         ]
+    },
+    jobMonitor: {
+        visibility: "private"
+    },
+    fileExplorer: {
+        visibility: "private"
     },
     restApi: {
         visibility: "private"

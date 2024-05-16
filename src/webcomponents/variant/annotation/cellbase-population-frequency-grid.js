@@ -23,7 +23,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -50,7 +50,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
 
         this.populationFrequencies = [];
@@ -76,15 +76,12 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
     }
 
     variantIdObserver() {
-        console.log("variantIdObserver", this.variantId, this.cellbaseClient);
         if (this.cellbaseClient && this.variantId) {
             this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.assembly}, {})
                 .then(restResponse => {
                     this.populationFrequencies = restResponse.getResult(0).populationFrequencies;
                     this.requestUpdate();
                 });
-        } else {
-            // this.populationFrequencies = null;
         }
     }
 
@@ -94,17 +91,20 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
         return refAllele + "/" + altAllele;
     }
 
-    freqFormatter(value, row, index) {
-        return (value !== 0 && value !== 1) ? Number(value).toFixed(4) : value;
+    freqFormatter(value, count) {
+        if (typeof value === "undefined") {
+            return "NA";
+        }
+        return (value !== 0 && value !== 1) ? `<span style="margin:0 5px">${Number(value).toPrecision(4)}</span> / <span style="margin:0 5px">${count}</span> (${(value * 100).toPrecision(4)} %)` : value;
     }
 
     renderPlot() {
         const popArray = [];
         const mafArray = [];
-        if (typeof this.populationFrequencies !== "undefined") {
+        if (this.populationFrequencies) {
             for (let i = 0; i < this.populationFrequencies.length; i++) {
                 popArray.push(this.populationFrequencies[i].study + "-" + this.populationFrequencies[i].population);
-                mafArray.push(Math.min(Number(this.populationFrequencies[i].refAlleleFreq).toFixed(4), Number(this.populationFrequencies[i].altAlleleFreq).toFixed(4)));
+                mafArray.push(Math.min(Number(this.populationFrequencies[i].refAlleleFreq).toPrecision(4), Number(this.populationFrequencies[i].altAlleleFreq).toPrecision(4)));
             }
         }
 
@@ -203,14 +203,28 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                         colspan: 1
                     },
                     {
-                        title: "Allele Frequency",
+                        title: "Number of Samples",
+                        rowspan: 2,
+                        colspan: 1,
+                        formatter: (value, row) => {
+                            if (row.refHomGenotypeCount || row.hetGenotypeCount || row.altHomGenotypeCount) {
+                                return row.refHomGenotypeCount + row.hetGenotypeCount + row.altHomGenotypeCount;
+                            } else {
+                                return (row?.refAlleleCount + row?.altAlleleCount) / 2;
+                            }
+                        },
+                        halign: "center",
+                        align: "right"
+                    },
+                    {
+                        title: "Allele Info",
                         rowspan: 1,
                         colspan: 2,
                         formatter: this.alleleFormatter,
                         halign: "center"
                     },
                     {
-                        title: "Genotype Frequency",
+                        title: "Genotype Info",
                         rowspan: 1,
                         colspan: 3,
                         formatter: this.alleleFormatter,
@@ -219,52 +233,47 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                 ],
                 [
                     {
-                        title: "Reference",
-                        field: "refAlleleFreq",
+                        title: `Reference Allele<br><span style="font-style: italic">Freq / Count (%)</span>`,
                         rowspan: 1,
                         colspan: 1,
                         sortable: true,
-                        formatter: this.freqFormatter,
+                        formatter: (value, row) => this.freqFormatter(row.refAlleleFreq, row.refAlleleCount),
                         halign: "center",
                         align: "right"
                     },
                     {
-                        title: "Alternate",
-                        field: "altAlleleFreq",
+                        title: `Alternate Allele<br><span style="font-style: italic">Freq / Count (%)</span>`,
                         rowspan: 1,
                         colspan: 1,
                         sortable: true,
-                        formatter: this.freqFormatter,
+                        formatter: (value, row) => this.freqFormatter(row.altAlleleFreq, row.altAlleleCount),
                         halign: "center",
                         align: "right"
                     },
                     {
-                        title: "Ref/Ref",
-                        field: "refHomGenotypeFreq",
+                        title: `Ref/Ref Genotype<br><span style="font-style: italic">Freq / Count (%)</span>`,
                         rowspan: 1,
                         colspan: 1,
                         sortable: true,
-                        formatter: this.freqFormatter,
+                        formatter: (value, row) => this.freqFormatter(row.refHomGenotypeFreq, row.refHomGenotypeCount),
                         halign: "center",
                         align: "right"
                     },
                     {
-                        title: "Ref/Alt",
-                        field: "hetGenotypeFreq",
+                        title: `Ref/Alt Genotype<br><span style="font-style: italic">Freq / Count (%)</span>`,
                         rowspan: 1,
                         colspan: 1,
                         sortable: true,
-                        formatter: this.freqFormatter,
+                        formatter: (value, row) => this.freqFormatter(row.hetGenotypeFreq, row.hetGenotypeCount),
                         halign: "center",
                         align: "right"
                     },
                     {
-                        title: "Alt/Alt",
-                        field: "altHomGenotypeFreq",
+                        title: `Alt/Alt Genotype<br><span style="font-style: italic">Freq / Count (%)</span>`,
                         rowspan: 1,
                         colspan: 1,
                         sortable: true,
-                        formatter: this.freqFormatter,
+                        formatter: (value, row) => this.freqFormatter(row.altHomGenotypeFreq, row.altHomGenotypeCount),
                         halign: "center",
                         align: "right"
                     }

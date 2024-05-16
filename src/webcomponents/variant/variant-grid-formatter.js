@@ -937,8 +937,8 @@ export default class VariantGridFormatter {
                 <thead>
                     <tr>
                         <th style='padding:0 8px 8px 0;'>Population</th>
-                        <th style='min-width:100px;padding:0 8px 8px 0;'>Allele ALT<br>(freq/count)</th>
-                        <th style='min-width:100px;padding:0 0 8px 0;'>Genotype HOM_ALT<br>(freq/count)</th>
+                        <th style='min-width:100px;padding:0 8px 8px 0;'>Allele ALT<br><span style='font-style: italic'>Freq / Count (%)</span></th>
+                        <th style='min-width:100px;padding:0 0 8px 0;'>Genotype HOM_ALT<br><span style='font-style: italic'>Freq / Count (%)</span></th>
                     </tr>
                 </thead>
                 <tbody>${tooltipRows.join("")}</tbody>
@@ -1011,13 +1011,14 @@ export default class VariantGridFormatter {
 
     static _getPopulationFrequencyColor(freq, populationFrequenciesColor) {
         let color;
-        if (freq === 0 || freq === "0") {
+        const freqFloat = Number.parseFloat(freq);
+        if (freqFloat === 0 || freqFloat === "0") {
             color = populationFrequenciesColor.unobserved;
-        } else if (freq < 0.001) {
+        } else if (freqFloat < 0.001) {
             color = populationFrequenciesColor.veryRare;
-        } else if (freq < 0.005) {
+        } else if (freqFloat < 0.005) {
             color = populationFrequenciesColor.rare;
-        } else if (freq < 0.05) {
+        } else if (freqFloat < 0.05) {
             color = populationFrequenciesColor.average;
         } else {
             color = populationFrequenciesColor.common;

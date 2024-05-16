@@ -23,7 +23,7 @@ class VariantCohortStatsGrid extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -44,7 +44,7 @@ class VariantCohortStatsGrid extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
     }
 
@@ -79,7 +79,6 @@ class VariantCohortStatsGrid extends LitElement {
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
                 formatLoadingMessage: () =>"<loading-spinner></loading-spinner>",
-
                 onLoadError: (status, res) => {
                     console.log(status);
                     console.log(res);
@@ -88,18 +87,30 @@ class VariantCohortStatsGrid extends LitElement {
         }
     }
 
-    idFormatter(value) {
-        return `<span style="font-weight: bold">${value}</span>`;
+    numSamplesFormatter(value, row) {
+        if (row.sampleCount > 0) {
+            return row.sampleCount;
+        } else {
+            let total = 0;
+            for (const genotype of Object.keys(row.genotypeCount)) {
+                total += row.genotypeCount[genotype];
+            }
+            return total || "NA";
+        }
     }
 
     filterFormatter(value, row) {
         let content = "";
         for (const filter of Object.keys(row.filterFreq)) {
-            let fixedFreq = row.filterFreq[filter];
-            if (fixedFreq !== 0 && fixedFreq !== 1) {
-                fixedFreq = Number(fixedFreq).toFixed(4);
+            let freq = row.filterFreq[filter];
+            if (freq !== 0 && freq !== 1) {
+                freq = Number(freq).toPrecision(4);
             }
-            const s = `<span style="padding-right: 20px">${filter}</span><span>${fixedFreq} (${row.filterCount[filter]})</span><br>`;
+            const s = `
+                <span style="padding-right: 20px">${filter}</span>
+                <span>${freq} (${row.filterCount[filter]})</span><br>
+            `;
+
             // PASS must be the first element
             if (filter === "PASS") {
                 content = s + content;
@@ -110,16 +121,8 @@ class VariantCohortStatsGrid extends LitElement {
         return content;
     }
 
-    numSamplesFormatter(value, row) {
-        if (value) {
-            return value;
-        } else {
-            let total = 0;
-            for (const genotype of Object.keys(row.genotypeCount)) {
-                total += row.genotypeCount[genotype];
-            }
-            return total;
-        }
+    idFormatter(value) {
+        return `<span style="font-weight: bold">${value}</span>`;
     }
 
     statsFormatter(value, row) {
@@ -150,8 +153,12 @@ class VariantCohortStatsGrid extends LitElement {
                 count = row.genotypeCount["1/1"];
                 break;
         }
-        const fixedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toPrecision(4) : freq;
-        return `${fixedFreq} (${count})`;
+        const formattedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toPrecision(5) : freq;
+        if (formattedFreq >= 0) {
+            return `${formattedFreq} (${count})`;
+        } else {
+            return "NA";
+        }
     }
 
     othersFormatter(value, row) {
@@ -160,7 +167,7 @@ class VariantCohortStatsGrid extends LitElement {
             if (genotype !== "0/0" && genotype !== "0/1" && genotype !== "1/1") {
                 const freq = row.genotypeFreq[genotype];
                 const count = row.genotypeCount[genotype];
-                const fixedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toPrecision(4) : freq;
+                const fixedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toPrecision(5) : freq;
                 str += `<span style="margin: 0 5px">${genotype}:</span> ${fixedFreq} (${count})<br>`;
             }
         }
@@ -207,7 +214,7 @@ class VariantCohortStatsGrid extends LitElement {
                 },
                 {
                     title: "Number of Samples",
-                    field: "sampleCount",
+                    // field: "sampleCount",
                     rowspan: 2,
                     colspan: 1,
                     formatter: this.numSamplesFormatter,

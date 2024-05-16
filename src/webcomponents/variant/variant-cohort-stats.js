@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "./variant-cohort-stats-grid.js";
 
@@ -23,7 +23,7 @@ export default class VariantCohortStats extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -50,7 +50,7 @@ export default class VariantCohortStats extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.active = false;
     }
@@ -72,14 +72,15 @@ export default class VariantCohortStats extends LitElement {
                 exclude: "annotation,studies.files,studies.samples,studies.scores,studies.issues",
                 useSearchIndex: "no"
             };
-            this.opencgaSession.opencgaClient.variants().query(params)
+            this.opencgaSession.opencgaClient.variants()
+                .query(params)
                 .then(response => {
                     if (response.responses[0].results[0]) {
                         this.variant = response.responses[0].results[0];
-                        this.requestUpdate();
+                        // this.requestUpdate();
                     }
                 })
-                .catch(function(reason) {
+                .catch(reason => {
                     console.error(reason);
                 });
         }
@@ -93,17 +94,16 @@ export default class VariantCohortStats extends LitElement {
         }
 
         return html`
-            ${this.variant?.studies?.length > 0 && this.variant.studies
-                .map(study => html`
-                    <h3>
-                        ${studyNames[study.studyId]}
-                    </h3>
-                    <div style="padding: 10px">
-                        <variant-cohort-stats-grid
-                            .stats="${study.stats}">
-                        </variant-cohort-stats-grid>
-                    </div>
-                `)}
+            ${(this.variant?.studies || []).map(study => html`
+                <h3>
+                    ${studyNames[study.studyId]}
+                </h3>
+                <div style="padding: 10px">
+                    <variant-cohort-stats-grid
+                        .stats="${study.stats}">
+                    </variant-cohort-stats-grid>
+                </div>
+            `)}
         `;
     }
 

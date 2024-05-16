@@ -92,20 +92,19 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static clinicalPopulationFrequenciesFormatter(value, row) {
+        const popFreqMap = new Map();
+        // If variant population freqs exist read values
         if (row?.annotation?.populationFrequencies?.length > 0) {
-            const popFreqMap = new Map();
             row.annotation.populationFrequencies.forEach(popFreq => {
                 popFreqMap.set(popFreq.study + ":" + popFreq.population, popFreq);
             });
-            return VariantGridFormatter.renderPopulationFrequencies(
-                this._config.populationFrequencies,
-                popFreqMap,
-                POPULATION_FREQUENCIES.style,
-                this._config.populationFrequenciesConfig,
-            );
-        } else {
-            return "-";
         }
+        return VariantGridFormatter.renderPopulationFrequencies(
+            this._config.populationFrequencies,
+            popFreqMap,
+            POPULATION_FREQUENCIES.style,
+            this._config.populationFrequenciesConfig,
+        );
     }
 
     static predictionFormatter(value, row) {
