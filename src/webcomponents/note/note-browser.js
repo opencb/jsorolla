@@ -20,6 +20,7 @@ import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
 import "./note-grid.js";
+import "./note-detail.js";
 import {construction} from "../commons/html-utils.js";
 
 export default class NoteBrowser extends LitElement {
@@ -137,15 +138,11 @@ export default class NoteBrowser extends LitElement {
                                 @noteUpdate="${e => params.onComponentUpdate(e, "note")}"
                                 @settingsUpdate="${() => this.onSettingsUpdate()}">
                             </note-grid>
-                            <!-- <div>
-                                <h2>Note Detail</h2>
-                                ${construction}
-                            </div> -->
-                            <!-- <sample-detail
+                            <note-detail
                                 .opencgaSession="${params.opencgaSession}"
                                 .config="${params.config.filter.detail}"
-                                .sampleId="${params.detail.sample?.id}">
-                            </sample-detail> -->
+                                .noteId="${params.detail.note?.id}">
+                            </note-detail>
                         `;
                     }
                 },
@@ -204,11 +201,15 @@ export default class NoteBrowser extends LitElement {
                     showTitle: true,
                     items: [
                         {
-                            id: "sample-view",
+                            id: "note-view",
                             name: "Overview",
                             active: true,
                             render: (note, active, opencgaSession) => html`
-                                ${construction}
+                                <note-view
+                                    .note="${note}"
+                                    .active="${active}"
+                                    .opencgaSession="${opencgaSession}">
+                                </note-view>
                             `,
                         },
                         {
