@@ -443,6 +443,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 // Append circos plot
                 if (this.circosPlot) {
                     this.sample.qualityControl.variant.genomePlot.file = results[0].responses[0].results[0].id;
+                    this.sample.qualityControl.variant.genomePlot.description = this.save.description || "";
                     this.sample.qualityControl.variant.genomePlot.config = {
                         title: this.circosConfig?.title,
                         density: this.circosConfig?.density,
