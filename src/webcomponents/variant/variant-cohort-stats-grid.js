@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 
 
@@ -32,15 +32,12 @@ class VariantCohortStatsGrid extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             stats: {
                 type: Array
             },
-            // study: {
-            //     type: String
-            // },
+            opencgaSession: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -59,49 +56,50 @@ class VariantCohortStatsGrid extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("stats")) {
-            this.renderVariantTable();
+            this.renderCohortStatsTable();
         }
     }
 
-    renderVariantTable() {
-        if (typeof this.stats !== "undefined") {
-            const _table = $("#" + this._prefix + "CohortStatsGrid");
-            const _this = this;
-            _table.bootstrapTable("destroy");
-            _table.bootstrapTable({
-                columns: _this._createDefaultColumns(),
-                data: _this.stats,
-                pagination: _this._config.pagination,
-                pageSize: _this._config.pageSize,
-                pageList: _this._config.pageList,
+    renderCohortStatsTable() {
+        if (this.stats) {
+            // Sort Cohorts. Cohort 'ALL' must be the first one.
+            this.stats = this.stats.sort((a, b) => a.cohortId.localeCompare(b.cohortId));
+            const cohortAllIndex = this.stats.findIndex(c => c.cohortId === "ALL");
+            const cohortAll = this.stats[cohortAllIndex];
+            this.stats[cohortAllIndex] = this.stats[0];
+            this.stats[0] = cohortAll;
+
+            const table = $("#" + this._prefix + "CohortStatsGrid");
+            // const _this = this;
+            table.bootstrapTable("destroy");
+            table.bootstrapTable({
+                data: this.stats,
+                columns: this._createDefaultColumns(),
+                pagination: this._config.pagination,
+                pageSize: this._config.pageSize,
+                pageList: this._config.pageList,
                 formatLoadingMessage: () =>"<loading-spinner></loading-spinner>",
 
-                onLoadError: function(status, res) {
+                onLoadError: (status, res) => {
                     console.log(status);
                     console.log(res);
-                    console.trace();
                 }
             });
         }
     }
 
-    // FIXME numSamples is coming son to data model, remove this formatter
-    numSamplesFormatter(value, row, index) {
-        let total = 0;
-        for (let genotype of Object.keys(row.genotypeCount)) {
-            total += row.genotypeCount[genotype];
-        }
-        return total;
+    idFormatter(value) {
+        return `<span style="font-weight: bold">${value}</span>`;
     }
 
-    filterFormatter(value, row, index) {
+    filterFormatter(value, row) {
         let content = "";
-        for (let filter of Object.keys(row.filterFreq)) {
+        for (const filter of Object.keys(row.filterFreq)) {
             let fixedFreq = row.filterFreq[filter];
             if (fixedFreq !== 0 && fixedFreq !== 1) {
                 fixedFreq = Number(fixedFreq).toFixed(4);
             }
-            let s = `<span style="padding-right: 20px">${filter}</span><span>${fixedFreq} (${row.filterCount[filter]})</span><br>`;
+            const s = `<span style="padding-right: 20px">${filter}</span><span>${fixedFreq} (${row.filterCount[filter]})</span><br>`;
             // PASS must be the first element
             if (filter === "PASS") {
                 content = s + content;
@@ -112,11 +110,19 @@ class VariantCohortStatsGrid extends LitElement {
         return content;
     }
 
-    idFormatter(value, row, index) {
-        return `<span style="font-weight: bold">${value}</span>`;
+    numSamplesFormatter(value, row) {
+        if (value) {
+            return value;
+        } else {
+            let total = 0;
+            for (const genotype of Object.keys(row.genotypeCount)) {
+                total += row.genotypeCount[genotype];
+            }
+            return total;
+        }
     }
 
-    statsFormatter(value, row, index) {
+    statsFormatter(value, row) {
         let freq, count;
         switch (this.field) {
             case "maf":
@@ -144,21 +150,25 @@ class VariantCohortStatsGrid extends LitElement {
                 count = row.genotypeCount["1/1"];
                 break;
         }
-        let fixedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toFixed(4) : freq;
+        const fixedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toPrecision(4) : freq;
         return `${fixedFreq} (${count})`;
     }
 
-    othersFormatter(value, row, index) {
+    othersFormatter(value, row) {
         let str = "";
-        for (let genotype of Object.keys(row.genotypeFreq)) {
+        for (const genotype of Object.keys(row.genotypeFreq)) {
             if (genotype !== "0/0" && genotype !== "0/1" && genotype !== "1/1") {
-                let freq = row.genotypeFreq[genotype];
-                let count = row.genotypeCount[genotype];
-                let fixedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toFixed(4) : freq;
-                str += `${fixedFreq} (${count})<br>`;
+                const freq = row.genotypeFreq[genotype];
+                const count = row.genotypeCount[genotype];
+                const fixedFreq = (freq !== 0 && freq !== 1) ? Number(freq).toPrecision(4) : freq;
+                str += `<span style="margin: 0 5px">${genotype}:</span> ${fixedFreq} (${count})<br>`;
             }
         }
-        return str !== "" ? str:  "NA";
+        // Check if missing alleles exist and add them to the string
+        if (row.missingGenotypeCount > 0) {
+            str += `<span style="margin: 0 5px">./.:</span> ${(row.missingGenotypeCount / row.sampleCount).toPrecision(4)}(${row.missingGenotypeCount})<br>`;
+        }
+        return str || "NA";
     }
 
     _createDefaultColumns() {
@@ -189,7 +199,7 @@ class VariantCohortStatsGrid extends LitElement {
                     halign: "center"
                 },
                 {
-                    title: "Filter",
+                    title: `Filter<br><span class="help-block" style="margin: 0">Frequency (Count)</span>`,
                     rowspan: 2,
                     colspan: 1,
                     formatter: this.filterFormatter,
@@ -197,7 +207,7 @@ class VariantCohortStatsGrid extends LitElement {
                 },
                 {
                     title: "Number of Samples",
-                    // field: "numSamples",
+                    field: "sampleCount",
                     rowspan: 2,
                     colspan: 1,
                     formatter: this.numSamplesFormatter,
@@ -205,13 +215,13 @@ class VariantCohortStatsGrid extends LitElement {
                     halign: "center"
                 },
                 {
-                    title: "Allele Frequency",
+                    title: `Allele Frequency<br><span class="help-block" style="margin: 0">Frequency (Count)</span>`,
                     rowspan: 1,
                     colspan: 2,
                     halign: "center"
                 },
                 {
-                    title: "Genotype Frequency",
+                    title: `Genotype Frequency<br><span class="help-block" style="margin: 0">Frequency (Count)</span>`,
                     rowspan: 1,
                     colspan: 4,
                     halign: "center"
@@ -269,6 +279,14 @@ class VariantCohortStatsGrid extends LitElement {
         ];
     }
 
+    render() {
+        return html`
+            <div>
+                <table id="${this._prefix}CohortStatsGrid" data-buttons-toolbar="#toolbar"></table>
+            </div>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             pagination: true,
@@ -277,13 +295,6 @@ class VariantCohortStatsGrid extends LitElement {
         };
     }
 
-    render() {
-        return html`
-            <div>
-                <table id="${this._prefix}CohortStatsGrid" data-buttons-toolbar="#toolbar"></table>
-            </div>
-        `;
-    }
 }
 
 customElements.define("variant-cohort-stats-grid", VariantCohortStatsGrid);
