@@ -102,7 +102,6 @@ export default class NoteBrowser extends LitElement {
         if (!this.opencgaSession) {
             return html`<div>Not valid session</div>`;
         }
-
         return html`
             <opencga-browser
                 resource="NOTE"
@@ -160,6 +159,17 @@ export default class NoteBrowser extends LitElement {
                         title: "Section title",
                         collapsed: false,
                         filters: [
+                            {
+                                id: "scope",
+                                name: "Scope",
+                                description: "",
+                                defaultValue: "Study",
+                                onText: "Study",
+                                offText: "Organization",
+                                returnValue: value => {
+                                    return value ? "STUDY" : "ORGANIZATION";
+                                }
+                            },
                             {
                                 id: "id",
                                 name: "Note ID",

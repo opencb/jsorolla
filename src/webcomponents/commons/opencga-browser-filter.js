@@ -303,6 +303,20 @@ export default class OpencgaBrowserFilter extends LitElement {
                         </somatic-filter>
                     `;
                     break;
+                case "scope":
+                    content = html `
+                        <div class="mb-2">
+                            <div class="row">
+                                <toggle-radio
+                                    .value="${this.preparedQuery?.scope || subsection?.defaultValue}"
+                                    .disabled="${this.disabled || false}"
+                                    .config="${subsection}"
+                                    @filterChange="${e => this.onFilterChange(subsection.id, subsection.returnValue(e.detail.value))}">
+                                </toggle-radio>
+                            </div>
+                        </div>
+                    `;
+                    break;
                 case "clinical_analysis_priority":
                     content = html`
                         <clinical-priority-filter
