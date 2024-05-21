@@ -140,7 +140,7 @@ export default class NoteBrowser extends LitElement {
                             <note-detail
                                 .opencgaSession="${params.opencgaSession}"
                                 .config="${params.config.filter.detail}"
-                                .noteId="${params.detail.note?.id}">
+                                .note="${params.detail.note}">
                             </note-detail>
                         `;
                     }

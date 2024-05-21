@@ -88,13 +88,45 @@ export default class NoteView extends LitElement {
     }
 
     noteIdObserver() {
-        if (this.noteId && this.opencgaSession) {
+        if (this.note && this.opencgaSession) {
             const params = {
                 id: this.noteId,
             };
             let error;
             this.#setLoading(true);
+
             this.opencgaSession.opencgaClient.studies().searchNotes(this.opencgaSession.study.fqn, params)
+                .then(response => {
+                    this.note = response.responses[0].results[0];
+                })
+                .catch(reason => {
+                    this.note = {};
+                    error = reason;
+                    console.error(reason);
+                })
+                .finally(() => {
+                    this._config = this.getDefaultConfig();
+                    LitUtils.dispatchCustomEvent(this, "noteSearch", this.note, null, error);
+                    this.#setLoading(false);
+                });
+        } else {
+            this.note = {};
+        }
+    }
+
+    noteObserver() {
+        if (this.note?.scope && this.opencgaSession) {
+            const params = {
+                id: this.note?.id,
+            };
+            let error;
+            this.#setLoading(true);
+            // endpoint by default.
+            let noteClient = this.opencgaSession.opencgaClient.studies();
+            if (this.note?.scope === "ORGANIZATION") {
+                noteClient = this.opencgaSession.opencgaClient.organization();
+            }
+            noteClient.searchNotes(this.opencgaSession.study.fqn, params)
                 .then(response => {
                     this.note = response.responses[0].results[0];
                 })
@@ -223,7 +255,6 @@ export default class NoteView extends LitElement {
                                     if (tags?.length == 0) {
                                         return "-";
                                     }
-
                                     if (tags?.length > 5) {
                                         const fiveTags = tags.slice(-4);
                                         const restTags = tags.slice(5);

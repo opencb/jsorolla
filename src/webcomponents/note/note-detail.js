@@ -75,15 +75,22 @@ export default class NoteDetail extends LitElement {
 
     noteIdObserver() {
         if (this.opencgaSession && this.noteId) {
-            this.opencgaSession.opencgaClient.studies()
+            // endpoint by default.
+            let searchNote = this.opencgaSession.opencgaClient.studies()
                 .searchNotes(this.opencgaSession.study.fqn, {
-                    id: this.noteId
-                })
-                .then(response => {
-                    this._note = response.getResult(0);
-                    // this._note = response.responses[0].results[0];
-                    this.requestUpdate();
-                })
+                id: this.note?.id
+            });
+            if (this.note.scope === "ORGANIZATION") {
+                searchNote = this.opencgaSession.opencgaClient.organization()
+                    .searchNotes({
+                    id: this.node?.id
+                });
+            }
+            searchNote.then(response => {
+                this._note = response.getResult(0);
+                // this._note = response.responses[0].results[0];
+                this.requestUpdate();
+            })
                 .catch(err => {
                     console.error(err);
                 });
@@ -91,8 +98,27 @@ export default class NoteDetail extends LitElement {
     }
 
     noteObserver() {
-        this._note = {...this.note};
-        this.requestUpdate();
+        if (this.note?.scope && this.opencgaSession) {
+            // endpoint by default.
+            let searchNote = this.opencgaSession.opencgaClient.studies()
+                .searchNotes(this.opencgaSession.study.fqn, {
+                id: this.note?.id
+            });
+            if (this.note?.scope === "ORGANIZATION") {
+                searchNote = this.opencgaSession.opencgaClient.organization()
+                    .searchNotes({id: this.note?.id});
+            }
+            searchNote
+                .then(response => {
+                    this._note = response.getResult(0) || {};
+                    this.requestUpdate();
+                })
+                .catch(reason => {
+                    console.error(reason);
+                });
+        } else {
+            this._note = {};
+        }
     }
 
     #updateDetailTabs() {
