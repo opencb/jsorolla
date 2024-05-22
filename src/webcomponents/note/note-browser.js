@@ -174,7 +174,6 @@ export default class NoteBrowser extends LitElement {
                                 id: "id",
                                 name: "Note ID",
                                 type: "string",
-                                description: "note id .....",
                                 placeholder: "note"
                             },
                             {
