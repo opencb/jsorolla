@@ -305,7 +305,7 @@ export default class NoteGrid extends LitElement {
             },
             {
                 id: "userId",
-                title: "User Id",
+                title: "User ID",
                 field: "userId",
                 visible: this.gridCommons.isColumnVisible("userId")
             },
