@@ -238,10 +238,6 @@ export default class NoteView extends LitElement {
                             field: "valueType"
                         },
                         {
-                            title: "content",
-                            field: "value"
-                        },
-                        {
                             title: "Version",
                             field: "version",
                         },
