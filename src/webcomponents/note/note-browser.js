@@ -194,7 +194,7 @@ export default class NoteBrowser extends LitElement {
                         showSelectCheckbox: false,
                         showToolbar: true,
                         showCreate: true,
-                        showExport: true,
+                        showExport: false,
                         showSettings: true,
                         exportTabs: ["download", "link", "code"]
                     }
