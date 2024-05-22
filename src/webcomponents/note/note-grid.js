@@ -109,16 +109,16 @@ export default class NoteGrid extends LitElement {
     }
 
     async fetchNotes(query) {
-        const {scope, ...queryParam} = query;
+        const scope = query?.scope;
         try {
             switch (scope) {
                 case "ORGANIZATION":
                     return await this.opencgaSession.opencgaClient.organization()
-                        .searchNotes(queryParam);
+                        .searchNotes(query);
                 case "STUDY":
                 default:
                     return await this.opencgaSession.opencgaClient.studies()
-                        .searchNotes(this.opencgaSession.study.fqn, queryParam);
+                        .searchNotes(this.opencgaSession.study.fqn, query);
             }
         } catch (e) {
             console.error(e);
