@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html, nothing} from "lit";
+import {ifDefined} from "lit/directives/if-defined.js";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -22,7 +23,6 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
 import {construction} from "../commons/html-utils.js";
-import {ifDefined} from "lit/directives/if-defined.js";
 
 export default class NoteGrid extends LitElement {
 
@@ -66,13 +66,19 @@ export default class NoteGrid extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
             changedProperties.has("toolId") ||
             changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) && this.active) {
+            changedProperties.has("config")) {
             this.propertyObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.size > 0 && this.active) {
+            this.renderTable();
         }
     }
 
@@ -100,12 +106,9 @@ export default class NoteGrid extends LitElement {
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"
                 },
-                render: () => html `
-                    ${construction}
-                    `
+                render: () => html`${construction}`,
             },
         };
-        this.renderTable();
     }
 
     fetchNotes(query) {
@@ -128,7 +131,6 @@ export default class NoteGrid extends LitElement {
         } else {
             this.renderRemoteTable();
         }
-        this.requestUpdate();
     }
 
     renderRemoteTable() {
