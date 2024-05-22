@@ -145,12 +145,6 @@ export default class NoteBrowser extends LitElement {
                         `;
                     }
                 },
-                {
-                    id: "facet-tab",
-                    name: "Organization",
-                    icon: "fas fa-chart-bar",
-                    render: params => html `${construction}`
-                }
             ],
             filter: {
                 searchButton: false,
