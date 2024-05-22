@@ -165,7 +165,7 @@ export default class NoteGrid extends LitElement {
                     this.filters = {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        include: "id,scope,tags,userId,visibility,creationDate,dueDate,valueType",
+                        include: "id,scope,tags,userId,visibility,creationDate,modificationDate,valueType",
                         // exclude: "version,studyUid,value,uid",
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         ...this.query
@@ -363,20 +363,13 @@ export default class NoteGrid extends LitElement {
             },
             {
                 id: "dates",
-                title: "Due / Creation Date",
+                title: "Modification / Creation Date",
                 field: "Dates",
                 halign: this.displayConfigDefault?.header?.horizontalAlign,
                 valign: "middle",
                 formatter: (field, note) => {
-                    const dueDateString = UtilsNew.dateFormatter(note.dueDate);
-                    const dueDate = new Date(dueDateString);
-                    const currentDate = new Date();
-                    let dueDateClass = null;
-                    if (currentDate > dueDate) {
-                        dueDateClass = "text-danger";
-                    }
                     return `
-                        <div class="${dueDateClass}">${dueDateString}</div>
+                        <div class="fw-bold">${UtilsNew.dateFormatter(note.modificationDate)}</div>
                         <div class="text-body-secondary">${UtilsNew.dateFormatter(note.creationDate)}</div>
                     `;
                 },
@@ -390,8 +383,6 @@ export default class NoteGrid extends LitElement {
                 title: "Actions",
                 field: "actions",
                 align: "center",
-                // width: "5",
-                // widthUnit: "%",
                 formatter: (value, row) => this.actionsFormatter(value, row),
                 events: {
                     "click a": this.onActionClick.bind(this)
@@ -422,7 +413,7 @@ export default class NoteGrid extends LitElement {
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toUpperCase() === "TAB") {
-                        const fields = ["id,scope,tags,userId, visibility, creationDate, dueDate, valueType"];
+                        const fields = ["id,scope,tags,userId, visibility, creationDate, modificationDate, valueType"];
                         const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "notes_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
@@ -450,7 +441,7 @@ export default class NoteGrid extends LitElement {
                 modalSize: "modal-lg"
             },
             render: active => html`
-               ${construction}
+                ${construction}
             `,
         });
     }
