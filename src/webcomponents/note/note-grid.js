@@ -23,6 +23,7 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
 import {construction} from "../commons/html-utils.js";
+import "./note-create.js";
 
 export default class NoteGrid extends LitElement {
 
@@ -106,7 +107,12 @@ export default class NoteGrid extends LitElement {
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"
                 },
-                render: () => html`${construction}`,
+                render: () => html`
+                    <note-create
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </note-create>
+                `,
             },
         };
     }
