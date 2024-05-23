@@ -15,13 +15,17 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import GridCommons from "../../commons/grid-commons";
-import UtilsNew from "../../../core/utils-new";
-import ModalUtils from "../../commons/modal/modal-utils";
-import CatalogGridFormatter from "../../commons/catalog-grid-formatter";
+import GridCommons from "../../commons/grid-commons.js";
+import UtilsNew from "../../../core/utils-new.js";
+import ModalUtils from "../../commons/modal/modal-utils.js";
+import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+
 import "./user-admin-create.js";
 import "./user-admin-update.js";
-import NotificationUtils from "../../commons/utils/notification-utils";
+import "./user-admin-details-update.js";
+import "./user-admin-password-change.js";
+import "./user-admin-password-reset.js";
 
 export default class UserAdminGrid extends LitElement {
 
@@ -119,21 +123,13 @@ export default class UserAdminGrid extends LitElement {
                 render: () => html `
                     <user-admin-create
                         .organization="${this.organization}"
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "upper"}}"
                         .opencgaSession="${this.opencgaSession}">
                     </user-admin-create>`
             },
         };
     }
 
-    // TODO to remove when BUG 2 fixed
-    onUserCreate(e) {
-        const user = e.detail.value;
-        if (UtilsNew.isNotEmpty(user)) {
-            this.users.push(user);
-            this.renderTable();
-        }
-    }
     renderTable() {
         if (this.users?.length > 0) {
             this.renderLocalTable();
@@ -247,11 +243,31 @@ export default class UserAdminGrid extends LitElement {
     async onActionClick(e, value, row) {
         const action = e.currentTarget.dataset.action;
         switch (action) {
+            /*
             case "edit":
                 this.userId = row.id;
                 this.requestUpdate();
                 await this.updateComplete;
                 ModalUtils.show(`${this._prefix}UpdateModal`);
+                break;
+             */
+            case "edit-details":
+                this.userId = row.id;
+                this.requestUpdate();
+                await this.updateComplete;
+                ModalUtils.show(`${this._prefix}UpdateDetailsModal`);
+                break;
+            case "change-password":
+                this.userId = row.id;
+                this.requestUpdate();
+                await this.updateComplete;
+                ModalUtils.show(`${this._prefix}ChangePasswordModal`);
+                break;
+            case "reset-password":
+                this.userId = row.id;
+                this.requestUpdate();
+                await this.updateComplete;
+                ModalUtils.show(`${this._prefix}ResetPasswordModal`);
                 break;
             case "delete":
                 this.userId = row.id;
@@ -298,20 +314,61 @@ export default class UserAdminGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
-                formatter: () => `
-                    <div id="actions" class="d-flex justify-content-around">
+                formatter: (value, row) => `
+                    <!-- <div id="actions" class="d-flex justify-content-around">
                         <button data-action="delete" class="btn btn-outline-secondary disabled" style="border:0; border-radius: 50%">
                             <i class="far fa-trash-alt"></i>
                         </button>
                         <button data-action="disable" class="btn btn-outline-warning" style="border:0; border-radius: 50%">
                             <i class="fas fa-ban"></i>
                         </button>
+
                         <button data-action="edit" class="btn btn-outline-success" style="border:0; border-radius: 50%">
                             <i class="far fa-edit"></i>
                         </button>
-                    </div>`,
+                    </div> -->
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-toolbox" aria-hidden="true"></i>
+                            <span>Actions</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                             <li>
+                                <a data-action="edit-details" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                    <i class="fas fa-edit" aria-hidden="true"></i> Edit Details ...
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="change-password" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                    <i class="fas fa-edit" aria-hidden="true"></i> Change Password ...
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="reset-password" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                    <i class="fas fa-edit" aria-hidden="true"></i> Reset Password ...
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="edit-permissions" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                    <i class="fas fa-edit" aria-hidden="true"></i> Edit Permissions ...
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="disable" class="dropdown-item">
+                                    <i class="fas fa-ban" aria-hidden="true"></i> Disable
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="disable" class="dropdown-item ">
+                                    <i class="far fa-trash-alt" aria-hidden="true"></i> Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                `,
                 events: {
-                    "click button": (e, value, row) => this.onActionClick(e, value, row),
+                    "click ul>li>a": (e, value, row) => this.onActionClick(e, value, row),
                 },
             });
         }
@@ -320,6 +377,7 @@ export default class UserAdminGrid extends LitElement {
         return this._columns;
     }
 
+    /*
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
@@ -335,9 +393,77 @@ export default class UserAdminGrid extends LitElement {
                         .organization="${this.organization}"
                         .studyId="${this.studyId}"
                         .active="${active}"
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "top"}}"
                         .opencgaSession="${this.opencgaSession}">
                     </user-admin-update>
+                `;
+            },
+        });
+    }
+    */
+
+    renderModalDetailsUpdate() {
+        return ModalUtils.create(this, `${this._prefix}UpdateDetailsModal`, {
+            display: {
+                modalTitle: `Update Details: User ${this.userId} in organization ${this.organization.id}`,
+                modalDraggable: true,
+                modalCyDataName: "modal-details-update",
+                modalSize: "modal-lg"
+            },
+            render: active => {
+                debugger
+                return html`
+                    <user-admin-details-update
+                        .userId="${this.userId}"
+                        .organization="${this.organization}"
+                        .active="${active}"
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </user-admin-details-update>
+                `;
+            },
+        });
+    }
+
+    renderModalPasswordUpdate() {
+        return ModalUtils.create(this, `${this._prefix}ChangePasswordModal`, {
+            display: {
+                modalTitle: `Change Password: User ${this.userId} in organization ${this.organization.id}`,
+                modalDraggable: true,
+                modalCyDataName: "modal-password-change",
+                modalSize: "modal-lg"
+            },
+            render: active => {
+                return html`
+                    <user-admin-password-change
+                        .userId="${this.userId}"
+                        .organization="${this.organization}"
+                        .active="${active}"
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </user-admin-password-change>
+                `;
+            },
+        });
+    }
+
+    renderModalPasswordReset() {
+        return ModalUtils.create(this, `${this._prefix}ResetPasswordModal`, {
+            display: {
+                modalTitle: `Reset Password: User ${this.userId} in organization ${this.organization.id}`,
+                modalDraggable: true,
+                modalCyDataName: "modal-password-reset",
+                modalSize: "modal-lg"
+            },
+            render: active => {
+                return html`
+                    <user-admin-password-reset
+                        .userId="${this.userId}"
+                        .organization="${this.organization}"
+                        .active="${active}"
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </user-admin-password-reset>
                 `;
             },
         });
@@ -371,8 +497,7 @@ export default class UserAdminGrid extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @userCreate="${e => this.onUserCreate(e)}">
+                    @actionClick="${e => this.onActionClick(e)}">
                 </opencb-grid-toolbar>
             `;
         }
@@ -386,10 +511,17 @@ export default class UserAdminGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">
                 <table id="${this.gridId}"></table>
             </div>
-            <!-- 3. Render delete -->
-            ${this.renderModalDelete()}
             <!-- 2. Render update -->
-            ${this.renderModalUpdate()}
+            <!-- $this.renderModalUpdate()}-->
+            <!-- 2. Render update details -->
+            ${this.renderModalDetailsUpdate()}
+            <!-- 3. Render update password -->
+            ${this.renderModalPasswordUpdate()}
+            <!-- 4. Render reset password -->
+            ${this.renderModalPasswordReset()}
+            <!-- 4. Render delete -->
+            ${this.renderModalDelete()}
+
         `;
     }
 
