@@ -175,6 +175,7 @@ export default class UserAdminGrid extends LitElement {
                         .search(this.filters)
                         .then(response => {
                             result = response;
+                            debugger
                             return response;
                         })
                         .then(() => {
@@ -298,10 +299,21 @@ export default class UserAdminGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("individualId")
             },
             {
+                title: "Authentication",
+                field: "account.authentication.id",
+                visible: this.gridCommons.isColumnVisible("account.authentication.id")
+            },
+            {
                 title: "Creation Date",
                 field: "account.creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
-                visible: this.gridCommons.isColumnVisible("creationDate")
+                visible: this.gridCommons.isColumnVisible("account.creationDate")
+            },
+            {
+                title: "Expiration Date",
+                field: "account.expirationDate",
+                formatter: CatalogGridFormatter.dateFormatter,
+                visible: this.gridCommons.isColumnVisible("account.expirationDate")
             },
         ];
 
