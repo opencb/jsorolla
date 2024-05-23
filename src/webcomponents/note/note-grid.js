@@ -435,7 +435,7 @@ export default class NoteGrid extends LitElement {
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
-                modalTitle: `Sample Update: ${this.noteUpdateId}`,
+                modalTitle: `Note Update: ${this.noteUpdateId}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"
