@@ -106,40 +106,42 @@ export default class ConservationFilter extends LitElement {
 
     render() {
         return html`
-            ${Object.entries(this.methods).map(([id, label]) => {
-                return html`
-                    <div style="padding-top: 10px" class="cf-${id}">
-                        <div class="row">
-                            <number-field-filter
-                                    .value="${this.state?.[id]?.value ? (this.state?.[id]?.comparator ?? this.defaultComparator) + (this.state?.[id]?.value ?? "") : ""}"
-                                    .config="${{comparator: true, layout: [3, 3, 6]}}"
-                                    .label="${label}"
-                                    type="text"
-                                    data-method="${id}"
-                                    data-action="comparator"
-                                    @filterChange="${e => this.filterChange(e, id)}">
-                            </number-field-filter>
-                        </div>
-                    </div>`;
-        })}
-
-            <div style="padding-top: 10px">
-                <fieldset class="switch-toggle-wrapper">
-                    <label style="font-weight: normal;">Logical Operator</label>
-                    <div class="switch-toggle text-white alert alert-light">
-                        <input id="${this._prefix}pssOrRadio" name="pss" type="radio" value=","
-                               class="radio-or ${this._prefix}FilterRadio" checked .disabled="${this.logicalSwitchDisabled}"
-                               @change="${this.onLogicalOperatorChange}"/>
-                        <label for="${this._prefix}pssOrRadio"
-                               class="rating-label rating-label-or">OR</label>
-                        <input id="${this._prefix}pssAndRadio" name="pss" type="radio" value=";"
-                               class="radio-and ${this._prefix}FilterRadio" .disabled="${this.logicalSwitchDisabled}" @change="${this.onLogicalOperatorChange}"/>
-                        <label for="${this._prefix}pssAndRadio"
-                               class="rating-label rating-label-and">AND</label>
-                        <a class="btn btn-primary ripple btn-small"></a>
+            <div class="row g-2 mb-2">
+                ${Object.entries(this.methods).map(([id, label]) => html`
+                    <div class="cf-${id}">
+                        <number-field-filter
+                            .value="${this.state?.[id]?.value ? (this.state?.[id]?.comparator ?? this.defaultComparator) + (this.state?.[id]?.value ?? "") : ""}"
+                            .config="${{comparator: true, layout: [3, 3, 6]}}"
+                            .label="${label}"
+                            type="text"
+                            data-method="${id}"
+                            data-action="comparator"
+                            @filterChange="${e => this.filterChange(e, id)}">
+                        </number-field-filter>
                     </div>
-                </fieldset>
+                    `
+                )}
             </div>
+
+            <fieldset ?disabled="${this.logicalSwitchDisabled}">
+                <label style="form-label">Logical Operator</label>
+                <div class="mb-2">
+                    <div class="form-check">
+                        <input class="form-check-input ${this._prefix}FilterRadio" id="${this._prefix}pssOrRadio" name="pss"
+                                type="radio" value="," @change="${this.onLogicalOperatorChange}" checked/>
+                        <label class="form-check-label" for="${this._prefix}pssOrRadio">
+                            OR
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input ${this._prefix}FilterRadio" id="${this._prefix}pssAndRadio" name="pss"
+                                type="radio" value=";" @change="${this.onLogicalOperatorChange}"/>
+                        <label class="form-check-label" for="${this._prefix}pssAndRadio">
+                            AND
+                        </label>
+                    </div>
+                </div>
+            </fieldset>
         `;
     }
 

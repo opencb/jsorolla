@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import {JSONEditor} from "vanilla-jsoneditor";
 import NotificationUtils from "./utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
@@ -76,7 +76,6 @@ export default class JsonEditor extends LitElement {
         }
     }
 
-
     initJsonEditor() {
         const content = {
             json: this.data ? this.data : {}
@@ -126,16 +125,14 @@ export default class JsonEditor extends LitElement {
 
         return html`
             ${this._config.showDownloadButton ? html`
-                <div class="text-right" style="margin-bottom:8px;">
+                <div class="float-end">
                     <download-button
                         .json="${this.data}"
-                        .class="${"btn-sm"}">
+                        classes="${"btn btn-light my-2"}">
                     </download-button>
                 </div>
-            ` : null
-            }
-
-            <div id="${this.jsonEditorId}"></div>
+            ` : nothing}
+            <div class="pt-2" id="${this.jsonEditorId}"></div>
         `;
     }
 

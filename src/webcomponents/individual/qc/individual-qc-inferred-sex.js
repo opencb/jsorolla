@@ -154,7 +154,7 @@ export default class IndividualQcInferredSex extends LitElement {
             });
 
             return html`
-                <table class="table table-hover table-no-bordered text-center">
+                <table class="table table-hover text-center">
                     <thead>
                         <tr>
                             <th>Individual ID</th>
@@ -199,10 +199,10 @@ export default class IndividualQcInferredSex extends LitElement {
                 ` : null}
                 ${individualsWithoutInferredSex.length !== this.individuals?.length ? html`
                     <div>
-                        <div class="btn-group pull-right">
-                            <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
+                        <div class="btn-group float-end">
+                            <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown"
                                     aria-haspopup="true" aria-expanded="false">
-                                <i class="fa fa-download pad5" aria-hidden="true"></i> Download <span class="caret"></span>
+                                <i class="fa fa-download pe-1" aria-hidden="true"></i> Download
                             </button>
                             <ul class="dropdown-menu btn-sm">
                                 ${this._config?.download && this._config?.download?.length ? this._config.download.map(item => html`

@@ -1,0 +1,146 @@
+:root {
+    /* OLD COLOURS */
+    /*--main-bg-color: #0c2f4c;*/
+    --main-color-darker: #09243a;
+    --main-color-link: #286090;
+    --main-color-hover: #23527c;
+    --main-color-grey: #f5f5f5;
+
+    /* NEW COLOURS */
+    --zetta-color-primary-orange: #E25C1C;
+    --zetta-color-primary-turquoise: #2AB7C8;
+    --zetta-color-primary-yellow: #FBC442;
+    --zetta-color-primary-apple: #70AD47;
+
+    --zetta-color-secondary-orange: #CE1A47;
+    --zetta-color-secondary-turquoise: #3C61D1;
+    --zetta-color-secondary-yellow: #5E3AAC;
+    --zetta-color-secondary-apple: #88387E;
+
+    --badgets-color-red: #CD4B5B;
+    --badgets-color-green: #0FAC25;
+    --badgets-color-blue: #1799DD;
+
+    --main-bg-color: #17224D;
+    --main-bg-color-darker: hsl(228, 54%, 18%);
+    --main-color-white: #FBFCFF;
+
+    --main-color-raisin-grey: #1D2229;
+    --main-color-gummental-grey: #2C3036;
+    --main-color-davys-grey: #4B5057;
+    --main-color-french-grey: #B3B4BD;
+    --main-color-antiflash-grey: #F6F7F9;
+
+    --footer-color-bg-dark: hsl(222, 23%, 38%);
+    --footer-color-bg: hsl(222, 23%, 42%);
+    --footer-color-bg-light: hsl(222, 23%, 72%);
+
+    --footer-color-deflt-blue: hsl(223, 33%, 29%);
+    --footer-color-payne-blue: hsl(222, 20%, 45%);
+    --footer-color-cool-blue: hsl(223, 22%, 57%);
+    --footer-color-powder-blue: hsl(223, 34%, 73%);
+    --footer-color-highlight: hsl(223, 36%, 75%);
+}
+
+// body {
+//     min-height: 100vh;
+//     margin: 0;
+//     padding: 0;
+//     /*background-color: var(--main-color-white);*/
+//     // background-color: white;
+//     color: var(--main-bg-color);
+//     -webkit-font-smoothing: antialiased;
+//     -moz-osx-font-smoothing: grayscale;
+//     text-rendering: optimizeLegibility;
+//     font-size: 14px;
+// }
+
+a#waffle-icon-wrapper {
+    padding: 10px;
+}
+
+#waffle-icon {
+    background-image: url("data:image/svg+xml;base64, PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAxNzUuMyAxNjguNCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTc1LjMgMTY4LjQ7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4KCS5zdDB7ZGlzcGxheTpub25lO30KCS5zdDF7ZGlzcGxheTppbmxpbmU7ZmlsbDojNUM1QzVDO3N0cm9rZTojRkZGRkZGO3N0cm9rZS13aWR0aDo2O3N0cm9rZS1taXRlcmxpbWl0OjEwO30KCS5zdDJ7ZmlsbDojRkZGRkZGO3N0cm9rZTojRkZGRkZGO3N0cm9rZS13aWR0aDo2O3N0cm9rZS1taXRlcmxpbWl0OjEwO30KPC9zdHlsZT4KPGcgaWQ9IkxpdmVsbG9fMiIgY2xhc3M9InN0MCI+Cgk8cmVjdCB4PSItMC41IiBjbGFzcz0ic3QxIiB3aWR0aD0iMTc1LjMiIGhlaWdodD0iMTY4LjQiLz4KPC9nPgo8ZyBpZD0iTGl2ZWxsb18xIj4KCTxnPgoJCTxjaXJjbGUgY2xhc3M9InN0MiIgY3g9IjQ0IiBjeT0iNDEuMSIgcj0iNy4yIi8+CgkJPGNpcmNsZSBjbGFzcz0ic3QyIiBjeD0iNDQiIGN5PSI4NC4yIiByPSI3LjIiLz4KCQk8Y2lyY2xlIGNsYXNzPSJzdDIiIGN4PSI0NCIgY3k9IjEyNy4yIiByPSI3LjIiLz4KCQk8Y2lyY2xlIGNsYXNzPSJzdDIiIGN4PSIxMzAuMSIgY3k9IjEyNy4yIiByPSI3LjIiLz4KCQk8Y2lyY2xlIGNsYXNzPSJzdDIiIGN4PSI4Ny4xIiBjeT0iMTI3LjIiIHI9IjcuMiIvPgoJCTxjaXJjbGUgY2xhc3M9InN0MiIgY3g9Ijg3LjEiIGN5PSI0MS4xIiByPSI3LjIiLz4KCQk8Y2lyY2xlIGNsYXNzPSJzdDIiIGN4PSIxMzAuMSIgY3k9IjQxLjEiIHI9IjcuMiIvPgoJCTxjaXJjbGUgY2xhc3M9InN0MiIgY3g9Ijg3LjEiIGN5PSI4NC4yIiByPSI3LjIiLz4KCQk8Y2lyY2xlIGNsYXNzPSJzdDIiIGN4PSIxMzAuMSIgY3k9Ijg0LjIiIHI9IjcuMiIvPgoJPC9nPgo8L2c+Cjwvc3ZnPgoK");
+    background-size: cover;
+    width: 2rem;
+    height: 2rem;
+}
+
+a:link,
+a:visited {
+    color: var(--main-bg-color);
+}
+
+// will it change animation soon (tmp)
+.zetta-animation-pulse:hover {
+    animation: pulse 1s infinite;
+    transition: .3s;
+}
+
+// Animations
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    70% {
+        transform: scale(.9);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+// Fonts
+
+@font-face {
+    font-family: 'Ubuntu';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Ubuntu'), url(../fonts/ubuntu.woff) format('woff');
+}
+
+@font-face {
+    font-family: 'Ubuntu Mono';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Ubuntu Mono'), local('UbuntuMono-Regular'), url(../fonts/ubuntumono.woff) format('woff');
+}
+
+@font-face {
+    font-family: 'Oxygen';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Oxygen'), local('oxygen'), local('Oxygen-Regular'), url(../fonts/oxygen.woff) format('woff');
+}
+
+@font-face {
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: 300;
+    src: local('Lato Light'), local('Lato-Light'), url(../fonts/Lato-Light.woff) format('woff');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
+@font-face {
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Lato Regular'), local('Lato-Regular'), url(../fonts/Lato-Regular.woff) format('woff');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 300;
+    src: local('Roboto Light'), local('Roboto-Light'), url(../fonts/Roboto-Light.woff) format('woff');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Roboto'), local('Roboto'), url(../fonts/Roboto.woff) format('woff');
+}

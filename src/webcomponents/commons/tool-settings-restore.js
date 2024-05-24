@@ -19,6 +19,7 @@ import UtilsNew from "../../core/utils-new";
 import NotificationUtils from "./utils/notification-utils";
 import LitUtils from "./utils/lit-utils";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
+import {guardPage} from "./html-utils";
 
 export default class ToolSettingsRestore extends LitElement {
 
@@ -180,11 +181,7 @@ export default class ToolSettingsRestore extends LitElement {
     // --- RENDER ---
     render() {
         if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
-            return html`
-            <div class="guard-page">
-                <i class="fas fa-lock fa-5x"></i>
-                <h3>No permission to view this page</h3>
-            </div>`;
+            return guardPage("No permission to view this page");
         }
 
         return html `
@@ -212,6 +209,7 @@ export default class ToolSettingsRestore extends LitElement {
                 titleWidth: 4,
                 buttonsVisible: true,
                 buttonsLayout: "top",
+                buttonsClassName: "mt-2",
                 // buttonOkDisabled: () => this._studyFqnList?.length === 0
             },
             buttons: {
@@ -224,7 +222,7 @@ export default class ToolSettingsRestore extends LitElement {
                     display: {
                         // titleHeader: "",
                         // titleStyle: "",
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "d-block text-secondary",
                         // descriptionStyle: "",
                         // visible: () =>
                     },
@@ -249,7 +247,7 @@ export default class ToolSettingsRestore extends LitElement {
                                 defaultLayout: "vertical",
                                 render: study => {
                                     return html `
-                                        <div style="padding: 10px 20px">
+                                        <div class="pt-3 pe-3">
                                             <tool-settings-editor
                                                 .toolSettings="${UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings)}"
                                                 .selectSettings="${true}"
@@ -271,7 +269,7 @@ export default class ToolSettingsRestore extends LitElement {
                         // titleHeader: "",
                         // titleStyle: "",
                         // visible: study => !!study?.attributes[SETTINGS_NAME + "_BACKUP"]?.settings,
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "form-text",
                         // descriptionStyle: "",
                         // visible: () =>
                     },

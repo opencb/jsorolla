@@ -85,8 +85,7 @@ export default class CustomLanding extends LitElement {
         `;
     }
 
-    render() {
-        const ukcaSection = this.config?.landingPage?.organisation?.ukca || {};
+    renderStyle() {
         return html`
             <style>
                 .landing-wrapper {
@@ -164,7 +163,6 @@ export default class CustomLanding extends LitElement {
                 }
 
                 .landing-wrapper > .landing > div {
-                    flex: 1;
                     display: flex;
                     justify-content: center;
                     align-items: flex-start;
@@ -205,27 +203,32 @@ export default class CustomLanding extends LitElement {
                     background-color: hsl(222, 20%, 45%);
                     border: 0;
                 }
-
-
             </style>
+        `;
+    }
+
+    render() {
+        const ukcaSection = this.config?.landingPage?.organisation?.ukca || {};
+        return html`
+            ${this.renderStyle()}
             <div class="landing-wrapper">
                 <div class="landing-company">
                     <!-- Landing company section -->
                     ${this.config?.landingPage?.organisation?.logo?.img ? html`
                         <div class="landing-logo ${this.config.landingPage?.organisation?.display?.logoClass}"
-                             style="${this.config.landingPage?.organisation?.display?.logoStyle}">
+                            style="${this.config.landingPage?.organisation?.display?.logoStyle}">
                             ${this.config?.landingPage?.organisation?.logo?.link ? html `
                                 <a href="${this.config?.landingPage?.organisation?.logo?.link}" target="_blank">
                                     <img height="${this.config?.landingPage?.organisation?.logo?.height || "30px"}"
-                                         src="${this.config.landingPage?.organisation?.logo?.img}"/>
+                                        src="${this.config.landingPage?.organisation?.logo?.img}"/>
                                 </a>
                             `: html `
                                 <img height="${this.config?.landingPage?.organisation?.logo?.height || "30px"}"
-                                     src="${this.config.landingPage?.organisation?.logo?.img}"/>
+                                    src="${this.config.landingPage?.organisation?.logo?.img}"/>
                             `}
                         </div>
                         <div class="landing-title ${this.config.landingPage?.organisation?.display?.titleClass}"
-                             style="${this.config.landingPage?.organisation?.display?.titleStyle}">
+                            style="${this.config.landingPage?.organisation?.display?.titleStyle}">
                             ${this.config.landingPage?.organisation?.title}
                         </div>
                     ` : null}
@@ -237,23 +240,23 @@ export default class CustomLanding extends LitElement {
                                     ${ukcaSection?.logo?.link ? html `
                                         <a href="${ukcaSection?.logo?.link}" target="_blank">
                                             <img height="${ukcaSection?.logo?.height || "100px"}"
-                                                 src="${ukcaSection?.logo?.img}"
-                                                 style="${ukcaSection?.display?.logoStyle || "padding: 1em; margin-right: 30px; background-color: white"}"/>
+                                                src="${ukcaSection?.logo?.img}"
+                                                style="${ukcaSection?.display?.logoStyle || "padding: 1em; margin-right: 30px; background-color: white"}"/>
                                         </a>
                                     `: html `
                                         <img height="${ukcaSection?.logo?.height || "100px"}"
-                                             src="${ukcaSection?.logo?.img}"
-                                             style="${ukcaSection?.display?.logoStyle || "padding: 1em; margin-right: 30px; background-color: white"}"/>
+                                            src="${ukcaSection?.logo?.img}"
+                                            style="${ukcaSection?.display?.logoStyle || "padding: 1em; margin-right: 30px; background-color: white"}"/>
                                     `}
                                 </div>
                             </div>
                             <div class="landing-ukca-description">
                                 <div class="landing-ukca-title ${ukcaSection?.display?.titleClass}"
-                                     style="${ukcaSection?.display?.titleStyle || "color: #f2f4f6; font-size:20px"}">
+                                    style="${ukcaSection?.display?.titleStyle || "color: #f2f4f6; font-size:20px"}">
                                     ${ukcaSection?.title}
                                 </div>
                                 <div class="landing-ukca-content ${ukcaSection?.display?.contentClass}"
-                                     style="${ukcaSection?.display?.contentStyle || "color: #8d9ab8"}">
+                                    style="${ukcaSection?.display?.contentStyle || "color: #8d9ab8"}">
                                     ${ukcaSection?.content || ""}
                                 </div>
                             </div>
@@ -264,20 +267,19 @@ export default class CustomLanding extends LitElement {
                     <!-- Landing title -->
                     ${this.config?.landingPage?.login?.logo || this.config.landingPage?.login?.title ? html`
                         <div class="landing-logo ${this.config.landingPage?.login?.display?.logoClass}"
-                             style="${this.config.landingPage?.login?.display?.logoStyle}">
+                            style="${this.config.landingPage?.login?.display?.logoStyle}">
                             <img height="${this.config?.landingPage?.login?.logo?.height || "30px"}"
-                                 src="${this.config.landingPage?.login?.logo?.img}"/>
+                                src="${this.config.landingPage?.login?.logo?.img}"/>
                         </div>
                         <div class="landing-title ${this.config.landingPage?.login?.display?.titleClass}"
-                             style="${this.config.landingPage?.login?.display?.titleStyle}">
+                            style="${this.config.landingPage?.login?.display?.titleStyle}">
                             ${this.config.landingPage?.login?.title}
                         </div>
                     ` : null}
                     <!-- Landing description -->
                     ${this.config?.landingPage?.login?.content ? html`
-                        <div align="center"
-                             class="landing-content ${this.config.landingPage?.login?.display?.contentClass}"
-                             style="${this.config.landingPage?.login?.display?.contentStyle}">
+                        <div class="text-center landing-content ${this.config.landingPage?.login?.display?.contentClass}"
+                            style="${this.config.landingPage?.login?.display?.contentStyle}">
                             ${UtilsNew.renderHTML(this.config.landingPage?.login?.content)}
                         </div>
                     ` : null}
