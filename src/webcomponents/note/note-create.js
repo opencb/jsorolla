@@ -35,13 +35,13 @@ export default class NoteCreate extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             mode: {
-                type: String
+                type: String,
             },
             displayConfig: {
-                type: Object
+                type: Object,
             },
         };
     }
@@ -50,6 +50,7 @@ export default class NoteCreate extends LitElement {
         // default
         this.note = {
             valueType: "STRING",
+            scope: "STUDY",
         };
         this.isLoading = false;
         this.displayConfigDefault = {
@@ -94,26 +95,23 @@ export default class NoteCreate extends LitElement {
     }
 
     onSubmit() {
-        // TODO:
         const params = {
             study: this.opencgaSession.study.fqn,
-            includeResult: true
+            includeResult: true,
         };
         let error;
         this.#setLoading(true);
-        // TODO select scope before submit to know if org o study
-        // Org -> createNotes(data, params)
-        // Study -> createNotes(study, data, params)
-        this.opencgaSession.opencgaClient.studies()
-            .createNotes(this.note, params)
-            .then(() => {
-                this.note = {};
-                this._config = this.getDefaultConfig();
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "New Note",
-                    message: "note created correctly"
-                });
-            })
+        const {scope, ...data} = this.note;
+        const noteCreateNote = scope === "STUDY" ? this.opencgaSession.opencgaClient.studies().createNotes(params.study, data, {includeResult: true}) :
+            this.opencgaSession.opencgaClient.organization().createNotes(data, {includeResult: true});
+        noteCreateNote.then(() => {
+            this.note = {};
+            this._config = this.getDefaultConfig();
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                title: "New Note",
+                message: "note created correctly",
+            });
+        })
             .catch(reason => {
                 error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
@@ -126,7 +124,8 @@ export default class NoteCreate extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+            return html`
+                <loading-spinner></loading-spinner>`;
         }
 
         return html`
@@ -134,7 +133,8 @@ export default class NoteCreate extends LitElement {
                 .data="${this.note}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}">
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
             </data-form>
         `;
     }
@@ -152,7 +152,7 @@ export default class NoteCreate extends LitElement {
                             type: "select",
                             required: true,
                             defaultValue: "STUDY",
-                            allowedValues: ["STUDY", "ORGANIZATION"]
+                            allowedValues: ["STUDY", "ORGANIZATION"],
                         },
                         {
                             title: "Note ID",
@@ -166,7 +166,7 @@ export default class NoteCreate extends LitElement {
                             type: "select",
                             required: true,
                             defaultValue: "PUBLIC",
-                            allowedValues: ["PUBLIC", "PRIVATE"]
+                            allowedValues: ["PUBLIC", "PRIVATE"],
                         },
                         {
                             title: "Tags",
@@ -178,13 +178,13 @@ export default class NoteCreate extends LitElement {
                                         dataFormFilterChange(e.detail.value ? e.detail.value?.split(",") : []);
                                     };
                                     return html`
-                                    <select-token-filter-static
-                                        .values="${data?.tags}"
-                                        @filterChange="${e => handleTagsFilterChange(e)}">
-                                    </select-token-filter-static>
-                                `;
+                                        <select-token-filter-static
+                                            .values="${data?.tags}"
+                                            @filterChange="${e => handleTagsFilterChange(e)}">
+                                        </select-token-filter-static>
+                                    `;
                                 },
-                                }
+                            },
                         },
                         {
                             title: "Type",
@@ -192,7 +192,7 @@ export default class NoteCreate extends LitElement {
                             type: "select",
                             required: true,
                             defaultValue: "STRING",
-                            allowedValues: ["OBJECT", "ARRAY", "STRING", "INTEGER", "DOUBLE"]
+                            allowedValues: ["OBJECT", "ARRAY", "STRING", "INTEGER", "DOUBLE"],
                         },
                         {
                             title: "Content",
@@ -203,9 +203,9 @@ export default class NoteCreate extends LitElement {
                                     const validTypes = ["OBJECT", "ARRAY"];
                                     return validTypes.includes(data?.valueType);
                                 },
-                                render: data =>{
+                                render: data => {
                                     return html`Not Supported Yet`;
-                                }
+                                },
                             },
                         },
                         {
