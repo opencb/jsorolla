@@ -229,7 +229,7 @@ export default class SampleGrid extends LitElement {
                         .then(response => {
                             sampleResponse = response;
                             // Fetch clinical analysis to display the Case ID
-                            return this.fetchClinicalAnalysis(sampleResponse?.responses?.[0]?.results || []);
+                            return this.fetchClinicalAnalysis(sampleResponse?.responses?.[0]?.results || [], casesLimit);
                         })
                         .then(() => {
                             // Prepare data for columns extensions
