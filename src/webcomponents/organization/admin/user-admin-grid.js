@@ -26,6 +26,7 @@ import "./user-admin-update.js";
 import "./user-admin-details-update.js";
 import "./user-admin-password-change.js";
 import "./user-admin-password-reset.js";
+import LitUtils from "../../commons/utils/lit-utils";
 
 export default class UserAdminGrid extends LitElement {
 
@@ -123,8 +124,9 @@ export default class UserAdminGrid extends LitElement {
                 render: () => html `
                     <user-admin-create
                         .organization="${this.organization}"
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
+                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @userCreate="${e => this.onUserEvent(e)}">
                     </user-admin-create>`
             },
         };
@@ -175,7 +177,6 @@ export default class UserAdminGrid extends LitElement {
                         .search(this.filters)
                         .then(response => {
                             result = response;
-                            debugger
                             return response;
                         })
                         .then(() => {
@@ -413,6 +414,9 @@ export default class UserAdminGrid extends LitElement {
         });
     }
     */
+    onUserEvent() {
+        LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", {}, {}, null);
+    }
 
     renderModalDetailsUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateDetailsModal`, {
@@ -423,14 +427,13 @@ export default class UserAdminGrid extends LitElement {
                 modalSize: "modal-lg"
             },
             render: active => {
-                debugger
                 return html`
                     <user-admin-details-update
                         .userId="${this.userId}"
                         .organization="${this.organization}"
-                        .active="${active}"
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
+                        .opencgaSession="${this.opencgaSession}"
+                        @userUpdate="${e => this.onUserEvent(e)}">
                     </user-admin-details-update>
                 `;
             },
@@ -452,7 +455,8 @@ export default class UserAdminGrid extends LitElement {
                         .organization="${this.organization}"
                         .active="${active}"
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
+                        .opencgaSession="${this.opencgaSession}"
+                        @userUpdate="${e => this.onUserEvent(e)}">
                     </user-admin-password-change>
                 `;
             },
@@ -468,13 +472,15 @@ export default class UserAdminGrid extends LitElement {
                 modalSize: "modal-lg"
             },
             render: active => {
+                debugger
                 return html`
                     <user-admin-password-reset
                         .userId="${this.userId}"
                         .organization="${this.organization}"
                         .active="${active}"
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
+                        .opencgaSession="${this.opencgaSession}"
+                        @userUpdate="${e => this.onUserEvent(e)}">
                     </user-admin-password-reset>
                 `;
             },
@@ -495,7 +501,8 @@ export default class UserAdminGrid extends LitElement {
                 .studyId="${this.studyId}"
                 .active="${active}"
                 .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                .opencgaSession="${this.opencgaSession}">
+                .opencgaSession="${this.opencgaSession}"
+                @userUpdate="${e => this.onUserEvent(e)}">
             </user-admin-delete>
         `,
         });

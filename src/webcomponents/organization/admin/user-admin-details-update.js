@@ -90,6 +90,7 @@ export default class UserAdminDetailsUpdate extends LitElement {
     #initOriginalObjects() {
         this._user = UtilsNew.objectClone(this.user);
         this.updatedFields = {};
+        this.requestUpdate();
     }
 
     update(changedProperties) {
@@ -152,7 +153,7 @@ export default class UserAdminDetailsUpdate extends LitElement {
                 this.requestUpdate();
                 // We need to dispatch a component clear event
                 LitUtils.dispatchCustomEvent(this, "userClear", null, {
-                    user: this._user,
+                    user: this.user,
                 });
             },
         });
@@ -173,7 +174,7 @@ debugger
         this.opencgaSession.opencgaClient.organization()
             .updateUser(this.userId, updateParams, params)
             .then(response => {
-                this._user = UtilsNew.objectClone(response.responses[0].results[0]);
+                this.user = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.#initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: `User Update`,
@@ -182,7 +183,7 @@ debugger
             })
             .catch(reason => {
                 error = reason;
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(() => {
                 LitUtils.dispatchCustomEvent(this, "userUpdate", this._user, {}, error);
