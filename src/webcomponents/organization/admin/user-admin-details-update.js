@@ -56,7 +56,15 @@ export default class UserAdminDetailsUpdate extends LitElement {
         this.userId = "";
         this.displayConfig = {};
         this.updatedFields = {};
-
+        // Some of the user fields modeled in the form cannot be updated
+        this.updateCustomisation = [
+            params => {
+                if (params.account?.expirationDate) {
+                    // eslint-disable-next-line no-param-reassign
+                    params.account = {expirationDate: params.account.expirationDate};
+                }
+            },
+        ];
         this._config = this.getDefaultConfig();
     }
 
@@ -121,8 +129,17 @@ export default class UserAdminDetailsUpdate extends LitElement {
         }
     }
 
-    onFieldChange(e) {
-        this.updatedFields = e.detail?.data || {};
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        this.updatedFields = FormUtils.getUpdatedFields(
+            this.user,
+            this.updatedFields,
+            param,
+            e.detail.value,
+            e.detail.action);
+
+        debugger
+        // this.updatedFields = e.detail?.data || {};
         this.requestUpdate();
     }
 
@@ -142,17 +159,19 @@ export default class UserAdminDetailsUpdate extends LitElement {
     }
 
     onSubmit() {
-        const data = {
+        const params = {
             includeResult: true,
         };
+
+        const updateParams = FormUtils.getUpdateParams(this._user, this.updatedFields, this.updateCustomisation);
+debugger
         let error;
         this.#setLoading(true);
         // Fixme: waiting for task:
         //  https://app.clickup.com/t/36631768/TASK-6013
-        //  Check endpoint when released.
-/*
+        //  PR to approve
         this.opencgaSession.opencgaClient.organization()
-            .updateUser(this.userId, data, this.updatedFields)
+            .updateUser(this.userId, updateParams, params)
             .then(response => {
                 this._user = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.#initOriginalObjects();
@@ -166,10 +185,10 @@ export default class UserAdminDetailsUpdate extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "updateUser", this._user, {}, error);
+                LitUtils.dispatchCustomEvent(this, "userUpdate", this._user, {}, error);
                 this.#setLoading(false);
             });
-*/
+
     }
 
     render() {
