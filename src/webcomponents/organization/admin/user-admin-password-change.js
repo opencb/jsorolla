@@ -40,9 +40,6 @@ export default class UserAdminPasswordChange extends LitElement {
             organization: {
                 type: Object,
             },
-            active: {
-                type: Boolean,
-            },
             opencgaSession: {
                 type: Object
             },
@@ -53,6 +50,7 @@ export default class UserAdminPasswordChange extends LitElement {
     }
 
     #init() {
+        this.user = {}; // Original object
         this._user = {}; // Updated object
         this.userId = "";
         this.displayConfig = {};
