@@ -230,7 +230,7 @@ export default class IndividualGrid extends LitElement {
                         .search(this.filters)
                         .then(response => {
                             individualResponse = response;
-                            return this.fetchClinicalAnalysis(individualResponse?.responses?.[0]?.results || []);
+                            return this.fetchClinicalAnalysis(individualResponse?.responses?.[0]?.results || [], casesLimit);
                         })
                         .then(() => {
                             // Prepare data for columns extensions
