@@ -526,7 +526,6 @@ export default class FamilyGrid extends LitElement {
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
                             <span>Actions</span>
-                            <span class="caret ms-1"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
