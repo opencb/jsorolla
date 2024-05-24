@@ -72,6 +72,19 @@ export default class UserAdminGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
+        this.action = "";
+        this._renderModal = {
+            "edit-details": () => this.renderModalDetailsUpdate(),
+            "change-password": () => this.renderModalPasswordUpdate(),
+            "reset-password": () => this.renderModalPasswordReset(),
+            "delete": () => this.renderModalDelete(),
+        };
+        this._showModal = {
+            "edit-details": () => ModalUtils.show(`${this._prefix}UpdateDetailsModal`),
+            "change-password": () => ModalUtils.show(`${this._prefix}ChangePasswordModal`),
+            "reset-password": () => ModalUtils.show(`${this._prefix}ResetPasswordModal`),
+            "delete": () => ModalUtils.show(`${this._prefix}DeleteModal`),
+        };
     }
 
     update(changedProperties) {
@@ -243,45 +256,17 @@ export default class UserAdminGrid extends LitElement {
     }
 
     async onActionClick(e, value, row) {
-        const action = e.currentTarget.dataset.action;
-        switch (action) {
-            /*
-            case "edit":
-                this.userId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
-                break;
-             */
-            case "edit-details":
-                this.userId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateDetailsModal`);
-                break;
-            case "change-password":
-                this.userId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}ChangePasswordModal`);
-                break;
-            case "reset-password":
-                this.userId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}ResetPasswordModal`);
-                break;
-            case "delete":
-                this.userId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}DeleteModal`);
-                break;
-            default:
-                break;
-        }
+        this.action = e.currentTarget.dataset.action;
+        this.userId = row.id;
+        this.requestUpdate();
+        await this.updateComplete;
+        this._showModal[this.action]();
     }
 
+    onUserUpdate(e, id) {
+        ModalUtils.close(id);
+        this.renderRemoteTable();
+    }
     _getDefaultColumns() {
         this._columns = [
             {
@@ -423,14 +408,14 @@ export default class UserAdminGrid extends LitElement {
                 modalCyDataName: "modal-details-update",
                 modalSize: "modal-lg"
             },
-            render: active => {
+            render: () => {
                 return html`
                     <user-admin-details-update
                         .userId="${this.userId}"
                         .organization="${this.organization}"
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                         .opencgaSession="${this.opencgaSession}"
-                        @userUpdate="${e => this.renderRemoteTable(e)}">
+                        @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}UpdateDetailsModal`)}">
                     </user-admin-details-update>
                 `;
             },
@@ -445,15 +430,14 @@ export default class UserAdminGrid extends LitElement {
                 modalCyDataName: "modal-password-change",
                 modalSize: "modal-lg"
             },
-            render: active => {
+            render: () => {
                 return html`
                     <user-admin-password-change
                         .userId="${this.userId}"
                         .organization="${this.organization}"
-                        .active="${active}"
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                         .opencgaSession="${this.opencgaSession}"
-                        @userUpdate="${e => this.renderRemoteTable(e)}">
+                        @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ChangePasswordModal`)}">
                     </user-admin-password-change>
                 `;
             },
@@ -468,15 +452,14 @@ export default class UserAdminGrid extends LitElement {
                 modalCyDataName: "modal-password-reset",
                 modalSize: "modal-lg"
             },
-            render: active => {
-                debugger
+            render: () => {
                 return html`
                     <user-admin-password-reset
                         .userId="${this.userId}"
                         .organization="${this.organization}"
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                         .opencgaSession="${this.opencgaSession}"
-                        @userUpdate="${e => this.renderRemoteTable(e)}">
+                        @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ResetPasswordModal`)}">
                     </user-admin-password-reset>
                 `;
             },
@@ -498,7 +481,7 @@ export default class UserAdminGrid extends LitElement {
                 .active="${active}"
                 .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                 .opencgaSession="${this.opencgaSession}"
-                @userUpdate="${e => this.renderRemoteTable(e)}">
+                @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}DeleteModal`)}">
             </user-admin-delete>
         `,
         });
@@ -528,14 +511,7 @@ export default class UserAdminGrid extends LitElement {
             </div>
             <!-- 2. Render update -->
             <!-- $this.renderModalUpdate()}-->
-            <!-- 2. Render update details -->
-            ${this.renderModalDetailsUpdate()}
-            <!-- 3. Render update password -->
-            ${this.renderModalPasswordUpdate()}
-            <!-- 4. Render reset password -->
-            ${this.renderModalPasswordReset()}
-            <!-- 4. Render delete -->
-            ${this.renderModalDelete()}
+            ${this.action ? this._renderModal[this.action]() : nothing}
 
         `;
     }
