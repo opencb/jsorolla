@@ -263,35 +263,6 @@ debugger
                         },
                     ],
                 },
-                {
-                    title: "Quota",
-                    display: {
-                        titleVisible: false,
-                    },
-                    elements: [
-                        {
-                            title: "CPU Usage",
-                            field: "quota.cpuUsage",
-                            type: "input-num",
-                        },
-                        {
-                            title: "Disk Usage",
-                            field: "quota.diskUsage",
-                            type: "input-num",
-                        },
-                        {
-                            title: "Max CPU",
-                            field: "quota.maxCpu",
-                            type: "input-num",
-                        },
-                        {
-                            title: "Max Disk",
-                            field: "quota.maxDisk",
-                            type: "input-num",
-                        },
-                    ],
-                },
-
             ],
         };
     }
