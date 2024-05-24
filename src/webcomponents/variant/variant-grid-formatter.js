@@ -1418,18 +1418,18 @@ export default class VariantGridFormatter {
         }
     }
 
-    static reportedVariantFormatter(value, variant, index) {
-        return `
-            ${variant?.interpretations?.length > 0 ? `
+    static reportedVariantFormatter(value, variant) {
+        if (variant?.interpretations?.length > 0) {
+            return `
                 <div>${variant.interpretations.length === 1 ? "1 case found" : `${variant.interpretations.length} cases found`}</div>
                 <div class="text-muted">
                     <div>REPORTED: ${variant.interpretationStats?.status?.REPORTED || 0} times</div>
                     <div>TIER 1: ${variant.interpretationStats?.tier?.TIER1 || 0} times</div>
                     <div>DISCARDED: ${variant.interpretationStats?.status?.DISCARDED || 0} times</div>
-                </div>` : `
-                <div>No cases found</div>`
+                </div>
+            `;
         }
-        `;
+        return `<div>No cases found</div>`;
     }
 
     static reportedVariantDetailFormatter(value, row, opencgaSession) {
