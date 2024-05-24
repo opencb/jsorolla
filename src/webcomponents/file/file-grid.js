@@ -419,10 +419,11 @@ export default class OpencgaFileGrid extends LitElement {
                 formatter: (value, row) => `
                     <div class="d-inline-block dropdown">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-toolbox" aria-hidden="true"></i>
+                            <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
                             <span>Actions</span>
+                            <span class="caret ms-1"></span>
                         </button>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a class="dropdown-item ${downloadUrl.length == 0 ? "disabled" : ""}" data-action="download" href="${downloadUrl.join("").replace("FILE_ID", row.id)}" >
                                     <i class="fas fa-download"></i> Download

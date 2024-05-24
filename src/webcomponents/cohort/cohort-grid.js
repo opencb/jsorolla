@@ -346,10 +346,11 @@ export default class CohortGrid extends LitElement {
                 formatter: () => `
                     <div class="d-inline-block dropdown">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                            <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
                             <span>Actions</span>
+                            <span class="caret ms-1"></span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a data-action="edit" class="dropdown-item btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...

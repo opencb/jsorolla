@@ -466,9 +466,9 @@ export default class DiseasePanelGrid extends LitElement {
                     return `
                         <div class="d-inline-block dropdown" style="display: flex; justify-content: center;">
                             <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
                                 <span>Actions</span>
-                                <span class="caret" style="margin-left: 5px"></span>
+                                <span class="caret ms-1"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
