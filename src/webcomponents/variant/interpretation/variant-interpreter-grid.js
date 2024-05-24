@@ -795,7 +795,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         return `
                             <div class="dropdown">
                                 <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-toolbox" aria-hidden="true"></i>
+                                    <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
                                     Actions
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
@@ -821,7 +821,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                     <li class="dropdown-header">CellBase Links</li>
                                     ${["v5.2", "v5.8"].map(v => `
                                     <li>
-                                        <a target="_blank" class=dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`)}">
+                                        <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`)}">
                                             <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                                             CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}
                                         </a>
