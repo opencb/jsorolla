@@ -662,9 +662,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         return `
                             <div class="dropdown">
                                 <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                    <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
                                     <span>Actions</span>
-                                    <span class="caret" style="margin-left: 5px"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
