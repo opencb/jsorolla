@@ -194,6 +194,7 @@ export default class DiseasePanelGrid extends LitElement {
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.panels()
+                        .search(this.filters)
                         .then(response => {
                             panelsResponse = response;
                             // Prepare data for columns extensions
