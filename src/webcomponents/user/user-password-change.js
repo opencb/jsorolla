@@ -1,8 +1,8 @@
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/forms/data-form.js";
 import LitUtils from "../commons/utils/lit-utils";
+import UtilsNew from "../../core/utils-new";
 
 export default class UserPasswordChange extends LitElement {
 
@@ -78,18 +78,20 @@ export default class UserPasswordChange extends LitElement {
             newPassword: this._password.newPassword,
             organizationId: this.organizationId,
         };
+        let error;
         this.#setLoading(true);
-        debugger
         this.opencgaSession.opencgaClient.users()
             .password(params)
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: "Your password has been changed",
                 });
+                LitUtils.dispatchCustomEvent(this, "userUpdate");
                 this.#initOriginalObjects();
             })
-            .catch(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            .catch(reason => {
+                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(() => {
                 this.#setLoading(false);

@@ -17,8 +17,8 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import FormUtils from "../../commons/forms/form-utils";
-import NotificationUtils from "../../commons/utils/notification-utils";
+import FormUtils from "../../commons/forms/form-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "../../user/user-password-change.js";
 import "../../user/user-password-reset.js";
 
@@ -64,13 +64,6 @@ export default class UserAdminUpdate extends LitElement {
         this.displayConfig = {};
         this.updatedFields = {};
 
-        this.displayConfigDefault = {
-            style: "margin: 10px",
-            defaultLayout: "horizontal",
-            labelAlign: "right",
-            labelWidth: 3,
-            buttonOkText: "Update",
-        };
         this._config = this.getDefaultConfig();
     }
 
@@ -147,7 +140,7 @@ export default class UserAdminUpdate extends LitElement {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
                 })
                 .finally(() => {
-                    LitUtils.dispatchCustomEvent(this, "studyInfo", this.study, {}, error);
+                    LitUtils.dispatchCustomEvent(this, "userInfo", this.study, {}, error);
                     this.#setLoading(false);
                 });
         }
