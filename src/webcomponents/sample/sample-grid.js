@@ -629,34 +629,27 @@ export default class SampleGrid extends LitElement {
                 modalTitle: "Create Cohort",
                 modalDraggable: true,
                 modalbtnsVisible: true,
-                modalSize: "modal-lg",
+                modalSize: "modal-md",
             },
             render: () => {
                 return html`
-                    <div style="margin: 10px">
-                        Create a new cohort with <span style="font-weight: bold">${this.createCohortSampleIds?.length} samples</span>.
+                    <div class="mb-2">
+                        Create a new cohort with <span class="fw-bold">${this.createCohortSampleIds?.length} samples</span>.
                         This can take few seconds depending on the number of samples.
                     </div>
                     ${this.createCohortSampleIds?.length === 5000 ? html`
-                        <div class="alert alert-warning">No more than 5,000 samples allowed</div>
+                        <div class="alert alert-warning mb-2">No more than 5,000 samples allowed</div>
                     ` : nothing}
-                    <div style="margin: 10px">Select the new Cohort ID and Name:</div>
-                    <div>
-                        <form class="form-horizontal">
-                            <div class="form-group">
-                                <label for="${this._prefix}CohortId" class="col-sm-2 control-label">Cohort ID</label>
-                                <div class="col-sm-6">
-                                    <input type="text" class="form-control" id="${this._prefix}CohortId" placeholder="">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="${this._prefix}CohortName" class="col-sm-2 control-label">Cohort Name</label>
-                                <div class="col-sm-6">
-                                    <input type="text" class="form-control" id="${this._prefix}CohortName" placeholder="">
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+                    <form>
+                        <div class="mb-2">
+                            <label for="${this._prefix}CohortId" class="form-label">Cohort ID</label>
+                            <input type="text" class="form-control" id="${this._prefix}CohortId" placeholder="">
+                        </div>
+                        <div class="mb-0">
+                            <label for="${this._prefix}CohortName" class="form-label">Cohort Name</label>
+                            <input type="text" class="form-control" id="${this._prefix}CohortName" placeholder="">
+                        </div>
+                    </form>
                 `;
             },
             onOk: e => this.onCreateCohortSave(e)
