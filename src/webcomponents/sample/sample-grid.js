@@ -434,7 +434,7 @@ export default class SampleGrid extends LitElement {
                 formatter: (value, row) => `
                     <div class="d-inline-block dropdown">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-toolbox" aria-hidden="true"></i>
+                            <i class="fas fa-toolbox pe-1" aria-hidden="true"></i>
                             <span>Actions</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -597,7 +597,7 @@ export default class SampleGrid extends LitElement {
             {
                 render: () => html`
                     <button type="button" class="btn btn-light" @click="${e => this.onCreateCohortShow(e)}">
-                        <i class="fas fa-users icon-padding"></i> Create Cohort
+                        <i class="fas fa-users pe-1"></i> Create Cohort
                     </button>
                 `,
             }
