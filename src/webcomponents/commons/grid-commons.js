@@ -347,8 +347,8 @@ export default class GridCommons {
             if (events.length > 0) {
                 const eventsMessages = events.map(event => {
                     return `
-                        <div class="alert alert-warning" style="margin-bottom:8px;">
-                            <i class="fas fa-exclamation-triangle icon-padding"></i>
+                        <div class="alert alert-warning mb-2">
+                            <i class="fas fa-exclamation-triangle pe-1"></i>
                             <span>${event.message}</span>
                         </div>
                     `;
