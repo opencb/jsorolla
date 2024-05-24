@@ -57,7 +57,7 @@ export default class ModalUtils {
                             <div class="modal-footer">
                                 <button
                                     type="button"
-                                    class="btn btn-primary"
+                                    class="btn btn-light"
                                     data-bs-dismiss="modal"
                                     @click="${e => LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}"
                                 >
