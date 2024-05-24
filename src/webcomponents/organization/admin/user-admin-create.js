@@ -82,7 +82,6 @@ export default class UserAdminCreate extends LitElement {
     }
 
     opencgaSessionObserver() {
-        // Read Projects and Study to prepare the select studies menu
         this.#initOriginalObjects();
     }
 
@@ -114,6 +113,9 @@ export default class UserAdminCreate extends LitElement {
         this.user.organization = this.organization.id;
         let error = {};
         let newUser = {};
+        // CAUTION:
+        //  - POST admin/users/create or
+        //  - POST users/create ?
         this.opencgaSession.opencgaClient.users()
             .create(this.user)
             .then(response => {
