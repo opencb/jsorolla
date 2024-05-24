@@ -126,7 +126,7 @@ export default class UserAdminGrid extends LitElement {
                         .organization="${this.organization}"
                         .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                         .opencgaSession="${this.opencgaSession}"
-                        @userCreate="${e => this.onUserEvent(e)}">
+                        @userCreate="${e => this.renderRemoteTable(e)}">
                     </user-admin-create>`
             },
         };
@@ -414,9 +414,6 @@ export default class UserAdminGrid extends LitElement {
         });
     }
     */
-    onUserEvent() {
-        LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", {}, {}, null);
-    }
 
     renderModalDetailsUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateDetailsModal`, {
@@ -433,7 +430,7 @@ export default class UserAdminGrid extends LitElement {
                         .organization="${this.organization}"
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                         .opencgaSession="${this.opencgaSession}"
-                        @userUpdate="${e => this.onUserEvent(e)}">
+                        @userUpdate="${e => this.renderRemoteTable(e)}">
                     </user-admin-details-update>
                 `;
             },
@@ -456,7 +453,7 @@ export default class UserAdminGrid extends LitElement {
                         .active="${active}"
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                         .opencgaSession="${this.opencgaSession}"
-                        @userUpdate="${e => this.onUserEvent(e)}">
+                        @userUpdate="${e => this.renderRemoteTable(e)}">
                     </user-admin-password-change>
                 `;
             },
@@ -477,10 +474,9 @@ export default class UserAdminGrid extends LitElement {
                     <user-admin-password-reset
                         .userId="${this.userId}"
                         .organization="${this.organization}"
-                        .active="${active}"
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                         .opencgaSession="${this.opencgaSession}"
-                        @userUpdate="${e => this.onUserEvent(e)}">
+                        @userUpdate="${e => this.renderRemoteTable(e)}">
                     </user-admin-password-reset>
                 `;
             },
@@ -502,7 +498,7 @@ export default class UserAdminGrid extends LitElement {
                 .active="${active}"
                 .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                 .opencgaSession="${this.opencgaSession}"
-                @userUpdate="${e => this.onUserEvent(e)}">
+                @userUpdate="${e => this.renderRemoteTable(e)}">
             </user-admin-delete>
         `,
         });
@@ -516,7 +512,7 @@ export default class UserAdminGrid extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
-                    @actionClick="${e => this.onActionClick(e)}">
+                    @userUpdate="${e => this.renderRemoteTable(e)}">
                 </opencb-grid-toolbar>
             `;
         }
