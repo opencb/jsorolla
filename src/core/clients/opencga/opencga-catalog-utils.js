@@ -89,24 +89,38 @@ export default class OpencgaCatalogUtils {
         return false;
     }
 
+    static isOrganizationAdminOwner(organization, userLogged) {
+        if (!organization || !userLogged) {
+            console.error(`No valid parameters, study: ${organization}, user: ${userLogged}`);
+            return false;
+        }
+        // Check if user is Organization owner
+        return !!(organization.admins.includes(userLogged) || organization.owner === userLogged);
+    }
+
     // Check if the user has the right the permissions in the study.
     static isAdmin(study, userLogged) {
         if (!study || !userLogged) {
             console.error(`No valid parameters, study: ${study}, user: ${userLogged}`);
             return false;
         }
-        // Check if user is the Study owner
-        const studyOwner = study.fqn.split("@")[0];
-        if (userLogged === studyOwner) {
-            return true;
-        } else {
-            // Check if user is a Study admin, belongs to @admins group
-            const admins = study.groups.find(group => group.id === "@admins");
-            if (admins.userIds.includes(userLogged)) {
+        // CAUTION: in organizations, label before @ is now organization name, not owner
+        /*
+            // Check if user is the Study owner
+            const studyOwner = study.fqn.split("@")[0];
+            if (userLogged === studyOwner) {
                 return true;
+            } else {
+                // Check if user is a Study admin, belongs to @admins group
+                const admins = study.groups.find(group => group.id === "@admins");
+                if (admins.userIds.includes(userLogged)) {
+                    return true;
+                }
             }
-        }
-        return false;
+            return false;
+        */
+        const admins = study.groups.find(group => group.id === "@admins");
+        return !!admins.userIds.includes(userLogged);
     }
 
     // Find study object in opencgaSession
