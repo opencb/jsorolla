@@ -16,17 +16,16 @@
 
 import {LitElement, html, nothing} from "lit";
 import GridCommons from "../../commons/grid-commons.js";
-import UtilsNew from "../../../core/utils-new.js";
-import ModalUtils from "../../commons/modal/modal-utils.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import ModalUtils from "../../commons/modal/modal-utils.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 import "./user-admin-create.js";
 import "./user-admin-update.js";
 import "./user-admin-details-update.js";
 import "./user-admin-password-change.js";
 import "./user-admin-password-reset.js";
-import LitUtils from "../../commons/utils/lit-utils";
 
 export default class UserAdminGrid extends LitElement {
 
@@ -73,20 +72,9 @@ export default class UserAdminGrid extends LitElement {
         this.active = true;
         this._config = this.getDefaultConfig();
         this.action = "";
-        this._renderModal = {
-            "edit-details": () => this.renderModalDetailsUpdate(),
-            "change-password": () => this.renderModalPasswordUpdate(),
-            "reset-password": () => this.renderModalPasswordReset(),
-            "delete": () => this.renderModalDelete(),
-        };
-        this._showModal = {
-            "edit-details": () => ModalUtils.show(`${this._prefix}UpdateDetailsModal`),
-            "change-password": () => ModalUtils.show(`${this._prefix}ChangePasswordModal`),
-            "reset-password": () => ModalUtils.show(`${this._prefix}ResetPasswordModal`),
-            "delete": () => ModalUtils.show(`${this._prefix}DeleteModal`),
-        };
     }
 
+    // --- LIFE-CYCLE METHODS
     update(changedProperties) {
         if (changedProperties.has("opencgaSession") ||
             changedProperties.has("toolId") ||
@@ -99,12 +87,8 @@ export default class UserAdminGrid extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.size > 0 && this.active) {
-            this.renderTable();
+            this.renderRemoteTable();
         }
-    }
-
-    studyIdPropertyObserver() {
-        // 1. Get users from the study
     }
 
     propertyObserver() {
@@ -143,17 +127,45 @@ export default class UserAdminGrid extends LitElement {
                     </user-admin-create>`
             },
         };
+
+        this.permissions = {
+            "organization": () => OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) || "disabled",
+            "study": () => OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+        };
+
+        this.manageModal = {
+            "edit-details": {
+                label: "Edit Details",
+                icon: "fas fa-edit",
+                modalId: `${this._prefix}UpdateDetailsModal`,
+                render: () => this.renderModalDetailsUpdate(),
+                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+            },
+            "change-password": {
+                label: "Change Password",
+                icon: "fas fa-edit",
+                modalId: `${this._prefix}ChangePasswordModal`,
+                render: () => this.renderModalPasswordUpdate(),
+                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+            },
+            "reset-password": {
+                label: "Reset Password",
+                icon: "fas fa-ban",
+                modalId: `${this._prefix}ResetPasswordModal`,
+                render: () => this.renderModalPasswordReset(),
+                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+            },
+            "delete": {
+                label: "Delete",
+                icon: "far fa-trash-alt ",
+                // modalId: `${this._prefix}DeleteModal`,
+                // render: () => this.renderModalPasswordReset(),
+                permission: "disabled",
+            },
+        };
     }
 
-    renderTable() {
-        if (this.users?.length > 0) {
-            this.renderLocalTable();
-        } else {
-            this.renderRemoteTable();
-        }
-        this.requestUpdate();
-    }
-
+    // *** PRIVATE METHODS ***
     renderRemoteTable() {
         if (this.opencgaSession?.opencgaClient && this.organization.id) {
             this._columns = this._getDefaultColumns();
@@ -214,59 +226,6 @@ export default class UserAdminGrid extends LitElement {
         }
     }
 
-    renderLocalTable() {
-        this.table = $("#" + this.gridId);
-        this.table.bootstrapTable("destroy");
-        this.table.bootstrapTable({
-            theadClasses: "table-light",
-            buttonsClass: "light",
-            columns: this._getDefaultColumns(),
-            sidePagination: "server",
-            // Josemi Note 2024-01-18: we have added the ajax function for local variants also to support executing
-            // async calls when getting additional data from columns extensions.
-            ajax: params => {
-                const tableOptions = $(this.table).bootstrapTable("getOptions");
-                const limit = params.data.limit || tableOptions.pageSize;
-                const skip = params.data.offset || 0;
-                const rows = this.users.slice(skip, skip + limit);
-
-                // Get data for extensions
-                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
-                    .then(() => params.success(rows))
-                    .catch(error => params.error(error));
-            },
-            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
-            responseHandler: response => {
-                return {
-                    total: this.users.length,
-                    rows: response,
-                };
-            },
-            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
-            icons: GridCommons.GRID_ICONS,
-
-            // Set table properties, these are read from config property
-            uniqueId: "id",
-            pagination: this._config.pagination,
-            pageSize: this._config.pageSize,
-            pageList: this._config.pageList,
-            detailView: this._config.detailView,
-            loadingTemplate: () => GridCommons.loadingFormatter(),
-        });
-    }
-
-    async onActionClick(e, value, row) {
-        this.action = e.currentTarget.dataset.action;
-        this.userId = row.id;
-        this.requestUpdate();
-        await this.updateComplete;
-        this._showModal[this.action]();
-    }
-
-    onUserUpdate(e, id) {
-        ModalUtils.close(id);
-        this.renderRemoteTable();
-    }
     _getDefaultColumns() {
         this._columns = [
             {
@@ -312,58 +271,27 @@ export default class UserAdminGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
-                formatter: (value, row) => `
-                    <!-- <div id="actions" class="d-flex justify-content-around">
-                        <button data-action="delete" class="btn btn-outline-secondary disabled" style="border:0; border-radius: 50%">
-                            <i class="far fa-trash-alt"></i>
-                        </button>
-                        <button data-action="disable" class="btn btn-outline-warning" style="border:0; border-radius: 50%">
-                            <i class="fas fa-ban"></i>
-                        </button>
-
-                        <button data-action="edit" class="btn btn-outline-success" style="border:0; border-radius: 50%">
-                            <i class="far fa-edit"></i>
-                        </button>
-                    </div> -->
+                formatter: () => `
                     <div class="dropdown">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-toolbox" aria-hidden="true"></i>
                             <span>Actions</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                             <li>
-                                <a data-action="edit-details" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-edit" aria-hidden="true"></i> Edit Details ...
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="change-password" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-edit" aria-hidden="true"></i> Change Password ...
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="reset-password" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-edit" aria-hidden="true"></i> Reset Password ...
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="edit-permissions" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-edit" aria-hidden="true"></i> Edit Permissions ...
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="disable" class="dropdown-item">
-                                    <i class="fas fa-ban" aria-hidden="true"></i> Disable
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="disable" class="dropdown-item ">
-                                    <i class="far fa-trash-alt" aria-hidden="true"></i> Delete
-                                </a>
-                            </li>
+                            ${
+                    Object.keys(this.manageModal).map(modalKey => {
+                        const modal = this.manageModal[modalKey];
+                        return `
+                                        <li>
+                                            <a data-action="${modalKey}" class="dropdown-item ${modal.permission["organization"]}">
+                                                    <i class="${modal.icon}" aria-hidden="true"></i> ${modal.label}...
+                                            </a>
+                                        </li>
+                                    `;
+                    })
+                }
                         </ul>
                     </div>
-
                 `,
                 events: {
                     "click ul>li>a": (e, value, row) => this.onActionClick(e, value, row),
@@ -375,31 +303,21 @@ export default class UserAdminGrid extends LitElement {
         return this._columns;
     }
 
-    /*
-    renderModalUpdate() {
-        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-            display: {
-                modalTitle: `User Update: User ${this.userId} in organization ${this.organization.id}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-update",
-                modalSize: "modal-lg"
-            },
-            render: active => {
-                return html`
-                    <user-admin-update
-                        .userId="${this.userId}"
-                        .organization="${this.organization}"
-                        .studyId="${this.studyId}"
-                        .active="${active}"
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "top"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </user-admin-update>
-                `;
-            },
-        });
+    // *** EVENTS ***
+    async onActionClick(e, value, row) {
+        this.action = e.currentTarget.dataset.action;
+        this.userId = row.id;
+        this.requestUpdate();
+        await this.updateComplete;
+        ModalUtils.show(this.manageModal[this.action]["modalId"]);
     }
-    */
 
+    onUserUpdate(e, id) {
+        ModalUtils.close(id);
+        this.renderRemoteTable();
+    }
+
+    // *** RENDER METHODS ***
     renderModalDetailsUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateDetailsModal`, {
             display: {
@@ -466,27 +384,6 @@ export default class UserAdminGrid extends LitElement {
         });
     }
 
-    renderModalDelete() {
-        return ModalUtils.create(this, `${this._prefix}DeleteModal`, {
-            display: {
-                modalTitle: `Group Delete: ${this.groupId}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-update",
-                modalSize: "modal-lg"
-            },
-            render: active => html`
-            <user-admin-delete
-                .userId="${this.userId}"
-                .studyId="${this.studyId}"
-                .active="${active}"
-                .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                .opencgaSession="${this.opencgaSession}"
-                @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}DeleteModal`)}">
-            </user-admin-delete>
-        `,
-        });
-    }
-
     renderToolbar() {
         if (this._config.showToolbar) {
             return html `
@@ -509,13 +406,12 @@ export default class UserAdminGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">
                 <table id="${this.gridId}"></table>
             </div>
-            <!-- 2. Render update -->
-            <!-- $this.renderModalUpdate()}-->
-            ${this.action ? this._renderModal[this.action]() : nothing}
-
+            <!-- 3. On action click, render update modal -->
+            ${this.action ? this.manageModal[this.action]["render"](): nothing}
         `;
     }
 
+    // *** DEFAULT CONFIG ***
     getDefaultConfig() {
         return {
             pagination: true,
