@@ -160,13 +160,12 @@ export default class UserAdminDetailsUpdate extends LitElement {
     }
 
     onSubmit() {
+        let error;
         const params = {
             includeResult: true,
         };
-
         const updateParams = FormUtils.getUpdateParams(this._user, this.updatedFields, this.updateCustomisation);
-debugger
-        let error;
+
         this.#setLoading(true);
         // Fixme: waiting for task:
         //  https://app.clickup.com/t/36631768/TASK-6013
