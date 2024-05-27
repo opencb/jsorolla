@@ -643,7 +643,7 @@ export default class VariantInterpreterGridFormatter {
                 const individual = ca.family.members.find(m => m.samples[0].id === sampleEntry.sampleId);
                 sex = UtilsNew.isEmpty(individual?.sex) ? "Not specified" : individual.sex?.id || individual.sex;
             } else {
-                sex = (!!ca?.proband?.sex && ca?.proband?.sex !== "UNKOWN") ? ca.proband.sex : "";
+                sex = (!!ca?.proband?.sex && ca?.proband?.sex !== "UNKNOWN") ? ca.proband.sex : "";
             }
 
             const genotype = sampleEntry.data[0];
