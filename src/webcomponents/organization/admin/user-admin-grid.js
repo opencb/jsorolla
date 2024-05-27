@@ -26,6 +26,7 @@ import "./user-admin-update.js";
 import "./user-admin-details-update.js";
 import "./user-admin-password-change.js";
 import "./user-admin-password-reset.js";
+import "./user-admin-status-update.js";
 
 export default class UserAdminGrid extends LitElement {
 
@@ -133,7 +134,7 @@ export default class UserAdminGrid extends LitElement {
             "study": () => OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
         };
 
-        this.manageModal = {
+        this.modals = {
             "edit-details": {
                 label: "Edit Details",
                 icon: "fas fa-edit",
@@ -150,9 +151,16 @@ export default class UserAdminGrid extends LitElement {
             },
             "reset-password": {
                 label: "Reset Password",
-                icon: "fas fa-ban",
+                icon: "fas fa-edit",
                 modalId: `${this._prefix}ResetPasswordModal`,
                 render: () => this.renderModalPasswordReset(),
+                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+            },
+            "change-status": {
+                label: "Change status",
+                icon: "fas fa-edit",
+                modalId: `${this._prefix}ChangeStatusModal`,
+                render: () => this.renderModalStatusUpdate(),
                 permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
             },
             "delete": {
@@ -185,7 +193,7 @@ export default class UserAdminGrid extends LitElement {
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
                 paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
+                // formatShowingRows: this.gridCommons.formatShowingRows,
                 detailView: !!this.detailFormatter,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
@@ -202,6 +210,7 @@ export default class UserAdminGrid extends LitElement {
                         .search(this.filters)
                         .then(response => {
                             result = response;
+                            debugger
                             return response;
                         })
                         .then(() => {
@@ -260,6 +269,14 @@ export default class UserAdminGrid extends LitElement {
                 formatter: CatalogGridFormatter.dateFormatter,
                 visible: this.gridCommons.isColumnVisible("account.expirationDate")
             },
+            {
+                title: "Status",
+                field: "internal.status",
+                formatter: (value, row) => this.statusFormatter(value, row),
+                events: {
+                    "click a": e => this.onActionClick(e),
+                },
+            },
         ];
 
         if (this._config.annotations?.length > 0) {
@@ -279,17 +296,17 @@ export default class UserAdminGrid extends LitElement {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             ${
-                    Object.keys(this.manageModal).map(modalKey => {
-                        const modal = this.manageModal[modalKey];
-                        return `
+                                Object.keys(this.modals).map(modalKey => {
+                                    const modal = this.modals[modalKey];
+                                    return `
                                         <li>
                                             <a data-action="${modalKey}" class="dropdown-item ${modal.permission["organization"]}">
                                                     <i class="${modal.icon}" aria-hidden="true"></i> ${modal.label}...
                                             </a>
                                         </li>
                                     `;
-                    })
-                }
+                                }).join("")
+                            }
                         </ul>
                     </div>
                 `,
@@ -303,13 +320,48 @@ export default class UserAdminGrid extends LitElement {
         return this._columns;
     }
 
+    // *** COLUMN FORMATTERS ***
+    statusFormatter(value, row) {
+        debugger
+        const _status = this._config?.userStatus || [];
+        const currentStatus = value.id || value.name || "-"; // Get current status
+
+        // Dropdown button styles and classes
+        const btnClassName = "d-flex justify-content-between align-items-center btn btn-light dropdown-toggle w-100";
+
+        return `
+            <div class="dropdown">
+                <button class="${btnClassName}" type="button" data-bs-toggle="dropdown">
+                    <span class="badge info me-auto top-0" style="background-color: ${_status[currentStatus].displayColor}">
+                        ${_status[currentStatus].displayLabel}
+                    </span>
+                </button>
+                <ul class="dropdown-menu">
+                    ${Object.entries(_status).map(([id, value]) => `
+                        <li>
+                            <a class="d-flex dropdown-item" data-action="change-status" data-status="${id}">
+                                <div class="flex-grow-1">
+                                    <span class="badge disabled" style="background-color: ${value.displayColor}">
+                                    ${id === currentStatus ? `<strong>${value.displayLabel}</strong>` : value.displayLabel}
+                                    </span>
+                                </div>
+                                ${id === currentStatus ? `<i class="fas fa-check"></i>` : ""}
+                            </a>
+                        </li>
+                        `).join("")
+                    }
+                </ul>
+            </div>
+        `;
+    }
+
     // *** EVENTS ***
     async onActionClick(e, value, row) {
         this.action = e.currentTarget.dataset.action;
         this.userId = row.id;
         this.requestUpdate();
         await this.updateComplete;
-        ModalUtils.show(this.manageModal[this.action]["modalId"]);
+        ModalUtils.show(this.modals[this.action]["modalId"]);
     }
 
     onUserUpdate(e, id) {
@@ -384,6 +436,28 @@ export default class UserAdminGrid extends LitElement {
         });
     }
 
+    renderModalStatusUpdate() {
+        return ModalUtils.create(this, `${this._prefix}ChangeStatusModal`, {
+            display: {
+                modalTitle: `User Status: User ${this.userId} in organization ${this.organization.id}`,
+                modalDraggable: true,
+                modalCyDataName: "modal-user-admin-status-update",
+                modalSize: "modal-lg"
+            },
+            render: () => {
+                return html`
+                    <user-admin-status-update
+                        .userId="${this.userId}"
+                        .organization="${this.organization}"
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ChangeStatusModal`)}">
+                    </user-admin-status-update>
+                `;
+            },
+        });
+    }
+
     renderToolbar() {
         if (this._config.showToolbar) {
             return html `
@@ -407,13 +481,14 @@ export default class UserAdminGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
             <!-- 3. On action click, render update modal -->
-            ${this.action ? this.manageModal[this.action]["render"](): nothing}
+            ${this.action ? this.modals[this.action]["render"](): nothing}
         `;
     }
 
     // *** DEFAULT CONFIG ***
     getDefaultConfig() {
         return {
+            // Settings
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
@@ -427,6 +502,38 @@ export default class UserAdminGrid extends LitElement {
             showExport: false,
             showSettings: false,
             exportTabs: ["download", "link", "code"],
+            // Config
+            userStatus: {
+                "READY": { // The user can login
+                    displayLabel: "ACTIVE", // Fixme: ACTIVE | ENABLED | READY?
+                    displayColor: "#16A83D",
+                    description: "",
+                    isSelectable: true, // Choice selectable by org admin/owner
+                    isEnabled: true, // Choice visible by org admin/owner
+                },
+                "SUSPENDED": {
+                    displayLabel: "SUSPENDED", // User can not login into the system
+                    displayColor: "#E17F1E",
+                    description: "",
+                    isSelectable: true,
+                    isEnabled: true,
+                },
+                "BANNED": { // User locked for more than X login attemtps. The admin/owner can enable the user back.
+                    displayLabel: "BANNED",
+                    displayColor: "#961EE1",
+                    description: "",
+                    isSelectable: false,
+                    isEnabled: true,
+                },
+                "DELETED": { // QUESTION: is it possible remove all permissions and login, but keep him in the system?
+                    displayLabel: "REMOVED",
+                    displayColor: "#E1351E",
+                    description: "",
+                    isSelectable: false,
+                    isEnabled: false,
+                },
+            },
+
         };
     }
 
