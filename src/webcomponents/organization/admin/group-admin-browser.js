@@ -155,7 +155,8 @@ export default class GroupAdminBrowser extends LitElement {
     studyObserver() {
         // Get all study groups
         this._groups = [];
-        this._studies = [this._study];
+        debugger
+        this._studies = [this.opencgaSession.study];
         this.study.groups?.forEach(group => {
             const newGroup = {
                 studyId: this.study.id,

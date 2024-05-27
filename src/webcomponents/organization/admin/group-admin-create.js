@@ -61,11 +61,10 @@ export default class GroupAdminCreate extends LitElement {
     #initOriginalObjects() {
         this.group = {};
         this.allowedValues = [];
-
         if (this.studies && this.opencgaSession) {
             if (Array.isArray(this.studies) && this.studies.length === 1) {
                 this.isStudyAdmin = true;
-                this.allowedValues = this.studies[0].fqn;
+                this.allowedValues = [this.studies[0]];
             } else {
                 // 1. Prepare structure for displaying studies per project in dropdown
                 const projects = this.studies.reduce((acc, {fqn, name, projectId}) => {
@@ -193,7 +192,7 @@ export default class GroupAdminCreate extends LitElement {
                             required: true,
                             display: {
                                 placeholder: "Add a short ID...",
-                                helpMessage: "short group id...",
+                                helpMessage: "Short group id...",
                             },
                         },
                         {
@@ -205,7 +204,6 @@ export default class GroupAdminCreate extends LitElement {
                             required: true,
                             allowedValues: this.allowedValues,
                             display: {
-                                disabled: this.isStudyAdmin,
                                 placeholder: "Select study or studies..."
                             },
                         },

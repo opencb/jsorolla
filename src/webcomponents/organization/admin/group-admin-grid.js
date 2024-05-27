@@ -296,7 +296,7 @@ export default class GroupAdminGrid extends LitElement {
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @actionClick="${e => this.onActionClick(e)}"
-                    @sampleCreate="${this.renderTable}">
+                    @groupCreate="${() => this.renderTable()}">
                 </opencb-grid-toolbar>
             `;
         }

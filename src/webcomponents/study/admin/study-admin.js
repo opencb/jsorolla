@@ -455,6 +455,27 @@ export default class StudyAdmin extends LitElement {
             visibility: "private", // public | private | none
             menu: [
                 {
+                    id: "general",
+                    name: "General",
+                    description: "",
+                    icon: "",
+                    featured: "", // true | false
+                    visibility: "private",
+                    submenu: [
+                        {
+                            id: "audit",
+                            name: "Audit",
+                            icon: "fas fa-book",
+                            visibility: "private",
+                            render: (opencgaSession, study) => html`
+                                <study-admin-audit
+                                    .opencgaSession="${opencgaSession}"
+                                    .study="${study}">
+                                </study-admin-audit>`,
+                        },
+                    ],
+                },
+                {
                     id: "configuration",
                     name: "Configuration",
                     description: "",
@@ -473,6 +494,18 @@ export default class StudyAdmin extends LitElement {
                                         .opencgaSession="${opencgaSession}"
                                         .study="${study}">
                                 </study-admin-users>`,
+                        },
+                        {
+                            id: "groups",
+                            name: "Groups",
+                            icon: "fas fa-vial",
+                            visibility: "private",
+                            render: (opencgaSession, organization) => html`
+                                <group-admin-browser
+                                    .study="${this.opencgaSession.study}"
+                                    .opencgaSession="${opencgaSession}">
+                                </group-admin-browser>
+                            `,
                         },
                         {
                             id: "Permissions",
@@ -547,27 +580,6 @@ export default class StudyAdmin extends LitElement {
                                     </variant-secondary-sample-index-configure-operation>
                               `;
                             }
-                        },
-                    ],
-                },
-                {
-                    id: "audit",
-                    name: "Audit",
-                    description: "",
-                    icon: "",
-                    featured: "", // true | false
-                    visibility: "private",
-                    submenu: [
-                        {
-                            id: "Audit",
-                            name: "Audit",
-                            icon: "fas fa-book",
-                            visibility: "private",
-                            render: (opencgaSession, study) => html`
-                                <study-admin-audit
-                                    .opencgaSession="${opencgaSession}"
-                                    .study="${study}">
-                                </study-admin-audit>`,
                         },
                     ],
                 },
