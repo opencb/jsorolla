@@ -22,8 +22,8 @@ import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
-import {construction} from "../commons/html-utils.js";
 import "./note-create.js";
+import "./note-update.js";
 
 export default class NoteGrid extends LitElement {
 
@@ -284,7 +284,7 @@ export default class NoteGrid extends LitElement {
         const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
         switch (action) {
             case "edit":
-                this.noteUpdateId = row.id;
+                this.noteUpdate = row;
                 this.requestUpdate();
                 await this.updateComplete;
                 ModalUtils.show(`${this._prefix}UpdateModal`);
@@ -441,13 +441,18 @@ export default class NoteGrid extends LitElement {
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
-                modalTitle: `Note Update: ${this.noteUpdateId}`,
+                modalTitle: `Note Update: ${this.noteUpdate?.id}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"
             },
             render: active => html`
-                ${construction}
+                <note-update
+                    .note="${this.noteUpdate}"
+                    .active="${active}"
+                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                    .opencgaSession="${this.opencgaSession}">
+                </note-update>
             `,
         });
     }
