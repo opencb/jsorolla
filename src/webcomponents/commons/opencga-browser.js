@@ -79,7 +79,7 @@ export default class OpencgaBrowser extends LitElement {
 
         this.selectedFacet = {};
         this.preparedFacetQueryFormatted = {};
-        this.detail = {};
+        this.detail = null;
     }
 
     firstUpdated() {
@@ -236,15 +236,12 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     onClickRow(e, resource) {
-        this.detail = {
-            ...this.detail,
-            [resource]: e.detail.row,
-        };
+        this.detail = e.detail.row;
         this.requestUpdate();
     }
 
     onComponentUpdate() {
-        this.detail = {};
+        this.detail = null;
         this.requestUpdate();
     }
 
