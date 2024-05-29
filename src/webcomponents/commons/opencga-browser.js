@@ -111,6 +111,7 @@ export default class OpencgaBrowser extends LitElement {
         if (this?.opencgaSession?.study?.fqn) {
             this.preparedQuery = {...this._config?.filter?.defaultFilter};
             this.executedQuery = {...this._config?.filter?.defaultFilter};
+            this.detail = null;
 
             this.facetQuery = null;
             this.preparedFacetQueryFormatted = null;
@@ -126,7 +127,7 @@ export default class OpencgaBrowser extends LitElement {
 
                 // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
                 LitUtils.dispatchCustomEvent(this, "queryChange", undefined, this.preparedQuery);
-                this.detail = {};
+                this.detail = null;
             }
         }
     }
@@ -171,6 +172,7 @@ export default class OpencgaBrowser extends LitElement {
         // queryObserver() here stops the repetition of the remote request by checking if it has changed
         // TODO do the same with facetQuery
         this.executedQuery = {...this.preparedQuery};
+        this.detail = null;
         // updates this.queries in iva-app
         this.notifySearch(this.preparedQuery);
 
@@ -191,6 +193,7 @@ export default class OpencgaBrowser extends LitElement {
     onQueryFilterSearch(e) {
         this.preparedQuery = {...e.detail};
         this.executedQuery = {...e.detail};
+        this.detail = null;
         this.notifySearch(this.preparedQuery);
         this.requestUpdate();
     }
@@ -198,6 +201,7 @@ export default class OpencgaBrowser extends LitElement {
     onActiveFilterChange(e) {
         this.preparedQuery = {...e.detail};
         this.executedQuery = {...e.detail};
+        this.detail = null;
         this.notifySearch(this.preparedQuery);
         this.facetQueryBuilder();
         this.requestUpdate();
@@ -206,6 +210,7 @@ export default class OpencgaBrowser extends LitElement {
     onActiveFilterClear() {
         this.preparedQuery = {};
         this.executedQuery = {};
+        this.detail = null;
         this.notifySearch(this.preparedQuery);
         this.facetQueryBuilder();
         this.requestUpdate();
