@@ -235,7 +235,7 @@ export default class OpencgaBrowser extends LitElement {
         this.onRun();
     }
 
-    onClickRow(e, resource) {
+    onClickRow(e) {
         this.detail = e.detail.row;
         this.requestUpdate();
     }
