@@ -125,8 +125,8 @@ export default class CohortBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "cohort")}"
-                            @cohortUpdate="${e => params.onComponentUpdate(e, "cohort")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @cohortUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </cohort-grid>
                         ${params?.detail ? html`
