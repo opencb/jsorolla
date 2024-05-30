@@ -136,8 +136,8 @@ export default class IndividualBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .query="${params.executedQuery}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "individual")}"
-                            @individualUpdate="${e => params.onComponentUpdate(e, "individual")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @individualUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </individual-grid>
                         ${params?.detail ? html`
