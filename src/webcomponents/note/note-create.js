@@ -48,10 +48,8 @@ export default class NoteCreate extends LitElement {
 
     #init() {
         // default
-        this.note = {
-            valueType: "STRING",
-            scope: "STUDY",
-        };
+        // after create try to init this note
+        this.initNote();
         this.isLoading = false;
         this.displayConfigDefault = {
             buttonsVisible: true,
@@ -62,6 +60,14 @@ export default class NoteCreate extends LitElement {
             defaultValue: "",
         };
         this._config = this.getDefaultConfig();
+    }
+
+    initNote() {
+        this.note = {
+            valueType: "STRING",
+            scope: "STUDY",
+            visibility: "PUBLIC",
+        };
     }
 
     #setLoading(value) {
@@ -105,7 +111,7 @@ export default class NoteCreate extends LitElement {
         const noteCreateNote = scope === "STUDY" ? this.opencgaSession.opencgaClient.studies().createNotes(params.study, data, {includeResult: true}) :
             this.opencgaSession.opencgaClient.organization().createNotes(data, {includeResult: true});
         noteCreateNote.then(() => {
-            this.note = {};
+            this.initNote();
             this._config = this.getDefaultConfig();
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 title: "New Note",
