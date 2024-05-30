@@ -138,7 +138,7 @@ export default class FamilyBrowser extends LitElement {
                             <family-detail
                                 .opencgaSession="${params.opencgaSession}"
                                 .config="${params.config.filter.detail}"
-                                .familyId="${params.family?.id}">
+                                .familyId="${params.detail?.id}">
                             </family-detail>
                         ` : nothing}
                     `,
