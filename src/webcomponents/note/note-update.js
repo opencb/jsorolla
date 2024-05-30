@@ -16,10 +16,8 @@
 
 import {LitElement, html} from "lit";
 import Types from "../commons/types.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/tool-header.js";
 import "../commons/filters/catalog-search-autocomplete.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 
 export default class NoteUpdate extends LitElement {
@@ -64,6 +62,9 @@ export default class NoteUpdate extends LitElement {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
+        if (changedProperties.has("note")) {
+            this.onComponentObserver();
+        }
         super.update(changedProperties);
     }
 
@@ -75,11 +76,33 @@ export default class NoteUpdate extends LitElement {
         this.requestUpdate();
     }
 
+    onComponentObserver(e) {
+        if (this.note?.scope && this.opencgaSession) {
+            let searchNote = this.opencgaSession.opencgaClient.studies()
+                .searchNotes(this.opencgaSession.study.fqn, {
+                id: this.note?.id
+            });
+            if (this.note?.scope === "ORGANIZATION") {
+                searchNote = this.opencgaSession.opencgaClient.organization()
+                    .searchNotes({id: this.note?.id});
+            }
+            searchNote
+                .then(response => {
+                    this._note = response.getResult(0) || {};
+                    this._config = this.getDefaultConfig();
+                    this.requestUpdate();
+                })
+                .catch(reason => {
+                    console.error(reason);
+                });
+        }
+    }
+
     render() {
         return html `
             <opencga-update
                 .resource="${"NOTE"}"
-                .component="${this.note}"
+                .component="${this._note}"
                 .opencgaSession="${this.opencgaSession}"
                 .active="${this.active}"
                 .config="${this._config}"
@@ -132,6 +155,7 @@ export default class NoteUpdate extends LitElement {
                                     const handleTagsFilterChange = e => {
                                         dataFormFilterChange(e.detail.value ? e.detail.value?.split(",") : []);
                                     };
+                                    // TODO Fix this
                                     return html`
                                         <select-token-filter-static
                                             .values="${data?.tags}"
