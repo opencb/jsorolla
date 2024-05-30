@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
@@ -123,25 +123,25 @@ export default class SampleBrowser extends LitElement {
                     name: "Table result",
                     icon: "fa fa-table",
                     active: true,
-                    render: params => {
-                        return html`
-                            <sample-grid
-                                .toolId="${this.COMPONENT_ID}"
-                                .opencgaSession="${params.opencgaSession}"
-                                .query="${params.executedQuery}"
-                                .config="${params.config.filter.result.grid}"
-                                .active="${true}"
-                                @selectrow="${e => params.onClickRow(e, "sample")}"
-                                @sampleUpdate="${e => params.onComponentUpdate(e, "sample")}"
-                                @settingsUpdate="${() => this.onSettingsUpdate()}">
-                            </sample-grid>
+                    render: params => html`
+                        <sample-grid
+                            .toolId="${this.COMPONENT_ID}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
+                            .config="${params.config.filter.result.grid}"
+                            .active="${true}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @sampleUpdate="${e => params.onComponentUpdate(e)}"
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
+                        </sample-grid>
+                        ${params?.detail ? html`
                             <sample-detail
                                 .opencgaSession="${params.opencgaSession}"
                                 .config="${params.config.filter.detail}"
-                                .sampleId="${params.detail.sample?.id}">
+                                .sampleId="${params.detail?.id}">
                             </sample-detail>
-                        `;
-                    }
+                        ` : nothing}
+                    `,
                 },
                 {
                     id: "facet-tab",
@@ -154,7 +154,8 @@ export default class SampleBrowser extends LitElement {
                             .active="${params.active}"
                             .query="${params.facetQuery}"
                             .data="${params.facetResults}">
-                        </opencb-facet-results>`
+                        </opencb-facet-results>
+                    `,
                 }
             ],
             filter: {
