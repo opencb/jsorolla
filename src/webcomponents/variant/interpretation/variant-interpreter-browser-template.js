@@ -505,14 +505,16 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                 </variant-interpreter-rearrangement-grid>`
                             }
                             <!-- Bottom tabs with detailed variant information -->
-                            <variant-interpreter-detail
-                                .opencgaSession="${this.opencgaSession}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .toolId="${this.toolId}"
-                                .variant="${this.variant}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .config=${this._config.filter.detail}>
-                            </variant-interpreter-detail>
+                            ${this.variant ? html`
+                                <variant-interpreter-detail
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .toolId="${this.toolId}"
+                                    .variant="${this.variant}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .config=${this._config.filter.detail}>
+                                </variant-interpreter-detail>
+                            ` : nothing}
                         </div>
                         <!-- Genome browser view -->
                         ${!this.settings?.hideGenomeBrowser ? html`
