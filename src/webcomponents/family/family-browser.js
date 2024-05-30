@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "../commons/facet-filter.js";
@@ -134,11 +134,13 @@ export default class FamilyBrowser extends LitElement {
                             @familyUpdate="${e => params.onComponentUpdate(e, "family")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </family-grid>
-                        <family-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .family="${params.detail.family}">
-                        </family-detail>
+                        ${params?.detail ? html`
+                            <family-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .family="${params.family}">
+                            </family-detail>
+                        ` : nothing}
                     `,
                 },
                 {
