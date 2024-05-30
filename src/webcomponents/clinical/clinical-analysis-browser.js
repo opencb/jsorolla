@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
@@ -146,11 +146,13 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                             @clinicalAnalysisUpdate="${e => params.onComponentUpdate(e, "clinicalAnalysis")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </clinical-analysis-grid>
-                        <clinical-analysis-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .clinicalAnalysisId="${params.detail.clinicalAnalysis?.id}">
-                        </clinical-analysis-detail>
+                        ${params?.detail ? html`
+                            <clinical-analysis-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .clinicalAnalysisId="${params.detail?.id}">
+                            </clinical-analysis-detail>
+                        ` : nothing}
                     `,
                 },
                 {
