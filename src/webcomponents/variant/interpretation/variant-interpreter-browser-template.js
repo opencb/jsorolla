@@ -512,7 +512,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                     .toolId="${this.toolId}"
                                     .variant="${this.variant}"
                                     .cellbaseClient="${this.cellbaseClient}"
-                                    .config=${this._config.filter.detail}>
+                                    .config="${this._config.filter.detail}">
                                 </variant-interpreter-detail>
                             ` : nothing}
                         </div>
