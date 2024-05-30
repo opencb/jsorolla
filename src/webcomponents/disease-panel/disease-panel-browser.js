@@ -136,8 +136,8 @@ export default class DiseasePanelBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "diseasePanel")}"
-                            @diseasePanelUpdate="${e => params.onComponentUpdate(e, "diseasePanel")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @diseasePanelUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </disease-panel-grid>
                         ${params?.detail ? html`
