@@ -130,8 +130,8 @@ export default class FamilyBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .active="${true}"
                             .eventNotifyName="${params.eventNotifyName}"
-                            @selectrow="${e => params.onClickRow(e, "family")}"
-                            @familyUpdate="${e => params.onComponentUpdate(e, "family")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @familyUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </family-grid>
                         ${params?.detail ? html`
