@@ -422,11 +422,7 @@ class VariantInterpreter extends LitElement {
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
-                            <li>
-                                <a class="dropdown-item" style="background-color:white!important;">
-                                    <strong>Change interpretation</strong>
-                                </a>
-                            </li>
+                            <li><h6 class="dropdown-header">Change Primary Interpretation</h6></li>
                             ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
                                 <li>
                                     <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
@@ -437,11 +433,7 @@ class VariantInterpreter extends LitElement {
                             `)}
                             <li><hr class="dropdown-divider"></li>
                         ` : null}
-                        <li>
-                            <a class="dropdown-item" style="background-color:white!important;">
-                                <strong>Case Actions</strong>
-                            </a>
-                        </li>
+                        <li><h6 class="dropdown-header">Case Actions</h6></li>
                         <li>
                             <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisLock}">
                                 <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
