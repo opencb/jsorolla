@@ -549,7 +549,8 @@ class VariantInterpreter extends LitElement {
                     id: "review",
                     title: "Interpretation Review",
                     description: "",
-                    icon: "fa fa-edit"
+                    icon: "fa fa-edit",
+                    visible: false,
                 },
                 {
                     id: "report",
