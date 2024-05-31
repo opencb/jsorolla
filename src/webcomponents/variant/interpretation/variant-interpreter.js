@@ -425,7 +425,7 @@ class VariantInterpreter extends LitElement {
                             <li><h6 class="dropdown-header">Change Primary Interpretation</h6></li>
                             ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
                                 <li>
-                                    <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
+                                    <a class="dropdown-item" style="cursor:pointer;" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
                                         ${item.id}
                                         <i class="fa ${item.locked ? "fa-lock" : "fa-unlock"} pe-1" style="padding-left: 5px"></i>
                                     </a>
@@ -435,23 +435,23 @@ class VariantInterpreter extends LitElement {
                         ` : null}
                         <li><h6 class="dropdown-header">Case Actions</h6></li>
                         <li>
-                            <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisLock}">
+                            <a class="dropdown-item" style="cursor:pointer;" @click="${this.onClinicalAnalysisLock}">
                                 <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
                                 ${this.clinicalAnalysis.locked ? "Case Unlock" : "Case Lock"}
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisRefresh}">
+                            <a class="dropdown-item" style="cursor:pointer" @click="${this.onClinicalAnalysisRefresh}">
                                 <i class="fa fa-sync pe-1"></i> Refresh
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisDownload}">
+                            <a class="dropdown-item" style="cursor:pointer;" @click="${this.onClinicalAnalysisDownload}">
                                 <i class="fa fa-download pe-1"></i> Download
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" style="padding-left: 25px" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                            <a class="dropdown-item" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
                                 <i class="fa fa-times pe-1"></i> Close
                             </a>
                         </li>
