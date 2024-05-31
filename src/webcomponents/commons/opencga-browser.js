@@ -262,8 +262,8 @@ export default class OpencgaBrowser extends LitElement {
                     facetResults: this.facetResults,
                     eventNotifyName: this.eventNotifyName,
                     active: this.activeView === view.id,
-                    onClickRow: (e, eventName) => this.onClickRow(e, eventName),
-                    onComponentUpdate: (e, eventName) => this.onComponentUpdate(e, eventName),
+                    onClickRow: event => this.onClickRow(event),
+                    onComponentUpdate: event => this.onComponentUpdate(event),
                 })}
             </div>
         `);
