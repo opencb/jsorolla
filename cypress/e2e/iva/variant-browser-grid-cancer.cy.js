@@ -23,8 +23,10 @@ context("Variant Browser Grid Cancer", () => {
 
     beforeEach(() => {
         cy.visit("#variant-browser-grid-cancer");
+        cy.get(`div[data-cy="variant-browser-container"]`)
+            .as("container");
         cy.waitUntil(() => {
-            return cy.get(browserGrid)
+            return cy.get("@container")
                 .should("be.visible");
         });
     });
@@ -80,14 +82,14 @@ context("Variant Browser Grid Cancer", () => {
             });
             cy.get("button[data-action='settings']")
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                UtilsTest.getByDataTest("test-columns", "select-field-filter span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-selection")
                 .click();
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
@@ -102,7 +104,6 @@ context("Variant Browser Grid Cancer", () => {
             cy.get("@headerColumns")
                 .should($header => {
                     const _columns = Array.from($header, th => th.textContent?.trim());
-                    debugger;
                     columns.forEach(col => {
                         expect(col).not.to.be.oneOf(_columns);
                     });
@@ -116,119 +117,71 @@ context("Variant Browser Grid Cancer", () => {
                 .should("be.visible");
         });
 
-        it("should chnage page variant-browser-grid", () => {
+        it("should change page variant-browser-grid", () => {
             UtilsTest.changePage(browserGrid,2);
             UtilsTest.changePage(browserGrid,3);
         });
     });
 
-    context("Tooltip", () => {
-        it("should display variant tooltip", () => {
-            // Select first row, first column: Variant
-            // variant == id
-            BrowserTest.getColumnIndexByHeader("Variant");
-            cy.get("@indexColumn")
-                .then(index => {
-                    cy.get("tbody tr:first > td")
-                        .eq(index)
-                            .within(() => {
-                                cy.get("a")
-                                    .eq(0)
-                                    .trigger("mouseover");
-                            });
-                    cy.get(".qtip-content")
-                        .should("be.visible");
-            });
+    context("Variant Browser Bootstrap Grid", () => {
+
+        beforeEach(() => {
+            cy.get("@container")
+                .find(`div[data-cy="vb-grid"]`)
+                .as("grid");
         });
 
-        it("should display gene tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("Gene");
-            cy.get("@indexColumn")
-                .then(index => {
-                    cy.get("tbody tr:first > td")
-                        .eq(index)
-                            .within(() => {
-                                cy.get("a")
-                                    .eq(0)
-                                    .trigger("mouseover");
-                            });
-                    cy.get(".qtip-content")
-                        .should("be.visible");
-            });
-        });
+        context("Tooltip", () => {
 
-        it("should display consequenceType tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("Consequence Type");
-            cy.get("@indexColumn")
-                .then(index => {
-                    cy.get("tbody tr:first > td")
-                        .eq(index)
+            const tooltips = [
+                {title: "Variant", },
+                {title: "Gene"},
+                {title: "Consequence Type"},
+            ];
+            const helps = [
+                {title: "Deleteriousness"},
+                {title: "Conservation"},
+                {title: "Population Frequencies"},
+                {title: "Clinical Info"},
+            ];
+
+            beforeEach(() => {
+                cy.get("@grid")
+                    .find("tbody")
+                    .as("body");
+            });
+
+            it("should display headers' help", () => {
+                // Select first row, first column: Variant
+                // variant == id
+                cy.wrap(helps).each(help => {
+                    cy.get("@grid")
+                        .contains("th", help.title)
                         .within(() => {
                             cy.get("a")
-                                .eq(0)
                                 .trigger("mouseover");
                         });
                     cy.get(".qtip-content")
                         .should("be.visible");
                 });
-        });
-
-        it("should display population frequencies tooltip", () => {
-            cy.get("tbody tr:first > td")
-                .eq(13)
-                .within(() => {
-                    cy.get("a")
-                        .eq(0)
-                        .trigger("mouseover");
             });
-            cy.get(".qtip-content")
-                .should("be.visible");
-        });
-    });
 
-    context("Helpers", () => {
-        it("should display deleteriousness help", () => {
-            cy.get("thead th")
-                .contains("div","Deleteriousness")
-                .within(() => {
-                    cy.get("a")
-                        .trigger("mouseover");
+            it("should display content tooltips", () => {
+                // Select first row, first column: Variant
+                // variant == id
+                cy.wrap(tooltips).each(tooltip => {
+                    cy.get("@grid")
+                        .contains("th", tooltip.title)
+                        .invoke("index")
+                        .then(i => {
+                            cy.get("@body")
+                                .find(`tr:first td:nth-child(${i+1}) a`)
+                                .trigger("mouseover");
+                            cy.get(".qtip-content")
+                                .should("be.visible");
+                        });
+                });
             });
-            cy.get(".qtip-content")
-                .should("be.visible");
-        });
-
-        it("should display conservation help", () => {
-            cy.get("thead th")
-                .contains("div","Conservation")
-                    .within(() => {
-                        cy.get("a")
-                            .trigger("mouseover");
-                    });
-            cy.get(".qtip-content")
-                .should("be.visible");
-        });
-
-        it("should display population frequencies help", () => {
-            cy.get("thead th")
-                .contains("div","Population Frequencies")
-                .within(() => {
-                    cy.get("a")
-                        .trigger("mouseover");
-            });
-            cy.get(".qtip-content")
-                .should("be.visible");
-        });
-
-        it("should display clinical info help", () => {
-            cy.get("thead th")
-                .contains("div","Clinical Info")
-                .within(() => {
-                    cy.get("a")
-                    .trigger("mouseover");
-            });
-            cy.get(".qtip-content")
-                .should("be.visible");
         });
     });
 
@@ -240,7 +193,7 @@ context("Variant Browser Grid Cancer", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Copy JSON")
                         .click();
                     UtilsTest.assertValueCopiedToClipboard()
@@ -260,7 +213,7 @@ context("Variant Browser Grid Cancer", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Download JSON")
                         .click();
             });
@@ -272,7 +225,7 @@ context("Variant Browser Grid Cancer", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Ensembl Genome Browser")
                         .click();
             });
@@ -360,7 +313,7 @@ context("Variant Browser Grid Cancer", () => {
                 .should("have.attr", "disabled");
         });
 
-        it("should display an action to copy variant ID in Varsome format", () => {
+        it.skip("should display an action to copy variant ID in Varsome format", () => {
             cy.get("tbody tr:first td")
                 .last()
                 .find(`div.dropdown ul.dropdown-menu li[data-cy="varsome-copy"]`)

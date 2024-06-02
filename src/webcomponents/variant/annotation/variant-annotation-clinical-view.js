@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
@@ -242,6 +242,8 @@ export default class VariantAnnotationClinicalView extends LitElement {
 
         $("#" + this._prefix + "VariantTraitAssociation").bootstrapTable("destroy");
         $("#" + this._prefix + "VariantTraitAssociation").bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: this.traitAssociation,
             pagination: false,
             columns: [

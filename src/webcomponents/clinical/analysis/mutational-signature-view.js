@@ -69,7 +69,7 @@ class MutationalSignatureView extends LitElement {
 
     renderQuery(query) {
         return Object.keys(query || {}).map(key => html`
-            <span class="badge">
+            <span class="badge text-bg-primary">
                 ${key}: ${query[key]}
             </span>
         `);

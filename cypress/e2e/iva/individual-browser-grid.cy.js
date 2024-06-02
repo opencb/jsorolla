@@ -79,7 +79,7 @@ context("Individual Browser Grid", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("h4.modal-title")
-                .should("contain.text", "Individual Create");
+                .should("contain.text", "Individual create");
         });
         // 3. Render button clear
         it("should render button clear", () => {
@@ -106,7 +106,7 @@ context("Individual Browser Grid", () => {
         it("should have form field ID", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .find(`data-form div.form-horizontal div.row.form-group  label.control-label`)
+                .find(`data-form div.form-horizontal div.row label.col-form-label`)
                 .should("contain.text", "Individual ID");
         });
     });
@@ -145,7 +145,7 @@ context("Individual Browser Grid", () => {
                 .find("span.select2-selection__rendered")
                 .should("contain.text", "Glioblastoma multiforme");
             cy.get("@modal-create")
-                .find(`input[placeholder="Add phenotype ID......"]`)
+                .find(`input[placeholder="Add phenotype ID..."]`)
                 .then(element => {
                     expect(element.val()).equal("HP:0012174");
                     cy.wrap(element).should("be.disabled");
@@ -166,8 +166,7 @@ context("Individual Browser Grid", () => {
                 .find(`a[data-action="edit"]`)
                 .first()
                 .click();
-            cy.get("@container")
-                .find(`div[data-cy="modal-update"]`)
+            cy.get(`div[data-cy="modal-update"]`)
                 .as("modal-update");
         });
         // 1. Open modal and render update
@@ -182,7 +181,7 @@ context("Individual Browser Grid", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("h4.modal-title")
-                .should("contain.text", "Individual Update");
+                .should("contain.text", "Individual update");
         });
         // 3. Render button clear
         it("should render button clear", () => {
@@ -209,7 +208,7 @@ context("Individual Browser Grid", () => {
         it("should have form field ID equal to sample selected", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
-                .find(`data-form div.row div.row.form-group  label.control-label`)
+                .find(`data-form div.row div.row label.col-form-label`)
                 .should("contain.text", "Individual ID");
         });
     });
@@ -266,14 +265,14 @@ context("Individual Browser Grid", () => {
             });
             cy.get("button[data-action='settings']")
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                UtilsTest.getByDataTest("test-columns", "select-field-filter span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-selection")
                 .click();
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
@@ -385,7 +384,6 @@ context("Individual Browser Grid", () => {
                         expect(date).to.be.lte(today);
                     });
             });
-
         });
 
         // 3. Data format

@@ -81,14 +81,14 @@ context("Variant Interpreter Grid Germiline", () => {
             });
             cy.get("button[data-action='settings']")
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                UtilsTest.getByDataTest("test-columns", "select-field-filter span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-selection")
                 .click();
             BrowserTest.getElementByComponent({
                 selector: `${browserInterpreterGrid} opencb-grid-toolbar`,
@@ -192,7 +192,7 @@ context("Variant Interpreter Grid Germiline", () => {
 
         it("should display ACMG Prediction (Classification) tooltip", () => {
             cy.get("tbody tr:first > td")
-                .eq(15)
+                .eq(16)
                 .within(() => {
                     cy.get("a")
                         .trigger("mouseover");
@@ -200,6 +200,19 @@ context("Variant Interpreter Grid Germiline", () => {
             cy.get(".qtip-content")
                 .should("be.visible");
         });
+
+        it("should display OMIM Prediction (Classification) tooltip", () => {
+            UtilsTest.changePage(browserInterpreterGrid,2);
+
+            cy.get("tbody tr:nth-child(6) > td:nth-child(15)")
+                .within(() => {
+                    cy.get("a")
+                        .trigger("mouseover");
+                });
+            cy.get(".qtip-content")
+                .should("be.visible");
+        });
+
     });
 
     context("Helpers", () => {
@@ -236,7 +249,7 @@ context("Variant Interpreter Grid Germiline", () => {
                 .should("be.visible");
         });
 
-        it("should display interpretation column hel`", () => {
+        it("should display interpretation column help", () => {
             cy.get("thead th")
                 .contains("div","Interpretation")
                 .within(() => {
@@ -255,7 +268,7 @@ context("Variant Interpreter Grid Germiline", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Copy JSON")
                         .click();
                     UtilsTest.assertValueCopiedToClipboard()
@@ -275,7 +288,7 @@ context("Variant Interpreter Grid Germiline", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Download JSON")
                         .click();
                     cy.readFile("cypress/downloads/1_187378_A_G.json")
@@ -289,7 +302,7 @@ context("Variant Interpreter Grid Germiline", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Ensembl Genome Browser")
                         .click();
                 });

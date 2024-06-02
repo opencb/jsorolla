@@ -21,7 +21,6 @@ import Pedigree from "../../core/visualisation/pedigree.js";
 import "../commons/view/pedigree-view.js";
 import "../commons/forms/select-field-filter.js";
 
-
 /**
  * @deprecated
  */
@@ -476,7 +475,15 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                 <div class="col-md-4">
                     <div class="form-check-label mode-button">
                                 <!--<select-field-filter ?multiple="\${true}" ?disabled=\${false} ?required=\${true} .data="\${["GT", "LT"]}" .value="\${"LT"}" maxOptions="2" @filterChange="\${e => console.log("ID", e.detail.value)}"></select-field-filter>-->
-                        <select-field-filter .data="${this.modeSelectData}" value=${this.mode} @filterChange="${this.setMode}"></select-field-filter>
+                        <select-field-filter
+                            .data="${this.modeSelectData}"
+                            value="${this.mode}"
+                            .config="${{
+                                liveSearch: false,
+                                multiple: false
+                            }}"
+                            @filterChange="${this.setMode}">
+                        </select-field-filter>
                                 <!--<div>
                                     <button class="btn btn-default ripple \${this.mode === "custom" ? "active" : ""}" value="custom" @click="\${this.setSample}">Custom</button>
                                 </div>
@@ -496,7 +503,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                     <div>
                         <h4 style="padding-top: 10px; margin-bottom: 0px">Select Sample Genoypes</h4>
                         <table id="${this._prefix}BasicTable" class="table table-hover table-no-bordered">
-                            <thead>
+                            <thead class="table-light">
                             <tr>
                                 <th rowspan="2">Sample</th>
 <!--                                <th rowspan="2">Proband</th>-->

@@ -15,16 +15,16 @@ jobs:
     name: "Test and push Sonar analysis"
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: '0'
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: "16"
           cache: "npm"
           cache-dependency-path: "package.json"
       - run: npm install
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-folder
           path: build
@@ -35,7 +35,7 @@ jobs:
           command: npm run test:run
           browser: chrome
           wait-on: 'http://localhost:4000/test-app/'
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: cypress-report

@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import VariantUtils from "../variant-utils.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
+import Region from "../../../core/bioinfo/region.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../variant-browser-filter.js";
 import "../../commons/tool-header.js";
 import "../../commons/opencga-active-filters.js";
+import "../../visualization/genome-browser.js";
+import "../../visualization/split-genome-browser.js";
 
 class VariantInterpreterBrowserTemplate extends LitElement {
 
@@ -63,7 +65,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
@@ -77,11 +82,14 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.notSavedVariantIds = 0;
         this.removedVariantIds = 0;
 
+        // Saves the current active view
+        this.activeView = "table";
+
         // Variant inclusion list
         this.variantInclusionState = [];
 
         this.currentQueryBeforeSaveEvent = null;
-        this._config = {};
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -140,7 +148,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             return;
         }
         // merge filters
-        this._config = {...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
 
         // filter list, canned filters, detail tabs
         if (this.settings?.menu) {
@@ -165,11 +176,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         // FIXME For old users
         if (typeof this._config.filter.result.grid?.highlights === "string") {
             this._config.filter.result.grid.highlights = this.settings.table.highlights;
-        }
-
-        // Check to hide the genome browser link
-        if (this.settings?.hideGenomeBrowser) {
-            this._config.filter.result.grid.showGenomeBrowserLink = false;
         }
 
         // Add copy.execute functions
@@ -265,7 +271,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.requestUpdate();
     }
 
-    onResetVariants(e) {
+    onResetVariants() {
         this.clinicalAnalysisManager.reset();
 
         this.preparedQuery = {...this.preparedQuery};
@@ -345,18 +351,13 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.requestUpdate();
     }
 
-    render() {
-        // Check Project exists
-        if (!this.opencgaSession?.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No project available to browse. Please login to continue</h3>
-                </div>
-            `;
-        }
+    onChangeView(newView) {
+        this.activeView = newView;
+        this.requestUpdate();
+    }
 
-        return html`
+    renderStyles() {
+        return html `
             <style>
                 .prioritization-center {
                     margin: auto;
@@ -393,8 +394,24 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 .clinical-analysis-id-wrapper .text-filter-wrapper {
                     margin: 20px 0;
                 }
-            </style>
+            </style>`;
+    }
 
+    renderViewButton(id, title, icon) {
+        return html`
+            <button class="${`btn btn-success ${this.activeView === id ? "active" : ""}`}" @click="${() => this.onChangeView(id)}">
+                <i class="${`fa fa-${icon} icon-padding`}" aria-hidden="true"></i>
+                <strong>${title}</strong>
+            </button>`;
+    }
+
+    render() {
+        // Check Project exists
+        if (!this.opencgaSession?.study) {
+            return guardPage();
+        }
+
+        return html`
             ${this._config.showTitle ? html`
                 <tool-header
                     title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}"
@@ -404,18 +421,19 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
             ${this.clinicalAnalysis.interpretation.locked ? html`
                 <div class="row">
-                    <div class="panel panel-warning col-sm-8 col-sm-offset-2" style="padding: 0">
-                        <div class="panel-heading" style="font-size: 1.1em">
+                    <div class="card text-bg-warning col-sm-8 offset-sm-2 p-0">
+                        <div class="card-header" style="font-size: 1.1em">
                             <label>Interpretation locked:</label> you cannot modify this interpretation. You can unlock the interpretation in
-                            <span style="font-style: italic;">Case Info >> Interpretation Manager</span>.
+                            <span class="fst-italic">Case Info >> Interpretation Manager</span>.
                         </div>
                     </div>
                 </div>` : null
             }
 
-            <div class="row">
-                <div class="col-md-2">
-                    <div class="search-button-wrapper">
+            <!-- Rodiel 27-09-23 NOTE: Using 'row' and 'col' has problems for standard resolution, so I opted for 'flex -->
+            <div class="d-flex gap-4">
+                <div class="col-2">
+                    <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onSearch}">
                             <i class="fa fa-search" aria-hidden="true"></i>
                             <strong>${this._config.filter?.searchButtonText || "Search"}</strong>
@@ -434,86 +452,232 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     </variant-browser-filter>
                 </div> <!-- Close col-md-2 -->
 
-                <div class="col-md-10">
-                    <div>
-                        <variant-interpreter-browser-toolbar
-                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .state="${this.clinicalAnalysisManager.state}"
-                            .variantInclusionState="${this.variantInclusionState}"
-                            .write="${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")}"
-                            @filterVariants="${this.onFilterVariants}"
-                            @resetVariants="${this.onResetVariants}"
-                            @saveInterpretation="${this.onSaveVariants}">
-                        </variant-interpreter-browser-toolbar>
+                <div class="flex-grow-1">
+                    <!-- View toolbar -->
+                    <div class="content-pills" role="toolbar" aria-label="toolbar">
+                        ${this.renderViewButton("table", "Table Result", "table")}
+                        ${!this.settings?.hideGenomeBrowser ? this.renderViewButton("genome-browser", "Genome Browser", "dna") : nothing}
                     </div>
-
-                    <div id="${this._prefix}MainContent">
-                        <div id="${this._prefix}ActiveFilters">
-                            <opencga-active-filters
-                                resource="VARIANT"
-                                .opencgaSession="${this.opencgaSession}"
+                    <!-- Active filters -->
+                    <opencga-active-filters
+                        resource="VARIANT"
+                        .opencgaSession="${this.opencgaSession}"
+                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                        .defaultStudy="${this.opencgaSession.study.fqn}"
+                        .query="${this.preparedQuery}"
+                        .executedQuery="${this.executedQuery}"
+                        .filters="${this._config.filter.activeFilters.filters}"
+                        .alias="${this._config.activeFilterAlias}"
+                        .genotypeSamples="${this.genotypeSamples}"
+                        .modeInheritance="${this.modeInheritance}"
+                        .config="${this._config.filter.activeFilters}"
+                        @activeFilterChange="${this.onActiveFilterChange}"
+                        @activeFilterClear="${this.onActiveFilterClear}">
+                    </opencga-active-filters>
+                    <div class="main-view">
+                        <div id="table-view" class="${`content-tab ${this.activeView === "table" ? "active" : ""}`}">
+                            <!-- Interpreter browser toolbar -->
+                            <variant-interpreter-browser-toolbar
                                 .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .defaultStudy="${this.opencgaSession.study.fqn}"
-                                .query="${this.preparedQuery}"
-                                .executedQuery="${this.executedQuery}"
-                                .filters="${this._config.filter.activeFilters.filters}"
-                                .alias="${this._config.activeFilterAlias}"
-                                .genotypeSamples="${this.genotypeSamples}"
-                                .modeInheritance="${this.modeInheritance}"
-                                .config="${this._config.filter.activeFilters}"
-                                @activeFilterChange="${this.onActiveFilterChange}"
-                                @activeFilterClear="${this.onActiveFilterClear}">
-                            </opencga-active-filters>
-                        </div>
+                                .state="${this.clinicalAnalysisManager.state}"
+                                .variantInclusionState="${this.variantInclusionState}"
+                                .write="${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")}"
+                                @filterVariants="${this.onFilterVariants}"
+                                @resetVariants="${this.onResetVariants}"
+                                @saveInterpretation="${this.onSaveVariants}">
+                            </variant-interpreter-browser-toolbar>
 
-                        <!-- SEARCH TABLE RESULT -->
-                        <div class="main-view">
-                            <div id="${this._prefix}Interactive" class="variant-interpretation-content">
-                                ${!this._config.filter.result.grid.isRearrangement ? html`
-                                    <variant-interpreter-grid
-                                        .toolId="${this.toolId}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .query="${this.executedQuery}"
-                                        .review="${true}"
-                                        .config="${this._config.filter.result.grid}"
-                                        @queryComplete="${this.onQueryComplete}"
-                                        @selectrow="${this.onSelectVariant}"
-                                        @updaterow="${this.onUpdateVariant}"
-                                        @checkrow="${this.onCheckVariant}"
-                                        @settingsUpdate="${this.onSettingsUpdate}">
-                                    </variant-interpreter-grid>` : html`
-                                    <variant-interpreter-rearrangement-grid
-                                        .toolId="${this.toolId}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .query="${this.executedQuery}"
-                                        .review="${true}"
-                                        .config="${this._config.filter.result.grid}"
-                                        @queryComplete="${this.onQueryComplete}"
-                                        @selectrow="${this.onSelectVariant}"
-                                        @updaterow="${this.onUpdateVariant}"
-                                        @checkrow="${this.onCheckVariant}"
-                                        @settingsUpdate="${this.onSettingsUpdate}">
-                                    </variant-interpreter-rearrangement-grid>`
-                                }
-
-
-                                <!-- Bottom tabs with detailed variant information -->
-                                <variant-interpreter-detail
+                            ${!this._config.filter.result.grid.isRearrangement ? html`
+                                <variant-interpreter-grid
+                                    .toolId="${this.toolId}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .query="${this.executedQuery}"
+                                    .review="${true}"
+                                    .config="${this._config.filter.result.grid}"
+                                    .active="${this.active}"
+                                    @queryComplete="${this.onQueryComplete}"
+                                    @selectrow="${this.onSelectVariant}"
+                                    @updaterow="${this.onUpdateVariant}"
+                                    @checkrow="${this.onCheckVariant}"
+                                    @settingsUpdate="${this.onSettingsUpdate}">
+                                </variant-interpreter-grid>` : html`
+                                <variant-interpreter-rearrangement-grid
                                     .toolId="${this.toolId}"
-                                    .variant="${this.variant}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .config=${this._config.filter.detail}>
-                                </variant-interpreter-detail>
-                            </div>
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .query="${this.executedQuery}"
+                                    .review="${true}"
+                                    .config="${this._config.filter.result.grid}"
+                                    .active="${this.active}"
+                                    @queryComplete="${this.onQueryComplete}"
+                                    @selectrow="${this.onSelectVariant}"
+                                    @updaterow="${this.onUpdateVariant}"
+                                    @checkrow="${this.onCheckVariant}"
+                                    @settingsUpdate="${this.onSettingsUpdate}">
+                                </variant-interpreter-rearrangement-grid>`
+                            }
+                            <!-- Bottom tabs with detailed variant information -->
+                            <variant-interpreter-detail
+                                .opencgaSession="${this.opencgaSession}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .toolId="${this.toolId}"
+                                .variant="${this.variant}"
+                                .cellbaseClient="${this.cellbaseClient}"
+                                .config=${this._config.filter.detail}>
+                            </variant-interpreter-detail>
                         </div>
-                    </div> <!-- Close MainContent -->
-                </div> <!-- Close col-md-10 -->
-            </div> <!-- Close row -->
+                        <!-- Genome browser view -->
+                        ${!this.settings?.hideGenomeBrowser ? html`
+                            <div id="genome-browser-view" class="${`content-tab ${this.activeView === "genome-browser" ? "active" : ""}`}">
+                                ${!this._config.filter.result.grid.isRearrangement ? html`
+                                    <genome-browser
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this._config.genomeBrowser.config}"
+                                        .region="${this.variant}"
+                                        .tracks="${this._config.genomeBrowser.tracks}"
+                                        .active="${this.active && this.activeView === "genome-browser"}">
+                                    </genome-browser>
+                                ` : html`
+                                    <split-genome-browser
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this._config.genomeBrowser.config}"
+                                        .regions="${this.variant}"
+                                        .tracks="${this._config.genomeBrowser.tracks}"
+                                        .active="${this.active && this.activeView === "genome-browser"}">
+                                    </split-genome-browser>
+                                `}
+                            </div>
+                        ` : nothing}
+                    </div>
+                </div>
+            </div>
         `;
+    }
+
+    getDefaultConfig() {
+        let genomeBrowserTracks = [];
+        const genomeBrowserConfig = {
+            cellBaseClient: this.opencgaSession?.cellbaseClient,
+            featuresOfInterest: [],
+        };
+
+        // Check for opencgaSession and clinicalAnalysis defined
+        if (this.opencgaSession && this.clinicalAnalysis) {
+            genomeBrowserTracks = [
+                {
+                    type: "gene-overview",
+                    overview: true,
+                    config: {},
+                },
+                {
+                    type: "sequence",
+                    config: {},
+                },
+                {
+                    type: "gene",
+                    config: {},
+                },
+                {
+                    type: "opencga-variant",
+                    config: {
+                        title: "Variants",
+                        query: {
+                            sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                        },
+                    },
+                },
+                ...(this.clinicalAnalysis.proband?.samples || []).map(sample => ({
+                    type: "opencga-alignment",
+                    config: {
+                        title: `Alignments - ${sample.id}`,
+                        sample: sample.id,
+                    },
+                })),
+            ];
+
+            // Add interpretation panels to features of interest
+            if (this.clinicalAnalysis?.interpretation?.panels?.length > 0) {
+                genomeBrowserConfig.featuresOfInterest.push({
+                    name: "Panels of the interpretation",
+                    category: true,
+                });
+
+                const colors = ["green", "blue", "darkorange", "blueviolet", "sienna", "indigo", "salmon"];
+                const assembly = this.opencgaSession.project.organism?.assembly;
+                this.clinicalAnalysis.interpretation.panels.forEach((panel, index) => {
+                    genomeBrowserConfig.featuresOfInterest.push({
+                        name: panel.name,
+                        features: panel.genes
+                            .filter(gene => gene?.coordinates?.some(c => c.assembly === assembly))
+                            .map(gene => {
+                                const coordinates = gene?.coordinates?.find(c => c.assembly === assembly);
+                                const region = new Region(coordinates.location);
+                                return {
+                                    chromosome: region.chromosome,
+                                    start: region.start,
+                                    end: region.end,
+                                    name: `
+                                        <div>${gene.name}</div>
+                                        <div class="small text-secondary">${region.toString()}</div>
+                                    `,
+                                };
+                            })
+                            .sort((a, b) => a.name < b.name ? -1 : +1),
+                        display: {
+                            visible: true,
+                            color: colors[index % colors.length],
+                        },
+                    });
+                });
+            }
+
+            if (this.clinicalAnalysis.interpretation?.primaryFindings?.length > 0) {
+                if (genomeBrowserConfig.featuresOfInterest.length > 0) {
+                    genomeBrowserConfig.featuresOfInterest.push({separator: true});
+                }
+                genomeBrowserConfig.featuresOfInterest.push({
+                    name: "Variants",
+                    category: true,
+                });
+                genomeBrowserConfig.featuresOfInterest.push({
+                    name: "Primary Findings",
+                    features: this.clinicalAnalysis.interpretation.primaryFindings.map(feature => {
+                        const genes = Array.from(new Set(feature.annotation.consequenceTypes.filter(ct => !!ct.geneName).map(ct => ct.geneName)));
+                        return {
+                            id: feature.id,
+                            chromosome: feature.chromosome,
+                            start: feature.start,
+                            end: feature.end ?? (feature.start + 1),
+                            name: `
+                                <div class="py-1">
+                                    <div>${feature.id} (${feature.type})</div>
+                                    ${feature.annotation.displayConsequenceType ? `
+                                        <div class="small text-primary">
+                                            <strong>${feature.annotation.displayConsequenceType}</strong>
+                                        </div>
+                                    ` : ""}
+                                    ${genes.length > 0 ? `
+                                        <div class="small text-secondary">${genes.join(", ")}</div>
+                                    ` : ""}
+                                </div>
+                            `,
+                        };
+                    }),
+                    display: {
+                        visible: true,
+                        color: "red",
+                    },
+                });
+            }
+        }
+
+        return {
+            genomeBrowser: {
+                config: genomeBrowserConfig,
+                tracks: genomeBrowserTracks,
+            },
+        };
     }
 
 }

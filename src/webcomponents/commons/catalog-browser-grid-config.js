@@ -19,7 +19,7 @@ import LitUtils from "./utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "./utils/notification-utils.js";
 import "./forms/data-form.js";
-
+import "./forms/select-field-filter.js";
 
 export default class CatalogBrowserGridConfig extends LitElement {
 
@@ -215,8 +215,10 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                         <select-field-filter
                                             .data="${this.config.pageList}"
                                             .value="${this.config.pageSize}"
-                                            .multiple="${false}"
-                                            .classes="${"btn-sm"}"
+                                            .config="${{
+                                                multiple: false,
+                                                liveSearch: false,
+                                            }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                         </select-field-filter>
                                     `;
@@ -225,7 +227,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                         },
                         {
                             type: "text",
-                            text: "Select the <span style=\"font-weight: bold\">columns</span> to be displayed",
+                            text: "Select the columns to be displayed",
                             display: {
                                 containerStyle: "margin: 20px 5px 5px 0px",
                             }
@@ -241,9 +243,11 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                         <select-field-filter
                                             .data="${this.selectColumnData}"
                                             .value="${this.selectedColumns?.join(",")}"
-                                            .title="${"Columns"}"
-                                            .multiple="${true}"
-                                            .classes="${"btn-sm"}"
+                                            .config="${{
+                                                title: "Columns",
+                                                liveSearch: false,
+                                                multiple: true,
+                                            }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                         </select-field-filter>
                                     `;

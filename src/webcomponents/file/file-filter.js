@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utils-new.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-dynamic.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
-import "../commons/forms/date-filter.js";
+import "../commons/forms/date-picker.js.js";
 import "../commons/forms/text-field-filter.js";
 import "../commons/forms/select-field-filter.js";
 import "../commons/filters/catalog-distinct-autocomplete";
@@ -209,8 +209,8 @@ export default class OpencgaFileFilter extends LitElement {
             case "internal.variant.index.status.id":
                 content = html`
                     <select-field-filter
-                        multiple
                         .value="${this.preparedQuery[subsection.id]}"
+                        .config="${{multiple: true}}"
                         .data="${subsection.allowedValues}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </select-field-filter>
@@ -229,10 +229,10 @@ export default class OpencgaFileFilter extends LitElement {
                 break;
             case "date":
                 content = html`
-                    <date-filter
-                        .creationDate="${this.preparedQuery.creationDate}"
+                    <date-picker
+                        .filterDate="${this.preparedQuery.creationDate}"
                         @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
-                    </date-filter>
+                    </date-picker>
                 `;
                 break;
             default:
@@ -240,17 +240,18 @@ export default class OpencgaFileFilter extends LitElement {
         }
 
         return html`
-                    <div class="form-group">
-                        <div class="browser-subsection" id="${subsection.id}">${subsection.name}
-                            ${subsection.description ? html`
-                                <div class="tooltip-div pull-right">
-                                    <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                </div>` : null }
-                        </div>
-                        <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
-                            ${content}
-                        </div>
-                    </div>
+            <div class="form-group">
+                <div class="browser-subsection" id="${subsection.id}">${subsection.name}
+                    ${subsection.description ? html`
+                        <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        </a>
+                        ` : null }
+                </div>
+                <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
+                    ${content}
+                </div>
+            </div>
                 `;
     }
 
@@ -262,7 +263,7 @@ export default class OpencgaFileFilter extends LitElement {
         return html`
             ${this.config?.searchButton ? html`
                 <div class="search-button-wrapper">
-                    <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                    <button type="button" class="btn btn-primary" @click="${this.onSearch}">
                         <i class="fa fa-search" aria-hidden="true"></i> Search
                     </button>
                 </div>

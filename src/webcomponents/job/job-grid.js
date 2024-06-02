@@ -114,6 +114,7 @@ export default class JobGrid extends LitElement {
                     disabled: true,
                     disabledTooltip: "This operation will be implemented soon. Thanks for your patience.",
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                 },
                 render: () => html `
                     <job-create
@@ -200,7 +201,8 @@ export default class JobGrid extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
@@ -223,6 +225,8 @@ export default class JobGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -244,7 +248,8 @@ export default class JobGrid extends LitElement {
                 sortName: "Creation",
                 sortOrder: "asc",
                 gridContext: this,
-                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     document.getElementById(this._prefix + "refreshIcon").style.visibility = "visible";
 
@@ -361,7 +366,7 @@ export default class JobGrid extends LitElement {
                         <div class='col-md-12'>
                             <div>
                                 <table class="table table-hover table-no-bordered">
-                                    <thead>
+                                    <thead class="table-light">
                                         <tr class="table-header">
                                             <th>ID</th>
                                             <th>Tool</th>
@@ -431,7 +436,7 @@ export default class JobGrid extends LitElement {
                     return `
                         <div>
                             <span style="font-weight: bold; margin: 5px 0">${id}</span>
-                            ${row.outDir?.path ? `<span class="help-block" style="margin: 5px 0">/${row.outDir.path.replace(id, "").replace("//", "/")}</span>` : ""}
+                            ${row.outDir?.path ? `<span class="d-block text-secondary" style="margin: 5px 0">/${row.outDir.path.replace(id, "").replace("//", "/")}</span>` : ""}
                         </div>`;
                 },
                 visible: this.gridCommons.isColumnVisible("id")
@@ -444,7 +449,7 @@ export default class JobGrid extends LitElement {
                     return `
                         <div>
                             <span style="margin: 5px 0">${toolId}</span>
-                            ${row.tool?.type ? `<span class="help-block" style="margin: 5px 0">${row.tool.type}</span>` : ""}
+                            ${row.tool?.type ? `<span class="d-block text-secondary" style="margin: 5px 0">${row.tool.type}</span>` : ""}
                         </div>`;
                 },
                 visible: this.gridCommons.isColumnVisible("toolId")
@@ -565,31 +570,31 @@ export default class JobGrid extends LitElement {
                 field: "actions",
                 formatter: (value, row) => `
                     <div class="dropdown">
-                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-toolbox" aria-hidden="true"></i>
                             <span>Actions</span>
                             <span class="caret" style="margin-left: 5px"></span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
+                        <ul class="dropdown-menu">
                             <li>
-                                <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
+                                    <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
                                 </a>
                             </li>
                             <li>
-                                <a data-action="download-json" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
+                                    <i class="fas fa-download" aria-hidden="true"></i> Download JSON
                                 </a>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
+                                <a data-action="edit" class="dropdown-item disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                    <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
                             <li>
-                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
-                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                <a data-action="delete" href="javascript: void 0" class="dropdown-item disabled">
+                                    <i class="fas fa-trash" aria-hidden="true"></i> Delete
                                 </a>
                             </li>
                         </ul>
@@ -649,8 +654,8 @@ export default class JobGrid extends LitElement {
         return [
             {
                 render: () => html`
-                    <button type="button" class="btn btn-default btn-sm" @click="${() => this.table.bootstrapTable("refresh")}">
-                        <i class="fas fa-sync-alt icon-padding"></i> Refresh
+                    <button type="button" class="btn btn-light btn-sm" @click="${() => this.table.bootstrapTable("refresh")}">
+                        <i class="fas fa-sync-alt"></i> Refresh
                     </button>
                 `,
             }
@@ -662,6 +667,7 @@ export default class JobGrid extends LitElement {
             display: {
                 modalTitle: "Job Update",
                 modalDraggable: true,
+                modalSize: "modal-lg"
             },
             render: active => html`
                 <job-update

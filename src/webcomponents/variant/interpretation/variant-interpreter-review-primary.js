@@ -25,7 +25,6 @@ import NotificationUtils from "../../commons/utils/notification-utils";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager";
 import LitUtils from "../../commons/utils/lit-utils";
 
-
 export default class VariantInterpreterReviewPrimary extends LitElement {
 
     constructor() {
@@ -75,7 +74,10 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
@@ -132,7 +134,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             this._config.result.grid = {
                 ...this._config.result.grid,
                 ...this.opencgaSession.user.configs.IVA.settings[this.toolId].grid,
-                showGenomeBrowserLink: false,
             };
         }
 
@@ -176,7 +177,9 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
 
 
     onViewInterpretation() {
-        $("#" + this._prefix + "PreviewModal").modal("show");
+        // $("#" + this._prefix + "PreviewModal").modal("show");
+        const previewModal = new bootstrap.Modal("#" + this._prefix + "PreviewModal");
+        previewModal.show();
     }
 
     onSaveVariants(e) {
@@ -250,15 +253,15 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         const hasVariantsToSave = state.removedVariants?.length || state.updatedVariants?.length;
 
         return html`
-            <div class="pull-right save-button">
+            <div class="d-flex justify-content-end gap-1 mb-2">
                 <button type="button" class="btn btn-primary" @click="${this.onViewInterpretation}">
                     Preview
                 </button>
                 <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"}" @click="${this.onSaveVariants}">
-                    <i class="fas fa-save icon-padding" aria-hidden="true"></i>
+                    <i class="fas fa-save pe-1" aria-hidden="true"></i>
                     <strong>Save</strong>
                     ${hasVariantsToSave ? html`
-                        <span class="badge" style="margin-left: 5px">
+                        <span class="badge ms-1">
                             ${(state.removedVariants?.length || 0) + (state.updatedVariants?.length || 0)}
                         </span>
                     ` : null}
@@ -267,7 +270,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
 
             <div class="row">
                 <div class="col-md-12">
-                    <div style="padding-top: 5px">
+                    <div class="pt-1">
                         ${this.clinicalAnalysis?.interpretation ? html`
                             ${this._config.result?.grid?.isRearrangement ? html`
                                 <variant-interpreter-rearrangement-grid
@@ -276,6 +279,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                     .clinicalVariants="${this.clinicalVariants}"
                                     .review="${true}"
+                                    .active="${this.active}"
                                     .config="${this._config.result.grid}"
                                     @selectrow="${this.onSelectVariant}"
                                     @updaterow="${this.onUpdateVariant}"
@@ -289,6 +293,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                     .clinicalVariants="${this.clinicalVariants}"
                                     .review="${true}"
+                                    .active="${this.active}"
                                     .config="${this._config.result.grid}"
                                     @selectrow="${this.onSelectVariant}"
                                     @updaterow="${this.onUpdateVariant}"
@@ -320,7 +325,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                             <h4 style="margin-right:auto;">
                                 Interpretation preview
                             </h4>
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <button type="button" class="close" data-bs-dismississ="modal">&times;</button>
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid" style="max-height:75vh;overflow-y:auto;">
@@ -328,7 +333,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
@@ -352,7 +357,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     detailView: true,
                     showReview: true,
                     showActions: true,
-                    showGenomeBrowserLink: false,
 
                     showSelectCheckbox: true,
                     multiSelection: false,
@@ -380,7 +384,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         active: true,
                         render: variant => html`
                             <cellbase-variant-annotation-summary
-                                .variantAnnotation="${variant.annotation}"
+                                .variantAnnotation="${variant?.annotation}"
                                 .consequenceTypes="${CONSEQUENCE_TYPES}"
                                 .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
                                 .assembly=${this.opencgaSession.project.organism.assembly}>
@@ -392,7 +396,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         name: "Consequence Type",
                         render: (variant, active) => html`
                             <variant-consequence-type-view
-                                .consequenceTypes="${variant.annotation.consequenceTypes}"
+                                .consequenceTypes="${variant?.annotation?.consequenceTypes}"
                                 .active="${active}">
                             </variant-consequence-type-view>
                         `,
@@ -402,7 +406,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         name: "Population Frequencies",
                         render: (variant, active) => html`
                             <cellbase-population-frequency-grid
-                                .populationFrequencies="${variant.annotation.populationFrequencies}"
+                                .populationFrequencies="${variant?.annotation?.populationFrequencies}"
                                 .active="${active}">
                             </cellbase-population-frequency-grid>
                         `,
@@ -412,8 +416,8 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         name: "Clinical",
                         render: variant => html`
                             <variant-annotation-clinical-view
-                                .traitAssociation="${variant.annotation.traitAssociation}"
-                                .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                                .traitAssociation="${variant?.annotation?.traitAssociation}"
+                                .geneTraitAssociation="${variant?.annotation?.geneTraitAssociation}">
                             </variant-annotation-clinical-view>
                         `,
                     },
@@ -445,7 +449,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         render: (variant, active, opencgaSession) => html`
                             <variant-samples
                                 .opencgaSession="${opencgaSession}"
-                                .variantId="${variant.id}"
+                                .variantId="${variant?.id}"
                                 .active="${active}">
                             </variant-samples>
                         `,
@@ -455,7 +459,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         name: "Beacon",
                         render: (variant, active, opencgaSession) => html`
                             <variant-beacon-network
-                                .variant="${variant.id}"
+                                .variant="${variant?.id}"
                                 .assembly="${opencgaSession.project.organism.assembly}"
                                 .config="${this.beaconConfig}"
                                 .active="${active}">

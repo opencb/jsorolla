@@ -148,6 +148,8 @@ export default class RgaIndividualFamily extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._initTableColumns(),
             method: "get",
             sidePagination: "server",
@@ -162,7 +164,7 @@ export default class RgaIndividualFamily extends LitElement {
             formatShowingRows: (pageFrom, pageTo, totalRows) => this.formatShowingRows(pageFrom, pageTo, totalRows),
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             ajax: async params => {
                 const _filters = {
                     study: this.opencgaSession.study.fqn,
@@ -380,7 +382,7 @@ export default class RgaIndividualFamily extends LitElement {
                     title: "Id",
                     field: "id",
                     rowspan: 2,
-                    formatter: (value, row, index) => row.chromosome ? VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly) : value
+                    formatter: (value, row, index) => row.chromosome ? VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly) : value
                 },
                 {
                     title: "Gene",

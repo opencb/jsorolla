@@ -142,6 +142,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                             .active="${params.active}"
                             @selectanalysis="${params.onSelectClinicalAnalysis}"
                             @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}"
+                            @rowUpdate="${e => params.onComponentUpdate(e, "clinicalAnalysis")}"
                             @clinicalAnalysisUpdate="${e => params.onComponentUpdate(e, "clinicalAnalysis")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </clinical-analysis-grid>
@@ -244,6 +245,10 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                 detail: {
                     title: "Clinical Analysis",
                     showTitle: true,
+                    display: {
+                        titleClass: "mt-4",
+                        contentClass: "p-3"
+                    },
                     items: [
                         {
                             id: "clinical-analysis-view",

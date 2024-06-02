@@ -141,6 +141,8 @@ export default class RgaVariantAllelePairs extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             // data: this.tableData,
             columns: this._initTableColumns(),
             sidePagination: "server",
@@ -153,7 +155,8 @@ export default class RgaVariantAllelePairs extends LitElement {
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             ajax: async params => {
                 try {
                     const pageNumber = this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1;
@@ -233,7 +236,7 @@ export default class RgaVariantAllelePairs extends LitElement {
             {
                 title: "Allele",
                 field: "id",
-                formatter: (value, row, index) => row.chromosome ? VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly) : value
+                formatter: (value, row, index) => row.chromosome ? VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly) : value
             },
             {
                 title: "Pair type",

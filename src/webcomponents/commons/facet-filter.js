@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/filters/consequence-type-select-filter.js";
-
+import "../commons/forms/select-field-filter.js";
 
 export default class FacetFilter extends LitElement {
 
@@ -135,7 +135,6 @@ export default class FacetFilter extends LitElement {
         UtilsNew.initTooltip(this);
     }
 
-
     // Extracts facet field name, value and function (Avg or Percentile) from default list (or saved facet, in future)
     parseFacet(str) {
         const fnMatch = [...str.matchAll(/(avg|min|max|unique|hll|percentile|sumsq)\((\w+)\)/gi)];
@@ -225,7 +224,6 @@ export default class FacetFilter extends LitElement {
     //     this.selectedFacet = {...this.selectedFacet};
     //     this.requestUpdate();
     // }
-
 
     onFacetValueChange(e) {
         const id = e.target.dataset.id;
@@ -331,19 +329,19 @@ export default class FacetFilter extends LitElement {
     renderField(facet) {
         const renderNestedFieldWrapper = facet => html`
             <!-- nested facet -->
-            <div class="row facet-row nested">
-                <div class="col-md-12 text-center">
-                    <a class="btn btn-small collapsed" role="button" data-collapse="#${facet.id}_nested" @click="${this.toggleCollapse}"> <i class="fas fa-arrow-alt-circle-down"></i> Nested Facet (optional) </a>
+            <div class="row">
+                <div class="text-center">
+                    <a class="btn btn-small collapsed" role="button" data-collapse="#${facet.id}_nested" @click="${this.toggleCollapse}">
+                        <i class="fas fa-arrow-alt-circle-down"></i> Nested Facet (optional)
+                    </a>
                     <div class="collapse ${this.selectedFacet[facet.id].nested ? "in" : ""}" id="${facet.id}_nested">
-                        <div class="">
-                            <select-field-filter
-                                .data="${this.config.sections.map(section => ({...section, fields: section.fields.map(item => ({...item, disabled: item.id === facet.id}))}))}"
-                                .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null}
-                                @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}">
-                            </select-field-filter>
-                            <div class="row facet-row nested">
-                                ${this.renderNestedField(this.selectedFacet[facet.id].nested, facet.id)}
-                            </div>
+                        <select-field-filter
+                            .data="${this.config.sections.map(section => ({...section, fields: section.fields.map(item => ({...item, disabled: item.id === facet.id}))}))}"
+                            .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null}
+                            @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}">
+                        </select-field-filter>
+                        <div class="pt-1 pb-2">
+                            ${this.renderNestedField(this.selectedFacet[facet.id].nested, facet.id)}
                         </div>
                     </div>
                 </div>
@@ -354,12 +352,12 @@ export default class FacetFilter extends LitElement {
         switch (facet.type) {
             case "consequence-type":
                 return html `
-                    <div class="row facet-row">
+                    <div class="row">
                         <div class="col-md-12">
                             <consequence-type-select-filter
-                                    .ct="${this.preparedQuery.ct}"
-                                    .config="${this.consequenceTypes || CONSEQUENCE_TYPES}"
-                                    @filterChange="${e => this.onFacetChange(e, facet.id)}">
+                                .ct="${this.preparedQuery.ct}"
+                                .config="${this.consequenceTypes || CONSEQUENCE_TYPES}"
+                                @filterChange="${e => this.onFacetChange(e, facet.id)}">
                             </consequence-type-select-filter>
                         </div>
                     </div>
@@ -368,12 +366,14 @@ export default class FacetFilter extends LitElement {
             case "category":
                 const [, value] = facet.value ? [...facet.value.matchAll(/\[([^\s]+)]/gim)][0] : "";
                 return html`
-                    <div class="row facet-row">
+                    <div class="row">
                         <div class="col-md-12">
                             <select-field-filter
-                                ?multiple="${facet.multiple === undefined || facet.multiple}"
                                 .data="${facet.allowedValues}"
                                 .value="${value ?? facet.defaultValue ?? ""}"
+                                .config="${{
+                                    multiple: facet.multiple === undefined || facet.multiple,
+                                }}"
                                 id="${facet.id}_Select"
                                 data-id="${facet.id}"
                                 @filterChange="${e => this.onFacetChange(e, facet.id)}">
@@ -388,39 +388,41 @@ export default class FacetFilter extends LitElement {
                 const [, numValue] = facet.value ? [...facet.value.matchAll(/\[([^\s]+)]/gim)][0] : "";
                 const [, nstart, nstop, nstep] = facet.value ? [...facet.value.matchAll(/\[(.*)\.\.(.*)]:(.*)/gim)][0] : "";
                 return html `
-                    <div class="row facet-row number-field">
+                    <div class="row row-cols-auto g-1">
                         <!-- Start Stop Step for Range -->
-                        <div class="col-md-8">
-                            <div class="row facet-row">
-                                <div class="col-md-4">
-                                    <input type="text" class="form-control" placeholder="Start"
-                                           id="${this._prefix}${facet.id}_range_start" .disabled="${facet.fn}"
-                                           data-id="${facet.id}" data-type="range_start" .value="${nstart || ""}"
-                                           @input="${this.onFacetRangeChange}" />
+                        <div class="col-8">
+                            <div class="row g-1">
+                                <div class="col">
+                                <input type="text" class="form-control" placeholder="Start"
+                                        id="${this._prefix}${facet.id}_range_start" .disabled="${facet.fn}"
+                                        data-id="${facet.id}" data-type="range_start" .value="${nstart || ""}"
+                                        @input="${this.onFacetRangeChange}" />
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col">
                                     <input type="text" class="form-control" placeholder="Stop"
-                                           id="${this._prefix}${facet.id}_range_stop" .disabled="${facet.fn}"
-                                           data-id="${facet.id}" data-type="range_stop" .value="${nstop || ""}"
-                                           @input="${this.onFacetRangeChange}" />
+                                            id="${this._prefix}${facet.id}_range_stop" .disabled="${facet.fn}"
+                                            data-id="${facet.id}" data-type="range_stop" .value="${nstop || ""}"
+                                            @input="${this.onFacetRangeChange}" />
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col">
                                     <input type="text" class="form-control" placeholder="Step"
-                                           id="${this._prefix}${facet.id}_range_step" .disabled="${facet.fn}"
-                                           data-id="${facet.id}" data-type="range_step" .value="${nstep || ""}"
-                                           @input="${this.onFacetRangeChange}" />
+                                            id="${this._prefix}${facet.id}_range_step" .disabled="${facet.fn}"
+                                            data-id="${facet.id}" data-type="range_step" .value="${nstep || ""}"
+                                            @input="${this.onFacetRangeChange}" />
                                 </div>
                             </div>
                         </div>
-                        <!-- this.fncs -->
-                        <div class="col-md-4">
-                            <select-field-filter
-                                .data="${this.selectFns}"
-                                .value="${facet.fn ?? "range"}"
-                                id="${this._prefix}${facet.id}_FnSelect"
-                                data-facet="${facet.id}"
-                                @filterChange="${this.onFacetFnChange}">
-                            </select-field-filter>
+                            <!-- this.fncs -->
+                        <div class="col-4">
+                            <div class="col">
+                                <select-field-filter
+                                    .data="${this.selectFns || {}}"
+                                    .value="${facet.fn ?? "range"}"
+                                    id="${this._prefix}${facet.id}_FnSelect"
+                                    data-facet="${facet.id}"
+                                    @filterChange="${this.onFacetFnChange}">
+                                </select-field-filter>
+                            </div>
                         </div>
                     </div>
                     ${renderNestedFieldWrapper(facet)}
@@ -428,7 +430,7 @@ export default class FacetFilter extends LitElement {
             case "string":
                 const [, strvalue] = facet.value ? [...facet.value.matchAll(/\[([^\s]+)]/gim)][0] : "";
                 return html`
-                    <div class="row facet-row">
+                    <div class="row">
                         <div class="col-md-12">
                             <input
                                 type="text"
@@ -444,7 +446,7 @@ export default class FacetFilter extends LitElement {
                 `;
             case "boolean":
                 return html`
-                    <div class="row facet-row">
+                    <div class="row">
                         <div class="col-md-12">
                             <fieldset>
                                 <div class="switch-toggle text-white">
@@ -483,12 +485,14 @@ export default class FacetFilter extends LitElement {
                 return html`
                     <div class="col-md-12">
                         <select-field-filter
-                                ?multiple="${facet.multiple === undefined || facet.multiple}"
-                                .data="${facet.allowedValues}"
-                                .value="${value}"
-                                id="${facet.id}_NestedSelect"
-                                data-parent-facet="${parent}"
-                                @filterChange="${this.onNestedFacetSelectChange}">
+                            .data="${facet.allowedValues}"
+                            .value="${value}"
+                            .config="${{
+                                multiple: facet.multiple === undefined || facet.multiple
+                            }}"
+                            id="${facet.id}_NestedSelect"
+                            data-parent-facet="${parent}"
+                            @filterChange="${this.onNestedFacetSelectChange}">
                         </select-field-filter>
                     </div>
                 `;
@@ -499,26 +503,26 @@ export default class FacetFilter extends LitElement {
                 const [, nstart, nstop, nstep] = facet.value ? [...facet.value.matchAll(/\[(.*)\.\.(.*)]:(.*)/gim)][0] : "";
 
                 return html`
-                    <div class="row facet-row number-field">
+                    <div class="row g-1">
                         <div class="col-md-8">
-                            <div class="row facet-row">
+                            <div class="row g-1">
                                 <div class="col-md-4">
                                     <input type="text" class="form-control" placeholder="Start" data-parent-facet="${parent}"
-                                           id="${this._prefix}${parent}_Nested_range_start" .disabled="${facet.fn}"
-                                           data-id="${facet.id}" data-type="range_start" .value="${nstart || ""}"
-                                           @input="${this.onNestedFacetRangeChange}" />
+                                        id="${this._prefix}${parent}_Nested_range_start" .disabled="${facet.fn}"
+                                        data-id="${facet.id}" data-type="range_start" .value="${nstart || ""}"
+                                        @input="${this.onNestedFacetRangeChange}" />
                                 </div>
                                 <div class="col-md-4">
                                     <input type="text" class="form-control" placeholder="Stop" data-parent-facet="${parent}"
-                                           id="${this._prefix}${parent}_Nested_range_stop" .disabled="${facet.fn}"
-                                           data-id="${facet.id}" data-type="range_stop" .value="${nstop || ""}"
-                                           @input="${this.onNestedFacetRangeChange}" />
+                                        id="${this._prefix}${parent}_Nested_range_stop" .disabled="${facet.fn}"
+                                        data-id="${facet.id}" data-type="range_stop" .value="${nstop || ""}"
+                                        @input="${this.onNestedFacetRangeChange}" />
                                 </div>
                                 <div class="col-md-4">
                                     <input type="text" class="form-control" placeholder="Step" data-parent-facet="${parent}"
-                                           id="${this._prefix}${parent}_Nested_range_step" .disabled="${facet.fn}"
-                                           data-id="${facet.id}" data-type="range_step" .value="${nstep || ""}"
-                                           @input="${this.onNestedFacetRangeChange}" />
+                                        id="${this._prefix}${parent}_Nested_range_step" .disabled="${facet.fn}"
+                                        data-id="${facet.id}" data-type="range_step" .value="${nstep || ""}"
+                                        @input="${this.onNestedFacetRangeChange}" />
                                 </div>
                             </div>
                             <!--<input type="text" class="form-control" placeholder="Include values or set range" data-parent-facet="\${parent}"
@@ -527,9 +531,11 @@ export default class FacetFilter extends LitElement {
                         </div>
                         <div class="col-md-4">
                             <select-field-filter
-                                .disabled="${false}"
-                                .data="${this.selectFns}"
+                                .data="${this.selectFns || {}}"
                                 .value="${facet.fn ?? "range"}"
+                                .config="${{
+                                    disabled: false
+                                }}"
                                 id="${parent}_NestedFnSelect"
                                 data-parent-facet="${parent}"
                                 @filterChange="${this.onNestedFacetFnChange}">
@@ -552,7 +558,7 @@ export default class FacetFilter extends LitElement {
                     </div>`;
             case "boolean":
                 return html`
-                    <div class="row facet-row">
+                    <div class="row">
                         <div class="col-md-12">
                             <fieldset>
                                 <div class="switch-toggle text-white">
@@ -571,41 +577,47 @@ export default class FacetFilter extends LitElement {
         }
     }
 
-
     render() {
         return this.config ? html`
-            <div class="facet-selector">
-                <label>Select a Term or Range Facet</label>
+            <div class="mb-3 cy-facet-selector">
+                <label class="form-label fw-bold">
+                    Select a Term or Range Facet
+                </label>
                 <select-field-filter
-                        multiple
-                        .data="${this.config.sections}"
-                        .value=${Object.keys(this.selectedFacet).join(",")}
-                        @filterChange="${this.onFacetFieldChange}">
+                    .data="${this.config.sections}"
+                    .value="${Object.keys(this.selectedFacet).join(",")}"
+                    .config="${{
+                        multiple: true,
+                    }}"
+                    @filterChange="${this.onFacetFieldChange}">
                 </select-field-filter>
                 <div class="text-center">
-                    <p class="or-text">- or -</p>
-                    <button class="btn btn-default btn-small ripple default-facets-button" @click="${this.addDefaultFacet}">Add default fields</button>
+                    <div>- or -</div>
+                    <button class="btn btn-light btn-small cy-default-facets-button" @click="${this.addDefaultFacet}">
+                        Add default fields
+                    </button>
                 </div>
             </div>
 
-            <div class="facet-list-container">
-                <label>Selected facets</label>
-                <div class="facet-list">
+            <div class="pt-2 border-top">
+                <label class="form-label fw-bold">
+                    Selected facets
+                </label>
+                <div>
                     <!-- this.selectedFacet <pre>\${JSON.stringify(this.selectedFacet, null, "  ")}</pre> -->
-                    ${Object.keys(this.selectedFacet).length > 0 ? Object.entries(this.selectedFacet).map(([, facet]) => html `
-                        <div class="facet-box" id="${this._prefix}Heading">
+                    ${Object.keys(this.selectedFacet).length > 0 ? Object.entries(this.selectedFacet).map(([, facet], i) => html `
+                        <div class="pt-2 ${i > 0?"border-top":""}" id="${this._prefix}Heading">
                             <div class="subsection-content form-group">
-                                <div class="browser-subsection">
+                                <label class="form-label fw-bold browser-subsection">
                                     ${facet.name}
                                     ${facet.description ? html`
-                                        <div class="tooltip-div pull-right">
-                                            <a tooltip-title="${facet.name}" tooltip-text="${facet.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                        </div>` : null}
-                                </div>
-                                <div id="${this._prefix}${facet.id}" class="" role="tabpanel" aria-labelledby="${this._prefix}Heading">
-                                    <div class="">
+                                        <a tooltip-title="${facet.name}" tooltip-text="${facet.description}">
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                        </a>
+                                        ` : null}
+                                </label>
+                                <div class="container"  id="${this._prefix}${facet.id}" role="tabpanel" aria-labelledby="${this._prefix}Heading">
                                     ${this.renderField(facet)}
-                                    </div>
                                 </div>
                             </div>
                         </div>

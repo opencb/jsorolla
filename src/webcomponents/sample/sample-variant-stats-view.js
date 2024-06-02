@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/simple-chart.js";
 import "../commons/forms/data-form.js";
@@ -156,6 +156,11 @@ class SampleVariantStatsView extends LitElement {
             if (this.variantStats?.stats?.chromosomeCount) {
                 this.variantStats.stats.chromosomeCount = UtilsNew.objectKeySort(this.variantStats.stats.chromosomeCount, CHROMOSOMES, false);
             }
+            if (this.variantStats?.query && typeof this.variantStats?.query === "object") {
+                this.variantStats.query = Object.entries(this.variantStats?.query)
+                    .filter(([k, v]) => k !== "study")
+                    .map(([key, value]) => ({key, value}));
+            }
         } else {
             this.statsSelect = [];
             this.variantStats = null;
@@ -184,6 +189,42 @@ class SampleVariantStatsView extends LitElement {
         this.variantStats = this.sample.qualityControl[this._variantStatsPath].variantStats.find(stat => stat.id === e.detail.value);
     }
 
+    render() {
+        if (!this.variantStats?.stats?.id) {
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i> No Variant Stats found.
+                </div>`;
+        }
+
+        return html`
+            ${this.sample ?
+                html`
+                    <div class="row my-3">
+                        <label class="col-md-2 col-form-label fw-bold">Select Variant Stat</label>
+                        <div class="col-md-2">
+                            <select-field-filter
+                                .data="${this.statsSelect}"
+                                .value=${this.variantStats.id}
+                                .config="${{
+                                    liveSearch: false,
+                                    multiple: false
+                                }}"
+                                @filterChange="${this.statChange}">
+                            </select-field-filter>
+                        </div>
+                    </div>` : nothing
+            }
+
+            <div>
+                <data-form
+                    .data=${this.variantStats}
+                    .config="${this._config}">
+                </data-form>
+            </div>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             title: "Summary",
@@ -206,30 +247,30 @@ class SampleVariantStatsView extends LitElement {
                             name: "Sample ID",
                             field: "stats.id",
                             display: {
-                                style: "font-weight: bold"
-                            }
+                                style: {
+                                    "font-weight": "bold",
+                                },
+                            },
                         },
                         {
                             name: "Number of Variants",
-                            field: "stats.variantCount",
-                            type: "custom",
+                            type: "complex",
                             display: {
-                                render: variantCount => {
-                                    if (variantCount > 0) {
-                                        return html`${variantCount} variants`;
-                                    } else {
-                                        return html`<span style="color: red">${variantCount} variants</span>`;
-                                    }
-                                }
-                            }
+                                template: "${stats.variantCount} variants",
+                                style: {
+                                    "stats.variantCount": {
+                                        "color": variantCount => (variantCount < 0) ? "red" : "black",
+                                    },
+                                },
+                            },
                         },
                         {
                             name: "Ti/Tv Ratio",
                             field: "stats.tiTvRatio",
                             display: {
-                                decimals: 4,
+                                format: value => value.toFixed(4),
                                 visible: tiTvRatio => tiTvRatio !== 0
-                            }
+                            },
                         },
                         {
                             name: "Quality Avg (Quality Standard Dev.)",
@@ -237,41 +278,38 @@ class SampleVariantStatsView extends LitElement {
                             display: {
                                 template: "${qualityAvg} (${qualityStdDev})",
                                 visible: variantStats => variantStats?.stats?.qualityAvg !== 0
-                            }
+                            },
                         },
                         {
                             name: "Heterozygosity Rate",
                             field: "stats.heterozygosityRate",
                             display: {
-                                decimals: 4,
+                                format: value => value.toFixed(4),
                                 visible: heterozygosityRate => heterozygosityRate !== 0
-                            }
+                            },
                         },
                         {
                             name: "Stats Query Filters",
                             field: "query",
-                            type: "custom",
+                            type: "list",
                             display: {
-                                render: query => query && !UtilsNew.isEmpty(query) ?
-                                    Object.entries(query)
-                                        .map(([k, v]) => {
-                                            if (k !== "study") {
-                                                return html`<span class="break-word"><span style="font-weight: bold">${k}:</span> ${v}</span><br>`;
-                                            } else {
-                                                if (Object.keys(query).length === 1) {
-                                                    return html`<span>-</span>`;
-                                                }
-                                            }
-                                        }) :
-                                    "none"
-                            }
+                                defaultValue: "None",
+                                contentLayout: "vertical",
+                                template: "${key}: ${value}",
+                                style: {
+                                    key: {
+                                        "font-weight": "bold"
+                                    }
+                                },
+                            },
                         },
                         {
                             name: "Description",
                             field: "description"
                         }
                     ]
-                }, {
+                },
+                {
                     title: "Variant Stats",
                     display: {
                         visible: variantStats => variantStats?.stats?.variantCount > 0
@@ -287,10 +325,20 @@ class SampleVariantStatsView extends LitElement {
                                         return html`
                                             <div class="row">
                                                 <div class="col-md-5 col-md-offset-1">
-                                                    <simple-chart .active="${true}" type="pie" title="Genotypes" .data="${variantStats.stats.genotypeCount}"></simple-chart>
+                                                    <simple-chart
+                                                        .active="${true}"
+                                                        type="pie"
+                                                        title="Genotypes"
+                                                        .data="${variantStats.stats.genotypeCount}">
+                                                    </simple-chart>
                                                 </div>
                                                 <div class="col-md-5 col-md-offset-1">
-                                                    <simple-chart .active="${true}" type="pie" title="VCF Filter" .data="${variantStats.stats.filterCount}"></simple-chart>
+                                                    <simple-chart
+                                                        .active="${true}"
+                                                        type="pie"
+                                                        title="VCF Filter"
+                                                        .data="${variantStats.stats.filterCount}">
+                                                    </simple-chart>
                                                 </div>
                                             </div>
                                         `;
@@ -394,7 +442,6 @@ class SampleVariantStatsView extends LitElement {
                     ]
                 },
                 {
-                    // title: "plots2",
                     display: {
                         visible: variantStats => variantStats?.stats?.variantCount > 0
                     },
@@ -453,7 +500,8 @@ class SampleVariantStatsView extends LitElement {
                             }
                         }
                     ]
-                }, {
+                },
+                {
                     title: "Variant Stats",
                     display: {
                         visible: variantStats => variantStats?.stats?.variantCount === 0
@@ -461,45 +509,13 @@ class SampleVariantStatsView extends LitElement {
                     elements: [
                         {
                             name: "Warning",
-                            type: "custom",
-                            display: {
-                                render: () => html`<span>No variants found</span>`
-                            }
+                            type: "text",
+                            text: "No variants found",
                         }
                     ]
                 }
             ]
         };
-    }
-
-    render() {
-        if (!this.variantStats?.stats?.id) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i> No Variant Stats found.
-                </div>`;
-        }
-
-        return html`
-            ${this.sample ?
-                html`
-                    <div style="margin: 20px 10px">
-                        <div class="form-horizontal">
-                            <div class="form-group">
-                                <label class="col-md-2">Select Variant Stat</label>
-                                <div class="col-md-2">
-                                    <select-field-filter forceSelection .data="${this.statsSelect}" .value=${this.variantStats.id} @filterChange="${this.statChange}"></select-field-filter>
-                                </div>
-                            </div>
-                        </div>
-                    </div>` :
-                null
-            }
-
-            <div>
-                <data-form .data=${this.variantStats} .config="${this._config}"></data-form>
-            </div>
-        `;
     }
 
 }

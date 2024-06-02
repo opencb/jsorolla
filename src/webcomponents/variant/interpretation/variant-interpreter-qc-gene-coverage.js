@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import {guardPage} from "../../commons/html-utils.js";
 import "../../alignment/gene-coverage-browser.js";
 
 class VariantInterpreterQcGeneCoverage extends LitElement {
@@ -145,31 +146,26 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
     render() {
         // Check Project exists
         if (!this.opencgaSession.project) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         return html`
             ${this.file ? html`
-                <div class="pull-right save-button">
-                    <button class="btn btn-default ripple" @click="${this.onSave}">
-                        <i class="fas fa-save icon-padding"></i> Save
+                <div class="d-flex justify-content-end">
+                    <button class="btn btn-light" @click="${this.onSave}">
+                        <i class="fas fa-save pe-1"></i> Save
                     </button>
                 </div>
-            ` : null}
+            ` : nothing}
 
-
-            <div style="padding: 0px 15px">
-                <gene-coverage-browser  .opencgaSession="${this.opencgaSession}"
-                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .cellbaseClient="${this.cellbaseClient}"
-                                        .geneIds="${this.geneIds}"
-                                        .panelIds="${this.diseasePanelIds}"
-                                        .fileId="${this.file?.id}">
+            <div class="px-0 py-2">
+                <gene-coverage-browser
+                    .opencgaSession="${this.opencgaSession}"
+                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                    .cellbaseClient="${this.cellbaseClient}"
+                    .geneIds="${this.geneIds}"
+                    .panelIds="${this.diseasePanelIds}"
+                    .fileId="${this.file?.id}">
                 </gene-coverage-browser>
             </div>
         `;

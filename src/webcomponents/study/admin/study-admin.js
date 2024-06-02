@@ -24,7 +24,6 @@ import "./study-admin-configuration.js";
 import LitUtils from "../../commons/utils/lit-utils";
 import "../../commons/layouts/custom-vertical-navbar.js";
 
-
 export default class StudyAdmin extends LitElement {
 
     constructor() {
@@ -527,8 +526,8 @@ export default class StudyAdmin extends LitElement {
                             visibility: "private",
                             render: (opencgaSession, study) => html`
                                 <study-admin-audit
-                                        .opencgaSession="${opencgaSession}"
-                                        .study="${study}">
+                                    .opencgaSession="${opencgaSession}"
+                                    .study="${study}">
                                 </study-admin-audit>`,
                         },
                         // {

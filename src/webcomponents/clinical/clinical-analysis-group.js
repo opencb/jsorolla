@@ -121,31 +121,30 @@ export default class ClinicalAnalysisGroup extends LitElement {
     render() {
         return html`
             <div>
-                <div style="display:flex;">
+                <div class="d-flex">
                     ${this.config?.showCreate ? html`
-                        <a type="button" href="#clinical-analysis-create/" class="btn btn-default btn-sm text-black">
+                        <a type="button" href="#clinical-analysis-create/" class="btn btn-light">
                             <i class="fas fa-columns icon-padding"></i>
                             <span>New</span>
                         </a>
                     ` : null}
-                    <div class="dropdown" style="margin-left:auto;">
-                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-                            <i class="fas fa-layer-group icon-padding"></i>
-                            Group by <span class="caret"></span>
+                    <div class="dropdown ms-auto">
+                        <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fas fa-layer-group me-1"></i>
+                            Group by
                         </button>
-                        <ul class="dropdown-menu btn-sm" style="left:auto;right:0px;">
+                        <ul class="dropdown-menu ms-auto me-0">
                             ${this._config.groups.map(group => html`
                                 <li>
-                                    <a style="cursor:pointer;" @click="${() => this.onGroupChange(group)}">
-                                        <label style="display:flex;align-items:center;margin-bottom:0px;">
+                                    <a class="dropdown-item" style="cursor:pointer;" @click="${() => this.onGroupChange(group)}">
+                                        <div class="form-check">
                                             <input
+                                                class="form-check-input"
                                                 type="radio"
                                                 name="CaseGroupBy"
-                                                style="margin-top:0px;"
-                                                ?checked="${group.id === this.activeGroup.id}"
-                                            />
-                                            <span style="margin-left:8px;">${group.display.title}</span>
-                                        </label>
+                                                ?checked="${group.id === this.activeGroup.id}"/>
+                                            <label class="form-check-label">${group.display.title}</label>
+                                        </div>
                                     </a>
                                 </li>
                             `)}

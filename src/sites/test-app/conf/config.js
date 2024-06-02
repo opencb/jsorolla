@@ -154,6 +154,12 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
+                            id: "data-form-table",
+                            name: "data-form Table Test",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
                             id: "utils-new",
                             name: "utils-new Test",
                             description: "",
