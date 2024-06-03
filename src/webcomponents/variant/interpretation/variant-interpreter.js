@@ -493,7 +493,7 @@ class VariantInterpreter extends LitElement {
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .opencgaSession="${this.opencgaSession}"
                         .displayConfig="${displayConfig}"
-                        @clinicalInterpretationUpdate="${e => console.log(e)}">
+                        @clinicalInterpretationUpdate="${() => this.onClinicalAnalysisUpdate()}">
                     </clinical-interpretation-update>
                 `;
             },
