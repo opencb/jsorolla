@@ -52,6 +52,8 @@ export default class VariantAnnotationClinicalView extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
+
+        this.traitAssociation = [];
     }
 
     firstUpdated() {
@@ -65,6 +67,15 @@ export default class VariantAnnotationClinicalView extends LitElement {
         if (changedProperties.has("traitAssociation")) {
             this.renderVariantTraitTable();
         }
+    }
+
+    groupBy(array, key) {
+        return array.reduce((result, currentValue) => {
+            const objectValue = UtilsNew.getObjectValue(currentValue, key);
+            console.log("objectValue", objectValue);
+            (result[objectValue] = result[objectValue] || []).push(currentValue);
+            return result;
+        }, {});
     }
 
     variantIdObserver() {
@@ -101,11 +112,13 @@ export default class VariantAnnotationClinicalView extends LitElement {
 
     sourceFormatter(value) {
         if (value) {
-            switch (value.name) {
+            switch (value.name?.toLowerCase()) {
                 case "clinvar":
                     return "ClinVar";
                 case "cosmic":
                     return "COSMIC";
+                case "pharmgkb":
+                    return "PharmGKB";
                 default:
                     console.error("Source not valid: " + value.name);
                     return "-";
@@ -240,6 +253,8 @@ export default class VariantAnnotationClinicalView extends LitElement {
             this.traitAssociation = [];
         }
 
+        const groupedBySource = this.groupBy(this.traitAssociation, "source.name");
+
         $("#" + this._prefix + "VariantTraitAssociation").bootstrapTable("destroy");
         $("#" + this._prefix + "VariantTraitAssociation").bootstrapTable({
             theadClasses: "table-light",
@@ -341,6 +356,17 @@ export default class VariantAnnotationClinicalView extends LitElement {
     render() {
         return html`
             <h3>Variant Trait Association</h3>
+            <h4>ClinVar</h4>
+            <div style="padding: 10px">
+                <table id="${this._prefix}VariantTraitAssociation"></table>
+            </div>
+
+            <h4>Cosmic</h4>
+            <div style="padding: 10px">
+                <table id="${this._prefix}VariantTraitAssociation"></table>
+            </div>
+
+            <h4>PharmGKB</h4>
             <div style="padding: 10px">
                 <table id="${this._prefix}VariantTraitAssociation"></table>
             </div>
