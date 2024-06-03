@@ -19,6 +19,7 @@ import Types from "../commons/types.js";
 import "../commons/tool-header.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import UtilsNew from "../../core/utils-new.js";
+import "../commons/forms/select-token-filter-static.js";
 
 export default class NoteUpdate extends LitElement {
 
@@ -155,10 +156,10 @@ export default class NoteUpdate extends LitElement {
                                     const handleTagsFilterChange = e => {
                                         dataFormFilterChange(e.detail.value ? e.detail.value?.split(",") : []);
                                     };
-                                    // TODO Fix this
                                     return html`
                                         <select-token-filter-static
-                                            .values="${data?.tags}"
+                                            .data="${data}"
+                                            .value="${data?.join(",")}"
                                             @filterChange="${e => handleTagsFilterChange(e)}">
                                         </select-token-filter-static>
                                     `;
