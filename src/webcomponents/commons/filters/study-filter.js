@@ -52,7 +52,7 @@ export default class StudyFilter extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            if (this.opencgaSession.project.studies.length) {
+            if (this.opencgaSession?.project?.studies?.length) {
                 this.differentStudies = this.opencgaSession.project.studies.filter(study => this.opencgaSession.study.id !== study.id);
             }
         }
