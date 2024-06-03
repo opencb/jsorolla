@@ -220,6 +220,25 @@ class VariantInterpreter extends LitElement {
         ModalUtils.show(`${this._prefix}InterpretationUpdateModal`);
     }
 
+    onInterpretationLock() {
+        const isLocked = this.clinicalAnalysis.interpretation.locked;
+        this.opencgaSession.opencgaClient.clinical()
+            .updateInterpretation(this.clinicalAnalysis.interpretation.id, {
+                // locked: !this.clinicalAnalysis.interpretation.locked,
+                locked: !isLocked,
+            })
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `Interpretation '${this.clinicalAnalysis.interpretation.id}' has been ${isLocked ? "unlocked" : "locked"}`,
+                });
+                this.onClinicalAnalysisUpdate();
+            })
+            .catch(error => {
+                console.error(error);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            });
+    }
+
     renderCustomAnalysisTab() {
         const analysisSettings = (this.settings?.tools || []).find(tool => tool?.id === "custom-analysis");
         if (analysisSettings?.component === "steiner-analysis") {
