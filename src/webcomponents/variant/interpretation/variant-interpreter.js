@@ -221,15 +221,16 @@ class VariantInterpreter extends LitElement {
     }
 
     onInterpretationLock() {
-        const isLocked = this.clinicalAnalysis.interpretation.locked;
+        const updateParams = {
+            locked: !this.clinicalAnalysis.interpretation.locked,
+        };
         this.opencgaSession.opencgaClient.clinical()
-            .updateInterpretation(this.clinicalAnalysis.interpretation.id, {
-                // locked: !this.clinicalAnalysis.interpretation.locked,
-                locked: !isLocked,
+            .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id, updateParams, {
+                study: this.opencgaSession.study.fqn,
             })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: `Interpretation '${this.clinicalAnalysis.interpretation.id}' has been ${isLocked ? "unlocked" : "locked"}`,
+                    message: `Interpretation '${this.clinicalAnalysis.interpretation.id}' has been ${updateParams.locked ? "locked" : "unlocked"}.`,
                 });
                 this.onClinicalAnalysisUpdate();
             })
