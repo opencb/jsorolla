@@ -25,7 +25,7 @@ export default class StudyFilter extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -43,9 +43,8 @@ export default class StudyFilter extends LitElement {
         };
     }
 
-    _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6);
-
+    #init() {
+        this._prefix = UtilsNew.randomString(8);
         this.operator = ",";
         this.selectedStudies = [];
         this.differentStudies = [];
@@ -72,7 +71,6 @@ export default class StudyFilter extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             $(".selectpicker", this).selectpicker("refresh");
         }
-
         $(".selectpicker", this).selectpicker("val", this.selectedStudies);
     }
 
