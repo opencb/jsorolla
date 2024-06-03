@@ -68,7 +68,11 @@ export default class StudyFilter extends LitElement {
         super.update(changedProperties);
     }
 
-    updated() {
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            $(".selectpicker", this).selectpicker("refresh");
+        }
+
         $(".selectpicker", this).selectpicker("val", this.selectedStudies);
     }
 
