@@ -433,6 +433,12 @@ class VariantInterpreter extends LitElement {
                                 <i class="fa fa-edit pe-1"></i> Edit Interpretation
                             </a>
                         </li>
+                        <li>
+                            <a class="dropdown-item" style="cursor:pointer;" @click="${this.onInterpretationLock}">
+                                <i class="fas ${this.clinicalAnalysis?.interpretation?.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
+                                ${this.clinicalAnalysis?.interpretation?.locked ? "Unlock" : "Lock"} Interpretation
+                            </a>
+                        </li>
                         ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
                             <li><h6 class="dropdown-header">Change Primary Interpretation</h6></li>
                             ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
