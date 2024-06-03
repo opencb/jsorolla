@@ -115,11 +115,9 @@ export default class StudyFilter extends LitElement {
                 <select multiple class="form-control input-sm selectpicker" id="${this._prefix}includeOtherStudy"
                     @change="${this.onChangeSelectedStudy}">
                     <option value="${this.opencgaSession.study.fqn}" selected="selected" disabled>${this.opencgaSession.study.name}</option>
-                    ${this.differentStudies.length > 0
-                        ? this.differentStudies.map(study => html`
-                            <option value="${study.fqn}">${study.name}</option>`)
-                        : null
-                    }
+                    ${(this.differentStudies || []).map(study => html`
+                        <option value="${study.fqn}">${study.name}</option>
+                    `)}
                 </select>
                 <fieldset class="switch-toggle-wrapper">
                     <div class="switch-toggle text-white alert alert-light">
