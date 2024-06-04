@@ -22,7 +22,7 @@ export default class ClinicalInterpretationSummary extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -40,10 +40,20 @@ export default class ClinicalInterpretationSummary extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
-    _init() {
+    #init() {
+        this.displayConfigDefault = {
+            titleVisible: false,
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+            style: "background-color:#f3f3f3;border-left: 4px solid #0c2f4c;padding:16px",
+            buttonsVisible: false,
+        };
         this._config = this.getDefaultConfig();
     }
 
@@ -51,12 +61,20 @@ export default class ClinicalInterpretationSummary extends LitElement {
         if (changedProperties.has("interpretationId")) {
             this.interpretationIdObserver();
         }
+
+        if (changedProperties.has("displayConfig")) {
+            this._config = this.getDefaultConfig();
+        }
+
         super.update(changedProperties);
     }
 
     interpretationIdObserver() {
         if (this.opencgaSession && this.interpretationId) {
-            this.opencgaSession.opencgaClient.clinical().infoInterpretation(this.interpretationId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.clinical()
+                .infoInterpretation(this.interpretationId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
                     this.interpretation = response.responses[0].results[0];
                 })
@@ -107,11 +125,8 @@ export default class ClinicalInterpretationSummary extends LitElement {
             title: "Case Interpretation Summary",
             icon: "fas fa-user-md",
             display: {
-                titleVisible: false,
-                titleWidth: 3,
-                defaultLayout: "horizontal",
-                style: "background-color:#f3f3f3;border-left: 4px solid #0c2f4c;padding:16px",
-                buttonsVisible: false,
+                ...this.displayConfigDefault,
+                ...(this.displayConfig || {}),
             },
             sections: [
                 {
