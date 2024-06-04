@@ -25,7 +25,7 @@ export default class StudyFilter extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -43,9 +43,8 @@ export default class StudyFilter extends LitElement {
         };
     }
 
-    _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6);
-
+    #init() {
+        this._prefix = UtilsNew.randomString(8);
         this.operator = ",";
         this.selectedStudies = [];
         this.differentStudies = [];
@@ -53,7 +52,7 @@ export default class StudyFilter extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            if (this.opencgaSession.project.studies.length) {
+            if (this.opencgaSession?.project?.studies?.length) {
                 this.differentStudies = this.opencgaSession.project.studies.filter(study => this.opencgaSession.study.id !== study.id);
             }
         }
@@ -68,7 +67,10 @@ export default class StudyFilter extends LitElement {
         super.update(changedProperties);
     }
 
-    updated() {
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            $(".selectpicker", this).selectpicker("refresh");
+        }
         $(".selectpicker", this).selectpicker("val", this.selectedStudies);
     }
 
@@ -113,11 +115,9 @@ export default class StudyFilter extends LitElement {
                 <select multiple class="form-control input-sm selectpicker" id="${this._prefix}includeOtherStudy"
                     @change="${this.onChangeSelectedStudy}">
                     <option value="${this.opencgaSession.study.fqn}" selected="selected" disabled>${this.opencgaSession.study.name}</option>
-                    ${this.differentStudies.length > 0
-                        ? this.differentStudies.map(study => html`
-                            <option value="${study.fqn}">${study.name}</option>`)
-                        : null
-                    }
+                    ${(this.differentStudies || []).map(study => html`
+                        <option value="${study.fqn}">${study.name}</option>
+                    `)}
                 </select>
                 <fieldset class="switch-toggle-wrapper">
                     <div class="switch-toggle text-white alert alert-light">
