@@ -695,7 +695,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 return html`
                     <!-- Render the filter option -->
                     <li>
-                        <a data-filter-id="${item.id}" class="d-flex dropdown-item ${item.active ? "text-success" : ""}"
+                        <a data-filter-id="${item.id}" class="ms-2 d-flex dropdown-item ${item.active ? "text-success" : ""}"
                             style="cursor:pointer;"
                             @click="${this.onFilterChange}">
                             <span class="flex-grow-1">${item.id}</span>
@@ -729,10 +729,10 @@ export default class OpencgaActiveFilters extends LitElement {
             <a class="dropdown-item" @click="${e => this.onFilterChange(e, item.query)}">
             <div class="d-flex align-items-center">
                 <div class="flex-grow-1">
-                    <div class="mt-0 text-truncate">
+                    <div class="ms-2 mt-0 text-truncate">
                         ${filterTitle} ${item.latest ? " (latest)" : ""}
                     </div>
-                    <div class="form-text">
+                    <div class="ms-2 form-text">
                     ${filterParams?.length > 0 ? html`
                         ${filterParams.slice(0, 2).map(key => html`
                             <div class="mx-2" title="${item.query[key]}">
