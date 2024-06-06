@@ -767,9 +767,9 @@ const INTERPRETER_SETTINGS = {
                 },
                 // hideGenomeBrowser: false
             },
-            {
-                id: "review"
-            },
+            // {
+            //     id: "review"
+            // },
             {
                 id: "report"
             }
