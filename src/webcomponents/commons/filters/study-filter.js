@@ -45,9 +45,6 @@ export default class StudyFilter extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.operator = ",";
-        this.selectedStudies = [];
-        this.differentStudies = [];
         this._studies = [];
         this._operator = ",";
         this._selection = [];
@@ -56,7 +53,6 @@ export default class StudyFilter extends LitElement {
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             if (this.opencgaSession?.project?.studies?.length) {
-                // this.differentStudies = this.opencgaSession.project.studies.filter(study => this.opencgaSession.study.id !== study.id);
                 // 1. Reset studies list
                 this._studies = [];
                 // 2. Add current study as the first element and mark it as disabled
@@ -90,13 +86,6 @@ export default class StudyFilter extends LitElement {
 
         super.update(changedProperties);
     }
-
-    // updated(changedProperties) {
-    //     if (changedProperties.has("opencgaSession")) {
-    //         $(".selectpicker", this).selectpicker("refresh");
-    //     }
-    //     $(".selectpicker", this).selectpicker("val", this.selectedStudies);
-    // }
 
     onStudyChange(event) {
         // 1. Split values returned from select-field-filter and remove empty items
