@@ -48,55 +48,71 @@ export default class StudyFilter extends LitElement {
         this.operator = ",";
         this.selectedStudies = [];
         this.differentStudies = [];
+        this._studies = [];
+        this._operator = ",";
+        this._selection = [];
     }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             if (this.opencgaSession?.project?.studies?.length) {
-                this.differentStudies = this.opencgaSession.project.studies.filter(study => this.opencgaSession.study.id !== study.id);
+                // this.differentStudies = this.opencgaSession.project.studies.filter(study => this.opencgaSession.study.id !== study.id);
+                // 1. Reset studies list
+                this._studies = [];
+                // 2. Add current study as the first element and mark it as disabled
+                this._studies.push({
+                    name: this.opencgaSession.study.name,
+                    id: this.opencgaSession.study.fqn,
+                    selected: true,
+                    disabled: true,
+                });
+                // 3. Add other studies
+                this.opencgaSession.project.studies
+                    .filter(study => this.opencgaSession.study.fqn !== study.fqn)
+                    .forEach(study => {
+                        this._studies.push({
+                            name: study.name,
+                            id: study.fqn,
+                        });
+                    });
             }
         }
 
         if (changedProperties.has("opencgaSession") || changedProperties.has("value")) {
-            this.selectedStudies = Array.from(new Set([
+            // 1. Reset the operator value. If the current value does not contain ';', maintain the current selected operator
+            this._operator = (this.value || "").indexOf(";") > -1 ? ";" : this._operator;
+            // 2. Reset the selection
+            this._selection = Array.from(new Set([
                 this.opencgaSession.study.fqn,
-                ...(this.value || "").split(this.operator).filter(v => !!v),
+                ...(this.value || "").split(this._operator).filter(v => !!v),
             ]));
         }
 
         super.update(changedProperties);
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            $(".selectpicker", this).selectpicker("refresh");
-        }
-        $(".selectpicker", this).selectpicker("val", this.selectedStudies);
+    // updated(changedProperties) {
+    //     if (changedProperties.has("opencgaSession")) {
+    //         $(".selectpicker", this).selectpicker("refresh");
+    //     }
+    //     $(".selectpicker", this).selectpicker("val", this.selectedStudies);
+    // }
+
+    onStudyChange(event) {
+        // 1. Split values returned from select-field-filter and remove empty items
+        // Note: select-field-filter returns values joined with a comma charater
+        const values = (event.detail.value || "")
+            .split(",")
+            .filter(value => !!value);
+        // 2. Trigger 'filterChange' event with the values joined with the current operator
+        LitUtils.dispatchCustomEvent(this, "filterChange", values.join(this._operator));
     }
 
-    filterChange() {
-        let querystring;
-        // AND or OR operators
-        if (this.operator !== "!") {
-            querystring = [...this.selectedStudies.map(study => `${study}`)].join(this.operator);
-        } else {
-            // NOT operator (not visible/not implemented)
-            querystring = [...this.selectedStudies.map(study => `${this.operator}${study}`)].join(";");
-        }
-        LitUtils.dispatchCustomEvent(this, "filterChange", querystring);
-    }
-
-    onChangeOperator(e) {
-        this.operator = e.target.value;
-        this.filterChange();
-    }
-
-    onChangeSelectedStudy() {
-        const selected = $(".selectpicker", this).selectpicker("val");
-        // Active study is always the first element
-        this.selectedStudies = [this.opencgaSession.study.fqn, ...selected];
-        this.requestUpdate();
-        this.filterChange();
+    onOperatorChange(event) {
+        // 1. Save the new operator value
+        this._operator = event.target.value || ",";
+        // 2. Trigger the 'filterChange' event
+        LitUtils.dispatchCustomEvent(this, "filterChange", this._selection.join(this._operator));
     }
 
     render() {
@@ -111,19 +127,34 @@ export default class StudyFilter extends LitElement {
         }
 
         return html`
-            <div id="${this._prefix}DifferentStudies" class="form-group">
-                <select multiple class="form-control input-sm selectpicker" id="${this._prefix}includeOtherStudy"
-                    @change="${this.onChangeSelectedStudy}">
-                    <option value="${this.opencgaSession.study.fqn}" selected="selected" disabled>${this.opencgaSession.study.name}</option>
-                    ${(this.differentStudies || []).map(study => html`
-                        <option value="${study.fqn}">${study.name}</option>
-                    `)}
-                </select>
+            <div class="form-group">
+                <select-field-filter
+                    .data="${this._studies}"
+                    .value="${this._selection}"
+                    .multiple="${true}"
+                    @filterChange="${event => this.onStudyChange(event)}">
+                </select-field-filter>
                 <fieldset class="switch-toggle-wrapper">
                     <div class="switch-toggle text-white alert alert-light">
-                        <input id="${this._prefix}orInput" name="pss" type="radio" value="," checked ?disabled="${this.selectedStudies.length < 2}" @change="${this.onChangeOperator}" />
+                        <input
+                            id="${this._prefix}orInput"
+                            name="studyFilterOperator"
+                            type="radio"
+                            value=","
+                            ?checked="${this._operator === ","}"
+                            ?disabled="${this._selection.length < 2}"
+                            @change="${event => this.onOperatorChange(event)}"
+                        />
                         <label for="${this._prefix}orInput" class="rating-label rating-label-or">In any of (OR)</label>
-                        <input id="${this._prefix}andInput" name="pss" type="radio" value=";" ?disabled="${this.selectedStudies.length < 2}" @change="${this.onChangeOperator}"/>
+                        <input
+                            id="${this._prefix}andInput"
+                            name="studyFilterOperator"
+                            type="radio"
+                            value=";"
+                            ?checked="${this._operator === ";"}"
+                            ?disabled="${this._selection.length < 2}"
+                            @change="${event => this.onOperatorChange(event)}"
+                        />
                         <label for="${this._prefix}andInput" class="rating-label rating-label-and">In all (AND)</label>
                         <a class="btn btn-primary ripple btn-small"></a>
                     </div>
