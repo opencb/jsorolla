@@ -150,7 +150,7 @@ export default class StudyFilter extends LitElement {
                             @change="${event => this.onOperatorChange(event)}"
                         />
                         <label for="${this._prefix}andInput" class="rating-label rating-label-and">In all (AND)</label>
-                        <a class="btn btn-primary ripple btn-small"></a>
+                        <a class="btn btn-primary btn-small"></a>
                     </div>
                 </fieldset>
             </div>
