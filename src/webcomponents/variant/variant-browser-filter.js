@@ -342,7 +342,7 @@ export default class VariantBrowserFilter extends LitElement {
                     content = html`
                         ${sampleSelected ? html`
                             <div class="alert alert-warning" role="alert">
-                                You can not select studies if at least one sample has been selected in <b>Sample Filter</b>.
+                                You can not select multiple studies if at least one sample has been selected in <b>Sample Filter</b>.
                             </div>
                         ` : nothing}
                         <study-filter
