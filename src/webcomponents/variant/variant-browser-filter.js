@@ -354,7 +354,7 @@ export default class VariantBrowserFilter extends LitElement {
                     `;
                     break;
                 case "sample":
-                    const multiStudySelected = this.preparedQuery?.study?.split(",")?.length > 1;
+                    const multiStudySelected = this.preparedQuery?.study?.split(/[,;]/)?.length > 1;
                     content = html`
                         ${multiStudySelected ? html`
                             <div class="alert alert-warning" role="alert">You cannot select samples with more than one study</div>
