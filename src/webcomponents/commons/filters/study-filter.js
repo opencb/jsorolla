@@ -35,7 +35,7 @@ export default class StudyFilter extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             value: {
                 type: String,
@@ -52,39 +52,44 @@ export default class StudyFilter extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            if (this.opencgaSession?.project?.studies?.length) {
-                // 1. Reset studies list
-                this._studies = [];
-                // 2. Add current study as the first element and mark it as disabled
-                this._studies.push({
-                    name: this.opencgaSession.study.name,
-                    id: this.opencgaSession.study.fqn,
-                    selected: true,
-                    disabled: true,
-                });
-                // 3. Add other studies
-                this.opencgaSession.project.studies
-                    .filter(study => this.opencgaSession.study.fqn !== study.fqn)
-                    .forEach(study => {
-                        this._studies.push({
-                            name: study.name,
-                            id: study.fqn,
-                        });
-                    });
-            }
+            this.opencgaSessionObserver();
         }
-
         if (changedProperties.has("opencgaSession") || changedProperties.has("value")) {
-            // 1. Reset the operator value. If the current value does not contain ';', maintain the current selected operator
-            this._operator = (this.value || "").indexOf(";") > -1 ? ";" : this._operator;
-            // 2. Reset the selection
-            this._selection = Array.from(new Set([
-                this.opencgaSession.study.fqn,
-                ...(this.value || "").split(this._operator).filter(v => !!v),
-            ]));
+            this.valueObserver();
         }
-
         super.update(changedProperties);
+    }
+
+    opencgaSessionObserver() {
+        this._studies = [];
+        if (this.opencgaSession?.project?.studies?.length) {
+            // 1. Add current study as the first element and mark it as disabled
+            this._studies.push({
+                name: this.opencgaSession.study.name,
+                id: this.opencgaSession.study.fqn,
+                selected: true,
+                disabled: true,
+            });
+            // 2. Add other studies to the studies dropdown
+            this.opencgaSession.project.studies.forEach(study => {
+                if (study.fqn !== this.opencgaSession.study.fqn) {
+                    this._studies.push({
+                        name: study.name,
+                        id: study.fqn,
+                    });
+                }
+            });
+        }
+    }
+
+    valueObserver() {
+        // 1. Reset the operator value. If the current value does not contain ';', maintain the current selected operator
+        this._operator = (this.value || "").indexOf(";") > -1 ? ";" : this._operator;
+        // 2. Reset the selection
+        this._selection = Array.from(new Set([
+            this.opencgaSession.study.fqn,
+            ...(this.value || "").split(this._operator).filter(v => !!v),
+        ]));
     }
 
     onStudyChange(event) {
