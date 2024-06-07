@@ -420,8 +420,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             ` : null}
 
             ${this.clinicalAnalysis.interpretation.locked ? html`
-                <div class="row">
-                    <div class="card text-bg-warning col-sm-8 offset-sm-2 p-0">
+                <div class="row ms-4">
+                    <div class="card text-bg-warning col-10 offset-2 mb-3 p-0">
                         <div class="card-header" style="font-size: 1.1em">
                             <label>Interpretation locked:</label> you cannot modify this interpretation. You can unlock the interpretation in
                             <span class="fst-italic">Case Info >> Interpretation Manager</span>.
@@ -454,7 +454,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
                 <div class="flex-grow-1">
                     <!-- View toolbar -->
-                    <div class="content-pills" role="toolbar" aria-label="toolbar">
+                    <div class="content-pills mb-3" role="toolbar" aria-label="toolbar">
                         ${this.renderViewButton("table", "Table Result", "table")}
                         ${!this.settings?.hideGenomeBrowser ? this.renderViewButton("genome-browser", "Genome Browser", "dna") : nothing}
                     </div>
