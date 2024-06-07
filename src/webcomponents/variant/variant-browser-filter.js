@@ -348,6 +348,7 @@ export default class VariantBrowserFilter extends LitElement {
                         <study-filter
                             .value="${this.preparedQuery.study}"
                             .opencgaSession="${this.opencgaSession}"
+                            .config="${{disabled: sampleSelected}}"
                             @filterChange="${e => this.onFilterChange("study", e.detail.value)}">
                         </study-filter>`;
                     break;
