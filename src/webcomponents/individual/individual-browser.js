@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "./qc/individual-qc-inferred-sex.js";
 import "./qc/individual-qc-mendelian-errors.js";
@@ -136,15 +136,18 @@ export default class IndividualBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .query="${params.executedQuery}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "individual")}"
-                            @individualUpdate="${e => params.onComponentUpdate(e, "individual")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @individualUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </individual-grid>
-                        <individual-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .individualId="${params.detail.individual?.id}">
-                        </individual-detail>`
+                        ${params?.detail ? html`
+                            <individual-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .individualId="${params.detail?.id}">
+                            </individual-detail>
+                        ` : nothing}
+                    `
                 },
                 {
                     id: "facet-tab",
