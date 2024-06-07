@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import {construction} from "../commons/under-construction.js";
 import "./disease-panel-gene-view.js";
@@ -136,15 +136,18 @@ export default class DiseasePanelBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "diseasePanel")}"
-                            @diseasePanelUpdate="${e => params.onComponentUpdate(e, "diseasePanel")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @diseasePanelUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </disease-panel-grid>
-                        <disease-panel-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .diseasePanelId="${params.detail.diseasePanel?.id}">
-                        </disease-panel-detail>`
+                        ${params?.detail ? html`
+                            <disease-panel-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .diseasePanelId="${params.detail?.id}">
+                            </disease-panel-detail>
+                        ` : nothing}
+                    `,
                 },
             ],
             filter: {
