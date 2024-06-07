@@ -64,6 +64,14 @@ export default class UserLogin extends LitElement {
         return this.opencgaSession?.opencgaClient?._config?.organizations?.length === 1;
     }
 
+    getOrganization() {
+        if (this.hasSingleOrganizationConfigured()) {
+            return this.opencgaSession.opencgaClient._config.organizations[0];
+        }
+        // If not, return the organization from the input field
+        return (this.querySelector("#organization")?.value || "").trim();
+    }
+
     onSubmit() {
         const user = (this.querySelector("#user").value || "").trim();
         const password = (this.querySelector("#password").value || "").trim();
