@@ -75,7 +75,8 @@ export default class UserLogin extends LitElement {
     onSubmit() {
         const user = (this.querySelector("#user").value || "").trim();
         const password = (this.querySelector("#password").value || "").trim();
-        const organization = (this.querySelector("#organization")?.value || "").trim();
+        // const organization = (this.querySelector("#organization")?.value || "").trim();
+        const organization = this.getOrganization();
 
         this.hasEmptyUser = user.length === 0;
         this.hasEmptyPassword = password.length === 0;
