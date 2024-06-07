@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
@@ -184,15 +184,17 @@ export default class UserLogin extends LitElement {
                                 <input id="password" class="form-control" type="password" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
                             </div>
                         </div>
-                        <div class="form-group organization-field">
-                            <label for="organization" class="form-label fw-bold">Organization</label>
-                            <div class="input-group mb-3">
-                                <span class="input-group-text">
-                                    <i class="fa fa-building fa-lg"></i>
-                                </span>
-                                <input id="organization" class="form-control" type="text" placeholder="Organization ID" @keyup="${e => this.onKeyUp(e)}">
+                        ${!this.hasSingleOrganizationConfigured() ? html`
+                            <div class="form-group organization-field">
+                                <label for="organization" class="form-label fw-bold">Organization</label>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">
+                                        <i class="fa fa-building fa-lg"></i>
+                                    </span>
+                                    <input id="organization" class="form-control" type="text" placeholder="Organization ID" @keyup="${e => this.onKeyUp(e)}">
+                                </div>
                             </div>
-                        </div>
+                        ` : nothing}
                         <div class="d-grid gap-2">
                             <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
                                 <strong>Sign In</strong>
