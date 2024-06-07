@@ -129,6 +129,7 @@ export default class StudyFilter extends LitElement {
                     .data="${this._studies}"
                     .value="${this._selection}"
                     .multiple="${true}"
+                    .disabled="${this._config?.disabled}"
                     @filterChange="${event => this.onStudyChange(event)}">
                 </select-field-filter>
                 <fieldset class="switch-toggle-wrapper">
@@ -161,7 +162,9 @@ export default class StudyFilter extends LitElement {
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            disabled: false,
+        };
     }
 
 }
