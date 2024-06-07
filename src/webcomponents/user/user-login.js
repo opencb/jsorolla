@@ -75,7 +75,6 @@ export default class UserLogin extends LitElement {
     onSubmit() {
         const user = (this.querySelector("#user").value || "").trim();
         const password = (this.querySelector("#password").value || "").trim();
-        // const organization = (this.querySelector("#organization")?.value || "").trim();
         const organization = this.getOrganization();
 
         this.hasEmptyUser = user.length === 0;
@@ -156,14 +155,6 @@ export default class UserLogin extends LitElement {
 
     render() {
         return html`
-            <style>
-                /* Josemi NOTe 2024-02-01 */
-                /* Terrible style hack to fix rounded corners in organization field */
-                .organization-field .select2-selection {
-                    border-top-left-radius: 0px !important;
-                    border-bottom-left-radius: 0px !important;
-                }
-            </style>
             <div class="container-fluid" style="max-width:480px;">
                 <div class="card">
                     <div class="card-body">
@@ -185,7 +176,7 @@ export default class UserLogin extends LitElement {
                             </div>
                         </div>
                         ${!this.hasSingleOrganizationConfigured() ? html`
-                            <div class="form-group organization-field">
+                            <div class="form-group">
                                 <label for="organization" class="form-label fw-bold">Organization</label>
                                 <div class="input-group mb-3">
                                     <span class="input-group-text">
