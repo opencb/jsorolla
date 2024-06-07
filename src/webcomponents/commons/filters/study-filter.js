@@ -39,6 +39,9 @@ export default class StudyFilter extends LitElement {
             value: {
                 type: String,
             },
+            config: {
+                type: Object,
+            },
         };
     }
 
@@ -47,6 +50,7 @@ export default class StudyFilter extends LitElement {
         this._studies = [];
         this._operator = ",";
         this._selection = [];
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
@@ -55,6 +59,12 @@ export default class StudyFilter extends LitElement {
         }
         if (changedProperties.has("opencgaSession") || changedProperties.has("value")) {
             this.valueObserver();
+        }
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
         super.update(changedProperties);
     }
@@ -148,6 +158,10 @@ export default class StudyFilter extends LitElement {
                 </fieldset>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {};
     }
 
 }
