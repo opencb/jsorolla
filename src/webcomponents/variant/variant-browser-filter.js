@@ -359,13 +359,15 @@ export default class VariantBrowserFilter extends LitElement {
                         ${multiStudySelected ? html`
                             <div class="alert alert-warning" role="alert">You cannot select samples with more than one study</div>
                         ` : nothing}
-                        <catalog-search-autocomplete title=${multiStudySelected ? "You cannot select samples with more than one study" : null}
+                        <catalog-search-autocomplete
+                            title="${multiStudySelected ? "You cannot select samples with more than one study" : ""}"
                             .value="${this.preparedQuery.sample}"
                             .opencgaSession="${this.opencgaSession}"
                             .resource="${"SAMPLE"}"
                             .config="${{multiple: true, maxItems: 3, disabled: multiStudySelected}}"
                             @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
-                        </catalog-search-autocomplete>`;
+                        </catalog-search-autocomplete>
+                    `;
                     break;
                 case "cohort":
                     // FIXME subsection.cohorts must be renamed to subsection.studies
