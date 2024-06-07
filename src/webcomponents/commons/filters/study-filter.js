@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 import "../forms/select-field-filter.js";
@@ -24,7 +24,6 @@ export default class StudyFilter extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -94,7 +93,7 @@ export default class StudyFilter extends LitElement {
 
     onStudyChange(event) {
         // 1. Split values returned from select-field-filter and remove empty items
-        // Note: select-field-filter returns values joined with a comma charater
+        // Note: select-field-filter returns values joined with a comma character
         const values = (event.detail.value || "")
             .split(",")
             .filter(value => !!value);
@@ -110,14 +109,8 @@ export default class StudyFilter extends LitElement {
     }
 
     render() {
-        // Check Project exists
-        if (!this.opencgaSession && !this.opencgaSession.project) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No project available to browse. Please login to continue</h3>
-                </div>
-            `;
+        if (!this.opencgaSession || !this.opencgaSession.project) {
+            return nothing;
         }
 
         return html`
