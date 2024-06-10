@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
+import ExtensionsManager from "../../extensions-manager.js";
+import {guardPage} from "../../commons/html-utils.js";
 import "../../commons/tool-header.js";
 import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
@@ -31,8 +34,6 @@ import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
 import "../../clinical/clinical-analysis-review.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
-import ExtensionsManager from "../../extensions-manager.js";
 
 class VariantInterpreter extends LitElement {
 
@@ -226,7 +227,7 @@ class VariantInterpreter extends LitElement {
 
         // No custom anaysis content available
         return html`
-            <div class="col-md-6 col-md-offset-3" style="padding: 20px">
+            <div class="col-md-6 offset-md-3 p-4">
                 <div class="alert alert-warning" role="alert">
                     No custom analysis available at this time.
                 </div>
@@ -238,7 +239,7 @@ class VariantInterpreter extends LitElement {
         const settingReporter = this.settings?.tools?.filter(tool => tool?.id === "report")[0];
         if (settingReporter && settingReporter?.component === "steiner-report") {
             return html`
-                <div class="col-md-10 col-md-offset-1">
+                <div class="col-md-10 offset-md-1">
                     <tool-header
                         class="bg-white"
                         title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
@@ -252,7 +253,7 @@ class VariantInterpreter extends LitElement {
             `;
         } else {
             return html`
-                <div class="col-md-10 col-md-offset-1">
+                <div class="col-md-10 offset-md-1">
                     <tool-header
                         class="bg-white"
                         title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
@@ -272,15 +273,20 @@ class VariantInterpreter extends LitElement {
             const isDisabled = !this.clinicalAnalysis && item.id !== "select" || item.disabled;
             const isActive = this.activeTool === item.id;
             return html`
-                <a
-                    class="icon-wrapper variant-interpreter-step ${isDisabled ? "disabled" : ""} ${isActive ? "active" : ""}"
-                    href="javascript: void 0"
-                    data-tool="${item.id}"
-                    @click="${this.onClickSection}">
-                    <div class="interpreter-hi-icon ${item.icon}"></div>
+                <li class="nav-item text-center">
+                    <div class="nav-link">
+                        <a
+                            class="variant-interpreter-step ${isDisabled ? "disabled" : ""} ${isActive ? "active" : ""}"
+                            href="javascript: void 0"
+                            data-tool="${item.id}"
+                            @click="${this.onClickSection}">
+                            <i class="position-relative ${item.icon} fs-2 border border-secondary rounded-circle border-3 p-4"
+                                style="z-index:1;background-color:white">
+                            </i>
+                        </a>
+                    </div>
                     <p>${item.title}</p>
-                    <span class="smaller"></span>
-                </a>
+                </li>
             `;
         }
         // Tool step not visible
@@ -386,18 +392,18 @@ class VariantInterpreter extends LitElement {
             ${this._config.title}
             <span class="inverse">
                 Case ${this.clinicalAnalysis?.id}
-                ${this.clinicalAnalysis?.locked ? "<span class=\"fa fa-lock icon-padding\"></span>" : ""}
+                ${this.clinicalAnalysis?.locked ? "<span class=\"fa fa-lock pe-1\"></span>" : ""}
             </span>
         `;
     }
 
     renderToolbarRightContent() {
         return html`
-            <div style="align-items:center;display:flex;">
+            <div class="d-flex align-items-center">
                 ${this.clinicalAnalysis?.interpretation ? html`
-                    <div align="center" style="margin-right:3rem;">
+                    <div class="d-flex flex-column align-items-center" style="margin-right:3rem;">
                         <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
-                            ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock icon-padding"></span>` : ""}
+                            ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock pe-1"></span>` : ""}
                             <strong>${this.clinicalAnalysis.interpretation.id}</strong>
                         </div>
                         ${this.clinicalAnalysis.interpretation?.method?.name ? html`
@@ -405,58 +411,57 @@ class VariantInterpreter extends LitElement {
                                 <strong>${this.clinicalAnalysis.interpretation.method.name}</strong>
                             </div>
                         ` : null}
-                        <div class="text-muted">
+                        <div class="text-secondary">
                             Primary Findings: <strong>${this.clinicalAnalysis.interpretation?.primaryFindings?.length ?? 0}</strong>
                         </div>
                     </div>
                 ` : null}
                 <div class="dropdown">
-                    <button class="btn btn-default btn-lg" data-toggle="dropdown">
+                    <button class="btn btn-light btn-lg dropdown-toggle" data-bs-toggle="dropdown" type="button">
                         <i class="fa fa-toolbox" aria-hidden="true"></i>
                         <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
-                        <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-right">
+                    <ul class="dropdown-menu dropdown-menu-end">
                         ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
                             <li>
-                                <a style="background-color:white!important;">
+                                <a class="dropdown-item" style="background-color:white!important;">
                                     <strong>Change interpretation</strong>
                                 </a>
                             </li>
                             ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
                                 <li>
-                                    <a style="cursor:pointer;padding-left: 25px" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
+                                    <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
                                         ${item.id}
-                                        <i class="fa ${item.locked ? "fa-lock" : "fa-unlock"} icon-padding" style="padding-left: 5px"></i>
+                                        <i class="fa ${item.locked ? "fa-lock" : "fa-unlock"} pe-1" style="padding-left: 5px"></i>
                                     </a>
                                 </li>
                             `)}
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                         ` : null}
                         <li>
-                            <a style="background-color:white!important;">
+                            <a class="dropdown-item" style="background-color:white!important;">
                                 <strong>Case Actions</strong>
                             </a>
                         </li>
                         <li>
-                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisLock}">
-                                <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} icon-padding"></i>
+                            <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisLock}">
+                                <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
                                 ${this.clinicalAnalysis.locked ? "Case Unlock" : "Case Lock"}
                             </a>
                         </li>
                         <li>
-                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisRefresh}">
-                                <i class="fa fa-sync icon-padding"></i> Refresh
+                            <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisRefresh}">
+                                <i class="fa fa-sync pe-1"></i> Refresh
                             </a>
                         </li>
                         <li>
-                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisDownload}">
-                                <i class="fa fa-download icon-padding"></i> Download
+                            <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisDownload}">
+                                <i class="fa fa-download pe-1"></i> Download
                             </a>
                         </li>
                         <li>
-                            <a style="padding-left: 25px" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
-                                <i class="fa fa-times icon-padding"></i> Close
+                            <a class="dropdown-item" style="padding-left: 25px" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                                <i class="fa fa-times pe-1"></i> Close
                             </a>
                         </li>
                     </ul>
@@ -468,12 +473,7 @@ class VariantInterpreter extends LitElement {
     render() {
         // Check if project exists
         if (!this.opencgaSession || !this.opencgaSession.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No project available to browse. Please login to continue</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         return html`
@@ -491,17 +491,18 @@ class VariantInterpreter extends LitElement {
                     </tool-header>
                 `}
 
-                <div class="col-md-10 col-md-offset-1">
-                    <nav class="navbar" style="margin-bottom: 5px; border-radius: 0">
-                        <div class="container-fluid">
-                            <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
-                                ${(this._config?.tools || []).map(item => this.renderToolStep(item))}
-                            </div>
+                <div class="container">
+                    <div class="position-relative">
+                        <div class="position-absolute   top-50 start-50 translate-middle" style="margin-top:4rem; width: 80%;">
+                            <hr class="border border-secondary border-2 opacity-75">
                         </div>
-                    </nav>
+                    </div>
+                    <ul class="nav justify-content-around mx-auto p-2 flex-nowrap">
+                        ${(this._config?.tools || []).map(item => this.renderToolStep(item))}
+                    </ul>
                 </div>
 
-                <div id="${this._prefix}MainWindow" class="col-md-12">
+                <div id="${this._prefix}MainWindow" class="col-md-12 px-3">
                     ${(this._config?.tools || []).map(tool => this.renderTool(tool))}
                 </div>
             </div>

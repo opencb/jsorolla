@@ -26,7 +26,6 @@ import NotificationManager from "../../core/notification-manager.js";
 import {OpenCGAClientMock} from "./clients/opencga-client-mock.js";
 import {CellBaseClientMock} from "./clients/cellbase-client-mock.js";
 
-
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/variant/variant-browser-grid.js";
 import "../../webcomponents/commons/layouts/custom-footer.js";
@@ -47,13 +46,13 @@ import "./webcomponents/cohort-browser-grid-test.js";
 import "./webcomponents/job-browser-grid-test.js";
 import "./webcomponents/disease-panel-browser-grid-test.js";
 
+import "./webcomponents/interpreter/variant-interpreter-rd-grid-test.js";
 
 import "./webcomponents/genome-browser-test.js";
 import "./webcomponents/protein-lollipop-test.js";
 
 import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
 import {SAMPLE_DATA} from "./data/data-example.js";
-
 
 class TestApp extends LitElement {
 
@@ -93,7 +92,6 @@ class TestApp extends LitElement {
         _config.populationFrequencies = POPULATION_FREQUENCIES;
         _config.proteinSubstitutionScores = PROTEIN_SUBSTITUTION_SCORE.style;
 
-
         // We can customise which components are active by default, this improves the first loading time.
         _config.enabledComponents = {};
         _config.enabledComponents.home = true;
@@ -124,6 +122,8 @@ class TestApp extends LitElement {
             "protein-lollipop",
             "pedigree",
             "mutational-signatures",
+
+            "variant-interpreter-rd-grid",
         ];
 
         for (const component of components) {
@@ -250,7 +250,6 @@ class TestApp extends LitElement {
             });
     }
 
-
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
@@ -265,10 +264,10 @@ class TestApp extends LitElement {
     changeTool(e) {
         e.preventDefault();
         const target = e.currentTarget;
-        $(".navbar-inverse ul > li", this).removeClass("active");
-        $(target).parent("li").addClass("active");
+        $(".navbar-zetta ul > li > a", this).removeClass("active");
+        $(target).addClass("active");
         if ($(target).closest("ul").hasClass("dropdown-menu")) {
-            $(target).closest("ul").closest("li").addClass("active");
+            $(target).closest("ul").closest("li > a").addClass("active");
         }
 
         if (UtilsNew.isNotUndefined(e)) {
@@ -435,7 +434,6 @@ class TestApp extends LitElement {
 
     }
 
-
     /* Set the width of the side navigation to 250px */
     openNav() {
         this.querySelector("#side-nav").style.width = "250px";
@@ -489,7 +487,6 @@ class TestApp extends LitElement {
             };
         }
     }
-
 
     onSubmit(e) {
         console.log("Data Test", this.dataTest);
@@ -582,7 +579,7 @@ class TestApp extends LitElement {
             <!--<div class="alert alert-info">\${JSON.stringify(this.queries)}</div>-->
 
             <!-- This is where main IVA application is rendered -->
-            <div class="container-fluid">
+            <div class="container-fluid" style="min-height:calc(100vh - 101px);">
                 ${this.config.enabledComponents.home ? html`
                     <div class="content" id="home">
                         <custom-welcome
@@ -633,14 +630,25 @@ class TestApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["data-form"] ? html`
-                    <div class="content" id="data-form" style="padding:2%">
+                    <div class="content mt-3" id="data-form">
                         <data-form-test
                             .data="${this.dataTest}"
                             .config="${this._dataFormConfig}"
+                            @submit="${e => this.onSubmit(e)}">
+                        </data-form-test>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["data-form-table"] ? html`
+                    <div class="content" id="data-form-table" style="padding:2%">
+                        <data-form-table-test
+                            testVariantFile="variant-browser-germline"
+                            testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}"
                             @fieldChange="${e => this.onFieldChange(e)}"
                             @clear="${e => this.onClear(e)}"
                             @submit="${e => this.onSubmit(e)}">
-                        </data-form-test>
+                        </data-form-table-test>
                     </div>
                 ` : null}
 
@@ -670,7 +678,7 @@ class TestApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents?.aboutzetta ? html`
-                    <div class="content" id="faq">
+                    <div class="content mt-3" id="faq">
                         <custom-page-test
                             .page="${this.config.aboutPage}"
                             .opencgaSession="${this.opencgaSession}">
@@ -680,7 +688,7 @@ class TestApp extends LitElement {
 
 
                 ${this.config.enabledComponents["file-browser-grid"] ? html`
-                    <div class="content" id="file-browser-grid">
+                    <div class="content mt-3" id="file-browser-grid">
                         <file-browser-grid-test
                             testDataVersion="${this.testDataVersion}"
                             .opencgaSession="${this.opencgaSession}">
@@ -689,7 +697,7 @@ class TestApp extends LitElement {
                 ` : nothing}
 
                 ${this.config.enabledComponents["individual-browser-grid"] ? html`
-                    <div class="content" id="individual-browser-grid">
+                    <div class="content mt-3" id="individual-browser-grid">
                         <individual-browser-grid-test
                             testDataVersion="${this.testDataVersion}"
                             .opencgaSession="${this.opencgaSession}">
@@ -698,7 +706,7 @@ class TestApp extends LitElement {
                 ` : nothing}
 
                 ${this.config.enabledComponents["family-browser-grid"] ? html`
-                    <div class="content" id="family-browser-grid">
+                    <div class="content mt-3" id="family-browser-grid">
                         <family-browser-grid-test
                             testDataVersion="${this.testDataVersion}"
                             .opencgaSession="${this.opencgaSession}">
@@ -707,7 +715,7 @@ class TestApp extends LitElement {
                 ` : nothing}
 
                 ${this.config.enabledComponents["cohort-browser-grid"] ? html`
-                    <div class="content" id="cohort-browser-grid">
+                    <div class="content mt-3" id="cohort-browser-grid">
                         <cohort-browser-grid-test
                             testDataVersion="${this.testDataVersion}"
                             .opencgaSession="${this.opencgaSession}">
@@ -716,7 +724,7 @@ class TestApp extends LitElement {
                 ` : nothing}
 
                 ${this.config.enabledComponents["sample-browser-grid"] ? html`
-                    <div class="content" id="sample-browser-grid">
+                    <div class="content mt-3" id="sample-browser-grid">
                         <sample-browser-grid-test
                             testDataVersion="${this.testDataVersion}"
                             .opencgaSession="${this.opencgaSession}">
@@ -725,7 +733,7 @@ class TestApp extends LitElement {
                 ` : nothing}
 
                 ${this.config.enabledComponents["job-browser-grid"] ? html`
-                    <div class="content" id="job-browser-grid">
+                    <div class="content mt-3" id="job-browser-grid">
                         <job-browser-grid-test
                             testDataVersion="${this.testDataVersion}"
                             .opencgaSession="${this.opencgaSession}">
@@ -734,7 +742,7 @@ class TestApp extends LitElement {
                 ` : nothing}
 
                 ${this.config.enabledComponents["disease-panel-browser-grid"] ? html`
-                    <div class="content" id="disease-panel-browser-grid">
+                    <div class="content mt-3" id="disease-panel-browser-grid">
                         <disease-panel-browser-grid-test
                             testDataVersion="${this.testDataVersion}"
                             .opencgaSession="${this.opencgaSession}">
@@ -744,7 +752,7 @@ class TestApp extends LitElement {
 
 
                 ${this.config.enabledComponents["opencga-update"] ? html`
-                    <div class="content" id="opencga-update">
+                    <div class="content mt-3" id="opencga-update">
                         <opencga-update
                             .opencgaSession="${this.opencgaSession}"
                             .cellbaseClient="${this.cellbaseClient}"
@@ -761,7 +769,7 @@ class TestApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["variant-browser-grid"] ? html`
-                    <div style="padding:2%" class="content" id="variant-grid">
+                    <div class="content mt-3" id="variant-grid">
                         <variant-browser-grid-test
                             testVariantFile="variant-browser-data"
                             testDataVersion="${this.testDataVersion}"
@@ -771,8 +779,18 @@ class TestApp extends LitElement {
                     </div>
                 ` : null}
 
+                ${this.config.enabledComponents["variant-interpreter-rd-grid"] ? html`
+                    <div style="padding:2%" class="content" id="variant-interpreter-rd-grid">
+                        <variant-interpreter-rd-grid-test
+                            .testDataVersion="${this.testDataVersion}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config}">
+                        </variant-interpreter-rd-grid-test>
+                    </div>
+                ` : null}
+
                 ${this.config.enabledComponents["variant-interpreter-grid-germline"] ? html`
-                    <div style="padding:2%" class="content" id="variant-interpreter-grid">
+                    <div class="content mt-3" id="variant-interpreter-grid">
                         <variant-interpreter-grid-test
                             testVariantFile="variant-interpreter-germline"
                             testDataVersion="${this.testDataVersion}"
@@ -783,9 +801,8 @@ class TestApp extends LitElement {
                     </div>
                 ` : null}
 
-
                 ${this.config.enabledComponents["variant-interpreter-grid-cancer"] ? html`
-                    <div style="padding:2%" class="content" id="variant-interpreter-grid">
+                    <div class="content mt-3" id="variant-interpreter-grid">
                         <variant-interpreter-grid-test
                             testVariantFile="variant-interpreter-cancer"
                             testDataVersion="${this.testDataVersion}"
@@ -798,7 +815,7 @@ class TestApp extends LitElement {
 
 
                 ${this.config.enabledComponents["variant-interpreter-grid-cancer-cnv"] ? html`
-                <div style="padding:2%" class="content" id="variant-interpreter-grid">
+                <div class="content mt-3" id="variant-interpreter-grid">
                     <variant-interpreter-grid-test
                         testVariantFile="variant-interpreter-cnv"
                         testDataVersion="${this.testDataVersion}"
@@ -810,7 +827,7 @@ class TestApp extends LitElement {
             ` : null}
 
                 ${this.config.enabledComponents["variant-filters"] ? html`
-                    <div class="content" id="variant-filters">
+                    <div class="content mt-3" id="variant-filters">
                         <variant-browser-filter
                             .opencgaSession="${this.opencgaSession}"
                             .cellbaseClient="${this.cellbaseClient}"
@@ -826,7 +843,7 @@ class TestApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["genome-browser"] ? html`
-                    <div class="content" id="genome-browser">
+                    <div class="content mt-3" id="genome-browser">
                         <genome-browser-test
                             .opencgaSession="${this.opencgaSession}"
                             .testDataVersion="${this.testDataVersion}">
@@ -835,7 +852,7 @@ class TestApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["protein-lollipop"] ? html`
-                    <div class="content" id="protein-lollipop">
+                    <div class="content mt-3" id="protein-lollipop">
                         <protein-lollipop-test
                             .opencgaSession="${this.opencgaSession}"
                             .testDataVersion="${this.testDataVersion}">
@@ -850,7 +867,7 @@ class TestApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["mutational-signatures"] ? html`
-                    <div class="content" id="mutational-signatures">
+                    <div class="content mt-3" id="mutational-signatures">
                         <sample-browser
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.queries.sample}"

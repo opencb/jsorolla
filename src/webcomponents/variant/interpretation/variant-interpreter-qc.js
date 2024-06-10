@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import {guardPage} from "../../commons/html-utils.js";
 import "./variant-interpreter-qc-overview.js";
 import "./variant-interpreter-qc-gene-coverage.js";
 import "../../commons/view/detail-tabs.js";
@@ -22,7 +23,6 @@ import "../../sample/sample-variant-stats-browser.js";
 import "../../sample/sample-cancer-variant-stats-browser.js";
 import "../../variant/analysis/family-qc-analysis.js";
 import "../../variant/analysis/individual-qc-analysis.js";
-
 
 class VariantInterpreterQc extends LitElement {
 
@@ -124,12 +124,7 @@ class VariantInterpreterQc extends LitElement {
     render() {
         // Check Project exists
         if (!this.opencgaSession?.project) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         if (!this.clinicalAnalysis) {
@@ -178,7 +173,7 @@ class VariantInterpreterQc extends LitElement {
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 col-md-offset-1">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header title="Quality Control Overview - ${probandId}" class="bg-white"></tool-header>
                                 <variant-interpreter-qc-overview
                                     .opencgaSession="${opencgaSession}"
@@ -235,7 +230,7 @@ class VariantInterpreterQc extends LitElement {
                     name: "Family QC Analysis",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-8 col-md-offset-2">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header title="Family QC Analysis - ${probandId} (${clinicalAnalysis.family?.id})" class="bg-white"></tool-header>
                                 <family-qc-analysis
                                     .toolParams="${{family: clinicalAnalysis.family?.id}}"
@@ -251,7 +246,7 @@ class VariantInterpreterQc extends LitElement {
                     name: "Individual QC Analysis",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-8 col-md-offset-2">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header title="Individual QC Analysis - ${probandId}" class="bg-white"></tool-header>
                                 <individual-qc-analysis
                                     .toolParams="${{individual: clinicalAnalysis.proband?.id}}"
@@ -267,7 +262,7 @@ class VariantInterpreterQc extends LitElement {
                     name: "Sample Variant Stats",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 col-md-offset-1">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header title="Sample Variant Stats - ${probandId} (${this.sample?.id})" class="bg-white"></tool-header>
                                 <sample-variant-stats-browser
                                     .opencgaSession="${opencgaSession}"
@@ -369,7 +364,7 @@ class VariantInterpreterQc extends LitElement {
 
         return {
             display: {
-                align: "center"
+                classes: "justify-content-center"
             },
             items: items,
         };

@@ -96,6 +96,8 @@ export default class GeneCoverageGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: this.transcriptCoverageStats,
             columns: this._initTableColumns(),
             sidePagination: "local",
@@ -109,7 +111,7 @@ export default class GeneCoverageGrid extends LitElement {
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             gridContext: this,
-            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPageChange: (page, size) => {
                 const result = this.gridCommons.onPageChange(page, size);
@@ -133,6 +135,8 @@ export default class GeneCoverageGrid extends LitElement {
                 this.table = $("#" + this.gridId);
                 this.table.bootstrapTable("destroy");
                 this.table.bootstrapTable({
+                    theadClasses: "table-light",
+                    buttonsClass: "light",
                     columns: this._columns,
                     uniqueId: "id",
                     iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -144,7 +148,7 @@ export default class GeneCoverageGrid extends LitElement {
                     pageList: this._config.pageList,
                     showExport: this._config.showExport,
                     // detailView: this._config.detailView,
-                    formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                    loadingTemplate: () => GridCommons.loadingFormatter(),
                     ajax: params => {
                         this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, this.geneIds, {study: this.opencgaSession.study.fqn})
                             .then(restResponse => {

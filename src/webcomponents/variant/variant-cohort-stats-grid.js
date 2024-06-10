@@ -17,7 +17,6 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 
-
 class VariantCohortStatsGrid extends LitElement {
 
     constructor() {
@@ -70,7 +69,6 @@ class VariantCohortStatsGrid extends LitElement {
             this.stats[0] = cohortAll;
 
             const table = $("#" + this._prefix + "CohortStatsGrid");
-            // const _this = this;
             table.bootstrapTable("destroy");
             table.bootstrapTable({
                 data: this.stats,
@@ -78,8 +76,10 @@ class VariantCohortStatsGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                formatLoadingMessage: () =>"<loading-spinner></loading-spinner>",
-                onLoadError: (status, res) => {
+                theadClasses: "table-light",
+                buttonsClass: "light",
+                loadingTemplate: () => "<loading-spinner></loading-spinner>",
+                onLoadError: function (status, res) {
                     console.log(status);
                     console.log(res);
                 }

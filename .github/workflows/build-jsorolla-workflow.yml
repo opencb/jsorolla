@@ -15,8 +15,8 @@ jobs:
       version: ${{ steps.package.outputs.version }}
     steps:
       - name: "Checkout JSorolla"
-        uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "16"
           cache: "npm"
@@ -27,11 +27,11 @@ jobs:
         name: Get project version
         run: |
           echo "version=`cat package.json | grep -w version | cut -d : -f 2 | cut -d \\" -f 2`" >> $GITHUB_OUTPUT
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: build-folder
           path: build
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: iva-app
           path: iva-${{ steps.package.outputs.version }}.tar.gz

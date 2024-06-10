@@ -272,6 +272,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
@@ -289,8 +291,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 showExport: this._config.showExport,
                 // detailView: this._config.detailView,
                 // detailFormatter: this.detailFormatter,
-                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
+                // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: this,
 
@@ -372,6 +374,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
+            data: variants,
             columns: this._getDefaultColumns(),
             sidePagination: "server",
             // Josemi Note 2024-01-31: we have added the ajax function for local variants for getting genes info
@@ -408,8 +413,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             showExport: this._config.showExport,
             // detailView: this._config.detailView,
             // detailFormatter: this.detailFormatter,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
             variantGrid: this,
 
@@ -637,7 +642,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     title: `Interpretation
                         <a class='interpretation-info-icon'
                             tooltip-title='Interpretation'
-                            tooltip-text="<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations"
+                            tooltip-text="<span class='fw-bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations"
                             tooltip-position-at="left bottom" tooltip-position-my="right top">
                             <i class='fa fa-info-circle' aria-hidden='true'></i>
                         </a>`,
@@ -656,21 +661,20 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
                         return `
                             <div class="dropdown">
-                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
                                     <span>Actions</span>
-                                    <span class="caret" style="margin-left: 5px"></span>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-right">
+                                <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <a id="${reviewId}" href="javascript:void 0;" class="btn force-text-left reviewButton" data-action="edit" ${reviewDisabled}>
+                                        <a id="${reviewId}" href="javascript:void 0;" class="dropdown-item reviewButton" data-action="edit" ${reviewDisabled}>
                                             <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
-                                    <li role="separator" class="divider"></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <li class="dropdown-header">Fetch Variant</li>
                                     <li>
-                                        <a href="javascript: void 0" class="btn force-text-left" data-action="download">
+                                        <a href="javascript: void 0" class="dropdown-item" data-action="download">
                                             <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
                                         </a>
                                     </li>
@@ -784,7 +788,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         UtilsNew.objectClone(this.checkedVariants.get(row[1].id)),
                     ];
                     this.requestUpdate();
-                    $("#" + this._prefix + "ReviewSampleModal").modal("show");
+                    // $("#" + this._prefix + "ReviewSampleModal").modal("show");
+                    // const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
+                    this.reviewSampleModal.show();
                 }
                 break;
             case "download":
@@ -967,12 +973,16 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             ];
             this.requestUpdate();
 
-            $("#" + this._prefix + "ReviewSampleModal").modal("show");
+            // $("#" + this._prefix + "ReviewSampleModal").modal("show");
+            // const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
+            this.reviewSampleModal.show();
         }
     }
 
     onConfigClick(e) {
-        $("#" + this._prefix + "ConfigModal").modal("show");
+        // $("#" + this._prefix + "ConfigModal").modal("show");
+        const configModal = new bootstrap.Modal("#" + this._prefix + "ConfigModal");
+        configModal.show();
     }
 
     onVariantChange(e) {
@@ -1044,9 +1054,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
 
-            <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 768px">
+            <div class="modal fade pt-0" id="${this._prefix}ReviewSampleModal" tabindex="-1"
+                 role="dialog" aria-hidden="true" style="overflow-y: visible">
+                <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
                             <h3>Review Variant</h3>
@@ -1060,20 +1070,20 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                             </clinical-interpretation-variant-review>
                         ` : null}
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onCancelVariant()}">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onSaveVariant(e)}">OK</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${() => this.onCancelVariant()}">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${e => this.onSaveVariant(e)}">OK</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 1024px">
+            <div class="modal fade pt-0" id="${this._prefix}ConfigModal" tabindex="-1"
+                role="dialog" aria-hidden="true" style="overflow-y: visible">
+                <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h3>Settings</h3>
+                        <h3>Settings</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
@@ -1086,8 +1096,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onGridConfigSave(e)}">OK</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${e => this.onGridConfigSave(e)}">OK</button>
                         </div>
                     </div>
                 </div>

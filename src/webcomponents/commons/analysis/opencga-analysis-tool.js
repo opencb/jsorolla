@@ -16,9 +16,9 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import {guardPage} from "../html-utils.js";
 import "../../text-icon.js";
 import "./opencga-analysis-tool-form.js";
-
 
 export default class OpencgaAnalysisTool extends LitElement {
 
@@ -62,7 +62,9 @@ export default class OpencgaAnalysisTool extends LitElement {
     }
 
     openModal(e) {
-        $(`#${this._prefix}analysis_description_modal`, this).modal("show");
+        // $(`#${this._prefix}analysis_description_modal`, this).modal("show");
+        const analysisModal = new bootstrap.Modal(`#${this._prefix}analysis_description_modal`);
+        analysisModal.show();
     }
 
     onAnalysisRun(e) {
@@ -82,12 +84,7 @@ export default class OpencgaAnalysisTool extends LitElement {
     render() {
         // Check Project exists
         if (!this.opencgaSession || !this.opencgaSession.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No OpenCGA study available to run an analysis. Please login to continue.</h3>
-                </div>
-            `;
+            return guardPage("No OpenCGA study available to run an analysis. Please login to continue.");
         }
 
         // Check Analysis tool configuration
@@ -110,7 +107,7 @@ export default class OpencgaAnalysisTool extends LitElement {
                         title="${this._config.title}"
                         icon="${this._config.icon}"
                         .rhs="${html`
-                            <button class="btn btn-default ripple"
+                            <button class="btn btn-light"
                                     @click="${e => this.openModal()}">
                                 <i class="fas fa-info-circle"></i> Info
                             </button>
@@ -119,10 +116,11 @@ export default class OpencgaAnalysisTool extends LitElement {
                 }
 
                 <div class="container">
-                    <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession}
-                                                .cellbaseClient="${this.cellbaseClient}"
-                                                .config="${this._config.form}"
-                                                @analysisRun="${this.onAnalysisRun}">
+                    <opencga-analysis-tool-form
+                        .opencgaSession=${this.opencgaSession}
+                        .cellbaseClient="${this.cellbaseClient}"
+                        .config="${this._config.form}"
+                        @analysisRun="${this.onAnalysisRun}">
                     </opencga-analysis-tool-form>
                 </div>
 
@@ -130,7 +128,7 @@ export default class OpencgaAnalysisTool extends LitElement {
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                                 <h4 class="modal-title">${this._config.title}</h4>

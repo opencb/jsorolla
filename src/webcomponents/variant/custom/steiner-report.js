@@ -507,7 +507,7 @@ class SteinerReport extends LitElement {
             },
             display: {
                 width: 12,
-                buttonsAlign: "right",
+                buttonsAlign: "end",
                 titleWidth: 3,
                 titleVisible: true,
                 titleStyle: "padding: 20px 5px",
@@ -757,7 +757,7 @@ class SteinerReport extends LitElement {
                                                 .config="${{showFileSize: false}}">
                                             </file-preview>
                                         </div>
-                                        <div class="col-md-12 help-block" style="padding: 10px">
+                                        <div class="col-md-12 d-block text-secondary" style="padding: 10px">
                                             <p>
                                                 Sunrise plot (left) the cross indicates the highest probability solutions for aberrant
                                                 cell fraction and ploidy. Copy number plot (top right) Major copy number in red,
@@ -808,7 +808,7 @@ class SteinerReport extends LitElement {
                                                 </signature-view>
                                             ` : null}
                                         </div>
-                                        <div class="col-md-12 help-block" style="padding: 10px">
+                                        <div class="col-md-12 d-block text-secondary" style="padding: 10px">
                                             <p>
                                                 Whole genome circos plot (left) depicting from outermost rings heading inwards:
                                                 Karyotypic ideogram outermost. Base substitutions next, plotted as rainfall plots (log10
@@ -1073,7 +1073,7 @@ class SteinerReport extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html`
-                                    <div class="help-block">
+                                    <div class="d-block text-secondary">
                                         Variant Allele Fraction (VAF). Loss of Heterozygosity (LOH) (Chr, start position of segment,
                                         stop position of segment, total copy number, minor copy number).
                                     </div>

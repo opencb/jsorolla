@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import {guardPage} from "../../commons/html-utils.js";
 import "./variant-interpreter-qc-summary.js";
 import "./variant-interpreter-qc-variant-stats.js";
 import "./variant-interpreter-qc-inferred-sex.js";
@@ -247,30 +248,24 @@ class VariantInterpreterQcOverview extends LitElement {
     render() {
         // Check Project exists
         if (!this.opencgaSession.project) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         return html`
-            <div class="row variant-interpreter-overview" style="padding: 10px 15px">
+            <div class="row variant-interpreter-overview mb-3 p-3">
                 <div class="col-md-2 list-group interpreter-side-nav side-tabs side-nav">
                     ${this._config.sections[0].elements.filter(field => !field.disabled).map((field, i) => html`
-                        <button
-                            type="button"
-                            class="list-group-item ${i === 0 ? "active" : ""}"
-                            data-id="${field.id}"
-                            @click="${this.onSideNavClick}">
+                        <a
+                            class="list-group-item p-3 ${i === 0 ? "active" : ""}"
+                            data-bs-toggle="tab"
+                            data-bs-target="#${this._prefix}${field.id}">
                             ${field.title}
-                        </button>
+                        </a>
                     `)}
                 </div>
 
                 <div class="col-md-10">
-                    <div class="content-tab-wrapper interpreter-content-tab" style="margin: 0px 10px">
+                    <div class="tab-content" style="margin: 0px 10px">
                         <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane content-tab active">
                             <h3>Summary</h3>
                             <variant-interpreter-qc-summary

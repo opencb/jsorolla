@@ -119,13 +119,15 @@ export default class VariantSamples extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             pagination: true,
             sidePagination: "server",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
             columns: this._getDefaultColumns(),
             formatShowingRows: this.gridCommons.formatShowingRows,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             ajax: params => {
                 const tableOptions = this.table.bootstrapTable("getOptions");
                 this.filters = {
