@@ -18,7 +18,8 @@ import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import "../../user/user-status-update.js";
+import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
+import "./filters/user-status-filter.js";
 
 export default class UserAdminStatusUpdate extends LitElement {
 
@@ -54,9 +55,14 @@ export default class UserAdminStatusUpdate extends LitElement {
         this._user = {}; // Updated object
         this.userId = "";
         this.displayConfig = {};
-        this.updatedFields = {};
-
-        this._config = this.getDefaultConfig();
+        this.displayConfigDefault = {
+            style: "margin: 10px",
+            titleWidth: 3,
+            titleStyle: "color: var(--main-bg-color);margin-bottom:16px;font-weight:bold;",
+            defaultLayout: "horizontal",
+            buttonOkText: "Update Status",
+        };
+        this.updatedParam = "";
     }
 
     #setLoading(value) {
@@ -71,7 +77,7 @@ export default class UserAdminStatusUpdate extends LitElement {
             type: "notification",
             display: {
                 visible: () => {
-                    return UtilsNew.isNotEmpty(this.updatedFields);
+                    return UtilsNew.isNotEmpty(this.updatedParam);
                 },
                 notificationType: "warning",
             },
@@ -80,18 +86,17 @@ export default class UserAdminStatusUpdate extends LitElement {
 
     #initOriginalObjects() {
         this._user = UtilsNew.objectClone(this.user);
-        this.updatedFields = {};
+        this._config = this.getDefaultConfig();
+        if (!this._config?.notification) {
+            this.#initConfigNotification();
+        }
+        this.updatedParam = "";
+        this.requestUpdate();
     }
 
     update(changedProperties) {
         if (changedProperties.has("userId")) {
             this.userIdObserver();
-        }
-        if (changedProperties.has("displayConfig")) {
-            this._config = this.getDefaultConfig();
-            if (!this._config?.notification) {
-                this.#initConfigNotification();
-            }
         }
         super.update(changedProperties);
     }
@@ -120,35 +125,138 @@ export default class UserAdminStatusUpdate extends LitElement {
         }
     }
 
+    onFieldChange(e) {
+        this.updatedParam = e.detail.value;
+        this.requestUpdate();
+    }
+
+    onClear() {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Discard changes",
+            message: "Are you sure you want to discard the changes made?",
+            ok: () => {
+                this.#initOriginalObjects();
+                // We need to dispatch a component clear event
+                LitUtils.dispatchCustomEvent(this, "userClear", null, {
+                    user: this.user,
+                });
+            },
+        });
+    }
+
+    onSubmit() {
+        let error;
+        const params = {
+            includeResult: true,
+        };
+        this.#setLoading(true);
+        this.opencgaSession.opencgaClient.organization()
+            .userUpdateStatus(this.user.id, this.updatedParam, params)
+            .then(response => {
+                this.user = UtilsNew.objectClone(response.responses[0].results[0]);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: `User Status Update`,
+                    message: `User ${this.userId} status has been updated correctly`,
+                });
+            })
+            .catch(reason => {
+                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            })
+            .finally(() => {
+                LitUtils.dispatchCustomEvent(this, "userUpdate", this.user, {}, error);
+                this.#setLoading(false);
+            });
+
+    }
+
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.user.internal?.status?.id) {
+            return html `
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    The ${this.user.id} does not have an status ID.
+                </div>
+            `;
+        }
+
         return html`
-            <detail-tabs
+            <data-form
                 .data="${this._user}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}">
-            </detail-tabs>
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @submit="${this.onSubmit}"
+                @clear="${this.onClear}">
+            </data-form>
         `;
     }
 
     getDefaultConfig() {
         return {
-            title: "",
-            showTitle: false,
-            items: [
+            icon: "fas fa-edit",
+            buttons: {
+                clearText: "Discard Changes",
+                okText: "Update",
+            },
+            display: this.displayConfig || this.displayConfigDefault,
+            sections: [
                 {
-                    id: "user-status-update",
-                    name: "User Status Update",
-                    active: true,
-                    render: (user, active, opencgaSession) => {
-                        return html`
-                            <user-status-update
-                                .user="${user}"
-                                .status="${user.internal.status?.id || user.internal.status?.name}"
-                                .opencgaSession="${opencgaSession}"
-                                .displayConfig="${{titleVisible: false}}">
-                            </user-status-update>
-                            `;
-                    }
+                    elements: [
+                        {
+                            title: "User ID",
+                            field: "id",
+                            type: "input-text",
+                            display: {
+                                disabled: true,
+                            }
+                        },
+                        {
+                            title: "Current Status",
+                            type: "complex",
+                            display: {
+                                containerClassName: "d-flex align-items-center",
+                                template: "${internal.status}",
+                                format: {
+                                    // FIXME: Displaying original data this.user.internal.status. Should not be a complex element
+                                    "internal.status": () => CatalogGridFormatter.userStatusFormatter(this.user?.internal?.status, this._config.display?.userStatus),
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    // title: "Change Status",
+                    // description: "You can change the status of the user here",
+                    display: {
+                        // titleHeader: "h4",
+                        // titleClassName: "d-block text-secondary"
+                        // titleStyle: "",
+                        // descriptionClassName: "d-block text-secondary",
+                        // descriptionStyle: "",
+                        // visible: () =>
+                    },
+                    elements: [
+                        {
+                            title: "New Status",
+                            field: "internal.status.id",
+                            type: "custom",
+                            display: {
+                                render: (status, dataFormFilterChange) => html `
+                                        <user-status-filter
+                                            .status="${status}"
+                                            .config="${this._config.display?.userStatus}"
+                                            .multiple="${false}"
+                                            .forceSelection=${true}
+                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                        </user-status-filter>
+                                    `,
+                            },
+                        },
+                    ],
                 },
             ],
         };

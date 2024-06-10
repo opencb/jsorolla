@@ -142,6 +142,9 @@ export default class UserAdminGrid extends LitElement {
                 render: () => this.renderModalDetailsUpdate(),
                 permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
             },
+            // ToDo 20240529 Vero: Nacho/Pedro to discuss:
+            //  - Organization admin/owner can change usr pwd without entering current pwd
+            /*
             "change-password": {
                 label: "Change Password",
                 icon: "fas fa-edit",
@@ -149,6 +152,7 @@ export default class UserAdminGrid extends LitElement {
                 render: () => this.renderModalPasswordUpdate(),
                 permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
             },
+             */
             "reset-password": {
                 label: "Reset Password",
                 icon: "fas fa-edit",
@@ -210,7 +214,6 @@ export default class UserAdminGrid extends LitElement {
                         .search(this.filters)
                         .then(response => {
                             result = response;
-                            debugger
                             return response;
                         })
                         .then(() => {
@@ -272,7 +275,7 @@ export default class UserAdminGrid extends LitElement {
             {
                 title: "Status",
                 field: "internal.status",
-                formatter: (value, row) => this.statusFormatter(value, row),
+                formatter: value => CatalogGridFormatter.userStatusFormatter(value, this._config.userStatus),
                 events: {
                     "click a": e => this.onActionClick(e),
                 },
@@ -301,7 +304,7 @@ export default class UserAdminGrid extends LitElement {
                                     return `
                                         <li>
                                             <a data-action="${modalKey}" class="dropdown-item ${modal.permission["organization"]}">
-                                                    <i class="${modal.icon}" aria-hidden="true"></i> ${modal.label}...
+                                                <i class="${modal.icon}" aria-hidden="true"></i> ${modal.label}...
                                             </a>
                                         </li>
                                     `;
@@ -318,41 +321,6 @@ export default class UserAdminGrid extends LitElement {
 
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
-    }
-
-    // *** COLUMN FORMATTERS ***
-    statusFormatter(value, row) {
-        debugger
-        const _status = this._config?.userStatus || [];
-        const currentStatus = value.id || value.name || "-"; // Get current status
-
-        // Dropdown button styles and classes
-        const btnClassName = "d-flex justify-content-between align-items-center btn btn-light dropdown-toggle w-100";
-
-        return `
-            <div class="dropdown">
-                <button class="${btnClassName}" type="button" data-bs-toggle="dropdown">
-                    <span class="badge info me-auto top-0" style="background-color: ${_status[currentStatus].displayColor}">
-                        ${_status[currentStatus].displayLabel}
-                    </span>
-                </button>
-                <ul class="dropdown-menu">
-                    ${Object.entries(_status).map(([id, value]) => `
-                        <li>
-                            <a class="d-flex dropdown-item" data-action="change-status" data-status="${id}">
-                                <div class="flex-grow-1">
-                                    <span class="badge disabled" style="background-color: ${value.displayColor}">
-                                    ${id === currentStatus ? `<strong>${value.displayLabel}</strong>` : value.displayLabel}
-                                    </span>
-                                </div>
-                                ${id === currentStatus ? `<i class="fas fa-check"></i>` : ""}
-                            </a>
-                        </li>
-                        `).join("")
-                    }
-                </ul>
-            </div>
-        `;
     }
 
     // *** EVENTS ***
@@ -383,7 +351,7 @@ export default class UserAdminGrid extends LitElement {
                     <user-admin-details-update
                         .userId="${this.userId}"
                         .organization="${this.organization}"
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                         .opencgaSession="${this.opencgaSession}"
                         @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}UpdateDetailsModal`)}">
                     </user-admin-details-update>
@@ -439,22 +407,20 @@ export default class UserAdminGrid extends LitElement {
     renderModalStatusUpdate() {
         return ModalUtils.create(this, `${this._prefix}ChangeStatusModal`, {
             display: {
-                modalTitle: `User Status: User ${this.userId} in organization ${this.organization.id}`,
+                modalTitle: `Update Status: User ${this.userId} in organization ${this.organization.id}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-user-admin-status-update",
                 modalSize: "modal-lg"
             },
-            render: () => {
-                return html`
-                    <user-admin-status-update
-                        .userId="${this.userId}"
-                        .organization="${this.organization}"
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}"
-                        @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ChangeStatusModal`)}">
-                    </user-admin-status-update>
-                `;
-            },
+            render: () => html`
+                <user-admin-status-update
+                    .userId="${this.userId}"
+                    .organization="${this.organization}"
+                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top", userStatus: this._config.userStatus}}"
+                    .opencgaSession="${this.opencgaSession}"
+                    @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ChangeStatusModal`)}">
+                </user-admin-status-update>
+            `,
         });
     }
 
@@ -503,36 +469,42 @@ export default class UserAdminGrid extends LitElement {
             showSettings: false,
             exportTabs: ["download", "link", "code"],
             // Config
-            userStatus: {
-                "READY": { // The user can login
+            userStatus: [
+                {
+                    id: "READY",
                     displayLabel: "ACTIVE", // Fixme: ACTIVE | ENABLED | READY?
-                    displayColor: "#16A83D",
-                    description: "",
+                    displayColor: "#16A83C",
+                    displayOutline: "btn-outline-success",
+                    description: "The user can login",
                     isSelectable: true, // Choice selectable by org admin/owner
                     isEnabled: true, // Choice visible by org admin/owner
                 },
-                "SUSPENDED": {
-                    displayLabel: "SUSPENDED", // User can not login into the system
-                    displayColor: "#E17F1E",
-                    description: "",
+                {
+                    id: "SUSPENDED",
+                    displayLabel: "SUSPENDED",
+                    displayColor: "#E1351E",
+                    displayOutline: "btn-outline-danger",
+                    description: "The user can not login into the system",
                     isSelectable: true,
                     isEnabled: true,
                 },
-                "BANNED": { // User locked for more than X login attemtps. The admin/owner can enable the user back.
+                {
+                    id: "BANNED",
                     displayLabel: "BANNED",
-                    displayColor: "#961EE1",
-                    description: "",
+                    displayColor: "#E17F1E",
+                    description: "User locked for more than allowed login attemtps. The admin/owner can enable the user back.",
                     isSelectable: false,
                     isEnabled: true,
                 },
-                "DELETED": { // QUESTION: is it possible remove all permissions and login, but keep him in the system?
-                    displayLabel: "REMOVED",
-                    displayColor: "#E1351E",
-                    description: "",
+                {
+                    id: "UNDEFINED",
+                    displayLabel: "-",
+                    displayColor: "#E1E2E5",
+                    description: "The user status is unknown",
                     isSelectable: false,
                     isEnabled: false,
                 },
-            },
+            ],
 
         };
     }
