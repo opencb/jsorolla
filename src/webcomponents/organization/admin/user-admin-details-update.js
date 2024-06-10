@@ -19,7 +19,6 @@ import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import CatalogGridFormatter from "../../commons/catalog-grid-formatter";
 
 export default class UserAdminDetailsUpdate extends LitElement {
 
@@ -139,8 +138,6 @@ export default class UserAdminDetailsUpdate extends LitElement {
             e.detail.value,
             e.detail.action);
 
-        debugger
-        // this.updatedFields = e.detail?.data || {};
         this.requestUpdate();
     }
 
@@ -176,7 +173,7 @@ export default class UserAdminDetailsUpdate extends LitElement {
                 this.user = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.#initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: `User Update`,
+                    title: `User Details Update`,
                     message: `User ${this.userId} updated correctly`,
                 });
             })
@@ -198,8 +195,8 @@ export default class UserAdminDetailsUpdate extends LitElement {
                 .config="${this._config}"
                 .updateParams="${e => this.updatedFields(e)}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
+                @submit="${this.onSubmit}"
+                @clear="${this.onClear}">
             </data-form>
         `;
     }
@@ -235,16 +232,6 @@ export default class UserAdminDetailsUpdate extends LitElement {
                                 helpMessage: "Edit the user email...",
                             },
                         },
-                        {
-                            title: "Enable user",
-                            field: "enabled",
-                            type: "toggle-switch",
-                            display: {
-                                disabled: true,
-                                helpMessage: "Coming soon: Enable/Disable a user in an organization",
-                            },
-                        },
-
                     ],
                 },
                 {
