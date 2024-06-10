@@ -18,6 +18,7 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 import {guardPage} from "../html-utils.js";
+import "../forms/select-field-filter.js";
 
 export default class StudyFilter extends LitElement {
 
@@ -104,7 +105,12 @@ export default class StudyFilter extends LitElement {
         }
 
         return html`
-            <div class="mb-3" id="${this._prefix}DifferentStudies">
+            <style>
+                .select-picker .filter-option-inner-inner {
+                    white-space: normal !important;
+                }
+            </style>
+            <div class="mb-3 select-picker" id="${this._prefix}DifferentStudies">
                 <select class="form-control" id="${this.elm}" multiple
                     @change="${this.onChangeSelectedStudy}">
                     <option value="${this.opencgaSession.study.fqn}"
