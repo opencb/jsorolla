@@ -17,6 +17,14 @@ jobs:
     name: Push Docker image
     runs-on: ubuntu-22.04
     steps:
+      - name: Retrieve secrets from Keeper
+        id: ksecrets
+        uses: Keeper-Security/ksm-action@master
+        with:
+          keeper-secret-config: ${{ secrets.KEEPER_SM_GH_OPENCB }}
+          secrets: |
+            ID_DOCKER_HUB_USER/custom_field/DOCKER_HUB_USER > env:DOCKER_HUB_USER
+            ID_DOCKER_HUB_PASSWORD/custom_field/DOCKER_HUB_PASSWORD > env:DOCKER_HUB_PASSWORD
       - name: "Checkout Jsorolla"
         uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -27,7 +35,7 @@ jobs:
         run: "find build -regex '.*sh' | while read file ; do chmod u+x $file ; done"
       - uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_HUB_USER }}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          username: ${{ env.DOCKER_HUB_USER }}
+          password: ${{ env.DOCKER_HUB_PASSWORD }}
       - name: Deploy in Docker Hub
         run: ${{ inputs.cli }}

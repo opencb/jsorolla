@@ -21,8 +21,18 @@ jobs:
     name: Deploy IVA Web Application
     runs-on: ubuntu-22.04
     steps:
+      - name: Retrieve secrets from Keeper
+        id: ksecrets
+        uses: Keeper-Security/ksm-action@master
+        with:
+          keeper-secret-config: ${{ secrets.KEEPER_SM_GH_OPENCB }}
+          secrets: |
+            ID_SSH_TESTING_SERVER_HOST/custom_field/SSH_TESTING_SERVER_HOST > env:SSH_TESTING_SERVER_HOST
+            ID_SSH_TESTING_SERVER_PORT/custom_field/SSH_TESTING_SERVER_PORT > env:SSH_TESTING_SERVER_PORT
+            ID_SSH_TESTING_SERVER_USER/custom_field/SSH_TESTING_SERVER_USER > env:SSH_TESTING_SERVER_USER
+            ID_SSH_TESTING_SERVER_PASSWORD/custom_field/SSH_TESTING_SERVER_PASSWORD > env:SSH_TESTING_SERVER_PASSWORD
       - name: Download 'build' dir
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: build-folder
           path: build
@@ -31,9 +41,9 @@ jobs:
         with:
           local: build
           remote: /var/www/html/iva/builds/${{ inputs.version }}
-          host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
-          port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
-          username: ${{ secrets.SSH_TESTING_SERVER_USER }}
-          password: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
+          host: ${{ env.SSH_TESTING_SERVER_HOST}}
+          port: ${{ env.SSH_TESTING_SERVER_PORT}}
+          username: ${{ env.SSH_TESTING_SERVER_USER }}
+          password: ${{ env.SSH_TESTING_SERVER_PASSWORD }}
           rm: true
           concurrency: 2

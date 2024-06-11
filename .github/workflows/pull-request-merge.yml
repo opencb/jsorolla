@@ -14,6 +14,14 @@ jobs:
     name: Delete TASK docker image
     runs-on: ubuntu-22.04
     steps:
+      - name: Retrieve secrets from Keeper
+        id: ksecrets
+        uses: Keeper-Security/ksm-action@master
+        with:
+          keeper-secret-config: ${{ secrets.KEEPER_SM_GH_OPENCB }}
+          secrets: |
+            ID_DOCKER_HUB_USER/custom_field/DOCKER_HUB_USER > env:DOCKER_HUB_USER
+            ID_DOCKER_HUB_PASSWORD/custom_field/DOCKER_HUB_PASSWORD > env:DOCKER_HUB_PASSWORD
       - name: "Checkout JSorolla"
         uses: actions/checkout@v2
-      - run: ./docker/docker-build.py delete --image app --tag ${{ github.head_ref }} --username ${{ secrets.DOCKER_HUB_USER }} --password ${{ secrets.DOCKER_HUB_PASSWORD }}
+      - run: ./docker/docker-build.py delete --image app --tag ${{ github.head_ref }} --username ${{ env.DOCKER_HUB_USER }} --password ${{ env.DOCKER_HUB_PASSWORD }}
