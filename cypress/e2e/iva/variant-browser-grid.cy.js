@@ -87,16 +87,16 @@ context("Variant Browser Grid", () => {
             
             // TODO: rename tag 'data-testid' to 'data-cy'
             cy.get("@variantBrowser")
-                .find(`div[data-testid="test-columns"] select-field-filter button`)
+                .find(`div[data-testid="test-columns"] select-field-filter .select2-container`)
                 .click();
             columns.forEach(column => {
                 cy.get("@variantBrowser")
-                    .find(`div[data-testid="test-columns"] select-field-filter a`)
+                    .find(`div[data-testid="test-columns"] select-field-filter span.select2-results li`)
                     .contains(column)
                     .click();
             });
             cy.get("@variantBrowser")
-                .find(`div[data-testid="test-columns"] select-field-filter button`)
+                .find(`div[data-testid="test-columns"] select-field-filter .select2-selection`)
                 .click();
 
             cy.get("@variantBrowser")
