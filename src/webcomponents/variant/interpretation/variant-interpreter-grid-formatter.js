@@ -89,7 +89,7 @@ export default class VariantInterpreterGridFormatter {
         }
     }
 
-    static clinicalPopulationFrequenciesFormatter(value, row) {
+    static clinicalPopulationFrequenciesFormatter(value, row, config) {
         const popFreqMap = new Map();
         // If variant population freqs exist read values
         if (row?.annotation?.populationFrequencies?.length > 0) {
@@ -98,10 +98,10 @@ export default class VariantInterpreterGridFormatter {
             });
         }
         return VariantGridFormatter.renderPopulationFrequencies(
-            this._config.populationFrequencies,
+            config.populationFrequencies,
             popFreqMap,
             POPULATION_FREQUENCIES.style,
-            this._config.populationFrequenciesConfig,
+            config.populationFrequenciesConfig,
         );
     }
 
