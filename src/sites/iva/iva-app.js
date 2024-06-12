@@ -972,14 +972,14 @@ class IvaApp extends LitElement {
     }
 
     changeActiveStudy(studyFqn) {
-        if (this.opencgaSession.study.fqn === studyFqn) {
+        if (this.opencgaSession?.study?.fqn === studyFqn) {
             console.log("New selected study is already the current active study!");
             return;
         }
 
         // Change active study
         let studyFound = false;
-        for (const project of this.opencgaSession.projects) {
+        for (const project of (this.opencgaSession?.projects || [])) {
             const studyIndex = project.studies.findIndex(s => s.fqn === studyFqn);
             if (studyIndex >= 0) {
                 this.opencgaSession.project = project;
