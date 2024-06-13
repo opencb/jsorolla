@@ -421,11 +421,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
             ${this.clinicalAnalysis.interpretation.locked ? html`
                 <div class="row ms-4">
-                    <div class="card text-bg-warning col-10 offset-2 mb-3 p-0">
-                        <div class="card-header" style="font-size: 1.1em">
-                            <label>Interpretation locked:</label> you cannot modify this interpretation. You can unlock the interpretation in
-                            <span class="fst-italic">Case Info >> Interpretation Manager</span>.
-                        </div>
+                    <div class="alert alert-warning col-10 offset-2 mb-3">
+                        <label>Interpretation locked:</label> you cannot modify this interpretation. You can unlock the interpretation in
+                        <span class="fst-italic">Case Info >> Interpretation Manager</span>.
                     </div>
                 </div>` : null
             }
