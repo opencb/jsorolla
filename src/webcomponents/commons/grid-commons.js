@@ -358,17 +358,20 @@ export default class GridCommons {
                 `).querySelector("div");
                 eventsContainer.replaceChildren(eventsMessages);
                 if (defaultHiddenEvents.length > 0) {
+                    const hiddenEventsElement = eventsMessages.querySelector(`div[data-role="hidden-events"]`);
+                    const showMoreEventsElement = eventsMessages.querySelector(`div[data-role="show-more-events"]`);
+                    const showLessEventsElement = eventsMessages.querySelector(`div[data-role="show-less-events"]`);
                     // Show more events click
-                    eventsMessages.querySelector(`div[data-role="show-more-events"]`).addEventListener("click", () => {
-                        eventsMessages.querySelector(`div[data-role="hidden-events"]`).style.display = "block";
-                        eventsMessages.querySelector(`div[data-role="show-less-events"]`).style.display = "inline-block";
-                        eventsMessages.querySelector(`div[data-role="show-more-events"]`).style.display = "none";
+                    showMoreEventsElement.addEventListener("click", () => {
+                        hiddenEventsElement.style.display = "block";
+                        showLessEventsElement.style.display = "inline-block";
+                        showMoreEventsElement.style.display = "none";
                     });
                     // Show less events click
-                    eventsMessages.querySelector(`div[data-role="show-less-events"]`).addEventListener("click", () => {
-                        eventsMessages.querySelector(`div[data-role="hidden-events"]`).style.display = "none";
-                        eventsMessages.querySelector(`div[data-role="show-less-events"]`).style.display = "none";
-                        eventsMessages.querySelector(`div[data-role="show-more-events"]`).style.display = "inline-block";
+                    showLessEventsElement.addEventListener("click", () => {
+                        hiddenEventsElement.style.display = "none";
+                        showLessEventsElement.style.display = "none";
+                        showMoreEventsElement.style.display = "inline-block";
                     });
                 }
             }
