@@ -16,9 +16,10 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new";
 import LitUtils from "../../commons/utils/lit-utils";
-import "../../project/projects-admin.js";
 import "./group-admin-browser.js";
 import "./user-admin-browser.js";
+import "../../project/projects-admin.js";
+import "./project-admin-browser.js";
 
 // FIXME VERY IMPORTANT:
 //  ********************************************
@@ -65,8 +66,6 @@ export default class OrganizationAdmin extends LitElement {
 
         super.update(changedProperties);
     }
-
-
 
     organizationIdObserver() {
         // FIXME Vero: on creating a new group, for instance,
@@ -126,7 +125,7 @@ export default class OrganizationAdmin extends LitElement {
                     // TODO
                     {
                         id: "dashboard",
-                        name: "Dashboard",
+                        name: "Dashboard (Coming soon)",
                         icon: "fas fa-vial",
                         visibility: "private",
                         render: (opencgaSession, study) => html``,
@@ -134,7 +133,7 @@ export default class OrganizationAdmin extends LitElement {
                     // TODO
                     {
                         id: "audit",
-                        name: "Audit",
+                        name: "Audit (Coming soon)",
                         type: "category",
                         icon: "fas fa-vial",
                         visibility: "private",
@@ -179,13 +178,22 @@ export default class OrganizationAdmin extends LitElement {
                         name: "Projects/Studies",
                         icon: "fas fa-vial",
                         visibility: "private",
-                        render: (opencgaSession, study) => {
+                        render: (opencgaSession, organization) => {
+                            /*
                             return html`
                                 <div id="projects-admin">
                                     <projects-admin
                                         .opencgaSession="${this.opencgaSession}">
                                     </projects-admin>
                                 </div>
+                            `;
+                             */
+                            debugger
+                            return html`
+                                <project-admin-browser
+                                    .organization="${organization}"
+                                    .opencgaSession="${opencgaSession}">
+                                </project-admin-browser>
                             `;
                         },
                     },

@@ -51,6 +51,7 @@ export default class ProjectUpdate extends LitElement {
     }
 
     #init() {
+        debugger
         this.project = {};
         this.updateParams = {};
         this.isLoading = false;
@@ -76,11 +77,15 @@ export default class ProjectUpdate extends LitElement {
     }
 
     update(changedProperties) {
+        debugger
         if (changedProperties.has("projectId")) {
             this.projectIdObserver();
         }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig
+            };
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -191,6 +196,7 @@ export default class ProjectUpdate extends LitElement {
     }
 
     render() {
+        debugger
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }

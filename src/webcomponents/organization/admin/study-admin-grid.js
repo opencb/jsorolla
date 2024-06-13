@@ -1,0 +1,387 @@
+/**
+ * Copyright 2015-2024 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {LitElement, html, nothing} from "lit";
+import GridCommons from "../../commons/grid-commons.js";
+import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import ModalUtils from "../../commons/modal/modal-utils.js";
+import UtilsNew from "../../../core/utils-new.js";
+
+// import "./study-admin-create.js";
+// import "./study-admin-update.js";
+import "../../study/study-create.js";
+// import "../../study/study-update.js";
+
+export default class StudyAdminGrid extends LitElement {
+
+    constructor() {
+        super();
+
+        this.#init();
+    }
+
+    createRenderRoot() {
+        return this;
+    }
+
+    static get properties() {
+        return {
+            toolId: {
+                type: String,
+            },
+            project: {
+                type: Object,
+            },
+            opencgaSession: {
+                type: Object
+            },
+            active: {
+                type: Boolean
+            },
+            config: {
+                type: Object
+            },
+        };
+    }
+
+    #init() {
+        this.COMPONENT_ID = "study-grid";
+        this._prefix = UtilsNew.randomString(8);
+        this.gridId = this._prefix + this.COMPONENT_ID;
+        this.active = true;
+        this._config = this.getDefaultConfig();
+        this.action = "";
+    }
+
+    // --- LIFE-CYCLE METHODS
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
+            changedProperties.has("project") ||
+            changedProperties.has("config")) {
+            this.propertyObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.size > 0 && this.active) {
+            this.renderRemoteTable();
+        }
+    }
+
+    propertyObserver() {
+        // With each property change we must be updated config and create the columns again. No extra checks are needed.
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
+        // Config for the grid toolbar
+        this.toolbarSetting = {
+            ...this._config,
+        };
+
+        this.toolbarConfig = {
+            toolId: this.toolId,
+            resource: "STUDIES",
+            columns: this._getDefaultColumns(),
+            create: {
+                display: {
+                    modalTitle: "Study Create",
+                    modalDraggable: true,
+                    modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
+                    // disabled: true,
+                    // disabledTooltip: "...",
+                },
+    //     <study-admin-create
+    //         .organization="${this.organization}"
+    //         .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+    //         .opencgaSession="${this.opencgaSession}"
+    //         @projectCreate="${e => this.renderRemoteTable(e)}">
+    //     </study-admin-create>
+                render: () => html `
+                    <study-create
+                        .project=${this.project}
+                        .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                        @projectCreate="${e => this.renderRemoteTable(e)}">
+                    </study-create>
+                `,
+            },
+        };
+
+        this.permissions = {
+            "organization": () => OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) || "disabled",
+            "study": () => OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+        };
+
+        this.modals = {
+            "edit-study": {
+                label: "Edit Study",
+                icon: "fas fa-edit",
+                modalId: `${this._prefix}UpdateStudyModal`,
+                render: () => this.renderStudyUpdate(),
+                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+            },
+            "delete": {
+                label: "Delete",
+                icon: "far fa-trash-alt ",
+                // modalId: `${this._prefix}DeleteModal`,
+                // render: () => this.renderModalPasswordReset(),
+                permission: "disabled",
+            },
+        };
+    }
+
+    // *** PRIVATE METHODS ***
+    renderRemoteTable() {
+        if (this.opencgaSession?.opencgaClient && this.project.id) {
+            this._columns = this._getDefaultColumns();
+            this.table = $("#" + this.gridId);
+            this.table.bootstrapTable("destroy");
+            this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
+                columns: this._columns,
+                method: "get",
+                sidePagination: "server",
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
+                uniqueId: "id",
+                // Table properties
+                pagination: this._config.pagination,
+                pageSize: this._config.pageSize,
+                pageList: this._config.pageList,
+                detailView: !!this.detailFormatter,
+                loadingTemplate: () => GridCommons.loadingFormatter(),
+                ajax: params => {
+                    let result = null;
+                    this.filters = {
+                        limit: params.data.limit,
+                        skip: params.data.offset || 0,
+                        count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                    };
+
+                    // Store the current filters
+                    this.opencgaSession.opencgaClient.projects()
+                        .studies(this.project.id, this.filters)
+                        .then(response => {
+                            result = response;
+                            debugger
+                            return response;
+                        })
+                        .then(() => {
+                            // Prepare data for columns extensions
+                            const rows = result.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
+                        .then(() => params.success(result))
+                        .catch(error => {
+                            debugger
+                            console.error(error);
+                            params.error(error);
+                        });
+                },
+                responseHandler: response => {
+                    const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                    return result.response;
+                },
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                // onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
+            });
+        }
+    }
+
+    _getDefaultColumns() {
+        debugger
+        this._columns = [
+            {
+                title: "Study ID",
+                field: "id",
+                visible: this.gridCommons.isColumnVisible("id")
+            },
+            {
+                title: "Name",
+                field: "name",
+                visible: this.gridCommons.isColumnVisible("name")
+            },
+            {
+                title: "Creation Date",
+                field: "creationDate",
+                formatter: CatalogGridFormatter.dateFormatter,
+                visible: this.gridCommons.isColumnVisible("creationDate")
+            },
+            {
+                title: "Modification Date",
+                field: "modificationDate",
+                formatter: CatalogGridFormatter.dateFormatter,
+                visible: this.gridCommons.isColumnVisible("modificationDate")
+            },
+            {
+                title: "Groups",
+                field: "groups",
+                formatter: (groups, study) => this.groupsFormatter(groups, study),
+                visible: this.gridCommons.isColumnVisible("modificationDate")
+            }
+        ];
+
+        if (this._config.annotations?.length > 0) {
+            this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
+        }
+
+        if (this.opencgaSession && this._config.showActions) {
+            this._columns.push({
+                id: "actions",
+                title: "Actions",
+                field: "actions",
+                formatter: () => `
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-toolbox" aria-hidden="true"></i>
+                            <span>Actions</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            ${
+                                Object.keys(this.modals).map(modalKey => {
+                                    const modal = this.modals[modalKey];
+                                    return `
+                                        <li>
+                                            <a data-action="${modalKey}" class="dropdown-item ${modal.permission["organization"]}">
+                                                <i class="${modal.icon}" aria-hidden="true"></i> ${modal.label}...
+                                            </a>
+                                        </li>
+                                    `;
+                                }).join("")
+                            }
+                        </ul>
+                    </div>
+                `,
+                events: {
+                    "click ul>li>a": (e, value, row) => this.onActionClick(e, value, row),
+                },
+            });
+        }
+
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+        return this._columns;
+    }
+    // *** FORMATTERS ***
+    groupsFormatter(groups, study) {
+        debugger
+        const groupsBadges = groups.map(group => `
+            <span class="badge" style="background-color: crimson">
+                <strong>${group.id} [${group.userIds.length}]</strong>
+            </span>
+        `).join("");
+        return `
+        <div class="">
+        ${groupsBadges}
+        </div>
+        `;
+    }
+
+    // *** EVENTS ***
+    async onActionClick(e, value, row) {
+        this.action = e.currentTarget.dataset.action;
+        this.userId = row.id;
+        this.requestUpdate();
+        await this.updateComplete;
+        ModalUtils.show(this.modals[this.action]["modalId"]);
+    }
+
+    onStudyUpdate(e, id) {
+        ModalUtils.close(id);
+        this.renderRemoteTable();
+    }
+
+    // *** RENDER METHODS ***
+    renderStudyUpdate() {
+        return ModalUtils.create(this, `${this._prefix}UpdateStudyModal`, {
+            display: {
+                modalTitle: `Update Study: `,
+                modalDraggable: true,
+                modalCyDataName: "modal-study-create",
+                modalSize: "modal-lg"
+            },
+            render: () => html`
+                <study-admin-update
+                    .study="${this.projectId}"
+                    .organization="${this.organization}"
+                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                    .opencgaSession="${this.opencgaSession}"
+                    @studyUpdate="${e => this.renderRemoteTable(e)}">
+                </study-admin-update>
+            `,
+        });
+    }
+
+    renderToolbar() {
+        if (this._config.showToolbar) {
+            return html `
+                <opencb-grid-toolbar
+                    .query="${this.filters}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .settings="${this.toolbarSetting}"
+                    .config="${this.toolbarConfig}"
+                    @studyCreate="${e => this.renderRemoteTable(e)}">
+                </opencb-grid-toolbar>
+            `;
+        }
+    }
+
+    render() {
+        return html`
+            <!-- 1. Render toolbar if enabled -->
+            ${this.renderToolbar()}
+            <!-- 2. Render grid -->
+            <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">
+                <table id="${this.gridId}"></table>
+            </div>
+            <!-- 3. On action click, render update modal -->
+            ${this.action ? this.modals[this.action]["render"](): nothing}
+        `;
+    }
+
+    // *** DEFAULT CONFIG ***
+    getDefaultConfig() {
+        return {
+            // Settings
+            pagination: true,
+            pageSize: 10,
+            pageList: [5, 10, 25],
+            pageInfoShort: true,
+            multiSelection: false,
+            showSelectCheckbox: false,
+
+            showToolbar: true,
+            showActions: true,
+
+            showCreate: true,
+            showExport: false,
+            showSettings: false,
+            exportTabs: ["download", "link", "code"],
+        };
+    }
+
+}
+
+customElements.define("study-admin-grid", StudyAdminGrid);
