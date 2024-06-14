@@ -217,9 +217,7 @@ export class JobMonitor extends LitElement {
                         ${
                             this.filteredJobs.length ? this.filteredJobs.map(job => html`
                                 <li>
-                                    <a href="javascript: void 0"
-                                       @click=${() => this.openJob(job.id)} class="job-monitor-item ${job.updated && !job._visited ?
-                                            `updated status-${job?.internal?.status?.id || job?.internal?.status?.name}` : ""}">
+                                    <a href="#job" class="job-monitor-item">
                                         <div class="media">
                                             <div class="media-left rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
                                                 <i class="fas fa-rocket"></i>
