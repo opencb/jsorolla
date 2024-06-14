@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
+import UtilsNew from "../../../core/utils-new";
 
 export default class GroupAdminCreate extends LitElement {
 
@@ -131,12 +132,16 @@ export default class GroupAdminCreate extends LitElement {
     }
 
     onSubmit() {
+        const params = {
+            includeResult: true,
+            action: "ADD",
+        };
         this.#setLoading(true);
         const groupPromises = this.group.listStudies
             .map(study => {
                 let error;
                 return this.opencgaSession.opencgaClient.studies()
-                    .updateGroups(study, {id: this.group.id}, {action: "ADD"})
+                    .updateGroups(study, {id: this.group.id}, params)
                     .then(() => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             title: `Group Create`,
@@ -149,8 +154,8 @@ export default class GroupAdminCreate extends LitElement {
                     })
                     .finally(() => {
                         LitUtils.dispatchCustomEvent(this, "groupCreate", {}, {
-                            id: this.group.id,
-                            study: study,
+                            group: this.group,
+                            studyFqn: study,
                         }, error);
                     });
             });
@@ -159,7 +164,8 @@ export default class GroupAdminCreate extends LitElement {
             .finally(() => {
                 this.#setLoading(false);
                 this.#initOriginalObjects();
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", {}, {}, null);
+                // CAUTION Vero: Why is not working sessionUpdateRequest
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", {});
             });
     }
 
@@ -183,7 +189,7 @@ export default class GroupAdminCreate extends LitElement {
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
-                    title: "General Information",
+                    // title: "General Information",
                     elements: [
                         {
                             title: "Group ID",

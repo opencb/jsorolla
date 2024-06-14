@@ -2018,7 +2018,7 @@ class IvaApp extends LitElement {
                         <organization-admin
                             .organizationId="${this.opencgaSession?.user?.organization}"
                             .opencgaSession="${this.opencgaSession}"
-                            @sessionUpdateRequest="${this.onSessionUpdateRequest}">
+                            @studyUpdateRequest="${this.onStudyUpdateRequest}">
                         </organization-admin>
                     </div>
                 ` : null}

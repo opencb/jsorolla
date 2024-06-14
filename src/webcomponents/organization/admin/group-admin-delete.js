@@ -58,7 +58,7 @@ export default class GroupAdminDelete extends LitElement {
             style: "margin: 10px",
             titleWidth: 3,
             defaultLayout: "horizontal",
-            buttonOkText: "I understand. Let's delete this group"
+            buttonOkText: "Delete",
         };
         this._config = this.getDefaultConfig();
     }
@@ -72,8 +72,9 @@ export default class GroupAdminDelete extends LitElement {
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {
                 ...this.displayConfigDefault,
-                ...this.displayConfig
+                ...this.displayConfig,
             };
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
@@ -95,11 +96,12 @@ export default class GroupAdminDelete extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "groupDelete", {}, {
-                    id: this.group.id,
-                    study: this.studyFqn,
-                }, error);
                 this.#setLoading(false);
+                LitUtils.dispatchCustomEvent(this, "groupDelete", {}, {
+                    group: this.group,
+                    studyFqn: this.studyFqn,
+                }, error);
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", {});
 
             });
     }
@@ -111,6 +113,7 @@ export default class GroupAdminDelete extends LitElement {
 
         return html`
             <data-form
+                .data="${this.group}"
                 .config="${this._config}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>`;
@@ -121,7 +124,7 @@ export default class GroupAdminDelete extends LitElement {
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
-                    title: "Do you really want to delete this group?",
+                    // title: `Are you sure you want to remove group '${this.group?.id}'?`,
                     elements: [
                         {
                             type: "notification",
@@ -129,14 +132,32 @@ export default class GroupAdminDelete extends LitElement {
                             display: {
                                 visible: true,
                                 icon: "fas fa-exclamation-triangle",
-                                notificationType: "error",
+                                notificationType: "warning",
                             },
                         },
                         {
+                            // name: "UserIds",
+                            field: "userIds",
                             type: "list",
                             display: {
-                                contentLayout: "vertical",
-                                getData: group => group.ids || ["This group does not have users"],
+                                separator: " ",
+                                contentLayout: "bullets",
+                                transform: userIds => userIds.map(userId => ({userId})),
+                                template: "${userId}",
+                                /* FIXME: why is not working?
+                                className: {
+                                    "userId": "badge badge-pill badge-primary",
+                                },
+                                 */
+                                // style: {
+                                //     "userId": {
+                                //         "color": "white",
+                                //         "background-color": "blue"
+                                //     },
+                                // }
+
+                                // contentLayout: "bullets",
+                                // getData: group => group.userIds || ["This group does not have users"],
                             },
                         },
                     ],

@@ -20,8 +20,9 @@ import UtilsNew from "../../../core/utils-new";
 import ModalUtils from "../../commons/modal/modal-utils";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter";
 import "./group-admin-create.js";
-import "./group-admin-update.js";
+import "./group-admin-permissions-update.js";
 import "./group-admin-delete.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
 
 export default class GroupAdminGrid extends LitElement {
 
@@ -64,13 +65,15 @@ export default class GroupAdminGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
+        this.action = "";
+        this.studyFqn = "";
     }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession") ||
             changedProperties.has("toolId") ||
-            changedProperties.has("config") ||
-            changedProperties.has("studies")) {
+            changedProperties.has("studies") ||
+            changedProperties.has("config")) {
             this.propertyObserver();
         }
         super.update(changedProperties);
@@ -106,8 +109,6 @@ export default class GroupAdminGrid extends LitElement {
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"
-                    // disabled: true,
-                    // disabledTooltip: "...",
                 },
                 render: () => {
                     return html `
@@ -120,13 +121,43 @@ export default class GroupAdminGrid extends LitElement {
                 }
             },
         };
+
+        this.permissions = {
+            "organization": () => OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) || "disabled",
+            "study": () => OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+        };
+
+        this.modals = {
+            /*
+            "edit-details": {
+                label: "Edit Details",
+                icon: "fas fa-edit",
+                modalId: `${this._prefix}UpdateDetailsModal`,
+                render: () => this.renderModalDetailsUpdate(),
+                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+            },
+             */
+            "edit-permissions": {
+                label: "Edit Permissions",
+                icon: "fas fa-edit",
+                modalId: `${this._prefix}UpdatePermissionsModal`,
+                render: () => this.renderModalPermissionsUpdate(),
+                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+            },
+            "delete": {
+                label: "Delete",
+                icon: "far fa-trash-alt ",
+                modalId: `${this._prefix}DeleteModal`,
+                render: () => this.renderModalDelete(),
+                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+            },
+        };
+
     }
 
     renderTable() {
         if (this.groups?.length > 0) {
             this.renderLocalTable();
-        } else {
-            this.renderRemoteTable();
         }
         this.requestUpdate();
     }
@@ -172,24 +203,6 @@ export default class GroupAdminGrid extends LitElement {
         });
     }
 
-    async onActionClick(e, value, row) {
-        const action = e.currentTarget.dataset.action;
-        this.group = row.group;
-        this.studyFqn = row.fqn;
-        this.requestUpdate();
-        await this.updateComplete;
-        switch (action) {
-            case "edit":
-                ModalUtils.show(`${this._prefix}UpdateModal`);
-                break;
-            case "delete":
-                ModalUtils.show(`${this._prefix}DeleteModal`);
-                break;
-            default:
-                break;
-        }
-    }
-
     _getDefaultColumns() {
         this._columns = [
             {
@@ -225,20 +238,30 @@ export default class GroupAdminGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
-                formatter: (value, row) => `
-                    <div id="actions" class="d-flex justify-content-around">
-                        <button data-action="delete" class="btn ${!row.isGroupProtected ? "btn-outline-danger" : "btn-outline-secondary disabled"}" style="border:0; border-radius: 50%">
-                            <i class="far fa-trash-alt"></i>
+                formatter: () => `
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-toolbox" aria-hidden="true"></i>
+                            <span>Actions</span>
                         </button>
-                        <button data-action="disable" class="btn  ${!row.isGroupProtected ? "btn-outline-warning" : "btn-outline-secondary disabled"}" style="border:0; border-radius: 50%">
-                            <i class="fas fa-ban"></i>
-                        </button>
-                        <button data-action="edit" class="btn btn-outline-success" style="border:0; border-radius: 50%">
-                            <i class="far fa-edit"></i>
-                        </button>
-                    </div>`,
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            ${
+                                Object.keys(this.modals).map(modalKey => {
+                                    const modal = this.modals[modalKey];
+                                    return `
+                                        <li>
+                                            <a data-action="${modalKey}" class="dropdown-item ${modal.permission["organization"]}">
+                                                <i class="${modal.icon}" aria-hidden="true"></i> ${modal.label}...
+                                            </a>
+                                        </li>
+                                    `;
+                                }).join("")
+                            }
+                        </ul>
+                    </div>
+                `,
                 events: {
-                    "click button": (e, value, row) => this.onActionClick(e, value, row),
+                    "click ul>li>a": (e, value, row) => this.onActionClick(e, value, row),
                 },
             });
         }
@@ -247,6 +270,63 @@ export default class GroupAdminGrid extends LitElement {
         return this._columns;
     }
 
+    // *** EVENTS ***
+    /*
+    async onActionClick(e, value, row) {
+        const action = e.currentTarget.dataset.action;
+        this.group = row.group;
+        this.studyFqn = row.fqn;
+        this.requestUpdate();
+        await this.updateComplete;
+        switch (action) {
+            case "edit":
+                ModalUtils.show(`${this._prefix}UpdateModal`);
+                break;
+            case "delete":
+                ModalUtils.show(`${this._prefix}DeleteModal`);
+                break;
+            default:
+                break;
+        }
+    }
+    */
+    async onActionClick(e, value, row) {
+        this.action = e.currentTarget.dataset.action;
+        this.group = row.group;
+        this.studyFqn = row.fqn;
+        this.requestUpdate();
+        await this.updateComplete;
+        ModalUtils.show(this.modals[this.action]["modalId"]);
+    }
+
+    onGroupEvent(e, id) {
+        this.studyFqn = e.detail.studyFqn;
+        ModalUtils.close(id);
+    }
+
+    // *** RENDER METHODS ***
+    renderModalPermissionsUpdate() {
+        return ModalUtils.create(this, `${this._prefix}UpdatePermissionsModal`, {
+            display: {
+                modalTitle: `Group Permissions Update: group ${this.group?.id} in study ${this.studyFqn}`,
+                modalDraggable: true,
+                modalCyDataName: "modal-update",
+                modalSize: "modal-lg"
+            },
+            render: active => html`
+                <group-admin-permissions-update
+                    .groupId="${this.group?.id}"
+                    .studyId="${this.studyId}"
+                    .active="${active}"
+                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                    .opencgaSession="${this.opencgaSession}"
+                    @groupUpdate="${e => this.onGroupEvent(e, `${this._prefix}UpdatePermissionsModal`)}">
+                </group-admin-permissions-update>
+            `,
+        });
+    }
+
+    /*
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
@@ -266,11 +346,13 @@ export default class GroupAdminGrid extends LitElement {
             `,
         });
     }
+    */
 
     renderModalDelete() {
         return ModalUtils.create(this, `${this._prefix}DeleteModal`, {
             display: {
-                modalTitle: `Group Delete: ${this.group?.id} in study ${this.studyFqn}`,
+                // modalTitle: `Group Delete: ${this.group?.id} in study ${this.studyFqn}`,
+                modalTitle: `Are you sure you want to remove group '${this.group?.id}' in study '${this.studyFqn}'?`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"
@@ -280,8 +362,9 @@ export default class GroupAdminGrid extends LitElement {
                 .group="${this.group}"
                 .studyFqn="${this.studyFqn}"
                 .active="${active}"
-                .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                .opencgaSession="${this.opencgaSession}">
+                .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
+                .opencgaSession="${this.opencgaSession}"
+                @groupDelete="${e => this.onGroupEvent(e, `${this._prefix}DeleteModal`)}">
             </group-admin-delete>
         `,
         });
@@ -289,14 +372,12 @@ export default class GroupAdminGrid extends LitElement {
 
     renderToolbar() {
         if (this._config.showToolbar) {
+        // @groupCreate="${e => this.onGroupEvent(e, `${this._prefix}Modal`)}"
             return html `
                 <opencb-grid-toolbar
-                    .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
-                    .config="${this.toolbarConfig}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @groupCreate="${() => this.renderTable()}">
+                    .config="${this.toolbarConfig}">
                 </opencb-grid-toolbar>
             `;
         }
@@ -310,10 +391,8 @@ export default class GroupAdminGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">
                 <table id="${this.gridId}"></table>
             </div>
-            <!-- 3. Render delete -->
-            ${this.renderModalDelete()}
-            <!-- 4. Render update -->
-            ${this.renderModalUpdate()}
+            <!-- 3. On action click, render update modal -->
+            ${this.action ? this.modals[this.action]["render"](): nothing}
         `;
     }
 
