@@ -135,7 +135,7 @@ export default class ClinicalInterpretationManager extends LitElement {
             html`<i class="fas fa-lock"></i> Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`:
             html`Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`;
 
-        const editInterpretationTitle = `Edit interpretation #${interpretation.id.split(".")[1]}: ${interpretation.id}`;
+        const editInterpretationTitle = `Edit Interpretation #${interpretation.id.split(".")[1]}: ${interpretation.id}`;
 
         return html`
             <div class="d-flex pb-1">
