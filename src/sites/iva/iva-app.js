@@ -810,40 +810,6 @@ class IvaApp extends LitElement {
         // this.hashFragmentListener();
     }
 
-    // renderHashFragments(tool) {
-    //     console.log(`Update hash fragment URL with tool: '${tool ? `#${tool}` : this.tool}'`);
-    //
-    //     // Keep global 'tool' param updated.
-    //     if (tool && this.tool !== `#${tool}`) {
-    //         this.tool = `#${tool}`;
-    //     }
-    //
-    //     // Build hash fragment URL as: #tool/projectId/studyId
-    //     let newHashFragmentUrl = tool ? `#${tool}` : this.tool;
-    //     if (this.opencgaSession?.project) {
-    //         newHashFragmentUrl += "/" + this.opencgaSession.project.id;
-    //         if (this.opencgaSession.study) {
-    //             newHashFragmentUrl += "/" + this.opencgaSession.study.id;
-    //         }
-    //     }
-    //
-    //     if (window.location.hash === newHashFragmentUrl) { // || newHashFragmentUrl === "#interpreter"
-    //         this.hashFragmentListener();
-    //     } else {
-    //         window.location.hash = newHashFragmentUrl;
-    //     }
-    // }
-
-    route(e) {
-        this.tool = e.detail.hash;
-        if (e.detail?.resource) {
-            this.queries = {...this.queries, [e.detail.resource]: e.detail?.query};
-        }
-        // this.renderHashFragments();
-        this.hashFragmentListener();
-    }
-
-
     hashFragmentListener() {
         console.log("hashFragmentListener - Hide all enabled elements");
 
