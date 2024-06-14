@@ -20,7 +20,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils";
 import NotificationUtils from "../../commons/utils/notification-utils";
 
-export default class GroupAdminUpdate extends LitElement {
+export default class GroupAdminPermissionsUpdate extends LitElement {
 
     constructor() {
         super();
@@ -208,7 +208,10 @@ export default class GroupAdminUpdate extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "updateGroup", this.group, {}, error);
+                LitUtils.dispatchCustomEvent(this, "groupUpdate", {
+                    group: this.group,
+                    studyFqn: this.studyFqn,
+                }, error);
                 this.#setLoading(false);
             });
     }
@@ -235,6 +238,7 @@ export default class GroupAdminUpdate extends LitElement {
             },
             display: this.displayConfig,
             sections: [
+                /*
                 {
                     title: "Details",
                     elements: [
@@ -250,8 +254,12 @@ export default class GroupAdminUpdate extends LitElement {
                         },
                     ],
                 },
+                 */
                 {
                     title: "Permissions",
+                    display: {
+                        titleVisible: false,
+                    },
                     elements: [
                         {
                             title: "Templates",
@@ -267,6 +275,7 @@ export default class GroupAdminUpdate extends LitElement {
                         // },
                     ],
                 },
+                /*
                 {
                     title: "Users",
                     elements: [
@@ -286,9 +295,9 @@ export default class GroupAdminUpdate extends LitElement {
                                         };
                                         return html`
                                             <user-admin-grid
-                                                    .studyId="${this.studyId}"
-                                                    .users="${this.users}"
-                                                    .opencgaSession="${this.opencgaSession}">
+                                                .studyId="${this.studyId}"
+                                                .users="${this.users}"
+                                                .opencgaSession="${this.opencgaSession}">
                                             </user-admin-grid>
                                         `;
                                     }
@@ -297,10 +306,11 @@ export default class GroupAdminUpdate extends LitElement {
                         }
                     ],
                 },
+                */
             ],
         };
     }
 
 }
 
-customElements.define("group-admin-update", GroupAdminUpdate);
+customElements.define("group-admin-permissions-update", GroupAdminPermissionsUpdate);
