@@ -1324,15 +1324,6 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents.login ? html`
-                    <div class="content" id="login">
-                        <user-login
-                            .opencgaSession="${this.opencgaSession}"
-                            @login="${this.onLogin}">
-                        </user-login>
-                    </div>
-                ` : null}
-
                 ${this.config.enabledComponents["variant-browser"] ? html`
                     <div class="content" id="variant-browser">
                         <variant-browser
