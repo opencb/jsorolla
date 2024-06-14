@@ -169,13 +169,6 @@ export class JobMonitor extends LitElement {
         this.dropdown = !this.dropdown;
     }
 
-    getDefaultConfig() {
-        return {
-            limit: 10,
-            interval: 30000
-        };
-    }
-
     render() {
         return html`
             <ul id="job-monitor" class="nav navbar-nav notification-nav">
@@ -220,6 +213,13 @@ export class JobMonitor extends LitElement {
                 </li>
             </ul>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            limit: 10,
+            interval: 30000
+        };
     }
 
 }
