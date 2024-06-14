@@ -184,7 +184,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                     title: "General Information",
                     elements: [
                         {
-                            title: "Case Id",
+                            title: "Interpretation Id",
                             field: "id",
                             type: "input-text",
                             defaultValue: this.clinicalAnalysis?.id,
