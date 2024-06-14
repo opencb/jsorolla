@@ -64,7 +64,10 @@ export class JobMonitor extends LitElement {
             this.launchMonitor();
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
             this.launchMonitor();
         }
     }
@@ -185,30 +188,31 @@ export class JobMonitor extends LitElement {
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple">ALL</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="PENDING,QUEUED,RUNNING">Running</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
-                            <button @click="${this.forceRefresh}" class="btn btn-small btn-default ripple pull-right" title="Force immediate refresh" id="#refresh-job"><i class="fas fa-sync-alt"></i></button>
+                            <button @click="${this.forceRefresh}" class="btn btn-small btn-default ripple pull-right" title="Force immediate refresh" id="#refresh-job">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
                         </li>
-                        ${
-                            this.filteredJobs.length ? this.filteredJobs.map(job => html`
-                                <li>
-                                    <a href="#job" class="job-monitor-item">
-                                        <div class="media">
-                                            <div class="media-left rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
-                                                <i class="fas fa-rocket"></i>
-                                            </div>
-                                            <div class="media-body">
-                                                <h4 class="media-heading">${job.id}</h4>
-                                                <small>${job.tool.id}</small> |
-                                                <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
-                                                <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</p>
-                                            </div>
+                        ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
+                            <li>
+                                <a href="#job" class="job-monitor-item">
+                                    <div class="media">
+                                        <div class="media-left rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
+                                            <i class="fas fa-rocket"></i>
                                         </div>
-                                     </a>
-                                </li>
-                            `) : html`
-                                    <li>
-                                        <a> No jobs </a>
-                                    </li>`
-                        }
+                                        <div class="media-body">
+                                            <h4 class="media-heading">${job.id}</h4>
+                                            <small>${job.tool.id}</small> |
+                                            <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
+                                            <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</p>
+                                        </div>
+                                    </div>
+                                 </a>
+                            </li>
+                        `) : html`
+                            <li>
+                                <a>No jobs</a>
+                            </li>
+                        `}
                     </ul>
                 </li>
             </ul>
