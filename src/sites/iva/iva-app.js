@@ -22,10 +22,8 @@ import {html, LitElement, nothing} from "lit";
 import "./getting-started.js";
 import "./iva-settings.js";
 
-// @dev[jsorolla]
 import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
-import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
@@ -38,7 +36,6 @@ import "../../webcomponents/variant/variant-beacon.js";
 import "../../webcomponents/opencga/opencga-gene-view.js";
 import "../../webcomponents/opencga/opencga-transcript-view.js";
 import "../../webcomponents/opencga/opencga-protein-view.js";
-// import "../../webcomponents/user/opencga-projects.js";
 import "../../webcomponents/sample/sample-browser.js";
 import "../../webcomponents/sample/sample-view.js";
 import "../../webcomponents/sample/sample-variant-stats-browser.js";
@@ -47,7 +44,6 @@ import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/disease-panel/disease-panel-browser.js";
 import "../../webcomponents/disease-panel/disease-panel-update.js";
 import "../../webcomponents/file/file-browser.js";
-// import "../../webcomponents/file/file-update.js";
 import "../../webcomponents/family/family-browser.js";
 import "../../webcomponents/family/family-update.js";
 import "../../webcomponents/individual/individual-browser.js";
@@ -86,9 +82,7 @@ import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/study/admin/study-admin-iva.js";
 import "../../webcomponents/study/admin/catalog-admin.js";
 import "../../webcomponents/study/admin/variant/study-variant-admin.js";
-import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/user/user-profile.js";
-// import "../../webcomponents/user/user-password-reset.js";
 import "../../webcomponents/api/rest-api.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
@@ -157,7 +151,6 @@ class IvaApp extends LitElement {
         const components = [
             "home",
             "gettingstarted",
-            "login",
             "aboutzetta",
             // "reset-password",
             "settings",
