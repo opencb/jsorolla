@@ -206,13 +206,11 @@ export class JobMonitor extends LitElement {
                         <span class="badge badge-pill badge-primary ${this.updatedCnt > 0 ? "" : "invisible"}">${this.updatedCnt}</span>
                     </a>
                     <ul class="dropdown-menu">
-                        <!-- <li class="info">Jobs done since your last access /*moment(this.opencgaSession.user.configs.IVA.lastAccess).format("DD-MM-YYYY HH:mm:ss") */</li> -->
                         <li class="info">
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple">ALL</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="PENDING,QUEUED,RUNNING">Running</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
                             <button @click="${this.forceRefresh}" class="btn btn-small btn-default ripple pull-right" title="Force immediate refresh" id="#refresh-job"><i class="fas fa-sync-alt"></i></button>
-
                         </li>
                         ${
                             this.filteredJobs.length ? this.filteredJobs.map(job => html`
@@ -223,7 +221,6 @@ export class JobMonitor extends LitElement {
                                                 <i class="fas fa-rocket"></i>
                                             </div>
                                             <div class="media-body">
-                                                ${job.updated && !job._visited ? html`<span class="badge">NEW</span>` : ""}
                                                 <h4 class="media-heading">${job.id}</h4>
                                                 <small>${job.tool.id}</small> |
                                                 <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
