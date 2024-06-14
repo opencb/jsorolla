@@ -357,7 +357,9 @@ export default class VariantBrowserFilter extends LitElement {
                     const multiStudySelected = this.preparedQuery?.study?.split(/[,;]/)?.length > 1;
                     content = html`
                         ${multiStudySelected ? html`
-                            <div class="alert alert-warning" role="alert">You cannot select samples with more than one study</div>
+                            <div class="alert alert-warning" role="alert">
+                                You cannot select samples if more than one study has been selected in <b>Study Filter</b>.
+                            </div>
                         ` : nothing}
                         <catalog-search-autocomplete
                             title="${multiStudySelected ? "You cannot select samples with more than one study" : ""}"
