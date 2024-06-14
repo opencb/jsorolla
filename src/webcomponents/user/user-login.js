@@ -139,7 +139,6 @@ export default class UserLogin extends LitElement {
                         </button>
                     </div>
                 </div>
-                ${this.renderResetPasswordLink()}
             </div>
         `;
     }
