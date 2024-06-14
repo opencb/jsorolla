@@ -428,11 +428,10 @@ export default class UserAdminGrid extends LitElement {
         if (this._config.showToolbar) {
             return html `
                 <opencb-grid-toolbar
-                    .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
-                    @userUpdate="${e => this.renderRemoteTable(e)}">
+                    @userCreate="${e => this.renderRemoteTable(e)}">
                 </opencb-grid-toolbar>
             `;
         }
