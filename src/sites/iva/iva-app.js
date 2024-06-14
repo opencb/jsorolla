@@ -1249,8 +1249,7 @@ class IvaApp extends LitElement {
                 <custom-landing
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.config}"
-                    @login="${this.onLogin}"
-                    @redirect="${this.route}">
+                    @login="${this.onLogin}">
                 </custom-landing>
             `;
         }
@@ -1304,8 +1303,7 @@ class IvaApp extends LitElement {
                 @changeTool="${e => this.changeTool(e.detail.value)}"
                 @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
                 @studySelect="${ e => this.onStudySelect(e.detail.event, e.detail.study)}"
-                @jobSelected="${e => this.onJobSelected(e)}"
-                @route="${this.route}">
+                @jobSelected="${e => this.onJobSelected(e)}">
             </custom-navbar>
 
             ${ this.isCreatingSession ? html `
@@ -1371,8 +1369,7 @@ class IvaApp extends LitElement {
                     <div class="content" id="login">
                         <user-login
                             .opencgaSession="${this.opencgaSession}"
-                            @login="${this.onLogin}"
-                            @redirect="${this.route}">
+                            @login="${this.onLogin}">
                         </user-login>
                     </div>
                 ` : null}
