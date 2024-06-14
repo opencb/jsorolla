@@ -334,8 +334,15 @@ export default class StudyAdminUsers extends LitElement {
             console.log("User already exists in the study");
             return;
         }
+        const params = {
+            study: this.study.fqn,
+            template: "",
+            permissions: "",
+        };
 
-        this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members", {users: [this.addUserId]}, {action: "ADD"})
+        this.opencgaSession.opencgaClient.studies()
+            //.updateUsers(this.study.fqn, "@members", {users: [this.addUserId]}, {action: "ADD"})
+            .updateAcl(this.addUserId, {action: "ADD"}, params)
             .then(res => {
                 this.addUserId = "";
                 this.requestUpdate();
