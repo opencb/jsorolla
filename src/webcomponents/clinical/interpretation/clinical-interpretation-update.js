@@ -177,6 +177,11 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                             }
                         },
                         {
+                            title: "Locked",
+                            type: "toggle-switch",
+                            field: "locked",
+                        },
+                        {
                             title: "Disease Panels",
                             field: "panels",
                             type: "custom",
