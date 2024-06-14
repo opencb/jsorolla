@@ -160,24 +160,6 @@ export class JobMonitor extends LitElement {
         this.requestUpdate();
     }
 
-    openJob(jobId) {
-        // -> e.stopPropagation();
-        const job = this.jobs.find(job => job.id === jobId);
-        job._visited = true;
-        this.jobs = [...this.jobs];
-        this.requestUpdate();
-
-        this.dispatchEvent(new CustomEvent("route", {
-            detail: {
-                hash: "#job",
-                resource: "job",
-                query: {id: jobId}
-            },
-            bubbles: true, // this is necessary as the event is handled in iva-app
-            composed: true
-        }));
-    }
-
     forceRefresh(e) {
         e.stopPropagation();
         this.fetchLastJobs();
