@@ -50,11 +50,11 @@ export default class GroupAdminGrid extends LitElement {
             studies: {
                 type: Object,
             },
-            active: {
-                type: Boolean,
-            },
             config: {
                 type: Object,
+            },
+            active: {
+                type: Boolean,
             },
         };
     }
@@ -71,6 +71,7 @@ export default class GroupAdminGrid extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession") ||
+            changedProperties.has("groups") ||
             changedProperties.has("toolId") ||
             changedProperties.has("studies") ||
             changedProperties.has("config")) {
@@ -91,7 +92,7 @@ export default class GroupAdminGrid extends LitElement {
             ...this.getDefaultConfig(),
             ...this.config,
         };
-
+debugger
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Config for the grid toolbar
@@ -139,14 +140,21 @@ export default class GroupAdminGrid extends LitElement {
              */
             "edit-permissions": {
                 label: "Edit Permissions",
-                icon: "fas fa-edit",
+                icon: "far fa-edit",
+                color: "text-success",
                 modalId: `${this._prefix}UpdatePermissionsModal`,
                 render: () => this.renderModalPermissionsUpdate(),
                 permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+                divider: true,
+            },
+            "divider": {
+                isDivider: true,
+                divider: `<li><hr class="dropdown-divider"></li>`,
             },
             "delete": {
                 label: "Delete",
                 icon: "far fa-trash-alt ",
+                color: "text-danger",
                 modalId: `${this._prefix}DeleteModal`,
                 render: () => this.renderModalDelete(),
                 permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
@@ -207,7 +215,7 @@ export default class GroupAdminGrid extends LitElement {
         this._columns = [
             {
                 title: "Group ID",
-                field: "group.id",
+                field: "id",
                 visible: this.gridCommons.isColumnVisible("group.id")
             },
             {
@@ -221,11 +229,14 @@ export default class GroupAdminGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("projectId")
             },
             {
-                title: "Creation Date",
-                field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
-                sortable: true,
-                visible: this.gridCommons.isColumnVisible("creationDate")
+                title: "No.Users",
+                field: "users",
+                formatter: (value, row) => this.groupNoUsersFormatter(value, row),
+            },
+            {
+                title: "Users IDs",
+                field: "users",
+                formatter: (value, row) => this.groupUsersFormatter(value, row),
             },
         ];
 
@@ -241,17 +252,22 @@ export default class GroupAdminGrid extends LitElement {
                 formatter: () => `
                     <div class="dropdown">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-toolbox" aria-hidden="true"></i>
+                            <i class="fas fa-toolbox me-2" aria-hidden="true"></i>
                             <span>Actions</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             ${
                                 Object.keys(this.modals).map(modalKey => {
                                     const modal = this.modals[modalKey];
-                                    return `
+                                    return modal.isDivider ? modal.divider : `
                                         <li>
-                                            <a data-action="${modalKey}" class="dropdown-item ${modal.permission["organization"]}">
-                                                <i class="${modal.icon}" aria-hidden="true"></i> ${modal.label}...
+                                            <a data-action="${modalKey}"
+                                            class="dropdown-item ${!modal.permission["study"]}"
+                                            style="cursor:pointer;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-2"><i class="${modal.icon} ${modal.color}" aria-hidden="true"></i></div>
+                                                    <div class="me-4">${modal.label}...</div>
+                                                </div>
                                             </a>
                                         </li>
                                     `;
@@ -268,6 +284,18 @@ export default class GroupAdminGrid extends LitElement {
 
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
+    }
+
+    groupNoUsersFormatter(value) {
+        return `
+            <span>${value.length}</span>
+        `;
+    }
+
+    groupUsersFormatter(value) {
+        return value.map(user => `
+            <span>${user.id}</span>
+        `);
     }
 
     // *** EVENTS ***
@@ -308,7 +336,7 @@ export default class GroupAdminGrid extends LitElement {
     renderModalPermissionsUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdatePermissionsModal`, {
             display: {
-                modalTitle: `Group Permissions Update: group ${this.group?.id} in study ${this.studyFqn}`,
+                modalTitle: `Permissions Update: Group ${this.group?.id} in Study ${this.studyFqn}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"
@@ -316,7 +344,6 @@ export default class GroupAdminGrid extends LitElement {
             render: active => html`
                 <group-admin-permissions-update
                     .groupId="${this.group?.id}"
-                    .studyId="${this.studyId}"
                     .active="${active}"
                     .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                     .opencgaSession="${this.opencgaSession}"
