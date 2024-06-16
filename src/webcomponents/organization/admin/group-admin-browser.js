@@ -72,8 +72,8 @@ export default class GroupAdminBrowser extends LitElement {
     #init() {
         this.COMPONENT_ID = "groups-admin-browser";
         this._groups = [];
-        this._study = {};
         this._studies = [];
+        this._study = {};
         this._config = this.getDefaultConfig();
         this.isLoading = false;
     }
@@ -83,40 +83,55 @@ export default class GroupAdminBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    #prepareGroups(groups) {
-        const study = this.opencgaSession.study;
-        const project = this.opencgaSession.project;
+    #prepareGroups(groups, project, study) {
+        /*
+        if (this.study) {
+            this._groups = [];
+            this._studies = [this.opencgaSession.study];
+            this.study.groups?.forEach(group => {
+                const newGroup = {
+                    studyId: this.study.id,
+                    fqn: this.study.fqn,
+                    group: group,
+                    isGroupProtected: !!(group.id === "@admins" || group.id === "@members"),
+                };
+                this._groups.push(newGroup);
+            });
+        }
+        */
+        // Get all study groups
+        const p = project || this.opencgaSession.project;
+        const s = study || this.opencgaSession.study;
 
         this._studies.push({
-            projectId: project.id,
-            fqn: study.fqn,
-            name: study.alias,
+            projectId: p.id,
+            fqn: s.fqn,
+            name: s.alias,
         });
         this._groups = groups.map(group => ({
             ...group,
-            fqn: study.fqn,
-            studyId: study.id,
-            projectId: project.id
+            fqn: s.fqn,
+            studyId: s.id,
+            projectId: p.id,
+            isProtected: !!(group.id === "@admins" || group.id === "@members"),
         }));
-
-
     }
 
     /* -----------------------------------------------------------------------------------------------------------------
     LIT LIFE-CYCLE
     ----------------------------------------------------------------------------------------------------------------- */
     update(changedProperties) {
-        if (changedProperties.has("organization")) {
-            this.organizationObserver();
-        }
         if (changedProperties.has("organizationId")) {
             this.organizationIdObserver();
         }
-        if (changedProperties.has("study")) {
-            this.studyObserver();
+        if (changedProperties.has("organization")) {
+            this.organizationObserver();
         }
         if (changedProperties.has("studyId")) {
             this.studyIdObserver();
+        }
+        if (changedProperties.has("study")) {
+            this.studyObserver();
         }
         if (changedProperties.has("settings")) {
             this.settingsObserver();
@@ -129,27 +144,15 @@ export default class GroupAdminBrowser extends LitElement {
     ----------------------------------------------------------------------------------------------------------------- */
     organizationObserver() {
         // Get all organization groups
-        this._groups = [];
-        this._studies = [];
-        this.organization?.projects?.forEach(project => {
-            project.studies?.forEach(study => {
-                this._studies.push({
-                    projectId: project.id,
-                    fqn: study.fqn,
-                    name: study.alias,
-                });
-                study.groups?.forEach(group => {
-                    const newGroup = {
-                        projectId: project.id,
-                        studyId: study.id,
-                        fqn: study.fqn,
-                        group: group,
-                        isGroupProtected: !!(group.id === "@admins" || group.id === "@members"),
-                    };
-                    this._groups.push(newGroup);
+        if (this.organization) {
+            this._groups = [];
+            this._studies = [];
+            this.organization?.projects?.forEach(project => {
+                project.studies?.forEach(study => {
+                    this.#prepareGroups(study.groups, project, study);
                 });
             });
-        });
+        }
     }
 
     organizationIdObserver() {
@@ -168,7 +171,7 @@ export default class GroupAdminBrowser extends LitElement {
                 })
                 .finally(() => {
                     this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "organizationChange", this.organization, {}, error);
+                    LitUtils.dispatchCustomEvent(this, "organizationInfo", this.organization, {}, error);
                     this.#setLoading(false);
                 });
 
@@ -176,22 +179,6 @@ export default class GroupAdminBrowser extends LitElement {
     }
 
     studyObserver() {
-        /*
-        if (this.study) {
-            this._groups = [];
-            this._studies = [this.opencgaSession.study];
-            this.study.groups?.forEach(group => {
-                const newGroup = {
-                    studyId: this.study.id,
-                    fqn: this.study.fqn,
-                    group: group,
-                    isGroupProtected: !!(group.id === "@admins" || group.id === "@members"),
-                };
-                this._groups.push(newGroup);
-            });
-        }
-        // Get all study groups
-         */
         if (this.study) {
             let error;
             this.#setLoading(true);
@@ -202,7 +189,6 @@ export default class GroupAdminBrowser extends LitElement {
                     this.#prepareGroups(groups);
                 })
                 .catch(reason => {
-                    this.study = {};
                     error = reason;
                     console.error(reason);
                 })

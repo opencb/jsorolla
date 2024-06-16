@@ -144,7 +144,7 @@ debugger
                 color: "text-success",
                 modalId: `${this._prefix}UpdatePermissionsModal`,
                 render: () => this.renderModalPermissionsUpdate(),
-                permission: this.permissions["study"],
+                permission: this.permissions["study"](),
                 divider: true,
             },
             "delete": {
@@ -153,7 +153,7 @@ debugger
                 color: "text-danger",
                 modalId: `${this._prefix}DeleteModal`,
                 render: () => this.renderModalDelete(),
-                permission: this.permissions["study"],
+                permission: this.permissions["study"](),
             },
         };
 
@@ -212,7 +212,8 @@ debugger
             {
                 title: "Group ID",
                 field: "id",
-                visible: this.gridCommons.isColumnVisible("group.id")
+                visible: this.gridCommons.isColumnVisible("group.id"),
+                formatter: (value, row) => this.groupIdFormatter(value, row),
             },
             {
                 title: "Study ID",
@@ -245,17 +246,21 @@ debugger
                 id: "actions",
                 title: "Actions",
                 field: "actions",
-                formatter: () => `
+                formatter: (value, row) => `
                     <div class="dropdown">
-                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-toolbox me-2" aria-hidden="true"></i>
-                            <span>Actions</span>
+                        <button class="btn btn-light btn-sm dropdown-toggle ${row.isProtected ? "disabled" : ""}" type="button" data-bs-toggle="dropdown">
+                           ${row.isProtected ? `
+                                <span class="me-2"><i class="fas fa-lock"></i></span>
+                            ` : `
+                                <i class="fas fa-toolbox me-2" aria-hidden="true"></i>
+                            `}
+                            <span class="me-4">Actions</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             ${
                                 Object.keys(this.modals).map(modalKey => {
                                     const modal = this.modals[modalKey];
-                                    return modal.isDivider ? modal.divider : `
+                                    return `
                                         <li>
                                             <a data-action="${modalKey}"
                                             class="dropdown-item ${modal.permission}"
@@ -266,6 +271,7 @@ debugger
                                                 </div>
                                             </a>
                                         </li>
+                                        ${modal.divider ? `<li><hr class="dropdown-divider"></li>` : ""}
                                     `;
                                 }).join("")
                             }
@@ -282,6 +288,17 @@ debugger
         return this._columns;
     }
 
+    groupIdFormatter(value, row) {
+        return row.isProtected ? `
+            <div class="d-flex flex-column">
+                <span class="mt-md-2">${value}</span>
+                <span class="d-block text-secondary">PROTECTED GROUP</span>
+            </div>
+        ` : `
+           <strong class="mt-md-2">${value}</strong>
+        `;
+    }
+
     groupNoUsersFormatter(value) {
         return `
             <span>${value.length}</span>
@@ -295,28 +312,10 @@ debugger
     }
 
     // *** EVENTS ***
-    /*
-    async onActionClick(e, value, row) {
-        const action = e.currentTarget.dataset.action;
-        this.group = row.group;
-        this.studyFqn = row.fqn;
-        this.requestUpdate();
-        await this.updateComplete;
-        switch (action) {
-            case "edit":
-                ModalUtils.show(`${this._prefix}UpdateModal`);
-                break;
-            case "delete":
-                ModalUtils.show(`${this._prefix}DeleteModal`);
-                break;
-            default:
-                break;
-        }
-    }
-    */
     async onActionClick(e, value, row) {
         this.action = e.currentTarget.dataset.action;
         this.groupId = row.id;
+        this.group = this.groups.filter(g=> g.id === this.groupId);
         this.studyFqn = row.fqn;
         this.requestUpdate();
         await this.updateComplete;
@@ -340,7 +339,7 @@ debugger
             render: active => html`
                 <group-admin-permissions-update
                     .groupId="${this.groupId}"
-                    .studyId="${this.studyFqn}"
+                    .studyFqn="${this.studyFqn}"
                     .active="${active}"
                     .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                     .opencgaSession="${this.opencgaSession}"
@@ -376,7 +375,7 @@ debugger
         return ModalUtils.create(this, `${this._prefix}DeleteModal`, {
             display: {
                 // modalTitle: `Group Delete: ${this.group?.id} in study ${this.studyFqn}`,
-                modalTitle: `Are you sure you want to remove group '${this.group?.id}' in study '${this.studyFqn}'?`,
+                modalTitle: `Are you sure you want to remove group '${this.groupId}' in study '${this.studyFqn}'?`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"
