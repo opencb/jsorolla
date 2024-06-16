@@ -206,6 +206,7 @@ export default class ProjectAdminBrowser extends LitElement {
                 <study-admin-grid
                     .toolId="${this.COMPONENT_ID}"
                     .project="${project}"
+                    .organization="${this.organization}"
                     .opencgaSession="${this.opencgaSession}"
                     .active="${true}">
                 </study-admin-grid>
