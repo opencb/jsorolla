@@ -41,9 +41,6 @@ export default class UserAdminBrowser extends LitElement {
             study: {
                 type: Object,
             },
-            organizationId: {
-                type: String,
-            },
             organization: {
                 type: Object,
             },
@@ -67,61 +64,6 @@ export default class UserAdminBrowser extends LitElement {
     #setLoading(value) {
         this.isLoading = value;
         this.requestUpdate();
-    }
-
-    #getUsers(isSingleStudy) {
-        // FIXME: Big refactor when BUG 2 fixed.
-        if (isSingleStudy) {
-            // TODO
-        } else {
-            // FIXME 20240321 Vero:
-            //  *********************************************************************************
-            //  [ BUG 1 ]
-            //  The method info from the ws Organizations is returning an empty array of projects.
-            //  The following bug has been created:
-            //       https://app.clickup.com/t/36631768/TASK-5923.
-            //  Meanwhile, I use the list of projects from opencgaSession.
-            //  *********************************************************************************
-            //  [ BUG 2 ]
-            //  The list of organization users:
-            //      - Should use the endpoint: admin/users/search
-            //        but not allowed for owner/admin organization user.
-            //      - For listing in the user-grid a new user that still hasn't joined a group in study,
-            //        we temporarily retrieve the users in study groups and fake a new user created.
-            //  *********************************************************************************
-            // TODO: to remove and to use enpoint admin/users/search when [ BUG 2 ] fixed
-            const users = this.opencgaSession?.projects
-                .map(project => project.studies).flat()
-                .map(study => study.groups).flat()
-                .map(group => group.userIds).flat()
-                .filter(user => user !=="opencga");
-            // Unique users
-            this.allUsersIds = UtilsNew.sort([...new Set(users)]);
-
-            let error;
-            this.#setLoading(true);
-            const params = {
-                organization: this.organization.id,
-            };
-            // TODO: not needed when [ BUG 2 ] fixed
-            // this.opencgaSession.opencgaClient.admin()
-            //     .searchUsers({organization: "test", limit: 25})
-            this.opencgaSession.opencgaClient.users()
-                .info(this.allUsersIds.join(","), params)
-                .then(response => {
-                    // this.users = UtilsNew.objectClone(response.responses[0]?.results);
-                    // TODO: To remove when [ BUG 2 ] fixed
-                    this.users.push(...UtilsNew.objectClone(response.responses[0]?.results));
-                })
-                .catch(reason => {
-                    error = reason;
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-                })
-                .finally(() => {
-                    LitUtils.dispatchCustomEvent(this, "usersInfo", this.component, {}, error);
-                    this.#setLoading(false);
-                });
-        }
     }
 
     update(changedProperties) {
@@ -159,29 +101,6 @@ export default class UserAdminBrowser extends LitElement {
                 });
         } else {
             this._study = {};
-        }
-    }
-
-    organizationIdObserver() {
-        if (this.organizationId && this.opencgaSession) {
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.organization()
-                .info(this.organizationId)
-                .then(response => {
-                    this.organization = UtilsNew.objectClone(response.responses[0].results[0]);
-                })
-                .catch(reason => {
-                    this.organization = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "organizationChange", this.organization, {}, error);
-                    this.#setLoading(false);
-                });
-
         }
     }
 
