@@ -99,9 +99,11 @@ export default class StudyAdminUsers extends LitElement {
 
     studyObserver() {
         if (this.study) {
+            // FIXME!!!!!: admin/owner organization. Ask Pedro again
             this.owner = this.study.fqn.split("@")[0];
             this.groupsMap = new Map();
-            this.opencgaSession.opencgaClient.studies().groups(this.study.fqn)
+            this.opencgaSession.opencgaClient.studies()
+                .groups(this.study.fqn)
                 .then(response => {
                     const groups = response.responses[0].results;
                     // Remove in OpenCGA 2.1
@@ -158,12 +160,25 @@ export default class StudyAdminUsers extends LitElement {
 
     groupFormatter(value, row) {
         // const isOwner = this.field.owner === this.field.loggedUser;
+        // FIXME!!: admin/owner organization or/and admin study. Check with Pedro again
         const isOwner = OpencgaCatalogUtils.checkUserAccountView(this.field.owner, this.field.loggedUser);
         const checked = this.field.groupsMap?.get(this.field.groupId).findIndex(e => e.id === row.id) !== -1;
         if (this.field.groupId === "@admins") {
-            return `<input type="checkbox" ${checked ? "checked" : ""} ${!isOwner ? "disabled" : ""}>`;
+            // return `<input type="checkbox" ${checked ? "checked" : ""} ${!isOwner ? "disabled" : ""}>`;
+            return `
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="${checked ? "flexSwitchCheckChecked" : "flexSwitchCheckDefault"}" ${checked ? "checked" : ""} ${!isOwner ? "disabled" : ""}>
+                    <label class="form-check-label" for="${checked ? "flexSwitchCheckChecked" : "flexSwitchCheckDefault"}"></label>
+                </div>
+            `;
         } else {
-            return `<input type="checkbox" ${checked ? "checked" : ""} ${row.id === this.field.owner ? "disabled" : ""}>`;
+            // return `<input type="checkbox" ${checked ? "checked" : ""} ${row.id === this.field.owner ? "disabled" : ""}>`;
+            return `
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="${checked ? "flexSwitchCheckChecked" : "flexSwitchCheckDefault"}" ${checked ? "checked" : ""} ${row.id === this.field.owner ? "disabled" : ""}>
+                    <label class="form-check-label" for="${checked ? "flexSwitchCheckChecked" : "flexSwitchCheckDefault"}"></label>
+                </div>
+            `;
         }
     }
 
@@ -341,7 +356,7 @@ export default class StudyAdminUsers extends LitElement {
         };
 
         this.opencgaSession.opencgaClient.studies()
-            //.updateUsers(this.study.fqn, "@members", {users: [this.addUserId]}, {action: "ADD"})
+            // .updateUsers(this.study.fqn, "@members", {users: [this.addUserId]}, {action: "ADD"})
             .updateAcl(this.addUserId, {action: "ADD"}, params)
             .then(res => {
                 this.addUserId = "";
