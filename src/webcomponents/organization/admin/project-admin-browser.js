@@ -22,6 +22,7 @@ import ModalUtils from "../../commons/modal/modal-utils.js";
 import "../../project/project-create.js";
 import "../../project/project-update.js";
 import "./study-admin-grid.js";
+import LitUtils from "../../commons/utils/lit-utils";
 
 export default class ProjectAdminBrowser extends LitElement {
 
@@ -93,8 +94,7 @@ export default class ProjectAdminBrowser extends LitElement {
                 render: () => html `
                     <project-create
                         .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
-                        .opencgaSession="${this.opencgaSession}"
-                        @projectCreate="${e => this.onProjectCreate(e)}">
+                        .opencgaSession="${this.opencgaSession}">
                     </project-create>`
             },
         };
@@ -121,7 +121,6 @@ export default class ProjectAdminBrowser extends LitElement {
 
     // *** RENDER ***
     renderProjectUpdate() {
-        debugger
         return ModalUtils.create(this, `${this._prefix}UpdateProjectModal`, {
             display: {
                 modalTitle: `Update Project: Project ${this.projectId} in organization ${this.organization.id}`,
@@ -131,7 +130,6 @@ export default class ProjectAdminBrowser extends LitElement {
             },
             // @projectUpdate="${e => this.onProjectUpdate(e, `${this._prefix}UpdateDetailsModal`)}"
             render: () => {
-                debugger
                 return html`
                     <project-update
                         .projectId="${this.projectId}"
@@ -150,15 +148,13 @@ export default class ProjectAdminBrowser extends LitElement {
                 <opencb-grid-toolbar
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
-                    .config="${this.toolbarConfig}"
-                    @projectCreate="${e => this.onProjectCreate(e)}">
+                    .config="${this.toolbarConfig}">
                 </opencb-grid-toolbar>
             `;
         }
     }
 
     renderProject(project) {
-        debugger
         return html `
             <div class="card" style="margin-bottom: 3em; padding: 1em;">
                 <!--1. Header project-->

@@ -53,7 +53,6 @@ export default class ProjectCreate extends LitElement {
             defaultLayout: "horizontal",
             buttonOkText: "Create"
         };
-        this._config = this.getDefaultConfig();
     }
 
     #initOriginalObject() {
@@ -68,6 +67,7 @@ export default class ProjectCreate extends LitElement {
             }
         };
         this._project = UtilsNew.objectClone(this.project);
+        this._config = this.getDefaultConfig();
     }
 
     #setLoading(value) {
@@ -130,28 +130,24 @@ export default class ProjectCreate extends LitElement {
         const params = {
             includeResult: true
         };
-        let project, error;
+        let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.projects()
             .create(this.project, params)
-            .then(response => {
+            .then(() => {
                 this.#initOriginalObject();
-                this._config = this.getDefaultConfig();
-
-                project = response.responses[0].results[0];
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Project Create",
                     message: "New project created correctly"
                 });
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", {}, {}, error);
             })
             .catch(reason => {
-                project = this.project;
                 error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "projectCreate", project, {}, error);
+                // LitUtils.dispatchCustomEvent(this, "projectCreate", project, {}, error);
                 this.#setLoading(false);
             });
     }
@@ -178,14 +174,6 @@ export default class ProjectCreate extends LitElement {
             sections: [
                 {
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.objectCompare(this.project, this._project),
-                                notificationType: "warning",
-                            },
-                        },
                         {
                             name: "Project ID",
                             field: "id",

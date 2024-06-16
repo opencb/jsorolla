@@ -23,8 +23,8 @@ import UtilsNew from "../../../core/utils-new.js";
 
 // import "./study-admin-create.js";
 // import "./study-admin-update.js";
-import "../../study/study-create.js";
-// import "../../study/study-update.js";
+import "../../study/admin/study-create.js";
+import "../../study/admin/study-update.js";
 
 export default class StudyAdminGrid extends LitElement {
 
@@ -106,23 +106,23 @@ export default class StudyAdminGrid extends LitElement {
                 display: {
                     modalTitle: "Study Create",
                     modalDraggable: true,
-                    modalCyDataName: "modal-create",
+                    modalCyDataName: "modal-study-create",
                     modalSize: "modal-lg"
                     // disabled: true,
                     // disabledTooltip: "...",
                 },
-    //     <study-admin-create
-    //         .organization="${this.organization}"
-    //         .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
-    //         .opencgaSession="${this.opencgaSession}"
-    //         @projectCreate="${e => this.renderRemoteTable(e)}">
-    //     </study-admin-create>
+                //     <study-admin-create
+                //         .organization="${this.organization}"
+                //         .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                //         .opencgaSession="${this.opencgaSession}"
+                //         @projectCreate="${e => this.renderRemoteTable(e)}">
+                //     </study-admin-create>
                 render: () => html `
                     <study-create
                         .project=${this.project}
                         .opencgaSession="${this.opencgaSession}"
                         .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
-                        @projectCreate="${e => this.renderRemoteTable(e)}">
+                        @studyCreate="${e => this.onStudyEvent(e)}">
                     </study-create>
                 `,
             },
@@ -136,14 +136,20 @@ export default class StudyAdminGrid extends LitElement {
         this.modals = {
             "edit-study": {
                 label: "Edit Study",
-                icon: "fas fa-edit",
+                icon: "far fa-edit",
+                color: "text-success",
                 modalId: `${this._prefix}UpdateStudyModal`,
                 render: () => this.renderStudyUpdate(),
                 permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
             },
+            "divider": {
+                isDivider: true,
+                divider: `<li><hr class="dropdown-divider"></li>`,
+            },
             "delete": {
                 label: "Delete",
                 icon: "far fa-trash-alt ",
+                color: "text-danger",
                 // modalId: `${this._prefix}DeleteModal`,
                 // render: () => this.renderModalPasswordReset(),
                 permission: "disabled",
@@ -185,7 +191,6 @@ export default class StudyAdminGrid extends LitElement {
                         .studies(this.project.id, this.filters)
                         .then(response => {
                             result = response;
-                            debugger
                             return response;
                         })
                         .then(() => {
@@ -195,7 +200,6 @@ export default class StudyAdminGrid extends LitElement {
                         })
                         .then(() => params.success(result))
                         .catch(error => {
-                            debugger
                             console.error(error);
                             params.error(error);
                         });
@@ -212,7 +216,6 @@ export default class StudyAdminGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        debugger
         this._columns = [
             {
                 title: "Study ID",
@@ -263,10 +266,15 @@ export default class StudyAdminGrid extends LitElement {
                             ${
                                 Object.keys(this.modals).map(modalKey => {
                                     const modal = this.modals[modalKey];
-                                    return `
+                                    return modal.isDivider ? modal.divider : `
                                         <li>
-                                            <a data-action="${modalKey}" class="dropdown-item ${modal.permission["organization"]}">
-                                                <i class="${modal.icon}" aria-hidden="true"></i> ${modal.label}...
+                                            <a data-action="${modalKey}"
+                                            class="dropdown-item ${!modal.permission["organization"]}"
+                                            style="cursor:pointer;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-2"><i class="${modal.icon} ${modal.color}" aria-hidden="true"></i></div>
+                                                    <div class="me-4">${modal.label}...</div>
+                                                </div>
                                             </a>
                                         </li>
                                     `;
@@ -284,9 +292,9 @@ export default class StudyAdminGrid extends LitElement {
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
     }
+
     // *** FORMATTERS ***
     groupsFormatter(groups, study) {
-        debugger
         const groupsBadges = groups.map(group => `
             <span class="badge" style="background-color: crimson">
                 <strong>${group.id} [${group.userIds.length}]</strong>
@@ -302,15 +310,15 @@ export default class StudyAdminGrid extends LitElement {
     // *** EVENTS ***
     async onActionClick(e, value, row) {
         this.action = e.currentTarget.dataset.action;
-        this.userId = row.id;
+        this.studyId = row.id;
         this.requestUpdate();
         await this.updateComplete;
         ModalUtils.show(this.modals[this.action]["modalId"]);
     }
 
-    onStudyUpdate(e, id) {
+    onStudyEvent(e, id) {
+        // Todo 20240616: find out a way to close modal onStudyCreate
         ModalUtils.close(id);
-        this.renderRemoteTable();
     }
 
     // *** RENDER METHODS ***
@@ -319,18 +327,20 @@ export default class StudyAdminGrid extends LitElement {
             display: {
                 modalTitle: `Update Study: `,
                 modalDraggable: true,
-                modalCyDataName: "modal-study-create",
+                modalCyDataName: "modal-study-update",
                 modalSize: "modal-lg"
             },
-            render: () => html`
-                <study-admin-update
-                    .study="${this.projectId}"
-                    .organization="${this.organization}"
+            render: () => {
+                debugger
+                return html`
+                <study-update
+                    .studyId="${this.studyId}"
                     .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                     .opencgaSession="${this.opencgaSession}"
-                    @studyUpdate="${e => this.renderRemoteTable(e)}">
-                </study-admin-update>
-            `,
+                    @studyUpdate="${e => this.onStudyEvent(e, `${this._prefix}UpdateStudyModal`)}">
+                </study-update>
+                `;
+            },
         });
     }
 
@@ -341,8 +351,7 @@ export default class StudyAdminGrid extends LitElement {
                     .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
-                    .config="${this.toolbarConfig}"
-                    @studyCreate="${e => this.renderRemoteTable(e)}">
+                    .config="${this.toolbarConfig}">
                 </opencb-grid-toolbar>
             `;
         }

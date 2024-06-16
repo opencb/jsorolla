@@ -170,7 +170,7 @@ export default class ProjectUpdate extends LitElement {
         const params = {
             includeResult: true
         };
-        let project, error;
+        let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.projects()
             .update(this.project?.fqn, this.updateParams, params)
@@ -182,21 +182,19 @@ export default class ProjectUpdate extends LitElement {
                     title: "Project Update",
                     message: "Project updated correctly"
                 });
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", this._project, {}, error);
             })
             .catch(reason => {
-                project = this.project;
                 error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "projectUpdate", this.project, {}, error);
+                // LitUtils.dispatchCustomEvent(this, "projectUpdate", project, {}, error);
                 this.#setLoading(false);
             });
     }
 
     render() {
-        debugger
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }
