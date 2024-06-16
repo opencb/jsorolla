@@ -114,15 +114,13 @@ export default class GroupAdminGrid extends LitElement {
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"
                 },
-                render: () => {
-                    return html `
+                render: () => html `
                         <group-admin-create
                             .studies="${this.studies}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}">
                         </group-admin-create>
-                    `;
-                }
+                    `,
             },
         };
 
@@ -144,14 +142,13 @@ export default class GroupAdminGrid extends LitElement {
             "edit-permissions": {
                 label: "Edit Permissions",
                 icon: "far fa-edit",
-                color: "text-success",
                 modalId: `${this._prefix}UpdatePermissionsModal`,
                 render: () => this.renderModalPermissionsUpdate(),
                 permission: this.permissions["study"](),
                 divider: true,
             },
             "delete": {
-                label: "Delete",
+                label: "Delete Group",
                 icon: "far fa-trash-alt ",
                 color: "text-danger",
                 modalId: `${this._prefix}DeleteModal`,
@@ -159,7 +156,6 @@ export default class GroupAdminGrid extends LitElement {
                 permission: this.permissions["study"](),
             },
         };
-
     }
 
     renderLocalTable() {
@@ -170,7 +166,7 @@ export default class GroupAdminGrid extends LitElement {
             buttonsClass: "light",
             columns: this._getDefaultColumns(),
             sidePagination: "server",
-            // Josemi Note 2024-01-18: we have added the ajax function for local variants also to support executing
+            // JoseMi Note 2024-01-18: we have added the ajax function for local variants also to support executing
             // async calls when getting additional data from columns extensions.
             ajax: params => {
                 const tableOptions = $(this.table).bootstrapTable("getOptions");
@@ -183,7 +179,7 @@ export default class GroupAdminGrid extends LitElement {
                     .then(() => params.success(rows))
                     .catch(error => params.error(error));
             },
-            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            // JoseMi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
             responseHandler: response => {
                 return {
                     total: this.groups.length,
@@ -263,7 +259,7 @@ export default class GroupAdminGrid extends LitElement {
                                             style="cursor:pointer;">
                                                 <div class="d-flex align-items-center">
                                                     <div class="me-2"><i class="${modal.icon} ${modal.color}" aria-hidden="true"></i></div>
-                                                    <div class="me-4">${modal.label}...</div>
+                                                    <div class="me-4 ${modal.color ?? ""}">${modal.label}...</div>
                                                 </div>
                                             </a>
                                         </li>
@@ -287,12 +283,12 @@ export default class GroupAdminGrid extends LitElement {
     // *** FORMATTERS ***
     groupIdFormatter(value, row) {
         return row.isProtected ? `
-            <div class="d-flex flex-column">
-                <span class="mt-md-2">${value}</span>
-                <span class="d-block text-secondary">PROTECTED GROUP</span>
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="">${value}</span>
+                <span class="pt-1 pb-1 pe-3 ps-3 text-info bg-light">PROTECTED</span>
             </div>
         ` : `
-           <strong class="mt-md-2">${value}</strong>
+            <div class="mt-md-2">${value}</div>
         `;
     }
 

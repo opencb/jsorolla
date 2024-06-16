@@ -23,7 +23,6 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils";
-import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "./group-admin-grid.js";
 
@@ -242,19 +241,21 @@ export default class GroupAdminBrowser extends LitElement {
             return html`<div>Not valid session</div>`;
         }
 
-        return html `
-            <!-- 1. Render filter graphics if enabled -->
-            ${this.renderFilterGraphics()}
-            <!-- 2. Render grid -->
-            <group-admin-grid
-                .toolId="${this.COMPONENT_ID}"
-                .opencgaSession="${this.opencgaSession}"
-                .groups="${this._groups}"
-                .studies="${this._studies}"
-                .config="${this._config}"
-                .active="${true}">
-            </group-admin-grid>
-        `;
+        if (this._groups.length > 0 && this._studies.length > 0) {
+            return html `
+                <!-- 1. Render filter graphics if enabled -->
+                ${this.renderFilterGraphics()}
+                <!-- 2. Render grid -->
+                <group-admin-grid
+                    .toolId="${this.COMPONENT_ID}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .groups="${this._groups}"
+                    .studies="${this._studies}"
+                    .config="${this._config}"
+                    .active="${true}">
+                </group-admin-grid>
+            `;
+        }
     }
 
     /* -----------------------------------------------------------------------------------------------------------------

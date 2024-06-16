@@ -17,7 +17,6 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
 
 export default class GroupAdminDelete extends LitElement {
 
@@ -101,13 +100,14 @@ export default class GroupAdminDelete extends LitElement {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }
-debugger
+
         return html`
             <data-form
                 .data="${this.group}"
                 .config="${this._config}"
                 @submit="${e => this.onSubmit(e)}">
-            </data-form>`;
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {

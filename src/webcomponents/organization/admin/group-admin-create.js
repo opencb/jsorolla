@@ -17,8 +17,6 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
-import UtilsNew from "../../../core/utils-new";
 
 export default class GroupAdminCreate extends LitElement {
 
@@ -49,7 +47,6 @@ export default class GroupAdminCreate extends LitElement {
     #init() {
         this.group = {};
         this.isLoading = false;
-        this.isStudyAdmin = false;
         this.displayConfigDefault = {
             style: "margin: 10px",
             titleWidth: 3,
@@ -62,10 +59,9 @@ export default class GroupAdminCreate extends LitElement {
     #initOriginalObjects() {
         this.group = {};
         this.allowedValues = [];
-        if (this.studies && this.opencgaSession) {
-            if (Array.isArray(this.studies) && this.studies.length === 1) {
-                this.isStudyAdmin = true;
-                this.allowedValues = [this.studies[0]];
+        if (this.studies && this.opencgaSession && Array.isArray(this.studies)) {
+            if (this.studies.length === 1) {
+                this.group.listStudies = [this.studies[0]];
             } else {
                 // 1. Prepare structure for displaying studies per project in dropdown
                 const projects = this.studies.reduce((acc, {fqn, name, projectId}) => {
@@ -93,7 +89,8 @@ export default class GroupAdminCreate extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("studies") || changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("studies") ||
+            changedProperties.has("opencgaSession")) {
             this.#initOriginalObjects();
         }
         if (changedProperties.has("displayConfig")) {
@@ -101,6 +98,7 @@ export default class GroupAdminCreate extends LitElement {
                 ...this.displayConfigDefault,
                 ...this.displayConfig
             };
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
@@ -141,7 +139,7 @@ export default class GroupAdminCreate extends LitElement {
             .map(study => {
                 let error;
                 return this.opencgaSession.opencgaClient.studies()
-                    .updateGroups(study, {id: this.group.id}, params)
+                    .updateGroups(study.fqn, {id: this.group.id}, params)
                     .then(() => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             title: `Group Create`,
@@ -164,7 +162,6 @@ export default class GroupAdminCreate extends LitElement {
             .finally(() => {
                 this.#setLoading(false);
                 this.#initOriginalObjects();
-                // CAUTION Vero: Why is not working sessionUpdateRequest
                 LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", {});
             });
     }
@@ -198,7 +195,7 @@ export default class GroupAdminCreate extends LitElement {
                             required: true,
                             display: {
                                 placeholder: "Add a short ID...",
-                                helpMessage: "Short group id...",
+                                helpMessage: `The group ID must start with the character '@' [e.g.'@myNewGroup'].`,
                             },
                         },
                         {
@@ -210,6 +207,7 @@ export default class GroupAdminCreate extends LitElement {
                             required: true,
                             allowedValues: this.allowedValues,
                             display: {
+                                visible: !!this.allowedValues?.length,
                                 placeholder: "Select study or studies..."
                             },
                         },
