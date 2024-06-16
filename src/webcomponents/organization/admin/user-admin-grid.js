@@ -135,7 +135,6 @@ export default class UserAdminGrid extends LitElement {
             "edit-details": {
                 label: "Edit Details",
                 icon: "far fa-edit",
-                color: "text-success",
                 modalId: `${this._prefix}UpdateDetailsModal`,
                 render: () => this.renderModalDetailsUpdate(),
                 permission: this.permissions["organization"](),
@@ -153,25 +152,23 @@ export default class UserAdminGrid extends LitElement {
             },
              */
             "reset-password": {
-                label: "Reset Password",
+                label: "Reset User Password",
                 icon: "fas fa-key",
-                color: "#646c70",
                 modalId: `${this._prefix}ResetPasswordModal`,
                 render: () => this.renderModalPasswordReset(),
                 permission: this.permissions["organization"](),
                 divider: true,
             },
             "change-status": {
-                label: "Change status",
+                label: "Change User Status",
                 icon: "far fa-user",
-                color: "#646c70",
                 modalId: `${this._prefix}ChangeStatusModal`,
                 render: () => this.renderModalStatusUpdate(),
                 permission: this.permissions["organization"](),
                 divider: true,
             },
             "delete": {
-                label: "Delete",
+                label: "Delete User",
                 icon: "far fa-trash-alt ",
                 color: "text-danger",
                 // modalId: `${this._prefix}DeleteModal`,
@@ -267,13 +264,13 @@ export default class UserAdminGrid extends LitElement {
             {
                 title: "Creation Date",
                 field: "account.creationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
+                formatter: (value, row) => CatalogGridFormatter.dateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("account.creationDate")
             },
             {
                 title: "Expiration Date",
                 field: "account.expirationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
+                formatter: (value, row) => CatalogGridFormatter.dateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("account.expirationDate")
             },
             {
@@ -305,14 +302,15 @@ export default class UserAdminGrid extends LitElement {
                             ${
                                 Object.keys(this.modals).map(modalKey => {
                                     const modal = this.modals[modalKey];
+                                    const color = modal.permission !== "disabled" ? modal.color : "";
                                     return `
                                         <li>
                                             <a data-action="${modalKey}"
                                             class="dropdown-item ${modal.permission}"
                                             style="cursor:pointer;">
                                                 <div class="d-flex align-items-center">
-                                                    <div class="me-2"><i class="${modal.icon} ${modal.color}" aria-hidden="true"></i></div>
-                                                    <div class="me-4">${modal.label}...</div>
+                                                    <div class="me-2"><i class="${modal.icon} ${color}" aria-hidden="true"></i></div>
+                                                    <div class="me-4 ${color}">${modal.label}...</div>
                                                 </div>
                                             </a>
                                         </li>
@@ -370,6 +368,8 @@ export default class UserAdminGrid extends LitElement {
         });
     }
 
+    /*
+    // Caution 20240616 Vero: Uncomment this code when endpoint fixed in OpenCGA for admin/owner change usr pwd
     renderModalPasswordUpdate() {
         return ModalUtils.create(this, `${this._prefix}ChangePasswordModal`, {
             display: {
@@ -391,6 +391,7 @@ export default class UserAdminGrid extends LitElement {
             },
         });
     }
+    */
 
     renderModalPasswordReset() {
         return ModalUtils.create(this, `${this._prefix}ResetPasswordModal`, {
@@ -501,7 +502,7 @@ export default class UserAdminGrid extends LitElement {
                     id: "BANNED",
                     displayLabel: "BANNED",
                     displayColor: "#E17F1E",
-                    description: "User locked for more than allowed login attemtps. The admin/owner can enable the user back.",
+                    description: "User locked for more than allowed login attempts. The admin/owner can enable the user back.",
                     isSelectable: false,
                     isEnabled: true,
                 },

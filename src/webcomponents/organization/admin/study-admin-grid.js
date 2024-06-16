@@ -229,13 +229,13 @@ export default class StudyAdminGrid extends LitElement {
             {
                 title: "Creation Date",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
+                formatter: (value, row) => CatalogGridFormatter.dateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
             {
                 title: "Modification Date",
                 field: "modificationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
+                formatter: (value, row) => CatalogGridFormatter.dateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("modificationDate")
             },
             {
@@ -294,7 +294,7 @@ export default class StudyAdminGrid extends LitElement {
     }
 
     // *** FORMATTERS ***
-    groupsFormatter(groups, study) {
+    groupsFormatter(groups) {
         const groupsBadges = groups.map(group => `
             <span class="badge" style="background-color: crimson">
                 <strong>${group.id} [${group.userIds.length}]</strong>
@@ -317,7 +317,7 @@ export default class StudyAdminGrid extends LitElement {
     }
 
     onStudyEvent(e, id) {
-        // Todo 20240616: find out a way to close modal onStudyCreate
+        // Fixme 20240616 Vero: find out a way to close modal creates!
         ModalUtils.close(id);
     }
 
@@ -330,17 +330,14 @@ export default class StudyAdminGrid extends LitElement {
                 modalCyDataName: "modal-study-update",
                 modalSize: "modal-lg"
             },
-            render: () => {
-                debugger
-                return html`
+            render: () => html`
                 <study-update
                     .studyId="${this.studyId}"
                     .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                     .opencgaSession="${this.opencgaSession}"
                     @studyUpdate="${e => this.onStudyEvent(e, `${this._prefix}UpdateStudyModal`)}">
                 </study-update>
-                `;
-            },
+            `,
         });
     }
 
