@@ -145,7 +145,6 @@ export default class StudyAdmin extends LitElement {
 
     render() {
         const activeMenuItem = "UsersAndGroups";
-        debugger
         if (this.opencgaSession.study && this.organization) {
             if (!OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) &&
                 !OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {

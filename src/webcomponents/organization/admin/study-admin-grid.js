@@ -140,14 +140,13 @@ export default class StudyAdminGrid extends LitElement {
             "edit-study": {
                 label: "Edit Study",
                 icon: "far fa-edit",
-                color: "text-success",
                 modalId: `${this._prefix}UpdateStudyModal`,
                 render: () => this.renderStudyUpdate(),
                 permission: this.permissions["organization"](),
                 divider: true,
             },
             "delete": {
-                label: "Delete",
+                label: "Delete Study",
                 icon: "far fa-trash-alt ",
                 color: "text-danger",
                 // modalId: `${this._prefix}DeleteModal`,
@@ -266,14 +265,14 @@ export default class StudyAdminGrid extends LitElement {
                             ${
                                 Object.keys(this.modals).map(modalKey => {
                                     const modal = this.modals[modalKey];
-                                    return modal.isDivider ? modal.divider : `
+                                    return `
                                         <li>
                                             <a data-action="${modalKey}"
                                             class="dropdown-item ${modal.permission}"
                                             style="cursor:pointer;">
                                                 <div class="d-flex align-items-center">
                                                     <div class="me-2"><i class="${modal.icon} ${modal.color}" aria-hidden="true"></i></div>
-                                                    <div class="me-4">${modal.label}...</div>
+                                                    <div class="me-4 ${modal.color}">${modal.label}...</div>
                                                 </div>
                                             </a>
                                         </li>
