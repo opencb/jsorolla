@@ -37,7 +37,7 @@ export default class GroupAdminPermissionsUpdate extends LitElement {
             groupId: {
                 type: String
             },
-            studyId: {
+            studyFqn: {
                 type: String,
             },
             active: {
@@ -53,11 +53,50 @@ export default class GroupAdminPermissionsUpdate extends LitElement {
     }
 
     #init() {
-        this.group = {};
-        this.groupId = "";
-        this.studyId = "";
         this.displayConfig = {};
         this.updatedFields = {};
+
+        this.permissions = {}; // Original permissions
+        this._permissions = {}; // Updated permissions
+
+        this.templates = {
+            "custom": {
+
+            },
+            "analyst": {
+                descriptionShort: "Full READ and WRITE (not DELETE) permissions",
+                description: `The member (user or group) will be given full READ and WRITE (not DELETE) permissions
+                for all the entries related to the study. These users will be able to view and do modifications on
+                all the data that is related to the study.`,
+                permissions: [
+                    ""
+                ],
+            },
+            "view_only": {
+                descriptionShort: "Full READ permissions",
+                description: "The member (user or group) will be given full READ permissions.",
+                permissions: [
+                    "VIEW_SAMPLES",
+                    "VIEW_SAMPLE_ANNOTATIONS",
+                    "VIEW_AGGREGATED_VARIANTS",
+                    "VIEW_SAMPLE_VARIANTS",
+                    "VIEW_INDIVIDUALS",
+                    "VIEW_INDIVIDUAL_ANNOTATIONS",
+                    "VIEW_FAMILIES",
+                    "VIEW_FAMILY_ANNOTATIONS",
+                    "VIEW_COHORTS",
+                    "VIEW_COHORT_ANNOTATIONS",
+                    "VIEW_FILES",
+                    "VIEW_FILE_HEADER",
+                    "VIEW_FILE_CONTENT",
+                    "DOWNLOAD_FILES",
+                    "VIEW_JOBS",
+                    "EXECUTE_JOBS",
+                    "VIEW_PANELS",
+                    "VIEW_CLINICAL_ANALYSIS",
+                ],
+            },
+        };
 
         this.displayConfigDefault = {
             style: "margin: 10px",
@@ -88,59 +127,68 @@ export default class GroupAdminPermissionsUpdate extends LitElement {
         };
     }
 
-    #initGroup() {
+    #initPermissions() {
+        debugger
         // 1. Group contains params: (a) id: e.g. "@admins", (b) userIds: e.g. ["test"]
-        this.group = this._study.groups.find(group => group.id === this.groupId);
+        // this.group = this._study.groups.find(group => group.id === this.groupId);
         // 2. In the update form, we need to manage as well the permissions of this group.
         // Retrieve ACL permissions. Check if this study group has acl
-        // CAUTION: study does not have acl?
-        const groupPermissions = this._study?.acl
-            ?.find(acl => acl.member === this.opencgaSession.user.id)?.groups
-            ?.find(group => group.id === this.group.id)?.permissions || [];
+        // const groupPermissions = this._study?.acl
+        //     ?.find(acl => acl.member === this.opencgaSession.user.id)?.groups
+        //     ?.find(group => group.id === this.group.id)?.permissions || [];
         // 3. Add current permissions and template key to the object group
-        this.group = {
-            ...this.group,
-            permissions: groupPermissions,
-            template: "", // Fixme: not sure how to retrieve template
+        // this.group = {
+        //     permissions: groupPermissions,
+        //     template: "",
+        // };
+        //  this.initOriginalObjects();
+        this.permissions = {
+            default: UtilsNew.objectClone(this.permissions.acl[0].permissions),
+            custom: UtilsNew.objectClone(this.permissions.acl[0].permissions),
+            templates: this.templates.keys(),
         };
-        this.initOriginalObjects();
-
+        this._permissions = UtilsNew.objectClone(this.permissions),
+        this.updatedFields = {};
     }
 
     initOriginalObjects() {
-        this._group = UtilsNew.objectClone(this.group);
+        this._permissions = UtilsNew.objectClone(this.permissions);
         this.updatedFields = {};
     }
 
     update(changedProperties) {
+        debugger
         if ((changedProperties.has("groupId") || (changedProperties.has("studyId")) && this.active)) {
             this.groupIdObserver();
         }
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
             if (!this._config?.notification) {
-                this.#initConfigNotification();
+                // this.#initConfigNotification();
             }
         }
         super.update(changedProperties);
     }
 
     groupIdObserver() {
+        debugger
         if (this.groupId && this.studyId && this.opencgaSession) {
+            const params = {
+                member: this.groupId,
+            };
             let error;
             this.#setLoading(true);
             this.opencgaSession.opencgaClient.studies()
-                .info(this.studyId)
+                .acl(this.studyId, params)
                 .then(response => {
-                    this._study = UtilsNew.objectClone(response.responses[0].results[0]);
-                    this.#initGroup();
+                    this.#initPermissions(UtilsNew.objectClone(response.responses[0].results[0]));
                 })
                 .catch(reason => {
                     error = reason;
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
                 })
                 .finally(() => {
-                    LitUtils.dispatchCustomEvent(this, "studyInfo", this.study, {}, error);
+                    LitUtils.dispatchCustomEvent(this, "groupAclInfo", this.study, {}, error);
                     this.#setLoading(false);
                 });
         }
@@ -219,7 +267,7 @@ export default class GroupAdminPermissionsUpdate extends LitElement {
     render() {
         return html `
             <data-form
-                .data="${this._group}"
+                .data="${this._permissions}"
                 .config="${this._config}"
                 .updateParams="${this.updatedFields}"
                 @fieldChange="${e => this.onFieldChange(e)}"
@@ -238,23 +286,6 @@ export default class GroupAdminPermissionsUpdate extends LitElement {
             },
             display: this.displayConfig,
             sections: [
-                /*
-                {
-                    title: "Details",
-                    elements: [
-                        {
-                            title: "Group ID",
-                            field: "id",
-                            type: "input-text",
-                            required: true,
-                            display: {
-                                placeholder: "Add a short ID...",
-                                helpMessage: "short group id...",
-                            },
-                        },
-                    ],
-                },
-                 */
                 {
                     title: "Permissions",
                     display: {
@@ -263,16 +294,18 @@ export default class GroupAdminPermissionsUpdate extends LitElement {
                     elements: [
                         {
                             title: "Templates",
-                            field: "template",
+                            field: "templates",
                             type: "toggle-buttons",
-                            allowedValues: ["analyst", "view_only"],
+                            allowedValues: Object.keys(this.templates).map(name => name.toUpperCase()),
                         },
                         // TODO: Implement customised permissions for the group
-                        // {
-                        //     title: "Permissions",
-                        //     field: "permissions",
-                        //     type: "toggle-buttons",
-                        // },
+                        /*
+                        {
+                            title: "Permissions",
+                            field: "permissions",
+                            type: "",
+                        },
+                         */
                     ],
                 },
                 /*
