@@ -223,7 +223,7 @@ export default class StudyAdmin extends LitElement {
                         {
                             id: "groups",
                             name: "Groups",
-                            icon: "fas fa-vial",
+                            icon: "fas fa-user-friends",
                             visibility: "private",
                             render: (opencgaSession, study) => {
                                 return html`
