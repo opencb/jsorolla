@@ -147,7 +147,7 @@ export default class StudyAdmin extends LitElement {
         const activeMenuItem = "UsersAndGroups";
         debugger
         if (this.opencgaSession.study && this.organization) {
-            if (!OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) ||
+            if (!OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) &&
                 !OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
                 return html`
                     <tool-header class="page-title-no-margin"  title="${this._config.name}" icon="${this._config.icon}"></tool-header>
@@ -162,10 +162,10 @@ export default class StudyAdmin extends LitElement {
             return html `
                 <tool-header class="page-title-no-margin"  title="${this._config.name}" icon="${this._config.icon}"></tool-header>
                 <custom-vertical-navbar
-                        .study="${this.opencgaSession.study}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .config="${this._config}"
-                        .activeMenuItem="${activeMenuItem}">
+                    .study="${this.opencgaSession.study}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config}"
+                    .activeMenuItem="${activeMenuItem}">
                 </custom-vertical-navbar>
             `;
         }
@@ -225,12 +225,14 @@ export default class StudyAdmin extends LitElement {
                             name: "Groups",
                             icon: "fas fa-vial",
                             visibility: "private",
-                            render: (opencgaSession, organization) => html`
-                                <group-admin-browser
-                                    .study="${this.opencgaSession.study}"
-                                    .opencgaSession="${opencgaSession}">
-                                </group-admin-browser>
-                            `,
+                            render: (opencgaSession, study) => {
+                                return html`
+                                    <group-admin-browser
+                                        .study="${study}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </group-admin-browser>
+                                `;
+                            }
                         },
                         {
                             id: "Permissions",

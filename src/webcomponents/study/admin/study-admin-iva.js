@@ -142,7 +142,7 @@ export default class StudyAdminIva extends LitElement {
     // --- RENDER METHOD  ---
     render() {
         if (this.opencgaSession.study && this.organization) {
-            if (!OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) ||
+            if (!OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) &&
                 !OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
                 return html`
                     <tool-header class="page-title-no-margin"  title="${this._config.name}" icon="${this._config.icon}"></tool-header>
