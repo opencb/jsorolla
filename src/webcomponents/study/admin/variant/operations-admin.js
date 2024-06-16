@@ -22,6 +22,8 @@ import "../../../variant/operation/variant-annotation-index-operation.js";
 import "../../../variant/operation/variant-secondary-annotation-index-operation.js";
 import "../../../variant/operation/variant-secondary-sample-index-operation.js";
 import "../../../commons/layouts/custom-vertical-navbar.js";
+import UtilsNew from "../../../../core/utils-new";
+import OpencgaCatalogUtils from "../../../../core/clients/opencga/opencga-catalog-utils";
 
 export default class OperationsAdmin extends LitElement {
 
@@ -37,6 +39,9 @@ export default class OperationsAdmin extends LitElement {
 
     static get properties() {
         return {
+            organizationId: {
+                type: String,
+            },
             studyId: {
                 type: String
             },
@@ -54,7 +59,16 @@ export default class OperationsAdmin extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
+
     update(changedProperties) {
+        if (changedProperties.has("organizationId") || changedProperties.has("opencgaSession")) {
+            this.organizationIdObserver();
+        }
+
         if (changedProperties.has("studyId")) {
             this.studyIdObserver();
         }
@@ -64,9 +78,34 @@ export default class OperationsAdmin extends LitElement {
         super.update(changedProperties);
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
+    organizationIdObserver() {
+        // FIXME Vero: on creating a new group, for instance,
+        //  the session is updated but the org id does not change.
+        //  I need to get the organization info again to refresh the grid.
+        //  For now, I will query org info only with property opencgaSession change.
+        //  TO think about it.
+        // if (this.organizationId && this.opencgaSession) {
+        if (this.organizationId || this.opencgaSession) {
+            let error;
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.organization()
+                // FIXME Vero: To remove hardcoded organization when the following bug is fixed:
+                //  https://app.clickup.com/t/36631768/TASK-5980
+                // .info(this.organizationId)
+                .info("test")
+                .then(response => {
+                    this.organization = UtilsNew.objectClone(response.responses[0].results[0]);
+                })
+                .catch(reason => {
+                    // this.organization = {};
+                    error = reason;
+                    console.error(reason);
+                })
+                .finally(() => {
+                    LitUtils.dispatchCustomEvent(this, "organizationInfo", this.organization, {}, error);
+                    this.#setLoading(false);
+                });
+        }
     }
 
     studyIdObserver() {
@@ -96,15 +135,29 @@ export default class OperationsAdmin extends LitElement {
 
     render() {
         const activeMenuItem = "variant-annotation-index";
-        return html`
-            <tool-header class="page-title-no-margin"  title="${this._config.name}" icon="${this._config.icon}"></tool-header>
-            <custom-vertical-navbar
-                .study="${this.opencgaSession.study}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}"
-                .activeMenuItem="${activeMenuItem}">
-            </custom-vertical-navbar>
-        `;
+        if (this.opencgaSession.study && this.organization) {
+            if (!OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) ||
+                !OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
+                return html`
+                    <tool-header class="page-title-no-margin" title="${this._config.name}"
+                                 icon="${this._config.icon}"></tool-header>
+                    <div class="d-flex flex-column align-items-center justify-content-center">
+                        <h1 class="display-1">We are sorry...</h1>
+                        <h3>The page you are trying to access has restricted access.</h3>
+                        <h3>Please refer to your system administrator.</h3>
+                    </div>
+                `;
+            }
+            return html`
+                <tool-header class="page-title-no-margin"  title="${this._config.name}" icon="${this._config.icon}"></tool-header>
+                <custom-vertical-navbar
+                    .study="${this.opencgaSession.study}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config}"
+                    .activeMenuItem="${activeMenuItem}">
+                </custom-vertical-navbar>
+            `;
+        }
     }
 
     getDefaultConfig() {

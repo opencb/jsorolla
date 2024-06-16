@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new";
 import LitUtils from "../../commons/utils/lit-utils";
 import "./group-admin-browser.js";
 import "./user-admin-browser.js";
 import "../../project/projects-admin.js";
 import "./project-admin-browser.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
 
 // FIXME VERY IMPORTANT:
 //  ********************************************
@@ -91,7 +92,7 @@ export default class OrganizationAdmin extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
-                    LitUtils.dispatchCustomEvent(this, "organizationChange", this.organization, {}, error);
+                    LitUtils.dispatchCustomEvent(this, "organizationInfo", this.organization, {}, error);
                     this.#setLoading(false);
                 });
         }
@@ -100,7 +101,16 @@ export default class OrganizationAdmin extends LitElement {
     // --- RENDER METHOD  ---
     render() {
         if (this.organization) {
-            return html`
+            if (!OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id)) {
+                return html `
+                    <div class="d-flex flex-column align-items-center justify-content-center">
+                        <h1 class="display-1">We are sorry...</h1>
+                        <h3>The page you are trying to access has restricted access.</h3>
+                        <h3>Please refer to your system administrator.</h3>
+                    </div>
+                `;
+            }
+            return html `
                 <!-- <tool-header class="page-title-no-margin" title="$this._config.name}" icon="$this._config.icon}"></tool-header>-->
                 <custom-vertical-navbar
                     .organization="${this.organization}"
@@ -187,8 +197,7 @@ export default class OrganizationAdmin extends LitElement {
                                     </projects-admin>
                                 </div>
                             `;
-                             */
-                            debugger
+                            */
                             return html`
                                 <project-admin-browser
                                     .organization="${organization}"
