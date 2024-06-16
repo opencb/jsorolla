@@ -82,7 +82,10 @@ export default class GroupAdminGrid extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.size > 0 && this.active) {
-            this.renderTable();
+            if (this.groups?.length > 0) {
+                this.renderLocalTable();
+            }
+            this.requestUpdate();
         }
     }
 
@@ -92,7 +95,7 @@ export default class GroupAdminGrid extends LitElement {
             ...this.getDefaultConfig(),
             ...this.config,
         };
-debugger
+
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Config for the grid toolbar
@@ -157,13 +160,6 @@ debugger
             },
         };
 
-    }
-
-    renderTable() {
-        if (this.groups?.length > 0) {
-            this.renderLocalTable();
-        }
-        this.requestUpdate();
     }
 
     renderLocalTable() {
@@ -288,6 +284,7 @@ debugger
         return this._columns;
     }
 
+    // *** FORMATTERS ***
     groupIdFormatter(value, row) {
         return row.isProtected ? `
             <div class="d-flex flex-column">
@@ -315,7 +312,7 @@ debugger
     async onActionClick(e, value, row) {
         this.action = e.currentTarget.dataset.action;
         this.groupId = row.id;
-        this.group = this.groups.filter(g=> g.id === this.groupId);
+        this.group = this.groups.find(g=> g.id === this.groupId);
         this.studyFqn = row.fqn;
         this.requestUpdate();
         await this.updateComplete;
@@ -349,28 +346,6 @@ debugger
         });
     }
 
-    /*
-    renderModalUpdate() {
-        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-            display: {
-                modalTitle: `Group Update: group ${this.group?.id} in study ${this.studyFqn}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-update",
-                modalSize: "modal-lg"
-            },
-            render: active => html`
-                <group-admin-update
-                    .groupId="${this.group?.id}"
-                    .studyId="${this.studyId}"
-                    .active="${active}"
-                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                    .opencgaSession="${this.opencgaSession}">
-                </group-admin-update>
-            `,
-        });
-    }
-    */
-
     renderModalDelete() {
         return ModalUtils.create(this, `${this._prefix}DeleteModal`, {
             display: {
@@ -383,7 +358,6 @@ debugger
             render: active => html`
             <group-admin-delete
                 .group="${this.group}"
-                .studyFqn="${this.studyFqn}"
                 .active="${active}"
                 .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
                 .opencgaSession="${this.opencgaSession}"
@@ -419,6 +393,7 @@ debugger
         `;
     }
 
+    // *** DEFAULT CONFIG ***
     getDefaultConfig() {
         return {
             pagination: true,

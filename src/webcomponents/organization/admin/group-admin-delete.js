@@ -36,9 +36,6 @@ export default class GroupAdminDelete extends LitElement {
             group: {
                 type: Object,
             },
-            studyFqn: {
-                type: String,
-            },
             active: {
                 type: Boolean,
             },
@@ -53,7 +50,6 @@ export default class GroupAdminDelete extends LitElement {
 
     #init() {
         this.isLoading = false;
-        this.isStudyAdmin = false;
         this.displayConfigDefault = {
             style: "margin: 10px",
             titleWidth: 3,
@@ -83,13 +79,14 @@ export default class GroupAdminDelete extends LitElement {
         this.#setLoading(true);
         let error;
         return this.opencgaSession.opencgaClient.studies()
-            .updateGroups(this.studyFqn, {id: this.group.id}, {action: "REMOVE"})
+            .updateGroups(this.group.fqn, {id: this.group.id}, {action: "REMOVE"})
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: `Group Delete`,
-                    message: `Group ${this.group.id} in study ${this.studyId} deleted successfully`,
+                    message: `Group ${this.group.id} in study ${this.group.fqn} deleted successfully`,
                 });
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", {}, {}, null);
+                LitUtils.dispatchCustomEvent(this, "groupDelete", {});
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", {});
             })
             .catch(reason => {
                 error = reason;
@@ -97,12 +94,6 @@ export default class GroupAdminDelete extends LitElement {
             })
             .finally(() => {
                 this.#setLoading(false);
-                LitUtils.dispatchCustomEvent(this, "groupDelete", {}, {
-                    group: this.group,
-                    studyFqn: this.studyFqn,
-                }, error);
-                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", {});
-
             });
     }
 
@@ -110,7 +101,7 @@ export default class GroupAdminDelete extends LitElement {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }
-
+debugger
         return html`
             <data-form
                 .data="${this.group}"
@@ -132,32 +123,30 @@ export default class GroupAdminDelete extends LitElement {
                             display: {
                                 visible: true,
                                 icon: "fas fa-exclamation-triangle",
-                                notificationType: "warning",
+                                notificationType: "error",
                             },
                         },
                         {
                             // name: "UserIds",
-                            field: "userIds",
+                            field: "users",
                             type: "list",
                             display: {
                                 separator: " ",
                                 contentLayout: "bullets",
-                                transform: userIds => userIds.map(userId => ({userId})),
+                                transform: users => users.length ?
+                                    users.map(user => ({userId: user.id})) :
+                                    [{userId: "This group does not have users"}],
                                 template: "${userId}",
-                                /* FIXME: why is not working?
-                                className: {
-                                    "userId": "badge badge-pill badge-primary",
-                                },
-                                 */
+                                // FIXME: why is not working?
+                                // className: {
+                                //     "userId": "badge badge-pill badge-primary",
+                                // },
                                 // style: {
                                 //     "userId": {
                                 //         "color": "white",
                                 //         "background-color": "blue"
                                 //     },
                                 // }
-
-                                // contentLayout: "bullets",
-                                // getData: group => group.userIds || ["This group does not have users"],
                             },
                         },
                     ],
