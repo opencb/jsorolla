@@ -51,9 +51,6 @@ export default class UserAdminGrid extends LitElement {
             organization: {
                 type: Object,
             },
-            studyId: {
-                type: String,
-            },
             users: {
                 type: Array
             },
@@ -130,17 +127,19 @@ export default class UserAdminGrid extends LitElement {
         };
 
         this.permissions = {
-            "organization": () => OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) || "disabled",
-            "study": () => OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+            "organization": () => OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) ? "" : "disabled",
+            "study": () => OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) ? "" : "disabled",
         };
 
         this.modals = {
             "edit-details": {
                 label: "Edit Details",
-                icon: "fas fa-edit",
+                icon: "far fa-edit",
+                color: "text-success",
                 modalId: `${this._prefix}UpdateDetailsModal`,
                 render: () => this.renderModalDetailsUpdate(),
-                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+                permission: this.permissions["organization"](),
+                divider: true,
             },
             // ToDo 20240529 Vero: Nacho/Pedro to discuss:
             //  - Organization admin/owner can change usr pwd without entering current pwd
@@ -155,24 +154,29 @@ export default class UserAdminGrid extends LitElement {
              */
             "reset-password": {
                 label: "Reset Password",
-                icon: "fas fa-edit",
+                icon: "fas fa-key",
+                color: "#646c70",
                 modalId: `${this._prefix}ResetPasswordModal`,
                 render: () => this.renderModalPasswordReset(),
-                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+                permission: this.permissions["organization"](),
+                divider: true,
             },
             "change-status": {
                 label: "Change status",
-                icon: "fas fa-edit",
+                icon: "far fa-user",
+                color: "#646c70",
                 modalId: `${this._prefix}ChangeStatusModal`,
                 render: () => this.renderModalStatusUpdate(),
-                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+                permission: this.permissions["organization"](),
+                divider: true,
             },
             "delete": {
                 label: "Delete",
                 icon: "far fa-trash-alt ",
+                color: "text-danger",
                 // modalId: `${this._prefix}DeleteModal`,
                 // render: () => this.renderModalPasswordReset(),
-                permission: "disabled",
+                permission: "disabled", // CAUTION: Not possible to delete users for now
             },
         };
     }
@@ -303,10 +307,16 @@ export default class UserAdminGrid extends LitElement {
                                     const modal = this.modals[modalKey];
                                     return `
                                         <li>
-                                            <a data-action="${modalKey}" class="dropdown-item ${modal.permission["organization"]}">
-                                                <i class="${modal.icon}" aria-hidden="true"></i> ${modal.label}...
+                                            <a data-action="${modalKey}"
+                                            class="dropdown-item ${modal.permission}"
+                                            style="cursor:pointer;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-2"><i class="${modal.icon} ${modal.color}" aria-hidden="true"></i></div>
+                                                    <div class="me-4">${modal.label}...</div>
+                                                </div>
                                             </a>
                                         </li>
+                                        ${modal.divider ? `<li><hr class="dropdown-divider"></li>` : ""}
                                     `;
                                 }).join("")
                             }

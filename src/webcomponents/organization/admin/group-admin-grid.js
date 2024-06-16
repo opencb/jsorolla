@@ -124,8 +124,8 @@ debugger
         };
 
         this.permissions = {
-            "organization": () => OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) || "disabled",
-            "study": () => OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+            "organization": () => OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) ? "" : "disabled",
+            "study": () => OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) ? "" : "disabled",
         };
 
         this.modals = {
@@ -144,12 +144,8 @@ debugger
                 color: "text-success",
                 modalId: `${this._prefix}UpdatePermissionsModal`,
                 render: () => this.renderModalPermissionsUpdate(),
-                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+                permission: this.permissions["study"],
                 divider: true,
-            },
-            "divider": {
-                isDivider: true,
-                divider: `<li><hr class="dropdown-divider"></li>`,
             },
             "delete": {
                 label: "Delete",
@@ -157,7 +153,7 @@ debugger
                 color: "text-danger",
                 modalId: `${this._prefix}DeleteModal`,
                 render: () => this.renderModalDelete(),
-                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+                permission: this.permissions["study"],
             },
         };
 
@@ -262,7 +258,7 @@ debugger
                                     return modal.isDivider ? modal.divider : `
                                         <li>
                                             <a data-action="${modalKey}"
-                                            class="dropdown-item ${!modal.permission["study"]}"
+                                            class="dropdown-item ${modal.permission}"
                                             style="cursor:pointer;">
                                                 <div class="d-flex align-items-center">
                                                     <div class="me-2"><i class="${modal.icon} ${modal.color}" aria-hidden="true"></i></div>
@@ -320,7 +316,7 @@ debugger
     */
     async onActionClick(e, value, row) {
         this.action = e.currentTarget.dataset.action;
-        this.group = row.group;
+        this.groupId = row.id;
         this.studyFqn = row.fqn;
         this.requestUpdate();
         await this.updateComplete;
@@ -336,14 +332,15 @@ debugger
     renderModalPermissionsUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdatePermissionsModal`, {
             display: {
-                modalTitle: `Permissions Update: Group ${this.group?.id} in Study ${this.studyFqn}`,
+                modalTitle: `Permissions Update: Group ${this.groupId} in Study ${this.studyFqn}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"
             },
             render: active => html`
                 <group-admin-permissions-update
-                    .groupId="${this.group?.id}"
+                    .groupId="${this.groupId}"
+                    .studyId="${this.studyFqn}"
                     .active="${active}"
                     .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                     .opencgaSession="${this.opencgaSession}"

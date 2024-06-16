@@ -46,6 +46,9 @@ export default class StudyAdminGrid extends LitElement {
             project: {
                 type: Object,
             },
+            organization: {
+                type: Object,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -129,8 +132,8 @@ export default class StudyAdminGrid extends LitElement {
         };
 
         this.permissions = {
-            "organization": () => OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) || "disabled",
-            "study": () => OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
+            "organization": () => OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) ? "" : "disabled",
+            "study": () => OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) ? "" : "disabled",
         };
 
         this.modals = {
@@ -140,11 +143,8 @@ export default class StudyAdminGrid extends LitElement {
                 color: "text-success",
                 modalId: `${this._prefix}UpdateStudyModal`,
                 render: () => this.renderStudyUpdate(),
-                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
-            },
-            "divider": {
-                isDivider: true,
-                divider: `<li><hr class="dropdown-divider"></li>`,
+                permission: this.permissions["organization"](),
+                divider: true,
             },
             "delete": {
                 label: "Delete",
@@ -152,7 +152,7 @@ export default class StudyAdminGrid extends LitElement {
                 color: "text-danger",
                 // modalId: `${this._prefix}DeleteModal`,
                 // render: () => this.renderModalPasswordReset(),
-                permission: "disabled",
+                permission: "disabled", // Caution: Not possible to delete studies for now.
             },
         };
     }
@@ -269,7 +269,7 @@ export default class StudyAdminGrid extends LitElement {
                                     return modal.isDivider ? modal.divider : `
                                         <li>
                                             <a data-action="${modalKey}"
-                                            class="dropdown-item ${!modal.permission["organization"]}"
+                                            class="dropdown-item ${modal.permission}"
                                             style="cursor:pointer;">
                                                 <div class="d-flex align-items-center">
                                                     <div class="me-2"><i class="${modal.icon} ${modal.color}" aria-hidden="true"></i></div>
@@ -277,6 +277,7 @@ export default class StudyAdminGrid extends LitElement {
                                                 </div>
                                             </a>
                                         </li>
+                                        ${modal.divider ? `<li><hr class="dropdown-divider"></li>` : ""}
                                     `;
                                 }).join("")
                             }
