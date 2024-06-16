@@ -176,13 +176,13 @@ export default class UserAdminDetailsUpdate extends LitElement {
                     title: `User Details Update`,
                     message: `User ${this.userId} updated correctly`,
                 });
+                LitUtils.dispatchCustomEvent(this, "userUpdate", this.user, {}, error);
             })
             .catch(reason => {
                 error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "userUpdate", this._user, {}, error);
                 this.#setLoading(false);
             });
 
@@ -193,7 +193,7 @@ export default class UserAdminDetailsUpdate extends LitElement {
             <data-form
                 .data="${this._user}"
                 .config="${this._config}"
-                .updateParams="${e => this.updatedFields(e)}"
+                .updateParams="${this.updatedFields}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @submit="${this.onSubmit}"
                 @clear="${this.onClear}">
@@ -245,7 +245,7 @@ export default class UserAdminDetailsUpdate extends LitElement {
                             field: "account.expirationDate",
                             type: "input-date",
                             display: {
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
+                                format: date => UtilsNew.dateFormatter(date)
                             },
                         },
                     ],
