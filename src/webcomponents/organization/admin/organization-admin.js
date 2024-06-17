@@ -16,16 +16,12 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new";
 import LitUtils from "../../commons/utils/lit-utils";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
 import "./group-admin-browser.js";
 import "./user-admin-browser.js";
 import "../../project/projects-admin.js";
 import "./project-admin-browser.js";
-import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
-
-// FIXME VERY IMPORTANT:
-//  ********************************************
-//  Enable only for organization owner or admin
-//  ********************************************
+import "./organization-admin-detail.js";
 
 export default class OrganizationAdmin extends LitElement {
 
@@ -138,7 +134,7 @@ export default class OrganizationAdmin extends LitElement {
                         name: "Dashboard (Coming soon)",
                         icon: "fas fa-vial",
                         visibility: "private",
-                        render: (opencgaSession, study) => html``,
+                        render: (opencgaSession, organization) => html``,
                     },
                     // TODO
                     {
@@ -147,7 +143,7 @@ export default class OrganizationAdmin extends LitElement {
                         type: "category",
                         icon: "fas fa-vial",
                         visibility: "private",
-                        render: (opencgaSession, study) => html``,
+                        render: (opencgaSession, organization) => html``,
                     },
                 ],
             },
@@ -219,17 +215,17 @@ export default class OrganizationAdmin extends LitElement {
                     {
                         id: "settings",
                         name: "Organization",
-                        icon: "fas fa-vial",
+                        icon: "fas fa-sitemap",
                         visibility: "private",
-                        render: (opencgaSession, study) => html``,
+                        render: (opencgaSession, organization) => {
+                            return html`
+                                <organization-admin-detail
+                                    .organization="${organization}"
+                                    .opencgaSession="${opencgaSession}">
+                                </organization-admin-detail>
+                            `;
+                        },
                     },
-                    // {
-                    //     id: "identity-providers",
-                    //     name: "Identity Providers",
-                    //     icon: "fas fa-vial",
-                    //     visibility: "private",
-                    //     render: (opencgaSession, study) => html``,
-                    // },
                     // {
                     //     id: "optimization",
                     //     name: "Optimizations",
