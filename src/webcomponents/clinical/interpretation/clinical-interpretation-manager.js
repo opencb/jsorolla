@@ -173,6 +173,8 @@ export default class ClinicalInterpretationManager extends LitElement {
                                 Actions
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
+                                ${this.renderItemAction(interpretation, "download", "fa-download", "Download JSON")}
+                                <li><hr class="dropdown-divider"></li>
                                 ${primary ? html`
                                     ${this.renderItemAction(interpretation, "restorePrevious", "fa-code-branch", "Restore previous version", true)}
                                 ` : html`
