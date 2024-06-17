@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import GridCommons from "../../commons/grid-commons.js";
 
 export default class VariantConsequenceTypeView extends LitElement {
 
@@ -220,6 +221,8 @@ export default class VariantConsequenceTypeView extends LitElement {
             showExport: true,
             detailView: true,
             detailFormatter: this.detailFormatter,
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             columns: [
                 [
                     {
