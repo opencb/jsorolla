@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import UtilsNew from "../../../core/utils-new.js";
@@ -186,13 +186,11 @@ export default class ClinicalInterpretationManager extends LitElement {
                                             Restore previous version
                                         </a>
                                     </li>
-                                    <!-- Action Lock/Unlock -->
                                     ${interpretationLockAction}
                                     <li><hr class="dropdown-divider"></li>
                                     ${this.renderItemAction(interpretation, "clear", "fa-eraser", "Clear")}
                                 ` : html`
                                     ${this.renderItemAction(interpretation, "setAsPrimary", "fa-map-marker", "Set as primary")}
-                                    <!-- Action Lock/Unlock -->
                                     ${interpretationLockAction}
                                     <li><hr class="dropdown-divider"></li>
                                     ${this.renderItemAction(interpretation, "clear", "fa-eraser", "Clear")}
@@ -299,8 +297,8 @@ export default class ClinicalInterpretationManager extends LitElement {
             this.onClinicalInterpretationUpdate();
         };
 
-        // islock is a strring
-        if (islocked === "true" && ((action !== "unlock") && (action !== "setAsPrimary"))) {
+        // Only some actions are allowed when the interpretation is locked: unclock, set as primary, and download
+        if (islocked === "true" && ((action !== "unlock") && (action !== "setAsPrimary") && (action !== "download"))) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
                 message: `${interpretationId} is locked!`,
             });
@@ -320,6 +318,9 @@ export default class ClinicalInterpretationManager extends LitElement {
                     break;
                 case "unlock":
                     this.clinicalAnalysisManager.unLockInterpretation(interpretationId, interpretationCallback);
+                    break;
+                case "download":
+                    this.clinicalAnalysisManager.downloadInterpretation(interpretationId);
                     break;
             }
         }
