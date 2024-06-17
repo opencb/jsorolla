@@ -170,11 +170,10 @@ export default class ClinicalInterpretationManager extends LitElement {
                         </clinical-interpretation-update>
 
                         <div class="dropdown">
-                            <button class="btn btn-light dropdown-toggle one-line" type="button" data-bs-toggle="dropdown"
-                                    ?disabled="${this.clinicalAnalysis.locked}">
+                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" ?disabled="${this.clinicalAnalysis.locked}">
                                 Actions
                             </button>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu dropdown-menu-end">
                                 ${primary ? html`
                                     <li>
                                         <a
