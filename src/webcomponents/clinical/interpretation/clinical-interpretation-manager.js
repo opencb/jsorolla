@@ -173,17 +173,7 @@ export default class ClinicalInterpretationManager extends LitElement {
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 ${primary ? html`
-                                    <li>
-                                        <a
-                                            class="dropdown-item disabled"
-                                            data-action="restorePrevious"
-                                            data-interpretation-id="${interpretation.id}"
-                                            data-islocked="${interpretation.locked}"
-                                            @click="${this.onActionClick}">
-                                            <i class="fas fa-code-branch me-1" aria-hidden="true"></i>
-                                            Restore previous version
-                                        </a>
-                                    </li>
+                                    ${this.renderItemAction(interpretation, "restorePrevious", "fa-code-branch", "Restore previous version", true)}
                                 ` : html`
                                     ${this.renderItemAction(interpretation, "setAsPrimary", "fa-map-marker", "Set as primary")}
                                 `}
@@ -227,8 +217,8 @@ export default class ClinicalInterpretationManager extends LitElement {
         });
     }
 
-    renderItemAction(interpretation, action, icon, name) {
-        const disabled = interpretation?.locked && ((action !== "unlock") && (action !== "setAsPrimary"));
+    renderItemAction(interpretation, action, icon, name, defaultDisabled = false) {
+        const disabled = defaultDisabled || (interpretation?.locked && ((action !== "unlock") && (action !== "setAsPrimary")));
         return html`
             <li>
                 <a
