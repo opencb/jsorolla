@@ -228,11 +228,12 @@ export default class ClinicalInterpretationManager extends LitElement {
     }
 
     renderItemAction(interpretation, action, icon, name) {
+        const disabled = interpretation?.locked && ((action !== "unlock") && (action !== "setAsPrimary"));
         return html`
             <li>
                 <a
-                    class="dropdown-item"
-                    ?disabled="${interpretation.locked && ((action !== "unlock") && (action !== "setAsPrimary"))}"
+                    class="${`dropdown-item ${disabled ? "disabled" : ""}`}"
+                    ?disabled="${disabled}"
                     data-action="${action}"
                     data-interpretation-id="${interpretation.id}"
                     data-islocked="${interpretation.locked}"
