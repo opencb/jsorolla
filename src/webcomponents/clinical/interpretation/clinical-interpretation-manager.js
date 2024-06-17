@@ -128,9 +128,7 @@ export default class ClinicalInterpretationManager extends LitElement {
     }
 
     renderInterpretation(interpretation, primary) {
-        const interpretationLockAction = interpretation.locked ?
-            this.renderItemAction(interpretation, "unlock", "fa-unlock", "Unlock") :
-            this.renderItemAction(interpretation, "lock", "fa-lock", "Lock");
+        const locked = interpretation?.locked;
         const interpretationTitle = interpretation.locked ?
             html`<i class="fas fa-lock"></i> Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`:
             html`Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`;
@@ -186,16 +184,15 @@ export default class ClinicalInterpretationManager extends LitElement {
                                             Restore previous version
                                         </a>
                                     </li>
-                                    ${interpretationLockAction}
-                                    <li><hr class="dropdown-divider"></li>
-                                    ${this.renderItemAction(interpretation, "clear", "fa-eraser", "Clear")}
                                 ` : html`
                                     ${this.renderItemAction(interpretation, "setAsPrimary", "fa-map-marker", "Set as primary")}
-                                    ${interpretationLockAction}
-                                    <li><hr class="dropdown-divider"></li>
-                                    ${this.renderItemAction(interpretation, "clear", "fa-eraser", "Clear")}
-                                    ${this.renderItemAction(interpretation, "delete", "fa-trash", "Delete")}
                                 `}
+                                ${this.renderItemAction(interpretation, locked ? "unlock" : "lock", locked ? "fa-unlock" : "fa-lock", locked ? "Unlock" : "Lock")}
+                                <li><hr class="dropdown-divider"></li>
+                                ${this.renderItemAction(interpretation, "clear", "fa-eraser", "Clear")}
+                                ${!primary ? html`
+                                    ${this.renderItemAction(interpretation, "delete", "fa-trash", "Delete")}
+                                ` : nothing}
                             </ul>
                         </div>
                     </div>
