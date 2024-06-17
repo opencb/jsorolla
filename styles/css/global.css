@@ -185,7 +185,7 @@ a:visited {
     border: 1px solid var(--main-bg-color);
     border-radius: 50% !important;
     border-width: 8px ! important;
-    padding: 36px 1px 26px 1px;
+    padding: 34px 1px 23px 1px;
     transition: border 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -194,7 +194,7 @@ a:visited {
     border: 1px solid var(--main-bg-color);
     border-radius: 50% !important;
     border-width: 8px ! important;
-    padding: 36px 1px 26px 1px;
+    padding: 34px 1px 23px 1px;
 }
 
 .icon-interpreter-step:hover {
