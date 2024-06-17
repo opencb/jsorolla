@@ -90,14 +90,13 @@ export default class StudyUpdate extends LitElement {
     }
 
     update(changedProperties) {
-        debugger
         if (changedProperties.has("studyId")) {
             this.studyIdObserver();
         }
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {
                 ...this.displayConfigDefault,
-                ...this.displayConfig
+                ...this.displayConfig,
             };
             this._config = this.getDefaultConfig();
             if (!this._config?.notification) {
