@@ -242,6 +242,7 @@ export default class ClinicalInterpretationManager extends LitElement {
                     data-action="${action}"
                     data-interpretation-id="${interpretation.id}"
                     data-islocked="${interpretation.locked}"
+                    style="cursor:pointer;"
                     @click="${this.onActionClick}">
                     <i class="fas ${icon} me-1" aria-hidden="true"></i> ${name}
                 </a>
@@ -293,6 +294,7 @@ export default class ClinicalInterpretationManager extends LitElement {
     }
 
     onActionClick(e) {
+        e.preventDefault();
         const {action, interpretationId, islocked} = e.currentTarget.dataset;
         const interpretationCallback = () => {
             this.onClinicalInterpretationUpdate();
