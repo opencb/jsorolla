@@ -88,6 +88,11 @@ export default class NoteCreate extends LitElement {
         this.requestUpdate();
     }
 
+    createNote(scope, data) {
+        return scope === "STUDY" ? this.opencgaSession.opencgaClient.studies().createNotes(this.opencgaSession.study.fqn, data) :
+            this.opencgaSession.opencgaClient.organization().createNotes(data);
+    }
+
     onClear() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
             title: "Clear note",
@@ -101,23 +106,18 @@ export default class NoteCreate extends LitElement {
     }
 
     onSubmit() {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            includeResult: true,
-        };
         let error;
         this.#setLoading(true);
         const {scope, ...data} = this.note;
-        const noteCreateNote = scope === "STUDY" ? this.opencgaSession.opencgaClient.studies().createNotes(params.study, data, {includeResult: true}) :
-            this.opencgaSession.opencgaClient.organization().createNotes(data, {includeResult: true});
-        noteCreateNote.then(() => {
-            this.initNote();
-            this._config = this.getDefaultConfig();
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+        this.createNote(scope, data)
+            .then(() => {
+                this.initNote();
+                this._config = this.getDefaultConfig();
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 title: "New Note",
                 message: "note created correctly",
             });
-        })
+            })
             .catch(reason => {
                 error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
