@@ -50,6 +50,19 @@ class VariantInterpreterBrowserSave extends LitElement {
         LitUtils.dispatchCustomEvent(this, "clearInterpretationChanges", null, {});
     }
 
+    renderVariant(variant, icon) {
+        const geneNames = Array.from(new Set(variant.annotation.consequenceTypes.filter(ct => ct.geneName).map(ct => ct.geneName)));
+        const iconHtml = icon ? html`<span style="cursor: pointer"><i class="${icon}"></i></span>` : "";
+
+        return html`
+            <div class="mb-1" style="border-left: 2px solid #0c2f4c;">
+                <div class="my-1 mx-2">${variant.id} (${variant.type}) ${iconHtml}</div>
+                <div class="my-1 mx-2">${variant.annotation.displayConsequenceType}</div>
+                <div class="my-1 mx-2">${geneNames.join(", ")}</div>
+            </div>
+        `;
+    }
+
     render() {
         const hasVariantsToSave = this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length;
         return html`
@@ -58,17 +71,17 @@ class VariantInterpreterBrowserSave extends LitElement {
                     <span class="fw-bold">Changed Variants</span>
                 </div>
                 <div class="my-1 mx-2">
-                    <div>
-                        <label style="font-weight: normal; width: 180px">New selected variants</label>
-                        <span style="color: darkgreen;font-weight: bold">${this.state.addedVariants?.length}</span>
+                    <div class="fw-bold">New selected variants (${this.state?.addedVariants?.length ?? 0})</div>
+                    <div class="">
+                        ${(this.state?.addedVariants || []).map(variant => this.renderVariant(variant))}
                     </div>
-                    <div>
-                        <label style="font-weight: normal; width: 180px">Removed variants</label>
-                        <span style="color: darkred;font-weight: bold">${this.state.removedVariants?.length}</span>
+                    <div class="fw-bold">Updated variants (${this.state?.updatedVariants?.length ?? 0})</div>
+                    <div class="">
+                        ${(this.state?.updatedVariants || []).map(variant => this.renderVariant(variant))}
                     </div>
-                    <div>
-                        <label style="font-weight: normal; width: 180px">Updated variants</label>
-                        <span style="color: darkblue;font-weight: bold">${this.state.updatedVariants?.length}</span>
+                    <div class="fw-bold">Removed variants (${this.state?.removedVariants?.length ?? 0})</div>
+                    <div class="">
+                        ${(this.state?.removedVariants || []).map(variant => this.renderVariant(variant))}
                     </div>
                 </div>
                 <hr class="dropdown-divider">
