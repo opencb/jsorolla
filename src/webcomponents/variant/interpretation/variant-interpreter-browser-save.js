@@ -2,7 +2,7 @@ import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import "../../commons/forms/data-form.js";
 
-class VariantInterpreterSave extends LitElement {
+class VariantInterpreterBrowserSave extends LitElement {
 
     constructor() {
         super();
@@ -105,4 +105,4 @@ class VariantInterpreterSave extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-save", VariantInterpreterSave);
+customElements.define("variant-interpreter-browser-save", VariantInterpreterBrowserSave);
