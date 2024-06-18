@@ -63,30 +63,31 @@ class VariantInterpreterBrowserSave extends LitElement {
         `;
     }
 
+    renderVariantsList(title, variants) {
+        return html`
+            <div class="fw-bold">${title} (${variants.length})</div>
+            <div class="overflow-scroll" style="max-height:200px;">
+                ${variants.map(variant => this.renderVariant(variant))}
+            </div>
+        `;
+    }
+
     render() {
         const hasVariantsToSave = this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length;
         return html`
             <div>
                 <div class="my-1 mx-0">
-                    <span class="fw-bold">Changed Variants</span>
+                    <span class="fw-bold fs-5">Changed Variants</span>
                 </div>
                 <div class="my-1 mx-2">
                     <div class="fw-bold">New selected variants (${this.state?.addedVariants?.length ?? 0})</div>
-                    <div class="">
-                        ${(this.state?.addedVariants || []).map(variant => this.renderVariant(variant))}
-                    </div>
-                    <div class="fw-bold">Updated variants (${this.state?.updatedVariants?.length ?? 0})</div>
-                    <div class="">
-                        ${(this.state?.updatedVariants || []).map(variant => this.renderVariant(variant))}
-                    </div>
-                    <div class="fw-bold">Removed variants (${this.state?.removedVariants?.length ?? 0})</div>
-                    <div class="">
-                        ${(this.state?.removedVariants || []).map(variant => this.renderVariant(variant))}
-                    </div>
+                    ${this.renderVariantsList("New selected variants", this.state?.addedVariants || [])}
+                    ${this.renderVariantsList("Updated variants", this.state?.updatedVariants || [])}
+                    ${this.renderVariantsList("Removed variants", this.state?.removedVariants || [])}
                 </div>
                 <hr class="dropdown-divider">
                 <div class="my-1 mx-0">
-                    <span class="fw-bold">Add new comment</span>
+                    <span class="fw-bold fs-5">Add new comment</span>
                 </div>
                 <div class="my-1 mx-0">
                     <text-field-filter
