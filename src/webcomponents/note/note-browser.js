@@ -27,9 +27,8 @@ export default class NoteBrowser extends LitElement {
 
     constructor() {
         super();
-
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -50,7 +49,7 @@ export default class NoteBrowser extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "note-browser";
         this._config = this.getDefaultConfig();
     }
