@@ -44,37 +44,63 @@ class VariantInterpreterSave extends LitElement {
         LitUtils.dispatchCustomEvent(this, "saveInterpretationChanges", null, {
             comment: this._data?.comment,
         });
-        this._data = {};
     }
 
     onClear() {
         LitUtils.dispatchCustomEvent(this, "clearInterpretationChanges", null, {});
-        this._data = {};
     }
 
     render() {
+        const hasVariantsToSave = this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length;
         return html`
-            <data-form
-                .data="${this._data}"
-                .config="${this._config}">
-            </data-form>
+            <div>
+                <div class="my-1 mx-0">
+                    <span class="fw-bold">Changed Variants</span>
+                </div>
+                <div class="my-1 mx-2">
+                    <div>
+                        <label style="font-weight: normal; width: 180px">New selected variants</label>
+                        <span style="color: darkgreen;font-weight: bold">${this.state.addedVariants?.length}</span>
+                    </div>
+                    <div>
+                        <label style="font-weight: normal; width: 180px">Removed variants</label>
+                        <span style="color: darkred;font-weight: bold">${this.state.removedVariants?.length}</span>
+                    </div>
+                    <div>
+                        <label style="font-weight: normal; width: 180px">Updated variants</label>
+                        <span style="color: darkblue;font-weight: bold">${this.state.updatedVariants?.length}</span>
+                    </div>
+                </div>
+                <hr class="dropdown-divider">
+                <div class="my-1 mx-0">
+                    <span class="fw-bold">Add new comment</span>
+                </div>
+                <div class="my-1 mx-0">
+                    <text-field-filter
+                        placeholder="Add comment..."
+                        .rows=${3}
+                        @filterChange="${e => this.onSaveFieldsChange("message", e)}">
+                    </text-field-filter>
+                </div>
+                <div class="my-1 mx-0">
+                    <text-field-filter
+                        placeholder="Add tags..."
+                        .rows=${1}
+                        @filterChange="${e => this.onSaveFieldsChange(e)}">
+                    </text-field-filter>
+                </div>
+                <hr class="dropdown-divider">
+                <div class="float-end">
+                    <button type="button" ?disabled="${!hasVariantsToSave}" class="btn btn-primary m-1 ${hasVariantsToSave ? "" : "disabled"}"
+                            @click="${this.onSaveInterpretation}">Save
+                    </button>
+                </div>
+            </div>
         `;
     }
 
     getDefaultConfig() {
-        return {
-            icon: "",
-            display: {
-
-            },
-            sections: [
-                {
-                    title: "Summary",
-                    elements: [
-                    ],
-                },
-            ],
-        };
+        return {};
     }
 
 }
