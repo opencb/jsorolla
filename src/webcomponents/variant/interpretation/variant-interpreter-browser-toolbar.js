@@ -17,6 +17,8 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import ModalUtils from "../../commons/modal/modal-utils.js";
+import "./variant-interpreter-save.js";
 
 class VariantInterpreterBrowserToolbar extends LitElement {
 
@@ -114,6 +116,26 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                 break;
         }
     }
+
+    // onInterpretationChangesModalShow() {
+    //     ModalUtils.show();
+    // }
+
+    // renderInterpretationChangesSaveModal() {
+    //     return ModalUtils.create(this, `${this._prefix}InterpretationChangesSaveModal`, {
+    //         display: {
+    //             modalTitle: "Review and Save Interpretation Changes",
+    //             modalDraggable: false,
+    //             modalSize: "modal-lg"
+    //         },
+    //         render: () => html`
+    //             <variant-interpreter-save
+    //                 .clinicalAnalysis="${this.clinicalAnalysis}"
+    //                 .state="${this.state}">
+    //             </variant-interpreter-save>
+    //         `,
+    //     });
+    // }
 
     renderInclusionVariant(inclusion) {
         const iconHtml = html`
@@ -297,51 +319,11 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}SaveMenu" style="width: 360px">
                             <li class="my-1 mx-2">
-                                <div class="my-1 mx-0">
-                                    <span class="fw-bold">Change summary</span>
-                                </div>
-                                <div class="my-1 mx-2">
-                                    <div>
-                                        <label style="font-weight: normal; width: 180px">New selected variants</label>
-                                        <span style="color: darkgreen;font-weight: bold">${this.state.addedVariants?.length}</span>
-                                    </div>
-                                    <div>
-                                        <label style="font-weight: normal; width: 180px">Removed variants</label>
-                                        <span style="color: darkred;font-weight: bold">${this.state.removedVariants?.length}</span>
-                                    </div>
-                                    <div>
-                                        <label style="font-weight: normal; width: 180px">Updated variants</label>
-                                        <span style="color: darkblue;font-weight: bold">${this.state.updatedVariants?.length}</span>
-                                    </div>
-                                </div>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li class="my-1 mx-2">
-                                <div class="my-1 mx-0">
-                                    <span class="fw-bold">Add new comment</span>
-                                </div>
-                                <div class="my-1 mx-0">
-                                    <text-field-filter
-                                        placeholder="Add comment..."
-                                        .rows=${3}
-                                        @filterChange="${e => this.onSaveFieldsChange("message", e)}">
-                                    </text-field-filter>
-                                </div>
-                                <div class="my-1 mx-0">
-                                    <text-field-filter
-                                        placeholder="Add tags..."
-                                        .rows=${1}
-                                        @filterChange="${e => this.onSaveFieldsChange(e)}">
-                                    </text-field-filter>
-                                </div>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li class="my-1 mx-2">
-                                <div class="float-end">
-                                    <button type="button" ?disabled="${!hasVariantsToSave}" class="btn btn-primary m-1 ${hasVariantsToSave ? "" : "disabled"}"
-                                            @click="${this.onSaveInterpretation}">Save
-                                    </button>
-                                </div>
+                                <variant-interpreter-save
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .state="${this.state}">
+                                </variant-interpreter-save>
                             </li>
                         </ul>
                     </div>
