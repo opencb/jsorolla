@@ -50,24 +50,22 @@ class VariantInterpreterBrowserReview extends LitElement {
         LitUtils.dispatchCustomEvent(this, "clearInterpretationChanges", null, {});
     }
 
-    renderVariant(variant, icon) {
+    renderVariant(variant, color) {
         const geneNames = Array.from(new Set(variant.annotation.consequenceTypes.filter(ct => ct.geneName).map(ct => ct.geneName)));
-        const iconHtml = icon ? html`<span style="cursor: pointer"><i class="${icon}"></i></span>` : "";
-
         return html`
-            <div class="mb-1" style="border-left: 2px solid #0c2f4c;">
-                <div class="my-1 mx-2">${variant.id} (${variant.type}) ${iconHtml}</div>
+            <div class="mb-1 border-start border-4 border-${color}">
+                <div class="my-1 mx-2">${variant.id} (${variant.type})</div>
                 <div class="my-1 mx-2">${variant.annotation.displayConsequenceType}</div>
                 <div class="my-1 mx-2">${geneNames.join(", ")}</div>
             </div>
         `;
     }
 
-    renderVariantsList(title, variants) {
+    renderVariantsList(title, variants, color) {
         return html`
             <div class="fw-bold">${title} (${variants.length})</div>
-            <div class="overflow-scroll" style="max-height:200px;">
-                ${variants.map(variant => this.renderVariant(variant))}
+            <div class="overflow-scroll mb-2" style="max-height:150px;">
+                ${variants.map(variant => this.renderVariant(variant, color))}
             </div>
         `;
     }
@@ -80,9 +78,9 @@ class VariantInterpreterBrowserReview extends LitElement {
                     <span class="fw-bold fs-5">Changed Variants</span>
                 </div>
                 <div class="my-1 mx-2">
-                    ${this.renderVariantsList("New selected variants", this.state?.addedVariants || [])}
-                    ${this.renderVariantsList("Updated variants", this.state?.updatedVariants || [])}
-                    ${this.renderVariantsList("Removed variants", this.state?.removedVariants || [])}
+                    ${this.renderVariantsList("New selected variants", this.state?.addedVariants || [], "success")}
+                    ${this.renderVariantsList("Updated variants", this.state?.updatedVariants || [], "primary")}
+                    ${this.renderVariantsList("Removed variants", this.state?.removedVariants || [], "danger")}
                 </div>
                 <hr class="dropdown-divider">
                 <div class="my-1 mx-0">
