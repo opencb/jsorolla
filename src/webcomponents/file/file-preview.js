@@ -238,7 +238,8 @@ export default class FilePreview extends LitElement {
                         ` : null}
                         ${fileWithContent.contentType === "json" ? html`
                             <json-viewer
-                                .data="${fileWithContent.content}">
+                                .active="${this.active}"
+                                .data="${fileWithContent.content || {}}">
                             </json-viewer>
                         ` : null}
                     `) : null}
