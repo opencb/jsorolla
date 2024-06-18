@@ -63,8 +63,8 @@ class VariantInterpreterBrowserReview extends LitElement {
 
     renderVariantsList(title, variants, color) {
         return html`
-            <div class="fw-bold">${title} (${variants.length})</div>
-            <div class="overflow-scroll mb-2" style="max-height:150px;">
+            <div class="fw-bold text-secondary-emphasis">${title} (${variants.length})</div>
+            <div class="mb-2">
                 ${variants.map(variant => this.renderVariant(variant, color))}
             </div>
         `;
@@ -74,19 +74,19 @@ class VariantInterpreterBrowserReview extends LitElement {
         const hasVariantsToSave = this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length;
         return html`
             <div>
-                <div class="my-1 mx-0">
-                    <span class="fw-bold fs-5">Changed Variants</span>
-                </div>
                 <div class="my-1 mx-2">
+                    <span class="fw-bold">Changed Variants</span>
+                </div>
+                <div class="my-1 mx-3">
                     ${this.renderVariantsList("New selected variants", this.state?.addedVariants || [], "success")}
                     ${this.renderVariantsList("Updated variants", this.state?.updatedVariants || [], "primary")}
                     ${this.renderVariantsList("Removed variants", this.state?.removedVariants || [], "danger")}
                 </div>
                 <hr class="dropdown-divider">
-                <div class="my-1 mx-0">
-                    <span class="fw-bold fs-5">Add new comment</span>
+                <div class="my-1 mx-2">
+                    <span class="fw-bold">Add new comment</span>
                 </div>
-                <div class="my-1 mx-0">
+                <div class="my-1 mx-3">
                     <text-field-filter
                         placeholder="Add comment..."
                         .rows=${3}

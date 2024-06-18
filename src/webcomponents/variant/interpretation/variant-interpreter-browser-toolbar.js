@@ -317,7 +317,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             ` : null}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}SaveMenu" style="width:420px;">
-                            <li class="my-1 mx-2">
+                            <li>
                                 <variant-interpreter-browser-review
                                     .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
