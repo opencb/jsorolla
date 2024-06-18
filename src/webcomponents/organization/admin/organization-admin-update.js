@@ -227,12 +227,12 @@ export default class OrganizationAdminUpdate extends LitElement {
                     title: "Configurations",
                     elements: [
                         {
-                            title: "Simplify Permissions",
+                            title: "Optimizations",
                             field: "configuration.optimizations",
                             type: "object",
                             elements: [
                                 {
-                                    // title: "ID",
+                                    title: "Simplify Permissions",
                                     field: "simplifyPermissions",
                                     type: "checkbox",
                                     display: {
