@@ -171,8 +171,8 @@ export default class NoteGrid extends LitElement {
                     this.filters = {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        include: "id,scope,tags,userId,visibility,creationDate,modificationDate,valueType",
-                        // exclude: "version,studyUid,value,uid",
+                        // include: "id,scope,tags,userId,visibility,creationDate,modificationDate,valueType,uuid,version",
+                        exclude: "studyUid,uid",
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         ...this.query
                     };
@@ -502,7 +502,7 @@ export default class NoteGrid extends LitElement {
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
                     @actionClick="${e => this.onActionClick(e)}"
-                    @sampleCreate="${this.renderTable}">
+                    @noteCreate="${this.renderTable}">
                 </opencb-grid-toolbar>
             ` : nothing
             }
