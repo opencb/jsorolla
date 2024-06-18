@@ -80,7 +80,6 @@ class VariantInterpreterBrowserReview extends LitElement {
                     <span class="fw-bold fs-5">Changed Variants</span>
                 </div>
                 <div class="my-1 mx-2">
-                    <div class="fw-bold">New selected variants (${this.state?.addedVariants?.length ?? 0})</div>
                     ${this.renderVariantsList("New selected variants", this.state?.addedVariants || [])}
                     ${this.renderVariantsList("Updated variants", this.state?.updatedVariants || [])}
                     ${this.renderVariantsList("Removed variants", this.state?.removedVariants || [])}
