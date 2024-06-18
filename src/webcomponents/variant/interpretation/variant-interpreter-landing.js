@@ -133,10 +133,8 @@ class VariantInterpreterLanding extends LitElement {
                         const displayConfig = {
                             width: 8,
                             modalButtonClassName: "btn-light btn-sm",
-                            buttonsLayout: "upper",
-                            type: "tabs",
+                            titleVisible: false,
                         };
-
                         return html`
                             <div class="col-md-10 offset-md-1">
                                 <tool-header title="Case Manager - ${clinicalAnalysis?.id ?? ""}" class="bg-white pt-3"></tool-header>
