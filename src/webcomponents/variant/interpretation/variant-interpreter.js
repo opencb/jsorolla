@@ -272,7 +272,8 @@ class VariantInterpreter extends LitElement {
                     </tool-header>
                     <steiner-report
                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                        .opencgaSession="${this.opencgaSession}">
+                        .opencgaSession="${this.opencgaSession}"
+                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                     </steiner-report>
                 </div>
             `;

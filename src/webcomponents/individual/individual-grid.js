@@ -64,21 +64,22 @@ export default class IndividualGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
-        this.displayConfigDefault = {
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom",
-            },
-        };
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config")) {
+            this.propertyObserver();
+        }
+
+        super.update(changedProperties);
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
-            changedProperties.has("toolId") ||
-            changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) && this.active) {
-            this.propertyObserver();
+        if (changedProperties.size > 0 && this.active) {
+            this.renderTable();
         }
     }
 
@@ -142,16 +143,16 @@ export default class IndividualGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
-        this.renderTable();
     }
 
-    fetchClinicalAnalysis(rows) {
+    fetchClinicalAnalysis(rows, casesLimit) {
         if (rows && rows.length > 0) {
             return this.opencgaSession.opencgaClient.clinical()
                 .search({
                     individual: rows.map(individual => individual.id).join(","),
                     study: this.opencgaSession.study.fqn,
                     include: "id,proband.id,family.members",
+                    limit: casesLimit * 10,
                 })
                 .then(response => {
                     return rows.forEach(individual => {
@@ -173,13 +174,11 @@ export default class IndividualGrid extends LitElement {
     }
 
     renderTable() {
-        // If this.individuals is provided as property we render the array directly
         if (this.individuals?.length > 0) {
             this.renderLocalTable();
         } else {
             this.renderRemoteTable();
         }
-        this.requestUpdate();
     }
 
     renderRemoteTable() {
@@ -202,7 +201,6 @@ export default class IndividualGrid extends LitElement {
                 icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
                 silentSort: false,
-                // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
@@ -212,7 +210,6 @@ export default class IndividualGrid extends LitElement {
                 detailView: this._config.detailView,
                 detailFormatter: this.detailFormatter,
                 gridContext: this,
-                // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let individualResponse = null;
@@ -224,14 +221,16 @@ export default class IndividualGrid extends LitElement {
                         ...this.query
                     };
 
+                    // Calculate the number of cases to fetch
+                    const casesLimit = this.table?.bootstrapTable("getOptions")?.pageSize || this._config.pageSize || 10;
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.individuals()
                         .search(this.filters)
                         .then(response => {
                             individualResponse = response;
-                            // Fetch Clinical Analysis ID per individual in 1 single query
-                            return this.fetchClinicalAnalysis(individualResponse?.responses?.[0]?.results || []);
+                            return this.fetchClinicalAnalysis(individualResponse?.responses?.[0]?.results || [], casesLimit);
                         })
                         .then(() => {
                             // Prepare data for columns extensions
@@ -275,7 +274,9 @@ export default class IndividualGrid extends LitElement {
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
-                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
+                onLoadError: (e, restResponse) => {
+                    this.gridCommons.onLoadError(e, restResponse);
+                },
             });
         }
     }
@@ -311,7 +312,6 @@ export default class IndividualGrid extends LitElement {
             },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
-            // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
@@ -414,14 +414,6 @@ export default class IndividualGrid extends LitElement {
         return result;
     }
 
-    sexFormatter(value, row) {
-        let sexHtml = `${UtilsNew.isEmpty(row?.sex) ? "Not specified" : row.sex?.id || row.sex}`;
-        if (row?.karyotypicSex) {
-            sexHtml += ` (${row.karyotypicSex?.id || row.karyotypicSex})`;
-        }
-        return sexHtml;
-    }
-
     async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
         switch (action) {
@@ -451,18 +443,14 @@ export default class IndividualGrid extends LitElement {
                 field: "id",
                 formatter: (individualId, individual) => {
                     // Get sex info
-                    let sexHtml = `${individual?.sex ? individual.sex?.id || individual.sex : "Not specified"}`;
-                    if (individual?.karyotypicSex) {
-                        sexHtml += ` (${individual.karyotypicSex?.id || individual.karyotypicSex})`;
-                    }
+                    const sexHtml = CatalogGridFormatter.sexFormatter(individual.sex, individual);
                     return `
                         <div>
                             <span style="font-weight: bold; margin: 5px 0">${individualId}</span>
                             <span class="d-block text-secondary" style="margin: 5px 0">${sexHtml}</span>
                         </div>`;
                 },
-                sortable: true,
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
@@ -478,13 +466,14 @@ export default class IndividualGrid extends LitElement {
                                 <div style="white-space: nowrap">
                                     <span style="font-weight: bold">${sample.id}</span>
                                     <span title="${sample.somatic ? "Somatic sample" : "Germline sample"}"> (${sample.somatic ? "S" : "G"})</span>
-                                </div>`;
+                                </div>
+                            `;
                         }
                         html += `</div>`;
                     }
                     return html;
                 },
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("samples")
             },
             {
@@ -492,7 +481,7 @@ export default class IndividualGrid extends LitElement {
                 title: "Father",
                 field: "father.id",
                 formatter: fatherId => fatherId || "-",
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("father")
             },
             {
@@ -500,7 +489,7 @@ export default class IndividualGrid extends LitElement {
                 title: "Mother",
                 field: "mother.id",
                 formatter: motherId => motherId || "-",
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("mother")
             },
             {
@@ -508,7 +497,7 @@ export default class IndividualGrid extends LitElement {
                 title: "Disorders",
                 field: "disorders",
                 formatter: CatalogGridFormatter.disorderFormatter,
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("disorders")
             },
             {
@@ -516,23 +505,15 @@ export default class IndividualGrid extends LitElement {
                 title: "Phenotypes",
                 field: "phenotypes",
                 formatter: CatalogGridFormatter.phenotypesFormatter,
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("phenotypes")
             },
-            // {
-            //     id: "sex",
-            //     title: "Sex (Karyotypic)",
-            //     field: "sex",
-            //     formatter: this.sexFormatter,
-            //     halign: this.displayConfigDefault.header.horizontalAlign,
-            //     visible: this.gridCommons.isColumnVisible("sex")
-            // },
             {
                 id: "caseId",
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
@@ -540,25 +521,15 @@ export default class IndividualGrid extends LitElement {
                 title: "Ethnicity",
                 field: "ethnicity",
                 formatter: (ethnicity, row) => ethnicity?.id || row.population?.name || "-",
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("ethnicity")
             },
-            // {
-            //     id: "dateOfBirth",
-            //     title: "Date of Birth",
-            //     field: "dateOfBirth",
-            //     sortable: true,
-            //     formatter: CatalogGridFormatter.dateFormatter,
-            //     halign: this.displayConfigDefault.header.horizontalAlign,
-            //     visible: this.gridCommons.isColumnVisible("dateOfBirth")
-            // },
             {
                 id: "creationDate",
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
-                sortable: true,
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
@@ -586,12 +557,12 @@ export default class IndividualGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
+                align: "center",
                 formatter: (value, row) => `
-                    <div class="dropdown">
+                    <div class="d-inline-block dropdown">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-toolbox" aria-hidden="true"></i>
+                            <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
                             <span>Actions</span>
-                            <span class="caret" style="margin-left: 5px"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
@@ -614,14 +585,15 @@ export default class IndividualGrid extends LitElement {
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
-                                        <a data-action="interpreter" class="dropdown-item ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
-                                           href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
-                                            <i class="fas fa-user-md" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
-                                        </a>
-                                    `).join("") : `<a data-action="interpreter" class="dropdown-item disabled" href="#">
+                                    <a data-action="interpreter" class="dropdown-item ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
+                                        href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
+                                        <i class="fas fa-user-md" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
+                                    </a>
+                                `).join("") : `
+                                    <a data-action="interpreter" class="dropdown-item disabled" href="#">
                                         <i class="fas fa-user-md" aria-hidden="true"></i> No cases found
-                                    </a>`
-                }
+                                    </a>
+                                `}
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
@@ -635,15 +607,15 @@ export default class IndividualGrid extends LitElement {
                                 </a>
                             </li>
                         </ul>
-                    </div>`,
+                    </div>
+                `,
                 events: {
-                    "click a": this.onActionClick.bind(this)
+                    "click a": this.onActionClick.bind(this),
                 },
-                visible: !this._config.columns?.hidden?.includes("actions")
+                visible: this.gridCommons.isColumnVisible("actions"),
             });
         }
 
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
     }
@@ -668,7 +640,7 @@ export default class IndividualGrid extends LitElement {
                     if (e.detail.option.toUpperCase() === "TAB") {
                         const fields = ["id", "samples.id", "father.id", "mother.id", "disorders.id", "phenotypes.id", "sex.id", "lifeStatus", "dateOfBirth", "creationDate"];
                         const data = UtilsNew.toTableString(results, fields, {
-                            "sex.id": this.sexFormatter,
+                            "sex.id": CatalogGridFormatter.sexFormatter,
                         });
                         UtilsNew.downloadData(data, "individuals_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
@@ -686,6 +658,72 @@ export default class IndividualGrid extends LitElement {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
                 this.requestUpdate();
             });
+    }
+
+    onCreateCohortShow() {
+        const filters = {
+            ...this.filters,
+            include: "id,samples.id,samples.internal",
+            limit: 5000,
+        };
+        this.opencgaSession.opencgaClient.individuals()
+            .search(filters)
+            .then(response => {
+                const results = response.getResults();
+                if (results) {
+                    this.createCohortSampleIds = [];
+                    for (const result of results) {
+                        for (const sample of result.samples) {
+                            this.createCohortSampleIds.push({"id": sample.id});
+                        }
+                    }
+                    this.requestUpdate();
+                    ModalUtils.show(`${this._prefix}CreateCohortModal`);
+                } else {
+                    console.error("Error in result format");
+                }
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
+    }
+
+    onCreateCohortSave() {
+        const cohortId = document.querySelector(`#${this._prefix}CohortId`).value;
+        const cohortName = document.querySelector(`#${this._prefix}CohortName`).value;
+
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            includeResult: false
+        };
+        this.opencgaSession.opencgaClient.cohorts()
+            .create({
+                id: cohortId,
+                name: cohortName ?? "",
+                samples: this.createCohortSampleIds,
+            }, params)
+            .then(() => {
+                this.createCohortSampleIds = [];
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Cohort Create",
+                    message: "Cohort created correctly"
+                });
+            })
+            .catch(reason => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            });
+    }
+
+    getRightToolbar() {
+        return [
+            {
+                render: () => html`
+                    <button type="button" class="btn btn-light" @click="${e => this.onCreateCohortShow(e)}">
+                        <i class="fas fa-users pe-1"></i> Create Cohort
+                    </button>
+                `,
+            }
+        ];
     }
 
     renderModalUpdate() {
@@ -707,11 +745,45 @@ export default class IndividualGrid extends LitElement {
         });
     }
 
+    renderModalCohortCreate() {
+        return ModalUtils.create(this, `${this._prefix}CreateCohortModal`, {
+            display: {
+                modalTitle: "Create Cohort",
+                modalDraggable: true,
+                modalbtnsVisible: true,
+                modalSize: "modal-md"
+            },
+            render: () => {
+                return html`
+                    <div class="mb-2">
+                        Create a new cohort with <span class="fw-bold">${this.createCohortSampleIds?.length} samples</span>.
+                        This can take few seconds depending on the number of samples.
+                    </div>
+                    ${this.createCohortSampleIds?.length === 5000 ? html`
+                        <div class="alert alert-warning mb-2">No more than 5,000 samples allowed.</div>
+                    ` : nothing}
+                    <form>
+                        <div class="mb-2">
+                            <label for="${this._prefix}CohortId" class="form-label">Cohort ID</label>
+                            <input type="text" class="form-control" id="${this._prefix}CohortId" placeholder="">
+                        </div>
+                        <div class="mb-0">
+                            <label for="${this._prefix}CohortName" class="form-label">Cohort Name</label>
+                            <input type="text" class="form-control" id="${this._prefix}CohortName" placeholder="">
+                        </div>
+                    </form>
+                `;
+            },
+            onOk: e => this.onCreateCohortSave(e)
+        });
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.filters}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
@@ -723,11 +795,12 @@ export default class IndividualGrid extends LitElement {
                 </opencb-grid-toolbar>
             ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv" data-cy="ib-grid">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="ib-grid">
                 <table id="${this.gridId}"></table>
             </div>
 
             ${this.renderModalUpdate()}
+            ${this.renderModalCohortCreate()}
         `;
     }
 

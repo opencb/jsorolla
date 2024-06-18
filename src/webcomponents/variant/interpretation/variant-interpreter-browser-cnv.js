@@ -182,6 +182,14 @@ class VariantInterpreterBrowserCNV extends LitElement {
                 this._config = this.getDefaultConfig();
             }
 
+            // 6. Read defaultFilter from browser settings
+            if (this.settings?.menu?.defaultFilter) {
+                this.query = {
+                    ...this.query,
+                    ...this.settings.menu.defaultFilter,
+                };
+            }
+
             // Add filter to Active Filters menu
             // 1. Add variant stats saved queries to the Active Filters menu
             if (this.somaticSample.qualityControl?.variant?.variantStats?.length > 0) {

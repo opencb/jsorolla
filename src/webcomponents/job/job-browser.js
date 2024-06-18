@@ -250,15 +250,7 @@ export default class JobBrowser extends LitElement {
                         ],
                     },
                 ],
-                examples: [
-                    {
-                        id: "Example 1 - Get VCF and BAM",
-                        active: false,
-                        query: {
-                            format: "VCF,BAM",
-                        },
-                    },
-                ],
+                examples: [],
                 result: {
                     grid: {
                         pageSize: 10,

@@ -1,6 +1,6 @@
 import {html, nothing} from "lit";
+import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils";
-import UtilsNew from "../../../core/utils-new";
 
 export default class ModalUtils {
 
@@ -28,12 +28,19 @@ export default class ModalUtils {
         const modalDraggable = config.display?.modalDraggable || false;
         const modalCyDataName = config.display?.modalCyDataName || "";
 
-        return html `
-            <div class="modal fade" id="${id}" data-draggable="${modalDraggable}"
-                tabindex="-1" role="dialog"
-                aria-labelledby="DataModalLabel" aria-hidden="true" data-cy="${modalCyDataName}">
-                <!-- alternative: To use the width per style, it should look like this -> --bs-modal-width: 800px -->
+        return html`
+            <div
+                class="modal fade"
+                id="${id}"
+                data-draggable="${modalDraggable}"
+                tabindex="-1"
+                role="dialog"
+                aria-labelledby="DataModalLabel"
+                aria-hidden="true"
+                data-cy="${modalCyDataName}"
+            >
                 <div class="modal-dialog ${modalSize}" style="width: ${modalWidth}">
+
                     <div class="modal-content">
                         <div class="modal-header">
                             ${ModalUtils.#getTitleHeader(modalTitleHeader, modalTitle, "modal-title " + modalTitleClassName, modalTitleStyle)}
@@ -48,11 +55,24 @@ export default class ModalUtils {
                         </div>
                         ${btnsVisible? html`
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
-                                        @click="${e => LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}">Cancel</button>
-                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
-                                        @click="${e => LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}">Save</button>
-                            </div>`: nothing}
+                                <button
+                                    type="button"
+                                    class="btn btn-light"
+                                    data-bs-dismiss="modal"
+                                    @click="${e => LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary"
+                                    data-bs-dismiss="modal"
+                                    @click="${e => LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}"
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        `: nothing}
                     </div>
                 </div>
             </div>
