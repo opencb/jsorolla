@@ -20,10 +20,6 @@ import UtilsNew from "../../../core/utils-new.js";
 
 export default class CustomSidebar extends LitElement {
 
-    constructor() {
-        super();
-    }
-
     createRenderRoot() {
         return this;
     }
@@ -47,22 +43,17 @@ export default class CustomSidebar extends LitElement {
     }
 
     onChangeApp(e, toggle) {
+        console.log("CHANGE_APP");
         LitUtils.dispatchCustomEvent(this, "changeApp", "", {event: e, toggle: toggle}, null);
     }
 
-    renderStyle() {
-        return html `
+    render() {
+        return html`
             <style>
                 .hover-effect:hover {
                     background-color:#f8f9fa;
                 }
             </style>
-        `;
-    }
-
-    render() {
-        return html`
-            ${this.renderStyle()}
             <!-- Left Sidebar: we only display this if more than 1 visible app exist -->
             ${this.config?.apps?.filter(app => UtilsNew.isAppVisible(app, this.opencgaSession)).length > 0 ? html`
                 <div id="overlay" @click="${this.onSideBarToggle}"></div>
@@ -91,8 +82,15 @@ export default class CustomSidebar extends LitElement {
                                 ` : nothing}
                             ${this.config?.apps?.filter(item => UtilsNew.isAppVisible(item, this.opencgaSession)).map(item => html`
                                 <li class="nav-item hover-effect">
-                                    <a class="nav-link fs-5" href="#home" role="button" data-id="${item.id}" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasIva"
-                                        @click="${e => this.onChangeApp(e, true)}">
+                                    <a
+                                        class="nav-link fs-5"
+                                        href="#home"
+                                        role="button"
+                                        data-id="${item.id}"
+                                        data-bs-dismiss="offcanvas"
+                                        data-bs-target="#offcanvasIva"
+                                        @click="${e => this.onChangeApp(e)}"
+                                    >
                                         <img src="${item.icon}" alt="${item.name}" width="48px"/> ${item.name}
                                     </a>
                                 </li>
@@ -105,8 +103,7 @@ export default class CustomSidebar extends LitElement {
                         </div>
                     </div>
                 </div>
-            ` : nothing
-            }
+            ` : nothing}
         `;
     }
 
