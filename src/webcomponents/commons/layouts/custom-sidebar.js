@@ -42,8 +42,8 @@ export default class CustomSidebar extends LitElement {
         LitUtils.dispatchCustomEvent(this, "sideBarToggle", "", {event: e}, null);
     }
 
-    onChangeApp(e, toggle) {
-        LitUtils.dispatchCustomEvent(this, "changeApp", "", {event: e, toggle: toggle}, null);
+    onChangeApp(e) {
+        LitUtils.dispatchCustomEvent(this, "changeApp", "", {event: e}, null);
     }
 
     render() {
@@ -59,7 +59,7 @@ export default class CustomSidebar extends LitElement {
                 <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasIva">
                     <div class="offcanvas-header">
                         <div data-bs-dismiss="offcanvas" data-bs-target="#offcanvasIva">
-                            <a class="text-decoration-none" href="#home" @click="${e => this.onChangeApp(e, true)}">
+                            <a class="text-decoration-none" href="#home" @click="${e => this.onChangeApp(e)}">
                                 <div class="top-logo d-flex flex-column p-3">
                                     <img src="${this.config.logoAlt}" height="50px"/>
                                     <span class="fs-4">Suite</span>
