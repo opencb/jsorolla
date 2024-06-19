@@ -131,16 +131,17 @@ export default class NoteCreate extends LitElement {
     render() {
         if (this.isLoading) {
             return html`
-                <loading-spinner></loading-spinner>`;
+                <loading-spinner></loading-spinner>`
+            ;
         }
 
         return html`
             <data-form
                 .data="${this.note}"
                 .config="${this._config}"
+                @clear="${ () => this.onClear()}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
+                @submit="${() => this.onSubmit()}">
             </data-form>
         `;
     }
