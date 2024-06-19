@@ -58,12 +58,14 @@ export default class CustomSidebar extends LitElement {
                 <div id="overlay" @click="${this.onSideBarToggle}"></div>
                 <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasIva">
                     <div class="offcanvas-header">
-                        <a class="text-decoration-none" href="#home" @click="${e => this.onChangeApp(e, true)}">
-                            <div class="top-logo d-flex flex-column p-3">
-                                <img src="${this.config.logoAlt}" height="50px"/>
-                                <span class="fs-4">Suite</span>
-                            </div>
-                        </a>
+                        <div data-bs-dismiss="offcanvas" data-bs-target="#offcanvasIva">
+                            <a class="text-decoration-none" href="#home" @click="${e => this.onChangeApp(e, true)}">
+                                <div class="top-logo d-flex flex-column p-3">
+                                    <img src="${this.config.logoAlt}" height="50px"/>
+                                    <span class="fs-4">Suite</span>
+                                </div>
+                            </a>
+                        </div>
                         <button type="button" class="btn-close mb-auto mt-1 me-1" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasIva"
                             aria-label="Close">
                         </button>
