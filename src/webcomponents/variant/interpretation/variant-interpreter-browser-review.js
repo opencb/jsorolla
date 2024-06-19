@@ -87,18 +87,20 @@ class VariantInterpreterBrowserReview extends LitElement {
                     <span class="fw-bold">Add new comment</span>
                 </div>
                 <div class="my-1 mx-3">
-                    <text-field-filter
-                        placeholder="Add comment..."
-                        .rows=${3}
-                        @filterChange="${e => this.onSaveFieldsChange("message", e)}">
-                    </text-field-filter>
-                </div>
-                <div class="my-1 mx-0">
-                    <text-field-filter
-                        placeholder="Add tags..."
-                        .rows=${1}
-                        @filterChange="${e => this.onSaveFieldsChange(e)}">
-                    </text-field-filter>
+                    <div class="mb-1">
+                        <text-field-filter
+                            placeholder="Add comment..."
+                            .rows=${2}
+                            @filterChange="${e => this.onSaveFieldsChange("message", e)}">
+                        </text-field-filter>
+                    </div>
+                    <div class="">
+                        <text-field-filter
+                            placeholder="Add tags..."
+                            .rows=${1}
+                            @filterChange="${e => this.onSaveFieldsChange(e)}">
+                        </text-field-filter>
+                    </div>
                 </div>
                 <hr class="dropdown-divider">
                 <div class="float-end">
