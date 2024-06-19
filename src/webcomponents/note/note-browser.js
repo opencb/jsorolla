@@ -21,7 +21,6 @@ import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
 import "./note-grid.js";
 import "./note-detail.js";
-import "./note-preview.js";
 
 export default class NoteBrowser extends LitElement {
 
@@ -213,22 +212,6 @@ export default class NoteBrowser extends LitElement {
                                     .opencgaSession="${opencgaSession}">
                                 </note-view>
                             `,
-                        },
-                        {
-                            id: "note-preview",
-                            name: "Preview",
-                            render: (note, active, opencgaSession) => {
-                                return html`
-                                    <div class="mb-3">
-                                        <h3>Content</h3>
-                                    </div>
-                                    <note-preview
-                                        .active="${active}"
-                                        .note="${note}"
-                                        .opencgaSession="${opencgaSession}">
-                                    </note-preview>
-                                `;
-                            }
                         },
                         {
                             id: "json-view",
