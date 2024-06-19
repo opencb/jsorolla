@@ -846,7 +846,6 @@ class IvaApp extends LitElement {
         this.hashFragmentListener();
     }
 
-
     hashFragmentListener() {
         console.log("hashFragmentListener - Hide all enabled elements");
 
@@ -1100,7 +1099,6 @@ class IvaApp extends LitElement {
         this.browserSearchQuery = {...e.detail.query};
         // this.browserSearchQuery = {};
     }
-
 
     onQueryFilterSearch(e, source) {
         // FIXME filters component emits a event containing {detail:{query:Object}} while active-filter emits {detail:{Object}}
