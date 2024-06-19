@@ -38,10 +38,6 @@ export default class CustomSidebar extends LitElement {
         };
     }
 
-    onSideBarToggle(e) {
-        LitUtils.dispatchCustomEvent(this, "sideBarToggle", "", {event: e}, null);
-    }
-
     onChangeApp(e) {
         LitUtils.dispatchCustomEvent(this, "changeApp", "", {event: e}, null);
     }
@@ -55,7 +51,7 @@ export default class CustomSidebar extends LitElement {
             </style>
             <!-- Left Sidebar: we only display this if more than 1 visible app exist -->
             ${this.config?.apps?.filter(app => UtilsNew.isAppVisible(app, this.opencgaSession)).length > 0 ? html`
-                <div id="overlay" @click="${this.onSideBarToggle}"></div>
+                <div id="overlay"></div>
                 <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasIva">
                     <div class="offcanvas-header">
                         <div data-bs-dismiss="offcanvas" data-bs-target="#offcanvasIva">
