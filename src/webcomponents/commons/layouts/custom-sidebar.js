@@ -43,7 +43,6 @@ export default class CustomSidebar extends LitElement {
     }
 
     onChangeApp(e, toggle) {
-        console.log("CHANGE_APP");
         LitUtils.dispatchCustomEvent(this, "changeApp", "", {event: e, toggle: toggle}, null);
     }
 
@@ -71,15 +70,6 @@ export default class CustomSidebar extends LitElement {
                     </div>
                     <div class="offcanvas-body">
                         <ul class="navbar-nav">
-                            ${!this.loggedIn ? html`
-                                <li class="nav-item">
-                                    <a href="#login" class="nav-link fs-5" role="button"
-                                        @click="${e => this.onChangeApp(e, true)}">
-                                        <i href="#login" class="fa fa-sign-in-alt fa-lg pe-1"
-                                        aria-hidden="true"></i>Login
-                                    </a>
-                                </li>
-                                ` : nothing}
                             ${this.config?.apps?.filter(item => UtilsNew.isAppVisible(item, this.opencgaSession)).map(item => html`
                                 <li class="nav-item hover-effect">
                                     <a
