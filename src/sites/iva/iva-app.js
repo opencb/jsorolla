@@ -1113,13 +1113,6 @@ class IvaApp extends LitElement {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
     }
 
-    toggleSideBar() {
-        if (!this.bsOffcanvas) {
-            this.bsOffcanvas = new bootstrap.Offcanvas("#offcanvasIva");
-        }
-        this.bsOffcanvas.toggle();
-    }
-
     onChangeApp(e) {
         // If an App ID exists we display the corresponding app. If not we just show the Suite
         if (e.currentTarget.dataset.id) {
@@ -1273,8 +1266,7 @@ class IvaApp extends LitElement {
             <custom-sidebar
                 .config="${this.config}"
                 .loggedIn="${this.isLoggedIn()}"
-                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
-                @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}">
+                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}">
             </custom-sidebar>
 
             <!-- Navbar -->
@@ -1285,7 +1277,6 @@ class IvaApp extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this.config}"
                 @logout="${() => this.logout()}"
-                @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}"
                 @changeTool="${e => this.changeTool(e.detail.value)}"
                 @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
                 @studySelect="${ e => this.onStudySelect(e.detail.event, e.detail.study)}"
