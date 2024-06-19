@@ -77,6 +77,7 @@ export default class NoteView extends LitElement {
         if (changedProperties.has("note")) {
             this.noteObserver();
         }
+
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
@@ -221,6 +222,27 @@ export default class NoteView extends LitElement {
                             field: "modificationDate",
                             display: {
                                 format: date => UtilsNew.dateFormatter(date),
+                            },
+                        },
+                        {
+                            title: "Content",
+                            type: "custom",
+                            display: {
+                                render: note => {
+                                    let content = "";
+                                    switch (note?.valueType) {
+                                        case "OBJECT":
+                                        case "ARRAY":
+                                            content = `<pre>${JSON.stringify(note.value, null, "    ")}</pre>`;
+                                            break;
+                                        case "STRING":
+                                        case "INTEGER":
+                                        case "DOUBLE":
+                                        default:
+                                            content = note?.value;
+                                    }
+                                    return content;
+                                },
                             },
                         },
                     ],
