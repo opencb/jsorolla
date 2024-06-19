@@ -16,20 +16,25 @@
 
 export default class WebUtils {
 
-    static getDisplayName(item) {
-        if (item?.id && item?.name) {
-            // First case: both item.id and item.name exists and are not empty
-            return `${item.name} (${item.id})`;
-        } else if (item?.id) {
-            // Second case: only item.id exists
-            return item.id;
-        } else if (item?.name) {
-            // Thids case: only item.name exists
-            return item.name;
+    static formatDisplayName(id, name, defaultValue = "-") {
+        if (id && name) {
+            // First case: both id and name exists and are not empty
+            return `${name} (${id})`;
+        } else if (id) {
+            // Second case: only id exists
+            return id;
+        } else if (name) {
+            // Third case: only name exists
+            return name;
         } else {
-            // Fallback: neither item.id and item.name exists or item is empty
-            return "-";
+            // Fallback: neither id and name exists
+            return defaultValue;
         }
+    }
+
+    // Note: this is an alias to 'formatDisplayName', where the argument is an object that contains 'id' and/or 'name'
+    static getDisplayName(item, defaultValue) {
+        return WebUtils.formatDisplayName(item?.id, item?.name, defaultValue);
     }
 
     static getIVALink(opencgaSession, tool, query = {}) {
