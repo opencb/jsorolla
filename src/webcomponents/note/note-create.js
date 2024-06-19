@@ -98,7 +98,7 @@ export default class NoteCreate extends LitElement {
             title: "Clear note",
             message: "Are you sure to clear?",
             ok: () => {
-                this.note = {};
+                this.initNote();
                 this._config = this.getDefaultConfig();
                 this.requestUpdate();
             },
