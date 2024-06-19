@@ -1120,7 +1120,7 @@ class IvaApp extends LitElement {
         this.bsOffcanvas.toggle();
     }
 
-    onChangeApp(e, toggle) {
+    onChangeApp(e) {
         // If an App ID exists we display the corresponding app. If not we just show the Suite
         if (e.currentTarget.dataset.id) {
             this.app = this.config.apps.find(app => app.id === e.currentTarget.dataset.id);
@@ -1128,13 +1128,8 @@ class IvaApp extends LitElement {
             this.app = this.getActiveAppConfig();
         }
 
-        // We only want to toggle when clicked in the sidenav
-        // if (toggle) {
-        //     this.toggleSideBar();
-        // }
-
+        // Change current tool in navbar
         this.changeTool(e);
-        this.requestUpdate();
     }
 
     getActiveAppConfig() {
