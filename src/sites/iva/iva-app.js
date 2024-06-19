@@ -1131,11 +1131,12 @@ class IvaApp extends LitElement {
         }
 
         // We only want to toggle when clicked in the sidenav
-        if (toggle) {
-            this.toggleSideBar();
-        }
+        // if (toggle) {
+        //     this.toggleSideBar();
+        // }
 
         this.changeTool(e);
+        this.requestUpdate();
     }
 
     getActiveAppConfig() {
