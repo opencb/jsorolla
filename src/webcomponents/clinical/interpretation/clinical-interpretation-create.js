@@ -194,6 +194,11 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             },
                         },
                         {
+                            title: "Interpretation Name",
+                            field: "name",
+                            type: "input-text",
+                        },
+                        {
                             title: "Assigned To",
                             field: "analyst.id",
                             type: "select",
