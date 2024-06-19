@@ -50,10 +50,6 @@ export default class CustomNavBar extends LitElement {
         };
     }
 
-    onSideBarToggle(e) {
-        LitUtils.dispatchCustomEvent(this, "sideBarToggle", "", {event: e}, null);
-    }
-
     onChangeTool(e) {
         LitUtils.dispatchCustomEvent(this, "changeTool", e);
     }
