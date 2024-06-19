@@ -40,9 +40,6 @@ export default class NoteView extends LitElement {
             note: {
                 type: Object,
             },
-            noteId: {
-                type: String,
-            },
             search: {
                 type: Boolean,
             },
@@ -56,7 +53,7 @@ export default class NoteView extends LitElement {
     }
 
     #init() {
-        this.note = {};
+        this._note = {};
         this.search = false;
         this.isLoading = false;
 
@@ -77,8 +74,8 @@ export default class NoteView extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("noteId")) {
-            this.noteIdObserver();
+        if (changedProperties.has("note")) {
+            this.noteObserver();
         }
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
@@ -87,62 +84,8 @@ export default class NoteView extends LitElement {
         super.update(changedProperties);
     }
 
-    noteIdObserver() {
-        if (this.note && this.opencgaSession) {
-            const params = {
-                id: this.noteId,
-            };
-            let error;
-            this.#setLoading(true);
-
-            this.opencgaSession.opencgaClient.studies().searchNotes(this.opencgaSession.study.fqn, params)
-                .then(response => {
-                    this.note = response.responses[0].results[0];
-                })
-                .catch(reason => {
-                    this.note = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "noteSearch", this.note, null, error);
-                    this.#setLoading(false);
-                });
-        } else {
-            this.note = {};
-        }
-    }
-
     noteObserver() {
-        if (this.note?.scope && this.opencgaSession) {
-            const params = {
-                id: this.note?.id,
-            };
-            let error;
-            this.#setLoading(true);
-            // endpoint by default.
-            let noteClient = this.opencgaSession.opencgaClient.studies();
-            if (this.note?.scope === "ORGANIZATION") {
-                noteClient = this.opencgaSession.opencgaClient.organization();
-            }
-            noteClient.searchNotes(this.opencgaSession.study.fqn, params)
-                .then(response => {
-                    this.note = response.responses[0].results[0];
-                })
-                .catch(reason => {
-                    this.note = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "noteSearch", this.note, null, error);
-                    this.#setLoading(false);
-                });
-        } else {
-            this.note = {};
-        }
+        this._note = {...this.note};
     }
 
     onFilterChange(e) {
@@ -165,7 +108,7 @@ export default class NoteView extends LitElement {
 
         return html`
             <data-form
-                .data="${this.note}"
+                .data="${this._note}"
                 .config="${this._config}">
             </data-form>
         `;
