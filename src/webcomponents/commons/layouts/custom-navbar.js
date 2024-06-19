@@ -19,7 +19,6 @@ import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 import "../../job/job-monitor.js";
 
-
 export default class CustomNavBar extends LitElement {
 
     constructor() {
