@@ -71,16 +71,8 @@ export default class CustomSidebar extends LitElement {
                     <div class="offcanvas-body">
                         <ul class="navbar-nav">
                             ${this.config?.apps?.filter(item => UtilsNew.isAppVisible(item, this.opencgaSession)).map(item => html`
-                                <li class="nav-item hover-effect">
-                                    <a
-                                        class="nav-link fs-5"
-                                        href="#home"
-                                        role="button"
-                                        data-id="${item.id}"
-                                        data-bs-dismiss="offcanvas"
-                                        data-bs-target="#offcanvasIva"
-                                        @click="${e => this.onChangeApp(e)}"
-                                    >
+                                <li class="nav-item hover-effect" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasIva">
+                                    <a href="#home" class="nav-link fs-5" data-id="${item.id}" @click="${e => this.onChangeApp(e)}">
                                         <img src="${item.icon}" alt="${item.name}" width="48px"/> ${item.name}
                                     </a>
                                 </li>
