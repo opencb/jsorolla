@@ -179,7 +179,7 @@ export default class UserAdminStatusUpdate extends LitElement {
             return html `
                 <div class="alert alert-info">
                     <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    The ${this.user.id} does not have an status ID.
+                    The ${this.user.id} does not have a status ID.
                 </div>
             `;
         }
