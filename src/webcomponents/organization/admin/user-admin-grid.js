@@ -70,6 +70,12 @@ export default class UserAdminGrid extends LitElement {
         this.active = true;
         this._config = this.getDefaultConfig();
         this.action = "";
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     // --- LIFE-CYCLE METHODS
@@ -262,16 +268,13 @@ export default class UserAdminGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("account.authentication.id")
             },
             {
-                title: "Creation Date",
-                field: "account.creationDate",
-                formatter: (value, row) => CatalogGridFormatter.dateFormatter(value, row),
-                visible: this.gridCommons.isColumnVisible("account.creationDate")
-            },
-            {
-                title: "Expiration Date",
-                field: "account.expirationDate",
-                formatter: (value, row) => CatalogGridFormatter.dateFormatter(value, row),
-                visible: this.gridCommons.isColumnVisible("account.expirationDate")
+                id: "dates",
+                title: "Creation / Expiration Date",
+                field: "Dates",
+                halign: this.displayConfigDefault.header.horizontalAlign,
+                valign: "middle",
+                formatter: (value, row) => this.creationExpirationDateFormatter(value, row),
+                visible: this.gridCommons.isColumnVisible("dates")
             },
             {
                 title: "Status",
@@ -329,6 +332,20 @@ export default class UserAdminGrid extends LitElement {
 
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
+    }
+
+    creationExpirationDateFormatter(value, user) {
+        const expirationDateString = UtilsNew.dateFormatter(user.expirationDate);
+        const expirationDate = new Date(expirationDateString);
+        const currentDate = new Date();
+        let expirationDateClass = null;
+        if (currentDate > expirationDate) {
+            expirationDateClass = "text-danger";
+        }
+        return `
+            <div class="${expirationDateClass}">${expirationDateString}</div>
+            <div class="text-body-secondary">${UtilsNew.dateFormatter(user.creationDate)}</div>
+        `;
     }
 
     // *** EVENTS ***
