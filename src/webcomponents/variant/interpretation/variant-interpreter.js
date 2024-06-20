@@ -489,6 +489,7 @@ class VariantInterpreter extends LitElement {
                                 <i class="fas fa-download pe-1"></i> Download Case
                             </a>
                         </li>
+                        <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
                                 <i class="fas fa-sign-out-alt pe-1"></i> Exit Interpretation
