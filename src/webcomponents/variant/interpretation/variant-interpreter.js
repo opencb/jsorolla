@@ -476,17 +476,17 @@ class VariantInterpreter extends LitElement {
                         <li>
                             <a class="dropdown-item" style="cursor:pointer;" @click="${this.onClinicalAnalysisLock}">
                                 <i class="fas ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
-                                ${this.clinicalAnalysis.locked ? "Case Unlock" : "Case Lock"}
+                                ${this.clinicalAnalysis.locked ? "Unlock" : "Lock"} Case
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" style="cursor:pointer" @click="${this.onClinicalAnalysisRefresh}">
-                                <i class="fas fa-sync pe-1"></i> Refresh
+                                <i class="fas fa-sync pe-1"></i> Refresh Case
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" style="cursor:pointer;" @click="${this.onClinicalAnalysisDownload}">
-                                <i class="fas fa-download pe-1"></i> Download
+                                <i class="fas fa-download pe-1"></i> Download Case
                             </a>
                         </li>
                         <li>
