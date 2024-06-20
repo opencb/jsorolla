@@ -2019,7 +2019,7 @@ class IvaApp extends LitElement {
 
                 <!-- Admin -->
                 ${this.config.enabledComponents["organization-admin"] ? html`
-                    <tool-header title="Organization Admin" icon="${"fas fa-rocket"}"></tool-header>
+                    <tool-header title="Organisation Admin: ${this.opencgaSession?.user?.organization}" icon="${"fas fa-sitemap"}"></tool-header>
                     <div id="organization-admin">
                         <organization-admin
                             .organizationId="${this.opencgaSession?.user?.organization}"
