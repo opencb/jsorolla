@@ -103,10 +103,20 @@ class VariantInterpreterBrowserReview extends LitElement {
                     </div>
                 </div>
                 <hr class="dropdown-divider">
-                <div class="float-end">
-                    <button type="button" ?disabled="${!hasVariantsToSave}" class="btn btn-primary m-1 ${hasVariantsToSave ? "" : "disabled"}"
-                            @click="${this.onSaveInterpretation}">Save
-                    </button>
+                <div class="d-flex align-items-center justify-content-between mx-2">
+                    <div class="d-flex">
+                        <button class="btn btn-light ${hasVariantsToSave ? "" : "disabled"}" @click="${this.onFilter}">
+                            <i class="fas fa-filter pe-1"></i> Filter Variants
+                        </button>
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                        <button class="btn btn-light ${hasVariantsToSave ? "" : "disabled"}" @click="${this.onDiscard}">
+                            <i class="fas fa-eraser pe-1"></i> Discard
+                        </button>
+                        <button class="btn btn-primary ${hasVariantsToSave ? "" : "disabled"}" @click="${this.onSave}">
+                            <i class="fas fa-save pe-1"></i> Save
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
