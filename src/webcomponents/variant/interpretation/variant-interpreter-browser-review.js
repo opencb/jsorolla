@@ -72,6 +72,7 @@ class VariantInterpreterBrowserReview extends LitElement {
 
     render() {
         const hasVariantsToSave = this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length;
+        const hasVariantsToFilter = this.state.addedVariants?.length || this.state.updatedVariants?.length;
         return html`
             <div>
                 <div class="my-1 mx-2">
@@ -105,7 +106,7 @@ class VariantInterpreterBrowserReview extends LitElement {
                 <hr class="dropdown-divider">
                 <div class="d-flex align-items-center justify-content-between mx-2">
                     <div class="d-flex">
-                        <button class="btn btn-light ${hasVariantsToSave ? "" : "disabled"}" @click="${this.onFilter}">
+                        <button class="btn btn-light ${hasVariantsToFilter ? "" : "disabled"}" @click="${this.onFilter}">
                             <i class="fas fa-filter pe-1"></i> Filter Variants
                         </button>
                     </div>
