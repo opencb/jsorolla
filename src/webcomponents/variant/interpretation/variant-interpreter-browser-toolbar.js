@@ -96,11 +96,10 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         LitUtils.dispatchCustomEvent(this, "resetVariants", null);
     }
 
-    onSaveInterpretation() {
+    onSaveInterpretation(event) {
         LitUtils.dispatchCustomEvent(this, "saveInterpretation", null, {
-            comment: this.comment
+            comment: event?.detail?.comment || {},
         });
-        this.comment = {};
     }
 
     onSaveFieldsChange(type, e) {
@@ -275,6 +274,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                     .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                     .state="${this.state}"
+                                    @saveVariants="${e => this.onSaveInterpretation(e)}"
                                     @discardVariants="${() => this.onResetModifiedVariants()}"
                                     @filterVariants="${() => this.onFilterModifiedVariants()}">
                                 </variant-interpreter-browser-review>
