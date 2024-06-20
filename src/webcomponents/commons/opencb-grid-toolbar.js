@@ -165,7 +165,7 @@ export default class OpencbGridToolbar extends LitElement {
                                         <button data-action="create" type="button" class="btn btn-light"
                                                 @click="${this.onActionClick}">
                                             ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
-                                            <i class="fas fa-file pe-1" aria-hidden="true"></i> New ...
+                                            <i class="fas fa-file pe-1" aria-hidden="true"></i>${this._settings?.createLabel || "New ..."}
                                         </button>
                                     `}
                                 </div>
