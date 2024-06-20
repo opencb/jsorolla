@@ -1,13 +1,7 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import "../../commons/forms/data-form.js";
 
 class VariantInterpreterBrowserReview extends LitElement {
-
-    constructor() {
-        super();
-        this.#init();
-    }
 
     createRenderRoot() {
         return this;
@@ -25,19 +19,6 @@ class VariantInterpreterBrowserReview extends LitElement {
                 type: Object,
             },
         };
-    }
-
-    #init() {
-        this._data = {};
-        this._config = this.getDefaultConfig();
-    }
-
-    update(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("state")) {
-            this._data = {};
-            this._config = this.getDefaultConfig();
-        }
-        super.update(changedProperties);
     }
 
     onSave() {
