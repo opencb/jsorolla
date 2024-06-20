@@ -91,10 +91,12 @@ class VariantInterpreterBrowserReview extends LitElement {
                 </div>
                 <div class="my-1 mx-3">
                     <div class="mb-1">
-                        <textarea id="${this._prefix}CommentMessage" class="form-control" rows="2" placeholder="Add comment message..."></textarea>
+                        <label for="${this._prefix}CommentMessage" class="form-label small mb-0">Comment Message</label>
+                        <textarea id="${this._prefix}CommentMessage" class="form-control" rows="2" placeholder="Your message..."></textarea>
                     </div>
                     <div class="">
-                        <input type="text" id="${this._prefix}CommentTags" class="form-control" placeholder="Add comment tags..."/>
+                        <label for="${this._prefix}CommentTags" class="form-label small mb-0">Comment Tags</label>
+                        <input type="text" id="${this._prefix}CommentTags" class="form-control" placeholder="Example: tag1,tag2"/>
                     </div>
                 </div>
                 <hr class="dropdown-divider">
