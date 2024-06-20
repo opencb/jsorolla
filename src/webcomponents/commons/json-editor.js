@@ -50,7 +50,7 @@ export default class JsonEditor extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.jsonEditor = null;
         this.jsonEditorId = this._prefix + "jsoneditor";
-        this._data = "";
+        this._data = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -75,7 +75,6 @@ export default class JsonEditor extends LitElement {
             }
         }
     }
-
 
     initJsonEditor() {
         const content = {

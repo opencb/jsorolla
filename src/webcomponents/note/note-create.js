@@ -20,6 +20,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/tool-header.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import "../commons/json-editor.js";
 
 export default class NoteCreate extends LitElement {
 
@@ -184,9 +185,11 @@ export default class NoteCreate extends LitElement {
                                     const handleTagsFilterChange = e => {
                                         dataFormFilterChange(e.detail.value ? e.detail.value?.split(",") : []);
                                     };
+
                                     return html`
                                         <select-token-filter-static
-                                            .values="${data?.tags}"
+                                            .data="${data}"
+                                            .value="${data?.join(",")}"
                                             @filterChange="${e => handleTagsFilterChange(e)}">
                                         </select-token-filter-static>
                                     `;
@@ -210,8 +213,35 @@ export default class NoteCreate extends LitElement {
                                     const validTypes = ["OBJECT", "ARRAY"];
                                     return validTypes.includes(data?.valueType);
                                 },
-                                render: data => {
-                                    return html`Not Supported Yet`;
+                                render: (content, dataFormFilterChange) => {
+                                    const handleValuesFilterChange = (content, valueType) => {
+                                        // convert string to array
+                                        if (valueType === "ARRAY") {
+                                            dataFormFilterChange(content ? content?.split(",") : []);
+                                        } else {
+                                            dataFormFilterChange(content?.json ? content?.json : {});
+                                        }
+                                    };
+                                    if (this.note?.valueType === "ARRAY") {
+                                        const val = content || "";
+                                        return html`
+                                            Not supported yet
+                                            <!-- <select-token-filter-static
+                                                .data="${content}"
+                                                .value="${content?.join(",")}"
+                                                @filterChange="${e => handleValuesFilterChange(e.detail?.value, "ARRAY")}">
+                                            </select-token-filter-static> -->
+                                            `;
+                                    } else {
+                                        const val = content || {};
+                                        return html`
+                                            <json-editor
+                                                .data="${val}"
+                                                .config="${{showDownloadButton: false}}"
+                                                @fieldChange="${e => handleValuesFilterChange(e.detail?.value, "JSON")}">
+                                            </json-editor>
+                                            `;
+                                    }
                                 },
                             },
                         },
