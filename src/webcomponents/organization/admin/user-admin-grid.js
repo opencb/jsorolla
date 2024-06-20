@@ -250,7 +250,8 @@ export default class UserAdminGrid extends LitElement {
             {
                 title: "User ID",
                 field: "id",
-                visible: this.gridCommons.isColumnVisible("id")
+                visible: this.gridCommons.isColumnVisible("id"),
+                formatter: (value, row) => this.userIdFormatter(value, row),
             },
             {
                 title: "Name",
@@ -332,6 +333,18 @@ export default class UserAdminGrid extends LitElement {
 
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
+    }
+
+    userIdFormatter(value, user) {
+        // Note 20240620 vero: Viz and change owner will be implemented in release-2.2.3
+        // const organizationOwner = this.organization.owner;
+        return this.organization.admins.includes(user.id) ?
+             `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-user-shield me-2"></i>
+                     ${value}
+                </div>
+            ` : value;
     }
 
     creationExpirationDateFormatter(value, user) {
