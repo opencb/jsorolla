@@ -247,6 +247,14 @@ export default class OrganizationAdminUpdate extends LitElement {
                             ],
                         },
                         {
+                            title: "Default User Expiration Date",
+                            field: "configuration.defaultUserExpirationDate",
+                            type: "input-date",
+                            display: {
+                                placeholder: "Change the default user expiration date"
+                            },
+                        },
+                        {
                             title: "Authentication Origins",
                             field: "configuration.authenticationOrigins",
                             type: "object-list",
