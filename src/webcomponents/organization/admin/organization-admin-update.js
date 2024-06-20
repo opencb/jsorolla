@@ -137,11 +137,15 @@ export default class OrganizationAdminUpdate extends LitElement {
     onSubmit() {
         const params = {
             includeResult: true,
-            adminsAction: "",
+            adminsAction: "", // FIXME: no empty action
         };
 
         const updateParams = FormUtils.getUpdateParams(this._organization, this.updatedFields, this.updateCustomisation);
 
+        // FIXME ****************
+        //  WAITING FOR TASK: https://app.clickup.com/t/36631768/TASK-5979
+        // FIXME \****************
+        /*
         let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.organization()
@@ -164,6 +168,7 @@ export default class OrganizationAdminUpdate extends LitElement {
             .finally(() => {
                 this.#setLoading(false);
             });
+         */
     }
 
     render() {
