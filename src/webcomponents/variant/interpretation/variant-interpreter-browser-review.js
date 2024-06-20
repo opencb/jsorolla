@@ -91,7 +91,7 @@ class VariantInterpreterBrowserReview extends LitElement {
                 </div>
                 <div class="my-1 mx-3">
                     <div class="mb-1">
-                        <textarea id="${this._prefix}CommentMessage" class="form-control" rows="2" placeholder="Comment message..."></textarea>
+                        <textarea id="${this._prefix}CommentMessage" class="form-control" rows="2" placeholder="Add comment message..."></textarea>
                     </div>
                     <div class="">
                         <input type="text" id="${this._prefix}CommentTags" class="form-control" placeholder="Add comment tags..."/>
