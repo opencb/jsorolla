@@ -166,15 +166,6 @@ export default class ProjectAdminBrowser extends LitElement {
                                 <div style="margin-right: 1em">
                                 ${project.name || project.id}
                                 </div>
-                                <div style="align-self: end; font-size: small; color: #41b68c; margin-right: 1em">
-                                    ${project.organism?.scientificName.toUpperCase() || "-"} (${project.organism?.assembly || "-"})
-                                </div>
-                                <div style="align-self: end; font-size: small; color: #974591; margin-right: 1em">
-                                    <!--<a href="$project.cellbase?.url || "-"}" target="_blank">-->
-                                        Cellbase: ${project.cellbase?.version || "-"},
-                                    <!--</a>-->
-                                    DR. ${project.cellbase?.dataRelease || "-"}
-                                </div>
                             </div>
                         </h4>
                     </div>
@@ -187,20 +178,37 @@ export default class ProjectAdminBrowser extends LitElement {
                                     <button class="btn btn-light"
                                             data-action="${modalKey}"
                                             @click="${e => this.onActionClick(e, project)}">
-                                        <i class="fas fa-file pe-1" aria-hidden="true"></i> ${modal.label}...
+                                        <i class=${modal.icon} aria-hidden="true"></i> ${modal.label}...
                                     </button>
                                 `;
                             })
                         }
                     </div>
                 </div>
-                <!-- 2. Render project fqn and description -->
+                <!-- 2. Render project fqn -->
                 <div style="font-size: medium; color: #7f7f7f; margin-right: 1em">
-                        [${project.fqn}]
+                    ${project.fqn}
                 </div>
-                <div style="font-size: small; font-style: italic; color: #7f7f7f">
+                <!-- 3. Render project fqn and description -->
+                <div class="mb-4" style="color: #7f7f7f">
                     ${project.description}
                     <!--Data Release: $project.attributes.release} || nothing -->
+                </div>
+                <!-- 4. Render organism, assembly and cellbase info -->
+                <div>
+                    <div style="align-self: end; font-size: small; margin-right: 1em">
+                        ${project.organism?.scientificName.toUpperCase() || "-"} (${project.organism?.assembly || "-"})
+                    </div>
+                    <div style="align-self: end; font-size: small;; margin-right: 1em">
+                        <span class="me-3">Cellbase: ${project.cellbase?.version || "-"}</span>
+                        <span class="me-3">Data Release: ${project.cellbase?.dataRelease || "-"}</span>
+                        <span class="me-3">
+                            URL:
+                            <a href="${project.cellbase?.url || "-"}" target="_blank">
+                                ${project.cellbase?.url || "-"},
+                            </a>
+                        </span>
+                    </div>
                 </div>
                 <!-- 3. Render studies grid -->
                 <study-admin-grid
@@ -232,6 +240,7 @@ export default class ProjectAdminBrowser extends LitElement {
             showExport: false,
             showSettings: false,
             showCreate: true,
+            createLabel: "New Project...",
             showGraphicFilters: false,
             showProjectToolbar: true,
         };
