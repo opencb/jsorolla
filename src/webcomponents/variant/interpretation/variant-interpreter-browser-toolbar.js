@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-browser-review.js";
@@ -23,8 +23,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
     constructor() {
         super();
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -54,20 +53,20 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.write = false;
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
+        super.update(changedProperties);
     }
 
     onFilterInclusionVariants() {
@@ -186,8 +185,17 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         `;
     }
 
+    renderPrimaryFindings() {
+        const primaryFindings = this.clinicalAnalysis.interpretation?.primaryFindings || [];
+
+        if (primaryFindings.length === 0) {
+            return html`<div class="m-1">No primary findings found</div>`;
+        }
+
+        return primaryFindings.map(variant => this.renderVariant(variant));
+    }
+
     render() {
-        const primaryFindings = this.clinicalAnalysis.interpretation?.primaryFindings;
         const hasVariantsToSave = this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length;
 
         return html`
@@ -237,13 +245,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                 <div class="my-1 mx-0">
                                     <span class="fw-bold">Primary Findings</span>
                                 </div>
-                                <div>
-                                    ${primaryFindings?.length > 0 ? html`
-                                        ${primaryFindings.map(variant => this.renderVariant(variant))}
-                                    ` : html`
-                                        <div class="m-1">No primary findings found</div>
-                                    `}
-                                </div>
+                                <div>${this.renderPrimaryFindings()}</div>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li class="my-1 mx-2">
@@ -265,7 +267,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                 <span class="badge bg-white text-danger rounded-pill ms-1">
                                     ${this.state.addedVariants.length + this.state.removedVariants.length + this.state.updatedVariants.length}
                                 </span>
-                            ` : null}
+                            ` : nothing}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}SaveMenu" style="width:420px;">
                             <li>
