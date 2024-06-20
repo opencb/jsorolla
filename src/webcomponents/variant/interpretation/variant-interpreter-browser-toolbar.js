@@ -256,55 +256,6 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             </li>
                         </ul>
                     </div>
-
-                    <div class="btn-group">
-                        <button type="button" id="${this._prefix}ResetMenu" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true"
-                                aria-expanded="false" title="Remove not saved variants" ?disabled="${!this.write}">
-                            <i class="fas fa-eraser pe-1" aria-hidden="true"></i>
-                            <strong>Reset</strong>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
-                            <li class="dropdown-item">
-                                <div class="my-1 mx-0">
-                                    <span class="fw-bold">Added Variants</span>
-                                </div>
-                                <div>
-                                    ${this.state.addedVariants?.length > 0 ? html`
-                                        ${this.state.addedVariants.map(variant => this.renderVariant(variant, ""))}
-                                    ` : html`
-                                        <div class="m-1">No new variants selected</div>
-                                    `}
-                                </div>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li class="dropdown-item">
-                                <div class="my-1 mx-0">
-                                    <span class="fw-bold">Removed Variants</span>
-                                </div>
-                                <div>
-                                    ${this.state.removedVariants?.length > 0 ? html`
-                                        ${this.state.removedVariants.map(variant => this.renderVariant(variant, ""))}
-                                    ` : html`
-                                        <div class="m-1">No variants to remove</div>
-                                    `}
-                                </div>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li class="dropdown-item">
-                                <div class="float-end">
-                                    <button type="button" ?disabled="${!(this.state.addedVariants?.length || this.state.removedVariants?.length)}"
-                                            class="btn btn-primary m-1 ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}"
-                                            @click="${this.onFilterModifiedVariants}">Filter
-                                    </button>
-                                    <button type="button" ?disabled="${!(this.state.addedVariants?.length || this.state.removedVariants?.length)}"
-                                            class="btn btn-primary m-1 ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}"
-                                            @click="${this.onResetModifiedVariants}">Reset
-                                    </button>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-
                     <div class="btn-group">
                         <button type="button" id="${this._prefix}SaveMenu" class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"} dropdown-toggle"
                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Save variants in the server" ?disabled="${!this.write}">
