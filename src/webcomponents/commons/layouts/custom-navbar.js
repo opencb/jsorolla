@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 import "../../job/job-monitor.js";
@@ -221,37 +221,37 @@ export default class CustomNavBar extends LitElement {
 
                     <!-- Left Sidebar Icon -->
                     ${this.config.apps?.filter(app => UtilsNew.isAppVisible(app, this.opencgaSession)).length > 1 ? html`
-                            <a class="navbar-brand " href="#" @click="${this.onSideBarToggle}">
-                                <div id="waffle-icon"></div>
-                            </a>
-                    ` : null}
+                        <a class="navbar-brand " href="#" @click="${this.onSideBarToggle}">
+                            <div id="waffle-icon"></div>
+                        </a>
+                    ` : nothing}
                     <!-- Brand and toggle get grouped for better mobile display -->
-                        <div href="#home" class="navbar-brand d-flex justify-content-center" style="height: 2.0rem;" @click="${this.onChangeTool}">
-                            <!-- Fixed logo -->
-                            ${this.config?.logo ? html`
-                                <img  class="d-inline-block" src="${this.config?.logo}" alt="logo">
-                            ` : null}
+                    <a href="#home" class="navbar-brand d-flex justify-content-center" style="height: 2.0rem;" @click="${this.onChangeTool}">
+                        <!-- Fixed logo -->
+                        ${this.config?.logo ? html`
+                            <img  class="d-inline-block" src="${this.config?.logo}" alt="logo">
+                        ` : nothing}
+                        <!-- No application logo provided -->
+                        ${!this.config?.logo && this.config?.name ? html`
+                            <span style="color:var(--main-color-white);font-size:24px;margin-right:4px;">
+                                <strong>${this.config.name}</strong>
+                            </span>
+                        ` : nothing}
+                    </a>
+                    ${this.app?.id !== "suite" ? html `
+                        <div class="navbar-brand d-flex justify-content-center align-items-center me-n1" style="height: 2.5rem;">
+                            <!-- Application logo provided -->
+                            ${this.app?.logo ? html`
+                                <img class="d-inline-block" src="${this.app?.logo}" alt="App logo">
+                            ` : nothing}
                             <!-- No application logo provided -->
-                            ${!this.config?.logo && this.config?.name ? html`
+                            ${!this.app?.logo && this.app?.name ? html`
                                 <span style="color:var(--main-color-white);font-size:24px;margin-right:4px;">
-                                    <strong>${this.config.name}</strong>
-                                </span>
-                            ` : null}
-                        </div>
-                        ${this.app?.id !== "suite" ? html `
-                            <div class="navbar-brand d-flex justify-content-center align-items-center me-n1" style="height: 2.5rem;">
-                                <!-- Application logo provided -->
-                                ${this.app?.logo ? html`
-                                    <img class="d-inline-block" src="${this.app?.logo}" alt="App logo">
-                                ` : null}
-                                <!-- No application logo provided -->
-                                ${!this.app?.logo && this.app?.name ? html`
-                                    <span style="color:var(--main-color-white);font-size:24px;margin-right:4px;">
                                     <strong>${this.app.name}</strong>
                                 </span>
-                                ` : null}
-                            </div>
-                        ` : null}
+                            ` : nothing}
+                        </div>
+                    ` : nothing}
 
                     <!-- Collect the nav links, form, and other content for toggling -->
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
