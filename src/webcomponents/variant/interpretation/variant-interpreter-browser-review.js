@@ -41,13 +41,17 @@ class VariantInterpreterBrowserReview extends LitElement {
     }
 
     onSave() {
-        LitUtils.dispatchCustomEvent(this, "saveInterpretationChanges", null, {
+        LitUtils.dispatchCustomEvent(this, "saveVariants", null, {
             comment: this._data?.comment,
         });
     }
 
-    onClear() {
-        LitUtils.dispatchCustomEvent(this, "clearInterpretationChanges", null, {});
+    onDiscard() {
+        LitUtils.dispatchCustomEvent(this, "discardVariants", null);
+    }
+
+    onFilter() {
+        LitUtils.dispatchCustomEvent(this, "filterVariants", null);
     }
 
     renderVariant(variant, color) {
