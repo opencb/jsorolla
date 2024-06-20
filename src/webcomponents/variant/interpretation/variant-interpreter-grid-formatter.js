@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {html} from "lit-html";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
@@ -91,20 +90,19 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static clinicalPopulationFrequenciesFormatter(value, row, config) {
+        const popFreqMap = new Map();
+        // If variant population freqs exist read values
         if (row?.annotation?.populationFrequencies?.length > 0) {
-            const popFreqMap = new Map();
             row.annotation.populationFrequencies.forEach(popFreq => {
                 popFreqMap.set(popFreq.study + ":" + popFreq.population, popFreq);
             });
-            return VariantGridFormatter.renderPopulationFrequencies(
-                config.populationFrequencies,
-                popFreqMap,
-                POPULATION_FREQUENCIES.style,
-                config.populationFrequenciesConfig,
-            );
-        } else {
-            return "-";
         }
+        return VariantGridFormatter.renderPopulationFrequencies(
+            config.populationFrequencies,
+            popFreqMap,
+            POPULATION_FREQUENCIES.style,
+            config.populationFrequenciesConfig,
+        );
     }
 
     static predictionFormatter(value, row) {
@@ -140,7 +138,6 @@ export default class VariantInterpreterGridFormatter {
                     ${clinicalSignificanceHtml}
                 </a>`;
     }
-
 
     /*
     * File attributes formatters
@@ -442,11 +439,11 @@ export default class VariantInterpreterGridFormatter {
     /*
      *  SAMPLE GENOTYPE RENDERER
      */
-    static sampleGenotypeFormatter(value, row, index) {
+    static sampleGenotypeFormatter(value, row, index, params) {
         let resultHtml = "";
 
         if (row && row.studies?.length > 0 && row.studies[0].samples?.length > 0) {
-            const sampleId = this.field.sampleId;
+            const sampleId = params?.sampleId;
             let sampleEntries = [row.studies[0].samples.find(s => s.sampleId === sampleId)];
 
             // If not sampleId is found and there is only one sample we take that one
@@ -471,7 +468,7 @@ export default class VariantInterpreterGridFormatter {
 
                 // Render genotypes
                 let content = "";
-                switch (this.field.config?.genotype?.type?.toUpperCase() || "VCF_CALL") {
+                switch (params?.config?.genotype?.type?.toUpperCase() || "VCF_CALL") {
                     case "ALLELES":
                         content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry, "alleles");
                         break;
@@ -479,7 +476,7 @@ export default class VariantInterpreterGridFormatter {
                         content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry, "call");
                         break;
                     case "ZYGOSITY":
-                        content = VariantInterpreterGridFormatter.zygosityGenotypeRenderer(row, sampleEntry, this.field.clinicalAnalysis);
+                        content = VariantInterpreterGridFormatter.zygosityGenotypeRenderer(row, sampleEntry, params?.clinicalAnalysis);
                         break;
                     case "VAF":
                         const vaf = VariantInterpreterGridFormatter._getVariantAlleleFraction(row, sampleEntry, file);
@@ -505,15 +502,18 @@ export default class VariantInterpreterGridFormatter {
                         content = VariantInterpreterGridFormatter.circleGenotypeRenderer(sampleEntry, file, 10);
                         break;
                     default:
-                        console.error("No valid genotype render option:", this.field.config.genotype.type.toUpperCase());
+                        console.error("No valid genotype render option:", params?.config?.genotype?.type?.toUpperCase());
                         break;
                 }
 
                 // Get tooltip text
                 const tooltipText = VariantInterpreterGridFormatter._getSampleGenotypeTooltipText(row, sampleEntry, file);
-                resultHtml += `<a class="zygositySampleTooltip text-decoration-none" tooltip-title="Variant Call Information" tooltip-text='${tooltipText}'>
-                                    ${content}
-                                </a><br>`;
+                resultHtml += `
+                    <a class="zygositySampleTooltip text-decoration-none" tooltip-title="Variant Call Information" tooltip-text='${tooltipText}'>
+                        ${content}
+                    </a>
+                    <br>
+                `;
             }
         }
 
@@ -542,7 +542,7 @@ export default class VariantInterpreterGridFormatter {
 
     static alleleGenotypeRenderer(variant, sampleEntry, mode) {
         let res = "-";
-        if (variant?.studies?.length > 0 && sampleEntry?.data.length > 0) {
+        if (variant?.studies?.length > 0 && sampleEntry?.data?.length > 0) {
             const genotype = sampleEntry.data[0];
 
             // Check special cases
@@ -555,11 +555,9 @@ export default class VariantInterpreterGridFormatter {
 
             const alleles = [];
             const allelesArray = genotype.split(new RegExp("[/|]"));
+            const isNumberRegex = /^\d+$/;
             for (const allele of allelesArray) {
                 switch (allele) {
-                    case ".":
-                        alleles.push(".");
-                        break;
                     case "0":
                         if (mode === "alleles") {
                             alleles.push(variant.reference ? variant.reference : "-");
@@ -574,14 +572,8 @@ export default class VariantInterpreterGridFormatter {
                             alleles.push(allele);
                         }
                         break;
-                    case "2":
-                        if (mode === "alleles") {
-                            // TODO to decide how to display 1/2 alleles
-                            // alleles.push(variant?.studies[0]?.secondaryAlternates[0]?.reference ? variant?.studies[0]?.secondaryAlternates[0]?.reference : "-");
-                            alleles.push("*");
-                        } else {
-                            alleles.push(allele);
-                        }
+                    case ".":
+                        alleles.push(".");
                         break;
                     case "?":
                         if (mode === "alleles") {
@@ -590,6 +582,25 @@ export default class VariantInterpreterGridFormatter {
                             alleles.push("0");
                         }
                         break;
+                    default:
+                        // Check allele is a number
+                        if (isNumberRegex.test(allele)) {
+                            if (mode === "alleles") {
+                                // TASK-5635: check if the secondary alternate has the same coordinates.
+                                const secondaryAlternate = variant.studies[0].secondaryAlternates[allele - 2];
+                                if (secondaryAlternate.start === variant.start && secondaryAlternate.end === variant.end) {
+                                    alleles.push(secondaryAlternate.alternate);
+                                } else {
+                                    alleles.push("<*>");
+                                }
+                            } else {
+                                alleles.push(allele);
+                            }
+                        } else {
+                            console.error("Allele not recognized: " + allele);
+                        }
+                        break;
+
                 }
             }
 
