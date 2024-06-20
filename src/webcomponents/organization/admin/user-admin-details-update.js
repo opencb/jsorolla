@@ -157,7 +157,6 @@ export default class UserAdminDetailsUpdate extends LitElement {
     }
 
     onSubmit() {
-        let error;
         const params = {
             includeResult: true,
         };
@@ -176,11 +175,12 @@ export default class UserAdminDetailsUpdate extends LitElement {
                     title: `User Details Update`,
                     message: `User ${this.userId} updated correctly`,
                 });
-                LitUtils.dispatchCustomEvent(this, "userUpdate", this.user, {}, error);
+                LitUtils.dispatchCustomEvent(this, "userUpdate", this.user, {});
             })
-            .catch(reason => {
-                error = reason;
+            .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                LitUtils.dispatchCustomEvent(this, "userUpdateFailed", this.user, {}, error);
+
             })
             .finally(() => {
                 this.#setLoading(false);
