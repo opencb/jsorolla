@@ -139,7 +139,7 @@ export default class StudyAdminGrid extends LitElement {
         this.modals = {
             "edit-study": {
                 label: "Edit Study",
-                icon: "far fa-edit",
+                icon: "fas fa-edit",
                 modalId: `${this._prefix}UpdateStudyModal`,
                 render: () => this.renderStudyUpdate(),
                 permission: this.permissions["organization"](),
@@ -147,8 +147,8 @@ export default class StudyAdminGrid extends LitElement {
             },
             "delete": {
                 label: "Delete Study",
-                icon: "far fa-trash-alt ",
-                color: "text-danger",
+                icon: "fas fa-trash-alt ",
+                // color: "text-danger",
                 // modalId: `${this._prefix}DeleteModal`,
                 // render: () => this.renderModalPasswordReset(),
                 permission: "disabled", // Caution: Not possible to delete studies for now.
@@ -258,7 +258,7 @@ export default class StudyAdminGrid extends LitElement {
                 formatter: () => `
                     <div class="dropdown">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-toolbox" aria-hidden="true"></i>
+                            <i class="fas fa-toolbox me-2" aria-hidden="true"></i>
                             <span>Actions</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -381,6 +381,7 @@ export default class StudyAdminGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
+            createLabel: "New Study...",
             showCreate: true,
             showExport: false,
             showSettings: false,
