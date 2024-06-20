@@ -274,7 +274,9 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                 <variant-interpreter-browser-review
                                     .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .state="${this.state}">
+                                    .state="${this.state}"
+                                    @discardVariants="${() => this.onResetModifiedVariants()}"
+                                    @filterVariants="${() => this.onFilterModifiedVariants()}">
                                 </variant-interpreter-browser-review>
                             </li>
                         </ul>
