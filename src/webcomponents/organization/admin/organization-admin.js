@@ -170,7 +170,7 @@ export default class OrganizationAdmin extends LitElement {
                     {
                         id: "users",
                         name: "Users",
-                        icon: "fas fa-vial",
+                        icon: "fas fa-users",
                         visibility: "private",
                         render: (opencgaSession, organization) => html`
                             <user-admin-browser
@@ -182,7 +182,7 @@ export default class OrganizationAdmin extends LitElement {
                     {
                         id: "studies",
                         name: "Projects/Studies",
-                        icon: "fas fa-vial",
+                        icon: "fas fa-project-diagram",
                         visibility: "private",
                         render: (opencgaSession, organization) => {
                             /*
@@ -214,7 +214,7 @@ export default class OrganizationAdmin extends LitElement {
                 submenu: [
                     {
                         id: "settings",
-                        name: "Organization",
+                        name: "Organisation",
                         icon: "fas fa-sitemap",
                         visibility: "private",
                         render: (opencgaSession, organization) => {
