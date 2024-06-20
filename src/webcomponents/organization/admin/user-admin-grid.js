@@ -305,8 +305,8 @@ export default class UserAdminGrid extends LitElement {
                 formatter: (value, row) => `
                     <div class="dropdown">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-toolbox me-3" aria-hidden="true"></i>
-                            <span class="me-4">Actions</span>
+                            <i class="fas fa-toolbox me-2" aria-hidden="true"></i>
+                            <span class="me-2">Actions</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             ${
@@ -326,11 +326,11 @@ export default class UserAdminGrid extends LitElement {
                                                     <div class="d-flex align-items-center">
                                                         ${isAdmin ? `
                                                             <!-- If the user is admin, enable action REMOVE -->
-                                                            <div class="me-3"><i class="${modal.iconRemove} ${color}" aria-hidden="true"></i></div>
+                                                            <div class="" style="margin-right: 10px"><i class="${modal.iconRemove} ${color}" aria-hidden="true"></i></div>
                                                             <div class="me-4 ${color}" style="width: 84%">${modal.labelRemove}...</div>
                                                         ` : `
                                                             <!-- If the user is admin, enable action ADD -->
-                                                            <div class="me-3"><i class="${modal.iconAdd} ${color}" aria-hidden="true"></i></div>
+                                                            <div class="" style="margin-right: 10px"><i class="${modal.iconAdd} ${color}" aria-hidden="true"></i></div>
                                                             <div class="me-4 ${color}" style="width: 84%">${modal.labelAdd}...</div>
                                                         `}
                                                     </div>
@@ -345,7 +345,7 @@ export default class UserAdminGrid extends LitElement {
                                             class="dropdown-item ${modal.permission}"
                                             style="cursor:pointer;">
                                                 <div class="d-flex align-items-center">
-                                                    <div class="me-3"><i class="${modal.icon} ${color}" aria-hidden="true"></i></div>
+                                                    <div class="" style="margin-right: 10px"><i class="${modal.icon} ${color}" aria-hidden="true"></i></div>
                                                     <div class="me-4 ${color}" style="width: 84%">${modal.label}...</div>
                                                 </div>
                                             </a>
