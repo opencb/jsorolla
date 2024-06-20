@@ -86,13 +86,7 @@ export default class OrganizationAdminDetail extends LitElement {
         };
 
         this.modals = {
-            "add-admin": {
-                label: "Add Admin",
-                icon: "fas fa-user-plus",
-                modalId: `${this._prefix}AddAdminOrganizationModal`,
-                render: () => this.renderAddAdminOrganization(),
-                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
-            },
+            /*
             "change-owner": {
                 label: "Change Owner",
                 icon: "fas fa-user-shield",
@@ -100,8 +94,9 @@ export default class OrganizationAdminDetail extends LitElement {
                 render: () => this.renderChangeOwnerOrganization(),
                 permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
             },
+             */
             "organization-update": {
-                label: "Edit Organization",
+                label: "Edit Organisation",
                 icon: "far fa-edit",
                 modalId: `${this._prefix}UpdateOrganizationModal`,
                 render: () => this.renderOrganizationUpdate(),
@@ -119,26 +114,7 @@ export default class OrganizationAdminDetail extends LitElement {
     }
 
     // *** RENDER ***
-    renderAddAdminOrganization() {
-        return ModalUtils.create(this, `${this._prefix}UpdateOrganizationModal`, {
-            display: {
-                modalTitle: `Add Admin Organization: ${this.organization.id}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-organization-admin-add",
-                modalSize: "modal-lg"
-            },
-            render: () => {
-                return html`
-                    <organization-admin-add
-                        .organization="${this.organization}"
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </organization-admin-add>
-                `;
-            },
-        });
-    }
-
+    /*
     renderChangeOwnerOrganization() {
         return ModalUtils.create(this, `${this._prefix}UpdateOrganizationModal`, {
             display: {
@@ -158,11 +134,12 @@ export default class OrganizationAdminDetail extends LitElement {
             },
         });
     }
+    */
 
     renderOrganizationUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateOrganizationModal`, {
             display: {
-                modalTitle: `Update Organization: ${this.organization.id}`,
+                modalTitle: `Update Organisation: ${this.organization.id}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-organization-update",
                 modalSize: "modal-lg"
@@ -224,16 +201,16 @@ export default class OrganizationAdminDetail extends LitElement {
     // *** CONFIG ***
     getDefaultConfig() {
         return {
-            title: "Organization",
+            title: "Organisation",
             type: "tabs",
             icon: "",
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
-                    title: "Organization View",
+                    title: "Organisation View",
                     elements: [
                         {
-                            title: "Organization ID",
+                            title: "Organisation ID",
                             type: "complex",
                             display: {
                                 template: "${id} (UUID: ${uuid})",
@@ -245,7 +222,7 @@ export default class OrganizationAdminDetail extends LitElement {
                             },
                         },
                         {
-                            title: "Organization Name",
+                            title: "Organisation Name",
                             field: "name"
                         },
                         {
