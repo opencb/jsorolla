@@ -1,7 +1,13 @@
 import {LitElement, html} from "lit";
+import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 
 class VariantInterpreterBrowserReview extends LitElement {
+
+    constructor() {
+        super();
+        this.#init();
+    }
 
     createRenderRoot() {
         return this;
@@ -21,10 +27,21 @@ class VariantInterpreterBrowserReview extends LitElement {
         };
     }
 
+    #init() {
+        this._prefix = UtilsNew.randomString(8);
+    }
+
     onSave() {
+        // 1. Dispatch evnet to save variants and include the (optional) comment
         LitUtils.dispatchCustomEvent(this, "saveVariants", null, {
-            comment: this._data?.comment,
+            comment: {
+                message: this.querySelector(`textarea#${this._prefix}CommentMessage`).value || "",
+                tags: (this.querySelector(`input#${this._prefix}CommentTags`).value || "").trim().split(",").map(t => t.trim()).filter(Boolean),
+            },
         });
+        // 2. Reset comment fields
+        this.querySelector(`textarea#${this._prefix}CommentMessage`).value = "";
+        this.querySelector(`input#${this._prefix}CommentTags`).value = "";
     }
 
     onDiscard() {
@@ -74,32 +91,24 @@ class VariantInterpreterBrowserReview extends LitElement {
                 </div>
                 <div class="my-1 mx-3">
                     <div class="mb-1">
-                        <text-field-filter
-                            placeholder="Add comment..."
-                            .rows=${2}
-                            @filterChange="${e => this.onSaveFieldsChange("message", e)}">
-                        </text-field-filter>
+                        <textarea id="${this._prefix}CommentMessage" class="form-control" rows="2" placeholder="Comment message..."></textarea>
                     </div>
                     <div class="">
-                        <text-field-filter
-                            placeholder="Add tags..."
-                            .rows=${1}
-                            @filterChange="${e => this.onSaveFieldsChange(e)}">
-                        </text-field-filter>
+                        <input type="text" id="${this._prefix}CommentTags" class="form-control" placeholder="Add comment tags..."/>
                     </div>
                 </div>
                 <hr class="dropdown-divider">
                 <div class="d-flex align-items-center justify-content-between mx-2">
                     <div class="d-flex">
-                        <button class="btn btn-light ${hasVariantsToFilter ? "" : "disabled"}" @click="${this.onFilter}">
+                        <button class="btn btn-light ${hasVariantsToFilter ? "" : "disabled"}" @click="${() => this.onFilter()}">
                             <i class="fas fa-filter pe-1"></i> Filter Variants
                         </button>
                     </div>
                     <div class="d-flex align-items-center gap-1">
-                        <button class="btn btn-light ${hasVariantsToSave ? "" : "disabled"}" @click="${this.onDiscard}">
+                        <button class="btn btn-light ${hasVariantsToSave ? "" : "disabled"}" @click="${() => this.onDiscard()}">
                             <i class="fas fa-eraser pe-1"></i> Discard
                         </button>
-                        <button class="btn btn-primary ${hasVariantsToSave ? "" : "disabled"}" @click="${this.onSave}">
+                        <button class="btn btn-primary ${hasVariantsToSave ? "" : "disabled"}" @click="${() => this.onSave()}">
                             <i class="fas fa-save pe-1"></i> Save
                         </button>
                     </div>
