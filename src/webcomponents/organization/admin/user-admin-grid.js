@@ -22,11 +22,11 @@ import ModalUtils from "../../commons/modal/modal-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 
 import "./user-admin-create.js";
-import "./user-admin-update.js";
 import "./user-admin-details-update.js";
-import "./user-admin-password-change.js";
+// import "./user-admin-password-change.js";
 import "./user-admin-password-reset.js";
 import "./user-admin-status-update.js";
+import "./user-admin-admins-change.js";
 
 export default class UserAdminGrid extends LitElement {
 
@@ -140,7 +140,7 @@ export default class UserAdminGrid extends LitElement {
         this.modals = {
             "edit-details": {
                 label: "Edit Details",
-                icon: "far fa-edit",
+                icon: "fas fa-edit",
                 modalId: `${this._prefix}UpdateDetailsModal`,
                 render: () => this.renderModalDetailsUpdate(),
                 permission: this.permissions["organization"](),
@@ -158,7 +158,7 @@ export default class UserAdminGrid extends LitElement {
             },
              */
             "reset-password": {
-                label: "Reset User Password",
+                label: "Reset Password",
                 icon: "fas fa-key",
                 modalId: `${this._prefix}ResetPasswordModal`,
                 render: () => this.renderModalPasswordReset(),
@@ -166,16 +166,25 @@ export default class UserAdminGrid extends LitElement {
                 divider: true,
             },
             "change-status": {
-                label: "Change User Status",
-                icon: "far fa-user",
+                label: "Change Status",
+                icon: "fas fa-sign-in-alt",
                 modalId: `${this._prefix}ChangeStatusModal`,
                 render: () => this.renderModalStatusUpdate(),
+                permission: this.permissions["organization"](),
+            },
+            "change-admin": {
+                labelAdd: "Add as Admin",
+                labelRemove: "Remove as Admin",
+                iconAdd: "fas fa-user-plus",
+                iconRemove: "fas fa-user-minus",
+                modalId: `${this._prefix}ChangeAdminModal`,
+                render: action => this.renderModalAdminChange(action),
                 permission: this.permissions["organization"](),
                 divider: true,
             },
             "delete": {
                 label: "Delete User",
-                icon: "far fa-trash-alt ",
+                icon: "fas fa-trash-alt ",
                 color: "text-danger",
                 // modalId: `${this._prefix}DeleteModal`,
                 // render: () => this.renderModalPasswordReset(),
@@ -281,9 +290,6 @@ export default class UserAdminGrid extends LitElement {
                 title: "Status",
                 field: "internal.status",
                 formatter: value => CatalogGridFormatter.userStatusFormatter(value, this._config.userStatus),
-                events: {
-                    "click a": e => this.onActionClick(e),
-                },
             },
         ];
 
@@ -296,25 +302,51 @@ export default class UserAdminGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
-                formatter: () => `
+                formatter: (value, row) => `
                     <div class="dropdown">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-toolbox" aria-hidden="true"></i>
-                            <span>Actions</span>
+                            <i class="fas fa-toolbox me-3" aria-hidden="true"></i>
+                            <span class="me-4">Actions</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             ${
                                 Object.keys(this.modals).map(modalKey => {
                                     const modal = this.modals[modalKey];
                                     const color = modal.permission !== "disabled" ? modal.color : "";
+                                    // If the action refers to modify the organization admins,
+                                    // a conditional display needs to be managed.
+                                    if (modalKey === "change-admin") {
+                                        const isAdmin = this.organization.admins.includes(row.id);
+                                        return `
+                                            <li>
+                                                <a data-action="${modalKey}"
+                                                data-admin="${isAdmin ? `REMOVE` : `ADD`}"
+                                                class="dropdown-item ${modal.permission}"
+                                                style="cursor:pointer;">
+                                                    <div class="d-flex align-items-center">
+                                                        ${isAdmin ? `
+                                                            <!-- If the user is admin, enable action REMOVE -->
+                                                            <div class="me-3"><i class="${modal.iconRemove} ${color}" aria-hidden="true"></i></div>
+                                                            <div class="me-4 ${color}" style="width: 84%">${modal.labelRemove}...</div>
+                                                        ` : `
+                                                            <!-- If the user is admin, enable action ADD -->
+                                                            <div class="me-3"><i class="${modal.iconAdd} ${color}" aria-hidden="true"></i></div>
+                                                            <div class="me-4 ${color}" style="width: 84%">${modal.labelAdd}...</div>
+                                                        `}
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            ${modal.divider ? `<li><hr class="dropdown-divider"></li>` : ""}
+                                        `;
+                                    }
                                     return `
                                         <li>
                                             <a data-action="${modalKey}"
                                             class="dropdown-item ${modal.permission}"
                                             style="cursor:pointer;">
                                                 <div class="d-flex align-items-center">
-                                                    <div class="me-2"><i class="${modal.icon} ${color}" aria-hidden="true"></i></div>
-                                                    <div class="me-4 ${color}">${modal.label}...</div>
+                                                    <div class="me-3"><i class="${modal.icon} ${color}" aria-hidden="true"></i></div>
+                                                    <div class="me-4 ${color}" style="width: 84%">${modal.label}...</div>
                                                 </div>
                                             </a>
                                         </li>
@@ -336,10 +368,9 @@ export default class UserAdminGrid extends LitElement {
     }
 
     userIdFormatter(value, user) {
-        // Note 20240620 vero: Viz and change owner will be implemented in release-2.2.3
+        // Note 20240620 vero: Viz and change owner will be implemented in following release
         // const organizationOwner = this.organization.owner;
-        return this.organization.admins.includes(user.id) ?
-             `
+        return this.organization.admins.includes(user.id) ? `
                 <div class="d-flex align-items-center">
                     <i class="fas fa-user-shield me-2"></i>
                      ${value}
@@ -365,6 +396,7 @@ export default class UserAdminGrid extends LitElement {
     async onActionClick(e, value, row) {
         this.action = e.currentTarget.dataset.action;
         this.userId = row.id;
+        this.adminAction = e.currentTarget.dataset.admin ?? "";
         this.requestUpdate();
         await this.updateComplete;
         ModalUtils.show(this.modals[this.action]["modalId"]);
@@ -389,7 +421,7 @@ export default class UserAdminGrid extends LitElement {
                     <user-admin-details-update
                         .userId="${this.userId}"
                         .organization="${this.organization}"
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
                         .opencgaSession="${this.opencgaSession}"
                         @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}UpdateDetailsModal`)}">
                     </user-admin-details-update>
@@ -436,7 +468,7 @@ export default class UserAdminGrid extends LitElement {
                     <user-admin-password-reset
                         .userId="${this.userId}"
                         .organization="${this.organization}"
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "bottom"}}"
                         .opencgaSession="${this.opencgaSession}"
                         @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ResetPasswordModal`)}">
                     </user-admin-password-reset>
@@ -457,10 +489,31 @@ export default class UserAdminGrid extends LitElement {
                 <user-admin-status-update
                     .userId="${this.userId}"
                     .organization="${this.organization}"
-                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top", userStatus: this._config.userStatus}}"
+                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom", userStatus: this._config.userStatus}}"
                     .opencgaSession="${this.opencgaSession}"
                     @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ChangeStatusModal`)}">
                 </user-admin-status-update>
+            `,
+        });
+    }
+
+    renderModalAdminChange(action) {
+        return ModalUtils.create(this, `${this._prefix}ChangeAdminModal`, {
+            display: {
+                modalTitle: `Update Organization Admins: User ${this.userId} in organization ${this.organization.id}`,
+                modalDraggable: true,
+                modalCyDataName: "modal-user-admin-admin-set",
+                modalSize: "modal-lg"
+            },
+            render: () => html`
+                <user-admin-admins-change
+                    .userId="${this.userId}"
+                    .organization="${this.organization}"
+                    .action="${action}"
+                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
+                    .opencgaSession="${this.opencgaSession}"
+                    @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ChangeAdminModal`)}">
+                </user-admin-admins-change>
             `,
         });
     }
@@ -487,7 +540,7 @@ export default class UserAdminGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
             <!-- 3. On action click, render update modal -->
-            ${this.action ? this.modals[this.action]["render"](): nothing}
+            ${this.action ? this.modals[this.action]["render"](this.adminAction || null) : nothing}
         `;
     }
 
