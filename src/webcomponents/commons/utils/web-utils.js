@@ -45,7 +45,7 @@ export default class WebUtils {
             "FILE": "FILES",
             "CLINICAL_ANALYSIS": "CLINICAL_ANALYSIS",
         };
-        return (resource && mapResourcePermissionId[resource] && mode) ? mapResourcePermissionId[resource]`_${mode.toUpperCase()}` : "";
+        return (resource && mapResourcePermissionId[resource] && mode) ? `${mode.toUpperCase()}_${mapResourcePermissionId[resource]}` : "";
     }
 
     static getIVALink(opencgaSession, tool, query = {}) {
