@@ -175,7 +175,7 @@ export default class ClinicalInterpretationManager extends LitElement {
                             <ul class="dropdown-menu dropdown-menu-end">
                                 ${this.renderItemAction(interpretation, "download", "fa-download", "Download JSON")}
                                 <li><hr class="dropdown-divider"></li>
-                                ${primary ? html`
+                                ${!primary ? html`
                                     ${this.renderItemAction(interpretation, "setAsPrimary", "fa-map-marker", "Set as primary")}
                                 ` : nothing}
                                 ${this.renderItemAction(interpretation, locked ? "unlock" : "lock", locked ? "fa-unlock" : "fa-lock", locked ? "Unlock" : "Lock")}
