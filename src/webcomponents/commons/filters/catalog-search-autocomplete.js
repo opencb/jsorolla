@@ -78,6 +78,18 @@ export default class CatalogSearchAutocomplete extends LitElement {
 
     opencgaSessionObserver() {
         this.RESOURCES = {
+            "USERS": {
+                searchField: "id",
+                placeholder: "user",
+                isOrganization: true,
+                client: this.opencgaSession.opencgaClient.users(),
+                fields: item => ({
+                    "name": item.id,
+                }),
+                query: {
+                    include: "id,name",
+                }
+            },
             "PROJECT": {
                 searchField: "id",
                 placeholder: "project...",
@@ -243,14 +255,19 @@ export default class CatalogSearchAutocomplete extends LitElement {
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
                 const attr = params?.data?.term ? {[this.searchField || this.RESOURCES[this.resource].searchField]: "~/" + params?.data?.term + "/i"} : null;
-                const filters = {
-                    study: this.opencgaSession.study.fqn,
+                let filters = {
                     limit: this._config.limit,
                     count: false,
                     skip: (page - 1) * this._config.limit,
                     ...this.query || this.RESOURCES[this.resource].query,
                     ...attr,
                 };
+                if (!this.RESOURCES[this.resource].isOrganization) {
+                    filters = {
+                        study: this.opencgaSession.study.fqn,
+                        ...filters,
+                    };
+                }
 
                 this.RESOURCES[this.resource].client.search(filters)
                     .then(response => success(response))
