@@ -175,8 +175,24 @@ export default class NoteUpdate extends LitElement {
                                     const validTypes = ["OBJECT", "ARRAY"];
                                     return validTypes.includes(data?.valueType);
                                 },
-                                render: data => {
-                                    return html`Not Supported Yet`;
+                                render: (content, dataFormFieldChange) => {
+                                    const handleValuesChange = (content, valueType) => {
+                                        // convert string to array
+                                        if (valueType === "ARRAY") {
+                                            // jsonEditor return content as object
+                                            dataFormFieldChange(UtilsNew.isObjectValuesEmpty(content?.json) ? [] : Object.values(content?.json));
+                                        } else {
+                                            dataFormFieldChange(content?.json ? content?.json : {});
+                                        }
+                                    };
+                                    const val = this.note?.valueType === "ARRAY" ? content || [] : content || {};
+                                    return html`
+                                            <json-editor
+                                                .data="${val}"
+                                                .config="${{showDownloadButton: false, initAsArray: this.note?.valueType === "ARRAY"}}"
+                                                @fieldChange="${e => handleValuesChange(e.detail?.value, this.note?.valueType)}">
+                                            </json-editor>
+                                            `;
                                 },
                             },
                         },

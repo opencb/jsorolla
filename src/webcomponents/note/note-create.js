@@ -21,6 +21,7 @@ import "../commons/tool-header.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/json-editor.js";
+import UtilsNew from "../../core/utils-new.js";
 
 export default class NoteCreate extends LitElement {
 
@@ -181,16 +182,15 @@ export default class NoteCreate extends LitElement {
                             field: "tags",
                             type: "custom",
                             display: {
-                                render: (data, dataFormFilterChange) => {
-                                    const handleTagsFilterChange = e => {
-                                        dataFormFilterChange(e.detail.value ? e.detail.value?.split(",") : []);
+                                render: (data, dataFormFieldChange) => {
+                                    const handleTagsChange = e => {
+                                        dataFormFieldChange(e.detail.value ? e.detail.value?.split(",") : []);
                                     };
-
                                     return html`
                                         <select-token-filter-static
                                             .data="${data}"
                                             .value="${data?.join(",")}"
-                                            @filterChange="${e => handleTagsFilterChange(e)}">
+                                            @filterChange="${e => handleTagsChange(e)}">
                                         </select-token-filter-static>
                                     `;
                                 },
@@ -213,35 +213,24 @@ export default class NoteCreate extends LitElement {
                                     const validTypes = ["OBJECT", "ARRAY"];
                                     return validTypes.includes(data?.valueType);
                                 },
-                                render: (content, dataFormFilterChange) => {
-                                    const handleValuesFilterChange = (content, valueType) => {
+                                render: (content, dataFormFieldChange) => {
+                                    const handleValuesChange = (content, valueType) => {
                                         // convert string to array
                                         if (valueType === "ARRAY") {
-                                            dataFormFilterChange(content ? content?.split(",") : []);
+                                            // jsonEditor return content as object
+                                            dataFormFieldChange(UtilsNew.isObjectValuesEmpty(content?.json) ? [] : Object.values(content?.json));
                                         } else {
-                                            dataFormFilterChange(content?.json ? content?.json : {});
+                                            dataFormFieldChange(content?.json ? content?.json : {});
                                         }
                                     };
-                                    if (this.note?.valueType === "ARRAY") {
-                                        const val = content || "";
-                                        return html`
-                                            Not supported yet
-                                            <!-- <select-token-filter-static
-                                                .data="${content}"
-                                                .value="${content?.join(",")}"
-                                                @filterChange="${e => handleValuesFilterChange(e.detail?.value, "ARRAY")}">
-                                            </select-token-filter-static> -->
-                                            `;
-                                    } else {
-                                        const val = content || {};
-                                        return html`
+                                    const val = this.note?.valueType === "ARRAY" ? content || [] : content || {};
+                                    return html`
                                             <json-editor
                                                 .data="${val}"
-                                                .config="${{showDownloadButton: false}}"
-                                                @fieldChange="${e => handleValuesFilterChange(e.detail?.value, "JSON")}">
+                                                .config="${{showDownloadButton: false, initAsArray: this.note?.valueType === "ARRAY"}}"
+                                                @fieldChange="${e => handleValuesChange(e.detail?.value, this.note?.valueType)}">
                                             </json-editor>
                                             `;
-                                    }
                                 },
                             },
                         },
