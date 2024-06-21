@@ -22,7 +22,6 @@ import ModalUtils from "../../commons/modal/modal-utils.js";
 import "../../project/project-create.js";
 import "../../project/project-update.js";
 import "./study-admin-grid.js";
-import LitUtils from "../../commons/utils/lit-utils";
 
 export default class ProjectAdminBrowser extends LitElement {
 
@@ -194,7 +193,7 @@ export default class ProjectAdminBrowser extends LitElement {
                     ${project.description}
                     <!--Data Release: $project.attributes.release} || nothing -->
                 </div>
-                <!-- 4. Render organism, assembly and cellbase info -->
+                <!-- 4. Render organism, assembly and Cellbase info -->
                 <div>
                     <div style="align-self: end; font-size: small; margin-right: 1em">
                         ${project.organism?.scientificName.toUpperCase() || "-"} (${project.organism?.assembly || "-"})
