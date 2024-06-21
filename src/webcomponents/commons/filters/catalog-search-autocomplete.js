@@ -81,7 +81,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "USERS": {
                 searchField: "id",
                 placeholder: "user",
-                isOrganization: true,
+                excludeStudyFromQuery: true,
                 client: this.opencgaSession.opencgaClient.users(),
                 fields: item => ({
                     "name": item.id,
@@ -93,6 +93,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "PROJECT": {
                 searchField: "id",
                 placeholder: "project...",
+                excludeStudyFromQuery: true,
                 client: this.opencgaSession.opencgaClient.projects(),
                 fields: item => ({
                     "name": item.id,
@@ -104,6 +105,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "STUDY": {
                 searchField: "id",
                 placeholder: "study...",
+                excludeStudyFromQuery: true,
                 client: this.opencgaSession.opencgaClient.studies(),
                 fields: item => ({
                     "name": item.id,
@@ -255,18 +257,17 @@ export default class CatalogSearchAutocomplete extends LitElement {
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
                 const attr = params?.data?.term ? {[this.searchField || this.RESOURCES[this.resource].searchField]: "~/" + params?.data?.term + "/i"} : null;
-                let filters = {
+                const filters = {
                     limit: this._config.limit,
                     count: false,
                     skip: (page - 1) * this._config.limit,
                     ...this.query || this.RESOURCES[this.resource].query,
                     ...attr,
                 };
-                if (!this.RESOURCES[this.resource].isOrganization) {
-                    filters = {
-                        study: this.opencgaSession.study.fqn,
-                        ...filters,
-                    };
+                // Note 20240621 Vero: some of the resources do not need the key study. Consequently,
+                // A key excludeStudyFromQuery has been added to the specific resources in this.RESOURCES.
+                if (!this.RESOURCES[this.resource].excludeStudyFromQuery && !filters.study) {
+                    filters.study = this.opencgaSession.study.fqn;
                 }
 
                 this.RESOURCES[this.resource].client.search(filters)
