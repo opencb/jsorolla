@@ -79,7 +79,7 @@ class VariantInterpreterBrowserSave extends LitElement {
                 <div class="my-1 mx-2">
                     <span class="fw-bold">Changed Variants</span>
                 </div>
-                <div class="my-1 mx-3">
+                <div class="my-1 mx-3 overflow-x-auto" style="max-height:250px;">
                     ${this.renderVariantsList("New selected variants", this.state?.addedVariants || [], "success")}
                     ${this.renderVariantsList("Updated variants", this.state?.updatedVariants || [], "warning")}
                     ${this.renderVariantsList("Removed variants", this.state?.removedVariants || [], "danger")}
