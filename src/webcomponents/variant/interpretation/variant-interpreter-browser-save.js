@@ -87,7 +87,7 @@ class VariantInterpreterBrowserSave extends LitElement {
                 </div>
                 <hr class="dropdown-divider">
                 <div class="my-1 mx-2">
-                    <span class="fw-bold">Add a new comment</span>
+                    <span class="fw-bold">Add a new Interpretation Comment</span>
                 </div>
                 <div class="my-1 mx-3">
                     <div class="mb-1">
