@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
@@ -67,13 +67,19 @@ export default class SampleGrid extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
             changedProperties.has("toolId") ||
             changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) && this.active) {
+            changedProperties.has("config")) {
             this.propertyObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.size > 0 && this.active) {
+            this.renderTable();
         }
     }
 
@@ -107,7 +113,8 @@ export default class SampleGrid extends LitElement {
                     <sample-create
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                         .opencgaSession="${this.opencgaSession}">
-                    </sample-create>`
+                    </sample-create>
+                `,
             },
             // Uncomment in case we need to change defaults
             // export: {
@@ -136,16 +143,16 @@ export default class SampleGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
-        this.renderTable();
     }
 
-    fetchClinicalAnalysis(rows) {
+    fetchClinicalAnalysis(rows, casesLimit) {
         if (rows && rows.length > 0) {
             return this.opencgaSession.opencgaClient.clinical()
                 .search({
                     individual: rows.map(sample => sample.individualId).join(","),
                     study: this.opencgaSession.study.fqn,
                     include: "id,proband.id,family.members",
+                    limit: casesLimit * 10,
                 })
                 .then(response => {
                     return rows.forEach(sample => {
@@ -173,7 +180,6 @@ export default class SampleGrid extends LitElement {
         } else {
             this.renderRemoteTable();
         }
-        this.requestUpdate();
     }
 
     renderRemoteTable() {
@@ -194,7 +200,6 @@ export default class SampleGrid extends LitElement {
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
-                // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
@@ -202,7 +207,6 @@ export default class SampleGrid extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 detailView: !!this.detailFormatter,
                 gridContext: this,
-                // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let sampleResponse = null;
@@ -215,6 +219,9 @@ export default class SampleGrid extends LitElement {
                         ...this.query
                     };
 
+                    // Calculate the number of cases to fetch
+                    const casesLimit = this.table?.bootstrapTable("getOptions")?.pageSize || this._config.pageSize || 10;
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.samples()
@@ -222,7 +229,7 @@ export default class SampleGrid extends LitElement {
                         .then(response => {
                             sampleResponse = response;
                             // Fetch clinical analysis to display the Case ID
-                            return this.fetchClinicalAnalysis(sampleResponse?.responses?.[0]?.results || []);
+                            return this.fetchClinicalAnalysis(sampleResponse?.responses?.[0]?.results || [], casesLimit);
                         })
                         .then(() => {
                             // Prepare data for columns extensions
@@ -266,7 +273,9 @@ export default class SampleGrid extends LitElement {
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
-                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
+                onLoadError: (e, restResponse) => {
+                    this.gridCommons.onLoadError(e, restResponse);
+                },
             });
         }
     }
@@ -302,21 +311,18 @@ export default class SampleGrid extends LitElement {
             },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
-
-            // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             detailView: this._config.detailView,
             gridContext: this,
-            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            }
+            },
         });
     }
 
@@ -359,10 +365,10 @@ export default class SampleGrid extends LitElement {
                     return `
                         <div>
                             <span style="font-weight: bold; margin: 5px 0">${sampleId}</span>
-                            ${somaticHtml ? `<span class="d-block text-secondary" style="margin: 5px 0">${somaticHtml}</span>` : nothing}
-                        </div>`;
+                            ${somaticHtml ? `<span class="d-block text-secondary" style="margin: 5px 0">${somaticHtml}</span>` : ""}
+                        </div>
+                    `;
                 },
-                sortable: true,
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
@@ -394,12 +400,6 @@ export default class SampleGrid extends LitElement {
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession),
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
-            // {
-            //     id: "cohortIds",
-            //     title: "Cohorts",
-            //     field: "cohortIds",
-            //     // visible: this.gridCommons.isColumnVisible("cohorts")
-            // },
             {
                 id: "collection.method",
                 title: "Collection Method",
@@ -412,19 +412,11 @@ export default class SampleGrid extends LitElement {
                 field: "processing.preparationMethod",
                 visible: this.gridCommons.isColumnVisible("processing.preparationMethod")
             },
-            // {
-            //     id: "cellLine",
-            //     title: "Cell Line",
-            //     field: "cellLine",
-            //     formatter: (value, row) => row.somatic ? "Somatic" : "Germline",
-            //     visible: this.gridCommons.isColumnVisible("cellLine")
-            // },
             {
                 id: "creationDate",
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
-                sortable: true,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
@@ -438,10 +430,11 @@ export default class SampleGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
+                align: "center",
                 formatter: (value, row) => `
-                    <div class="dropdown">
+                    <div class="d-inline-block dropdown">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-toolbox" aria-hidden="true"></i>
+                            <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
                             <span>Actions</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -497,15 +490,15 @@ export default class SampleGrid extends LitElement {
                                 </a>
                             </li>
                         </ul>
-                    </div>`,
+                    </div>
+                `,
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
-                visible: !this._config.columns?.hidden?.includes("actions")
+                visible: this.gridCommons.isColumnVisible("actions")
             });
         }
 
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
     }
@@ -548,13 +541,76 @@ export default class SampleGrid extends LitElement {
             });
     }
 
+    onCreateCohortShow() {
+        const filters = {
+            ...this.filters,
+            include: "id",
+            limit: 5000,
+        };
+        this.opencgaSession.opencgaClient.samples()
+            .search(filters)
+            .then(response => {
+                const results = response.getResults();
+                if (results) {
+                    this.createCohortSampleIds = results.map(s => {
+                        return {"id": s.id};
+                    });
+                    this.requestUpdate();
+                    ModalUtils.show(`${this._prefix}CreateCohortModal`);
+                } else {
+                    console.error("Error in result format");
+                }
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
+    }
+
+    onCreateCohortSave() {
+        const cohortId = document.querySelector(`#${this._prefix}CohortId`).value;
+        const cohortName = document.querySelector(`#${this._prefix}CohortName`).value;
+
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            includeResult: false
+        };
+        this.opencgaSession.opencgaClient.cohorts()
+            .create({
+                id: cohortId,
+                name: cohortName ?? "",
+                samples: this.createCohortSampleIds,
+            }, params)
+            .then(() => {
+                this.createCohortSampleIds = [];
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Cohort Create",
+                    message: "Cohort created correctly"
+                });
+            })
+            .catch(reason => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            });
+    }
+
+    getRightToolbar() {
+        return [
+            {
+                render: () => html`
+                    <button type="button" class="btn btn-light" @click="${e => this.onCreateCohortShow(e)}">
+                        <i class="fas fa-users pe-1"></i> Create Cohort
+                    </button>
+                `,
+            }
+        ];
+    }
+
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
                 modalTitle: `Sample Update: ${this.sampleUpdateId}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
-                modalSize: "modal-lg"
+                modalSize: "modal-lg",
             },
             render: active => html`
                 <sample-update
@@ -567,11 +623,45 @@ export default class SampleGrid extends LitElement {
         });
     }
 
+    renderModalCohortCreate() {
+        return ModalUtils.create(this, `${this._prefix}CreateCohortModal`, {
+            display: {
+                modalTitle: "Create Cohort",
+                modalDraggable: true,
+                modalbtnsVisible: true,
+                modalSize: "modal-md",
+            },
+            render: () => {
+                return html`
+                    <div class="mb-2">
+                        Create a new cohort with <span class="fw-bold">${this.createCohortSampleIds?.length} samples</span>.
+                        This can take few seconds depending on the number of samples.
+                    </div>
+                    ${this.createCohortSampleIds?.length === 5000 ? html`
+                        <div class="alert alert-warning mb-2">No more than 5,000 samples allowed</div>
+                    ` : nothing}
+                    <form>
+                        <div class="mb-2">
+                            <label for="${this._prefix}CohortId" class="form-label">Cohort ID</label>
+                            <input type="text" class="form-control" id="${this._prefix}CohortId" placeholder="">
+                        </div>
+                        <div class="mb-0">
+                            <label for="${this._prefix}CohortName" class="form-label">Cohort Name</label>
+                            <input type="text" class="form-control" id="${this._prefix}CohortName" placeholder="">
+                        </div>
+                    </form>
+                `;
+            },
+            onOk: e => this.onCreateCohortSave(e)
+        });
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.filters}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
@@ -581,13 +671,13 @@ export default class SampleGrid extends LitElement {
                     @actionClick="${e => this.onActionClick(e)}"
                     @sampleCreate="${this.renderTable}">
                 </opencb-grid-toolbar>
-            ` : nothing
-            }
+            ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">
                 <table id="${this.gridId}"></table>
             </div>
 
+            ${this.renderModalCohortCreate()}
             ${this.renderModalUpdate()}
         `;
     }

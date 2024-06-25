@@ -17,6 +17,8 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
+import "../forms/select-field-filter.js";
+
 import {guardPage} from "../html-utils.js";
 import "../forms/select-field-filter.js";
 
@@ -35,36 +37,44 @@ export default class StudyFilter extends LitElement {
         return {
             opencgaSession: {
                 type: Object
-            }
+            },
+            value: {
+                type: String,
+            },
         };
     }
 
     #init() {
         $.fn.selectpicker.Constructor.BootstrapVersion = "5";
-        this.elm = "selectpicker";
         this._prefix = UtilsNew.randomString(8);
         this.operator = ",";
         this.selectedStudies = [];
         this.differentStudies = [];
     }
 
-    firstUpdated() {
-        // init selectPicker
-        this.selectPicker = $("#" + this.elm, this);
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            if (this.opencgaSession?.project?.studies?.length) {
+                this.differentStudies = this.opencgaSession.project.studies
+                    .filter(study => this.opencgaSession.study.id !== study.id);
+            }
+        }
+
+        if (changedProperties.has("opencgaSession") || changedProperties.has("value")) {
+            this.selectedStudies = Array.from(new Set([
+                this.opencgaSession.study.fqn,
+                ...(this.value || "").split(this.operator).filter(v => !!v),
+            ]));
+        }
+
+        super.update(changedProperties);
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.selectedStudies = [this.opencgaSession.study.fqn];
-            if (this.opencgaSession.project.studies.length) {
-                this.differentStudies = this.opencgaSession.project.studies
-                    .filter(study => this.opencgaSession.study.id !== study.id);
-            }
-            this.requestUpdate();
-            this.updateComplete.then(() => {
-                this.selectPicker.selectpicker("render");
-            });
+            $(".selectpicker", this).selectpicker("refresh");
         }
+        $(".selectpicker", this).selectpicker("val", this.selectedStudies);
     }
 
     filterChange() {
@@ -76,12 +86,6 @@ export default class StudyFilter extends LitElement {
             // NOT operator (not visible/not implemented)
             querystring = [...this.selectedStudies.map(study => `${this.operator}${study}`)].join(";");
         }
-        // const event = new CustomEvent("filterChange", {
-        //     detail: {
-        //         value: querystring
-        //     }
-        // });
-        // this.dispatchEvent(event);
         LitUtils.dispatchCustomEvent(this, "filterChange", querystring);
     }
 
@@ -91,7 +95,7 @@ export default class StudyFilter extends LitElement {
     }
 
     onChangeSelectedStudy() {
-        const selected = this.selectPicker.selectpicker("val");
+        const selected = $(".selectpicker", this).selectpicker("val");
         // Active study is always the first element
         this.selectedStudies = [this.opencgaSession.study.fqn, ...selected];
         this.requestUpdate();
@@ -111,14 +115,13 @@ export default class StudyFilter extends LitElement {
                 }
             </style>
             <div class="mb-3 select-picker" id="${this._prefix}DifferentStudies">
-                <select class="form-control" id="${this.elm}" multiple
-                    @change="${this.onChangeSelectedStudy}">
-                    <option value="${this.opencgaSession.study.fqn}"
-                        selected="selected" disabled>${this.opencgaSession.study.name}</option>
-                    ${this.differentStudies.length > 0 ?
-            this.differentStudies.map(study => html`
-                            <option value="${study.fqn}">${study.name}</option>`) : nothing
-                    }
+                <select multiple class="form-control selectpicker" @change="${this.onChangeSelectedStudy}">
+                    <option value="${this.opencgaSession.study.fqn}" selected="selected" disabled>
+                        ${this.opencgaSession.study.name}
+                    </option>
+                    ${(this.differentStudies || []).map(study => html`
+                        <option value="${study.fqn}">${study.name}</option>
+                    `)}
                 </select>
                 <fieldset class="d-grid my-1 mx-0" ?disabled="${this.selectedStudies.length < 2}">
                     <div class="btn-group" role="group">

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {LitElement, html, nothing} from "lit";
+import {JSONEditor} from "vanilla-jsoneditor";
 import UtilsNew from "../../core/utils-new.js";
 import "../download-button.js";
 
@@ -35,28 +36,54 @@ export default class JsonViewer extends LitElement {
             data: {
                 type: Object
             },
-            showDownloadButton: {
-                type: Boolean
-            },
             active: {
                 type: Boolean
-            }
+            },
+            config: {
+                type: Object,
+            },
         };
     }
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-
-        this.showDownloadButton = true;
         this.active = true;
+        this.jsonView = null;
+        this._config = this.getDefaultConfig();
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+        }
+        super.update(changedProperties);
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("data") || changedProperties.has("active")) && this.active) {
-            if (this.data) {
-                $(`#${this._prefix}JsonView`, this).jsonViewer(this.data);
+        if ((changedProperties.has("data") || changedProperties.has("active") || changedProperties.has("config")) && this.active) {
+            if (!this.jsonView) {
+                this.initJsonView();
+            } else {
+                this.jsonView.update({json: this.data || {}});
             }
         }
+    }
+
+    initJsonView() {
+        this.jsonView = new JSONEditor({
+            target: this.querySelector(`#${this._prefix}JsonView`),
+            props: {
+                content: {
+                    json: this.data || {},
+                },
+                mode: this._config?.mode || "tree",
+                indentation: this._config?.indentation || 4,
+                readOnly: true,
+            }
+        });
     }
 
     render() {
@@ -67,15 +94,20 @@ export default class JsonViewer extends LitElement {
         return html`
             ${this.showDownloadButton ? html`
                 <div class="d-flex justify-content-end">
-                    <download-button
-                        .json="${this.data}">
-                    </download-button>
+                    <download-button .json="${this.data}"></download-button>
                 </div>
-            ` : null
-            }
+            ` : nothing}
 
-            <div id="${this._prefix}JsonView" class="json-renderer text-break"></div>
+            <div id="${this._prefix}JsonView" class="pt-2"></div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            showDownloadButton: true,
+            indentation: 4,
+            mode: "tree",
+        };
     }
 
 }

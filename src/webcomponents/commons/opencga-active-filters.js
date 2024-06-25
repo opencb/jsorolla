@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
+import WebUtils from "./utils/web-utils.js";
 import NotificationUtils from "./utils/notification-utils.js";
 
 export default class OpencgaActiveFilters extends LitElement {
@@ -31,6 +32,9 @@ export default class OpencgaActiveFilters extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            toolId: {
+                type: String,
+            },
             // NOTE this is actually preparedQuery (in case of variant-browser)
             query: {
                 type: Object
@@ -41,6 +45,9 @@ export default class OpencgaActiveFilters extends LitElement {
             // this is included in config param in case of variant-browser (it can be different somewhere else)
             filters: {
                 type: Array
+            },
+            defaultFilter: {
+                type: Object,
             },
             resource: {
                 type: String
@@ -115,7 +122,7 @@ export default class OpencgaActiveFilters extends LitElement {
             this.facetQueryObserver();
         }
 
-        if (changedProperties.has("filters")) {
+        if (changedProperties.has("filters") || changedProperties.has("defaultFilter")) {
             this.refreshFilters();
 
             // Nacho (6/2/2021): probably observers should not dispatch new events
@@ -133,8 +140,18 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     // Josemi 20220916 NOTE: this updated is required to update the tooltips for the history items
-    updated() {
+    updated(changedProperties) {
         UtilsNew.initTooltip(this);
+
+        // Josemi NOTE 2024-05-08 Check to force an update of the active filters
+        // This is required to style the default filter as active when user enters in the tool for the first time
+        // or when user changes the study
+        if (changedProperties.has("defaultFilter")) {
+            if (!!this.defaultFilter && !UtilsNew.isEmpty(this.defaultFilter)) {
+                this.updateActiveFilter();
+                this.requestUpdate();
+            }
+        }
     }
 
     opencgaSessionObserver() {
@@ -292,31 +309,8 @@ export default class OpencgaActiveFilters extends LitElement {
         //     }
         // }
 
-        // Set all filters not active
-        // eslint-disable-next-line no-param-reassign
-        this._filters.forEach(f => f.active = false);
-
-        // Now check if any filter matches the current query. Skip categories and separators.
-        const queryFilters = this._filters.filter(f => !!f.query);
-        for (const filtersKey of queryFilters) {
-            let match = true;
-            for (const key of Object.keys(this.query)) {
-                // Check if all existing keys (but study) have the same values as the filter
-                if (key !== "study" && this._config.lockedFields.findIndex(f => f.id === key) === -1) {
-                    if (filtersKey?.query?.[key]) {
-                        match = match && filtersKey.query[key] === this.query[key];
-                    } else {
-                        match = false;
-                        break;
-                    }
-                }
-            }
-            if (match) {
-                filtersKey.active = true;
-                break;
-            }
-        }
-
+        // Update active filter
+        this.updateActiveFilter();
 
         // Update History
         // 1. remove all identical filters
@@ -339,6 +333,33 @@ export default class OpencgaActiveFilters extends LitElement {
 
         // 5. Refresh
         this.requestUpdate();
+    }
+
+    updateActiveFilter() {
+        // Set all filters not active
+        // eslint-disable-next-line no-param-reassign
+        this._filters.forEach(filter => filter.active = false);
+
+        // Get list of keys in current query
+        // We will remove the study and the locked fields from this list
+        const keys = Object.keys(this.query)
+            .filter(key => key !== "study" && this._config.lockedFields.every(field => field?.id !== key));
+
+        // Check for non empty query. This will avoid selecting always the first filter in the list
+        if (keys.length > 0) {
+            // Now check if any filter matches the current query.
+            // Skip categories, separators, and disabled filters
+            const queryFilters = this._filters.filter(filter => !!filter.query && !filter.disabled);
+            for (const filtersKey of queryFilters) {
+                const match = keys.every(key => {
+                    return typeof filtersKey.query[key] !== "undefined" && filtersKey.query[key] === this.query[key];
+                });
+                if (match) {
+                    filtersKey.active = true;
+                    break;
+                }
+            }
+        }
     }
 
     configObserver() {
@@ -393,12 +414,27 @@ export default class OpencgaActiveFilters extends LitElement {
         // 0. Reset internal filters array every time
         this._filters = [];
 
-        // 1. Add passed application filters
-        if (this.filters?.length > 0) {
-            this._filters = [
-                {name: "Application Filters", category: true},
-                ...this.filters
-            ];
+        // 1. Add passed application filters (default filter or example filters)
+        if (this.filters?.length > 0 || !!this.defaultFilter) {
+            // 1.1. Add filters section
+            this._filters.push({name: "Application Filters", category: true});
+
+            // 1.2. Add default filter
+            if (this.defaultFilter) {
+                const isDisabled = UtilsNew.isEmpty(this.defaultFilter);
+                this._filters.push({
+                    id: "Default Filter",
+                    query: this.defaultFilter,
+                    disabled: isDisabled,
+                    description: isDisabled ? "Filter not configured." : "",
+                    active: false,
+                });
+            }
+
+            // 1.3. Add example filters
+            if (this.filters?.length > 0) {
+                this._filters.push(...this.filters);
+            }
         }
 
         // 2. Add and merge user filters
@@ -411,9 +447,8 @@ export default class OpencgaActiveFilters extends LitElement {
             ];
         }
 
-        // 3. Refresh and add tooltips
+        // 3. Force an update
         this.requestUpdate();
-        this.updateComplete.then(() => UtilsNew.initTooltip(this));
     }
 
     // TODO recheck & refactor
@@ -522,6 +557,7 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     onFilterChange(e, query) {
+        e.preventDefault();
         // suppress if I have clicked on an action buttons
         if (e.target?.dataset?.action === "delete-filter") {
             return;
@@ -539,7 +575,7 @@ export default class OpencgaActiveFilters extends LitElement {
         if (this._filters) {
             // We look for the filter name in the filters array
             for (const filter of this._filters) {
-                if (filter.id === e.currentTarget.dataset.filterId) {
+                if (filter.id === e.currentTarget.dataset.filterId && !filter.disabled) {
                     filter.active = true;
 
                     // Prepare new query object
@@ -681,41 +717,64 @@ export default class OpencgaActiveFilters extends LitElement {
         }));
     }
 
+    onCopyLink() {
+        // 1. Generate the url to the tool with the current query
+        const link = WebUtils.getIVALink(this.opencgaSession, this.toolId, this.query);
+        // 2. Copy this link to the user clipboard
+        UtilsNew.copyToClipboard(link);
+        // 3. Notify user that the link has been copied to the clipboard
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+            message: "Link to current query copied to clipboard.",
+        });
+    }
+
     renderFilterItem(item) {
         if (item.separator) {
-            return html`<li><hr class="dropdown-divider"></li>`;
+            return html`
+                <li><hr class="dropdown-divider" /></li>
+            `;
+        } else if (item.category) {
+            return html`
+                <li>
+                    <small class="dropdown-header form-text m-0 py-0">${item.name}</small>
+                </li>
+            `;
         } else {
-            if (item.category) {
-                return html`<li>
-                        <small class="dropdown-header form-text m-0 py-0">
-                        ${item.name}
-                        </small>
-                    </li>`;
-            } else {
-                return html`
-                    <!-- Render the filter option -->
-                    <li>
-                        <a data-filter-id="${item.id}" class="ms-2 d-flex dropdown-item ${item.active ? "text-success" : ""}"
-                            style="cursor:pointer;"
-                            @click="${this.onFilterChange}">
-                            <span class="flex-grow-1">${item.id}</span>
-                            <span class="text-secondary cy-action-buttons ms-3">
-                            <span tooltip-title="${item.id}"
-                                tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
+            // Generate list of filter entries
+            const filterEntries = Object.entries(item.query || {})
+                .map(entry => `<b>${entry[0]}</b> = ${entry[1]}`)
+                .join("<br>");
+
+            return html`
+                <li class="${item.disabled ? "disabled" : ""}">
+                    <a
+                        href=""
+                        data-filter-id="${item.id}"
+                        class="${`d-flex dropdown-item ${item.active ? "text-success" : ""} ${item.disabled ? "disabled" : ""}`}"
+                        @click="${this.onFilterChange}">
+                        <span class="flex-grow-1">${item.id}</span>
+                        <span class="text-secondary cy-action-buttons ms-3">
+                            <span
+                                tooltip-title="${item.id}"
+                                tooltip-text="${(item.description ? item.description + "<br>" : "") + filterEntries}"
                                 data-filter-id="${item.id}">
                                 <i class="fas fa-eye" data-action="view-filter"></i>
                             </span>
                             <!-- Add delete icon only to saved filters. Saved filters have a 'resource' field -->
                             ${item.resource ? html`
-                                <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash"
-                                    data-action="delete-filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}">
+                                <i
+                                    data-cy="delete"
+                                    tooltip-title="Delete filter"
+                                    class="fas fa-trash"
+                                    data-action="delete-filter"
+                                    data-filter-id="${item.id}"
+                                    @click="${this.serverFilterDelete}">
                                 </i>
-                            ` : null}
+                            ` : nothing}
                         </span>
-                        </a>
-                    </li>
-                `;
-            }
+                    </a>
+                </li>
+            `;
         }
     }
 
@@ -766,10 +825,7 @@ export default class OpencgaActiveFilters extends LitElement {
             `}
 
             <div class="card mb-3">
-                <!-- padding: 8px 10px -->
                 <div class="card-body py-2 px-2">
-                    <!-- Render dropdown menu with all filters and history -->
-                    <!-- display:flex;flex-wrap:wrap;column-gap:4px;row-gap:4px;align-items:center; -->
                     <div class="d-flex flex-column gap-1">
                         <div class="d-flex flex-wrap gap-1 align-items-center">
                             <div class="dropdown me-1">
@@ -781,8 +837,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                     <!-- Render FILTERS options -->
                                     <li>
                                         <h6 class="dropdown-header fw-bold text-dark">
-                                            <i class="fas fa-filter"></i>
-                                            Filters
+                                            <i class="fas fa-filter"></i> Filters
                                         </h6>
                                     </li>
                                     ${this._filters?.length > 0 ? html`
@@ -797,8 +852,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                     <!-- Render HISTORY filters -->
                                     <li>
                                         <h6 class="dropdown-header fw-bold text-dark">
-                                        <i class="fas fa-history"></i>
-                                            History
+                                            <i class="fas fa-history"></i> History
                                         </h6>
                                     </li>
                                     ${this.history?.length > 0 ? html`
@@ -813,22 +867,25 @@ export default class OpencgaActiveFilters extends LitElement {
                                         </div>
                                     `}
                                     <li><hr class="dropdown-divider"></li>
-
-                                    <!-- Add CLEAR and SAVE buttons -->
+                                    ${this.toolId ? html`
+                                        <li>
+                                            <a class="dropdown-item" style="cursor:pointer;" @click="${this.onCopyLink}" data-action="copy-link">
+                                                <i class="fas fa-copy"></i> <b>Copy IVA Link</b>
+                                            </a>
+                                        </li>
+                                    `: nothing}
                                     <li>
-                                        <a class="dropdown-item" href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
-                                            <i class="fa fa-eraser " aria-hidden="true"></i>
-                                            <label>Clear</label>
+                                        <a class="dropdown-item" style="cursor:pointer;" @click="${this.clear}" data-action="active-filter-clear">
+                                            <i class="fa fa-eraser icon-padding"></i> <b>Clear</b>
                                         </a>
                                     </li>
                                     ${this.isLoggedIn() ? html`
                                         <li>
                                             <a class="dropdown-item" style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save">
-                                                <i class="fas fa-save"></i>
-                                                <label>Save current filter</label>
+                                                <i class="fas fa-save"></i> <b>Save current filter</b>
                                             </a>
                                         </li>
-                                    ` : null}
+                                    ` : nothing}
                                 </ul>
                             </div>
 

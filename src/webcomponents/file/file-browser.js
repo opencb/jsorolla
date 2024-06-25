@@ -223,17 +223,7 @@ export default class FileBrowser extends LitElement {
                         ]
                     }
                 ],
-                examples: [
-                    {
-                        id: "Alignment",
-                        active: false,
-                        query: {
-                            format: "BAM,SAM,BIGWIG",
-                            bioformat: "ALIGNMENT",
-                            creationDate: ">=20200216"
-                        }
-                    }
-                ],
+                examples: [],
                 result: {
                     grid: {}
                 },
