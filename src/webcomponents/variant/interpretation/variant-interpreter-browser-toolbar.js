@@ -17,7 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import "./variant-interpreter-browser-review.js";
+import "./variant-interpreter-browser-save.js";
 
 class VariantInterpreterBrowserToolbar extends LitElement {
 
@@ -270,14 +270,14 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}SaveMenu" style="width:420px;">
                             <li>
-                                <variant-interpreter-browser-review
+                                <variant-interpreter-browser-save
                                     .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                     .state="${this.state}"
                                     @saveVariants="${e => this.onSaveInterpretation(e)}"
                                     @discardVariants="${() => this.onResetModifiedVariants()}"
                                     @filterVariants="${() => this.onFilterModifiedVariants()}">
-                                </variant-interpreter-browser-review>
+                                </variant-interpreter-browser-save>
                             </li>
                         </ul>
                     </div>

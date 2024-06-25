@@ -2,7 +2,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 
-class VariantInterpreterBrowserReview extends LitElement {
+class VariantInterpreterBrowserSave extends LitElement {
 
     constructor() {
         super();
@@ -125,4 +125,4 @@ class VariantInterpreterBrowserReview extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-browser-review", VariantInterpreterBrowserReview);
+customElements.define("variant-interpreter-browser-save", VariantInterpreterBrowserSave);
