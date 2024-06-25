@@ -108,7 +108,7 @@ class VariantInterpreterBrowserSave extends LitElement {
                     </div>
                     <div class="d-flex align-items-center gap-1">
                         <button class="btn btn-light ${hasVariantsToSave ? "" : "disabled"}" @click="${() => this.onDiscard()}">
-                            <i class="fas fa-eraser pe-1"></i> Discard
+                            <i class="fas fa-eraser pe-1"></i> Discard Changes
                         </button>
                         <button class="btn btn-primary ${hasVariantsToSave ? "" : "disabled"}" @click="${() => this.onSave()}">
                             <i class="fas fa-save pe-1"></i> Save
