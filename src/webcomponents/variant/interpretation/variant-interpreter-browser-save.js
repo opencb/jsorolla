@@ -81,7 +81,7 @@ class VariantInterpreterBrowserSave extends LitElement {
                 </div>
                 <div class="my-1 mx-3">
                     ${this.renderVariantsList("New selected variants", this.state?.addedVariants || [], "success")}
-                    ${this.renderVariantsList("Updated variants", this.state?.updatedVariants || [], "primary")}
+                    ${this.renderVariantsList("Updated variants", this.state?.updatedVariants || [], "warning")}
                     ${this.renderVariantsList("Removed variants", this.state?.removedVariants || [], "danger")}
                 </div>
                 <hr class="dropdown-divider">
