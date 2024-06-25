@@ -56,8 +56,7 @@ class VariantInterpreterBrowserSave extends LitElement {
         const geneNames = Array.from(new Set(variant.annotation.consequenceTypes.filter(ct => ct.geneName).map(ct => ct.geneName)));
         return html`
             <div class="mb-1 border-start border-4 border-${color}">
-                <div class="my-1 mx-2">${variant.id} (${variant.type})</div>
-                <div class="my-1 mx-2">${variant.annotation.displayConsequenceType}</div>
+                <div class="my-1 mx-2">${variant.id} <i>${variant.annotation.displayConsequenceType || ""}</i></div>
                 <div class="my-1 mx-2">${geneNames.join(", ")}</div>
             </div>
         `;
