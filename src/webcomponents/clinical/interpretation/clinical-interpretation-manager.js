@@ -71,9 +71,6 @@ export default class ClinicalInterpretationManager extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver();
-        }
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
@@ -90,36 +87,6 @@ export default class ClinicalInterpretationManager extends LitElement {
                 .info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
-        }
-    }
-
-    clinicalAnalysisObserver() {
-        if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-
-            // this.interpretations = [
-            //     {
-            //         ...this.clinicalAnalysis.interpretation, primary: true
-            //     },
-            //     ...this.clinicalAnalysis.secondaryInterpretations
-            // ];
-
-            const params = {
-                study: this.opencgaSession.study.fqn,
-                version: "all",
-            };
-            this.opencgaSession.opencgaClient.clinical().infoInterpretation(this.clinicalAnalysis.interpretation.id, params)
-                .then(response => {
-                    this.interpretationVersions = response.responses[0].results.reverse();
-
-                    // We always refresh UI when clinicalAnalysisObserver is called
-                    // await this.updateComplete;
-                    this.requestUpdate();
-                    this.renderHistoryTable();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
