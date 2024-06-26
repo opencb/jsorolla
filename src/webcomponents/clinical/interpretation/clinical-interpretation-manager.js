@@ -337,11 +337,6 @@ export default class ClinicalInterpretationManager extends LitElement {
                             <label>No secondary interpretations found</label>
                         `}
                     </div>
-
-                    <div class="col-md-10 pt-2">
-                        <h3>Primary Interpretation History - ${this.clinicalAnalysis.interpretation.id}</h3>
-                        <table id="${this.gridId}"></table>
-                    </div>
                 </div>
             </div>
         `;
