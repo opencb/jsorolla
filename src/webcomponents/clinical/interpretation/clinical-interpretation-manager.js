@@ -162,27 +162,6 @@ export default class ClinicalInterpretationManager extends LitElement {
         `;
     }
 
-    renderHistoryTable() {
-        this.table = $("#" + this.gridId);
-        this.table.bootstrapTable("destroy");
-        this.table.bootstrapTable({
-            theadClasses: "table-light",
-            buttonsClass: "light",
-            data: this.interpretationVersions,
-            columns: this._initTableColumns(),
-            uniqueId: "id",
-            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
-            icons: GridCommons.GRID_ICONS,
-            gridContext: this,
-            sidePagination: "local",
-            pagination: true,
-            formatNoMatches: () => "No previous versions",
-            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            loadingTemplate: () => GridCommons.loadingFormatter(),
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-        });
-    }
-
     renderItemAction(interpretation, action, icon, name, defaultDisabled = false) {
         const disabled = defaultDisabled || (interpretation?.locked && ((action !== "unlock") && (action !== "setAsPrimary")));
         return html`
@@ -199,49 +178,6 @@ export default class ClinicalInterpretationManager extends LitElement {
                 </a>
             </li>
         `;
-    }
-
-    _initTableColumns() {
-        this._columns = [
-            {
-                title: "ID",
-                field: "id"
-            },
-            {
-                title: "Version",
-                field: "version"
-            },
-            {
-                title: "Modification Date",
-                field: "modificationDate",
-                formatter: modificationDate => UtilsNew.dateFormatter(modificationDate, "D MMM YYYY, h:mm:ss a")
-            },
-            {
-                title: "Primary Findings",
-                field: "primaryFindings",
-                formatter: primaryFindings => primaryFindings?.length
-            },
-            {
-                title: "Status",
-                field: "internal.status.name"
-            },
-            {
-                title: "Actions",
-                formatter: () => `
-                    <div class="btn-group">
-                        <button class="btn btn-link link-underline link-underline-opacity-0 link-underline-opacity-75-hover" disabled type="button" data-action="view">View</button>
-                        <button class="btn btn-link link-underline link-underline-opacity-0 link-underline-opacity-75-hover" type="button" data-action="restore">Restore</button>
-                    </div>
-                `,
-                valign: "middle",
-                events: {
-                    "click button": this.onActionClick.bind(this)
-                },
-                visible: !this._config.columns?.hidden?.includes("actions")
-            }
-        ];
-
-        return this._columns;
     }
 
     onActionClick(e) {
