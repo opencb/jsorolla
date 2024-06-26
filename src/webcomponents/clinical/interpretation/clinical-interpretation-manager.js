@@ -19,7 +19,6 @@ import {classMap} from "lit/directives/class-map.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import GridCommons from "../../commons/grid-commons.js";
 import "./clinical-interpretation-summary.js";
 import "./clinical-interpretation-create.js";
 import "./clinical-interpretation-update.js";
@@ -31,7 +30,7 @@ export default class ClinicalInterpretationManager extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -55,19 +54,10 @@ export default class ClinicalInterpretationManager extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-
-        this.gridId = this._prefix + "Grid";
-        this.interpretationVersions = [];
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+        this._config = this.getDefaultConfig();
+        this.clinicalAnalysisManager = null;
     }
 
     update(changedProperties) {
@@ -75,7 +65,10 @@ export default class ClinicalInterpretationManager extends LitElement {
             this.clinicalAnalysisIdObserver();
         }
         if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
         super.update(changedProperties);
