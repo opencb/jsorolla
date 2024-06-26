@@ -461,7 +461,7 @@ class VariantInterpreter extends LitElement {
                             </a>
                         </li>
                         ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
-                            <li><h6 class="dropdown-header">Change Primary Interpretation</h6></li>
+                            <li><h6 class="dropdown-header">Set Primary Interpretation</h6></li>
                             ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
                                 <li>
                                     <a class="dropdown-item" style="cursor:pointer;" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
