@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
 import "./filters/catalog-search-autocomplete.js";
@@ -79,6 +79,7 @@ export default class OpencgaBrowserFilter extends LitElement {
         this.query = {};
         this.preparedQuery = {};
         this.searchButton = true;
+        this.userAdminStatus = {};
 
         // Make sure some filters point the right RESOURCE
         this.filterToResource = {
@@ -116,6 +117,7 @@ export default class OpencgaBrowserFilter extends LitElement {
         super.connectedCallback();
 
         this.preparedQuery = {...this.query}; // propagates here the iva-app query object
+        this.opencgaObserver();
     }
 
     firstUpdated(changedProperties) {
@@ -132,6 +134,16 @@ export default class OpencgaBrowserFilter extends LitElement {
         //     this.variablesChanged()
         // }
         super.update(changedProperties);
+    }
+
+    opencgaObserver() {
+        if (UtilsNew.isEmpty(this.userAdminStatus)) {
+            UtilsNew.checkUserAdmin(this.opencgaSession)
+                .then(res => {
+                    this.userAdminStatus = res;
+                    this.requestUpdate();
+                });
+        }
     }
 
     // TODO review, this is used only in case of Search button inside filter component.
@@ -304,8 +316,22 @@ export default class OpencgaBrowserFilter extends LitElement {
                     `;
                     break;
                 case "scope":
+                    const warningMessage = () => {
+                        const isNotAdminStudy = "You are allowed to see only PUBLIC notes from this study";
+                        const isNotAdminOrg = "You are allowed to see only PUBLIC notes from this organization";
+                        const template = message => html `<div class="alert alert-warning">${message}</div>`;
+                        if (((typeof this.userAdminStatus?.isAdminStudy !== "undefined") && !this.userAdminStatus?.isAdminStudy) && ((this.preparedQuery?.scope || subsection?.defaultValue).toLowerCase()) === "study") {
+                            return template(isNotAdminStudy);
+                        }
+
+                        if (((typeof this.userAdminStatus?.isAdminOrg !== "undefined") && !this.userAdminStatus?.isAdminOrg) && ((this.preparedQuery?.scope || subsection?.defaultValue).toLowerCase()) === "organization") {
+                            return template(isNotAdminOrg);
+                        }
+                        return nothing;
+                    };
                     content = html `
                         <div class="mb-2">
+                            ${warningMessage()}
                             <div class="row">
                                 <toggle-radio
                                     .value="${this.preparedQuery?.scope || subsection?.defaultValue}"
