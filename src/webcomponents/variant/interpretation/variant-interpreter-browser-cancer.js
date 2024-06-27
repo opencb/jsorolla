@@ -201,15 +201,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     .filter(file => file.format.toUpperCase() === "VCF");
             }
 
-            // 6.1. Read defaultFilter from study internal configuration
-            if (this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.defaultFilter) {
-                this.query = {
-                    ...this.query,
-                    ...this.opencgaSession.study.internal.configuration.clinical.interpretation.defaultFilter,
-                };
-            }
-
-            // 6.2. Read defaultFilter from browser settings
+            // 6. Read defaultFilter from browser settings
             if (this.settings?.menu?.defaultFilter) {
                 this.query = {
                     ...this.query,
