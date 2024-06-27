@@ -505,7 +505,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     return html`
                                         <clinical-flag-filter
                                             .flag="${flags?.map(f => f.id).join(",")}"
-                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type?.toUpperCase()]}"
+                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags || []}"
                                             .multiple=${true}
                                             @filterChange="${e => handleFlagsFilterChange(e, "flags.id")}">
                                         </clinical-flag-filter>
