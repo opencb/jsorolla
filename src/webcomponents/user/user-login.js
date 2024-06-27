@@ -60,10 +60,6 @@ export default class UserLogin extends LitElement {
         LitUtils.dispatchCustomEvent(this, "redirect", null, {hash: to});
     }
 
-    hasSingleOrganizationConfigured() {
-        return this.opencgaSession?.opencgaClient?._config?.organizations?.length === 1;
-    }
-
     getOrganization() {
         if (this.opencgaSession?.opencgaClient?._config?.organizations?.length === 1) {
             return this.opencgaSession.opencgaClient._config.organizations[0];
