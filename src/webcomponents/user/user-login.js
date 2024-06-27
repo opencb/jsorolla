@@ -182,7 +182,11 @@ export default class UserLogin extends LitElement {
                                     <span class="input-group-text">
                                         <i class="fa fa-building fa-lg"></i>
                                     </span>
-                                    <input id="organization" class="form-control" type="text" placeholder="Organization ID" @keyup="${e => this.onKeyUp(e)}">
+                                    <select class="form-select" id="organization">
+                                        ${this.opencgaSession?.opencgaClient?._config?.organizations.map(organization => html`
+                                            <option value="${organization}">${organization}</option>
+                                        `)}
+                                    </select>
                                 </div>
                             </div>
                         ` : nothing}
