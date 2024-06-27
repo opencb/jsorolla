@@ -21,7 +21,8 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import WebUtils from "../commons/utils/web-utils.js";
 
 
 export default class OpencgaFileGrid extends LitElement {
@@ -117,6 +118,8 @@ export default class OpencgaFileGrid extends LitElement {
                 `,
             },
         };
+
+        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
     renderTable() {
@@ -415,7 +418,7 @@ export default class OpencgaFileGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) || "disabled" }">
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>

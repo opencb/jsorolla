@@ -23,8 +23,9 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/catalog-browser-grid-config.js";
 import "../commons/opencb-grid-toolbar.js";
-import ModalUtils from "../commons/modal/modal-utils";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter";
+import ModalUtils from "../commons/modal/modal-utils.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
+import WebUtils from "../commons/utils/web-utils.js";
 
 export default class DiseasePanelGrid extends LitElement {
 
@@ -142,6 +143,8 @@ export default class DiseasePanelGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
+
+        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
     renderTable() {
@@ -430,7 +433,7 @@ export default class DiseasePanelGrid extends LitElement {
                 field: "actions",
                 align: "center",
                 formatter: () => {
-                    const isAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
+                    const isAdmin = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID);
                     return `
                         <div class="inline-block dropdown">
                             <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
@@ -457,7 +460,7 @@ export default class DiseasePanelGrid extends LitElement {
                                 </li>
                                 <li role="separator" class="divider"></li>
                                 <li>
-                                    <a data-action="edit" class="btn force-text-left ${isAdmin ? "" : "disabled"}">
+                                    <a data-action="edit" class="btn force-text-left ${isAdmin ? "" : "disabled" }">
                                         <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                     </a>
                                 </li>
