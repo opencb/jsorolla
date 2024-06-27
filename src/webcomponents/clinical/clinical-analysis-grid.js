@@ -363,9 +363,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     statusFormatter(value, row) {
-        // TODO remove this code as soon as new OpenCGA configuration is in place
-        const _status = this.opencgaSession.study?.internal?.configuration?.clinical?.status || [];
-
+        const status = this.opencgaSession.study?.internal?.configuration?.clinical?.status || [];
         const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
         const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // status is editable
 
@@ -380,11 +378,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
             <div class="dropdown">
                 <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" ${!isEditable ? "disabled=\"disabled\"" : ""}>
                     <span class='me-auto'">${currentStatus}</span>
-
                 </button>
                 ${isEditable ? `
                     <ul class="dropdown-menu">
-                        ${_status[row.type].map(({id, description}) => `
+                        ${status.map(({id, description}) => `
                             <li>
                                 <a class="d-flex dropdown-item" data-action="statusChange" data-status="${id}">
                                     <div class="flex-grow-1">
