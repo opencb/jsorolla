@@ -65,7 +65,7 @@ export default class UserLogin extends LitElement {
     }
 
     getOrganization() {
-        if (this.hasSingleOrganizationConfigured()) {
+        if (this.opencgaSession?.opencgaClient?._config?.organizations?.length === 1) {
             return this.opencgaSession.opencgaClient._config.organizations[0];
         }
         // If not, return the organization from the input field
