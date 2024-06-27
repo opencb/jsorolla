@@ -444,7 +444,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                     return html `
                                         <clinical-flag-filter
                                             .flag="${flags?.map(f => f.id).join(",")}"
-                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[clinicalAnalysis?.type?.toUpperCase()]}"
+                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags || []}"
                                             .multiple=${true}
                                             .classes="${updateParams?.flags ? "selection-updated" : ""}"
                                             .disabled="${!!clinicalAnalysis?.locked}"
