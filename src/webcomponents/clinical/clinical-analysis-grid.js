@@ -383,10 +383,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     <ul class="dropdown-menu">
                         ${status.map(({id, description}) => `
                             <li>
-                                <a class="d-flex dropdown-item" data-action="statusChange" data-status="${id}">
+                                <a class="d-flex dropdown-item" data-action="statusChange" data-status="${id}" style="cursor:pointer;">
                                     <div class="flex-grow-1">
                                         ${id === currentStatus ? `<strong>${id}</strong>` : id}
-                                        <p class="form-text"><small>${description}</small></p>
+                                        <div class="small text-secondary">${description}</div>
                                     </div>
                                     ${id === currentStatus ? "<i class=\"fas fa-check\"></i>" : ""}
                                 </a>
