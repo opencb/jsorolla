@@ -175,7 +175,7 @@ export default class UserLogin extends LitElement {
                                 <input id="password" class="form-control" type="password" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
                             </div>
                         </div>
-                        ${!this.hasSingleOrganizationConfigured() ? html`
+                        ${(this.opencgaSession?.opencgaClient?._config?.organizations?.length > 1) ? html`
                             <div class="form-group">
                                 <label for="organization" class="form-label fw-bold">Organization</label>
                                 <div class="input-group mb-3">
