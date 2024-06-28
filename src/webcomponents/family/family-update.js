@@ -172,14 +172,6 @@ export default class FamilyUpdate extends LitElement {
                                     }
                                 },
                                 {
-                                    title: "Name",
-                                    field: "status.name",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add a name"
-                                    }
-                                },
-                                {
                                     title: "Description",
                                     field: "status.description",
                                     type: "input-text",
