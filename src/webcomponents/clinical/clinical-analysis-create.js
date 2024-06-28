@@ -108,7 +108,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
             //     id: this.opencgaSession?.user?.id
             // },
             comments: [],
-            panelLock: false,
+            panelLocked: false,
             samples: [],
         };
     }
@@ -480,7 +480,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                         },
                         {
                             title: "Disease Panel Lock",
-                            field: "panelLock",
+                            field: "panelLocked",
                             type: "toggle-switch",
                             display: {
                                 helpMessage: "You must select at least one of the Clinical Analysis panels to enable Disease Panel Lock.",

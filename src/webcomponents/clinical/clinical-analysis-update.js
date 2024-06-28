@@ -386,7 +386,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                             .panel="${panels?.map(panel => panel.id).join(",")}"
                                             .showExtendedFilters="${false}"
                                             .classes="${updateParams?.panels ? "selection-updated" : ""}"
-                                            .disabled="${(!!clinicalAnalysis?.locked || !!clinicalAnalysis?.panelLock)}"
+                                            .disabled="${(!!clinicalAnalysis?.locked || !!clinicalAnalysis?.panelLocked)}"
                                             @filterChange="${e => handlePanelsFilterChange(e)}">
                                         </disease-panel-filter>
                                     `;
@@ -395,7 +395,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                         },
                         {
                             title: "Disease Panel Lock",
-                            field: "panelLock",
+                            field: "panelLocked",
                             type: "toggle-switch",
                             display: {
                                 helpMessage: "All existing interpretations must contain at least one of the Clinical Analysis panels to enable Disease Panel Lock.",
