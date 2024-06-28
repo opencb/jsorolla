@@ -42,12 +42,7 @@ export default class StudyFilter extends LitElement {
     }
 
     #init() {
-        // $.fn.selectpicker.Constructor.BootstrapVersion = "5";
         this._prefix = UtilsNew.randomString(8);
-        this.operator = ",";
-        this.selectedStudies = [];
-        this.differentStudies = [];
-
         this._studies = [];
         this._operator = ",";
         this._selection = [];
