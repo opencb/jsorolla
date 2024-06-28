@@ -49,24 +49,6 @@ export default class StudyFilter extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    // update(changedProperties) {
-    //     if (changedProperties.has("opencgaSession")) {
-    //         if (this.opencgaSession?.project?.studies?.length) {
-    //             this.differentStudies = this.opencgaSession.project.studies
-    //                 .filter(study => this.opencgaSession.study.id !== study.id);
-    //         }
-    //     }
-
-    //     if (changedProperties.has("opencgaSession") || changedProperties.has("value")) {
-    //         this.selectedStudies = Array.from(new Set([
-    //             this.opencgaSession.study.fqn,
-    //             ...(this.value || "").split(this.operator).filter(v => !!v),
-    //         ]));
-    //     }
-
-    //     super.update(changedProperties);
-    // }
-
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
@@ -115,13 +97,6 @@ export default class StudyFilter extends LitElement {
         ]));
     }
 
-    // updated(changedProperties) {
-    //     if (changedProperties.has("opencgaSession")) {
-    //         $(".selectpicker", this).selectpicker("refresh");
-    //     }
-    //     $(".selectpicker", this).selectpicker("val", this.selectedStudies);
-    // }
-
     filterChange() {
         let querystring;
         // AND or OR operators
@@ -150,19 +125,6 @@ export default class StudyFilter extends LitElement {
         // 2. Trigger the 'filterChange' event
         LitUtils.dispatchCustomEvent(this, "filterChange", this._selection.join(this._operator));
     }
-
-    // onChangeOperator(e) {
-    //     this.operator = e.target.value;
-    //     this.filterChange();
-    // }
-
-    // onChangeSelectedStudy() {
-    //     const selected = $(".selectpicker", this).selectpicker("val");
-    //     // Active study is always the first element
-    //     this.selectedStudies = [this.opencgaSession.study.fqn, ...selected];
-    //     this.requestUpdate();
-    //     this.filterChange();
-    // }
 
     render() {
         if (!this.opencgaSession && !this.opencgaSession.project) {
