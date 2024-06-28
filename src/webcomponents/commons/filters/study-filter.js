@@ -97,18 +97,6 @@ export default class StudyFilter extends LitElement {
         ]));
     }
 
-    filterChange() {
-        let querystring;
-        // AND or OR operators
-        if (this.operator !== "!") {
-            querystring = [...this.selectedStudies.map(study => `${study}`)].join(this.operator);
-        } else {
-            // NOT operator (not visible/not implemented)
-            querystring = [...this.selectedStudies.map(study => `${this.operator}${study}`)].join(";");
-        }
-        LitUtils.dispatchCustomEvent(this, "filterChange", querystring);
-    }
-
     onStudyChange(event) {
         // 1. Split values returned from select-field-filter and remove empty items
         // Note: select-field-filter returns values joined with a comma character
