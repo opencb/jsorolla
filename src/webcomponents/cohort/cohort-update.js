@@ -161,14 +161,6 @@ export default class CohortUpdate extends LitElement {
                                     }
                                 },
                                 {
-                                    title: "Name",
-                                    field: "status.name",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add source name"
-                                    }
-                                },
-                                {
                                     title: "Description",
                                     field: "status.description",
                                     type: "input-text",
