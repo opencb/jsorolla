@@ -235,7 +235,7 @@ export default class StudyAdminAudit extends LitElement {
             },
             {
                 title: "Status",
-                field: "status.name",
+                field: "status.id",
             },
         ];
     }
