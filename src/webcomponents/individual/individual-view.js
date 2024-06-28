@@ -332,8 +332,7 @@ export default class IndividualView extends LitElement {
                             title: "Status",
                             type: "complex",
                             display: {
-                                // render: field => field ? `${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-"
-                                template: "${internal.status.name} (${internal.status.date})",
+                                template: "${internal.status.id} (${internal.status.date})",
                                 format: {
                                     "internal.status.date": date => UtilsNew.dateFormatter(date)
                                 }
