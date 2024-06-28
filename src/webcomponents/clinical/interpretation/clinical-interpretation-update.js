@@ -188,7 +188,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                             display: {
                                 render: (panels, dataFormFilterChange, updateParams) => {
                                     // CAUTION: check if the panelLock condition is the same as clinical-analysis-update.js
-                                    const panelLock = !!this.clinicalAnalysis?.panelLock;
+                                    const panelLock = !!this.clinicalAnalysis?.panelLocked;
                                     const panelList = panelLock ? this.clinicalAnalysis?.panels : this.opencgaSession.study?.panels;
                                     const handlePanelsFilterChange = e => {
                                         const panelList = e.detail.value

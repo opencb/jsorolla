@@ -227,7 +227,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             type: "custom",
                             display: {
                                 render: (panels, dataFormFilterChange) => {
-                                    const panelLock = !!this.clinicalAnalysis?.panelLock;
+                                    const panelLock = !!this.clinicalAnalysis?.panelLocked;
                                     const panelList = panelLock ? this.clinicalAnalysis.panels : this.opencgaSession.study?.panels;
                                     const handlePanelsFilterChange = e => {
                                         const panelList = e.detail.value
