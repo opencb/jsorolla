@@ -448,7 +448,7 @@ export default class JobView extends LitElement {
                                     },
                                     {
                                         title: "Status",
-                                        field: "internal.status.name"
+                                        field: "internal.status.id"
                                     }
                                 ],
                             },

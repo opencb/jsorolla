@@ -101,11 +101,11 @@ export class JobMonitor extends LitElement {
             } else {
                 // handle the change of state
                 // FIXME remove this in v2.3
-                const statusId = job.internal.status.id || job.internal.status.name;
-                const oldStatusId = oldList[i - k].internal.status.id || oldList[i - k].internal.status.name;
+                const statusId = job.internal.status.id;
+                const oldStatusId = oldList[i - k].internal.status.id;
                 if (statusId !== oldStatusId) {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
-                        message: `${job.id} The job has now status ${job?.internal?.status?.id || job?.internal?.status?.name}`,
+                        message: `${job.id} The job has now status ${job?.internal?.status?.id || "-"}`,
                     });
                     return {...job, updated: true};
                 } else {
@@ -145,7 +145,7 @@ export class JobMonitor extends LitElement {
                 }
                 this.jobs = restResponse.getResults();
                 await this.applyUpdated();
-                this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.id || job.internal.status.name) ?? 1);
+                this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.id) ?? 1);
                 this.requestUpdate();
             })
             .catch(restResponse => {
@@ -156,7 +156,7 @@ export class JobMonitor extends LitElement {
     filterJobs(e) {
         e.stopPropagation();
         this.filterTypes = e.currentTarget.dataset?.type?.split(",");
-        this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.id || job.internal.status.name) ?? 1);
+        this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.id) ?? 1);
         this.requestUpdate();
     }
 
