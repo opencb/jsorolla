@@ -166,7 +166,7 @@ class VariantInterpreterBrowserRd extends LitElement {
             }
 
             // 3. panelIntersection param: if panel lock is enabled, this param should be also enabled
-            if (this.clinicalAnalysis.panelLock) {
+            if (this.clinicalAnalysis.panelLocked) {
                 this.query.panelIntersection = true;
             }
 
@@ -305,7 +305,7 @@ class VariantInterpreterBrowserRd extends LitElement {
         ];
 
         // Add panels to locked fields
-        if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLock) {
+        if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLocked) {
             lockedFields.push({id: "panel"});
             lockedFields.push({id: "panelIntersection"});
         }
@@ -414,7 +414,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "region",
                                 title: "Genomic Location",
                                 message: {
-                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Regions will be intersected with selected panels.",
                                 },
                                 tooltip: tooltips.region,
@@ -423,7 +423,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "feature",
                                 title: "Feature IDs (gene, SNPs, ...)",
                                 message: {
-                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Feature regions will be intersected with selected panels.",
                                 },
                                 tooltip: tooltips.feature,
@@ -451,9 +451,9 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "diseasePanels",
                                 title: "Disease Panels",
-                                disabled: () => this.clinicalAnalysis.panelLock,
+                                disabled: () => this.clinicalAnalysis.panelLocked,
                                 message: {
-                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Case Panel is locked, you are not allowed to change selected panel(s)."
                                 },
                                 tooltip: tooltips.diseasePanels
