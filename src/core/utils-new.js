@@ -307,7 +307,7 @@ export default class UtilsNew {
     static jobStatusFormatter(status, appendDescription = false) {
         const description = appendDescription && status.description ? `<br>${status.description}` : "";
         // FIXME remove this backward-compatibility check in next v2.3
-        const statusId = status.id || status.name;
+        const statusId = status.id;
         switch (statusId) {
             case "PENDING":
             case "QUEUED":
