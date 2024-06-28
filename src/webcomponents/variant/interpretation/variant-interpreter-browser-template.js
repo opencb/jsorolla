@@ -318,7 +318,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         });
 
         // Check if panelLock is enabled
-        if (this.clinicalAnalysis.panelLock) {
+        if (this.clinicalAnalysis.panelLocked) {
             _query.panel = this.query.panel;
             _query.panelIntersection = true;
         }
