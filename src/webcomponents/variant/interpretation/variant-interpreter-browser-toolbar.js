@@ -184,16 +184,6 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         `;
     }
 
-    renderPrimaryFindings() {
-        const primaryFindings = this.clinicalAnalysis.interpretation?.primaryFindings || [];
-
-        if (primaryFindings.length === 0) {
-            return html`<div class="m-1">No primary findings found</div>`;
-        }
-
-        return primaryFindings.map(variant => this.renderVariant(variant));
-    }
-
     render() {
         const hasVariantsToSave = this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length;
         const primaryFindings = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
@@ -246,7 +236,11 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                     <span class="fw-bold">Primary Findings</span>
                                 </div>
                                 <div class="overflow-y-auto m-1" style="max-height:350px;">
-                                    ${this.renderPrimaryFindings()}
+                                    ${primaryFindings?.length > 0 ? html`
+                                        ${primaryFindings.map(variant => this.renderVariant(variant))}
+                                    ` : html`
+                                        <div class="m-1">No primary findings found</div>
+                                    `}
                                 </div>
                             </li>
                             <li><hr class="dropdown-divider"></li>
