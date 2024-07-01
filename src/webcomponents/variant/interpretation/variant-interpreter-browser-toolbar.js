@@ -261,7 +261,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         </ul>
                     </div>
                     <div class="dropdown" id="${this._prefix}Save">
-                        <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"} ${!this.write ? "disabled" : ""} dropdown-toggle" data-bs-toggle="dropdown" title="Save variants">
+                        <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"} ${!this.write ? "disabled" : ""} dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" title="Save variants">
                             <i class="fas fa-save pe-1"></i>
                             <strong>Save</strong>
                             ${hasVariantsToSave ? html`
