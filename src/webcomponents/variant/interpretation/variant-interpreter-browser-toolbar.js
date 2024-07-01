@@ -251,10 +251,9 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             </li>
                         </ul>
                     </div>
-                    <div class="btn-group">
-                        <button type="button" id="${this._prefix}SaveMenu" class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"} dropdown-toggle"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Save variants in the server" ?disabled="${!this.write}">
-                            <i class="fas fa-save pe-1" aria-hidden="true"></i>
+                    <div class="dropdown">
+                        <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"} ${!this.write ? "disabled" : ""} dropdown-toggle" data-bs-toggle="dropdown" title="Save variants">
+                            <i class="fas fa-save pe-1"></i>
                             <strong>Save</strong>
                             ${hasVariantsToSave ? html`
                                 <span class="badge bg-white text-danger rounded-pill ms-1">
