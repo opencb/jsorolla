@@ -91,7 +91,7 @@ class VariantInterpreterBrowserSave extends LitElement {
                 <div class="my-1 mx-3">
                     <div class="mb-1">
                         <label for="${this._prefix}CommentMessage" class="form-label small mb-0">Comment Message</label>
-                        <textarea id="${this._prefix}CommentMessage" class="form-control" rows="2" placeholder="Your message..."></textarea>
+                        <textarea id="${this._prefix}CommentMessage" class="form-control" rows="3" placeholder="Your message..."></textarea>
                     </div>
                     <div class="">
                         <label for="${this._prefix}CommentTags" class="form-label small mb-0">Comment Tags</label>
