@@ -81,6 +81,9 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
             variants: this.clinicalAnalysis.interpretation.primaryFindings,
         });
+        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
+        // when user clicks the 'Filter' button in the View menu (primary findings).
+        this.querySelector(`div#${this._prefix}View ul.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
     onFilterModifiedVariants() {
@@ -230,14 +233,12 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             </li>
                         </ul>
                     </div>
-
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true"
-                                aria-expanded="false" title="Show saved variants">
+                    <div class="dropdown" id="${this._previx}View">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" title="Show saved variants">
                             <i class="fas fa-eye pe-1" aria-hidden="true"></i>
                             <strong>View</strong>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
+                        <ul class="dropdown-menu dropdown-menu-end" style="width:400px">
                             <li class="my-1 mx-2">
                                 <div class="my-1 mx-0">
                                     <span class="fw-bold">Primary Findings</span>
