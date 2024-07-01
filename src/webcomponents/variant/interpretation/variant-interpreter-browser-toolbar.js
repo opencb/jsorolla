@@ -90,16 +90,25 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                 ...this.state.removedVariants,
             ],
         });
+        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
+        // when user clicks the 'Filter Variants' button.
+        this.querySelector(`div#${this._prefix}Save ul.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
     onResetModifiedVariants() {
         LitUtils.dispatchCustomEvent(this, "resetVariants", null);
+        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
+        // when user clicks the 'Filter Variants' button.
+        this.querySelector(`div#${this._prefix}Save ul.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
     onSaveInterpretation(event) {
         LitUtils.dispatchCustomEvent(this, "saveInterpretation", null, {
             comment: event?.detail?.comment || {},
         });
+        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
+        // when user clicks the 'Filter Variants' button.
+        this.querySelector(`div#${this._prefix}Save ul.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
     onSaveFieldsChange(type, e) {
@@ -251,7 +260,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             </li>
                         </ul>
                     </div>
-                    <div class="dropdown">
+                    <div class="dropdown" id="${this._prefix}Save">
                         <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"} ${!this.write ? "disabled" : ""} dropdown-toggle" data-bs-toggle="dropdown" title="Save variants">
                             <i class="fas fa-save pe-1"></i>
                             <strong>Save</strong>
@@ -261,7 +270,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                 </span>
                             ` : nothing}
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}SaveMenu" style="width:500px;">
+                        <ul class="dropdown-menu dropdown-menu-end" style="width:500px;">
                             <li>
                                 <variant-interpreter-browser-save
                                     .opencgaSession="${this.opencgaSession}"
