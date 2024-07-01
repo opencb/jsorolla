@@ -23,6 +23,7 @@ import "../loading-spinner.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 import ModalUtils from "../commons/modal/modal-utils";
+import WebUtils from "../commons/utils/web-utils.js";
 
 export default class JobGrid extends LitElement {
 
@@ -367,7 +368,7 @@ export default class JobGrid extends LitElement {
                                             <tr class="detail-view-row">
                                                 <td>${job.id}</td>
                                                 <td>${job.tool.id}</td>
-                                                <td>${UtilsNew.jobStatusFormatter(job.internal.status)}</td>
+                                                <td>${WebUtils.jobStatusFormatter(job.internal.status)}</td>
                                                 <td>${job.priority}</td>
                                                 <td>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</td>
                                                 <td>${job.visited}</td>
@@ -538,7 +539,7 @@ export default class JobGrid extends LitElement {
                 id: "status",
                 title: "Status",
                 field: "internal.status",
-                formatter: status => UtilsNew.jobStatusFormatter(status),
+                formatter: status => WebUtils.jobStatusFormatter(status),
                 visible: this.gridCommons.isColumnVisible("status")
             },
             {
