@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import WebUtils from "../commons/utils/web-utils.js";
 
 export class JobMonitor extends LitElement {
 
@@ -232,7 +233,7 @@ export class JobMonitor extends LitElement {
                                                 <small class="text-secondary">${job.tool.id}
                                                 <div class="vr"></div>
                                                 ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
-                                                <div>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</div>
+                                                <div>${UtilsNew.renderHTML(WebUtils.jobStatusFormatter(job?.internal?.status))}</div>
                                             </div>
                                         </div>
                                     </a>
