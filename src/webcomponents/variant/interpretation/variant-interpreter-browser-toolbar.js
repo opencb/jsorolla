@@ -196,6 +196,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
     render() {
         const hasVariantsToSave = this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length;
+        const primaryFindings = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
 
         return html`
             <div class="d-flex justify-content-end mb-3">
@@ -249,9 +250,8 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             <li><hr class="dropdown-divider"></li>
                             <li class="my-1 mx-2">
                                 <div class="float-end">
-                                    <button type="button" ?disabled="${!this.clinicalAnalysis.interpretation?.primaryFindings?.length}"
-                                            class="btn btn-primary m-1 ${this.clinicalAnalysis.interpretation?.primaryFindings?.length ? "" : "disabled"}"
-                                            @click="${this.onFilterPrimaryFindingVariants}">Filter
+                                    <button class="btn btn-primary ${primaryFindings.length > 0 ? "" : "disabled"}" @click="${this.onFilterPrimaryFindingVariants}">
+                                        <i class="fas fa-filter me-1"></i> Filter
                                     </button>
                                 </div>
                             </li>
