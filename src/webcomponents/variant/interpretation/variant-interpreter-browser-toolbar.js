@@ -171,9 +171,8 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         `;
     }
 
-    renderVariant(variant, icon) {
+    renderVariant(variant) {
         const geneNames = Array.from(new Set(variant.annotation.consequenceTypes.filter(ct => ct.geneName).map(ct => ct.geneName)));
-        const iconHtml = icon ? html`<span style="cursor: pointer"><i class="${icon}"></i></span>` : "";
 
         return html`
             <div class="mb-1 border-start border-4 border-primary">
