@@ -245,7 +245,9 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                 <div class="my-1 mx-0">
                                     <span class="fw-bold">Primary Findings</span>
                                 </div>
-                                <div>${this.renderPrimaryFindings()}</div>
+                                <div class="overflow-y-auto m-1" style="max-height:350px;">
+                                    ${this.renderPrimaryFindings()}
+                                </div>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li class="my-1 mx-2">
