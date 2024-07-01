@@ -57,7 +57,7 @@ class VariantInterpreterBrowserSave extends LitElement {
         return html`
             <div class="mb-1 border-start border-4 border-${color}">
                 <div class="my-1 mx-2"><b>${variant.id}</b> <i class="ps-3">${variant.annotation.displayConsequenceType || ""}</i></div>
-                <div class="my-1 mx-2">${geneNames.join(", ")}</div>
+                <div class="my-1 mx-2 small">${geneNames.join(", ")}</div>
             </div>
         `;
     }
