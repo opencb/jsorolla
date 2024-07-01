@@ -176,7 +176,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         const iconHtml = icon ? html`<span style="cursor: pointer"><i class="${icon}"></i></span>` : "";
 
         return html`
-            <div class="text-break" style="border-left: 2px solid #0c2f4c; margin: 15px 0;">
+            <div class="mb-1 border-start border-4 border-primary">
                 <div class="my-1 mx-2">${variant.id} (${variant.type}) ${iconHtml}</div>
                 <div class="my-1 mx-2">${variant.annotation.displayConsequenceType}</div>
                 <div class="my-1 mx-2">${geneNames.join(", ")}</div>
