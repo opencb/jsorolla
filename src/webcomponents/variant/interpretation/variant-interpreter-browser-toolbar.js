@@ -162,7 +162,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         return html`
                             <div class="text-body-secondary d-flex flex-column" style="overflow-wrap: break-word;">
                                 <span class="my-0 mx-3">${variant.id}</span>
-                                <span class="my-0 mx-3" class="float-end">Genotype: ${GT} (${FILTER})</span>
+                                <span class="my-0 mx-3 float-end">Genotype: ${GT} (${FILTER})</span>
                             </div>
                         `;
                     }) : html `<div class="text-body-secondary"><span class="my-0 mx-3">No variants found.</span></div>`
