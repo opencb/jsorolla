@@ -94,14 +94,14 @@ class VariantInterpreterBrowserToolbar extends LitElement {
             ],
         });
         // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
-        // when user clicks the 'Filter Variants' button.
+        // when user clicks the 'Filter Variants' button in the Save menu.
         this.querySelector(`div#${this._prefix}Save ul.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
     onResetModifiedVariants() {
         LitUtils.dispatchCustomEvent(this, "resetVariants", null);
         // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
-        // when user clicks the 'Filter Variants' button.
+        // when user clicks the 'Discard Changes' button in the Save menu.
         this.querySelector(`div#${this._prefix}Save ul.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
@@ -110,7 +110,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
             comment: event?.detail?.comment || {},
         });
         // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
-        // when user clicks the 'Filter Variants' button.
+        // when user clicks the 'Save' button in the Save menu.
         this.querySelector(`div#${this._prefix}Save ul.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
