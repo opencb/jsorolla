@@ -158,6 +158,10 @@ export default class NoteBrowser extends LitElement {
                                 name: "Scope",
                                 render: (onFilterChange, query, opencgaSession) => {
                                     const value = (query?.scope || "study").toLowerCase();
+                                    const allowedValues = [
+                                        {id: "STUDY", text: "Study"},
+                                        {id: "ORGANIZATION", text: "Organization"},
+                                    ];
                                     return html`
                                         <div class="mb-2">
                                             ${value === "study" && !CatalogUtils.isAdmin(opencgaSession.study, opencgaSession.user.id) ? html`
@@ -172,9 +176,9 @@ export default class NoteBrowser extends LitElement {
                                             ` : nothing}
                                             <div class="row">
                                                 <toggle-radio
-                                                    .value="${query?.scope || "Study"}"
-                                                    .config="${{onText: "Study", offText: "Organization"}}"
-                                                    @filterChange="${e => onFilterChange("scope", e.detail.value ? "STUDY" : "ORGANIZATION")}">
+                                                    .value="${query?.scope || "STUDY"}"
+                                                    .data="${allowedValues}"
+                                                    @filterChange="${e => onFilterChange("scope", e.detail.value)}">
                                                 </toggle-radio>
                                             </div>
                                         </div>
