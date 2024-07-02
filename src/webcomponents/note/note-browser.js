@@ -87,15 +87,16 @@ export default class NoteBrowser extends LitElement {
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
 
-        this.requestUpdate();
     }
 
     onSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onNoteUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
