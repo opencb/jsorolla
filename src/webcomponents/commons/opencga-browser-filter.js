@@ -189,7 +189,7 @@ export default class OpencgaBrowserFilter extends LitElement {
         let content = "";
 
         if (subsection.render) {
-            content = subsection.render(this.onFilterChange, this.preparedQuery, this.opencgaSession);
+            content = subsection.render((key, value) => this.onFilterChange(key, value), this.preparedQuery, this.opencgaSession);
         } else {
             const id = subsection.id === "priority" ? `${this.resource.toLowerCase()}_${subsection.id}`: subsection.id;
             switch (id) {
