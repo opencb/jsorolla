@@ -56,8 +56,7 @@ export default class ToggleRadio extends LitElement {
             // Allowed values for data property
             // 1. Array of objects: [{id: "", name: ""}, ...]
             // 2. Array of values: ["ON", "OFF"]
-            const value = (item && typeof item === "object") ? item.id : item;
-            const text = (item && typeof item === "object") ? (item.name || item.text || item.id) : item;
+            const value = item?.id ?? item;
             return html`
                 <div class="form-check form-check-inline">
                     <input
@@ -70,7 +69,7 @@ export default class ToggleRadio extends LitElement {
                         ?disabled="${this.disabled}"
                         @click="${() => this.onFilterChange(value)}">
                     <label class="form-check-label" for="${this._prefix}Toggle${value}">
-                        ${text}
+                        ${item?.name ?? item?.text ?? item?.id ?? item}
                     </label>
                 </div>
             `;
