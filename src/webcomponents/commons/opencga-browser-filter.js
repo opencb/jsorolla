@@ -79,7 +79,6 @@ export default class OpencgaBrowserFilter extends LitElement {
         this.query = {};
         this.preparedQuery = {};
         this.searchButton = true;
-        this.userAdminStatus = {};
 
         // Make sure some filters point the right RESOURCE
         this.filterToResource = {
@@ -117,7 +116,6 @@ export default class OpencgaBrowserFilter extends LitElement {
         super.connectedCallback();
 
         this.preparedQuery = {...this.query}; // propagates here the iva-app query object
-        this.opencgaObserver();
     }
 
     firstUpdated(changedProperties) {
@@ -134,16 +132,6 @@ export default class OpencgaBrowserFilter extends LitElement {
         //     this.variablesChanged()
         // }
         super.update(changedProperties);
-    }
-
-    opencgaObserver() {
-        if (UtilsNew.isEmpty(this.userAdminStatus)) {
-            UtilsNew.checkUserAdmin(this.opencgaSession)
-                .then(res => {
-                    this.userAdminStatus = res;
-                    this.requestUpdate();
-                });
-        }
     }
 
     // TODO review, this is used only in case of Search button inside filter component.
