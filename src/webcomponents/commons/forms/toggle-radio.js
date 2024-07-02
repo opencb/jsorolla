@@ -65,8 +65,8 @@ export default class ToggleRadio extends LitElement {
                         name="inlineRadioOptions"
                         id="${this._prefix}Toggle${value}"
                         value="${value}"
-                        ?checked="${this.value === value}"
-                        ?disabled="${this.disabled || item?.disabled}"
+                        .checked="${this.value === value}"
+                        .disabled="${this.disabled || item?.disabled}"
                         @click="${() => this.onFilterChange(value)}">
                     <label class="form-check-label" for="${this._prefix}Toggle${value}">
                         ${item?.name ?? item?.text ?? item?.id ?? item}
