@@ -1099,34 +1099,4 @@ export default class UtilsNew {
                 .filter(item => !!item);
     }
 
-    static async checkUserAdmin(opencgaSession) {
-        const currentUser = opencgaSession.user;
-        const studyGroups = opencgaSession.study.groups;
-        const adminGroups = studyGroups.find(group => group.id === "@admins");
-
-        const isUserAdminStudy = adminGroups?.userIds.includes(currentUser.id) || false;
-        try {
-            const resp = await opencgaSession.opencgaClient.organization().info(currentUser.organization);
-            const organizationInfo = resp?.responses?.[0]?.results?.[0];
-
-            if (!organizationInfo) {
-                throw new Error("Organization info not found.");
-            }
-
-            // is Admin of Organization or Owner
-            const isUserAdminOrg = organizationInfo.admins?.includes(currentUser.id) || organizationInfo.owner === currentUser.id;
-
-            return {
-                isAdminOrg: isUserAdminOrg,
-                isAdminStudy: isUserAdminStudy
-            };
-        } catch (error) {
-            console.error("Error fetching organization info:", error);
-            return {
-            isAdminOrg: false,
-            isAdminStudy: isUserAdminStudy
-        };
-        }
-    }
-
 }
