@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
+import "../commons/forms/toggle-radio.js";
 import "./note-grid.js";
 import "./note-detail.js";
 
@@ -154,13 +156,30 @@ export default class NoteBrowser extends LitElement {
                             {
                                 id: "scope",
                                 name: "Scope",
-                                description: "",
-                                defaultValue: "Study",
-                                onText: "Study",
-                                offText: "Organization",
-                                returnValue: value => {
-                                    return value ? "STUDY" : "ORGANIZATION";
-                                }
+                                render: (onFilterChange, query, opencgaSession) => {
+                                    const value = (query?.scope || "study").toLowerCase();
+                                    return html`
+                                        <div class="mb-2">
+                                            ${value === "study" && !CatalogUtils.isAdmin(opencgaSession.study, opencgaSession.user.id) ? html`
+                                                <div class="alert alert-warning">
+                                                    <span>You are allowed to see only <b>PUBLIC</b> notes from current study.</span>
+                                                </div>
+                                            ` : nothing}
+                                            ${value === "organization" && !CatalogUtils.isOrganizationAdmin(opencgaSession.organization, opencgaSession.user.id) ? html`
+                                                <div class="alert alert-warning">
+                                                    <span>You are allowd to see only <b>PUBLIC</b> notes fron current organization.</span>
+                                                </div>    
+                                            ` : nothing}
+                                            <div class="row">
+                                                <toggle-radio
+                                                    .value="${query?.scope || "Study"}"
+                                                    .config="${{onText: "Study", offText: "Organization"}}"
+                                                    @filterChange="${e => onFilterChange("scope", e.detail.value ? "STUDY" : "ORGANIZATION")}">
+                                                </toggle-radio>
+                                            </div>
+                                        </div>
+                                    `;
+                                },
                             },
                             {
                                 id: "id",
