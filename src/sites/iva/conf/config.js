@@ -26,7 +26,7 @@ const hosts = [
     },
     {
         id: "reference",
-        url: "https://test.app.zettagenomics.com/reference/opencga"
+        url: "https://test.app.zettagenomics.com/task-6140/opencga"
     },
 ];
 
@@ -140,6 +140,11 @@ const CATALOG_NAVBAR_MENU = {
             id: "cohort",
             name: "Cohort Browser",
             visibility: "public"
+        },
+        {
+            id: "note-browser",
+            name: "Note Browser",
+            visibility: "public",
         },
         {
             separator: true,
