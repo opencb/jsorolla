@@ -240,6 +240,7 @@ export default class DiseasePanelFilter extends LitElement {
                     <div class="row">
                         <toggle-radio
                             .value="${this.panelIntersection || false}"
+                            .data="${[{id: true, text: "ON"}, {id: false, text: "OFF"}]}"
                             .disabled="${this.disabled || false}"
                             @filterChange="${e => this.filterChange(e, "panelIntersection")}">
                         </toggle-radio>
