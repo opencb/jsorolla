@@ -325,8 +325,6 @@ export default class NoteGrid extends LitElement {
                 id: "tags",
                 title: "Tags",
                 field: "tags",
-                // width: "20",
-                // widthUnit: "%",
                 formatter: tags => {
                     if (tags?.length == 0) {
                         return "-";
@@ -364,7 +362,9 @@ export default class NoteGrid extends LitElement {
                 align: "center",
                 width: "5",
                 widthUnit: "%",
-                formatter: (field, note) => field === "PUBLIC" ? `<i class="fas fa-globe-americas"></i>` : `<i class="fas fa-lock"></i>`,
+                formatter: field => {
+                    return `<i class="fas ${field === "PUBLIC" ? "fa-globe-americas" : "fa-lock"}"></i>`;
+                },
                 visible: this.gridCommons.isColumnVisible("visibility")
             },
             {
@@ -391,9 +391,9 @@ export default class NoteGrid extends LitElement {
                 align: "center",
                 formatter: (value, row) => this.actionsFormatter(value, row),
                 events: {
-                    "click a": this.onActionClick.bind(this)
+                    "click a": this.onActionClick.bind(this),
                 },
-                visible: !this._config.columns?.hidden?.includes("actions")
+                // visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
@@ -438,6 +438,40 @@ export default class NoteGrid extends LitElement {
             });
     }
 
+    actionsFormatter(value, row) {
+        return `
+            <div class="d-inline-block dropdown">
+                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-toolbox" aria-hidden="true"></i>
+                    <span>Actions</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
+                            <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
+                        </a>
+                    </li>
+                    <li>
+                        <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
+                            <i class="fas fa-download" aria-hidden="true"></i> Download JSON
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                            <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
+                        </a>
+                    </li>
+                    <li>
+                        <a data-action="delete" href="javascript: void 0" class="dropdown-item disabled">
+                            <i class="fas fa-trash" aria-hidden="true"></i> Delete
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        `;
+    }
+
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
@@ -457,39 +491,6 @@ export default class NoteGrid extends LitElement {
         });
     }
 
-    actionsFormatter(value, row) {
-        return `
-        <div class="d-inline-block dropdown">
-            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <i class="fas fa-toolbox" aria-hidden="true"></i>
-                <span>Actions</span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li>
-                    <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
-                        <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
-                    </a>
-                </li>
-                <li>
-                    <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
-                        <i class="fas fa-download" aria-hidden="true"></i> Download JSON
-                    </a>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                    <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                        <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
-                    </a>
-                </li>
-                <li>
-                    <a data-action="delete" href="javascript: void 0" class="dropdown-item disabled">
-                        <i class="fas fa-trash" aria-hidden="true"></i> Delete
-                    </a>
-                </li>
-            </ul>
-        </div>`;
-    }
-
     render() {
         return html`
             ${this._config.showToolbar ? html`
@@ -504,8 +505,7 @@ export default class NoteGrid extends LitElement {
                     @actionClick="${e => this.onActionClick(e)}"
                     @noteCreate="${this.renderTable}">
                 </opencb-grid-toolbar>
-            ` : nothing
-            }
+            ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">
                 <table id="${ifDefined(this.gridId)}"></table>
