@@ -400,9 +400,13 @@ export class OpenCGAClient {
                             console.error(e);
                         }
 
-
+                        // Save projects
                         session.projects = session.user.projects;
 
+                        // Fetch organization info
+                        const organizationResponse = await this.organization()
+                            .info(session.user.organization);
+                        session.organization = organizationResponse.responses[0].results[0];
 
                         // Fetch authorised Projects and Studies
                         console.log("Fetching projects and studies");
