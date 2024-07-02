@@ -195,7 +195,7 @@ export default class NoteBrowser extends LitElement {
                                 id: "visibility",
                                 name: "Visibility",
                                 allowedValues: ["PUBLIC", "PRIVATE"],
-                                multiple: false,
+                                multiple: true,
                                 description: ""
                             },
                             {
