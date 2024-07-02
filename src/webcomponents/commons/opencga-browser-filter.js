@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
+import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "./filters/catalog-search-autocomplete.js";
 import "./filters/catalog-distinct-autocomplete.js";
 import "./forms/date-filter.js";
@@ -304,22 +305,32 @@ export default class OpencgaBrowserFilter extends LitElement {
                     `;
                     break;
                 case "scope":
-                    const warningMessage = () => {
-                        const isNotAdminStudy = "You are allowed to see only PUBLIC notes from this study";
-                        const isNotAdminOrg = "You are allowed to see only PUBLIC notes from this organization";
-                        const template = message => html `<div class="alert alert-warning">${message}</div>`;
-                        if (((typeof this.userAdminStatus?.isAdminStudy !== "undefined") && !this.userAdminStatus?.isAdminStudy) && ((this.preparedQuery?.scope || subsection?.defaultValue).toLowerCase()) === "study") {
-                            return template(isNotAdminStudy);
-                        }
+                    const value = (this.preparedQuery?.scope || subsection?.defaultValue).toLowerCase();
+                    // const warningMessage = () => {
+                    //     const isNotAdminStudy = "You are allowed to see only PUBLIC notes from this study";
+                    //     const isNotAdminOrg = "You are allowed to see only PUBLIC notes from this organization";
+                    //     const template = message => html `<div class="alert alert-warning">${message}</div>`;
+                    //     if (((typeof this.userAdminStatus?.isAdminStudy !== "undefined") && !this.userAdminStatus?.isAdminStudy) && () === "study") {
+                    //         return template(isNotAdminStudy);
+                    //     }
 
-                        if (((typeof this.userAdminStatus?.isAdminOrg !== "undefined") && !this.userAdminStatus?.isAdminOrg) && ((this.preparedQuery?.scope || subsection?.defaultValue).toLowerCase()) === "organization") {
-                            return template(isNotAdminOrg);
-                        }
-                        return nothing;
-                    };
+                    //     if (((typeof this.userAdminStatus?.isAdminOrg !== "undefined") && !this.userAdminStatus?.isAdminOrg) && ((this.preparedQuery?.scope || subsection?.defaultValue).toLowerCase()) === "organization") {
+                    //         return template(isNotAdminOrg);
+                    //     }
+                    //     return nothing;
+                    // };
                     content = html `
                         <div class="mb-2">
-                            ${warningMessage()}
+                            ${value === "study" && !CatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) ? html`
+                                <div class="alert alert-warning">
+                                    <span>You are allowed to see only <b>PUBLIC</b> notes from current study.</span>
+                                </div>
+                            ` : nothing}
+                            ${value === "organization" && !CatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, this.opencgaSession.user.id) ? html`
+                                <div class="alert alert-warning">
+                                    <span>You are allowd to see only <b>PUBLIC</b> notes fron current organization.</span>
+                                </div>    
+                            ` : nothing}
                             <div class="row">
                                 <toggle-radio
                                     .value="${this.preparedQuery?.scope || subsection?.defaultValue}"
