@@ -90,6 +90,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
             variants: [
                 ...this.state.addedVariants,
+                ...this.state.updatedVariants,
                 ...this.state.removedVariants,
             ],
         });
