@@ -31,9 +31,6 @@ const VARIANT_INTERPRETER_SETTINGS = {
             },
             // hideGenomeBrowser: false
         },
-        // {
-        //     id: "review"
-        // },
         {
             id: "report"
         }
