@@ -44,6 +44,15 @@ export default class SelectFieldFilter extends LitElement {
             classes: {
                 type: String
             },
+            size: {
+                type: Number,
+            },
+            selectedTextFormat: {
+                type: String,
+            },
+            separator: {
+                type: String,
+            },
             config: {
                 type: Object
             }
@@ -54,7 +63,7 @@ export default class SelectFieldFilter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.data = [];
         this.classes = "";
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     firstUpdated() {
@@ -380,7 +389,8 @@ export default class SelectFieldFilter extends LitElement {
                     @change="${this.filterChange}">
                 </select>
                 ${this.all ? this.renderShowSelectAll() : nothing}
-            </div>`;
+            </div>
+        `;
     }
 
     getDefaultConfig() {

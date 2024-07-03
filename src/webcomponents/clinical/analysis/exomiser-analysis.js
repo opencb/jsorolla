@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../commons/forms/form-utils";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
@@ -40,16 +39,16 @@ export default class ExomiserAnalysis extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            title: {
-                type: String
+            config: {
+                type: Object
             },
         };
     }
 
     #init() {
-        this.TOOL = "interpreter-exomiser";
-        this.TITLE = "Interpreter Exomiser";
-        this.DESCRIPTION = "Executes an Exomiser Interpretation analysis";
+        this.ANALYSIS_TOOL = "interpreter-exomiser";
+        this.ANALYSIS_TITLE = "Interpreter Exomiser";
+        this.ANALYSIS_DESCRIPTION = "Executes an Exomiser Interpretation analysis";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -130,10 +129,10 @@ export default class ExomiserAnalysis extends LitElement {
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
         };
         AnalysisUtils.submit(
-            this.TITLE,
+            this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient.clinical()
                 .runInterpreterExomiser(toolParams, params),
             this,
@@ -189,11 +188,12 @@ export default class ExomiserAnalysis extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.TOOL,
-            this.title ?? this.TITLE,
-            this.DESCRIPTION,
+            this.ANALYSIS_TOOL,
+            this.ANALYSIS_TITLE,
+            this.ANALYSIS_DESCRIPTION,
             params,
             this.check(),
+            this.config
         );
     }
 

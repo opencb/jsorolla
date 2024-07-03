@@ -339,4 +339,30 @@ export default class GridCommons {
         return columns;
     }
 
+    displayResponseWarningEvents(response) {
+        const eventsContainer = this.context.querySelector(`div#${this.gridId}WarningEvents`);
+        if (eventsContainer && (response?.events?.length > 0 || response?.responses?.[0]?.events?.length > 0)) {
+            const events = [...(response?.events || []), ...(response?.responses?.[0]?.events || [])]
+                .filter(event => event && event.type === "WARNING" && !!event.message);
+            if (events.length > 0) {
+                const eventsMessages = events.map(event => {
+                    return `
+                        <div class="alert alert-warning mb-2">
+                            <i class="fas fa-exclamation-triangle pe-1"></i>
+                            <span>${event.message}</span>
+                        </div>
+                    `;
+                });
+                eventsContainer.replaceChildren(UtilsNew.renderHTML(eventsMessages.join("")));
+            }
+        }
+    }
+
+    clearResponseWarningEvents() {
+        const eventsContainer = this.context.querySelector(`div#${this.gridId}WarningEvents`);
+        if (eventsContainer) {
+            eventsContainer.replaceChildren();
+        }
+    }
+
 }
