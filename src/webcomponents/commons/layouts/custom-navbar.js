@@ -378,7 +378,7 @@ export default class CustomNavBar extends LitElement {
                                         </div>
                                         <div class="dropdown-button-text">About</div>
                                     </a>
-                                    <ul class="dropdown-menu">
+                                    <ul class="dropdown-menu dropdown-menu-end">
                                         ${this.config.about?.links && this.config.about?.links.map(link => html`
                                             <li>${this.createAboutLink(link, false)}</li>
                                         `)}
