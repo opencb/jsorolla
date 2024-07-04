@@ -676,7 +676,7 @@ class IvaApp extends LitElement {
         this.opencgaClient.refresh();
     }
 
-    async logout() {
+    logout() {
         // 1. Check if logged user is a local user
         // This is only needed if SSO mode is enabled. If not, logged user is always local
         let isLocalUser = true;
@@ -687,7 +687,7 @@ class IvaApp extends LitElement {
         }
 
         // 2. Delete token and remove cookies
-        await this.opencgaClient.logout();
+        this.opencgaClient.logout();
 
         // 3. Check if sso is active and logged user is not local
         // In this case, we will redirect to 'meta/sso/logout' endpoint
