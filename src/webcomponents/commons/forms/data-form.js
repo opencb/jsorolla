@@ -929,7 +929,7 @@ export default class DataForm extends LitElement {
         }
 
         const content = html`
-            <div class="form-check mt-2">
+            <div class="form-check">
                 <input
                     id="${this._prefix}FilterCheckbox"
                     type="checkbox"
