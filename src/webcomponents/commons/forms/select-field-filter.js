@@ -362,7 +362,7 @@ export default class SelectFieldFilter extends LitElement {
         return html`
             <style>
                 .select-field-filter .select2-results__options {
-                    max-height: 500px !important;
+                    max-height: 600px !important;
                 }
 
                 .select-field-filter .select2-results__option--selected {
