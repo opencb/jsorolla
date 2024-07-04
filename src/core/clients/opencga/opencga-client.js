@@ -328,7 +328,6 @@ export class OpenCGAClient {
         if (this._config.cookies.active) {
             this.#setCookies();
         }
-        return Promise.resolve();
     }
 
     #setCookies(userId, token) {
