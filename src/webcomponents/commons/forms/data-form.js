@@ -744,7 +744,7 @@ export default class DataForm extends LitElement {
         // Check for horizontal layout
         if (layout === "horizontal") {
             return html`
-                <div class="row mb-2 ${elementContainerClassName}" style="${elementContainerStyle}">
+                <div class="row mb-3 ${elementContainerClassName}" style="${elementContainerStyle}">
                     ${title && titleVisible ? html`
                         <label class="col-md-${titleWidth} fw-bold ${titleClassName}" style="text-align:${titleAlign};${titleStyle}">
                             ${title} ${titleRequiredMark}
@@ -762,7 +762,7 @@ export default class DataForm extends LitElement {
             `;
         } else {
             return html`
-                <div class="row mb-1 ${elementContainerClassName}" style="${elementContainerStyle}">
+                <div class="row mb-3 ${elementContainerClassName}" style="${elementContainerStyle}">
                     <div class="col-md-${width}">
                         ${title && titleVisible ? html`
                             <label class="fw-bold form-label pt-0 ${titleClassName}" style="${titleStyle}">
