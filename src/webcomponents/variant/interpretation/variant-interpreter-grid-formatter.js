@@ -864,9 +864,9 @@ export default class VariantInterpreterGridFormatter {
                 const key = fieldKey !== "GT" ? fieldKey : `${fieldKey} (${variant.reference || "-"}/${variant.alternate || "-"})`;
                 const value = sampleFormat[fieldIndex] ? sampleFormat[fieldIndex] : "-";
                 return `
-                    <div class="form-group" style="margin: 2px 2px">
-                        <label class="col-md-5">${key}</label>
-                        <div class="col-md-7">${value}</div>
+                    <div class="row mb-1">
+                        <div class="col-4 fw-bold">${key}</div>
+                        <div class="col-8">${value}</div>
                     </div>
                 `;
             });
@@ -875,9 +875,9 @@ export default class VariantInterpreterGridFormatter {
         const secondaryAlternates = [];
         for (const v of variant.studies[0].secondaryAlternates) {
             const html = `
-                <div class="form-group" style="margin: 2px 2px">
-                    <label class="col-md-5">${v.chromosome}:${v.start}-${v.end}</label>
-                    <div class="col-md-7">${v.reference}/${v.alternate} ${v.type}</div>
+                <div class="row mb-1">
+                    <div class="col-4 fw-bold">${v.chromosome}:${v.start}-${v.end}</div>
+                    <div class="col-8">${v.reference}/${v.alternate} ${v.type}</div>
                 </div>
             `;
             secondaryAlternates.push(html);
