@@ -746,9 +746,9 @@ export default class DataForm extends LitElement {
             return html`
                 <div class="row mb-3 ${elementContainerClassName}" style="${elementContainerStyle}">
                     ${title && titleVisible ? html`
-                        <label class="col-md-${titleWidth} fw-bold ${titleClassName}" style="text-align:${titleAlign};${titleStyle}">
+                        <div class="col-md-${titleWidth} fw-bold ${titleClassName}" style="text-align:${titleAlign};${titleStyle}">
                             ${title} ${titleRequiredMark}
-                        </label>
+                        </div>
                     ` : nothing}
                     <div class="col-md-${(width - titleWidth)}">
                         ${content}
