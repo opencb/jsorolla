@@ -750,7 +750,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     <a
                         href=""
                         data-filter-id="${item.id}"
-                        class="${`d-flex dropdown-item ps-4 ${item.active ? "text-success" : ""} ${item.disabled ? "disabled" : ""}`}"
+                        class="d-flex dropdown-item ps-4 ${item.active ? "text-success" : ""} ${item.disabled ? "disabled" : ""}"
                         @click="${this.onFilterChange}">
                         <span class="flex-grow-1">${item.id}</span>
                         <span class="text-secondary cy-action-buttons ms-3">
