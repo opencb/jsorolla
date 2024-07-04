@@ -688,7 +688,7 @@ class IvaApp extends LitElement {
         await this.opencgaClient.logout();
 
         // Check if sso is active: we will redirect to 'meta/sso/logout' endpoint
-        if (this.opencgaClient?._config?.sso?.active) {
+        if (this.opencgaClient?._config?.sso?.active && !isLocalUser) {
             // eslint-disable-next-line no-undef
             Cookies.expire(this.opencgaClient._config.sso.cookie);
 
