@@ -677,6 +677,13 @@ class IvaApp extends LitElement {
     }
 
     async logout() {
+        let isLocalUser = true;
+        if (this.opencgaClient?._config?.sso?.active && this.opencgaClient?._config?.token) {
+            // eslint-disable-next-line no-undef
+            const decoded = jwt_decode(this.opencgaClient._config.token);
+            isLocalUser = decoded?.authOrigin === "OPENCGA";
+        }
+
         // this delete token in the client and removes the Cookies
         await this.opencgaClient.logout();
 
