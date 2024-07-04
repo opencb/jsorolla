@@ -786,29 +786,27 @@ export default class OpencgaActiveFilters extends LitElement {
 
         return html`
             <a class="dropdown-item ps-4" @click="${e => this.onFilterChange(e, item.query)}">
-            <div class="d-flex align-items-center">
-                <div class="flex-grow-1">
-                    <div class="ms-2 mt-0 text-truncate">
-                        ${filterTitle} ${item.latest ? " (latest)" : ""}
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="ms-2 mt-0 text-truncate">
+                            ${filterTitle} ${item.latest ? " (latest)" : ""}
+                        </div>
+                        <div class="ms-2 form-text">
+                        ${filterParams?.length > 0 ? html`
+                            ${filterParams.slice(0, 2).map(key => html`
+                                <div class="mx-2" title="${item.query[key]}">
+                                    <b>${key}</b>: ${UtilsNew.substring(item.query[key], 20)}
+                                </div>
+                            `)}
+                        ` : html`Empty query.`}
+                        </div>
                     </div>
-                    <div class="ms-2 form-text">
-                    ${filterParams?.length > 0 ? html`
-                        ${filterParams.slice(0, 2).map(key => html`
-                            <div class="mx-2" title="${item.query[key]}">
-                                <b>${key}</b>: ${UtilsNew.substring(item.query[key], 20)}
-                            </div>
-                        `)}
-                    ` : html`
-                        Empty query.
-                    `}
+                    <div class="flex-shrink-0 text-secondary mb-auto">
+                        <span  class="action-buttons" tooltip-title="${filterTitle}" tooltip-text="${filterTooltip || "Empty query."}">
+                            <i class="fas fa-eye" data-action="view-filter"></i>
+                        </span>
                     </div>
                 </div>
-                <div class="flex-shrink-0 text-secondary mb-auto">
-                    <span  class="action-buttons" tooltip-title="${filterTitle}" tooltip-text="${filterTooltip || "Empty query."}">
-                        <i class="fas fa-eye" data-action="view-filter"></i>
-                    </span>
-                </div>
-            </div>
             </a>
         `;
     }
@@ -823,7 +821,6 @@ export default class OpencgaActiveFilters extends LitElement {
                     <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters have changed, please click on <strong> ${this._config.searchButtonText} </strong> to update the results.
                 </div>
             `}
-
             <div class="card mb-3">
                 <div class="card-body py-2 px-2">
                     <div class="d-flex flex-column gap-1">
