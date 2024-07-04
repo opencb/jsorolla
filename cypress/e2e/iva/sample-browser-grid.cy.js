@@ -286,9 +286,9 @@ context("Sample Browser Grid", () => {
                     .click();
 
                 BrowserTest.getElementByComponent({
-                    selector: 'sample-grid opencb-grid-toolbar',
-                    tag:'div',
-                    elementId: 'SettingModal'
+                    selector: "sample-grid opencb-grid-toolbar",
+                    tag: "div",
+                    elementId: "SettingModal",
                 }).as("settingModal");
 
                 cy.get("@settingModal")
@@ -298,14 +298,14 @@ context("Sample Browser Grid", () => {
                         // Drag the modal to a new position using Cypress's drag command
                         // eslint-disable-next-line cypress/unsafe-to-chain-command
                         cy.get("@settingModal")
-                            .find('.modal-header')
-                            .trigger('mousedown', { which: 1 }) // Trigger mouse down event
-                            .trigger('mousemove', { clientX: 100, clientY: 100 }) // Move the mouse
-                            .trigger('mouseup'); // Release the mouse
+                            .find(".modal-header")
+                            .trigger("mousedown", { which: 1 }) // Trigger mouse down event
+                            .trigger("mousemove", { clientX: 100, clientY: 100 }) // Move the mouse
+                            .trigger("mouseup"); // Release the mouse
 
                         // Get the final position of the modal
                         cy.get(`@settingModal`)
-                            .find('.modal-header')
+                            .find(".modal-header")
                             .then(($modal) => {
                                 const finalPosition = $modal.offset();
                                 cy.log("final Position:", finalPosition);
