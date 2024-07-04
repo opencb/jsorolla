@@ -846,22 +846,16 @@ export default class VariantInterpreterGridFormatter {
         const sampleFormat = sampleEntry.data;
 
         // 1. Get INFO fields
-        const infoFields = [];
-        if (file && file.data) {
-            Object.keys(file.data).forEach(key => {
-                if (key !== "FILTER" && key !== "QUAL") {
-                    infoFields.push(`
-                        <div class="row mb-1">
-                            <div class="col-4 fw-bold">${key}</div>
-                            <div class="col-8">${file.data[key]}</div>
-                        </div>
-                    `);
-                }
+        const infoFields = Object.keys(file?.data || {})
+            .filter(key => key !== "FILTER" && key !== "QUAL")
+            .map(key => {
+                return `
+                    <div class="row mb-1">
+                        <div class="col-4 fw-bold">${key}</div>
+                        <div class="col-8">${file.data[key]}</div>
+                    </div>
+                `;
             });
-        } else {
-            // This can happen when no ref/ref calls are loaded
-            console.warn("file is undefined");
-        }
 
         // 2. Get FORMAT fields
         const formatFields = (variant?.studies?.[0]?.sampleDataKeys || [])
@@ -919,11 +913,11 @@ export default class VariantInterpreterGridFormatter {
                 </div>
                 <div class="fw-bold text-secondary mb-2">SAMPLE DATA</div>
                 <div class="ms-2 mb-3">
-                    ${formatFields.join("")}
+                    ${formatFields?.length > 0 ? formatFields.join("") : "-"}
                 </div>
                 <div class="fw-bold text-secondary mb-2">FILE INFO</div>
                 <div class="ms-2 mb-3">
-                    ${infoFields.join("")}
+                    ${infoFields.length > 0 ? infoFields.join("") : "-"}
                 </div>
                 <div class="fw-bold text-secondary mb-2">SECONDARY ALTERNATES</div>
                 <div class="ms-2">
