@@ -848,17 +848,16 @@ export default class VariantInterpreterGridFormatter {
         // 1. Get INFO fields
         const infoFields = [];
         if (file && file.data) {
-            for (const key of Object.keys(file.data)) {
+            Object.keys(file.data).forEach(key => {
                 if (key !== "FILTER" && key !== "QUAL") {
-                    const html = `
-                        <div class="form-group" style="margin: 2px 2px">
-                            <label class="col-md-5">${key}</label>
-                            <div class="col-md-7">${file.data[key]}</div>
+                    infoFields.push(`
+                        <div class="row mb-1">
+                            <div class="col-4 fw-bold">${key}</div>
+                            <div class="col-8">${file.data[key]}</div>
                         </div>
-                    `;
-                    infoFields.push(html);
+                    `);
                 }
-            }
+            });
         } else {
             // This can happen when no ref/ref calls are loaded
             console.warn("file is undefined");
