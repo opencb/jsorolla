@@ -750,7 +750,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     <a
                         href=""
                         data-filter-id="${item.id}"
-                        class="${`d-flex dropdown-item ${item.active ? "text-success" : ""} ${item.disabled ? "disabled" : ""}`}"
+                        class="${`d-flex dropdown-item ps-4 ${item.active ? "text-success" : ""} ${item.disabled ? "disabled" : ""}`}"
                         @click="${this.onFilterChange}">
                         <span class="flex-grow-1">${item.id}</span>
                         <span class="text-secondary cy-action-buttons ms-3">
@@ -785,7 +785,7 @@ export default class OpencgaActiveFilters extends LitElement {
         const filterTooltip = filterParams.map(key => `<b>${key}</b> = ${item.query[key]}`).join("<br>");
 
         return html`
-            <a class="dropdown-item" @click="${e => this.onFilterChange(e, item.query)}">
+            <a class="dropdown-item ps-4" @click="${e => this.onFilterChange(e, item.query)}">
             <div class="d-flex align-items-center">
                 <div class="flex-grow-1">
                     <div class="ms-2 mt-0 text-truncate">
