@@ -385,7 +385,7 @@ context("Individual Browser Grid", () => {
             it("should display 'Extra Column' column", () => {
                 cy.get("thead th")
                     .contains("Extra column")
-                    .should('be.visible');
+                    .should("be.visible");
             });
         });
 
