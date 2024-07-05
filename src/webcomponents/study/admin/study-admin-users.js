@@ -167,16 +167,16 @@ export default class StudyAdminUsers extends LitElement {
             // return `<input type="checkbox" ${checked ? "checked" : ""} ${!isOwner ? "disabled" : ""}>`;
             return `
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="${checked ? "flexSwitchCheckChecked" : "flexSwitchCheckDefault"}" ${checked ? "checked" : ""} ${!isOwner ? "disabled" : ""}>
-                    <label class="form-check-label" for="${checked ? "flexSwitchCheckChecked" : "flexSwitchCheckDefault"}"></label>
+                    <input class="form-check-input" type="checkbox" ?checked="${checked}" ?disabled="${!isOwner}">
+                    <label class="form-check-label"></label>
                 </div>
             `;
         } else {
             // return `<input type="checkbox" ${checked ? "checked" : ""} ${row.id === this.field.owner ? "disabled" : ""}>`;
             return `
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="${checked ? "flexSwitchCheckChecked" : "flexSwitchCheckDefault"}" ${checked ? "checked" : ""} ${row.id === this.field.owner ? "disabled" : ""}>
-                    <label class="form-check-label" for="${checked ? "flexSwitchCheckChecked" : "flexSwitchCheckDefault"}"></label>
+                    <input class="form-check-input" type="checkbox" ?checked="${checked}" ?disabled="${row.id === this.field.owner}">
+                    <label class="form-check-label"></label>
                 </div>
             `;
         }
