@@ -389,7 +389,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     render() {
         // Check Project exists
         if (!this.opencgaSession?.study) {
-            return guardPage();
+            return nothing;
         }
 
         return html`
