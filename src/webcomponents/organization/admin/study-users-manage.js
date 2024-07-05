@@ -183,8 +183,6 @@ export default class StudyUsersManage extends LitElement {
         // 1. Create an object with the query params needed
         const isChecked = e.currentTarget.checked;
         const userGroupUpdate = {
-            userId: userId,
-            groupId: groupId,
             isChecked: isChecked,
             params: {
                 includeResult: true,
@@ -193,6 +191,8 @@ export default class StudyUsersManage extends LitElement {
             data: {
                 users: [userId],
             },
+            userId: userId,
+            groupId: groupId,
         };
         // 2. Add this object to the list of updates that will be managed in the array of promises.
         this._userGroupUpdates.push(userGroupUpdate);
@@ -313,7 +313,7 @@ export default class StudyUsersManage extends LitElement {
                                     type: "custom",
                                     display: {
                                         helpMessage: "",
-                                        render: (checked, row) => {
+                                        render: (checked, dataFormFilterChange, updateParams, data, row) => {
                                             debugger
                                             return html`
                                                 <div class="form-check form-switch">
