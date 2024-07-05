@@ -856,7 +856,6 @@ class IvaApp extends LitElement {
         this.hashFragmentListener();
     }
 
-
     hashFragmentListener() {
         console.log("hashFragmentListener - Hide all enabled elements");
 
@@ -1111,7 +1110,6 @@ class IvaApp extends LitElement {
         // this.browserSearchQuery = {};
     }
 
-
     onQueryFilterSearch(e, source) {
         // FIXME filters component emits a event containing {detail:{query:Object}} while active-filter emits {detail:{Object}}
         // TODO fix active-filters
@@ -1125,14 +1123,7 @@ class IvaApp extends LitElement {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
     }
 
-    toggleSideBar() {
-        if (!this.bsOffcanvas) {
-            this.bsOffcanvas = new bootstrap.Offcanvas("#offcanvasIva");
-        }
-        this.bsOffcanvas.toggle();
-    }
-
-    onChangeApp(e, toggle) {
+    onChangeApp(e) {
         // If an App ID exists we display the corresponding app. If not we just show the Suite
         if (e.currentTarget.dataset.id) {
             this.app = this.config.apps.find(app => app.id === e.currentTarget.dataset.id);
@@ -1140,11 +1131,7 @@ class IvaApp extends LitElement {
             this.app = this.getActiveAppConfig();
         }
 
-        // We only want to toggle when clicked in the sidenav
-        if (toggle) {
-            this.toggleSideBar();
-        }
-
+        // Change current tool in navbar
         this.changeTool(e);
     }
 
@@ -1289,8 +1276,7 @@ class IvaApp extends LitElement {
             <custom-sidebar
                 .config="${this.config}"
                 .loggedIn="${this.isLoggedIn()}"
-                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
-                @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}">
+                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}">
             </custom-sidebar>
 
             <!-- Navbar -->
@@ -1301,7 +1287,6 @@ class IvaApp extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this.config}"
                 @logout="${() => this.logout()}"
-                @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}"
                 @changeTool="${e => this.changeTool(e.detail.value)}"
                 @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
                 @studySelect="${ e => this.onStudySelect(e.detail.event, e.detail.study)}"

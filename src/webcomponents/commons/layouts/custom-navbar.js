@@ -19,7 +19,6 @@ import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 import "../../job/job-monitor.js";
 
-
 export default class CustomNavBar extends LitElement {
 
     constructor() {
@@ -48,10 +47,6 @@ export default class CustomNavBar extends LitElement {
                 type: Object
             }
         };
-    }
-
-    onSideBarToggle(e) {
-        LitUtils.dispatchCustomEvent(this, "sideBarToggle", "", {event: e}, null);
     }
 
     onChangeTool(e) {
@@ -221,7 +216,7 @@ export default class CustomNavBar extends LitElement {
 
                     <!-- Left Sidebar Icon -->
                     ${this.config.apps?.filter(app => UtilsNew.isAppVisible(app, this.opencgaSession)).length > 1 ? html`
-                        <a class="navbar-brand " href="#" @click="${this.onSideBarToggle}">
+                        <a class="navbar-brand" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasIva">
                             <div id="waffle-icon"></div>
                         </a>
                     ` : nothing}
