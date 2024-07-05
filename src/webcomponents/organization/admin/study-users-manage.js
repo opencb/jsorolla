@@ -18,6 +18,7 @@ import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import FormUtils from "../../commons/forms/form-utils";
+import LitUtils from "../../commons/utils/lit-utils";
 
 export default class StudyUsersManage extends LitElement {
 
@@ -60,21 +61,7 @@ export default class StudyUsersManage extends LitElement {
             defaultLayout: "horizontal",
             labelAlign: "right",
             labelWidth: 3,
-            buttonOkText: "Update"
-        };
-    }
-
-    #initConfigNotification() {
-        this._config.notification = {
-            title: "",
-            text: "Some changes have been done in the form. Not saved changes will be lost",
-            type: "notification",
-            display: {
-                visible: () => {
-                    return UtilsNew.isNotEmpty(this.updatedParam);
-                },
-                notificationType: "warning",
-            },
+            buttonsVisible: false,
         };
     }
 
@@ -108,10 +95,6 @@ export default class StudyUsersManage extends LitElement {
                 ...this.displayConfigDefault,
                 ...this.displayConfig,
             };
-            this._config = this.getDefaultConfig();
-            if (!this._config?.notification) {
-                this.#initConfigNotification();
-            }
         }
         super.update(changedProperties);
     }
@@ -149,7 +132,6 @@ export default class StudyUsersManage extends LitElement {
                 .map(selectedGroupId => this._groupAllowedValues.find(group => group.id === selectedGroupId));
         }
         this._config = this.getDefaultConfig();
-        debugger
         this.requestUpdate();
     }
 
@@ -164,27 +146,51 @@ export default class StudyUsersManage extends LitElement {
         });
     }
 
-    onSubmit() {
+    onSubmit(e, userId, groupId) {
         // 1. Prepare query params
+        const isChecked = e.currentTarget.checked;
         const params = {
             includeResult: true,
+            action: isChecked ? "ADD" : "REMOVE"
         };
+        const data = {
+            users: [userId]
+        };
+
         // 2. Query
         this.#setLoading(true);
+        this.opencgaSession.opencgaClient.studies()
+            .updateGroupsUsers(this.study.fqn, groupId, data, params)
+            .then(response => {
+                const results = response.responses[0].results;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: `User in Group Update`,
+                    message: `${userId} ${isChecked ? "ADDED" : "REMOVED"} from ${groupId} correctly`,
+                });
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
+            })
+            .catch(error => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            })
+            .finally(() => {
+                this.#setLoading(false);
+            });
+        this.requestUpdate();
     }
 
     // --- RENDER ---
     render() {
-        return html`
-            <data-form
-                .data="${this._component}"
-                .config="${this._config}"
-                .updateParams="${this.updatedFields}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${e => this.onSubmit(e)}">
-            </data-form>
-        `;
+        if (this.study) {
+            return html`
+                <data-form
+                    .data="${this._component}"
+                    .config="${this._config}"
+                    .updateParams="${this.updatedFields}"
+                    @fieldChange="${e => this.onFieldChange(e)}"
+                    @clear="${this.onClear}">
+                </data-form>
+            `;
+        }
     }
 
     getDefaultConfig() {
@@ -219,22 +225,20 @@ export default class StudyUsersManage extends LitElement {
                         display: {
                             visible: this._selectedGroups?.length > 0,
                             render: (users, dataFormFilterChange, updateParams, data) => {
-                                debugger
                                 const userIds = Array.isArray(users) ?
                                     users?.map(user => user.id).join(",") :
                                     users;
                                 const handleUsersFilterChange = e => {
                                     // We need to convert value from a string with commas to an array of IDs
                                     // eslint-disable-next-line no-param-reassign
-                                    const userList = e.detail.value
-                                        ?.split(",")
+                                    const userList = (e.detail.value?.split(",") || [])
                                         .filter(userId => userId)
                                         .map(userId => ({
                                             id: userId,
                                             groups: this._selectedGroups.reduce((acc, group) => {
                                                 return {
                                                     ...acc,
-                                                    [group.id]: group.userIds.includes(userId)
+                                                    [group.id]: group.userIds.includes(userId),
                                                 };
                                             }, {}),
                                         }));
@@ -283,18 +287,13 @@ export default class StudyUsersManage extends LitElement {
                                     type: "custom",
                                     display: {
                                         helpMessage: "",
-                                        disabled: data => {
+                                        render: (checked, dataformfilterchange, updateparams, data, row) => {
                                             debugger
-                                            // return !data?.panels || data?.panels?.length === 0;
-                                        },
-                                        render: (checked, dataformfilterchange, updateparams, data) => {
-                                            debugger
-                                            const isOwner = false;
-                                            // ${!isOwner ? "disabled" : ""}
                                             return html`
                                                 <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" id="${checked ? "flexSwitchCheckChecked" : "flexSwitchCheckDefault"}" ?checked="${checked}">
-                                                    <label class="form-check-label" for="${checked ? "flexSwitchCheckChecked" : "flexSwitchCheckDefault"}"></label>
+                                                    <input class="form-check-input" type="checkbox"
+                                                           ?checked="${checked}"
+                                                           @click="${e => this.onSubmit(e, row.id, group.id)}">
                                                 </div>
                                             `;
                                         }

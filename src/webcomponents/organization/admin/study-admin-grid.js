@@ -352,7 +352,7 @@ export default class StudyAdminGrid extends LitElement {
     renderAddUsersStudy() {
         return ModalUtils.create(this, `${this._prefix}ManageUsersStudyModal`, {
             display: {
-                modalTitle: `Manage Users in Study`,
+                modalTitle: `Manage Users in Study: ${this.studyId}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-users-study-update",
                 modalSize: "modal-lg"

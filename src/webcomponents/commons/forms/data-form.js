@@ -1361,7 +1361,8 @@ export default class DataForm extends LitElement {
                                         content = this._createImageElement(elem);
                                         break;
                                     case "custom":
-                                        content = elem.display?.render(this.getValue(elem.field, row));
+                                        // content = elem.display?.render(this.getValue(elem.field, row));
+                                        content = elem.display?.render(this.getValue(elem.field, row), value => this.onFilterChange(elem, value), this.updateParams, this.data, row);
                                         break;
                                     default:
                                         content = this.getValue(elem.field, row, this._getDefaultValue(element, section), elem.display);
