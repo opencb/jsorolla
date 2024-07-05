@@ -398,14 +398,14 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}"
                     icon="${this._config.icon}">
                 </tool-header>
-            ` : null}
+            ` : nothing}
 
             ${this.clinicalAnalysis.interpretation.locked ? html`
                 <div class="alert alert-warning">
                     <label>Interpretation locked:</label> you cannot modify this interpretation. You can unlock the interpretation in
                     <span class="fst-italic">Case Info >> Interpretation Manager</span>.
-                </div>` : null
-            }
+                </div>
+            ` : nothing}
 
             <!-- Rodiel 27-09-23 NOTE: Using 'row' and 'col' has problems for standard resolution, so I opted for 'flex -->
             <div class="d-flex gap-4">
