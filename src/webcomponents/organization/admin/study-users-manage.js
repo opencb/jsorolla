@@ -50,7 +50,6 @@ export default class StudyUsersManage extends LitElement {
     }
 
     #init() {
-        debugger
         this.component = {}; // Original object
         this._component = {}; // Updated object
         this.updateParams = {};
@@ -61,7 +60,7 @@ export default class StudyUsersManage extends LitElement {
             defaultLayout: "horizontal",
             labelAlign: "right",
             labelWidth: 3,
-            buttonsVisible: false,
+            buttonOkText: "Update",
         };
     }
 
@@ -72,7 +71,9 @@ export default class StudyUsersManage extends LitElement {
             selectedUsers: [],
         };
         this._component = UtilsNew.objectClone(this.component);
-        // 2. Display variables
+        // 2. Query variables
+        this._userGroupUpdates = [];
+        // 3. Display variables
         this._groupAllowedValues = this.study.groups;
         this._selectedGroups = [];
         this._config = this.getDefaultConfig();
@@ -115,7 +116,6 @@ export default class StudyUsersManage extends LitElement {
                 .finally(() => {
                     this.#setLoading(false);
                 });
-
         }
     }
 
@@ -127,8 +127,7 @@ export default class StudyUsersManage extends LitElement {
         if (param === "selectedGroups") {
             // Update the selectedGroups local variable.
             // This is needed because the select-field-filter.js component is returning comma separated string
-            this._selectedGroups = this._component.selectedGroups
-                .split(",")
+            this._selectedGroups = (this._component.selectedGroups.split(",") || [])
                 .map(selectedGroupId => this._groupAllowedValues.find(group => group.id === selectedGroupId));
         }
         this._config = this.getDefaultConfig();
@@ -146,36 +145,57 @@ export default class StudyUsersManage extends LitElement {
         });
     }
 
-    onSubmit(e, userId, groupId) {
-        // 1. Prepare query params
-        const isChecked = e.currentTarget.checked;
-        const params = {
-            includeResult: true,
-            action: isChecked ? "ADD" : "REMOVE"
-        };
-        const data = {
-            users: [userId]
-        };
-
-        // 2. Query
+    onSubmit() {
+        // 1. Create promises with updates
         this.#setLoading(true);
-        this.opencgaSession.opencgaClient.studies()
-            .updateGroupsUsers(this.study.fqn, groupId, data, params)
-            .then(response => {
-                const results = response.responses[0].results;
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: `User in Group Update`,
-                    message: `${userId} ${isChecked ? "ADDED" : "REMOVED"} from ${groupId} correctly`,
-                });
-                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
-            })
-            .catch(error => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-            })
+        const _userGroupPromises = this._userGroupUpdates
+            .map(update => {
+                let error;
+                this.opencgaSession.opencgaClient.studies()
+                    .updateGroupsUsers(this.study.fqn, update.groupId, update.data, update.params)
+                    .then(() => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            title: `User in Group Update`,
+                            message: `${update.userId} ${update.isChecked ? "ADDED" : "REMOVED"} to ${update.groupId} in study ${this.study.id} correctly`,
+                        });
+                    })
+                    .catch(reason => {
+                        error = reason;
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+                    })
+                    .finally(() => {
+                        LitUtils.dispatchCustomEvent(this, "userGroupUpdate", {}, {
+                            user: update.userId,
+                            group: update.groupId,
+                        }, error);
+                    });
+
+            });
+        // 2. Execute all changes and refresh session
+        Promise.all(_userGroupPromises)
             .finally(() => {
                 this.#setLoading(false);
+                this.#initOriginalObjects();
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", {});
             });
-        this.requestUpdate();
+    }
+    onUserGroupChange(e, userId, groupId) {
+        // 1. Create an object with the query params needed
+        const isChecked = e.currentTarget.checked;
+        const userGroupUpdate = {
+            userId: userId,
+            groupId: groupId,
+            isChecked: isChecked,
+            params: {
+                includeResult: true,
+                action: isChecked ? "ADD" : "REMOVE",
+            },
+            data: {
+                users: [userId],
+            },
+        };
+        // 2. Add this object to the list of updates that will be managed in the array of promises.
+        this._userGroupUpdates.push(userGroupUpdate);
     }
 
     // --- RENDER ---
@@ -187,7 +207,8 @@ export default class StudyUsersManage extends LitElement {
                     .config="${this._config}"
                     .updateParams="${this.updatedFields}"
                     @fieldChange="${e => this.onFieldChange(e)}"
-                    @clear="${this.onClear}">
+                    @clear="${e => this.onClear(e)}"
+                    @submit="${e => this.onSubmit(e)}">
                 </data-form>
             `;
         }
@@ -196,6 +217,11 @@ export default class StudyUsersManage extends LitElement {
     getDefaultConfig() {
         const sections = [
             {
+                description: `This interface allows you to simultaneously add multiple users to multiple groups within the selected study.
+                Please note that adding a user to the special group @members will only grant them access to the metadata of the study,
+                as specific READ or WRITE permissions cannot be configured for the @members group.
+                However, once users are in the @members group, Study Administrators can grant them additional permissions
+                at the study level or within specific groups`,
                 display: {
                     // titleHeader: "",
                     // titleStyle: "",
@@ -224,7 +250,7 @@ export default class StudyUsersManage extends LitElement {
                         required: true,
                         display: {
                             visible: this._selectedGroups?.length > 0,
-                            render: (users, dataFormFilterChange, updateParams, data) => {
+                            render: (users, dataFormFilterChange, updateParams) => {
                                 const userIds = Array.isArray(users) ?
                                     users?.map(user => user.id).join(",") :
                                     users;
@@ -287,13 +313,13 @@ export default class StudyUsersManage extends LitElement {
                                     type: "custom",
                                     display: {
                                         helpMessage: "",
-                                        render: (checked, dataformfilterchange, updateparams, data, row) => {
+                                        render: (checked, row) => {
                                             debugger
                                             return html`
                                                 <div class="form-check form-switch">
                                                     <input class="form-check-input" type="checkbox"
                                                            ?checked="${checked}"
-                                                           @click="${e => this.onSubmit(e, row.id, group.id)}">
+                                                           @click="${e => this.onUserGroupChange(e, row.id, group.id)}">
                                                 </div>
                                             `;
                                         }
