@@ -256,7 +256,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
             fields: this.RESOURCES[this.resource].fields,
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
-                const attr = params?.data?.term ? {[this.searchField || this.RESOURCES[this.resource].searchField]: "~/" + params?.data?.term + "/i"} : null;
+                const attr = params?.data?.term ? {[this.searchField || this.RESOURCES[this.resource].searchField]: "~/" + params?.data?.term.trim() + "/i"} : null;
                 const filters = {
                     limit: this._config.limit,
                     count: false,

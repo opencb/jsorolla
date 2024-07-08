@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
+import UtilsNew from "../../core/utils-new.js";
 import "./variant-cohort-stats-grid.js";
 
 export default class VariantCohortStats extends LitElement {
@@ -50,6 +51,7 @@ export default class VariantCohortStats extends LitElement {
     }
 
     #init() {
+        this._prefix = UtilsNew.randomString(8);
         this.active = false;
         this.studyNames = {};
     }
@@ -89,7 +91,7 @@ export default class VariantCohortStats extends LitElement {
                 .then(response => {
                     if (response.responses[0].results[0]) {
                         this.variant = response.responses[0].results[0];
-                        this.requestUpdate();
+                        // this.requestUpdate();
                     }
                 })
                 .catch(error => {
@@ -102,7 +104,7 @@ export default class VariantCohortStats extends LitElement {
         if (!this.variant || !(this.variant?.studies?.length > 0)) {
             return html`
                 <div class="alert alert-info">
-                    <i class="fas fa-info-circle" style="margin-right:4px;"></i>
+                    <i class="fas fa-info-circle pe-1"></i>
                     <span>No studies available for this variant.</span>
                 </div>
             `;
