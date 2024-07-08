@@ -125,10 +125,18 @@ export default class StudyUsersManage extends LitElement {
         this.updatedFields = FormUtils.getUpdatedFields(this.variant, this.updatedFields, param, e.detail.value, e.detail.action);
 
         if (param === "selectedGroups") {
-            // Update the selectedGroups local variable.
-            // This is needed because the select-field-filter.js component is returning comma separated string
-            this._selectedGroups = (this._component.selectedGroups.split(",") || [])
+            // Update the selectedGroups local variable. This is needed because the select-field-filter.js component is
+            // returning comma separated string
+            const selectedGroupIds = this._component.selectedGroups?.split(",") || [];
+            this._selectedGroups = selectedGroupIds
                 .map(selectedGroupId => this._groupAllowedValues.find(group => group.id === selectedGroupId));
+            // If a group has been removed, remove possible updates stored in the array of changes
+            this._userGroupUpdates = this._userGroupUpdates.filter((update => selectedGroupIds.includes(update.groupId)));
+        }
+        if (param === "selectedUsers") {
+            const selectedUsersIds = this._component.selectedUsers?.map(user => user.id);
+            // If a user has been removed, remove possible updates stored in the array of changes
+            this._userGroupUpdates = this._userGroupUpdates.filter((update => selectedUsersIds.includes(update.userId)));
         }
         this._config = this.getDefaultConfig();
         this.requestUpdate();
@@ -151,8 +159,15 @@ export default class StudyUsersManage extends LitElement {
         const _userGroupPromises = this._userGroupUpdates
             .map(update => {
                 let error;
+                const params= {
+                        includeResult: true,
+                        action: update.isChecked ? "ADD" : "REMOVE",
+                };
+                const data = {
+                    users: [update.userId],
+                };
                 this.opencgaSession.opencgaClient.studies()
-                    .updateGroupsUsers(this.study.fqn, update.groupId, update.data, update.params)
+                    .updateGroupsUsers(this.study.fqn, update.groupId, data, params)
                     .then(() => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             title: `User in Group Update`,
@@ -180,22 +195,37 @@ export default class StudyUsersManage extends LitElement {
             });
     }
     onUserGroupChange(e, userId, groupId) {
-        // 1. Create an object with the query params needed
-        const isChecked = e.currentTarget.checked;
-        const userGroupUpdate = {
-            isChecked: isChecked,
-            params: {
-                includeResult: true,
-                action: isChecked ? "ADD" : "REMOVE",
-            },
-            data: {
-                users: [userId],
-            },
-            userId: userId,
-            groupId: groupId,
-        };
-        // 2. Add this object to the list of updates that will be managed in the array of promises.
-        this._userGroupUpdates.push(userGroupUpdate);
+        const pos = this._findChangePosition(userId, groupId);
+        if (pos >= 0) {
+            // Remove change from this._userGroupUpdates if the change has been undone.
+            this._userGroupUpdates.splice(pos, 1);
+        } else {
+            // Create an object with the params needed
+            this._userGroupUpdates.push({
+                isChecked: e.currentTarget.checked,
+                userId: userId,
+                groupId: groupId,
+            });
+        }
+        this._config = {...this._config};
+        this.requestUpdate();
+    }
+
+    // Double-check if the user is undoing a previous change on a specific user / group.
+    _findChangePosition(userId, groupId) {
+        // pos will equal -1 if a previous changes has been undone
+        return this._userGroupUpdates
+            .findIndex(update => update.userId === userId && update.groupId === groupId);
+    }
+
+    _findCurrentValue(userId, groupId, original) {
+        const change = this._userGroupUpdates
+            .find(update => update.userId === userId && update.groupId === groupId);
+        if (change) {
+            return change.isChecked;
+        }
+
+        return original;
     }
 
     // --- RENDER ---
@@ -217,9 +247,8 @@ export default class StudyUsersManage extends LitElement {
     getDefaultConfig() {
         const sections = [
             {
-                description: `This interface allows you to simultaneously add multiple users to multiple groups within the selected study.
-                Please note that adding a user to the special group @members will only grant them access to the metadata of the study,
-                as specific READ or WRITE permissions cannot be configured for the @members group.
+                description: `This interface allows you to simultaneously manage multiple users in multiple groups within the selected study.
+                Please note that adding a user to the special group @members will only grant them access to the metadata of the study.
                 However, once users are in the @members group, Study Administrators can grant them additional permissions
                 at the study level or within specific groups`,
                 display: {
@@ -314,12 +343,15 @@ export default class StudyUsersManage extends LitElement {
                                     display: {
                                         helpMessage: "",
                                         render: (checked, dataFormFilterChange, updateParams, data, row) => {
-                                            debugger
+                                            console.log(JSON.stringify(this._userGroupUpdates, null, 2));
                                             return html`
                                                 <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox"
-                                                           ?checked="${checked}"
-                                                           @click="${e => this.onUserGroupChange(e, row.id, group.id)}">
+                                                    <input
+                                                        class="form-check-input"
+                                                        type="checkbox"
+                                                        .checked="${this._findCurrentValue(row.id, group.id, checked)}"
+                                                        @click="${e => this.onUserGroupChange(e, row.id, group.id)}">
+                                                    ${this._findChangePosition(row.id, group.id) >= 0 ? html`<span style="color: darkorange">*</span>` : ""}
                                                 </div>
                                             `;
                                         }
