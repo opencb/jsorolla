@@ -22,7 +22,7 @@ export default class ToggleSwitch extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -43,15 +43,15 @@ export default class ToggleSwitch extends LitElement {
             disabled: {
                 type: Boolean
             },
+            classes: {
+                type: String,
+            },
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-
-        // Default values
-        this.onText = "ON";
-        this.offText = "OFF";
+        this.classes = "";
     }
 
     onFilterChange(val) {
@@ -62,18 +62,25 @@ export default class ToggleSwitch extends LitElement {
         return html`
             <fieldset ?disabled="${this.disabled}">
                 <div class="btn-group" role="group">
-                    <input class="btn-check" type="radio" ?checked="${this._value}"
-                        name="${this._prefix}BtnRadio" id="${this._prefix}onBtnRadio"
-                        @click=${() => this.onFilterChange(true)} autocomplete="off">
-                    <label class="btn btn-outline-primary" for="${this._prefix}onBtnRadio">
-                        ${this.onText}
+                    <input
+                        class="btn-check"
+                        type="radio"
+                        ?checked="${this.value}"
+                        name="${this._prefix}BtnRadio"
+                        id="${this._prefix}onBtnRadio"
+                        @click=${() => this.onFilterChange(true)}>
+                    <label class="btn btn-outline-primary ${this.classes}" for="${this._prefix}onBtnRadio">
+                        ${this.onText || "ON"}
                     </label>
-
-                    <input type="radio" class="btn-check" ?checked="${!this._value}"
-                        name="${this._prefix}BtnRadio" id="${this._prefix}offBtnRadio"
-                        @click=${() => this.onFilterChange(false)} autocomplete="off">
-                    <label class="btn btn-outline-primary" for="${this._prefix}offBtnRadio">
-                        ${this.offText}
+                    <input
+                        type="radio"
+                        class="btn-check"
+                        ?checked="${!this.value}"
+                        name="${this._prefix}BtnRadio"
+                        id="${this._prefix}offBtnRadio"
+                        @click=${() => this.onFilterChange(false)}>
+                    <label class="btn btn-outline-primary ${this.classes}" for="${this._prefix}offBtnRadio">
+                        ${this.offText || "OFF"}
                     </label>
                 </div>
             </fieldset>
