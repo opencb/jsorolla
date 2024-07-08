@@ -343,7 +343,7 @@ export default class StudyUsersManage extends LitElement {
                                     display: {
                                         helpMessage: "",
                                         render: (checked, dataFormFilterChange, updateParams, data, row) => {
-                                            console.log(JSON.stringify(this._userGroupUpdates, null, 2));
+                                            // console.log(JSON.stringify(this._userGroupUpdates, null, 2));
                                             return html`
                                                 <div class="form-check form-switch">
                                                     <input
