@@ -45,7 +45,7 @@ export default class ModalUtils {
                         <div class="modal-header">
                             ${ModalUtils.#getTitleHeader(modalTitleHeader, modalTitle, "modal-title " + modalTitleClassName, modalTitleStyle)}
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                                    @click="${e => LitUtils.dispatchCustomEvent(self, "modalClose", null, e)}">
+                                    @click="${e => config?.onCancel ? config.onCancel(e) : LitUtils.dispatchCustomEvent(self, "modalClose", null, e)}">
                             </button>
                         </div>
                         <div class="modal-body">
@@ -59,7 +59,7 @@ export default class ModalUtils {
                                     type="button"
                                     class="btn btn-light"
                                     data-bs-dismiss="modal"
-                                    @click="${e => LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}"
+                                    @click="${e => config?.onCancel ? config.conCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}"
                                 >
                                     Cancel
                                 </button>
@@ -67,7 +67,7 @@ export default class ModalUtils {
                                     type="button"
                                     class="btn btn-primary"
                                     data-bs-dismiss="modal"
-                                    @click="${e => LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}"
+                                    @click="${e => config?.onOk ? config.onOk(e) : LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}"
                                 >
                                     Save
                                 </button>
