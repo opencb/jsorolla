@@ -57,7 +57,7 @@ export default class ModalUtils {
                                     type="button"
                                     class="btn btn-light"
                                     data-bs-dismiss="modal"
-                                    @click="${e => config?.onCancel ? config.conCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}"
+                                    @click="${e => config?.onCancel ? config.onCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}"
                                 >
                                     ${config?.display?.cancelButtonText || "Cancel"}
                                 </button>
