@@ -40,17 +40,8 @@ export default class ToggleSwitch extends LitElement {
             offText: {
                 type: String
             },
-            activeClass: {
-                type: String
-            },
-            inactiveClass: {
-                type: String
-            },
             disabled: {
                 type: Boolean
-            },
-            classes: {
-                type: String
             },
         };
     }
@@ -61,89 +52,6 @@ export default class ToggleSwitch extends LitElement {
         // Default values
         this.onText = "ON";
         this.offText = "OFF";
-        this.activeClass = "btn-primary";
-        this.inactiveClass = "btn-light";
-        this.classes = "";
-    }
-
-    firstUpdated(changedProperties) {
-        if (changedProperties.has("value")) {
-            this.propertyObserver();
-        }
-    }
-
-    update(changedProperties) {
-        // if (changedProperties.has("value")) {
-        //     this.propertyObserver();
-        // }
-
-        if (changedProperties.has("onText")) {
-            this.onText = this.onText ? this.onText : "ON";
-        }
-
-        if (changedProperties.has("offText")) {
-            this.offText = this.offText ? this.offText : "OFF";
-        }
-        super.update(changedProperties);
-    }
-
-    propertyObserver() {
-        // const val = this.value?.toString();
-        // if (val !== "OFF" && val !== "false") {
-        //     this._value = true;
-        // } else {
-        //     this._value = false;
-        // }
-        this._value = this.value;
-    }
-
-    _propertyObserver() {
-        if (typeof this.value !== "undefined" && this.activeClass && this.inactiveClass) {
-            if (this.value) {
-                this._onClass = this.activeClass + " active";
-                this._offClass = this.inactiveClass;
-            } else {
-                this._onClass = this.inactiveClass;
-                this._offClass = this.activeClass + " active";
-            }
-            this.requestUpdate();
-        }
-    }
-
-    onToggleClick(buttonId) {
-        // Check if there is anything to do
-        if ((this.value && buttonId === "ON") || (!this.value && buttonId === "OFF")) {
-            return;
-        }
-
-        // Support several classes
-        const activeClasses = this.activeClass.split(" ");
-        const inactiveClasses = this.inactiveClass.split(" ");
-
-        // Fetch and reset buttons status
-        const buttons = this.getElementsByClassName("btn-toggle-" + this._prefix);
-        Array.from(buttons).forEach(button => {
-            button.classList.remove(...activeClasses, ...inactiveClasses, "active");
-        });
-        let onIndex = 0;
-        let offIndex = 1;
-        if (buttons[0].dataset.id === "OFF") {
-            onIndex = 1;
-            offIndex = 0;
-        }
-
-        // Set proper classes
-        this.value = buttonId === "ON";
-        if (this.value) {
-            buttons[onIndex].classList.add(...activeClasses, "active");
-            buttons[offIndex].classList.add(...inactiveClasses);
-        } else {
-            buttons[onIndex].classList.add(...inactiveClasses);
-            buttons[offIndex].classList.add(...activeClasses, "active");
-        }
-
-        // Set the field status
-        this.onFilterChange();
     }
 
     onFilterChange(val) {
