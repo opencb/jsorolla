@@ -199,23 +199,6 @@ export default class ToggleSwitch extends LitElement {
                     </label>
                 </div>
             </fieldset>
-                <!-- <button
-                    class="btn ${this._onClass} btn-toggle-${this._prefix} ${this.classes}"
-                    data-id="ON"
-                    ?disabled="${this.disabled}"
-                    type="button"
-                    @click="${e => this.onToggleClick("ON", e)}">
-                    ${this.onText}
-                </button>
-                <button
-                    class="btn ${this._offClass} btn-toggle-${this._prefix} ${this.classes}"
-                    data-id="OFF"
-                    ?disabled="${this.disabled}"
-                    type="button"
-                    @click="${e => this.onToggleClick("OFF", e)}">
-                    ${this.offText}
-                </button> -->
-
         `;
     }
 
