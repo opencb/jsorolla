@@ -433,19 +433,16 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                 render: (flags, dataFormFilterChange, updateParams, clinicalAnalysis) => {
                                     const handleFlagsFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
-                                        // eslint-disable-next-line no-param-reassign
-                                        const flagList = e.detail.value
-                                            ?.split(",")
+                                        const flagList = (e.detail?.value?.split(",") || [])
                                             .filter(flagId => flagId)
                                             .map(flagId => ({id: flagId}));
                                         dataFormFilterChange(flagList);
                                     };
-
                                     return html `
                                         <clinical-flag-filter
                                             .flag="${flags?.map(f => f.id).join(",")}"
                                             .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[clinicalAnalysis?.type?.toUpperCase()]}"
-                                            .multiple=${true}
+                                            .multiple="${true}"
                                             .classes="${updateParams?.flags ? "selection-updated" : ""}"
                                             .disabled="${!!clinicalAnalysis?.locked}"
                                             @filterChange="${e => handleFlagsFilterChange(e)}">
