@@ -974,43 +974,45 @@ export default class VariantGridFormatter {
 
     // Creates the colored table with one row and as many columns as populations.
     static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
-        const tooltipRows = (populations || []).map(population => {
-            const popFreq = populationFrequenciesMap.get(population) || null;
-            const altFreq = popFreq?.altAlleleFreq?.toPrecision(4) || 0;
-            const altCount = popFreq?.altAlleleCount || 0;
-            const homAltFreq = popFreq?.altHomGenotypeFreq?.toPrecision(4) || 0;
-            const homAltCount = popFreq?.altHomGenotypeCount || 0;
-            const color = VariantGridFormatter._getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
-            let altFreqText = "";
-            let homAltFreqText = "";
+        const tooltipRows = (populations || [])
+            .map(population => {
+                const popFreq = populationFrequenciesMap.get(population) || null;
+                const altFreq = popFreq?.altAlleleFreq?.toPrecision(4) || 0;
+                const altCount = popFreq?.altAlleleCount || 0;
+                // TASK-5854: Check if altHomGenotypeFreq (population freqs) or genotypeFreq (cohort stats)
+                const homAltFreq = popFreq?.altHomGenotypeFreq?.toPrecision(4) ?? popFreq?.genotypeFreq?.["1/1"]?.toPrecision(4) ?? 0;
+                const homAltCount = popFreq?.altHomGenotypeCount ?? popFreq?.genotypeCount?.["1/1"] ?? 0;
+                const color = VariantGridFormatter._getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
+                let altFreqText = "";
+                let homAltFreqText = "";
 
-            // ALT freq tell us if the VARIANT has been OBSERVED.
-            if (altFreq > 0) {
-                altFreqText = `${altFreq || "-"} / ${altCount} (${altFreq > 0 ? (altFreq * 100).toPrecision(4) + "%" : "-"})`;
-                homAltFreqText = `${homAltFreq > 0 ? homAltFreq : "-"} / ${homAltCount} ${homAltFreq > 0 ? `(${(homAltFreq * 100).toPrecision(4)} %)` : ""}`;
-            } else {
-                altFreqText = "<span style='font-style: italic'>Not Observed</span>";
-                homAltFreqText = "<span style='font-style: italic'>Not Observed</span>";
-            }
+                // ALT freq tell us if the VARIANT has been OBSERVED.
+                if (altFreq > 0) {
+                    altFreqText = `${altFreq || "-"} / ${altCount} (${altFreq > 0 ? (altFreq * 100).toPrecision(4) + "%" : "-"})`;
+                    homAltFreqText = `${homAltFreq > 0 ? homAltFreq : "-"} / ${homAltCount} ${homAltFreq > 0 ? `(${(homAltFreq * 100).toPrecision(4)} %)` : ""}`;
+                } else {
+                    altFreqText = "<span style='font-style: italic'>Not Observed</span>";
+                    homAltFreqText = "<span style='font-style: italic'>Not Observed</span>";
+                }
 
-            return `
-                <tr style='border-top:1px solid #ededed;'>
-                    <td style='width:140px;padding:8px 8px 8px 0;'>
-                        <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                        <label style='padding-left: 5px;'>${population}</label>
+                return `
+                    <tr style='border-top:1px solid #ededed;'>
+                        <td style='width:140px;padding:8px 8px 8px 0;'>
+                            <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
+                            <label style='padding-left: 5px;'>${population}</label>
+                        </td>
+                        <td style='font-weight:bold;padding:8px 8px 8px 0;'>${altFreqText}</td>
+                        <td style='font-weight:bold;padding:8px 0 8px 0;'>${homAltFreqText}</td>
                     </td>
-                    <td style='font-weight:bold;padding:8px 8px 8px 0;'>${altFreqText}</td>
-                    <td style='font-weight:bold;padding:8px 0 8px 0;'>${homAltFreqText}</td>
-                </td>
-            `;
-        });
+                `;
+            });
         const tooltip = `
             <table class='population-freq-tooltip'>
                 <thead>
                     <tr>
                         <th style='padding:0 8px 8px 0;'>Population</th>
-                        <th style='min-width:100px;padding:0 8px 8px 0;'>Allele ALT<br>(freq/count)</th>
-                        <th style='min-width:100px;padding:0 0 8px 0;'>Genotype HOM_ALT<br>(freq/count)</th>
+                        <th style='min-width:100px;padding:0 8px 8px 0;'>Allele ALT<br><span style='font-style: italic'>Freq / Count (%)</span></th>
+                        <th style='min-width:100px;padding:0 0 8px 0;'>Genotype HOM_ALT<br><span style='font-style: italic'>Freq / Count (%)</span></th>
                     </tr>
                 </thead>
                 <tbody>${tooltipRows.join("")}</tbody>
@@ -1083,13 +1085,14 @@ export default class VariantGridFormatter {
 
     static _getPopulationFrequencyColor(freq, populationFrequenciesColor) {
         let color;
-        if (freq === 0 || freq === "0") {
+        const freqFloat = Number.parseFloat(freq);
+        if (freqFloat === 0 || freqFloat === "0") {
             color = populationFrequenciesColor.unobserved;
-        } else if (freq < 0.001) {
+        } else if (freqFloat < 0.001) {
             color = populationFrequenciesColor.veryRare;
-        } else if (freq < 0.005) {
+        } else if (freqFloat < 0.005) {
             color = populationFrequenciesColor.rare;
-        } else if (freq < 0.05) {
+        } else if (freqFloat < 0.05) {
             color = populationFrequenciesColor.average;
         } else {
             color = populationFrequenciesColor.common;
@@ -1277,6 +1280,11 @@ export default class VariantGridFormatter {
             }
             let tooltipText = "";
             for (const [key, hotspot] of cancerHotspotsHtml.entries()) {
+                const hotspotVariantsText = hotspot.variants.map(variant => `
+                    <span class="d-block text-secondary" style="margin: 5px 1px">
+                        ${AMINOACID_CODE[hotspot.aminoacidReference]}${hotspot.aminoacidPosition}${AMINOACID_CODE[variant.aminoacidAlternate]}: ${variant.count} sample(s)
+                    </span>
+                `);
                 tooltipText += `
                     <div style="margin: 10px 5px">
                         <div>
@@ -1298,9 +1306,10 @@ export default class VariantGridFormatter {
 
             if (cancerHotspotsHtml.size > 0) {
                 return `
-                     <a class="hotspots-tooltip" tooltip-title='Info' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                    <a class="hotspots-tooltip" tooltip-title='Info' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
                         <span style="color: green">${cancerHotspotsHtml.size} ${cancerHotspotsHtml.size === 1 ? "variant" : "variants"}</span>
-                    </a>`;
+                    </a>
+                `;
             }
         }
         return "<span title='No clinical records found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
@@ -1324,7 +1333,7 @@ export default class VariantGridFormatter {
             const tooltipText = entriesLinks.join("");
 
             return `
-                <a class="hotspots-tooltip" tooltip-title='Info' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                <a class="omim-tooltip" tooltip-title='Info' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
                     <span style='color:green;'>${uniqueEntries.size}<br>${uniqueEntries.size === 1 ? "entry" : "entries"}</span>
                 </a>
             `;
@@ -1361,6 +1370,7 @@ export default class VariantGridFormatter {
             `;
         }
     }
+
 
     static clinicalTableDetail(value, row, index) {
         const clinvar = [];
@@ -1536,18 +1546,18 @@ export default class VariantGridFormatter {
         }
     }
 
-    static reportedVariantFormatter(value, variant, index) {
-        return `
-            ${variant?.interpretations?.length > 0 ? `
+    static reportedVariantFormatter(value, variant) {
+        if (variant?.interpretations?.length > 0) {
+            return `
                 <div>${variant.interpretations.length === 1 ? "1 case found" : `${variant.interpretations.length} cases found`}</div>
                 <div class="text-muted">
                     <div>REPORTED: ${variant.interpretationStats?.status?.REPORTED || 0} times</div>
                     <div>TIER 1: ${variant.interpretationStats?.tier?.TIER1 || 0} times</div>
                     <div>DISCARDED: ${variant.interpretationStats?.status?.DISCARDED || 0} times</div>
-                </div>` : `
-                <div>No cases found</div>`
-            }
-        `;
+                </div>
+            `;
+        }
+        return `<div>No cases found</div>`;
     }
 
     static reportedVariantDetailFormatter(value, row, opencgaSession) {

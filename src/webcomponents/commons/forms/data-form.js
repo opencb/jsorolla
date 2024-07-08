@@ -179,7 +179,7 @@ export default class DataForm extends LitElement {
             //             style: {
             //                  format: {
             //                      "font-weight": "bold",
-            //                      "color": "red"
+            //                      "color": (value, data) => {...}
             //                  },
             //                  bioformat: {
             //                      "color": "green"

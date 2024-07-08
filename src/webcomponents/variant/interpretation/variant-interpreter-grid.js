@@ -16,7 +16,6 @@
 
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";
@@ -87,7 +86,6 @@ export default class VariantInterpreterGrid extends LitElement {
         this.review = false;
 
         this.gridCommons = null;
-        this.clinicalAnalysisManager = null;
 
         // Set colors
         // eslint-disable-next-line no-undef
@@ -130,8 +128,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-
             if (!this.clinicalAnalysis.interpretation) {
                 this.clinicalAnalysis.interpretation = {};
             }
@@ -224,13 +220,11 @@ export default class VariantInterpreterGrid extends LitElement {
                 formatShowingRows: (pageFrom, pageTo, totalRows) => this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
                 detailView: this._config.detailView,
                 detailFormatter: (value, row) => this.detailFormatter(value, row),
-                // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 loadingTemplate: () => GridCommons.loadingFormatter(),
-
                 // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: this,
-
                 ajax: params => {
+                    this.gridCommons.clearResponseWarningEvents();
                     // Make a deep clone object to manipulate the query sent to OpenCGA
                     const internalQuery = JSON.parse(JSON.stringify(this.query));
 
@@ -319,6 +313,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         });
                 },
                 responseHandler: response => {
+                    this.gridCommons.displayResponseWarningEvents(response);
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
@@ -430,11 +425,9 @@ export default class VariantInterpreterGrid extends LitElement {
             formatShowingRows: this.gridCommons.formatShowingRows,
             detailView: this._config.detailView,
             detailFormatter: (value, row) => this.detailFormatter(value, row),
-            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             loadingTemplate: () => GridCommons.loadingFormatter(),
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
             variantGrid: this,
-
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onDblClickRow: (row, element) => {
                 // We detail view is active we expand the row automatically.
@@ -596,7 +589,8 @@ export default class VariantInterpreterGrid extends LitElement {
                                     colspan: 1,
                                     formatter: this.vcfDataFormatter,
                                     halign: this.displayConfigDefault.header.horizontalAlign,
-                                    visible: this.gridCommons.isColumnVisible(columnId, "VCF_Data"),
+                                    excludeFromSettings: true,
+                                    visible: !this._config.hideVcfFileData,
                                 });
                             }
                         }
@@ -806,7 +800,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         return `
                             <div class="dropdown">
                                 <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-toolbox" aria-hidden="true"></i>
+                                    <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
                                     Actions
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
@@ -830,20 +824,14 @@ export default class VariantInterpreterGrid extends LitElement {
                                         </a>
                                     </li>
                                     <li class="dropdown-header">CellBase Links</li>
+                                    ${["v5.2", "v5.8"].map(v => `
                                     <li>
-                                        <a target="_blank" class="dropdown-item
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
+                                        <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`)}">
                                             <i class="fas fa-external-link-alt" aria-hidden="true"></i>
-                                            CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
+                                            CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}
                                         </a>
                                     </li>
-                                    <li>
-                                        <a target="_blank" class="dropdown-item"
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
-                                            CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
-                                        </a>
-                                    </li>
+                                    `).join("")}
                                     <li class="dropdown-header">External Genome Browsers</li>
                                     <li>
                                         <a target="_blank" class="dropdown-item"
@@ -1165,20 +1153,18 @@ export default class VariantInterpreterGrid extends LitElement {
                         title: `<span style="color: ${color}">${samples[i].id}</span>
                                 <br>
                                 <span style="font-style: italic">${sampleInfo[samples[i].id].role}, ${affected}</span>`,
-                        field: {
-                            memberIdx: i,
-                            memberName: samples[i].id,
-                            sampleId: samples[i].id,
-                            quality: this._config.quality,
-                            clinicalAnalysis: this.clinicalAnalysis,
-                            config: this._config
-                        },
                         rowspan: 1,
                         colspan: 1,
-                        formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
+                        formatter: (value, row, index) => {
+                            return VariantInterpreterGridFormatter.sampleGenotypeFormatter(value, row, index, {
+                                sampleId: samples[i].id,
+                                clinicalAnalysis: this.clinicalAnalysis,
+                                config: this._config
+                            });
+                        },
                         align: "center",
-                        nucleotideGenotype: true,
-                        visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
+                        excludeFromSettings: true,
+                        visible: !this._config.hideSampleGenotypes,
                     });
                 }
             }
@@ -1216,18 +1202,18 @@ export default class VariantInterpreterGrid extends LitElement {
                             <div style="word-break:break-all;max-width:192px;white-space:break-spaces;">${sample.id}</div>
                             <div style="color:${color};font-style:italic;">${sample?.somatic ? "somatic" : "germline"}</div>
                         `,
-                        field: {
-                            sampleId: sample.id,
-                            quality: this._config.quality,
-                            config: this._config,
-                            clinicalAnalysis: this.clinicalAnalysis
-                        },
                         rowspan: 1,
                         colspan: 1,
-                        formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
+                        formatter: (value, row, index) => {
+                            return VariantInterpreterGridFormatter.sampleGenotypeFormatter(value, row, index, {
+                                sampleId: sample.id,
+                                config: this._config,
+                                clinicalAnalysis: this.clinicalAnalysis
+                            });
+                        },
                         align: "center",
-                        nucleotideGenotype: true,
-                        visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
+                        excludeFromSettings: true,
+                        visible: !this._config.hideSampleGenotypes,
                     });
                 }
             }
@@ -1566,6 +1552,8 @@ export default class VariantInterpreterGrid extends LitElement {
     render() {
         return html`
 
+            <div id="${this.gridId}WarningEvents"></div>
+
             <opencb-grid-toolbar
                 .config="${this.toolbarConfig}"
                 .settings="${this.toolbarSetting}"
@@ -1658,6 +1646,8 @@ export default class VariantInterpreterGrid extends LitElement {
             hidePopulationFrequencies: false,
             hideClinicalInfo: false,
             hideDeleteriousness: false,
+            hideSampleGenotypes: false,
+            hideVcfFileData: false,
 
             quality: {
                 qual: 30,

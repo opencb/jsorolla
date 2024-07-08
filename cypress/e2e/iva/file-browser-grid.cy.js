@@ -218,7 +218,7 @@ context("File Browser Grid", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class*='dropdown-menu show']")
+                    cy.get(`ul[class*="dropdown-menu"][class*="show"]`)
                         .contains("a","Download JSON")
                         .click();
             });
