@@ -18,17 +18,10 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 
-
-/**
- *  Usage:
- * <toggle-switch .value="true" .onText="YES" .offText="NO"></toggle-switch>
- */
 export default class ToggleSwitch extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
         this._init();
     }
 
@@ -72,29 +65,6 @@ export default class ToggleSwitch extends LitElement {
         this.inactiveClass = "btn-light";
         this.classes = "";
     }
-
-    // updated(changedProperties) {
-    //     if (changedProperties.has("value")) {
-    //         this._propertyObserver();
-    //         this._value = this.value;
-    //     }
-    //     if (changedProperties.has("onText")) {
-    //         this.onText = this.onText ? this.onText : "ON";
-    //         // this._propertyObserver();
-    //     }
-    //     if (changedProperties.has("offText")) {
-    //         this.offText = this.offText ? this.offText : "OFF";
-    //         // this._propertyObserver();
-    //     }
-    //     if (changedProperties.has("activeClass")) {
-    //         this.activeClass = this.activeClass ? this.activeClass : "btn-primary";
-    //         this._propertyObserver();
-    //     }
-    //     if (changedProperties.has("inactiveClass")) {
-    //         this.inactiveClass = this.inactiveClass ? this.inactiveClass : "btn-light";
-    //         this._propertyObserver();
-    //     }
-    // }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("value")) {
