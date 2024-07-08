@@ -372,7 +372,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             display: {
                                 render: (panels, dataFormFilterChange, updateParams, clinicalAnalysis) => {
                                     const handlePanelsFilterChange = e => {
-                                        const panels = (e.detail.value?.split(",") || [])
+                                        const panels = (e.detail?.value?.split(",") || [])
                                             .filter(panelId => panelId)
                                             .map(panelId => ({id: panelId}));
                                         dataFormFilterChange(panels);
