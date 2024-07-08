@@ -323,18 +323,16 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                 render: (analysts, dataFormFilterChange, updateParams, clinicalAnalysis) => {
                                     const handleAnalystsFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
-                                        const analystList = e.detail.value
-                                            ?.split(",")
+                                        const analystList = (e.detail?.value?.split(",") || [])
                                             .filter(analystId => analystId)
                                             .map(analystId => ({id: analystId}));
                                         dataFormFilterChange(analystList);
                                     };
-
                                     return html `
                                         <clinical-analyst-filter
                                             .analyst="${analysts?.map(f => f.id).join(",")}"
                                             .analysts="${this._users}"
-                                            .multiple=${true}
+                                            .multiple="${true}"
                                             .classes="${updateParams?.analysts ? "selection-updated" : ""}"
                                             .disabled="${!!clinicalAnalysis?.locked}"
                                             @filterChange="${e => handleAnalystsFilterChange(e)}">
