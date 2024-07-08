@@ -45,7 +45,7 @@ export default class ModalUtils {
                         <div class="modal-header">
                             ${ModalUtils.#getTitleHeader(modalTitleHeader, modalTitle, "modal-title " + modalTitleClassName, modalTitleStyle)}
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                                    @click="${e => config?.onCancel ? config.onCancel(e) : LitUtils.dispatchCustomEvent(self, "modalClose", null, e)}">
+                                    @click="${e => config?.onCancel ? config.onCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}">
                             </button>
                         </div>
                         <div class="modal-body">
