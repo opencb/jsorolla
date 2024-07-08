@@ -60,12 +60,12 @@ export default class ToggleSwitch extends LitElement {
 
     render() {
         return html`
-            <fieldset ?disabled="${this.disabled}">
+            <fieldset .disabled="${this.disabled}">
                 <div class="btn-group" role="group">
                     <input
                         class="btn-check"
                         type="radio"
-                        ?checked="${this.value}"
+                        .checked="${this.value}"
                         name="${this._prefix}BtnRadio"
                         id="${this._prefix}onBtnRadio"
                         @click=${() => this.onFilterChange(true)}>
@@ -75,7 +75,7 @@ export default class ToggleSwitch extends LitElement {
                     <input
                         type="radio"
                         class="btn-check"
-                        ?checked="${!this.value}"
+                        .checked="${!this.value}"
                         name="${this._prefix}BtnRadio"
                         id="${this._prefix}offBtnRadio"
                         @click=${() => this.onFilterChange(false)}>
