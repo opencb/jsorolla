@@ -61,7 +61,7 @@ export default class ModalUtils {
                                     data-bs-dismiss="modal"
                                     @click="${e => config?.onCancel ? config.conCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}"
                                 >
-                                    Cancel
+                                    ${config?.display?.cancelButtonText || "Cancel"}
                                 </button>
                                 <button
                                     type="button"
@@ -69,7 +69,7 @@ export default class ModalUtils {
                                     data-bs-dismiss="modal"
                                     @click="${e => config?.onOk ? config.onOk(e) : LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}"
                                 >
-                                    Save
+                                    ${config?.display?.onButtonText || "Save"}
                                 </button>
                             </div>
                         `: nothing}
