@@ -59,10 +59,6 @@ export default class ToggleSwitch extends LitElement {
             classes: {
                 type: String
             },
-            _value: {
-                type: Boolean,
-                state: true
-            }
         };
     }
 
@@ -190,14 +186,14 @@ export default class ToggleSwitch extends LitElement {
                 <div class="btn-group" role="group">
                     <input class="btn-check" type="radio" ?checked="${this._value}"
                         name="${this._prefix}BtnRadio" id="${this._prefix}onBtnRadio"
-                        @click=${() => this.onFilterChange("ON")} autocomplete="off">
+                        @click=${() => this.onFilterChange(true)} autocomplete="off">
                     <label class="btn btn-outline-primary" for="${this._prefix}onBtnRadio">
                         ${this.onText}
                     </label>
 
                     <input type="radio" class="btn-check" ?checked="${!this._value}"
                         name="${this._prefix}BtnRadio" id="${this._prefix}offBtnRadio"
-                        @click=${() => this.onFilterChange("OFF")} autocomplete="off">
+                        @click=${() => this.onFilterChange(false)} autocomplete="off">
                     <label class="btn btn-outline-primary" for="${this._prefix}offBtnRadio">
                         ${this.offText}
                     </label>
