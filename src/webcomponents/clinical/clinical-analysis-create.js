@@ -896,8 +896,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             display: {
                                 render: (analysts, dataFormFilterChange) => {
                                     const handleAnalystsFilterChange = e => {
-                                        const analystList = e.detail.value
-                                            ?.split(",")
+                                        const analystList = (e.detail?.value?.split(",") || [])
                                             .filter(analystId => analystId)
                                             .map(analystId => ({id: analystId}));
                                         dataFormFilterChange(analystList);
@@ -906,7 +905,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         <clinical-analyst-filter
                                             .analyst="${analysts?.map(f => f.id).join(",")}"
                                             .analysts="${this._users}"
-                                            .multiple=${true}
+                                            .multiple="${true}"
                                             @filterChange="${e => handleAnalystsFilterChange(e, "analyst.id")}">
                                         </clinical-analyst-filter>
                                     `;
