@@ -68,7 +68,7 @@ export default class ModalUtils {
                                     data-bs-dismiss="modal"
                                     @click="${e => config?.onOk ? config.onOk(e) : LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}"
                                 >
-                                    ${config?.display?.onButtonText || "Save"}
+                                    ${config?.display?.okButtonText || "Save"}
                                 </button>
                             </div>
                         `: nothing}
