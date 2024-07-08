@@ -1,5 +1,4 @@
 import {html, nothing} from "lit";
-import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils";
 
 export default class ModalUtils {
