@@ -438,73 +438,6 @@ export default class VariantBrowserGrid extends LitElement {
         return result;
     }
 
-    siftPproteinScoreFormatter(value, row, index) {
-        let min = 10;
-        let description = "";
-        if (row && row.annotation?.consequenceTypes?.length > 0) {
-            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
-                    for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                        const substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
-                        if (substitutionScore.source === "sift" && substitutionScore.score < min) {
-                            min = substitutionScore.score;
-                            description = substitutionScore.description;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (min < 10) {
-            return `<span style="color: ${this.consequenceTypeColors.pssColor.get("sift")[description]}" title=${min}>${description}</span>`;
-        }
-        return "-";
-    }
-
-    polyphenProteinScoreFormatter(value, row, index) {
-        let max = 0;
-        let description = "";
-        if (row && row.annotation?.consequenceTypes?.length > 0) {
-            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
-                    for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                        const substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
-                        if (substitutionScore.source === "polyphen" && substitutionScore.score >= max) {
-                            max = substitutionScore.score;
-                            description = substitutionScore.description;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (max > 0) {
-            return `<span style="color: ${this.consequenceTypeColors.pssColor.get("polyphen")[description]}" title=${max}>${description}</span>`;
-        }
-        return "-";
-    }
-
-    revelProteinScoreFormatter(value, row, index) {
-        let max = 0;
-        if (row && row.annotation?.consequenceTypes?.length > 0) {
-            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
-                    for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                        const substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
-                        if (substitutionScore.source === "revel" && substitutionScore.score >= max) {
-                            max = substitutionScore.score;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (max > 0) {
-            return `<span style="color: ${max > 0.5 ? "darkorange" : "black"}" title=${max}>${max}</span>`;
-        }
-        return "-";
-    }
-
     conservationFormatter(value, row, index) {
         if (row?.annotation?.conservation?.length > 0) {
             for (const conservation of row.annotation.conservation) {
@@ -693,6 +626,16 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: this.gridCommons.isColumnVisible("id")
                 },
                 {
+                    id: "type",
+                    title: "Type",
+                    field: "type",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: VariantGridFormatter.typeFormatter.bind(this),
+                    halign: "center",
+                    visible: this.gridCommons.isColumnVisible("type")
+                },
+                {
                     id: "gene",
                     title: "Gene",
                     field: "gene",
@@ -704,14 +647,13 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: this.gridCommons.isColumnVisible("gene")
                 },
                 {
-                    id: "type",
-                    title: "Type",
-                    field: "type",
+                    id: "hgvs",
+                    title: "HGVS",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: VariantGridFormatter.typeFormatter.bind(this),
+                    formatter: (value, row) => VariantGridFormatter.hgvsFormatter(row, this._config),
                     halign: "center",
-                    visible: this.gridCommons.isColumnVisible("type")
+                    visible: this.gridCommons.isColumnVisible("hgvs"),
                 },
                 {
                     id: "consequenceType",
@@ -810,7 +752,7 @@ export default class VariantBrowserGrid extends LitElement {
                             tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle text-primary" aria-hidden="true"></i></a>`,
                     field: "clinicalInfo",
                     rowspan: 1,
-                    colspan: 3,
+                    colspan: 6,
                     align: "center"
                 },
                 // ...ExtensionsManager.getColumns("variant-browser-grid"),
@@ -920,7 +862,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "sift",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.siftPproteinScoreFormatter.bind(this),
+                    formatter: (value, row) => VariantGridFormatter.siftPproteinScoreFormatter(value, row, this.consequenceTypeColors),
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("SIFT", "deleteriousness")
                 },
@@ -930,7 +872,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "polyphen",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.polyphenProteinScoreFormatter.bind(this),
+                    formatter: (value, row) => VariantGridFormatter.polyphenProteinScoreFormatter(value, row, this.consequenceTypeColors),
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("polyphen", "deleteriousness")
                 },
@@ -940,7 +882,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "revel",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.revelProteinScoreFormatter.bind(this),
+                    formatter: (value, row) => VariantGridFormatter.revelProteinScoreFormatter(value, row),
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("revel", "deleteriousness")
                 },
@@ -1024,6 +966,16 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: this.gridCommons.isColumnVisible("cosmic", "clinicalInfo")
                 },
                 {
+                    id: "hgmd",
+                    title: "HGMD",
+                    field: "hgmd",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
+                    align: "center",
+                    visible: this.gridCommons.isColumnVisible("hgmd", "clinicalInfo")
+                },
+                {
                     id: "omim",
                     title: "OMIM",
                     field: "omim",
@@ -1032,6 +984,26 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: VariantGridFormatter.clinicalOmimFormatter,
                     align: "center",
                     visible: this.gridCommons.isColumnVisible("omim"),
+                },
+                {
+                    id: "pharmgkb",
+                    title: "PharmGKB",
+                    field: "pharmgkb",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalPharmGKBFormatter,
+                    align: "center",
+                    visible: this.gridCommons.isColumnVisible("pharmgkb"),
+                },
+                {
+                    id: "hotspots",
+                    title: "Cancer Hotspots",
+                    field: "hotspots",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalCancerHotspotsFormatter,
+                    align: "center",
+                    visible: this.gridCommons.isColumnVisible("hotspots"),
                 },
             ]
         ];

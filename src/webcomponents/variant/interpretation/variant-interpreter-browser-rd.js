@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-template.js";
 import "./exomiser/variant-interpreter-exomiser-view.js";
 import "../variant-samples.js";
 import "../../visualization/protein-lollipop-variant-view.js";
+import "../annotation/variant-annotation-pharmacogenomics-view.js";
 
 class VariantInterpreterBrowserRd extends LitElement {
 
@@ -621,6 +622,15 @@ class VariantInterpreterBrowserRd extends LitElement {
                                     .traitAssociation="${variant?.annotation?.traitAssociation}"
                                     .geneTraitAssociation="${variant?.annotation?.geneTraitAssociation}">
                                 </variant-annotation-clinical-view>
+                            `,
+                        },
+                        {
+                            id: "annotationPharmacogenomics",
+                            name: "Pharmacogenomics",
+                            render: variant => html`
+                                <variant-annotation-pharmacogenomics-view
+                                    .pharmacogenomics="${variant?.annotation?.pharmacogenomics}">
+                                </variant-annotation-pharmacogenomics-view>
                             `,
                         },
                         {

@@ -670,14 +670,19 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "deleteriousness",
-                    title: `Deleteriousness <a tooltip-title="Deleteriousness" tooltip-text="CADD is a tool for scoring the deleteriousness of single nucleotide variants in the human genome.
-                            C-scores strongly correlate with allelic diversity, pathogenicity of both coding and non-coding variants,
-                            and experimentally measured regulatory effects, and also highly rank causal variants within individual genome sequences.
-                            SpliceAI: a deep learning-based tool to identify splice variants.">
-                            <i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    title: `Deleteriousness <a tooltip-title="Deleteriousness" tooltip-text="SIFT scores are classified into tolerated and deleterious.
+                        Polyphen scores are classified into benign, possibly damaging, probably damaging and possibly & probably damaging.
+                        Please, leave the cursor over each tag to visualize the actual score value.
+                        SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction.
+                        Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction.
+                        CADD is a tool for scoring the deleteriousness of single nucleotide variants in the human genome.
+                        C-scores strongly correlate with allelic diversity, pathogenicity of both coding and non-coding variants,
+                        and experimentally measured regulatory effects, and also highly rank causal variants within individual genome sequences.
+                        SpliceAI: a deep learning-based tool to identify splice variants.">
+                        <i class="fa fa-info-circle text-primary" aria-hidden="true"></i></a>`,
                     field: "deleteriousness",
                     rowspan: 1,
-                    colspan: 2,
+                    colspan: 5,
                     align: "center"
                 },
                 {
@@ -740,7 +745,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                 </div>"
                             tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     rowspan: 1,
-                    colspan: 4,
+                    colspan: 6,
                     align: "center"
                 },
                 {
@@ -889,6 +894,36 @@ export default class VariantInterpreterGrid extends LitElement {
             ],
             [
                 {
+                    id: "SIFT",
+                    title: "SIFT",
+                    field: "sift",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.siftPproteinScoreFormatter(value, row, this.consequenceTypeColors),
+                    halign: "center",
+                    visible: this.gridCommons.isColumnVisible("SIFT", "deleteriousness")
+                },
+                {
+                    id: "polyphen",
+                    title: "Polyphen",
+                    field: "polyphen",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.polyphenProteinScoreFormatter(value, row, this.consequenceTypeColors),
+                    halign: "center",
+                    visible: this.gridCommons.isColumnVisible("polyphen", "deleteriousness")
+                },
+                {
+                    id: "revel",
+                    title: "Revel",
+                    field: "revel",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.revelProteinScoreFormatter(value, row),
+                    halign: "center",
+                    visible: this.gridCommons.isColumnVisible("revel", "deleteriousness")
+                },
+                {
                     id: "cadd",
                     title: "CADD",
                     field: "cadd",
@@ -936,14 +971,14 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: !this._config.hideClinicalInfo && this.gridCommons.isColumnVisible("cosmic", "clinicalInfo"),
                 },
                 {
-                    id: "hotspots",
-                    title: "Cancer <br> Hotspots",
-                    field: "hotspots",
+                    id: "hgmd",
+                    title: "HGMD",
+                    field: "hgmd",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: VariantGridFormatter.clinicalCancerHotspotsFormatter,
+                    formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
                     align: "center",
-                    visible: !this._config.hideClinicalInfo && this.gridCommons.isColumnVisible("hotspots", "clinicalInfo"),
+                    visible: this.gridCommons.isColumnVisible("hgmd", "clinicalInfo")
                 },
                 {
                     id: "omim",
@@ -954,6 +989,26 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: VariantGridFormatter.clinicalOmimFormatter,
                     align: "center",
                     visible: this.gridCommons.isColumnVisible("omim"),
+                },
+                {
+                    id: "pharmgkb",
+                    title: "PharmGKB",
+                    field: "pharmgkb",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalPharmGKBFormatter,
+                    align: "center",
+                    visible: this.gridCommons.isColumnVisible("pharmgkb"),
+                },
+                {
+                    id: "hotspots",
+                    title: "Cancer <br> Hotspots",
+                    field: "hotspots",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalCancerHotspotsFormatter,
+                    align: "center",
+                    visible: !this._config.hideClinicalInfo && this.gridCommons.isColumnVisible("hotspots", "clinicalInfo"),
                 },
                 // Interpretation methods column
                 {
@@ -1105,7 +1160,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         affected = "<span style='color: red'>Aff.</span>";
                     }
 
-                    _columns[1].splice(i + 2, 0, {
+                    _columns[1].splice(i + 5, 0, {
                         id: samples[i].id,
                         title: `<span style="color: ${color}">${samples[i].id}</span>
                                 <br>
@@ -1155,7 +1210,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     const sample = samples[i];
                     const color = sample?.somatic ? "darkred" : "black";
 
-                    _columns[1].splice(i + 2, 0, {
+                    _columns[1].splice(i + 5, 0, {
                         id: sample.id,
                         title: `
                             <div style="word-break:break-all;max-width:192px;white-space:break-spaces;">${sample.id}</div>

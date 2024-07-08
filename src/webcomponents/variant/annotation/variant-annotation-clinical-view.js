@@ -44,6 +44,10 @@ export default class VariantAnnotationClinicalView extends LitElement {
             assembly: {
                 type: String
             },
+            groupedBySource: {
+                type: Object,
+                state: true
+            },
             opencgaSession: {
                 type: Object
             },
@@ -105,6 +109,9 @@ export default class VariantAnnotationClinicalView extends LitElement {
                 case "cosmic":
                     html = `<a href="${BioinfoUtils.getCosmicVariantLink(row.id)}" target="_blank">${row.id}</a>`;
                     break;
+                case "hgmd":
+                    html = `${row.id}`;
+                    break;
             }
         }
         return html;
@@ -114,11 +121,11 @@ export default class VariantAnnotationClinicalView extends LitElement {
         if (value) {
             switch (value.name?.toLowerCase()) {
                 case "clinvar":
-                    return "ClinVar";
+                    return `ClinVar (${value.version})`;
                 case "cosmic":
-                    return "COSMIC";
-                case "pharmgkb":
-                    return "PharmGKB";
+                    return `COSMIC (${value.version})`;
+                case "hgmd":
+                    return `HGMD (${value.version})`;
                 default:
                     console.error("Source not valid: " + value.name);
                     return "-";
@@ -175,14 +182,6 @@ export default class VariantAnnotationClinicalView extends LitElement {
         let result, data;
         const name = row?.source?.name;
         switch (name.toLowerCase()) {
-            case "cosmic":
-                data = row?.additionalProperties?.filter(item => item.id === "FATHMM_PREDICTION");
-                result = `
-                    <div>
-                        <label>FATHMM Prediction:</label><span style="padding-left: 5px">${Number.parseFloat(data?.[0]?.value) || "NA"}</span>
-                    </div>
-                `;
-                break;
             case "clinvar":
                 data = row?.additionalProperties?.filter(item => item.name === "ClinicalSignificance_in_source_file");
                 // Prepare star rating HTML
@@ -201,6 +200,14 @@ export default class VariantAnnotationClinicalView extends LitElement {
                     </div>
                     <div title="${starRating?.[0]?.value || ""}">
                         ${starRatingHtml?.length > 0 ? starRatingHtml.join("") : ""}
+                    </div>
+                `;
+                break;
+            case "cosmic":
+                data = row?.additionalProperties?.filter(item => item.id === "FATHMM_PREDICTION");
+                result = `
+                    <div>
+                        <label>FATHMM Prediction:</label><span style="padding-left: 5px">${Number.parseFloat(data?.[0]?.value) || "NA"}</span>
                     </div>
                 `;
                 break;
@@ -253,13 +260,78 @@ export default class VariantAnnotationClinicalView extends LitElement {
             this.traitAssociation = [];
         }
 
-        const groupedBySource = this.groupBy(this.traitAssociation, "source.name");
+        this.groupedBySource = this.groupBy(this.traitAssociation, "source.name");
 
-        $("#" + this._prefix + "VariantTraitAssociation").bootstrapTable("destroy");
-        $("#" + this._prefix + "VariantTraitAssociation").bootstrapTable({
+        $("#" + this._prefix + "ClinvarTraitAssociation").bootstrapTable("destroy");
+        $("#" + this._prefix + "ClinvarTraitAssociation").bootstrapTable({
+            data: this.groupedBySource.clinvar,
             theadClasses: "table-light",
             buttonsClass: "light",
-            data: this.traitAssociation,
+            pagination: false,
+            columns: [
+                {
+                    title: "ID",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.idFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Source",
+                    field: "source",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.sourceFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Gene",
+                    field: "genomicFeatures",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.geneFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Heritable Traits",
+                    field: "heritableTraits",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.heritableTraitsFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Mode of Inheritance",
+                    field: "heritableTraits",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.inheritanceModeFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Clinical Significance",
+                    field: "variantClassification",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.clinicalSignificanceFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Origin Type",
+                    field: "alleleOrigin",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.alleleOriginFormatter,
+                    halign: "center"
+                },
+            ]
+        });
+
+        $("#" + this._prefix + "CosmicTraitAssociation").bootstrapTable("destroy");
+        $("#" + this._prefix + "CosmicTraitAssociation").bootstrapTable({
+            data: this.groupedBySource.cosmic,
+            theadClasses: "table-light",
+            buttonsClass: "light",
             pagination: false,
             columns: [
                 [
@@ -287,22 +359,6 @@ export default class VariantAnnotationClinicalView extends LitElement {
                         halign: "center"
                     },
                     {
-                        title: "Heritable Traits",
-                        field: "heritableTraits",
-                        rowspan: 2,
-                        colspan: 1,
-                        formatter: this.heritableTraitsFormatter,
-                        halign: "center"
-                    },
-                    {
-                        title: "Mode of Inheritance",
-                        field: "heritableTraits",
-                        rowspan: 2,
-                        colspan: 1,
-                        formatter: this.inheritanceModeFormatter,
-                        halign: "center"
-                    },
-                    {
                         title: "Clinical Significance",
                         field: "variantClassification",
                         rowspan: 2,
@@ -311,19 +367,25 @@ export default class VariantAnnotationClinicalView extends LitElement {
                         halign: "center"
                     },
                     {
-                        title: "Origin Type",
-                        field: "alleleOrigin",
-                        rowspan: 2,
-                        colspan: 1,
-                        formatter: this.alleleOriginFormatter,
+                        title: "Somatic Information",
+                        rowspan: 1,
+                        colspan: 4,
                         halign: "center"
                     },
                     {
-                        title: "Cancer",
-                        rowspan: 1,
-                        colspan: 3,
+                        title: "Bibliography",
+                        field: "bibliography",
+                        rowspan: 2,
+                        colspan: 1,
+                        formatter: value => {
+                            if (value?.length > 0) {
+                                return value
+                                    .map(v => `<a target=_blank href="${BioinfoUtils.getPubmedLink(v)}">${v}</a>`)
+                                    .join("<br>");
+                            }
+                        },
                         halign: "center"
-                    }
+                    },
                 ], [
                     {
                         title: "Tumour Site",
@@ -347,8 +409,84 @@ export default class VariantAnnotationClinicalView extends LitElement {
                         rowspan: 1,
                         colspan: 1,
                         halign: "center"
-                    }
+                    },
+                    {
+                        title: "Mutation Zygosity",
+                        field: "additionalProperties",
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: value => {
+                            const data = value?.find(item => item.name === "MUTATION_ZYGOSITY");
+                            return data?.value || "-";
+                        },
+                        halign: "center"
+                    },
                 ]
+            ]
+        });
+
+        $("#" + this._prefix + "HgmdTraitAssociation").bootstrapTable("destroy");
+        $("#" + this._prefix + "HgmdTraitAssociation").bootstrapTable({
+            data: this.groupedBySource.hgmd,
+            theadClasses: "table-light",
+            buttonsClass: "light",
+            pagination: false,
+            columns: [
+                {
+                    title: "ID",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.idFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Source",
+                    field: "source",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.sourceFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Gene",
+                    field: "genomicFeatures",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.geneFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Heritable Traits",
+                    field: "heritableTraits",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.heritableTraitsFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Mode of Inheritance",
+                    field: "heritableTraits",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.inheritanceModeFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Clinical Significance",
+                    field: "variantClassification",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.clinicalSignificanceFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Origin Type",
+                    field: "alleleOrigin",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.alleleOriginFormatter,
+                    halign: "center"
+                },
             ]
         });
     }
@@ -356,19 +494,27 @@ export default class VariantAnnotationClinicalView extends LitElement {
     render() {
         return html`
             <h3>Variant Trait Association</h3>
-            <h4>ClinVar</h4>
             <div style="padding: 10px">
-                <table id="${this._prefix}VariantTraitAssociation"></table>
-            </div>
+                <h4>ClinVar</h4>
+                <div style="padding: 10px">
+                    ${this.groupedBySource?.clinvar?.length > 0 ? html`
+                    <table id="${this._prefix}ClinvarTraitAssociation"></table>
+                ` : html`<p>No data available</p>`}
+                </div>
 
-            <h4>Cosmic</h4>
-            <div style="padding: 10px">
-                <table id="${this._prefix}VariantTraitAssociation"></table>
-            </div>
+                <h4>Cosmic</h4>
+                <div style="padding: 10px">
+                    ${this.groupedBySource?.cosmic?.length > 0 ? html`
+                    <table id="${this._prefix}CosmicTraitAssociation"></table>
+                ` : html`<p>No data available</p>`}
+                </div>
 
-            <h4>PharmGKB</h4>
-            <div style="padding: 10px">
-                <table id="${this._prefix}VariantTraitAssociation"></table>
+                <h4>HGMD</h4>
+                <div style="padding: 10px">
+                    ${this.groupedBySource?.hgmd?.length > 0 ? html`
+                    <table id="${this._prefix}HgmdTraitAssociation"></table>
+                ` : html`<p>No data available</p>`}
+                </div>
             </div>
         `;
     }
