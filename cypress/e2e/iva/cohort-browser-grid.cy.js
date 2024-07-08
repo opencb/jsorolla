@@ -79,7 +79,7 @@ context("Cohort Browser Grid", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("h4.modal-title")
-                .should("contain.text", "Cohort create");
+                .should("contain.text", "Cohort Create");
         });
         // 3. Render button clear
         it("should render button clear", () => {
