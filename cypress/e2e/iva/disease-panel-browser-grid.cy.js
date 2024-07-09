@@ -75,7 +75,7 @@ context("Disease Panel Browser Grid", () => {
         it("should render create title", () => {
             cy.get("@modal-create")
                 .find("h4.modal-title")
-                .should("contain.text", "Disease panel create");
+                .should("contain.text", "Disease Panel Create");
         });
         // 3. Render button clear
         it("should render button clear", () => {
@@ -127,7 +127,7 @@ context("Disease Panel Browser Grid", () => {
         it("should render update title", () => {
             cy.get("@modal-update")
                 .find("h4.modal-title")
-                .should("contain.text", "Disease panel update");
+                .should("contain.text", "Disease Panel Update");
         });
         // 3. Render button clear
         it("should render button clear", () => {

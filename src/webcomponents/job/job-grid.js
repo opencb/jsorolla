@@ -706,12 +706,13 @@ export default class JobGrid extends LitElement {
                 modalTitle: "Job Retry",
                 modalDraggable: true,
                 modalbtnsVisible: true,
-                modalSize: "modal-lg"
+                modalSize: "modal-lg",
+                okButtonText: "Retry Job",
             },
             render: () => {
                 return html`
                     <div>This will execute a new Job with the same parameters as the original job.
-                        Are you sure do you want to execute again <span style="font-weight: bold">${this.jobRetryObj?.id}</span>?
+                        Are you sure do you want to execute again <b>${this.jobRetryObj?.id}</b>?
                     </div>
                 `;
             },

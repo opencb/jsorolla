@@ -74,7 +74,7 @@ context("Sample Browser Grid", () => {
         it("should render create title", () => {
             cy.get("@modal-create")
                 .find("h4.modal-title")
-                .should("contain.text", "Sample create");
+                .should("contain.text", "Sample Create");
         });
         // 3. Render button clear
         it("should render button clear", () => {
@@ -126,7 +126,7 @@ context("Sample Browser Grid", () => {
         it("should render update title", () => {
             cy.get("@modal-update")
                 .find("h4.modal-title")
-                .should("contain.text", "Sample update");
+                .should("contain.text", "Sample Update");
         });
         // 3. Render button clear
         it("should render button clear", () => {
