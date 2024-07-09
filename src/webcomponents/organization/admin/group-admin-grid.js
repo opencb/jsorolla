@@ -15,14 +15,14 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import GridCommons from "../../commons/grid-commons";
-import UtilsNew from "../../../core/utils-new";
-import ModalUtils from "../../commons/modal/modal-utils";
-import CatalogGridFormatter from "../../commons/catalog-grid-formatter";
+import GridCommons from "../../commons/grid-commons.js";
+import UtilsNew from "../../../core/utils-new.js";
+import ModalUtils from "../../commons/modal/modal-utils.js";
+import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "./group-admin-create.js";
 import "./group-admin-permissions-update.js";
 import "./group-admin-delete.js";
-import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
 
 export default class GroupAdminGrid extends LitElement {
 
@@ -85,7 +85,7 @@ export default class GroupAdminGrid extends LitElement {
             if (this.groups?.length > 0) {
                 this.renderLocalTable();
             }
-            this.requestUpdate();
+            // this.requestUpdate();
         }
     }
 
