@@ -137,7 +137,7 @@ export default class StudyAdminGrid extends LitElement {
                 divider: true,
             },
             "add-users": {
-                label: "Add Users to Study",
+                label: "Manage Users in Study",
                 icon: "fas fa-user-plus",
                 modalId: `${this._prefix}ManageUsersStudyModal`,
                 render: () => this.renderAddUsersStudy(),
