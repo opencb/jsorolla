@@ -32,7 +32,6 @@ context("Individual Browser Grid", () => {
 
     // TOOLBAR
     context("Individual Toolbar", () => {
-
         beforeEach(() => {
             cy.get("@container")
                 .find(`div[data-cy="toolbar"]`)
@@ -59,7 +58,6 @@ context("Individual Browser Grid", () => {
     // MODAL CREATE
     context("Modal Create", () => {
         beforeEach(() => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@container")
                 .find(`button[data-action="create"]`)
                 .click();
@@ -69,44 +67,38 @@ context("Individual Browser Grid", () => {
         });
         // 1. Open modal and render create
         it("should render create modal", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("div.modal-dialog")
                 .should("be.visible");
         });
         // 2. Render title
         it("should render create title", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("h4.modal-title")
                 .should("contain.text", "Individual Create");
         });
         // 3. Render button clear
         it("should render button clear", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .contains("button", "Clear")
                 .should("be.visible");
         });
         // 4. Render button create
         it("should render button create", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .contains("button", "Create")
                 .should("be.visible");
         });
         // 5. Render tabs
         it("should render form tabs", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.greaterThan", 1);
         });
         // 5. Render Sample ID
         it("should have form field ID", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .find(`data-form div.form-horizontal div.row label.col-form-label`)
+                .find(`data-form div.form-horizontal div.row div.col-md-3`)
                 .should("contain.text", "Individual ID");
         });
     });
@@ -157,7 +149,6 @@ context("Individual Browser Grid", () => {
     // MODAL UPDATE
     context("Modal Update", () => {
         beforeEach(() => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@container")
                 .find(`table tbody tr td button.dropdown-toggle`)
                 .first()
@@ -171,44 +162,38 @@ context("Individual Browser Grid", () => {
         });
         // 1. Open modal and render update
         it("should render update modal", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("div.modal-dialog")
                 .should("be.visible");
         });
         // 2. Render title
         it("should render update title", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("h4.modal-title")
                 .should("contain.text", "Individual Update");
         });
         // 3. Render button clear
         it("should render button clear", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .contains("button", "Discard Changes")
                 .should("be.visible");
         });
         // 4. Render button create
         it("should render button create", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .contains("button", "Update")
                 .should("be.visible");
         });
         // 5. Render tabs
         it("should render form tabs", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.greaterThan", 1);
         });
         // 6. Render Sample ID
         it("should have form field ID equal to sample selected", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
-                .find(`data-form div.row div.row label.col-form-label`)
+                .find(`data-form div.row div.row div.col-md-3`)
                 .should("contain.text", "Individual ID");
         });
     });
@@ -400,7 +385,7 @@ context("Individual Browser Grid", () => {
             it("should display 'Extra Column' column", () => {
                 cy.get("thead th")
                     .contains("Extra column")
-                    .should('be.visible');
+                    .should("be.visible");
             });
         });
 

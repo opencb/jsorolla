@@ -206,7 +206,7 @@ export default class CustomWelcome extends LitElement {
                 <!-- Welcome page logo -->
 
                 ${welcomePage?.logo ? html`
-                <div class="text-center">
+                <div class="text-center mt-5">
                     <img
                         alt="${welcomePage.display?.logoAlt || "logo"}"
                         class="${welcomePage.display?.logoClass}"
@@ -219,10 +219,12 @@ export default class CustomWelcome extends LitElement {
 
                 <!-- Welcome page title -->
                 ${welcomePage?.title ? html`
-                    <img src="${welcomePage.appLogo?.img}" height="${welcomePage.appLogo?.height || "40px"}"/>
-                    <h1 class="${welcomePage.display?.titleClass}" style="${welcomePage.display?.titleStyle}">
-                        ${welcomePage.title}
-                    </h1>
+                    <div class="d-flex justify-content-center my-3">
+                        <img src="${welcomePage.appLogo?.img}" height="${welcomePage.appLogo?.height || "40px"}"/>
+                        <h1 class="${welcomePage.display?.titleClass}" style="${welcomePage.display?.titleStyle}">
+                            ${welcomePage.title}
+                        </h1>
+                    </div>
                 `: nothing}
 
                 <!-- Welcome page subtitle -->

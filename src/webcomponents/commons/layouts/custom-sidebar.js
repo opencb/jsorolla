@@ -77,7 +77,7 @@ export default class CustomSidebar extends LitElement {
                             `)}
                         </ul>
                     </div>
-                    <div class="d-flex justify-content-end p-3" style="background-color:#efefef">
+                    <div class="d-flex justify-content-end p-3">
                         <div>
                             <img height="24px" src="${this.config.landingPage?.organisation?.logo?.img}"/>
                         </div>

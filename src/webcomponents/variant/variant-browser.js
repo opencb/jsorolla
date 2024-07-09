@@ -297,7 +297,7 @@ export default class VariantBrowser extends LitElement {
 
         return html`
             <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
-            <div class="d-flex gap-4">
+            <div class="row">
                 <div class="col-2 mb-3">
                     <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onRun}">
@@ -338,7 +338,7 @@ export default class VariantBrowser extends LitElement {
                     </div>
                 </div>
 
-                <div class="flex-grow-1">
+                <div class="col-md-10">
                     <!-- TAB buttons -->
                     <div class="content-pills mb-3" role="toolbar" aria-label="toolbar">
                         <button

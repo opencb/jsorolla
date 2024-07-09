@@ -216,7 +216,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "bottom",
+                paginationVAlign: "both",
                 formatShowingRows: (pageFrom, pageTo, totalRows) => this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
                 detailView: this._config.detailView,
                 detailFormatter: (value, row) => this.detailFormatter(value, row),
