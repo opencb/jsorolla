@@ -15,6 +15,9 @@
  */
 
 import {html, LitElement} from "lit";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "./filters/user-status-filter.js";
 
 export default class UserAdminAdminsChange extends LitElement {
@@ -53,7 +56,6 @@ export default class UserAdminAdminsChange extends LitElement {
         this.userId = "";
         this.displayTitle = "";
         this.displayText = "";
-        this.displaySuccessText = "";
         this.displayConfigDefault = {
             style: "margin: 10px",
             titleWidth: 3,
@@ -96,7 +98,6 @@ export default class UserAdminAdminsChange extends LitElement {
                     successText: `The '${this.userId}' has been successfully added to the list of organisation administrators`,
                 },
             };
-
             this.displayTitle = this.displayMessages[this.action].title;
             this.displayText = this.displayMessages[this.action].text;
             this.displaySuccessText = this.displayMessages[this.action].successText;
@@ -104,18 +105,19 @@ export default class UserAdminAdminsChange extends LitElement {
     }
 
     onSubmit() {
-
         const params = {
             includeResult: true,
-            adminsAction: this.action
+            adminsAction: this.action,
         };
-        // FIXME ****************
-        //  WAITING FOR TASK: https://app.clickup.com/t/36631768/TASK-5979
-        // FIXME \****************
-        /*
+        let admins = this.organization.admins;
+        this.action === "ADD" ? admins.push(this.userId) : admins = [this.userId]; // REMOVE userId from array of admins
+
+        const updateParams = {
+            admins: admins,
+        };
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.organization()
-            .userUpdateStatus(this.user.id, {}, params)
+            .update(this.organization.id, updateParams, params)
             .then(response => {
                 this.user = UtilsNew.objectClone(response.responses[0].results[0]);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -123,6 +125,7 @@ export default class UserAdminAdminsChange extends LitElement {
                     message: this.displaySuccessText,
                 });
                 LitUtils.dispatchCustomEvent(this, "userUpdate", this.user, {});
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", this._study, {});
             })
             .catch(reason => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
@@ -131,7 +134,6 @@ export default class UserAdminAdminsChange extends LitElement {
             .finally(() => {
                 this.#setLoading(false);
             });
-        */
     }
 
     render() {

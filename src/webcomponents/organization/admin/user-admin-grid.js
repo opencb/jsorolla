@@ -20,13 +20,12 @@ import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import ModalUtils from "../../commons/modal/modal-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
-
 import "./user-admin-create.js";
 import "./user-admin-details-update.js";
-// import "./user-admin-password-change.js";
 import "./user-admin-password-reset.js";
 import "./user-admin-status-update.js";
 import "./user-admin-admins-change.js";
+// import "./user-admin-password-change.js";
 
 export default class UserAdminGrid extends LitElement {
 
