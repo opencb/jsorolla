@@ -167,7 +167,6 @@ export default class UserAdminStatusUpdate extends LitElement {
                 LitUtils.dispatchCustomEvent(this, "userUpdate", this.user, {}, error);
                 this.#setLoading(false);
             });
-
     }
 
     render() {
@@ -246,14 +245,14 @@ export default class UserAdminStatusUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 render: (status, dataFormFilterChange) => html `
-                                        <user-status-filter
-                                            .status="${status}"
-                                            .config="${this._config.display?.userStatus}"
-                                            .multiple="${false}"
-                                            .forceSelection=${true}
-                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </user-status-filter>
-                                    `,
+                                    <user-status-filter
+                                        .status="${status}"
+                                        .config="${this._config.display?.userStatus}"
+                                        .multiple="${false}"
+                                        .forceSelection=${true}
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    </user-status-filter>
+                                `,
                             },
                         },
                     ],
