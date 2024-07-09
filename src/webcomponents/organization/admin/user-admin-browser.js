@@ -18,7 +18,6 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "./user-admin-grid.js";
 
 export default class UserAdminBrowser extends LitElement {
@@ -80,6 +79,7 @@ export default class UserAdminBrowser extends LitElement {
         };
     }
 
+    // Vero 09072024 Note: Maintained for future use of this component in the Study Admin
     studyIdObserver() {
         if (this.studyId && this.opencgaSession) {
             let error;
@@ -113,16 +113,6 @@ export default class UserAdminBrowser extends LitElement {
     }
 
     render() {
-        // if (Object.keys(this.users).length === 0) {
-        //     return html `
-        //         <div class="alert alert-info">
-        //             <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-        //             This organization does not have users yet.
-        //             Please create some users.
-        //         </div>
-        //     `;
-        // }
-        // .users="${this.users}"
         return html `
             <!-- 1. Render filter graphics if enabled -->
             ${this.renderFilterGraphics()}
