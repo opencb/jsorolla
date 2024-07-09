@@ -173,7 +173,6 @@ export default class GroupAdminBrowser extends LitElement {
                     LitUtils.dispatchCustomEvent(this, "organizationInfo", this.organization, {}, error);
                     this.#setLoading(false);
                 });
-
         }
     }
 
