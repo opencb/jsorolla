@@ -21,8 +21,6 @@ import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-u
 import ModalUtils from "../../commons/modal/modal-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 
-// import "./study-admin-create.js";
-// import "./study-admin-update.js";
 import "../../study/admin/study-create.js";
 import "../../study/admin/study-update.js";
 import "./study-users-manage.js";
@@ -112,15 +110,7 @@ export default class StudyAdminGrid extends LitElement {
                     modalDraggable: true,
                     modalCyDataName: "modal-study-create",
                     modalSize: "modal-lg"
-                    // disabled: true,
-                    // disabledTooltip: "...",
                 },
-                //     <study-admin-create
-                //         .organization="${this.organization}"
-                //         .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
-                //         .opencgaSession="${this.opencgaSession}"
-                //         @projectCreate="${e => this.renderRemoteTable(e)}">
-                //     </study-admin-create>
                 render: () => html `
                     <study-create
                         .project=${this.project}
@@ -217,7 +207,7 @@ export default class StudyAdminGrid extends LitElement {
                     return result.response;
                 },
                 onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                // onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+                onLoadSuccess: () => UtilsNew.initTooltip(this),
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
             });
         }
@@ -305,13 +295,22 @@ export default class StudyAdminGrid extends LitElement {
     // *** FORMATTERS ***
     groupsFormatter(groups) {
         const groupsBadges = groups.map(group => `
-            <span class="badge" style="background-color: crimson">
-                <strong>${group.id} [${group.userIds.length}]</strong>
+            <span class="mb-1">
+                ${group.id}  [${group.userIds.length}]
             </span>
-        `).join("");
+        `);
 
+        const maxShow = 3;
+        const badgesShow = groupsBadges.splice(0, maxShow);
         return `
-            <div class="">${groupsBadges}</div>
+            <div class="d-flex flex-column align-items-start">
+                ${badgesShow.join("")}
+                ${groupsBadges.length > 0 ? `
+                    <a tooltip-title="GROUPS" tooltip-text='${groupsBadges.join("<br>")}'>
+                        ... View all groups (${groupsBadges.length})
+                    </a>
+                ` : ""}
+            </div>
         `;
     }
 
