@@ -163,9 +163,6 @@ export default class UserAdminDetailsUpdate extends LitElement {
         const updateParams = FormUtils.getUpdateParams(this._user, this.updatedFields, this.updateCustomisation);
 
         this.#setLoading(true);
-        // Fixme: waiting for task:
-        //  https://app.clickup.com/t/36631768/TASK-6013
-        //  PR to approve
         this.opencgaSession.opencgaClient.organization()
             .updateUser(this.userId, updateParams, params)
             .then(response => {
@@ -180,7 +177,6 @@ export default class UserAdminDetailsUpdate extends LitElement {
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
                 LitUtils.dispatchCustomEvent(this, "userUpdateFailed", this.user, {}, error);
-
             })
             .finally(() => {
                 this.#setLoading(false);
