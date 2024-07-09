@@ -1,5 +1,4 @@
 import {html, nothing} from "lit";
-import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils";
 
 export default class ModalUtils {
@@ -40,12 +39,11 @@ export default class ModalUtils {
                 data-cy="${modalCyDataName}"
             >
                 <div class="modal-dialog ${modalSize}" style="width: ${modalWidth}">
-
                     <div class="modal-content">
                         <div class="modal-header">
                             ${ModalUtils.#getTitleHeader(modalTitleHeader, modalTitle, "modal-title " + modalTitleClassName, modalTitleStyle)}
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                                    @click="${e => LitUtils.dispatchCustomEvent(self, "modalClose", null, e)}">
+                                    @click="${e => config?.onCancel ? config.onCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}">
                             </button>
                         </div>
                         <div class="modal-body">
@@ -59,17 +57,17 @@ export default class ModalUtils {
                                     type="button"
                                     class="btn btn-light"
                                     data-bs-dismiss="modal"
-                                    @click="${e => LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}"
+                                    @click="${e => config?.onCancel ? config.onCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}"
                                 >
-                                    Cancel
+                                    ${config?.display?.cancelButtonText || "Cancel"}
                                 </button>
                                 <button
                                     type="button"
                                     class="btn btn-primary"
                                     data-bs-dismiss="modal"
-                                    @click="${e => LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}"
+                                    @click="${e => config?.onOk ? config.onOk(e) : LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}"
                                 >
-                                    Save
+                                    ${config?.display?.okButtonText || "Save"}
                                 </button>
                             </div>
                         `: nothing}
@@ -80,20 +78,19 @@ export default class ModalUtils {
     }
 
     static #getTitleHeader(header, title, classes, style) {
-        const titleCap = UtilsNew.capitalize(title);
         switch (header) {
             case "h1":
-                return html`<h1 class="${classes}" style="${style}">${titleCap}</h1>`;
+                return html`<h1 class="${classes}" style="${style}">${title}</h1>`;
             case "h2":
-                return html`<h2 class="${classes}" style="${style}">${titleCap}</h2>`;
+                return html`<h2 class="${classes}" style="${style}">${title}</h2>`;
             case "h3":
-                return html`<h3 class="${classes}" style="${style}">${titleCap}</h3>`;
+                return html`<h3 class="${classes}" style="${style}">${title}</h3>`;
             case "h4":
-                return html`<h4 class="${classes}" style="${style}">${titleCap}</h4>`;
+                return html`<h4 class="${classes}" style="${style}">${title}</h4>`;
             case "h5":
-                return html`<h5 class="${classes}" style="${style}">${titleCap}</h5>`;
+                return html`<h5 class="${classes}" style="${style}">${title}</h5>`;
             case "h6":
-                return html`<h6 class="${classes}" style="${style}">${titleCap}</h6>`;
+                return html`<h6 class="${classes}" style="${style}">${title}</h6>`;
         }
     }
 
