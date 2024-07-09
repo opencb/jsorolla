@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {LitElement, html, nothing} from "lit";
-import UtilsNew from "../../../core/utils-new";
-import LitUtils from "../../commons/utils/lit-utils";
-import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
+import {LitElement, html} from "lit";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "./group-admin-browser.js";
 import "./user-admin-browser.js";
 import "../../project/projects-admin.js";
@@ -37,9 +35,6 @@ export default class OrganizationAdmin extends LitElement {
 
     static get properties() {
         return {
-            organizationId: {
-                type: String,
-            },
             opencgaSession: {
                 type: Object
             },
@@ -51,53 +46,10 @@ export default class OrganizationAdmin extends LitElement {
         this._activeMenuItem = "";
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-
-    update(changedProperties) {
-        if (changedProperties.has("organizationId") || changedProperties.has("opencgaSession")) {
-            this.organizationIdObserver();
-        }
-
-        super.update(changedProperties);
-    }
-
-    organizationIdObserver() {
-        // FIXME Vero: on creating a new group, for instance,
-        //  the session is updated but the org id does not change.
-        //  I need to get the organization info again to refresh the grid.
-        //  For now, I will query org info only with property opencgaSession change.
-        //  TO think about it.
-        // if (this.organizationId && this.opencgaSession) {
-        if (this.organizationId || this.opencgaSession) {
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.organization()
-                // FIXME Vero: To remove hardcoded organization when the following bug is fixed:
-                //  https://app.clickup.com/t/36631768/TASK-5980
-                // .info(this.organizationId)
-                .info("test")
-                .then(response => {
-                    this.organization = UtilsNew.objectClone(response.responses[0].results[0]);
-                })
-                .catch(reason => {
-                    // this.organization = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    LitUtils.dispatchCustomEvent(this, "organizationInfo", this.organization, {}, error);
-                    this.#setLoading(false);
-                });
-        }
-    }
-
     // --- RENDER METHOD  ---
     render() {
-        if (this.opencgaSession && this.organization) {
-            if (!OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id)) {
+        if (this.opencgaSession?.organization) {
+            if (!OpencgaCatalogUtils.isOrganizationAdminOwner(this.opencgaSession.organization, this.opencgaSession.user.id)) {
                 return html `
                     <div class="d-flex flex-column align-items-center justify-content-center">
                         <h1 class="display-1"><i class="far fa-smile-wink me-4"></i>Restricted Access</h1>
@@ -109,7 +61,7 @@ export default class OrganizationAdmin extends LitElement {
             return html `
                 <!-- <tool-header class="page-title-no-margin" title="$this._config.name}" icon="$this._config.icon}"></tool-header>-->
                 <custom-vertical-navbar
-                    .organization="${this.organization}"
+                    .organization="${this.opencgaSession.organization}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config}"
                     .activeMenuItem="${this._activeMenuItem}">
@@ -134,7 +86,7 @@ export default class OrganizationAdmin extends LitElement {
                         name: "Dashboard (Coming soon)",
                         icon: "fas fa-vial",
                         visibility: "private",
-                        render: (opencgaSession, organization) => html``,
+                        render: () => html``,
                     },
                     // TODO
                     {
@@ -143,7 +95,7 @@ export default class OrganizationAdmin extends LitElement {
                         type: "category",
                         icon: "fas fa-vial",
                         visibility: "private",
-                        render: (opencgaSession, organization) => html``,
+                        render: () => html``,
                     },
                 ],
             },
@@ -155,18 +107,20 @@ export default class OrganizationAdmin extends LitElement {
                 featured: "", // true | false
                 visibility: "private",
                 submenu: [
-                    // {
-                    //     id: "groups",
-                    //     name: "Groups",
-                    //     icon: "fas fa-vial",
-                    //     visibility: "private",
-                    //     render: (opencgaSession, organization) => html`
-                    //         <group-admin-browser
-                    //             .organization="${organization}"
-                    //             .opencgaSession="${opencgaSession}">
-                    //         </group-admin-browser>
-                    //     `,
-                    // },
+                    /* Vero Note: Maintained for future use in Organization Admin
+                    {
+                        id: "groups",
+                        name: "Groups",
+                        icon: "fas fa-vial",
+                        visibility: "private",
+                        render: (opencgaSession, organization) => html`
+                            <group-admin-browser
+                                .organization="${organization}"
+                                .opencgaSession="${opencgaSession}">
+                            </group-admin-browser>
+                        `,
+                    },
+                     */
                     {
                         id: "users",
                         name: "Users",
@@ -217,13 +171,15 @@ export default class OrganizationAdmin extends LitElement {
                             `;
                         },
                     },
-                    // {
-                    //     id: "optimization",
-                    //     name: "Optimizations",
-                    //     icon: "fas fa-vial",
-                    //     visibility: "private",
-                    //     render: (opencgaSession, study) => html``,
-                    // },
+                    /*
+                    {
+                        id: "optimization",
+                        name: "Optimizations",
+                        icon: "fas fa-vial",
+                        visibility: "private",
+                        render: (opencgaSession, study) => html``,
+                    },
+                     */
                 ],
             },
         ];
