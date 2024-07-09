@@ -159,27 +159,30 @@ export default class StudyAdminUsers extends LitElement {
     }
 
     groupFormatter(value, row) {
-        // const isOwner = this.field.owner === this.field.loggedUser;
-        // FIXME!!: admin/owner organization or/and admin study. Check with Pedro again
-        const isOwner = OpencgaCatalogUtils.checkUserAccountView(this.field.owner, this.field.loggedUser);
+        // FIXME!!: admin/owner organization or/and admin study.
+        //  Study Admin: right now, study admin can not add/remove admins. Check with Pedro again
+        // const isOwner = OpencgaCatalogUtils.checkUserAccountView(this.field.owner, this.field.loggedUser);
+        const isOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdminOwner(this.field.opencgaSession.organization, row.id);
+        const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.field.study, row.id);
+        const loggedUserIsStudyAdmin = OpencgaCatalogUtils.isAdmin(this.field.study, this.field.loggedUser);
         const checked = this.field.groupsMap?.get(this.field.groupId).findIndex(e => e.id === row.id) !== -1;
         if (this.field.groupId === "@admins") {
             // return `<input type="checkbox" ${checked ? "checked" : ""} ${!isOwner ? "disabled" : ""}>`;
-            return `
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" ?checked="${checked}" ?disabled="${!isOwner}">
-                    <label class="form-check-label"></label>
-                </div>
-            `;
+            return `<input type="checkbox" ${checked ? "checked" : ""} ${isOrganizationAdmin || loggedUserIsStudyAdmin ? "disabled" : ""}>`;
         } else {
             // return `<input type="checkbox" ${checked ? "checked" : ""} ${row.id === this.field.owner ? "disabled" : ""}>`;
-            return `
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" ?checked="${checked}" ?disabled="${row.id === this.field.owner}">
-                    <label class="form-check-label"></label>
-                </div>
-            `;
+            return `<input type="checkbox" ${checked ? "checked" : ""} ${isStudyAdmin ? "disabled" : ""}>`;
         }
+        // Todo: the checked attribute is not working. Investigate why and fix
+        // return `
+        //         <div class="form-check form-switch">
+        //             <input
+        //                 class="form-check-input"
+        //                 type="checkbox"
+        //                 ?checked="${checked}"
+        //                 ?disabled="${this.field.groupId === "@admins" ? (isOrganizationAdmin || loggedUserIsStudyAdmin) : isStudyAdmin}">
+        //         </div>
+        //     `;
     }
 
     async onCheck(e, value, row, group, context) {
@@ -204,9 +207,8 @@ export default class StudyAdminUsers extends LitElement {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 message: messageAlert,
             });
-            // this.notifyStudyUpdateRequest();
             LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
-            this.requestUpdate();
+            // this.requestUpdate();
         } catch (error) {
             // console.error("Message error: ", error);
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -227,7 +229,10 @@ export default class StudyAdminUsers extends LitElement {
                             groupId: group,
                             groupsMap: this.groupsMap,
                             owner: this.owner,
-                            loggedUser: this.opencgaSession?.user?.id
+                            loggedUser: this.opencgaSession?.user?.id,
+                            // Terrible two hacks for having access to the organization
+                            opencgaSession: this.opencgaSession,
+                            study: this.study,
                         },
                         rowspan: 1,
                         colspan: 1,
@@ -358,18 +363,9 @@ export default class StudyAdminUsers extends LitElement {
         this.opencgaSession.opencgaClient.studies()
             // .updateUsers(this.study.fqn, "@members", {users: [this.addUserId]}, {action: "ADD"})
             .updateAcl(this.addUserId, {action: "ADD"}, params)
-            .then(res => {
+            .then(() => {
                 this.addUserId = "";
-                this.requestUpdate();
-
-                this.dispatchEvent(new CustomEvent("studyUpdateRequest", {
-                    detail: {
-                        value: this.study.fqn
-                    },
-                    bubbles: true,
-                    composed: true
-                }));
-
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: "User added.",
                 });
@@ -395,19 +391,30 @@ export default class StudyAdminUsers extends LitElement {
     onRemoveUserTest(e, row) {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
             title: `Remove user '${row.id}'`,
-            message: `Are you sure you want to remove user <b>'${row.id}'</b>?`,
+            message: `Are you sure you want to remove user <b>'${row.id}'</b> from the study ${this.study.fqn}?`,
             display: {
                 okButtonText: "Yes, remove user",
             },
             ok: () => {
-                this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members", {users: [row.id]}, {action: "REMOVE"})
+                // this.opencgaSession.opencgaClient.studies()
+                //     .updateUsers(this.study.fqn, "@members", {users: [row.id]}, {action: "REMOVE"})
+                const params= {
+                    includeResult: true,
+                    action: "REMOVE",
+                };
+                const data = {
+                    users: [row.id],
+                };
+                this.opencgaSession.opencgaClient.studies()
+                    .updateGroupsUsers(this.study.fqn, "@members", data, params)
                     .then(() => {
-                        this.requestUpdate();
                         LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
-                        this.requestUpdate();
-
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             message: "User removed",
+                        });
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            title: `User in Group Update`,
+                            message: `User ${row.id} REMOVED from @members in study ${this.study.id} correctly`,
                         });
                     }).catch(err => {
                         console.error(err);
@@ -425,16 +432,8 @@ export default class StudyAdminUsers extends LitElement {
         this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members", {users: userIds}, {action: "REMOVE"})
             .then(res => {
                 this.removeUserSet = new Set();
-                this.requestUpdate();
-
-                this.dispatchEvent(new CustomEvent("studyUpdateRequest", {
-                    detail: {
-                        value: this.study.fqn
-                    },
-                    bubbles: true,
-                    composed: true
-                }));
-
+                // this.requestUpdate();
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: "User removed",
                 });
@@ -458,8 +457,7 @@ export default class StudyAdminUsers extends LitElement {
         this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, {id: this.addGroupId}, {action: "ADD"})
             .then(res => {
                 this.addGroupId = "";
-                this.requestUpdate();
-                // this.notifyStudyUpdateRequest();
+                // this.requestUpdate();
                 LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
 
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -514,20 +512,8 @@ export default class StudyAdminUsers extends LitElement {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
             message: messageAlert,
         });
-
-        // this.notifyStudyUpdateRequest();
         LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
-        this.requestUpdate();
-    }
-
-    notifyStudyUpdateRequest() {
-        this.dispatchEvent(new CustomEvent("studyUpdateRequest", {
-            detail: {
-                value: this.study.fqn
-            },
-            bubbles: true,
-            composed: true
-        }));
+        // this.requestUpdate();
     }
 
     render() {
@@ -565,9 +551,16 @@ export default class StudyAdminUsers extends LitElement {
                     <div class="row row-cols-lg-auto g-3 align-items-center">
                         <!-- ADD USER -->
                         <div class="dropdown">
-                            <button class="btn btn-light dropdown-toggle" type="button" id="${this._prefix}AddUserMenu" data-bs-toggle="dropdown"
-                                data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false" title="Add new user to ${this.study?.name} study">
-                                <i class="fas fa-user me-1" aria-hidden="true"></i> Add User
+                            <button
+                                class="btn btn-light dropdown-toggle"
+                                type="button"
+                                id="${this._prefix}AddUserMenu"
+                                data-bs-toggle="dropdown"
+                                data-bs-auto-close="outside"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                                title="Add new user to ${this.study?.name} study">
+                                    <i class="fas fa-user me-1" aria-hidden="true"></i> Add User
                             </button>
                             <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="${this._prefix}AddUserMenu" style="width: 320px">
                                 <div class="mb-3">
@@ -579,11 +572,17 @@ export default class StudyAdminUsers extends LitElement {
                                     </text-field-filter>
                                 </div>
                                 <div class="d-flex justify-content-end gap-1">
-                                    <button type="button" class="btn btn-primary ${this.addUserId?.length > 0 ? "" : "disabled"}"
-                                            @click="${this.onUserAdd}">Add
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary ${this.addUserId?.length > 0 ? "" : "disabled"}"
+                                        @click="${this.onUserAdd}">
+                                            Add
                                     </button>
-                                    <button type="button" class="btn btn-secondary ${this.addUserId?.length > 0 ? "" : "disabled"}"
-                                            @click="${e => this.onUserAddFieldChange(e, true)}">Cancel
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary ${this.addUserId?.length > 0 ? "" : "disabled"}"
+                                        @click="${e => this.onUserAddFieldChange(e, true)}">
+                                            Cancel
                                     </button>
                                 </div>
                             </div>
@@ -591,25 +590,39 @@ export default class StudyAdminUsers extends LitElement {
 
                         <!-- ADD GROUP -->
                         <div class="dropdown">
-                            <button class="btn btn-light dropdown-toggle" type="button" id="${this._prefix}AddGroupMenu" data-bs-toggle="dropdown"
-                                    aria-haspopup="true" aria-expanded="false" title="Add new group to ${this.study?.name} study">
-                                <i class="fas fa-user-friends me-1" aria-hidden="true"></i> Create a Group
+                            <button
+                                class="btn btn-light dropdown-toggle"
+                                type="button"
+                                id="${this._prefix}AddGroupMenu"
+                                data-bs-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                                title="Add new group to ${this.study?.name} study">
+                                    <i class="fas fa-user-friends me-1" aria-hidden="true"></i>
+                                    Create a Group
                             </button>
                             <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="${this._prefix}AddGroupMenu" style="width: 320px">
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">New Group ID</label>
                                     <text-field-filter
-                                            .value="${this.addGroupId}"
-                                            placeholder="new group ID..."
-                                            @filterChange="${e => this.onAddGroupFieldChange(e)}">
+                                        .value="${this.addGroupId}"
+                                        placeholder="new group ID..."
+                                        @filterChange="${e => this.onAddGroupFieldChange(e)}">
                                     </text-field-filter>
                                 </div>
                                 <div class="d-flex justify-content-end gap-1">
-                                    <button type="button" class="btn btn-primary ${this.addGroupId?.length > 0 ? "" : "disabled"}"
-                                            @click="${this.onGroupAdd}">Add
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary ${this.addGroupId?.length > 0 ? "" : "disabled"}"
+                                        @click="${this.onGroupAdd}">
+                                            Add
                                     </button>
-                                    <button type="button" class="btn btn-secondary ${this.addGroupId?.length > 0 ? "" : "disabled"}"
-                                            @click="${e => this.onAddGroupFieldChange(e, true)}" style="margin: 0px 5px">Cancel
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary ${this.addGroupId?.length > 0 ? "" : "disabled"}"
+                                        @click="${e => this.onAddGroupFieldChange(e, true)}"
+                                        style="margin: 0 5px">
+                                            Cancel
                                     </button>
                                 </div>
                             </div>
@@ -617,10 +630,16 @@ export default class StudyAdminUsers extends LitElement {
 
                         <!-- DELETE GROUP -->
                         <div class="dropdown">
-                            <button type="button" id="${this._prefix}DeleteGroupMenu" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
-                                    aria-haspopup="true" aria-expanded="false" title="Delete group from ${this.study?.name} study">
-                                <i class="fas fa-user-slash" aria-hidden="true"></i>
-                                <i class="fas fa-user-slash me-1" aria-hidden="true"></i> Delete Group
+                            <button
+                                type="button"
+                                id="${this._prefix}DeleteGroupMenu"
+                                class="btn btn-light dropdown-toggle"
+                                data-bs-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                                title="Delete group from ${this.study?.name} study">
+                                    <i class="fas fa-user-slash" aria-hidden="true"></i>
+                                    <i class="fas fa-user-slash me-1" aria-hidden="true"></i> Delete Group
                             </button>
                             <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="${this._prefix}DeleteGroupMenu" style="width: 320px">
                                 <div class="mb-3">
@@ -632,19 +651,31 @@ export default class StudyAdminUsers extends LitElement {
                                             .filter(group => group !== "@members" && group !== "@admins") // we cannot remove the @member
                                             .map((group, idx) => html`
                                             <div class="form-check">
-                                                <input class="form-check-input" id="check${group}-${idx}" type="checkbox" value="${group}"
-                                                        ?checked="${this.removeGroupSet?.has(group)}" @click="${this.onGroupRemoveFieldChange}">
+                                                <input
+                                                    class="form-check-input"
+                                                    id="check${group}-${idx}"
+                                                    type="checkbox"
+                                                    value="${group}"
+                                                    .checked="${this.removeGroupSet?.has(group)}"
+                                                    @click="${this.onGroupRemoveFieldChange}">
                                                 <label class="form-check-label" for="check${group}-${idx}">${group}</label>
                                             </div>
                                         `)
                                     }
                                 </div>
                                 <div class="d-flex justify-content-end gap-1">
-                                    <button type="button" class="btn btn-danger ${this.removeGroupSet?.size > 0 ? "" : "disabled"}"
-                                            @click="${this.onGroupRemove}">Remove
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger ${this.removeGroupSet?.size > 0 ? "" : "disabled"}"
+                                        @click="${this.onGroupRemove}">
+                                            Remove
                                     </button>
-                                    <button type="button" class="btn btn-secondary ${this.removeGroupSet?.size > 0 ? "" : "disabled"}"
-                                            @click="${e => this.onGroupRemoveFieldChange(e, true)}" style="margin: 0px 5px">Cancel
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary ${this.removeGroupSet?.size > 0 ? "" : "disabled"}"
+                                        @click="${e => this.onGroupRemoveFieldChange(e, true)}"
+                                        style="margin: 0px 5px">
+                                            Cancel
                                     </button>
                                 </div>
                             </div>
