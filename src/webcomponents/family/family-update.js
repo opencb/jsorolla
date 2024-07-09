@@ -121,8 +121,7 @@ export default class FamilyUpdate extends LitElement {
                                         members?.map(member => member.id).join(",") : members;
                                     const handleSamplesFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
-                                        const memberList = e.detail.value
-                                            ?.split(",")
+                                        const memberList = (e.detail?.value?.split(",") || [])
                                             .filter(memberId => memberId)
                                             .map(memberId => ({id: memberId}));
                                         dataFormFilterChange(memberList);
