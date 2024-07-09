@@ -17,8 +17,7 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
-import UtilsNew from "../../../core/utils-new";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class UserAdminCreate extends LitElement {
 
@@ -206,7 +205,6 @@ export default class UserAdminCreate extends LitElement {
                                 helpMessage: "Coming soon: Required user action for changing password.",
                             },
                         },
-
                     ],
                 },
             ],
