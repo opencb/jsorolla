@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import FormUtils from "../../commons/forms/form-utils";
@@ -134,9 +134,8 @@ export default class StudyUsersManage extends LitElement {
             this._userGroupUpdates = this._userGroupUpdates.filter((update => selectedGroupIds.includes(update.groupId)));
         }
         if (param === "selectedUsers") {
-            const selectedUsersIds = this._component.selectedUsers?.map(user => user.id);
             // If a user has been removed, remove possible updates stored in the array of changes
-            this._userGroupUpdates = this._userGroupUpdates.filter((update => selectedUsersIds.includes(update.userId)));
+            this._userGroupUpdates = this._userGroupUpdates.filter((update => this._component.selectedUsers.includes(update.userId)));
         }
         this._config = this.getDefaultConfig();
         this.requestUpdate();
@@ -194,6 +193,7 @@ export default class StudyUsersManage extends LitElement {
                 LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", {});
             });
     }
+
     onUserGroupChange(e, userId, groupId) {
         const pos = this._findChangePosition(userId, groupId);
         if (pos >= 0) {
@@ -218,30 +218,34 @@ export default class StudyUsersManage extends LitElement {
             .findIndex(update => update.userId === userId && update.groupId === groupId);
     }
 
-    _findCurrentValue(userId, groupId, original) {
+    _findCurrentValue(userId, groupId) {
+        // 1. Check if this user has been added/removed from this group
         const change = this._userGroupUpdates
             .find(update => update.userId === userId && update.groupId === groupId);
         if (change) {
             return change.isChecked;
         }
-
-        return original;
+        // 2. If not, check if the user was initially on this group
+        const group = this._selectedGroups.find(group => group.id === groupId);
+        return group.userIds.includes(userId);
     }
 
     // --- RENDER ---
     render() {
-        if (this.study) {
-            return html`
-                <data-form
-                    .data="${this._component}"
-                    .config="${this._config}"
-                    .updateParams="${this.updatedFields}"
-                    @fieldChange="${e => this.onFieldChange(e)}"
-                    @clear="${e => this.onClear(e)}"
-                    @submit="${e => this.onSubmit(e)}">
-                </data-form>
-            `;
+        if (!this.study) {
+            return nothing;
         }
+
+        return html`
+            <data-form
+                .data="${this._component}"
+                .config="${this._config}"
+                .updateParams="${this.updatedFields}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${e => this.onClear(e)}"
+                @submit="${e => this.onSubmit(e)}">
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
@@ -250,13 +254,9 @@ export default class StudyUsersManage extends LitElement {
                 description: `This interface allows you to simultaneously manage multiple users in multiple groups within the selected study.
                 Please note that adding a user to the special group @members will only grant them access to the metadata of the study.
                 However, once users are in the @members group, Study Administrators can grant them additional permissions
-                at the study level or within specific groups`,
+                at the study level or within specific groups.`,
                 display: {
-                    // titleHeader: "",
-                    // titleStyle: "",
                     descriptionClassName: "d-block text-secondary",
-                    // descriptionStyle: "",
-                    // visible: () =>
                 },
                 elements: [
                     {
@@ -280,35 +280,22 @@ export default class StudyUsersManage extends LitElement {
                         display: {
                             visible: this._selectedGroups?.length > 0,
                             render: (users, dataFormFilterChange, updateParams) => {
-                                const userIds = Array.isArray(users) ?
-                                    users?.map(user => user.id).join(",") :
-                                    users;
+                                const userIds = (users || []).join(",");
                                 const handleUsersFilterChange = e => {
                                     // We need to convert value from a string with commas to an array of IDs
-                                    // eslint-disable-next-line no-param-reassign
-                                    const userList = (e.detail.value?.split(",") || [])
-                                        .filter(userId => userId)
-                                        .map(userId => ({
-                                            id: userId,
-                                            groups: this._selectedGroups.reduce((acc, group) => {
-                                                return {
-                                                    ...acc,
-                                                    [group.id]: group.userIds.includes(userId),
-                                                };
-                                            }, {}),
-                                        }));
+                                    const userList = (e.detail.value?.split(",") || []);
                                     dataFormFilterChange(userList);
                                 };
                                 return html`
-                                        <catalog-search-autocomplete
-                                            .value="${userIds}"
-                                            .resource="${"USERS"}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .classes="${updateParams?.users ? "selection-updated" : ""}"
-                                            .config="${{multiple: true}}"
-                                            @filterChange="${e => handleUsersFilterChange(e)}">
-                                        </catalog-search-autocomplete>
-                                    `;
+                                    <catalog-search-autocomplete
+                                        .value="${userIds}"
+                                        .resource="${"USERS"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .classes="${updateParams?.users ? "selection-updated" : ""}"
+                                        .config="${{multiple: true}}"
+                                        @filterChange="${e => handleUsersFilterChange(e)}">
+                                    </catalog-search-autocomplete>
+                                `;
                             },
                         },
                     },
@@ -316,10 +303,7 @@ export default class StudyUsersManage extends LitElement {
             },
             {
                 display: {
-                    // titleHeader: "",
-                    // titleStyle: "",
                     descriptionClassName: "d-block text-secondary",
-                    // descriptionStyle: "",
                     visible: data => data?.selectedGroups !== "" && data?.selectedUsers?.length > 0,
                 },
                 elements: [
@@ -333,25 +317,26 @@ export default class StudyUsersManage extends LitElement {
                                 {
                                     id: "id",
                                     title: "User Id",
-                                    field: "id",
+                                    type: "custom",
+                                    display: {
+                                        render: (value, update, params, data, row) => row,
+                                    },
                                 },
                                 ...this._selectedGroups?.map(group => ({
                                     id: group.id,
                                     title: group.id,
-                                    field: `groups.${group.id}`,
                                     type: "custom",
                                     display: {
                                         helpMessage: "",
                                         render: (checked, dataFormFilterChange, updateParams, data, row) => {
-                                            // console.log(JSON.stringify(this._userGroupUpdates, null, 2));
                                             return html`
                                                 <div class="form-check form-switch">
                                                     <input
                                                         class="form-check-input"
                                                         type="checkbox"
-                                                        .checked="${this._findCurrentValue(row.id, group.id, checked)}"
-                                                        @click="${e => this.onUserGroupChange(e, row.id, group.id)}">
-                                                    ${this._findChangePosition(row.id, group.id) >= 0 ? html`<span style="color: darkorange">*</span>` : ""}
+                                                        .checked="${this._findCurrentValue(row, group.id)}"
+                                                        @click="${e => this.onUserGroupChange(e, row, group.id)}">
+                                                    ${this._findChangePosition(row, group.id) >= 0 ? html`<span style="color: darkorange">*</span>` : ""}
                                                 </div>
                                             `;
                                         }
