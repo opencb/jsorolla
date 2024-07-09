@@ -2017,7 +2017,7 @@ class IvaApp extends LitElement {
                     <tool-header title="Organisation Admin: ${this.opencgaSession?.user?.organization}" icon="${"fas fa-sitemap"}"></tool-header>
                     <div id="organization-admin">
                         <organization-admin
-                            .organizationId="${this.opencgaSession?.user?.organization}"
+                            .organization="${this.opencgaSession?.organization}"
                             .opencgaSession="${this.opencgaSession}"
                             @studyUpdateRequest="${this.onStudyUpdateRequest}"
                             @sessionUpdateRequest="${this.onSessionUpdateRequest}">
