@@ -70,9 +70,7 @@ export default class UserAdminPasswordReset extends LitElement {
             text: "Some changes have been done in the form. Not saved changes will be lost",
             type: "notification",
             display: {
-                visible: () => {
-                    return UtilsNew.isNotEmpty(this.updatedFields);
-                },
+                visible: () => UtilsNew.isNotEmpty(this.updatedFields),
                 notificationType: "warning",
             },
         };
@@ -121,7 +119,6 @@ export default class UserAdminPasswordReset extends LitElement {
     }
 
     render() {
-        debugger
         return html `
             <detail-tabs
                 .data="${this._user}"
@@ -147,42 +144,11 @@ export default class UserAdminPasswordReset extends LitElement {
                                 .opencgaSession="${opencgaSession}"
                                 .displayConfig="${{titleVisible: false}}">
                             </user-password-reset>
-                            `;
+                        `;
                     }
                 },
             ],
         };
-
-        /*
-        return {
-            icon: "fas fa-edit",
-            buttons: {
-                clearText: "Discard Changes",
-                okText: "Update",
-            },
-            display: this.displayConfig,
-            sections: [
-                {
-                    title: "Credentials",
-                    elements: [
-                        {
-                            title: "Reset password hola",
-                            type: "custom",
-                            display: {
-                                titleVisible: false,
-                                render: (data, active, opencgaSession) => html`
-                                    <user-password-reset
-                                        .opencgaSession="${opencgaSession}">
-                                    </user-password-reset>
-                                `,
-                            },
-                        },
-                    ],
-                },
-
-            ],
-        };
-         */
     }
 
 }
