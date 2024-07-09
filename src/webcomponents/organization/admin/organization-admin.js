@@ -185,15 +185,6 @@ export default class OrganizationAdmin extends LitElement {
                         icon: "fas fa-project-diagram",
                         visibility: "private",
                         render: (opencgaSession, organization) => {
-                            /*
-                            return html`
-                                <div id="projects-admin">
-                                    <projects-admin
-                                        .opencgaSession="${this.opencgaSession}">
-                                    </projects-admin>
-                                </div>
-                            `;
-                            */
                             return html`
                                 <project-admin-browser
                                     .organization="${organization}"
