@@ -184,6 +184,7 @@ export default class ProjectAdminBrowser extends LitElement {
                         }
                     </div>
                 </div>
+                <!-- TODO Vero: structure the following divs 2 to 4 properly  -->
                 <!-- 2. Render project fqn -->
                 <div style="font-size: medium; color: #7f7f7f; margin-right: 1em">
                     ${project.fqn}
@@ -209,7 +210,7 @@ export default class ProjectAdminBrowser extends LitElement {
                         </span>
                     </div>
                 </div>
-                <!-- 3. Render studies grid -->
+                <!-- 5. Render studies grid -->
                 <study-admin-grid
                     .toolId="${this.COMPONENT_ID}"
                     .project="${project}"
