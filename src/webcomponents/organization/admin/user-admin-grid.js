@@ -124,7 +124,7 @@ export default class UserAdminGrid extends LitElement {
                 render: () => html `
                     <user-admin-create
                         .organization="${this.organization}"
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
                         .opencgaSession="${this.opencgaSession}"
                         @userCreate="${e => this.renderRemoteTable(e)}">
                     </user-admin-create>`

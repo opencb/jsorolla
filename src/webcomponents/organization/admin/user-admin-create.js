@@ -46,7 +46,7 @@ export default class UserAdminCreate extends LitElement {
     }
 
     #init() {
-        this.user = {};
+        this._user = {};
         this.isLoading = false;
         this.displayConfigDefault = {
             style: "margin: 10px",
@@ -58,8 +58,9 @@ export default class UserAdminCreate extends LitElement {
     }
 
     #initOriginalObjects() {
-        this.user = {};
+        this._user = {};
         this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     #setLoading(value) {
@@ -85,12 +86,15 @@ export default class UserAdminCreate extends LitElement {
     }
 
     onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        // 1. Update user id
-        if (param === "id") {
-            // TODO 20240325 Vero: verify user id does not exist
-            this.user.id = e.detail.data.id;
-        }
+        this._user = {...e.detail.data}; // force to refresh the object-list
+        debugger
+
+        // const param = field || e.detail.param;
+        // // 1. Update user id
+        // if (param === "id") {
+        //     // TODO 20240325 Vero: verify user id does not exist
+        //     this.user.id = e.detail.data.id;
+        // }
         // 2. Update the list of studies
         this.requestUpdate();
     }
@@ -100,7 +104,7 @@ export default class UserAdminCreate extends LitElement {
             title: "Clear user",
             message: "Are you sure to clear?",
             ok: () => {
-                this.user = {};
+                this._user = {};
                 this._config = this.getDefaultConfig();
                 this.requestUpdate();
             },
@@ -108,28 +112,29 @@ export default class UserAdminCreate extends LitElement {
     }
 
     onSubmit() {
-        this.#setLoading(true);
-        this.user.organization = this.organization.id;
-        let error = {};
-        let newUser = {};
+        // Prepare object to be submitted
+        this._user.organization = this.organization.id;
+        delete this._user.confirmPassword;
+
         // CAUTION:
         //  - POST admin/users/create or
         //  - POST users/create ?
+        this.#setLoading(true);
         this.opencgaSession.opencgaClient.users()
-            .create(this.user)
+            .create(this._user)
             .then(response => {
-                newUser = UtilsNew.objectClone(response.responses[0].results[0]);
+                const newUser = UtilsNew.objectClone(response.responses[0].results[0]);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: `User Create`,
                     message: `User ${newUser.id} created in organization ${this.organization.id} successfully`,
                 });
+                LitUtils.dispatchCustomEvent(this, "userCreate", newUser, {});
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", newUser, {});
             })
             .catch(reason => {
-                error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "userCreate", newUser, {}, error);
                 this.#initOriginalObjects();
                 this.#setLoading(false);
             });
@@ -142,7 +147,7 @@ export default class UserAdminCreate extends LitElement {
 
         return html`
             <data-form
-                .data="${this.user}"
+                .data="${this._user}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
@@ -188,11 +193,28 @@ export default class UserAdminCreate extends LitElement {
                             field: "password",
                             type: "input-password",
                             required: true,
+                            validation: {
+                                validate: (value, user) => !!user.password,
+                                message: "The user password can not be empty.",
+                            },
                             display: {
                                 helpMessage: `
                                     Type a strong password of a minimum length of 8 characters, combining at least:
                                     1 upper-case letter, 1 lower-case letter, 1 digit, and 1 special character.
                                 `,
+                            },
+                        },
+                        {
+                            title: "Confirm user password",
+                            field: "confirmPassword",
+                            type: "input-password",
+                            required: true,
+                            defaultValue: "",
+                            validation: {
+                                validate: (value, user) => {
+                                    return !!user.confirmPassword && user.confirmPassword === user.password;
+                                },
+                                message: "The user passwords do not match.",
                             },
                         },
                         {
