@@ -191,8 +191,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                                     const panelLock = !!this.clinicalAnalysis?.panelLock;
                                     const panelList = panelLock ? this.clinicalAnalysis?.panels : this.opencgaSession.study?.panels;
                                     const handlePanelsFilterChange = e => {
-                                        const panelList = e.detail.value
-                                            ?.split(",")
+                                        const panelList = (e.detail?.value?.split(",") || [])
                                             .filter(panelId => panelId)
                                             .map(panelId => ({id: panelId}));
                                         dataFormFilterChange(panelList);
