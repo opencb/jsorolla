@@ -63,6 +63,9 @@ export default class VariantAnnotationClinicalView extends LitElement {
         if (changedProperties.has("variantId")) {
             this.variantIdObserver();
         }
+        if (changedProperties.has("traitAssociation")) {
+            this.traitAssociationObserver();
+        }
         super.update(changedProperties);
     }
 
@@ -253,10 +256,6 @@ export default class VariantAnnotationClinicalView extends LitElement {
     }
 
     renderVariantTraitTable() {
-        if (!this.traitAssociation) {
-            this.traitAssociation = [];
-        }
-
         $("#" + this._prefix + "ClinvarTraitAssociation").bootstrapTable("destroy");
         $("#" + this._prefix + "ClinvarTraitAssociation").bootstrapTable({
             data: this.groupedBySource.clinvar,
