@@ -954,9 +954,6 @@ export default class DataForm extends LitElement {
     _createToggleSwitchElement(element) {
         const value = this.getValue(element.field);
         const disabled = this._getBooleanValue(element.display?.disabled, false, element);
-        const activeClassName = element.display?.activeClassName ?? element.display?.activeClass ?? "";
-        const inactiveClassName = element.display?.inactiveClassName ?? element.display?.inactiveClass ?? "";
-
         const content = html`
             <div class="">
                 <toggle-switch
@@ -964,8 +961,6 @@ export default class DataForm extends LitElement {
                     .value="${value}"
                     .onText="${element.display?.onText}"
                     .offText="${element.display?.offText}"
-                    .activeClass="${activeClassName}"
-                    .inactiveClass="${inactiveClassName}"
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
                     @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
                 </toggle-switch>
@@ -973,7 +968,6 @@ export default class DataForm extends LitElement {
         `;
 
         return this._createElementTemplate(element, value, content);
-
     }
 
     _createToggleButtonsElement(element) {
