@@ -48,7 +48,7 @@ export default class DiseasePanelFilter extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -97,7 +97,7 @@ export default class DiseasePanelFilter extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.query = {};
         this.genes = [];
         // this.panelFeatureType = "";
@@ -203,7 +203,7 @@ export default class DiseasePanelFilter extends LitElement {
         return html`
             <!-- Only show the title when all filters are displayed -->
             <div class="mb-3">
-                <div class="mb-2">
+                <div class="mb-3">
                     ${this.showExtendedFilters ? html`
                         <label class="form-label">
                             Select Disease Panels
@@ -233,7 +233,7 @@ export default class DiseasePanelFilter extends LitElement {
             }
 
             ${this.showExtendedFilters ? html`
-                <div class="mb-2">
+                <div class="mb-3">
                     <label class="form-label">
                         Panel Intersection
                     </label>
@@ -249,7 +249,7 @@ export default class DiseasePanelFilter extends LitElement {
                     </div>
                 </div>
 
-                <div class="mb-2">
+                <div class="mb-3">
                     <label class="form-label">
                         Filter by Feature Type
                     </label>
@@ -264,7 +264,7 @@ export default class DiseasePanelFilter extends LitElement {
                     </select-field-filter>
                 </div>
 
-                <div class="mb-2">
+                <div class="mb-3">
                     <label class="form-label">
                         Filter Genes by Mode of Inheritance
                     </label>
@@ -279,7 +279,7 @@ export default class DiseasePanelFilter extends LitElement {
                     </select-field-filter>
                 </div>
 
-                <div class="mb-2">
+                <div class="mb-3">
                     <label class="form-label">
                         Filter Genes by Confidence
                     </label>
@@ -294,7 +294,7 @@ export default class DiseasePanelFilter extends LitElement {
                     </select-field-filter>
                 </div>
 
-                <div class="mb-2">
+                <div class="mb-3">
                     <label class="form-label">
                         Filter Genes by Role in Cancer
                     </label>

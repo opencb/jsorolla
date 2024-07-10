@@ -426,6 +426,33 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         ]
                     },
                     {
+                        title: "Consequence Type",
+                        collapsed: true,
+                        filters: [
+                            {
+                                id: "consequence-type",
+                                title: "Select SO terms",
+                                tooltip: tooltips.consequenceTypeSelect
+                            }
+                        ]
+                    },
+                    {
+                        title: "Population Frequency",
+                        collapsed: true,
+                        filters: [
+                            {
+                                id: "populationFrequency",
+                                title: "Select Population Frequency",
+                                tooltip: tooltips.populationFrequencies,
+                                params: {
+                                    showSetAll: false,
+                                    populationFrequencyIndexConfiguration: this.opencgaSession?.study?.internal?.configuration
+                                        ?.variantEngine?.sampleIndex?.annotationIndexConfiguration?.populationFrequency,
+                                },
+                            }
+                        ]
+                    },
+                    {
                         title: "Clinical",
                         collapsed: true,
                         filters: [
@@ -457,33 +484,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     rolesInCancer: ROLE_IN_CANCER
                                 },
                             },
-                        ]
-                    },
-                    {
-                        title: "Consequence Type",
-                        collapsed: true,
-                        filters: [
-                            {
-                                id: "consequence-type",
-                                title: "Select SO terms",
-                                tooltip: tooltips.consequenceTypeSelect
-                            }
-                        ]
-                    },
-                    {
-                        title: "Population Frequency",
-                        collapsed: true,
-                        filters: [
-                            {
-                                id: "populationFrequency",
-                                title: "Select Population Frequency",
-                                tooltip: tooltips.populationFrequencies,
-                                params: {
-                                    showSetAll: false,
-                                    populationFrequencyIndexConfiguration: this.opencgaSession?.study?.internal?.configuration
-                                        ?.variantEngine?.sampleIndex?.annotationIndexConfiguration?.populationFrequency,
-                                },
-                            }
                         ]
                     },
                     {

@@ -631,7 +631,7 @@ export default class VariantBrowserFilter extends LitElement {
         // We need to avoid rendering empty filters.
         if (content !== "") {
             return html`
-                <div class="mb-2">
+                <div class="mb-4">
                     ${subsection.title ? html`
                         <label class="form-label fw-bold d-flex justify-content-between align-items-center" id="${this._prefix}${subsection.id}" data-cy="${subsection.id}">
                             ${this._getFilterField(subsection.title)}

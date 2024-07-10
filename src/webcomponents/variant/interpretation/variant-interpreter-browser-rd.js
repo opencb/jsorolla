@@ -454,27 +454,6 @@ class VariantInterpreterBrowserRd extends LitElement {
                         ]
                     },
                     {
-                        title: "Clinical",
-                        collapsed: true,
-                        filters: [
-                            {
-                                id: "diseasePanels",
-                                title: "Disease Panels",
-                                disabled: () => this.clinicalAnalysis.panelLock,
-                                message: {
-                                    visible: () => this.clinicalAnalysis.panelLock,
-                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
-                                },
-                                tooltip: tooltips.diseasePanels
-                            },
-                            {
-                                id: "clinical-annotation",
-                                title: "Clinical Annotation",
-                                tooltip: tooltips.clinical
-                            }
-                        ]
-                    },
-                    {
                         title: "Consequence Type",
                         collapsed: true,
                         filters: [
@@ -498,6 +477,27 @@ class VariantInterpreterBrowserRd extends LitElement {
                                     populationFrequencyIndexConfiguration: this.opencgaSession?.study?.internal?.configuration
                                         ?.variantEngine?.sampleIndex?.annotationIndexConfiguration?.populationFrequency,
                                 },
+                            }
+                        ]
+                    },
+                    {
+                        title: "Clinical",
+                        collapsed: true,
+                        filters: [
+                            {
+                                id: "diseasePanels",
+                                title: "Disease Panels",
+                                disabled: () => this.clinicalAnalysis.panelLock,
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
+                                },
+                                tooltip: tooltips.diseasePanels
+                            },
+                            {
+                                id: "clinical-annotation",
+                                title: "Clinical Annotation",
+                                tooltip: tooltips.clinical
                             }
                         ]
                     },

@@ -68,22 +68,12 @@ export default class VariantGridFormatter {
             return;
         }
 
-        // let ref = variant.reference ? variant.reference : "-";
-        // let alt = variant.alternate ? variant.alternate : "-";
-        //
-        // // Check size
-        // const maxAlleleLength = config?.alleleStringLengthMax ? config.alleleStringLengthMax : 20;
-        // ref = (ref.length > maxAlleleLength) ? ref.substring(0, 4) + "..." + ref.substring(ref.length - 4) : ref;
-        // alt = (alt.length > maxAlleleLength) ? alt.substring(0, 4) + "..." + alt.substring(alt.length - 4) : alt;
-        //
-        // // Ww need to escape < and > symbols from <INS>, <DEL>, ...
-        // alt = alt.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-        const variantId = VariantFormatter.variantIdFormatter(id, variant);
+        const variantId = VariantFormatter.variantIdFormatter(id, variant, config?.alleleStringLengthMax || 20);
 
-        // Create links for tooltip
+        // 1. Create links for tooltip
         let tooltipText = "";
         const variantRegion = variant.chromosome + ":" + variant.start + "-" + variant.end;
-        // 1. Add Decipher only if variant is a SNV or we have the original call. INDELS cannot be linked in the Variant Browser
+        // 1.1. Add Decipher only if variant is a SNV or we have the original call. INDELS cannot be linked in the Variant Browser
         if (variant.id || variant.studies[0]?.files[0]?.call?.variantId) {
             const variantId = variant.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || variant.id;
             tooltipText += `
@@ -100,7 +90,8 @@ export default class VariantGridFormatter {
                 </div>
             `;
         }
-        // 2. Add links to external browsers
+
+        // 1. 2. Add links to external browsers
         tooltipText += `
             <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Genome Browsers</div>
             <div style="padding: 5px">
@@ -115,7 +106,7 @@ export default class VariantGridFormatter {
             </div>
         `;
 
-        // const snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
+        // 3. Display the dbSNP ID link if exist
         const snpId = VariantFormatter.snpFormatter(id, variant, index, assembly);
         let snpHtml;
         if (snpId) {
@@ -126,7 +117,10 @@ export default class VariantGridFormatter {
             }
         }
 
-        // Add highlight icons
+        // 4.
+        // const typeHtml = VariantGridFormatter.typeFormatter(id, variant);
+
+        // 5. Add highlight icons
         let iconHighlights = [];
         if (config?.highlights?.length > 0) {
             iconHighlights = config.highlights
@@ -149,48 +143,9 @@ export default class VariantGridFormatter {
                 </a>
                 ${iconHighlights.join("")}
             </div>
-            ${snpHtml ? `<div style="margin: 5px 0px">${snpHtml}</div>` : ""}
+            ${snpHtml ? `<div style="margin: 5px 0">${snpHtml}</div>` : ""}
         `;
     }
-
-    // static snpFormatter(value, row, index, assembly) {
-    //     // We try first to read SNP ID from the 'names' of the variant (this identifier comes from the file).
-    //     // If this ID is not a "rs..." then we search the rs in the CellBase XRef annotations.
-    //     // This field is in annotation.xref when source: "dbSNP".
-    //     let snpId = "";
-    //     if (row.names && row.names.length > 0) {
-    //         for (const name of row.names) {
-    //             if (name.startsWith("rs")) {
-    //                 snpId = name;
-    //                 break;
-    //             }
-    //         }
-    //     } else {
-    //         if (row.annotation) {
-    //             if (row.annotation.id && row.annotation.id.startsWith("rs")) {
-    //                 snpId = row.annotation.id;
-    //             } else {
-    //                 if (row.annotation.xrefs) {
-    //                     for (const xref of row.annotation.xrefs) {
-    //                         if (xref.source === "dbSNP") {
-    //                             snpId = xref.id;
-    //                             break;
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //
-    //     if (snpId) {
-    //         if (assembly.toUpperCase() === "GRCH37") {
-    //             return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
-    //         } else {
-    //             return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
-    //         }
-    //     }
-    //     return snpId;
-    // }
 
     static geneFormatter(variant, index, query, opencgaSession, gridCtSettings) {
         // FIXME
@@ -244,20 +199,22 @@ export default class VariantGridFormatter {
                         // If gene contains one of the query.ct
                         if (geneHasQueryCt.has(geneName)) {
                             geneWithCtLinks.push(
-                                `<a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin: 5px 2px;">
+                                `<a class="gene-tooltip text-decoration-none text-nowrap" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin: 5px 2px;">
                                     ${geneName}
                                  </a>`
                             );
                         } else {
-                            geneLinks.push(`<a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin: 5px 2px;color: darkgray;font-style: italic">
-                                                    ${geneName}
-                                            </a>`);
+                            geneLinks.push(
+                                `<a class="gene-tooltip text-decoration-none text-nowrap" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin: 5px 2px;color: darkgray;font-style: italic">
+                                    ${geneName}
+                                </a>`);
                         }
                     } else {
                         // No query.ct passed
-                        geneLinks.push(`<a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin: 5px 2px">
-                                                ${geneName}
-                                        </a>`);
+                        geneLinks.push(
+                            `<a class="gene-tooltip text-decoration-none text-nowrap" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin: 5px 2px">
+                                ${geneName}
+                            </a>`);
                     }
                     visited[geneName] = true;
                 }
@@ -273,9 +230,9 @@ export default class VariantGridFormatter {
             } else {
                 resultHtml = `
                     <div data-role="genes-list" data-variant-index="${index}">
-                        ${allGenes.slice(0, maxDisplayedGenes).join(",")}
+                        ${allGenes.slice(0, maxDisplayedGenes).join("<br>")}
                         <span data-role="genes-list-extra" style="display:none">
-                            ,${allGenes.slice(maxDisplayedGenes).join(",")}
+                            ${allGenes.slice(maxDisplayedGenes).join("<br>")}
                         </span>
                         <div style="margin-top:8px;">
                             <a data-role="genes-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
@@ -949,7 +906,7 @@ export default class VariantGridFormatter {
             const color = (dscore >= 0.8) ? "red" : (dscore >= 0.5) ? "darkorange" : "black";
             return `
                 <div>
-                    <span title="${transcriptId || "not found"}" style="color: ${color}">${dscore}</span>
+                    <span title="${transcriptId || "not found"}" style="color: ${color}">${dscore || "-"}</span>
                 </div>
             `;
         } else {
@@ -1293,13 +1250,13 @@ export default class VariantGridFormatter {
                         </div>
                         <div>
                             ${hotspot.variants
-                                .map(variant => `
+                    .map(variant => `
                                     <span
                                         class="d-block text-secondary"
                                         style="margin: 5px 1px">${AMINOACID_CODE[hotspot.aminoacidReference]}${hotspot.aminoacidPosition}${AMINOACID_CODE[variant.aminoacidAlternate]}: ${variant.count} sample(s)
                                     </span>`)
-                                .join("")
-                            }
+                    .join("")
+                }
                         </div>
                     </div>`;
             }
