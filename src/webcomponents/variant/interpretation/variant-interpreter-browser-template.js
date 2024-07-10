@@ -389,7 +389,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     render() {
         // Check Project exists
         if (!this.opencgaSession?.study) {
-            return guardPage();
+            return nothing;
         }
 
         return html`
@@ -398,18 +398,14 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}"
                     icon="${this._config.icon}">
                 </tool-header>
-            ` : null}
+            ` : nothing}
 
             ${this.clinicalAnalysis.interpretation.locked ? html`
-                <div class="row">
-                    <div class="card text-bg-warning col-sm-8 offset-sm-2 p-0">
-                        <div class="card-header" style="font-size: 1.1em">
-                            <label>Interpretation locked:</label> you cannot modify this interpretation. You can unlock the interpretation in
-                            <span class="fst-italic">Case Info >> Interpretation Manager</span>.
-                        </div>
-                    </div>
-                </div>` : null
-            }
+                <div class="alert alert-warning">
+                    <label>Interpretation locked:</label> you cannot modify this interpretation. You can unlock the interpretation in
+                    <span class="fst-italic">Case Info >> Interpretation Manager</span>.
+                </div>
+            ` : nothing}
 
             <!-- Rodiel 27-09-23 NOTE: Using 'row' and 'col' has problems for standard resolution, so I opted for 'flex -->
             <div class="d-flex gap-4">
