@@ -492,22 +492,26 @@ export default class VariantAnnotationClinicalView extends LitElement {
                 <h4>ClinVar</h4>
                 <div style="padding: 10px">
                     ${this.groupedBySource?.clinvar?.length > 0 ? html`
-                    <table id="${this._prefix}ClinvarTraitAssociation"></table>
-                ` : html`<p>No data available</p>`}
+                        <table id="${this._prefix}ClinvarTraitAssociation"></table>
+                    ` : html`
+                        <p>No data available</p>
+                    `}
                 </div>
-
                 <h4>Cosmic</h4>
                 <div style="padding: 10px">
                     ${this.groupedBySource?.cosmic?.length > 0 ? html`
-                    <table id="${this._prefix}CosmicTraitAssociation"></table>
-                ` : html`<p>No data available</p>`}
+                        <table id="${this._prefix}CosmicTraitAssociation"></table>
+                    ` : html`
+                        <p>No data available</p>
+                    `}
                 </div>
-
                 <h4>HGMD</h4>
                 <div style="padding: 10px">
                     ${this.groupedBySource?.hgmd?.length > 0 ? html`
-                    <table id="${this._prefix}HgmdTraitAssociation"></table>
-                ` : html`<p>No data available</p>`}
+                        <table id="${this._prefix}HgmdTraitAssociation"></table>
+                    ` : html`
+                        <p>No data available</p>
+                    `}
                 </div>
             </div>
         `;
