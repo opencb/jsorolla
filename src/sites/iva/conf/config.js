@@ -26,7 +26,7 @@ const hosts = [
     },
     {
         id: "reference",
-        url: "https://test.app.zettagenomics.com/reference/opencga"
+        url: "https://test.app.zettagenomics.com/TASK-5809/opencga"
     },
 ];
 
@@ -759,7 +759,7 @@ const SUITE = {
             menu: [
                 {
                     id: "organization-admin",
-                    name: "Organizations Admin",
+                    name: "Organisations Admin",
                     fa_icon: "fas fa-file-invoice",
                     icon: "img/tools/icons/variant_browser.svg",
                     description: "",
