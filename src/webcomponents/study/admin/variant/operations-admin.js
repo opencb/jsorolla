@@ -170,7 +170,7 @@ export default class OperationsAdmin extends LitElement {
             menu: [
                 {
                     id: "organization-operations",
-                    name: "Organization Operations",
+                    name: "Organisation Operations",
                     description: "",
                     icon: "",
                     visibility: "private",
