@@ -22,7 +22,6 @@ export default class VariantAnnotationClinicalView extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -56,18 +55,18 @@ export default class VariantAnnotationClinicalView extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-
         this.traitAssociation = [];
+        this.groupedBySource = {};
     }
 
-    firstUpdated() {
-        this.renderVariantTraitTable();
-    }
-
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("variantId")) {
             this.variantIdObserver();
         }
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
         if (changedProperties.has("traitAssociation")) {
             this.renderVariantTraitTable();
         }
