@@ -149,7 +149,8 @@ export default class DetailTabs extends LitElement {
                 <li role="tablist"
                     class="nav-item"
                     style="${this._config.display?.tabTitleStyle}">
-                    <a class="nav-link fw-bold ${this._config.display?.tabTitleClass} ${isActive ? "active" : ""}"
+                    <a
+                        class="nav-link fw-bold fs-5 ${this._config.display?.tabTitleClass} ${isActive ? "active" : ""}"
                         href="#${this._prefix}${item.id}"
                         role="tab"
                         data-bs-toggle="tab" data-id="${item.id}"

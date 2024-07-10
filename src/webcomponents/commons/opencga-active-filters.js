@@ -750,7 +750,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     <a
                         href=""
                         data-filter-id="${item.id}"
-                        class="${`d-flex dropdown-item ${item.active ? "text-success" : ""} ${item.disabled ? "disabled" : ""}`}"
+                        class="d-flex dropdown-item ps-4 ${item.active ? "text-success" : ""} ${item.disabled ? "disabled" : ""}"
                         @click="${this.onFilterChange}">
                         <span class="flex-grow-1">${item.id}</span>
                         <span class="text-secondary cy-action-buttons ms-3">
@@ -785,30 +785,28 @@ export default class OpencgaActiveFilters extends LitElement {
         const filterTooltip = filterParams.map(key => `<b>${key}</b> = ${item.query[key]}`).join("<br>");
 
         return html`
-            <a class="dropdown-item" @click="${e => this.onFilterChange(e, item.query)}">
-            <div class="d-flex align-items-center">
-                <div class="flex-grow-1">
-                    <div class="mt-0 text-truncate">
-                        ${filterTitle} ${item.latest ? " (latest)" : ""}
+            <a class="dropdown-item ps-4" @click="${e => this.onFilterChange(e, item.query)}">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="ms-2 mt-0 text-truncate">
+                            ${filterTitle} ${item.latest ? " (latest)" : ""}
+                        </div>
+                        <div class="ms-2 form-text">
+                        ${filterParams?.length > 0 ? html`
+                            ${filterParams.slice(0, 2).map(key => html`
+                                <div class="mx-2" title="${item.query[key]}">
+                                    <b>${key}</b>: ${UtilsNew.substring(item.query[key], 20)}
+                                </div>
+                            `)}
+                        ` : html`Empty query.`}
+                        </div>
                     </div>
-                    <div class="form-text">
-                    ${filterParams?.length > 0 ? html`
-                        ${filterParams.slice(0, 2).map(key => html`
-                            <div class="mx-2" title="${item.query[key]}">
-                                <b>${key}</b>: ${UtilsNew.substring(item.query[key], 20)}
-                            </div>
-                        `)}
-                    ` : html`
-                        Empty query.
-                    `}
+                    <div class="flex-shrink-0 text-secondary mb-auto">
+                        <span  class="action-buttons" tooltip-title="${filterTitle}" tooltip-text="${filterTooltip || "Empty query."}">
+                            <i class="fas fa-eye" data-action="view-filter"></i>
+                        </span>
                     </div>
                 </div>
-                <div class="flex-shrink-0 text-secondary mb-auto">
-                    <span  class="action-buttons" tooltip-title="${filterTitle}" tooltip-text="${filterTooltip || "Empty query."}">
-                        <i class="fas fa-eye" data-action="view-filter"></i>
-                    </span>
-                </div>
-            </div>
             </a>
         `;
     }
@@ -823,7 +821,6 @@ export default class OpencgaActiveFilters extends LitElement {
                     <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters have changed, please click on <strong> ${this._config.searchButtonText} </strong> to update the results.
                 </div>
             `}
-
             <div class="card mb-3">
                 <div class="card-body py-2 px-2">
                     <div class="d-flex flex-column gap-1">

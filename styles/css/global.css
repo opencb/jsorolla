@@ -43,8 +43,9 @@
 }
 
 html {
-    /* 14px use this size by default*/
-    font-size: 0.875rem;
+    /* 13px use this size by default*/
+    /*font-size: 0.875rem;*/
+    font-size: 0.8125rem;
 }
 
 body,
@@ -129,7 +130,6 @@ a:visited {
     text-overflow: ellipsis;
     background-color: transparent;
     user-select: none;
-
 }
 
 /*********** data-table *****************/
@@ -142,7 +142,6 @@ a:visited {
 .bootstrap-table .loading-text {
     min-height: 135px;
 }
-
 
 /* Custom pagination-detail on top of the boostrap-table grids.
    This removes the pager buttons on top pf the grids leaving only the counter of records.
@@ -186,7 +185,7 @@ a:visited {
     border: 1px solid var(--main-bg-color);
     border-radius: 50% !important;
     border-width: 8px ! important;
-    padding: 36px 1px 26px 1px;
+    padding: 34px 1px 23px 1px;
     transition: border 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -195,7 +194,7 @@ a:visited {
     border: 1px solid var(--main-bg-color);
     border-radius: 50% !important;
     border-width: 8px ! important;
-    padding: 36px 1px 26px 1px;
+    padding: 34px 1px 23px 1px;
 }
 
 .icon-interpreter-step:hover {
@@ -205,7 +204,7 @@ a:visited {
 }
 
 /********** interpreter side-nav & opencga-project side-nav ************/
-.side-tabs.side-nav a{
+.side-tabs.side-nav a {
     cursor: pointer;
 }
 
@@ -362,6 +361,7 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
 }
 
 /****** animation ********/
+
 .anim-float {
     animation: float .5s infinite;
 }
@@ -423,7 +423,6 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
     }
 }
 
-/* Animations */
 @keyframes pulse {
     0% {
         transform: scale(1);
@@ -439,6 +438,7 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
 }
 
 /* Fonts */
+
 @font-face {
     font-family: 'Ubuntu';
     font-style: normal;
@@ -497,4 +497,17 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
     .qtip:has(.population-freq-tooltip) {
         max-width: 500px !important;
     }
+}
+
+/* Bootstrap table */
+
+/* Terrible hack to make sure that the bootstrap table has a minimum height of 200px */
+/* This is required to prevent the DNA loader exceed the table container */
+.bootstrap-table {
+    min-height: 200px;
+}
+
+/* Sets a minimum height to the loading container, to make sure that the loading DNA fits on this space */
+.bootstrap-table .fixed-table-loading {
+    min-height: 110px;
 }
