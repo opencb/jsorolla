@@ -191,7 +191,7 @@ export default class OperationsAdmin extends LitElement {
                         },
                         {
                             id: "variant-secondary-annotation-index",
-                            name: "Variant Secondary Annotation Index. *** CAUTION: Automatic in OpenCGA for 2.2? ***",
+                            name: "Variant Secondary Annotation Index",
                             icon: "fas fa-key",
                             visibility: "private",
                             render: opencgaSession => html`
@@ -238,7 +238,7 @@ export default class OperationsAdmin extends LitElement {
                         },
                         {
                             id: "variant-secondary-sample-index",
-                            name: "Variant Secondary Sample Index. *** CAUTION: Automatic in OpenCGA for 2.2? ***",
+                            name: "Variant Secondary Sample Index",
                             icon: "fas fa-key",
                             visibility: "private",
                             type: "navitem",
