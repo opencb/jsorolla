@@ -816,7 +816,7 @@ export default class DataForm extends LitElement {
                 ` : nothing}
                 ${hasErrorMessages ? html`
                     <div class="d-flex mt-2 text-body-secondary">
-                        <div class="ms-2">
+                        <div class="me-2">
                             <i class="${this._getErrorIcon(element)}"></i>
                         </div>
                         <div class="fw-bold">
