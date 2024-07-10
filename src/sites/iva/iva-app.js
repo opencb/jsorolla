@@ -676,12 +676,22 @@ class IvaApp extends LitElement {
         this.opencgaClient.refresh();
     }
 
-    async logout() {
-        // this delete token in the client and removes the Cookies
-        await this.opencgaClient.logout();
+    logout() {
+        // 1. Check if logged user is a local user
+        // This is only needed if SSO mode is enabled. If not, logged user is always local
+        let isLocalUser = true;
+        if (this.opencgaClient?._config?.sso?.active && this.opencgaClient?._config?.token) {
+            // eslint-disable-next-line no-undef
+            const decoded = jwt_decode(this.opencgaClient._config.token);
+            isLocalUser = decoded?.authOrigin === "OPENCGA";
+        }
 
-        // Check if sso is active: we will redirect to 'meta/sso/logout' endpoint
-        if (this.opencgaClient?._config?.sso?.active) {
+        // 2. Delete token and remove cookies
+        this.opencgaClient.logout();
+
+        // 3. Check if sso is active and logged user is not local
+        // In this case, we will redirect to 'meta/sso/logout' endpoint
+        if (this.opencgaClient?._config?.sso?.active && !isLocalUser) {
             // eslint-disable-next-line no-undef
             Cookies.expire(this.opencgaClient._config.sso.cookie);
 
