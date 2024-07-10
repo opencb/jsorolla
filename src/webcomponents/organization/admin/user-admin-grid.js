@@ -256,39 +256,58 @@ export default class UserAdminGrid extends LitElement {
     _getDefaultColumns() {
         this._columns = [
             {
+                id: "id",
                 title: "User ID",
                 field: "id",
                 visible: this.gridCommons.isColumnVisible("id"),
                 formatter: (value, row) => this.userIdFormatter(value, row),
             },
             {
+                id: "name",
                 title: "Name",
                 field: "name",
-                visible: this.gridCommons.isColumnVisible("individualId")
+                visible: this.gridCommons.isColumnVisible("name"),
             },
             {
+                id: "email",
                 title: "Email",
                 field: "email",
-                visible: this.gridCommons.isColumnVisible("individualId")
+                visible: this.gridCommons.isColumnVisible("email"),
             },
             {
+                id: "authentication",
                 title: "Authentication",
                 field: "account.authentication.id",
-                visible: this.gridCommons.isColumnVisible("account.authentication.id")
+                visible: this.gridCommons.isColumnVisible("authentication")
+            },
+            {
+                id: "noAttempts",
+                title: "Failed Attempts",
+                field: "internal.failedAttempts",
+                visible: this.gridCommons.isColumnVisible("noAttempts"),
+            },
+            {
+                id: "lastModifiedDate",
+                title: "Last Modified date",
+                field: "internal.lastModified",
+                formatter: (value, row) => UtilsNew.dateFormatter(row.internal.lastModified),
+                visible: this.gridCommons.isColumnVisible("lastModifiedDate")
             },
             {
                 id: "dates",
-                title: "Creation / Expiration Date",
-                field: "Dates",
+                title: "Creation / Expiration dates",
+                field: "dates",
                 halign: this.displayConfigDefault.header.horizontalAlign,
                 valign: "middle",
-                formatter: (value, row) => this.creationExpirationDateFormatter(value, row),
+                formatter: (value, row) => this.datesFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("dates")
             },
             {
+                id: "status",
                 title: "Status",
                 field: "internal.status",
                 formatter: value => CatalogGridFormatter.userStatusFormatter(value, this._config.userStatus),
+                visible: this.gridCommons.isColumnVisible("status")
             },
         ];
 
@@ -377,8 +396,8 @@ export default class UserAdminGrid extends LitElement {
             ` : value;
     }
 
-    creationExpirationDateFormatter(value, user) {
-        const expirationDateString = UtilsNew.dateFormatter(user.expirationDate);
+    datesFormatter(value, user) {
+        const expirationDateString = UtilsNew.dateFormatter(user.account.expirationDate);
         const expirationDate = new Date(expirationDateString);
         const currentDate = new Date();
         let expirationDateClass = null;
@@ -386,8 +405,8 @@ export default class UserAdminGrid extends LitElement {
             expirationDateClass = "text-danger";
         }
         return `
+            <div class="text-body-secondary">${UtilsNew.dateFormatter(user.account.creationDate)}</div>
             <div class="${expirationDateClass}">${expirationDateString}</div>
-            <div class="text-body-secondary">${UtilsNew.dateFormatter(user.creationDate)}</div>
         `;
     }
 
