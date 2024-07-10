@@ -1099,4 +1099,14 @@ export default class UtilsNew {
                 .filter(item => !!item);
     }
 
+    // Group elements in array by the value in the given key
+    static groupBy(array, key) {
+        return array.reduce((result, currentValue) => {
+            const objectValue = UtilsNew.getObjectValue(currentValue, key);
+            // eslint-disable-next-line no-param-reassign
+            (result[objectValue] = result[objectValue] || []).push(currentValue);
+            return result;
+        }, {});
+    }
+
 }
