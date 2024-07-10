@@ -72,15 +72,6 @@ export default class VariantAnnotationClinicalView extends LitElement {
         }
     }
 
-    groupBy(array, key) {
-        return array.reduce((result, currentValue) => {
-            const objectValue = UtilsNew.getObjectValue(currentValue, key);
-            console.log("objectValue", objectValue);
-            (result[objectValue] = result[objectValue] || []).push(currentValue);
-            return result;
-        }, {});
-    }
-
     variantIdObserver() {
         if (this.cellbaseClient) {
             if (this.variantId) {
@@ -91,6 +82,13 @@ export default class VariantAnnotationClinicalView extends LitElement {
                         this.traitAssociation = this.variantAnnotation.traitAssociation;
                     });
             }
+        }
+    }
+
+    traitAssociationObserver() {
+        this.groupedBySource = {};
+        if (this.traitAssociation?.length > 0) {
+            this.groupedBySource = UtilsNew.groupBy(this.traitAssociation, "source.name");
         }
     }
 
@@ -258,8 +256,6 @@ export default class VariantAnnotationClinicalView extends LitElement {
         if (!this.traitAssociation) {
             this.traitAssociation = [];
         }
-
-        this.groupedBySource = this.groupBy(this.traitAssociation, "source.name");
 
         $("#" + this._prefix + "ClinvarTraitAssociation").bootstrapTable("destroy");
         $("#" + this._prefix + "ClinvarTraitAssociation").bootstrapTable({
