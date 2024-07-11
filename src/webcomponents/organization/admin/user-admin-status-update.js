@@ -59,9 +59,8 @@ export default class UserAdminStatusUpdate extends LitElement {
         this.displayConfig = {};
         this.displayConfigDefault = {
             style: "margin: 10px",
-            titleWidth: 3,
-            titleStyle: "color: var(--main-bg-color);margin-bottom:16px;font-weight:bold;",
             defaultLayout: "horizontal",
+            labelAlign: "right",
             buttonOkText: "Update Status",
             buttonOkDisabled: true,
         };
@@ -143,6 +142,7 @@ export default class UserAdminStatusUpdate extends LitElement {
             param,
             e.detail.value,
             e.detail.action);
+
         this._config.display.buttonOkDisabled = UtilsNew.isEmpty(this.updatedFields);
         this._config = {...this._config};
         this.requestUpdate();
@@ -177,15 +177,15 @@ export default class UserAdminStatusUpdate extends LitElement {
                 this.updatedFields = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: `User Status Update`,
-                    message: `User ${this.userId} status has been updated correctly`,
+                    message: `User ${this.user.id} status has been updated correctly`,
                 });
+                LitUtils.dispatchCustomEvent(this, "userUpdate", this.user, {}, error);
             })
             .catch(reason => {
                 error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "userUpdate", this.user, {}, error);
                 this.#setLoading(false);
             });
     }
@@ -210,15 +210,14 @@ export default class UserAdminStatusUpdate extends LitElement {
                 .config="${this._config}"
                 .updateParams="${this.updatedFields}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @submit="${this.onSubmit}"
-                @clear="${this.onClear}">
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
         return {
-            icon: "fas fa-edit",
             display: this.displayConfig,
             sections: [
                 {
