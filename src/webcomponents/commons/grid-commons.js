@@ -34,7 +34,7 @@ export default class GridCommons {
     }
 
     static loadingFormatter() {
-        return "<div style='margin-top:5%'><loading-spinner></loading-spinner></div>";
+        return `<div><loading-spinner></loading-spinner></div>`;
     }
 
     constructor(gridId, context, config) {

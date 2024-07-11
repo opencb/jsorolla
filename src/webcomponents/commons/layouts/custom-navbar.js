@@ -19,7 +19,6 @@ import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 import "../../job/job-monitor.js";
 
-
 export default class CustomNavBar extends LitElement {
 
     constructor() {
@@ -50,10 +49,6 @@ export default class CustomNavBar extends LitElement {
         };
     }
 
-    onSideBarToggle(e) {
-        LitUtils.dispatchCustomEvent(this, "sideBarToggle", "", {event: e}, null);
-    }
-
     onChangeTool(e) {
         LitUtils.dispatchCustomEvent(this, "changeTool", e);
     }
@@ -81,6 +76,10 @@ export default class CustomNavBar extends LitElement {
 
     logout() {
         LitUtils.dispatchCustomEvent(this, "logout");
+    }
+
+    getVisibleUserMenuItems() {
+        return (this.config?.userMenu || []).filter(item => UtilsNew.isAppVisible(item, this.opencgaSession));
     }
 
     renderStyle() {
@@ -214,14 +213,13 @@ export default class CustomNavBar extends LitElement {
 
     render() {
         return html `
-                ${this.renderStyle()}
-            <!-- TODO: It'll change soon by default theme -->
+            ${this.renderStyle()}
             <nav class="navbar navbar-zetta navbar-expand-lg p-1">
                 <div class="container-fluid p-1">
 
                     <!-- Left Sidebar Icon -->
                     ${this.config.apps?.filter(app => UtilsNew.isAppVisible(app, this.opencgaSession)).length > 1 ? html`
-                        <a class="navbar-brand " href="#" @click="${this.onSideBarToggle}">
+                        <a class="navbar-brand" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasIva">
                             <div id="waffle-icon"></div>
                         </a>
                     ` : nothing}
@@ -339,14 +337,14 @@ export default class CustomNavBar extends LitElement {
                                     </ul>
                                 </li>
                                 <li class="border-end mx-1 my-1 ms-0" style="--bs-border-color: rgba(255, 255, 255, 0.3);"></li>
-                            ` : null}
+                            ` : nothing}
 
                             <!-- Jobs -->
                             ${UtilsNew.isAppVisible(this.config?.jobMonitor, this.opencgaSession) || UtilsNew.isAppVisible(this.app?.jobMonitor, this.opencgaSession) ? html`
                                 <job-monitor
                                     .opencgaSession="${this.opencgaSession}">
                                 </job-monitor>
-                            ` : null}
+                            ` : nothing}
 
                             ${UtilsNew.isAppVisible(this.config?.fileExplorer, this.opencgaSession) || UtilsNew.isAppVisible(this.app?.fileExplorer, this.opencgaSession) ? html`
                                 <li id="fileButton" >
@@ -355,7 +353,7 @@ export default class CustomNavBar extends LitElement {
                                         <div class="dropdown-button-icon"><i class="fas fa-folder-open"></i></div>
                                     </a>
                                 </li>
-                            ` : null}
+                            ` : nothing}
 
                             ${UtilsNew.isAppVisible(this.config?.restApi, this.opencgaSession) || UtilsNew.isAppVisible(this.app?.restApi, this.opencgaSession) ? html`
                                 <li id="restButton">
@@ -365,7 +363,7 @@ export default class CustomNavBar extends LitElement {
                                     </a>
                                 </li>
                                 <li class="border-end mx-1 my-1 ms-0" style="--bs-border-color: rgba(255, 255, 255, 0.3);"></li>
-                            ` : null}
+                            ` : nothing}
 
                             <!-- About dropdown menu-->
                             ${this.config?.about.dropdown ? html`
@@ -378,7 +376,7 @@ export default class CustomNavBar extends LitElement {
                                         </div>
                                         <div class="dropdown-button-text">About</div>
                                     </a>
-                                    <ul class="dropdown-menu">
+                                    <ul class="dropdown-menu dropdown-menu-end">
                                         ${this.config.about?.links && this.config.about?.links.map(link => html`
                                             <li>${this.createAboutLink(link, false)}</li>
                                         `)}
@@ -393,7 +391,7 @@ export default class CustomNavBar extends LitElement {
                                                     </span>
                                                 </a>
                                             </li>
-                                        `: null}
+                                        `: nothing}
                                     </ul>
                                 </li>
                             ` : this.config.about?.links && this.config.about?.links.map(link => html`
@@ -414,16 +412,14 @@ export default class CustomNavBar extends LitElement {
                                         </div>
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end">
-                                        ${this.config?.userMenu?.length ? this.config.userMenu
-                                    .filter(item => UtilsNew.isAppVisible(item, this.opencgaSession))
-                                    .map(item => html`
-                                                <li>
-                                                    <a class="dropdown-item" href="${item.url}" data-user-menu="${item.id}">
-                                                        <i class="${item.icon} me-1" aria-hidden="true"></i>${item.name}
-                                                    </a>
-                                                </li>
-                                            `) : null}
-                                            <li><hr class="dropdown-divider"></li>
+                                        ${this.getVisibleUserMenuItems().map(item => html`
+                                            <li>
+                                                <a class="dropdown-item" href="${item.url}" data-user-menu="${item.id}">
+                                                    <i class="${item.icon} me-1" aria-hidden="true"></i>${item.name}
+                                                </a>
+                                            </li>
+                                        `)}
+                                        <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <a  class="dropdown-item"
                                                 data-user-menu="logout" role="button"
@@ -433,12 +429,13 @@ export default class CustomNavBar extends LitElement {
                                             </a>
                                         </li>
                                     </ul>
-                                </li>` : null}
+                                </li>
+                            ` : nothing}
                         </ul>
                     </div>
                 </div>
             </nav>
-            <!-- End of navigation bar -->`;
+        `;
     }
 
 }

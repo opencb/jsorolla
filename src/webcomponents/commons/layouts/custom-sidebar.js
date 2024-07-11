@@ -20,10 +20,6 @@ import UtilsNew from "../../../core/utils-new.js";
 
 export default class CustomSidebar extends LitElement {
 
-    constructor() {
-        super();
-    }
-
     createRenderRoot() {
         return this;
     }
@@ -42,71 +38,52 @@ export default class CustomSidebar extends LitElement {
         };
     }
 
-    onSideBarToggle(e) {
-        LitUtils.dispatchCustomEvent(this, "sideBarToggle", "", {event: e}, null);
+    onChangeApp(e) {
+        LitUtils.dispatchCustomEvent(this, "changeApp", "", {event: e}, null);
     }
 
-    onChangeApp(e, toggle) {
-        LitUtils.dispatchCustomEvent(this, "changeApp", "", {event: e, toggle: toggle}, null);
-    }
-
-    renderStyle() {
-        return html `
+    render() {
+        return html`
             <style>
                 .hover-effect:hover {
                     background-color:#f8f9fa;
                 }
             </style>
-        `;
-    }
-
-    render() {
-        return html`
-            ${this.renderStyle()}
             <!-- Left Sidebar: we only display this if more than 1 visible app exist -->
             ${this.config?.apps?.filter(app => UtilsNew.isAppVisible(app, this.opencgaSession)).length > 0 ? html`
-                <div id="overlay" @click="${this.onSideBarToggle}"></div>
+                <div id="overlay"></div>
                 <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasIva">
                     <div class="offcanvas-header">
-                        <a class="text-decoration-none" href="#home" @click="${e => this.onChangeApp(e, true)}">
-                            <div class="top-logo d-flex flex-column p-3">
-                                <img src="${this.config.logoAlt}" height="50px"/>
-                                <span class="fs-4">Suite</span>
-                            </div>
-                        </a>
+                        <div data-bs-dismiss="offcanvas" data-bs-target="#offcanvasIva">
+                            <a href="#home" class="text-decoration-none" @click="${e => this.onChangeApp(e)}">
+                                <div class="top-logo d-flex flex-column p-3">
+                                    <img src="${this.config.logoAlt}" height="50px"/>
+                                    <span class="fs-4">Suite</span>
+                                </div>
+                            </a>
+                        </div>
                         <button type="button" class="btn-close mb-auto mt-1 me-1" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasIva"
                             aria-label="Close">
                         </button>
                     </div>
                     <div class="offcanvas-body">
                         <ul class="navbar-nav">
-                            ${!this.loggedIn ? html`
-                                <li class="nav-item">
-                                    <a href="#login" class="nav-link fs-5" role="button"
-                                        @click="${e => this.onChangeApp(e, true)}">
-                                        <i href="#login" class="fa fa-sign-in-alt fa-lg pe-1"
-                                        aria-hidden="true"></i>Login
-                                    </a>
-                                </li>
-                                ` : nothing}
                             ${this.config?.apps?.filter(item => UtilsNew.isAppVisible(item, this.opencgaSession)).map(item => html`
-                                <li class="nav-item hover-effect">
-                                    <a class="nav-link fs-5" href="#home" role="button" data-id="${item.id}"
-                                        @click="${e => this.onChangeApp(e, true)}">
+                                <li class="nav-item hover-effect" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasIva">
+                                    <a href="#home" class="nav-link fs-5" data-id="${item.id}" @click="${e => this.onChangeApp(e)}">
                                         <img src="${item.icon}" alt="${item.name}" width="48px"/> ${item.name}
                                     </a>
                                 </li>
                             `)}
                         </ul>
                     </div>
-                    <div class="d-flex justify-content-end p-3" style="background-color:#efefef">
+                    <div class="d-flex justify-content-end p-3">
                         <div>
                             <img height="24px" src="${this.config.landingPage?.organisation?.logo?.img}"/>
                         </div>
                     </div>
                 </div>
-            ` : nothing
-            }
+            ` : nothing}
         `;
     }
 

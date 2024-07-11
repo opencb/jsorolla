@@ -31,8 +31,6 @@ context("Cohort Browser Grid", () => {
 
     // TOOLBAR
     context("Cohort Toolbar", () => {
-        const toolbarComponent = "";
-
         beforeEach(() => {
             cy.get(browserGrid)
                 .find(`div[data-cy="toolbar"]`)
@@ -59,7 +57,6 @@ context("Cohort Browser Grid", () => {
     // MODAL CREATE
     context("Modal Create", () => {
         beforeEach(() => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get(browserGrid)
                 .find(`button[data-action="create"]`)
                 .click();
@@ -69,44 +66,38 @@ context("Cohort Browser Grid", () => {
         });
         // 1. Open modal and render create
         it("should render create modal", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("div.modal-dialog")
                 .should("be.visible");
         });
         // 2. Render title
         it("should render create title", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("h4.modal-title")
-                .should("contain.text", "Cohort create");
+                .should("contain.text", "Cohort Create");
         });
         // 3. Render button clear
         it("should render button clear", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .contains("button", "Clear")
                 .should("be.visible");
         });
         // 4. Render button create
         it("should render button create", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .contains("button", "Create")
                 .should("be.visible");
         });
         // 5. Render tabs
         it("should render form tabs", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.at.least", 1);
         });
         // 6. Render Cohort ID
         it("should have form field ID", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .find(`data-form div.form-horizontal div.row  label.col-form-label`)
+                .find(`data-form div.form-horizontal div.row div.col-md-3`)
                 .should("contain.text", "Cohort ID");
         });
     });

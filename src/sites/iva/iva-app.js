@@ -680,12 +680,22 @@ class IvaApp extends LitElement {
         this.opencgaClient.refresh();
     }
 
-    async logout() {
-        // this delete token in the client and removes the Cookies
-        await this.opencgaClient.logout();
+    logout() {
+        // 1. Check if logged user is a local user
+        // This is only needed if SSO mode is enabled. If not, logged user is always local
+        let isLocalUser = true;
+        if (this.opencgaClient?._config?.sso?.active && this.opencgaClient?._config?.token) {
+            // eslint-disable-next-line no-undef
+            const decoded = jwt_decode(this.opencgaClient._config.token);
+            isLocalUser = decoded?.authOrigin === "OPENCGA";
+        }
 
-        // Check if sso is active: we will redirect to 'meta/sso/logout' endpoint
-        if (this.opencgaClient?._config?.sso?.active) {
+        // 2. Delete token and remove cookies
+        this.opencgaClient.logout();
+
+        // 3. Check if sso is active and logged user is not local
+        // In this case, we will redirect to 'meta/sso/logout' endpoint
+        if (this.opencgaClient?._config?.sso?.active && !isLocalUser) {
             // eslint-disable-next-line no-undef
             Cookies.expire(this.opencgaClient._config.sso.cookie);
 
@@ -849,7 +859,6 @@ class IvaApp extends LitElement {
         // this.renderHashFragments();
         this.hashFragmentListener();
     }
-
 
     hashFragmentListener() {
         console.log("hashFragmentListener - Hide all enabled elements");
@@ -1118,14 +1127,7 @@ class IvaApp extends LitElement {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
     }
 
-    toggleSideBar() {
-        if (!this.bsOffcanvas) {
-            this.bsOffcanvas = new bootstrap.Offcanvas("#offcanvasIva");
-        }
-        this.bsOffcanvas.toggle();
-    }
-
-    onChangeApp(e, toggle) {
+    onChangeApp(e) {
         // If an App ID exists we display the corresponding app. If not we just show the Suite
         if (e.currentTarget.dataset.id) {
             this.app = this.config.apps.find(app => app.id === e.currentTarget.dataset.id);
@@ -1133,11 +1135,7 @@ class IvaApp extends LitElement {
             this.app = this.getActiveAppConfig();
         }
 
-        // We only want to toggle when clicked in the sidenav
-        if (toggle) {
-            this.toggleSideBar();
-        }
-
+        // Change current tool in navbar
         this.changeTool(e);
     }
 
@@ -1282,8 +1280,7 @@ class IvaApp extends LitElement {
             <custom-sidebar
                 .config="${this.config}"
                 .loggedIn="${this.isLoggedIn()}"
-                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
-                @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}">
+                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}">
             </custom-sidebar>
 
             <!-- Navbar -->
@@ -1294,7 +1291,6 @@ class IvaApp extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this.config}"
                 @logout="${() => this.logout()}"
-                @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}"
                 @changeTool="${e => this.changeTool(e.detail.value)}"
                 @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
                 @studySelect="${ e => this.onStudySelect(e.detail.event, e.detail.study)}"

@@ -32,8 +32,6 @@ context("Disease Panel Browser Grid", () => {
 
     // TOOLBAR
     context("Disease Panel Toolbar", () => {
-        const toolbarComponent = "";
-
         beforeEach(() => {
             cy.get("@container")
                 .find("div[data-cy='toolbar']")
@@ -75,37 +73,32 @@ context("Disease Panel Browser Grid", () => {
         });
         // 2. Render title
         it("should render create title", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("h4.modal-title")
-                .should("contain.text", "Disease panel create");
+                .should("contain.text", "Disease Panel Create");
         });
         // 3. Render button clear
         it("should render button clear", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .contains("button", "Clear")
                 .should("be.visible");
         });
         // 4. Render button create
         it("should render button create", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .contains("button", "Create")
                 .should("be.visible");
         });
         // 5. Render tabs
         it("should render form tabs", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.greaterThan", 1);
         });
         // 6. Render Disease Panel ID
         it("should have form field ID", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .find("data-form div.form-horizontal div.row label.col-form-label")
+                .find("data-form div.form-horizontal div.row div.col-md-3")
                 .should("contain.text", "Disease Panel ID");
         });
     });
@@ -113,7 +106,6 @@ context("Disease Panel Browser Grid", () => {
     // MODAL UPDATE
     context("Modal Update", () => {
         beforeEach(() => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@container")
                 .find("table tbody tr td button.dropdown-toggle")
                 .first()
@@ -127,44 +119,38 @@ context("Disease Panel Browser Grid", () => {
         });
         // 1. Open modal and render update
         it("should render update modal", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("div.modal-dialog")
                 .should("be.visible");
         });
         // 2. Render title
         it("should render update title", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("h4.modal-title")
-                .should("contain.text", "Disease panel update");
+                .should("contain.text", "Disease Panel Update");
         });
         // 3. Render button clear
         it("should render button clear", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .contains("button", "Discard Changes")
                 .should("be.visible");
         });
         // 4. Render button create
         it("should render button create", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .contains("button", "Update")
                 .should("be.visible");
         });
         // 5. Render tabs
         it("should render form tabs", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.greaterThan", 1);
         });
         // 6. Render Sample ID
         it("should have form field ID equal to sample selected", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
-                .find("data-form div.row div.row label.col-form-label")
+                .find("data-form div.row div.row div.col-md-3")
                 .should("contain.text", "Disease Panel ID");
         });
     });

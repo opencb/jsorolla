@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
@@ -60,10 +60,18 @@ export default class UserLogin extends LitElement {
         LitUtils.dispatchCustomEvent(this, "redirect", null, {hash: to});
     }
 
+    getOrganization() {
+        if (this.opencgaSession?.opencgaClient?._config?.organizations?.length === 1) {
+            return this.opencgaSession.opencgaClient._config.organizations[0];
+        }
+        // If not, return the organization from the input field
+        return (this.querySelector("#organization")?.value || "").trim();
+    }
+
     onSubmit() {
         const user = (this.querySelector("#user").value || "").trim();
         const password = (this.querySelector("#password").value || "").trim();
-        const organization = (this.querySelector("#organization")?.value || "").trim();
+        const organization = this.getOrganization();
 
         this.hasEmptyUser = user.length === 0;
         this.hasEmptyPassword = password.length === 0;
@@ -143,14 +151,6 @@ export default class UserLogin extends LitElement {
 
     render() {
         return html`
-            <style>
-                /* Josemi NOTe 2024-02-01 */
-                /* Terrible style hack to fix rounded corners in organization field */
-                .organization-field .select2-selection {
-                    border-top-left-radius: 0px !important;
-                    border-bottom-left-radius: 0px !important;
-                }
-            </style>
             <div class="container-fluid" style="max-width:480px;">
                 <div class="card">
                     <div class="card-body">
@@ -171,15 +171,21 @@ export default class UserLogin extends LitElement {
                                 <input id="password" class="form-control" type="password" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
                             </div>
                         </div>
-                        <div class="form-group organization-field">
-                            <label for="organization" class="form-label fw-bold">Organization</label>
-                            <div class="input-group mb-3">
-                                <span class="input-group-text">
-                                    <i class="fa fa-building fa-lg"></i>
-                                </span>
-                                <input id="organization" class="form-control" type="text" placeholder="Organization ID" @keyup="${e => this.onKeyUp(e)}">
+                        ${(this.opencgaSession?.opencgaClient?._config?.organizations?.length > 1) ? html`
+                            <div class="form-group">
+                                <label for="organization" class="form-label fw-bold">Organization</label>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">
+                                        <i class="fa fa-building fa-lg"></i>
+                                    </span>
+                                    <select class="form-select" id="organization">
+                                        ${this.opencgaSession?.opencgaClient?._config?.organizations.map(organization => html`
+                                            <option value="${organization}">${organization}</option>
+                                        `)}
+                                    </select>
+                                </div>
                             </div>
-                        </div>
+                        ` : nothing}
                         <div class="d-grid gap-2">
                             <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
                                 <strong>Sign In</strong>
