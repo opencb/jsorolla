@@ -170,7 +170,7 @@ export default class ProjectCreate extends LitElement {
     getDefaultConfig() {
         return Types.dataFormConfig({
             type: "form",
-            display: this.displayConfig || this.displayConfigDefault,
+            display: this.displayConfig,
             sections: [
                 {
                     elements: [
