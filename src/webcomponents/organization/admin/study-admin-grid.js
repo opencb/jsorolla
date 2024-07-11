@@ -67,6 +67,12 @@ export default class StudyAdminGrid extends LitElement {
         this.active = true;
         this._config = this.getDefaultConfig();
         this.action = "";
+        this.displayConfigDefault = {
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+        };
     }
 
     // --- LIFE-CYCLE METHODS
@@ -226,16 +232,11 @@ export default class StudyAdminGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("name")
             },
             {
-                title: "Creation Date",
-                field: "creationDate",
-                formatter: (value, row) => CatalogGridFormatter.dateFormatter(value, row),
-                visible: this.gridCommons.isColumnVisible("creationDate")
-            },
-            {
-                title: "Modification Date",
-                field: "modificationDate",
-                formatter: (value, row) => CatalogGridFormatter.dateFormatter(value, row),
-                visible: this.gridCommons.isColumnVisible("modificationDate")
+                title: "Creation Date / Modification Date",
+                field: "dates",
+                halign: this.displayConfigDefault.header.horizontalAlign,
+                valign: "middle",
+                formatter: (value, row) => this.datesFormatter(value, row),
             },
             {
                 title: "Groups",
@@ -295,15 +296,16 @@ export default class StudyAdminGrid extends LitElement {
     // *** FORMATTERS ***
     groupsFormatter(groups) {
         const groupsBadges = groups.map(group => `
-            <span class="mb-1">
-                ${group.id}  [${group.userIds.length}]
-            </span>
+            <div class="d-flex flex-column mb-1">
+                <div>${group.id}  [${group.userIds.length}]</div>
+                <small class="text-muted">${group.userIds.join(", ")}</small>
+            </div>
         `);
 
         const maxShow = 3;
         const badgesShow = groupsBadges.splice(0, maxShow);
         return `
-            <div class="d-flex flex-column align-items-start">
+            <div class="d-flex flex-column align-items-start justify-content-center">
                 ${badgesShow.join("")}
                 ${groupsBadges.length > 0 ? `
                     <a tooltip-title="GROUPS" tooltip-text='${groupsBadges.join("<br>")}'>
@@ -311,6 +313,14 @@ export default class StudyAdminGrid extends LitElement {
                     </a>
                 ` : ""}
             </div>
+        `;
+    }
+
+    datesFormatter(value, study) {
+        debugger
+        return `
+            <div class="text-body-secondary">${CatalogGridFormatter.dateFormatter(study.creationDate, study)}</div>
+            <div class="text-body-secondary">${CatalogGridFormatter.dateFormatter(study.modificationDate, study)}</div>
         `;
     }
 
