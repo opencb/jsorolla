@@ -361,6 +361,10 @@ export default class SelectFieldFilter extends LitElement {
     renderStyle() {
         return html`
             <style>
+                .select-field-filter .select2-results__options {
+                    max-height: 600px !important;
+                }
+
                 .select-field-filter .select2-results__option--selected {
                     background-color: #fff !important;
                     color: #000 !important;

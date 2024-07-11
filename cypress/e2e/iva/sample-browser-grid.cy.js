@@ -31,8 +31,6 @@ context("Sample Browser Grid", () => {
 
     // TOOLBAR
     context("Sample Toolbar", () => {
-        const toolbarComponent = "";
-
         beforeEach(() => {
             cy.get("@container")
                 .find(`div[data-cy="toolbar"]`)
@@ -59,7 +57,6 @@ context("Sample Browser Grid", () => {
     // MODAL CREATE
     context("Modal Create", () => {
         beforeEach(() => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@container")
                 .find(`button[data-action="create"]`)
                 .click();
@@ -69,44 +66,38 @@ context("Sample Browser Grid", () => {
         });
         // 1. Open modal and render create
         it("should render create modal", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("div.modal-dialog")
                 .should("be.visible");
         });
         // 2. Render title
         it("should render create title", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("h4.modal-title")
-                .should("contain.text", "Sample create");
+                .should("contain.text", "Sample Create");
         });
         // 3. Render button clear
         it("should render button clear", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .contains("button", "Clear")
                 .should("be.visible");
         });
         // 4. Render button create
         it("should render button create", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .contains("button", "Create")
                 .should("be.visible");
         });
         // 5. Render tabs
         it("should render form tabs", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.greaterThan", 1);
         });
         // 6. Render Sample ID
         it("should have form field ID", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .find(`data-form div.form-horizontal div.row label.col-form-label`)
+                .find(`data-form div.form-horizontal div.row div.col-md-3`)
                 .should("contain.text", "Sample ID");
         });
     });
@@ -114,7 +105,6 @@ context("Sample Browser Grid", () => {
     // MODAL UPDATE
     context("Modal Update", () => {
         beforeEach(() => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@container")
                 .find(`table tbody tr td button.dropdown-toggle`)
                 .first()
@@ -128,44 +118,38 @@ context("Sample Browser Grid", () => {
         });
         // 1. Open modal and render update
         it("should render update modal", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("div.modal-dialog")
                 .should("be.visible");
         });
         // 2. Render title
         it("should render update title", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("h4.modal-title")
-                .should("contain.text", "Sample update");
+                .should("contain.text", "Sample Update");
         });
         // 3. Render button clear
         it("should render button clear", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .contains("button", "Discard Changes")
                 .should("be.visible");
         });
         // 4. Render button create
         it("should render button create", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .contains("button", "Update")
                 .should("be.visible");
         });
         // 5. Render tabs
         it("should render form tabs", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.greaterThan", 1);
         });
         // 6. Render Sample ID
         it("should have form field ID equal to sample selected", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
-                .find(`data-form div.row div.row label.col-form-label`)
+                .find(`data-form div.row div.row div.col-md-3`)
                 .should("contain.text", "Sample ID");
         });
     });
@@ -302,9 +286,9 @@ context("Sample Browser Grid", () => {
                     .click();
 
                 BrowserTest.getElementByComponent({
-                    selector: 'sample-grid opencb-grid-toolbar',
-                    tag:'div',
-                    elementId: 'SettingModal'
+                    selector: "sample-grid opencb-grid-toolbar",
+                    tag: "div",
+                    elementId: "SettingModal",
                 }).as("settingModal");
 
                 cy.get("@settingModal")
@@ -314,14 +298,14 @@ context("Sample Browser Grid", () => {
                         // Drag the modal to a new position using Cypress's drag command
                         // eslint-disable-next-line cypress/unsafe-to-chain-command
                         cy.get("@settingModal")
-                            .find('.modal-header')
-                            .trigger('mousedown', { which: 1 }) // Trigger mouse down event
-                            .trigger('mousemove', { clientX: 100, clientY: 100 }) // Move the mouse
-                            .trigger('mouseup'); // Release the mouse
+                            .find(".modal-header")
+                            .trigger("mousedown", { which: 1 }) // Trigger mouse down event
+                            .trigger("mousemove", { clientX: 100, clientY: 100 }) // Move the mouse
+                            .trigger("mouseup"); // Release the mouse
 
                         // Get the final position of the modal
                         cy.get(`@settingModal`)
-                            .find('.modal-header')
+                            .find(".modal-header")
                             .then(($modal) => {
                                 const finalPosition = $modal.offset();
                                 cy.log("final Position:", finalPosition);
