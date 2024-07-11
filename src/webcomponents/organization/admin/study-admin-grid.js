@@ -408,7 +408,7 @@ export default class StudyAdminGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            createLabel: "New Study...",
+            buttonCreateText: "New Study...",
             showCreate: true,
             showExport: false,
             showSettings: false,

@@ -240,7 +240,7 @@ export default class ProjectAdminBrowser extends LitElement {
             showExport: false,
             showSettings: false,
             showCreate: true,
-            createLabel: "New Project...",
+            buttonCreateText: "New Project...",
             showGraphicFilters: false,
             showProjectToolbar: true,
         };
