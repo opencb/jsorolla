@@ -19,6 +19,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
+import FormUtils from "../../commons/forms/form-utils.js";
 import "./filters/user-status-filter.js";
 
 export default class UserAdminStatusUpdate extends LitElement {
@@ -36,16 +37,16 @@ export default class UserAdminStatusUpdate extends LitElement {
     static get properties() {
         return {
             userId: {
-                type: String
+                type: String,
             },
             organization: {
                 type: Object,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             displayConfig: {
-                type: Object
+                type: Object,
             },
         };
     }
@@ -54,6 +55,7 @@ export default class UserAdminStatusUpdate extends LitElement {
         this.user = {}; // Original object
         this._user = {}; // Updated object
         this.userId = "";
+        this.updatedFields = {};
         this.displayConfig = {};
         this.displayConfigDefault = {
             style: "margin: 10px",
@@ -61,8 +63,8 @@ export default class UserAdminStatusUpdate extends LitElement {
             titleStyle: "color: var(--main-bg-color);margin-bottom:16px;font-weight:bold;",
             defaultLayout: "horizontal",
             buttonOkText: "Update Status",
+            buttonOkDisabled: true,
         };
-        this.updatedParam = "";
     }
 
     #setLoading(value) {
@@ -76,9 +78,7 @@ export default class UserAdminStatusUpdate extends LitElement {
             text: "Some changes have been done in the form. Not saved changes will be lost",
             type: "notification",
             display: {
-                visible: () => {
-                    return UtilsNew.isNotEmpty(this.updatedParam);
-                },
+                visible: () => UtilsNew.isNotEmpty(this.updatedFields),
                 notificationType: "warning",
             },
         };
@@ -86,17 +86,16 @@ export default class UserAdminStatusUpdate extends LitElement {
 
     #initOriginalObjects() {
         this._user = UtilsNew.objectClone(this.user);
-        this._config = this.getDefaultConfig();
-        if (!this._config?.notification) {
-            this.#initConfigNotification();
-        }
-        this.updatedParam = "";
-        this.requestUpdate();
+        this.updatedFields = {};
+        this.displayConfigObserver();
     }
 
     update(changedProperties) {
         if (changedProperties.has("userId")) {
             this.userIdObserver();
+        }
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfigObserver();
         }
         super.update(changedProperties);
     }
@@ -125,8 +124,27 @@ export default class UserAdminStatusUpdate extends LitElement {
         }
     }
 
+    displayConfigObserver() {
+        this.displayConfig = {
+            ...this.displayConfigDefault,
+            ...this.displayConfig,
+        };
+        this._config = this.getDefaultConfig();
+        if (!this._config?.notification) {
+            this.#initConfigNotification();
+        }
+    }
+
     onFieldChange(e) {
-        this.updatedParam = e.detail.value;
+        const param = e.detail.param;
+        this.updatedFields = FormUtils.getUpdatedFields(
+            this.user,
+            this.updatedFields,
+            param,
+            e.detail.value,
+            e.detail.action);
+        this._config.display.buttonOkDisabled = UtilsNew.isEmpty(this.updatedFields);
+        this._config = {...this._config};
         this.requestUpdate();
     }
 
@@ -149,9 +167,11 @@ export default class UserAdminStatusUpdate extends LitElement {
         const params = {
             includeResult: true,
         };
+        const updateParams = FormUtils.getUpdateParams(this._user, this.updatedFields);
+
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.organization()
-            .userUpdateStatus(this.user.id, this.updatedParam, params)
+            .userUpdateStatus(this.user.id, updateParams.internal.status.id, params)
             .then(response => {
                 this.user = UtilsNew.objectClone(response.responses[0].results[0]);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -187,6 +207,7 @@ export default class UserAdminStatusUpdate extends LitElement {
             <data-form
                 .data="${this._user}"
                 .config="${this._config}"
+                .updateParams="${this.updatedFields}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @submit="${this.onSubmit}"
                 @clear="${this.onClear}">
@@ -197,13 +218,10 @@ export default class UserAdminStatusUpdate extends LitElement {
     getDefaultConfig() {
         return {
             icon: "fas fa-edit",
-            buttons: {
-                clearText: "Discard Changes",
-                okText: "Update",
-            },
-            display: this.displayConfig || this.displayConfigDefault,
+            display: this.displayConfig,
             sections: [
                 {
+                    title: "Current Status",
                     elements: [
                         {
                             title: "User ID",
@@ -214,7 +232,7 @@ export default class UserAdminStatusUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Current Status",
+                            title: "Status",
                             type: "complex",
                             display: {
                                 containerClassName: "d-flex align-items-center",
@@ -228,8 +246,8 @@ export default class UserAdminStatusUpdate extends LitElement {
                     ],
                 },
                 {
-                    // title: "Change Status",
-                    // description: "You can change the status of the user here",
+                    title: "Change Status",
+                    description: "You can change the status of the user here",
                     display: {
                         // titleHeader: "h4",
                         // titleClassName: "d-block text-secondary"
