@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
 import "./note-view.js";
 import "./../commons/view/detail-tabs.js";
@@ -46,16 +46,11 @@ export default class NoteDetail extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "note-detail";
-        this._note = {};
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("note")) {
-            this.noteObserver();
-        }
-
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
@@ -66,10 +61,6 @@ export default class NoteDetail extends LitElement {
         super.update(changedProperties);
     }
 
-    noteObserver() {
-        this._note = {...this.note};
-    }
-
     #updateDetailTabs() {
         this._config.items = [
             ...this._config.items,
@@ -78,16 +69,17 @@ export default class NoteDetail extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession) {
-            return "";
+        if (!this.opencgaSession || !this.note) {
+            return nothing;
         }
 
         return html`
             <detail-tabs
-                .data="${this._note}"
+                .data="${this.note}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>`;
+            </detail-tabs>
+        `;
     }
 
     getDefaultConfig() {
