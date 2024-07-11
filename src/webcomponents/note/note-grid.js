@@ -18,10 +18,10 @@ import {LitElement, html, nothing} from "lit";
 import {ifDefined} from "lit/directives/if-defined.js";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
-import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
+import "../commons/opencb-grid-toolbar.js";
 import "./note-create.js";
 import "./note-update.js";
 
