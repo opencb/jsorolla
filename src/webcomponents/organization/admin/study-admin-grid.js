@@ -121,7 +121,7 @@ export default class StudyAdminGrid extends LitElement {
                     <study-create
                         .project=${this.project}
                         .opencgaSession="${this.opencgaSession}"
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
                         @studyCreate="${e => this.onStudyEvent(e)}">
                     </study-create>
                 `,
@@ -318,7 +318,6 @@ export default class StudyAdminGrid extends LitElement {
     }
 
     datesFormatter(value, study) {
-        debugger
         return `
             <div class="text-body-secondary">${CatalogGridFormatter.dateFormatter(study.creationDate, study)}</div>
             <div class="text-body-secondary">${CatalogGridFormatter.dateFormatter(study.modificationDate, study)}</div>
@@ -351,7 +350,7 @@ export default class StudyAdminGrid extends LitElement {
             render: () => html`
                 <study-update
                     .studyId="${this.studyId}"
-                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
                     .opencgaSession="${this.opencgaSession}"
                     @studyUpdate="${e => this.onStudyEvent(e, `${this._prefix}UpdateStudyModal`)}">
                 </study-update>
