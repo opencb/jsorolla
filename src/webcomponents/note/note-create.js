@@ -160,8 +160,11 @@ export default class NoteCreate extends LitElement {
                 ...(this.displayConfig || {}),
             },
             notification: {
-                text: "You can not create a note in ORGANIZATION as you are not an organization admin.",
+                type: "notification",
+                text: "You can not create a note with scope ORGANIZATION as you are not an organization admin.",
                 display: {
+                    icon: "exclamation-triangle",
+                    notificationType: "warning",
                     visible: data => {
                         return data.scope === "ORGANIZATION" && !CatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, this.opencgaSession.user.id);
                     },
