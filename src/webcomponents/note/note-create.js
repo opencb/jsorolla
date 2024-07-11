@@ -114,9 +114,8 @@ export default class NoteCreate extends LitElement {
                 this.initNote();
                 this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                title: "New Note",
-                message: "note created correctly",
-            });
+                    message: `Note '${data.id}' created.`,
+                });
             })
             .catch(reason => {
                 error = reason;
