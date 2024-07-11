@@ -177,6 +177,11 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                             }
                         },
                         {
+                            title: "Lock",
+                            type: "toggle-switch",
+                            field: "locked",
+                        },
+                        {
                             title: "Disease Panels",
                             field: "panels",
                             type: "custom",
@@ -197,7 +202,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                                             .diseasePanels="${panelList}"
                                             .panel="${panels?.map(panel => panel.id).join(",")}"
                                             .showExtendedFilters="${false}"
-                                            .showSelectedPanels="${false}"
+                                            .showSelectedPanels="${true}"
                                             .classes="${updateParams.panels ? "selection-updated" : ""}"
                                             .disabled="${panelLock}"
                                             @filterChange="${e => handlePanelsFilterChange(e)}">

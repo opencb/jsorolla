@@ -243,10 +243,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
     onFilterVariants(e) {
         const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id), "study"];
-        const variantIds = e.detail.variants.map(v => v.id);
+        const variantIds = new Set(e.detail.variants.map(v => v.id));
         this.query = {
             ...UtilsNew.filterKeys(this.executedQuery, lockedFields),
-            id: variantIds.join(","),
+            id: Array.from(variantIds).join(","),
         };
         this.notifyQueryChange();
         this.requestUpdate();

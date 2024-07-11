@@ -18,6 +18,7 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import ModalUtils from "../../commons/modal/modal-utils.js";
 import ExtensionsManager from "../../extensions-manager.js";
 import {guardPage} from "../../commons/html-utils.js";
 import "../../commons/tool-header.js";
@@ -34,6 +35,7 @@ import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
 import "../../clinical/clinical-analysis-review.js";
+import "../../clinical/interpretation/clinical-interpretation-update.js";
 
 class VariantInterpreter extends LitElement {
 
@@ -212,6 +214,30 @@ class VariantInterpreter extends LitElement {
         this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, () => {
             this.onClinicalAnalysisUpdate();
         });
+    }
+
+    onInterpreationEdit() {
+        ModalUtils.show(`${this._prefix}InterpretationUpdateModal`);
+    }
+
+    onInterpretationLock() {
+        const updateParams = {
+            locked: !this.clinicalAnalysis.interpretation.locked,
+        };
+        this.opencgaSession.opencgaClient.clinical()
+            .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id, updateParams, {
+                study: this.opencgaSession.study.fqn,
+            })
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `Interpretation '${this.clinicalAnalysis.interpretation.id}' has been ${updateParams.locked ? "locked" : "unlocked"}.`,
+                });
+                this.onClinicalAnalysisUpdate();
+            })
+            .catch(error => {
+                console.error(error);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            });
     }
 
     renderCustomAnalysisTab() {
@@ -418,56 +444,88 @@ class VariantInterpreter extends LitElement {
                 ` : null}
                 <div class="dropdown">
                     <button class="btn btn-light btn-lg dropdown-toggle" data-bs-toggle="dropdown" type="button">
-                        <i class="fa fa-toolbox" aria-hidden="true"></i>
+                        <i class="fas fa-toolbox" aria-hidden="true"></i>
                         <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">Interpretation Actions</h6></li>
+                        <li>
+                            <a class="dropdown-item" style="cursor:pointer" @click="${() => this.onInterpreationEdit()}">
+                                <i class="fas fa-edit pe-1"></i> Edit Interpretation
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" style="cursor:pointer;" @click="${() => this.onInterpretationLock()}">
+                                <i class="fas ${this.clinicalAnalysis?.interpretation?.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
+                                ${this.clinicalAnalysis?.interpretation?.locked ? "Unlock" : "Lock"} Interpretation
+                            </a>
+                        </li>
                         ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
-                            <li>
-                                <a class="dropdown-item" style="background-color:white!important;">
-                                    <strong>Change interpretation</strong>
-                                </a>
-                            </li>
+                            <li><h6 class="dropdown-header">Set Primary Interpretation</h6></li>
                             ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
                                 <li>
-                                    <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
+                                    <a class="dropdown-item" style="cursor:pointer;" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
+                                        <i class="fas ${item.locked ? "fa-lock" : "fa-unlock"} pe-1"></i>
                                         ${item.id}
-                                        <i class="fa ${item.locked ? "fa-lock" : "fa-unlock"} pe-1" style="padding-left: 5px"></i>
                                     </a>
                                 </li>
                             `)}
-                            <li><hr class="dropdown-divider"></li>
                         ` : null}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">Case Actions</h6></li>
                         <li>
-                            <a class="dropdown-item" style="background-color:white!important;">
-                                <strong>Case Actions</strong>
+                            <a class="dropdown-item" style="cursor:pointer;" @click="${this.onClinicalAnalysisLock}">
+                                <i class="fas ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
+                                ${this.clinicalAnalysis.locked ? "Unlock" : "Lock"} Case
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisLock}">
-                                <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
-                                ${this.clinicalAnalysis.locked ? "Case Unlock" : "Case Lock"}
+                            <a class="dropdown-item" style="cursor:pointer" @click="${this.onClinicalAnalysisRefresh}">
+                                <i class="fas fa-sync pe-1"></i> Refresh Case
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisRefresh}">
-                                <i class="fa fa-sync pe-1"></i> Refresh
+                            <a class="dropdown-item" style="cursor:pointer;" @click="${this.onClinicalAnalysisDownload}">
+                                <i class="fas fa-download pe-1"></i> Download Case
                             </a>
                         </li>
+                        <li><hr class="dropdown-divider"></li>
                         <li>
-                            <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisDownload}">
-                                <i class="fa fa-download pe-1"></i> Download
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" style="padding-left: 25px" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
-                                <i class="fa fa-times pe-1"></i> Close
+                            <a class="dropdown-item" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                                <i class="fas fa-sign-out-alt pe-1"></i> Exit Interpreter
                             </a>
                         </li>
                     </ul>
                 </div>
             </div>
         `;
+    }
+
+    renderInterpretationUpdateModal() {
+        return ModalUtils.create(this, `${this._prefix}InterpretationUpdateModal`, {
+            display: {
+                modalTitle: `Interpretation Update: ${this.clinicalAnalysis?.interpretation?.id}`,
+                modalDraggable: false,
+                modalSize: "modal-lg"
+            },
+            render: () => {
+                const displayConfig = {
+                    buttonClearText: "Cancel",
+                    buttonOkText: "Update",
+                    buttonsLayout: "upper",
+                    type: "tabs",
+                };
+                return html `
+                    <clinical-interpretation-update
+                        .clinicalInterpretation="${this.clinicalAnalysis?.interpretation}"
+                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${displayConfig}"
+                        @clinicalInterpretationUpdate="${() => this.onClinicalAnalysisUpdate()}">
+                    </clinical-interpretation-update>
+                `;
+            },
+        });
     }
 
     render() {
@@ -506,6 +564,8 @@ class VariantInterpreter extends LitElement {
                     ${(this._config?.tools || []).map(tool => this.renderTool(tool))}
                 </div>
             </div>
+
+            ${this.renderInterpretationUpdateModal()}
 
             <div class="v-space"></div>
         `;
@@ -550,7 +610,8 @@ class VariantInterpreter extends LitElement {
                     id: "review",
                     title: "Interpretation Review",
                     description: "",
-                    icon: "fa fa-edit"
+                    icon: "fa fa-edit",
+                    visible: false,
                 },
                 {
                     id: "report",
