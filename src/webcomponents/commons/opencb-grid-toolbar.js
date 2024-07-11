@@ -111,6 +111,8 @@ export default class OpencbGridToolbar extends LitElement {
                 rightButtons.push(rightButton.render());
             }
         }
+        // Button create text
+        const buttonCreateText = this._settings?.buttonCreateText || "New...";
 
         // Check 'Create' permissions
         let isCreateDisabled = false;
@@ -151,7 +153,7 @@ export default class OpencbGridToolbar extends LitElement {
                                     ${isCreateDisabled ? html `
                                         <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="${isCreateDisabledTooltip}">
                                             <button data-cy="toolbar-btn-create" data-action="create" type="button" class="btn btn-light" disabled>
-                                                <i class="fas fa-file pe-1" aria-hidden="true"></i> New ...
+                                                <i class="fas fa-file pe-1" aria-hidden="true"></i> ${buttonCreateText}
                                             </button>
                                         </span>
                                     ` : html `
@@ -159,7 +161,7 @@ export default class OpencbGridToolbar extends LitElement {
                                             ${this._settings?.downloading === true ? html`
                                                 <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
                                             ` : nothing}
-                                            <i class="fas fa-file pe-1" aria-hidden="true"></i> New ...
+                                            <i class="fas fa-file pe-1" aria-hidden="true"></i> ${buttonCreateText}
                                         </button>
                                     `}
                                 </div>
