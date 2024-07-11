@@ -90,7 +90,7 @@ export default class UserPasswordReset extends LitElement {
                 this.#initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: `User Reset Password`,
-                    message: `User ${this.userId} password reset correctly`,
+                    message: `User ${this.user.id} password reset correctly`,
                 });
             })
             .catch(reason => {
