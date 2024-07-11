@@ -174,6 +174,7 @@ export default class UserAdminStatusUpdate extends LitElement {
             .userUpdateStatus(this.user.id, updateParams.internal.status.id, params)
             .then(response => {
                 this.user = UtilsNew.objectClone(response.responses[0].results[0]);
+                this.updatedFields = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: `User Status Update`,
                     message: `User ${this.userId} status has been updated correctly`,
