@@ -837,7 +837,7 @@ export default class DataForm extends LitElement {
         const content = html`
             <div class="${textClass} ${notificationClass}" style="${textStyle}">
                 ${element.display?.icon ? html`
-                    <i class="fas fa-${element.display.icon} ms-1"></i>
+                    <i class="fas fa-${element.display.icon} me-1"></i>
                 ` : nothing}
                 <span>${value || ""}</span>
             </div>
