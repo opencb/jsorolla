@@ -806,7 +806,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
                                         <a id="${reviewId}" href="javascript: void 0" class="dropdown-item reviewButton" data-action="edit" ${reviewDisabled}>
-                                            <i class="fas fa-edit reviewButton" aria-hidden="true"></i> Edit ...
+                                            <i class="fas fa-edit me-1 reviewButton" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
@@ -814,20 +814,20 @@ export default class VariantInterpreterGrid extends LitElement {
                                     <li>
                                         <a target="_blank" class="dropdown-item"
                                                 href="${BioinfoUtils.getVariantLink(row.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || row.id, row.chromosome + ":" + row.start + "-" + row.end, "decipher")}">
-                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i> Decipher
+                                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> Decipher
                                         </a>
                                     </li>
                                     <li data-cy="varsome-variant-link">
                                         <a target="_blank" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""}
                                             href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Varsome
+                                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> Varsome
                                         </a>
                                     </li>
                                     <li class="dropdown-header">CellBase Links</li>
                                     ${["v5.2", "v5.8"].map(v => `
                                     <li>
                                         <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`)}">
-                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i>
                                             CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}
                                         </a>
                                     </li>
@@ -836,30 +836,30 @@ export default class VariantInterpreterGrid extends LitElement {
                                     <li>
                                         <a target="_blank" class="dropdown-item"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser", this.opencgaSession?.project?.organism?.assembly)}">
-                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i> Ensembl Genome Browser
+                                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> Ensembl Genome Browser
                                         </a>
                                     </li>
                                     <li>
                                         <a target="_blank" class="dropdown-item"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ucsc_genome_browser")}">
-                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i> UCSC Genome Browser
+                                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> UCSC Genome Browser
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li class="dropdown-header">Fetch Variant</li>
                                     <li>
                                         <a href="javascript: void 0" class="dropdown-item" data-action="copy-json">
-                                            <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
+                                            <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
                                         </a>
                                     </li>
                                     <li>
                                         <a href="javascript: void 0" class="dropdown-item" data-action="download">
-                                            <i class="fas fa-download" aria-hidden="true"></i> Download JSON
+                                            <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
                                         </a>
                                     </li>
                                     <li data-cy="varsome-copy">
                                         <a href="javascript: void 0" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
-                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Copy Varsome ID
+                                            <i class="fas fa-download me-1" aria-hidden="true"></i> Copy Varsome ID
                                         </a>
                                     </li>
                                     ${copiesHtml ? `

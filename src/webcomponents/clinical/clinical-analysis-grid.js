@@ -691,7 +691,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                                     <!-- Edit the case -->
                                     <li>
                                         <a data-action="edit" class="btn force-text-left ${hasAdminAccess}">
-                                            <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
+                                            <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
                                     <!-- Delete the case -->
