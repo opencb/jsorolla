@@ -133,7 +133,7 @@ export default class ProjectAdminBrowser extends LitElement {
                     <project-update
                         .projectId="${this.projectId}"
                         .organization="${this.organization}"
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
                         .opencgaSession="${this.opencgaSession}">
                     </project-update>
                 `;
