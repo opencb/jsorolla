@@ -83,9 +83,17 @@ export default class NoteCreate extends LitElement {
         super.update(changedProperties);
     }
 
-    onFieldChange(e, field) {
-        this.note = {...this.note};
-        this.requestUpdate();
+    onFieldChange(e) {
+        const field = e.detail.param;
+        // 1. If we have changed the valueType, reset the value of the note
+        if (field === "valueType") {
+            delete this.note?.value;
+        }
+        // 2. If we have changed the scope or the valueType, force render data-form
+        if (field === "scope" || field === "valueType") {
+            this.note = {...this.note};
+            this.requestUpdate();
+        }
     }
 
     createNote(scope, data) {
