@@ -17,11 +17,12 @@
 import {LitElement, html} from "lit";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import UtilsNew from "../../core/utils-new.js";
+import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/tool-header.js";
 import "../commons/filters/catalog-search-autocomplete.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/json-editor.js";
-import UtilsNew from "../../core/utils-new.js";
 
 export default class NoteCreate extends LitElement {
 
@@ -49,8 +50,6 @@ export default class NoteCreate extends LitElement {
     }
 
     #init() {
-        // default
-        // after create try to init this note
         this.initNote();
         this.isLoading = false;
         this.displayConfigDefault = {
@@ -79,7 +78,6 @@ export default class NoteCreate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -150,7 +148,18 @@ export default class NoteCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                ...this.displayConfigDefault,
+                ...(this.displayConfig || {}),
+            },
+            notification: {
+                text: "You can not create a note in ORGANIZATION as you are not an organization admin.",
+                display: {
+                    visible: data => {
+                        return data.scope === "ORGANIZATION" && !CatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, this.opencgaSession.user.id);
+                    },
+                },
+            },
             sections: [
                 {
                     title: "General Information",
@@ -209,10 +218,7 @@ export default class NoteCreate extends LitElement {
                             field: "value",
                             type: "custom",
                             display: {
-                                visible: data => {
-                                    const validTypes = ["OBJECT", "ARRAY"];
-                                    return validTypes.includes(data?.valueType);
-                                },
+                                visible: data => ["OBJECT", "ARRAY"].includes(data?.valueType),
                                 render: (content, dataFormFieldChange) => {
                                     const handleValuesChange = (content, valueType) => {
                                         // convert string to array
@@ -225,12 +231,12 @@ export default class NoteCreate extends LitElement {
                                     };
                                     const val = this.note?.valueType === "ARRAY" ? content || [] : content || {};
                                     return html`
-                                            <json-editor
-                                                .data="${val}"
-                                                .config="${{showDownloadButton: false, initAsArray: this.note?.valueType === "ARRAY"}}"
-                                                @fieldChange="${e => handleValuesChange(e.detail?.value, this.note?.valueType)}">
-                                            </json-editor>
-                                            `;
+                                        <json-editor
+                                            .data="${val}"
+                                            .config="${{showDownloadButton: false, initAsArray: this.note?.valueType === "ARRAY"}}"
+                                            @fieldChange="${e => handleValuesChange(e.detail?.value, this.note?.valueType)}">
+                                        </json-editor>
+                                    `;
                                 },
                             },
                         },
@@ -239,10 +245,7 @@ export default class NoteCreate extends LitElement {
                             field: "value",
                             type: "input-text",
                             display: {
-                                visible: data => {
-                                    const validTypes = ["STRING", "INTEGER", "DOUBLE"];
-                                    return validTypes.includes(data?.valueType);
-                                },
+                                visible: data => ["STRING", "INTEGER", "DOUBLE"].includes(data?.valueType),
                                 rows: 3,
                                 placeholder: "Add a note content...",
                             },
