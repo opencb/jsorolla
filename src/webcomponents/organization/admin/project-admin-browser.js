@@ -92,7 +92,7 @@ export default class ProjectAdminBrowser extends LitElement {
                 },
                 render: () => html `
                     <project-create
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
                         .opencgaSession="${this.opencgaSession}">
                     </project-create>`
             },
@@ -155,69 +155,69 @@ export default class ProjectAdminBrowser extends LitElement {
 
     renderProject(project) {
         return html `
-            <div class="card" style="margin-bottom: 3em; padding: 1em;">
-                <!--1. Header project-->
-                <div class="d-flex justify-content-between align-items-center">
-                    <!-- 1.1 Render project title -->
-                    <div class="d-flex">
-                        <h4 class="d-flex">
-                            <div class="d-flex align-items-center justify-content-around">
-                                <div style="margin-right: 1em">
+            <div class="card mb-5">
+                <!--PROJECTS information and actions -->
+                <div class="px-3 py-3">
+                    <!--1. Project header: title and actions-->
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <!-- 1.1 Project title: name/id and fqn -->
+                        <h4 class="d-flex align-items-center">
+                            <div class="d-flex me-4">
                                 ${project.name || project.id}
-                                </div>
+                            </div>
+                            <div class="text-muted">
+                                [ ${project.fqn} ]
                             </div>
                         </h4>
+                        <!-- 1.2. Project Actions -->
+                        <div id="actions" class="d-flex">
+                            ${
+                                Object.keys(this.modals).map(modalKey => {
+                                    const modal = this.modals[modalKey];
+                                    return html`
+                                        <button class="btn btn-light"
+                                                data-action="${modalKey}"
+                                                @click="${e => this.onActionClick(e, project)}">
+                                            <i class=${modal.icon} aria-hidden="true"></i> ${modal.label}...
+                                        </button>
+                                    `;
+                                })
+                            }
+                        </div>
                     </div>
-                    <!-- 1.2. Render project Actions -->
-                    <div id="actions" class="d-flex">
-                        ${
-                            Object.keys(this.modals).map(modalKey => {
-                                const modal = this.modals[modalKey];
-                                return html`
-                                    <button class="btn btn-light"
-                                            data-action="${modalKey}"
-                                            @click="${e => this.onActionClick(e, project)}">
-                                        <i class=${modal.icon} aria-hidden="true"></i> ${modal.label}...
-                                    </button>
-                                `;
-                            })
-                        }
-                    </div>
-                </div>
-                <!-- TODO Vero: structure the following divs 2 to 4 properly  -->
-                <!-- 2. Render project fqn -->
-                <div style="font-size: medium; color: #7f7f7f; margin-right: 1em">
-                    ${project.fqn}
-                </div>
-                <!-- 3. Render project fqn and description -->
-                <div class="mb-4" style="color: #7f7f7f">
-                    ${project.description}
-                    <!--Data Release: $project.attributes.release} || nothing -->
-                </div>
-                <!-- 4. Render organism, assembly and Cellbase info -->
-                <div>
-                    <div style="align-self: end; font-size: small; margin-right: 1em">
-                        ${project.organism?.scientificName.toUpperCase() || "-"} (${project.organism?.assembly || "-"})
-                    </div>
-                    <div style="align-self: end; font-size: small;; margin-right: 1em">
-                        <span class="me-3">Cellbase: ${project.cellbase?.version || "-"}</span>
-                        <span class="me-3">Data Release: ${project.cellbase?.dataRelease || "-"}</span>
-                        <span class="me-3">
+                     <!--2. Project info: organism, assembly, cellbase -->
+                    <div class="d-flex mb-2">
+                        <div class="fs-6 me-4">
+                            ${project.organism?.scientificName.toUpperCase() || "-"} (${project.organism?.assembly || "-"})
+                        </div>
+                        <div class="fs-6 me-4">
+                            Cellbase: ${project.cellbase?.version || "-"}
+                        </div>
+                        <div class="fs-6 me-4">
+                            Data Release: ${project.cellbase?.dataRelease || "-"}
+                        </div>
+                        <div class="fs-6 me-4">
                             URL:
                             <a href="${project.cellbase?.url || "-"}" target="_blank">
                                 ${project.cellbase?.url || "-"},
                             </a>
-                        </span>
+                        </div>
+                    </div>
+                    <!--3. Project description -->
+                    <div class="card-subtitle text-muted">
+                        ${project.description}
                     </div>
                 </div>
-                <!-- 5. Render studies grid -->
-                <study-admin-grid
-                    .toolId="${this.COMPONENT_ID}"
-                    .project="${project}"
-                    .organization="${this.organization}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .active="${true}">
-                </study-admin-grid>
+                <!--STUDIES grid -->
+                <div class="card-body">
+                    <study-admin-grid
+                        .toolId="${this.COMPONENT_ID}"
+                        .project="${project}"
+                        .organization="${this.organization}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .active="${true}">
+                    </study-admin-grid>
+                </div>
                 <!-- 4. On action click, render action modal -->
                 ${this.action ? this.modals[this.action]["render"](): nothing}
             </div>
