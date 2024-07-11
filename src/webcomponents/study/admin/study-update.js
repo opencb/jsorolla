@@ -18,7 +18,6 @@ import {html, LitElement} from "lit";
 import FormUtils from "../../commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
-import Types from "../../commons/types.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 
 export default class StudyUpdate extends LitElement {
@@ -50,18 +49,17 @@ export default class StudyUpdate extends LitElement {
     #init() {
         this.study = {}; // Original object
         this._study = {}; // Updated object
-        this.updateParams = {};
+        this.updatedFields = {};
         this.isLoading = false;
+        this.updatedFields = {};
         this.displayConfig = {};
         this.displayConfigDefault = {
             style: "margin: 10px",
             defaultLayout: "horizontal",
             labelAlign: "right",
-            labelWidth: 3,
-            buttonOkText: "Update"
+            buttonOkText: "Update",
+            buttonOkDisabled: true,
         };
-        this._config = this.getDefaultConfig();
-        this.updatedParam = "";
     }
 
     #setLoading(value) {
@@ -75,9 +73,7 @@ export default class StudyUpdate extends LitElement {
             text: "Some changes have been done in the form. Not saved changes will be lost",
             type: "notification",
             display: {
-                visible: () => {
-                    return UtilsNew.isNotEmpty(this.updatedParam);
-                },
+                visible: () => UtilsNew.isNotEmpty(this.updatedFields),
                 notificationType: "warning",
             },
         };
@@ -86,7 +82,7 @@ export default class StudyUpdate extends LitElement {
     #initOriginalObjects() {
         this._study = UtilsNew.objectClone(this.study);
         this.updatedFields = {};
-        this.requestUpdate();
+        this.displayConfigObserver();
     }
 
     update(changedProperties) {
@@ -94,14 +90,7 @@ export default class StudyUpdate extends LitElement {
             this.studyIdObserver();
         }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig,
-            };
-            this._config = this.getDefaultConfig();
-            if (!this._config?.notification) {
-                this.#initConfigNotification();
-            }
+            this.displayConfigObserver();
         }
         super.update(changedProperties);
     }
@@ -118,12 +107,23 @@ export default class StudyUpdate extends LitElement {
                 })
                 .catch(reason => {
                     error = reason;
-                    console.error(reason);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
                 })
                 .finally(() => {
-                    this._config = this.getDefaultConfig();
+                    LitUtils.dispatchCustomEvent(this, "studyInfo", this.user, {}, error);
                     this.#setLoading(false);
                 });
+        }
+    }
+
+    displayConfigObserver() {
+        this.displayConfig = {
+            ...this.displayConfigDefault,
+            ...this.displayConfig,
+        };
+        this._config = this.getDefaultConfig();
+        if (!this._config?.notification) {
+            this.#initConfigNotification();
         }
     }
 
@@ -136,6 +136,8 @@ export default class StudyUpdate extends LitElement {
             e.detail.value,
             e.detail.action);
 
+        this._config.display.buttonOkDisabled = UtilsNew.isEmpty(this.updatedFields);
+        this._config = {...this._config};
         this.requestUpdate();
     }
 
@@ -157,19 +159,18 @@ export default class StudyUpdate extends LitElement {
         const params = {
             includeResult: true
         };
-        const updateParams = FormUtils.getUpdateParams(this._study, this.updatedFields, this.updateCustomisation);
+        const updateParams = FormUtils.getUpdateParams(this._study, this.updatedFields);
 
         let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.studies()
             .update(this.study?.fqn, updateParams, params)
             .then(res => {
-                this._study = UtilsNew.objectClone(res.responses[0].results[0]);
-                this._config = this.getDefaultConfig();
+                this.study = UtilsNew.objectClone(res.responses[0].results[0]);
                 this.updatedFields = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Study Update",
-                    message: "Study updated correctly"
+                    message: `Study ${this.study.id} updated correctly`
                 });
                 LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", this._study, {}, error);
                 LitUtils.dispatchCustomEvent(this, "studyUpdate", this._study, {}, error);
@@ -200,9 +201,8 @@ export default class StudyUpdate extends LitElement {
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
-            type: "form",
-            display: this.displayConfig || this.displayConfigDefault,
+        return {
+            display: this.displayConfig,
             sections: [
                 {
                     elements: [
@@ -233,10 +233,9 @@ export default class StudyUpdate extends LitElement {
                             }
                         },
                     ]
-
                 },
             ],
-        });
+        };
     }
 
 }
