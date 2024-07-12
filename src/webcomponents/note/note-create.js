@@ -134,9 +134,7 @@ export default class NoteCreate extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>`
-            ;
+            return html`<loading-spinner></loading-spinner>`;
         }
 
         return html`
