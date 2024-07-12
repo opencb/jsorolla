@@ -482,7 +482,8 @@ export default class NoteGrid extends LitElement {
             },
             render: active => html`
                 <note-update
-                    .note="${this.noteUpdate}"
+                    .noteId="${this.noteUpdate?.id}"
+                    .noteScope="${this.noteUpdate?.scope}"
                     .active="${active}"
                     .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                     .opencgaSession="${this.opencgaSession}">
