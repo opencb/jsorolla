@@ -177,7 +177,7 @@ export default class NoteCreate extends LitElement {
                         {
                             title: "Scope",
                             field: "scope",
-                            type: "select",
+                            type: "toggle-buttons",
                             required: true,
                             defaultValue: "STUDY",
                             allowedValues: ["STUDY", "ORGANIZATION"],
@@ -191,7 +191,7 @@ export default class NoteCreate extends LitElement {
                         {
                             title: "Visibility",
                             field: "visibility",
-                            type: "select",
+                            type: "toggle-buttons",
                             required: true,
                             defaultValue: "PUBLIC",
                             allowedValues: ["PUBLIC", "PRIVATE"],
