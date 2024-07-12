@@ -69,7 +69,7 @@ export default class NoteUpdate extends LitElement {
         super.update(changedProperties);
     }
 
-    notebserver() {
+    noteObserver() {
         this._note = null;
         if (this.noteId && this.noteScope && this.opencgaSession && this.active) {
             let noteRequest = null;
