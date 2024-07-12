@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import Types from "../commons/types.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/tool-header.js";
@@ -34,8 +34,11 @@ export default class NoteUpdate extends LitElement {
 
     static get properties() {
         return {
-            note: {
-                type: Object
+            noteId: {
+                type: String,
+            },
+            noteScope: {
+                type: String,
             },
             active: {
                 type: Boolean,
@@ -50,46 +53,43 @@ export default class NoteUpdate extends LitElement {
     }
 
     #init() {
-        // default
-        this._note = {};
-        this.note = {};
-        this.updatedFields = {};
+        this.active = true;
         this.displayConfig = {};
+        this._note = null;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("noteId") || changedProperties.has("noteScope") || changedProperties.has("opencgaSession" || changedProperties.has("active"))) {
+            this.noteObserver();
+        }
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
-        }
-        if (changedProperties.has("note")) {
-            this.onComponentObserver();
         }
         super.update(changedProperties);
     }
 
-    // This observer fetches the object fetched from the server.
-    // Uncomment when using 'onComponentFieldChange' to post-process data-from manipulation.
-    onComponentIdObserver(e) {
-        this._note = UtilsNew.objectClone(e.detail.value);
-        this._config = this.getDefaultConfig();
-        this.requestUpdate();
-    }
-
-    onComponentObserver(e) {
-        if (this.note?.scope && this.opencgaSession) {
-            let searchNote = this.opencgaSession.opencgaClient.studies()
-                .searchNotes(this.opencgaSession.study.fqn, {
-                id: this.note?.id
-            });
-            if (this.note?.scope === "ORGANIZATION") {
-                searchNote = this.opencgaSession.opencgaClient.organization()
-                    .searchNotes({id: this.note?.id});
+    notebserver() {
+        this._note = null;
+        if (this.noteId && this.noteScope && this.opencgaSession && this.active) {
+            let noteRequest = null;
+            if (this.noteScope === "STUDY") {
+                noteRequest = this.opencgaSession.opencgaClient.studies()
+                    .searchNotes(this.opencgaSession.study.fqn, {
+                        id: this.noteId,
+                    });
+            } else if (this.noteScope === "ORGANIZATION") {
+                noteRequest = this.opencgaSession.opencgaClient.organization()
+                    .searchNotes({
+                        id: this.noteId,
+                    });
+            } else {
+                console.error(`Unexpected note scope provided. Expected 'STUDY' or 'ORGANIZATION' but got ${this.noteScope}`);
+                return;
             }
-            searchNote
+            noteRequest
                 .then(response => {
                     this._note = response.getResult(0) || {};
-                    this._config = this.getDefaultConfig();
                     this.requestUpdate();
                 })
                 .catch(reason => {
@@ -99,14 +99,17 @@ export default class NoteUpdate extends LitElement {
     }
 
     render() {
+        if (!this._note) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         return html `
             <opencga-update
-                .resource="${"NOTE"}"
+                .resource="NOTE"
                 .component="${this._note}"
                 .opencgaSession="${this.opencgaSession}"
                 .active="${this.active}"
-                .config="${this._config}"
-                @componentIdObserver="${e => this.onComponentIdObserver(e)}">
+                .config="${this._config}">
             </opencga-update>
         `;
     }
@@ -184,12 +187,12 @@ export default class NoteUpdate extends LitElement {
                                             dataFormFieldChange(content?.json ? content?.json : {});
                                         }
                                     };
-                                    const val = this.note?.valueType === "ARRAY" ? content || [] : content || {};
+                                    const val = this._note?.valueType === "ARRAY" ? content || [] : content || {};
                                     return html`
                                         <json-editor
                                             .data="${val}"
-                                            .config="${{showDownloadButton: false, initAsArray: this.note?.valueType === "ARRAY"}}"
-                                            @fieldChange="${e => handleValuesChange(e.detail?.value, this.note?.valueType)}">
+                                            .config="${{showDownloadButton: false, initAsArray: this._note?.valueType === "ARRAY"}}"
+                                            @fieldChange="${e => handleValuesChange(e.detail?.value, this._note?.valueType)}">
                                         </json-editor>
                                     `;
                                 },
