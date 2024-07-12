@@ -175,10 +175,10 @@ export default class NoteCreate extends LitElement {
                             ],
                             display: {
                                 helpMessage: () => {
-                                    // If the user is not an organization admin, display a help message explaining why can not select the 
+                                    // If the user is not an organization admin, display a help message explaining why can not select the
                                     // organization scope.
                                     if (!CatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, this.opencgaSession?.user?.id)) {
-                                        return "You can not create a note with scope ORGANIZATION as you are not an organization admin.";
+                                        return "You cannot create a note with scope ORGANIZATION because you are not an organization admin.";
                                     }
                                     return "";
                                 },
