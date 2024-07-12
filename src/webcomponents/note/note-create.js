@@ -159,17 +159,6 @@ export default class NoteCreate extends LitElement {
                 ...this.displayConfigDefault,
                 ...(this.displayConfig || {}),
             },
-            notification: {
-                type: "notification",
-                text: "You can not create a note with scope ORGANIZATION as you are not an organization admin.",
-                display: {
-                    icon: "exclamation-triangle",
-                    notificationType: "warning",
-                    visible: data => {
-                        return data.scope === "ORGANIZATION" && !CatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, this.opencgaSession.user.id);
-                    },
-                },
-            },
             sections: [
                 {
                     title: "General Information",
@@ -184,6 +173,16 @@ export default class NoteCreate extends LitElement {
                                 {id: "STUDY", disabled: false},
                                 {id: "ORGANIZATION", disabled: !CatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, this.opencgaSession?.user?.id)},
                             ],
+                            display: {
+                                helpMessage: () => {
+                                    // If the user is not an organization admin, display a help message explaining why can not select the 
+                                    // organization scope.
+                                    if (!CatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, this.opencgaSession?.user?.id)) {
+                                        return "You can not create a note with scope ORGANIZATION as you are not an organization admin.";
+                                    }
+                                    return "";
+                                },
+                            },
                         },
                         {
                             title: "Note ID",
