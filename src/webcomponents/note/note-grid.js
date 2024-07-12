@@ -18,7 +18,7 @@ import {LitElement, html, nothing} from "lit";
 import {ifDefined} from "lit/directives/if-defined.js";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -438,7 +438,10 @@ export default class NoteGrid extends LitElement {
             });
     }
 
-    actionsFormatter(value, row) {
+    actionsFormatter() {
+        const user = this.opencgaSession?.user?.id;
+        const hasAdminPermissions = CatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, user) || CatalogUtils.isAdmin(this.opencgaSession?.study, user);
+
         return `
             <div class="d-inline-block dropdown">
                 <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -458,7 +461,7 @@ export default class NoteGrid extends LitElement {
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                        <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                        <a data-action="edit" class="dropdown-item ${hasAdminPermissions ? "" : "disabled" }">
                             <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
                         </a>
                     </li>
