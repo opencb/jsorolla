@@ -16,9 +16,9 @@
 
 import {LitElement, html} from "lit";
 import Types from "../commons/types.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../commons/tool-header.js";
 import "../commons/filters/catalog-search-autocomplete.js";
-import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/select-token-filter-static.js";
 
 export default class NoteUpdate extends LitElement {
@@ -60,7 +60,6 @@ export default class NoteUpdate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         if (changedProperties.has("note")) {
@@ -114,7 +113,10 @@ export default class NoteUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                ...this.displayConfigDefault,
+                ...(this.displayConfig || {}),
+            },
             sections: [
                 {
                     title: "General Information",
@@ -171,10 +173,7 @@ export default class NoteUpdate extends LitElement {
                             field: "value",
                             type: "custom",
                             display: {
-                                visible: data => {
-                                    const validTypes = ["OBJECT", "ARRAY"];
-                                    return validTypes.includes(data?.valueType);
-                                },
+                                visible: data => ["OBJECT", "ARRAY"].includes(data?.valueType),
                                 render: (content, dataFormFieldChange) => {
                                     const handleValuesChange = (content, valueType) => {
                                         // convert string to array
@@ -187,12 +186,12 @@ export default class NoteUpdate extends LitElement {
                                     };
                                     const val = this.note?.valueType === "ARRAY" ? content || [] : content || {};
                                     return html`
-                                            <json-editor
-                                                .data="${val}"
-                                                .config="${{showDownloadButton: false, initAsArray: this.note?.valueType === "ARRAY"}}"
-                                                @fieldChange="${e => handleValuesChange(e.detail?.value, this.note?.valueType)}">
-                                            </json-editor>
-                                            `;
+                                        <json-editor
+                                            .data="${val}"
+                                            .config="${{showDownloadButton: false, initAsArray: this.note?.valueType === "ARRAY"}}"
+                                            @fieldChange="${e => handleValuesChange(e.detail?.value, this.note?.valueType)}">
+                                        </json-editor>
+                                    `;
                                 },
                             },
                         },
