@@ -40,9 +40,6 @@ export default class NoteCreate extends LitElement {
             opencgaSession: {
                 type: Object,
             },
-            mode: {
-                type: String,
-            },
             displayConfig: {
                 type: Object,
             },
