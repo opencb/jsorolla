@@ -451,23 +451,23 @@ export default class NoteGrid extends LitElement {
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li>
                         <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
-                            <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
+                            <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
                         </a>
                     </li>
                     <li>
                         <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
-                            <i class="fas fa-download" aria-hidden="true"></i> Download JSON
+                            <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
                         </a>
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <a data-action="edit" class="dropdown-item ${hasAdminPermissions ? "" : "disabled" }">
-                            <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
+                            <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
                         </a>
                     </li>
                     <li>
                         <a data-action="delete" href="javascript: void 0" class="dropdown-item disabled">
-                            <i class="fas fa-trash" aria-hidden="true"></i> Delete
+                            <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
                         </a>
                     </li>
                 </ul>
