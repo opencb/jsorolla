@@ -77,7 +77,7 @@ export default class NoteCreate extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("displayConfig")) {
+        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -180,7 +180,10 @@ export default class NoteCreate extends LitElement {
                             type: "toggle-buttons",
                             required: true,
                             defaultValue: "STUDY",
-                            allowedValues: ["STUDY", "ORGANIZATION"],
+                            allowedValues: [
+                                {id: "STUDY", disabled: false},
+                                {id: "ORGANIZATION", disabled: !CatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, this.opencgaSession?.user?.id)},
+                            ],
                         },
                         {
                             title: "Note ID",
@@ -255,11 +258,21 @@ export default class NoteCreate extends LitElement {
                             field: "value",
                             type: "input-text",
                             display: {
-                                visible: data => ["STRING", "INTEGER", "DOUBLE"].includes(data?.valueType),
+                                visible: data => data?.valueType === "STRING",
                                 rows: 3,
                                 placeholder: "Add a note content...",
                             },
                         },
+                        {
+                            title: "Content",
+                            field: "value",
+                            type: "input-num",
+                            display: {
+                                visible: data => ["INTEGER", "DOUBLE"].includes(data?.valueType),
+                                placeholder: "0",
+                            },
+                        },
+
                     ],
                 },
             ],
