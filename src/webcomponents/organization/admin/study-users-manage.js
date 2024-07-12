@@ -170,7 +170,10 @@ export default class StudyUsersManage extends LitElement {
                     .then(() => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             title: `User in Group Update`,
-                            message: `${update.userId} ${update.isChecked ? "ADDED" : "REMOVED"} to ${update.groupId} in study ${this.study.id} correctly`,
+                            message: `
+                                ${update.userId} ${update.isChecked ? "ADDED to" : "REMOVED from"}
+                                ${update.groupId} in study ${this.study.id} correctly.
+                            `,
                         });
                     })
                     .catch(reason => {

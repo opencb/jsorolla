@@ -87,15 +87,6 @@ export default class UserAdminCreate extends LitElement {
 
     onFieldChange(e, field) {
         this._user = {...e.detail.data}; // force to refresh the object-list
-        debugger
-
-        // const param = field || e.detail.param;
-        // // 1. Update user id
-        // if (param === "id") {
-        //     // TODO 20240325 Vero: verify user id does not exist
-        //     this.user.id = e.detail.data.id;
-        // }
-        // 2. Update the list of studies
         this.requestUpdate();
     }
 

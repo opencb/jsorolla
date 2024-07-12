@@ -370,7 +370,7 @@ export default class StudyAdminGrid extends LitElement {
                 <study-users-manage
                     .studyId="${this.studyId}"
                     .organization="${this.organization}"
-                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
                     .opencgaSession="${this.opencgaSession}"
                     @studyUpdate="${e => this.onStudyEvent(e, `${this._prefix}ManageUsersStudyModal`)}">
                 </study-users-manage>
