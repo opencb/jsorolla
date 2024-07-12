@@ -199,7 +199,7 @@ export default class ProjectAdminBrowser extends LitElement {
                         <div class="fs-6 me-4">
                             URL:
                             <a href="${project.cellbase?.url || "-"}" target="_blank">
-                                ${project.cellbase?.url || "-"},
+                                ${project.cellbase?.url || "-"}
                             </a>
                         </div>
                     </div>
