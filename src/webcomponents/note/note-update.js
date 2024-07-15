@@ -203,12 +203,18 @@ export default class NoteUpdate extends LitElement {
                             field: "value",
                             type: "input-text",
                             display: {
-                                visible: data => {
-                                    const validTypes = ["STRING", "INTEGER", "DOUBLE"];
-                                    return validTypes.includes(data?.valueType);
-                                },
+                                visible: data => data?.valueType === "STRING",
                                 rows: 3,
                                 placeholder: "Add a note content...",
+                            },
+                        },
+                        {
+                            title: "Content",
+                            field: "value",
+                            type: "input-num",
+                            display: {
+                                visible: data => ["INTEGER", "DOUBLE"].includes(data?.valueType),
+                                placeholder: "0",
                             },
                         },
                     ],
