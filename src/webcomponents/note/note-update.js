@@ -147,7 +147,7 @@ export default class NoteUpdate extends LitElement {
                         {
                             title: "Visibility",
                             field: "visibility",
-                            type: "select",
+                            type: "toggle-buttons",
                             required: true,
                             defaultValue: "PUBLIC",
                             allowedValues: ["PUBLIC", "PRIVATE"],
