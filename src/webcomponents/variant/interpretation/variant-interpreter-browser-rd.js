@@ -138,13 +138,12 @@ class VariantInterpreterBrowserRd extends LitElement {
                         this._sampleQuery = this.sample.id + ":" + ["0/1", "1/1", "1", "1/2"].join(",");
                         break;
                     case "FAMILY":
-                        // TODO Nacho, Josemi: add Haploid (1) to family cases
                         // Add proband genotypes
-                        const sampleIds = [this.sample.id + ":" + ["0/1", "1/1", "1/2"].join(",")];
+                        const sampleIds = [this.sample.id + ":" + ["0/1", "1/1", "1", "1/2"].join(",")];
                         for (const member of this.clinicalAnalysis.family?.members) {
                             // Proband is already in the array in the first position, we add other family members
                             if (member.id !== this.clinicalAnalysis.proband?.id && member.samples?.length > 0) {
-                                sampleIds.push(member.samples[0].id + ":" + ["0/0", "0/1", "1/1", "1/2"].join(","));
+                                sampleIds.push(member.samples[0].id + ":" + ["0/0", "0/1", "1/1", "1", "1/2"].join(","));
                             }
                         }
                         this._sampleQuery = sampleIds.join(";");
