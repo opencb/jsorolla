@@ -135,9 +135,10 @@ class VariantInterpreterBrowserRd extends LitElement {
                 switch (this.clinicalAnalysis.type.toUpperCase()) {
                     case "SINGLE":
                     case "CANCER":
-                        this._sampleQuery = this.sample.id + ":" + ["0/1", "1/1", "1/2"].join(",");
+                        this._sampleQuery = this.sample.id + ":" + ["0/1", "1/1", "1", "1/2"].join(",");
                         break;
                     case "FAMILY":
+                        // TODO Nacho, Josemi: add Haploid (1) to family cases
                         // Add proband genotypes
                         const sampleIds = [this.sample.id + ":" + ["0/1", "1/1", "1/2"].join(",")];
                         for (const member of this.clinicalAnalysis.family?.members) {
@@ -347,7 +348,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
-                                visible: () => this.clinicalAnalysis.type.toUpperCase() === "SINGLE",
+                                visible: () => this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "CANCER",
                                 params: {
                                     genotypes: [
                                         {
@@ -360,11 +361,11 @@ class VariantInterpreterBrowserRd extends LitElement {
                                             separator: true
                                         },
                                         {
+                                            id: "1", name: "HAPLOID (1)"
+                                        },
+                                        {
                                             id: "1/2", name: "BIALLELIC (1/2)"
                                         },
-                                        // {
-                                        //     id: "1", name: "HEMI"
-                                        // }
                                     ]
                                 },
                                 tooltip: tooltips.sample,
@@ -388,6 +389,15 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 params: {
                                     individual: this.clinicalAnalysis?.proband
                                 }
+                            },
+                            {
+                                id: "variant-file",
+                                title: "VCF File Filter",
+                                visible: () => this.files?.length > 1,
+                                params: {
+                                    files: this.files,
+                                },
+                                tooltip: tooltips.vcfFile,
                             },
                             {
                                 id: "variant-file-sample-filter",

@@ -482,6 +482,9 @@ export default class VariantSamples extends LitElement {
                             id: "1/1", name: "Homozygous Alternate (1/1)"
                         },
                         {
+                            id: "1", name: "Haploid (1)"
+                        },
+                        {
                             id: "1/2", name: "Biallelic (1/2)"
                         },
                     ]
