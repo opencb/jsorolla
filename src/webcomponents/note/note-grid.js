@@ -461,7 +461,7 @@ export default class NoteGrid extends LitElement {
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                        <a data-action="edit" class="dropdown-item ${hasAdminPermissions ? "" : "disabled" }">
+                        <a data-action="edit" href="javascript: void 0" class="dropdown-item ${hasAdminPermissions ? "" : "disabled" }">
                             <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
                         </a>
                     </li>
