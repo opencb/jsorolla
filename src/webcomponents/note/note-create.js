@@ -228,12 +228,12 @@ export default class NoteCreate extends LitElement {
                                 visible: data => ["OBJECT", "ARRAY"].includes(data?.valueType),
                                 render: (content, dataFormFieldChange) => {
                                     const handleValuesChange = (content, valueType) => {
-                                        // convert string to array
                                         if (valueType === "ARRAY") {
-                                            // jsonEditor return content as object
-                                            dataFormFieldChange(UtilsNew.isObjectValuesEmpty(content?.json) ? [] : Object.values(content?.json));
+                                            // Josemi 2024-07-15 NOTE jsonEditor returns content as object, so we have to parse the returned
+                                            // object and get only the values in the object as array
+                                            dataFormFieldChange(Object.values(content?.json || {}));
                                         } else {
-                                            dataFormFieldChange(content?.json ? content?.json : {});
+                                            dataFormFieldChange(content?.json || {});
                                         }
                                     };
                                     const val = this.note?.valueType === "ARRAY" ? content || [] : content || {};
