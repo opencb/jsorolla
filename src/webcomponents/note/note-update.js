@@ -179,12 +179,10 @@ export default class NoteUpdate extends LitElement {
                                 visible: data => ["OBJECT", "ARRAY"].includes(data?.valueType),
                                 render: (content, dataFormFieldChange) => {
                                     const handleValuesChange = (content, valueType) => {
-                                        // convert string to array
                                         if (valueType === "ARRAY") {
-                                            // jsonEditor return content as object
-                                            dataFormFieldChange(UtilsNew.isObjectValuesEmpty(content?.json) ? [] : Object.values(content?.json));
+                                            dataFormFieldChange(Object.values(content?.json || {}));
                                         } else {
-                                            dataFormFieldChange(content?.json ? content?.json : {});
+                                            dataFormFieldChange(content?.json || {});
                                         }
                                     };
                                     const val = this._note?.valueType === "ARRAY" ? content || [] : content || {};
