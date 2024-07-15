@@ -266,7 +266,6 @@ export default class NoteCreate extends LitElement {
                                 placeholder: "0",
                             },
                         },
-
                     ],
                 },
             ],
