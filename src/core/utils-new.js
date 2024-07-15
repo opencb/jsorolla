@@ -265,7 +265,7 @@ export default class UtilsNew {
     }
 
     static initTooltip(scope) {
-        $("a[tooltip-title], span[tooltip-title]", scope).each(function () {
+        $("a[tooltip-title], span[tooltip-title], table[tooltip-title], td[tooltip-title]", scope).each(function () {
             $(this).qtip({
                 content: {
                     title: $(this).attr("tooltip-title"),
