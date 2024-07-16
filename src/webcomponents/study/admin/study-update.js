@@ -15,10 +15,10 @@
  */
 
 import {html, LitElement} from "lit";
-import FormUtils from "../../commons/forms/form-utils.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import FormUtils from "../../commons/forms/form-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class StudyUpdate extends LitElement {
 
@@ -188,6 +188,7 @@ export default class StudyUpdate extends LitElement {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }
+
         return html`
             <data-form
                 .data="${this._study}"

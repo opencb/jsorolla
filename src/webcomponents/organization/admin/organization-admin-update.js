@@ -57,8 +57,8 @@ export default class OrganizationAdminUpdate extends LitElement {
             style: "margin: 10px",
             defaultLayout: "horizontal",
             labelAlign: "right",
-            labelWidth: 3,
-            buttonOkText: "Update"
+            buttonOkText: "Update",
+            buttonOkDisabled: true,
         };
         this._config = this.getDefaultConfig();
     }
@@ -85,6 +85,7 @@ export default class OrganizationAdminUpdate extends LitElement {
     #initOriginalObjects() {
         this._organization = UtilsNew.objectClone(this.organization);
         this.updatedFields = {};
+        this.displayConfigObserver();
     }
 
     update(changedProperties) {
@@ -94,21 +95,25 @@ export default class OrganizationAdminUpdate extends LitElement {
         }
 
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig,
-            };
-            this._config = this.getDefaultConfig();
-            if (!this._config?.notification) {
-                this.#initConfigNotification();
-            }
+            this.displayConfigObserver();
         }
 
         super.update(changedProperties);
     }
 
-    onFieldChange(e) {
-        const param = e.detail.param;
+    displayConfigObserver() {
+        this.displayConfig = {
+            ...this.displayConfigDefault,
+            ...this.displayConfig,
+        };
+        this._config = this.getDefaultConfig();
+        if (!this._config?.notification) {
+            this.#initConfigNotification();
+        }
+    }
+
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
         this.updatedFields = FormUtils.getUpdatedFields(
             this.organization,
             this.updatedFields,
@@ -116,6 +121,8 @@ export default class OrganizationAdminUpdate extends LitElement {
             e.detail.value,
             e.detail.action);
 
+        this._config.display.buttonOkDisabled = UtilsNew.isEmpty(this.updatedFields);
+        this._config = {...this._config};
         this.requestUpdate();
     }
 
@@ -124,8 +131,7 @@ export default class OrganizationAdminUpdate extends LitElement {
             title: "Discard changes",
             message: "Are you sure you want to discard the changes made?",
             ok: () => {
-                this.initOriginalObjects();
-                this.requestUpdate();
+                this.#initOriginalObjects();
                 // We need to dispatch a component clear event
                 LitUtils.dispatchCustomEvent(this, "organizationClear", null, {
                     organization: this._organization,
@@ -172,6 +178,10 @@ export default class OrganizationAdminUpdate extends LitElement {
     }
 
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         return html`
             <data-form
                 .data="${this._organization}"
@@ -187,9 +197,7 @@ export default class OrganizationAdminUpdate extends LitElement {
     // *** CONFIG ***
     getDefaultConfig() {
         return {
-            title: "Summary",
-            icon: "",
-            display: this.displayConfig || this.displayConfigDefault,
+            display: this.displayConfig,
             sections: [
                 {
                     title: "General Information",
