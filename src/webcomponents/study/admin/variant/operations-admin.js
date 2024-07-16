@@ -182,24 +182,46 @@ export default class OperationsAdmin extends LitElement {
                             name: "Variant Annotation Index",
                             icon: "fas fa-key",
                             visibility: "private",
-                            render: opencgaSession => html`
-                                <variant-annotation-index-operation
-                                    .toolParams="${{project: opencgaSession.project.id}}"
-                                    .opencgaSession="${opencgaSession}">
-                                </variant-annotation-index-operation>
-                            `,
+                            render: opencgaSession => {
+                                if (!OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, opencgaSession.user.id)) {
+                                    return html`
+                                        <div class="d-flex flex-column align-items-center justify-content-center">
+                                            <h1 class="display-1"><i class="far fa-smile-wink me-4"></i>Restricted access</h1>
+                                            <h3>The page you are trying to access has restricted access.</h3>
+                                            <h3>Please refer to your system administrator.</h3>
+                                        </div>
+                                    `;
+                                }
+                                return html`
+                                    <variant-annotation-index-operation
+                                        .toolParams="${{project: opencgaSession.project.id}}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </variant-annotation-index-operation>
+                                `;
+                            }
                         },
                         {
                             id: "variant-secondary-annotation-index",
                             name: "Variant Secondary Annotation Index",
                             icon: "fas fa-key",
                             visibility: "private",
-                            render: opencgaSession => html`
-                                <variant-secondary-annotation-index-operation
-                                    .toolParams="${{project: opencgaSession.project.id}}"
-                                    .opencgaSession="${opencgaSession}">
-                                </variant-secondary-annotation-index-operation>
-                            `,
+                            render: opencgaSession => {
+                                if (!OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, opencgaSession.user.id)) {
+                                    return html`
+                                        <div class="d-flex flex-column align-items-center justify-content-center">
+                                            <h1 class="display-1"><i class="far fa-smile-wink me-4"></i>Restricted access</h1>
+                                            <h3>The page you are trying to access has restricted access.</h3>
+                                            <h3>Please refer to your system administrator.</h3>
+                                        </div>
+                                    `;
+                                }
+                                return html`
+                                    <variant-secondary-annotation-index-operation
+                                        .toolParams="${{project: opencgaSession.project.id}}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </variant-secondary-annotation-index-operation>
+                                `;
+                            }
                         },
                     ],
                 },
