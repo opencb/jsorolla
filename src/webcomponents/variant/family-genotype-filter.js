@@ -297,7 +297,7 @@ export default class FamilyGenotypeFilter extends LitElement {
 
     // Return the default genotype values according the role
     defaultGenotype(sample) {
-        return sample.id === this.clinicalAnalysis.proband.samples[0].id ? ["0/1", "1/1", "1/2"] : [...this._config.defaultGenotypes];
+        return sample.id === this.clinicalAnalysis.proband.samples[0].id ? ["0/1", "1/1", "1", "1/2"] : [...this._config.defaultGenotypes];
     }
 
     render() {
@@ -339,12 +339,13 @@ export default class FamilyGenotypeFilter extends LitElement {
                                         ${BioinfoUtils.getIdName(this.clinicalAnalysis.disorder.id, this.clinicalAnalysis.disorder.name)}
                                     </a>
                                 </th>
-                                <th rowspan="1" colspan="4" style="text-align: center">Genotypes</th>
+                                <th rowspan="1" colspan="5" style="text-align: center">Genotypes</th>
                             </tr>
                             <tr>
                                 <th scope="col">HOM_REF (0/0)</th>
                                 <th scope="col">HET (0/1)</th>
                                 <th scope="col">HOM_ALT (1/1)</th>
+                                <th scope="col">HAPLOID (1)</th>
                                 <th scope="col">BIALLELIC (1/2)</th>
                             </tr>
                             </thead>
@@ -418,6 +419,14 @@ export default class FamilyGenotypeFilter extends LitElement {
                                         <td style="padding-left: 20px">
                                             <input
                                                 type="checkbox"
+                                                class="sample-checkbox" data-gt="1" data-sample-id="${sample.id}"
+                                                .checked="${this.state?.[sample.id]?.genotypes.includes("1")}"
+                                                ?disabled="${this.mode !== "CUSTOM"}"
+                                                @change="${this.onSampleTableChange}">
+                                        </td>
+                                        <td style="padding-left: 20px">
+                                            <input
+                                                type="checkbox"
                                                 class="sample-checkbox" data-gt="1/2" data-sample-id="${sample.id}"
                                                 .checked="${this.state?.[sample.id]?.genotypes.includes("1/2")}"
                                                 ?disabled="${this.mode !== "CUSTOM"}"
@@ -453,7 +462,7 @@ export default class FamilyGenotypeFilter extends LitElement {
 
     getDefaultConfig() {
         return {
-            defaultGenotypes: ["0/0", "0/1", "1/1", "1/2"],
+            defaultGenotypes: ["0/0", "0/1", "1/1", "1", "1/2"],
         };
     }
 
