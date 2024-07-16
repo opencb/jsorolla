@@ -98,18 +98,24 @@ export default class NoteUpdate extends LitElement {
         }
     }
 
+    onNoteUpdate(event) {
+        this._note = event.detail.value;
+        this.requestUpdate();
+    }
+
     render() {
         if (!this._note) {
             return html`<loading-spinner></loading-spinner>`;
         }
 
-        return html `
+        return html`
             <opencga-update
-                .resource="NOTE"
+                .resource="${"NOTE"}"
                 .component="${this._note}"
                 .opencgaSession="${this.opencgaSession}"
                 .active="${this.active}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @noteUpdate="${e => this.onNoteUpdate(e)}">
             </opencga-update>
         `;
     }
