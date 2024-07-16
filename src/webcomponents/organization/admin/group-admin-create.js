@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import UtilsNew from "../../../core/utils-new";
 
 export default class GroupAdminCreate extends LitElement {
 
@@ -32,6 +33,9 @@ export default class GroupAdminCreate extends LitElement {
 
     static get properties() {
         return {
+            studyFqn: {
+                type: String,
+            },
             studies: {
                 type: Array,
             },
@@ -89,6 +93,10 @@ export default class GroupAdminCreate extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("studyFqn") ||
+        changedProperties.has("opencgaSession")) {
+            this.studyFqnObserver();
+        }
         if (changedProperties.has("studies") ||
             changedProperties.has("opencgaSession")) {
             this.#initOriginalObjects();
@@ -101,6 +109,27 @@ export default class GroupAdminCreate extends LitElement {
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
+    }
+
+    studyFqnObserver() {
+        if (this.studyFqn && this.opencgaSession) {
+            let error;
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.studies()
+                .info(this.studyFqn)
+                .then(response => {
+                    this.study = UtilsNew.objectClone(response.responses[0].results[0]);
+                    this.studies = [this.study];
+                })
+                .catch(reason => {
+                    error = reason;
+                    console.error(reason);
+                })
+                .finally(() => {
+                    LitUtils.dispatchCustomEvent(this, "studyChange", this.study, {}, error);
+                    this.#setLoading(false);
+                });
+        }
     }
 
     onFieldChange(e, field) {
@@ -135,7 +164,7 @@ export default class GroupAdminCreate extends LitElement {
             action: "ADD",
         };
         this.#setLoading(true);
-        const groupPromises = this.group.listStudies
+        const groupPromises = (this.group.listStudies || [])
             .map(study => {
                 let error;
                 return this.opencgaSession.opencgaClient.studies()
@@ -143,7 +172,7 @@ export default class GroupAdminCreate extends LitElement {
                     .then(() => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             title: `Group Create`,
-                            message: `Group ${this.group.id} in study ${study} CREATED successfully`,
+                            message: `Group ${this.group.id} in study ${study.fqn} CREATED successfully`,
                         });
                     })
                     .catch(reason => {

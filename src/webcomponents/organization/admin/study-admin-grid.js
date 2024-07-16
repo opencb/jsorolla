@@ -142,6 +142,14 @@ export default class StudyAdminGrid extends LitElement {
                 permission: this.permissions["organization"](),
                 divider: true,
             },
+            "create-group": {
+                label: "Create Group",
+                icon: "fas fa-edit",
+                modalId: `${this._prefix}CreateGroupModal`,
+                render: () => this.renderGroupCreate(),
+                permission: this.permissions["organization"](),
+                divider: false,
+            },
             "add-users": {
                 label: "Manage Users in Study",
                 icon: "fas fa-user-plus",
@@ -225,6 +233,11 @@ export default class StudyAdminGrid extends LitElement {
                 title: "Study ID",
                 field: "id",
                 visible: this.gridCommons.isColumnVisible("id")
+            },
+            {
+                title: "Study Fqn",
+                field: "fqn",
+                visible: this.gridCommons.isColumnVisible("fqn")
             },
             {
                 title: "Name",
@@ -328,6 +341,7 @@ export default class StudyAdminGrid extends LitElement {
     async onActionClick(e, value, row) {
         this.action = e.currentTarget.dataset.action;
         this.studyId = row.id;
+        this.studyFqn = row.fqn;
         this.requestUpdate();
         await this.updateComplete;
         ModalUtils.show(this.modals[this.action]["modalId"]);
@@ -339,6 +353,25 @@ export default class StudyAdminGrid extends LitElement {
     }
 
     // *** RENDER METHODS ***
+    renderGroupCreate() {
+        return ModalUtils.create(this, `${this._prefix}CreateGroupModal`, {
+            display: {
+                modalTitle: `Group Create`,
+                modalDraggable: true,
+                modalCyDataName: "modal-group-create",
+                modalSize: "modal-lg"
+            },
+            render: () => html`
+                <group-admin-create
+                    .studyFqn="${this.studyFqn}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
+                    @groupCreate="${e => this.onStudyEvent(e, `${this._prefix}CreateGroupModal`)}">
+                </group-admin-create>
+            `,
+        });
+    }
+
     renderStudyUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateStudyModal`, {
             display: {
