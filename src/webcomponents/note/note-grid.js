@@ -415,6 +415,34 @@ export default class NoteGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
+    onDeleteNote(note) {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Delete Note",
+            message: `Are you sure you want to delete note '${note.id}'? This action can not be undone.`,
+            ok: () => {
+                let deleteNotePromise = null;
+                if (note.scope === "STUDY") {
+                    deleteNotePromise = this.opencgaSession.opencgaClient.studies()
+                        .deleteNotes(this.opencgaSession.study.fqn, note.id);
+                } else {
+                    deleteNotePromise = this.opencgaSession.opencgaClient.organization()
+                        .deleteNotes(note.id);
+                }
+                deleteNotePromise
+                    .then(() => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: `Note '${note.id}' has been removed`,
+                        });
+                        // Force to render the table again
+                        this.renderTable();
+                    })
+                    .catch(error => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                    });
+            },
+        });
+    }
+
     async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
         switch (action) {
@@ -430,8 +458,8 @@ export default class NoteGrid extends LitElement {
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
                 break;
-            case "qualityControl":
-                alert("Not implemented yet");
+            case "delete":
+                this.onDeleteNote(row);
                 break;
         }
     }
