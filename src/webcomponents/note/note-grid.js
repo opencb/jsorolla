@@ -172,7 +172,7 @@ export default class NoteGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         // include: "id,scope,tags,userId,visibility,creationDate,modificationDate,valueType,uuid,version",
-                        exclude: "studyUid,uid",
+                        exclude: "value",
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         ...this.query
                     };
