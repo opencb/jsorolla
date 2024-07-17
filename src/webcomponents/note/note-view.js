@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import LitUtils from "../commons/utils/lit-utils.js";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
@@ -27,7 +26,6 @@ export default class NoteView extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -40,9 +38,6 @@ export default class NoteView extends LitElement {
             note: {
                 type: Object,
             },
-            search: {
-                type: Boolean,
-            },
             opencgaSession: {
                 type: Object,
             },
@@ -53,10 +48,6 @@ export default class NoteView extends LitElement {
     }
 
     #init() {
-        this._note = {};
-        this.search = false;
-        this.isLoading = false;
-
         this.displayConfigDefault = {
             buttonsVisible: false,
             collapsable: true,
@@ -68,48 +59,21 @@ export default class NoteView extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-
     update(changedProperties) {
-        if (changedProperties.has("note")) {
-            this.noteObserver();
-        }
-
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
-    noteObserver() {
-        this._note = {...this.note};
-    }
-
-    onFilterChange(e) {
-        this.noteId = e.detail.value;
-    }
-
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
-        }
-
-        if (!this.note?.id && this.search === false) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    Note ID not found.
-                </div>
-            `;
+        if (!this.note) {
+            return nothing;
         }
 
         return html`
             <data-form
-                .data="${this._note}"
+                .data="${this.note}"
                 .config="${this._config}">
             </data-form>
         `;
@@ -119,39 +83,14 @@ export default class NoteView extends LitElement {
         return Types.dataFormConfig({
             title: "Summary",
             icon: "",
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                ...this.displayConfigDefault,
+                ...(this.displayConfig || {}),
+            },
             sections: [
-                {
-                    title: "Search",
-                    display: {
-                        visible: note => !note?.id && this.search === true,
-                        showPDF: false,
-                    },
-                    elements: [
-                        {
-                            title: "note ID",
-                            // field: "noteId",
-                            type: "custom",
-                            display: {
-                                render: () => html`
-                                    <catalog-search-autocomplete
-                                        .value="${this.note?.id}"
-                                        .resource="${"note"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
-                                        @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>
-                                `,
-                            },
-                        },
-                    ],
-                },
                 {
                     title: "General",
                     collapsed: false,
-                    display: {
-                        visible: note => note?.id,
-                    },
                     elements: [
                         {
                             title: "Note ID",
