@@ -38,6 +38,12 @@ export default class NoteDetail extends LitElement {
             note: {
                 type: Object
             },
+            noteId: {
+                type: String,
+            },
+            noteScope: {
+                type: String,
+            },
             config: {
                 type: Object
             }
@@ -46,11 +52,18 @@ export default class NoteDetail extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "note-detail";
+        this._note = null;
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("note")) {
+            this.noteObserver();
+        }
+        if (changedProperties.has("noteId") || changedProperties.has("noteScope")) {
+            this.noteIdOrScopeObserver();
+        }
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
@@ -61,6 +74,37 @@ export default class NoteDetail extends LitElement {
         super.update(changedProperties);
     }
 
+    noteObserver() {
+        // No need to create a local clone of the note object
+        this._note = this.note;
+    }
+
+    noteIdOrScopeObserver() {
+        this._note = null;
+        if (this.opencgaSession && this.noteId && this.noteScope) {
+            let noteSearchPromise = null;
+            if (this.noteScope === "STUDY") {
+                noteSearchPromise = this.opencgaSession.opencgaClient.studies()
+                    .searchNotes(this.opencgaSession.study.fqn, {
+                        id: this.noteId,
+                    });
+            } else {
+                noteSearchPromise = this.opencgaSession.opencgaClient.organization()
+                    .searchNotes({
+                        id: this.noteId,
+                    });
+            }
+            noteSearchPromise
+                .then(response => {
+                    this._note = response?.responses[0]?.results?.[0];
+                    this.requestUpdate();
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+    }
+
     #updateDetailTabs() {
         this._config.items = [
             ...this._config.items,
@@ -69,13 +113,13 @@ export default class NoteDetail extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession || !this.note) {
+        if (!this.opencgaSession || !this._note) {
             return nothing;
         }
 
         return html`
             <detail-tabs
-                .data="${this.note}"
+                .data="${this._note}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>
