@@ -464,44 +464,6 @@ export default class NoteGrid extends LitElement {
         }
     }
 
-    async onDownload(e) {
-        // Activate the GIF
-        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-        this.requestUpdate();
-        await this.updateComplete;
-
-        const filters = {
-            ...this.filters,
-            skip: 0,
-            limit: 1000,
-            count: false
-        };
-        this.opencgaSession.opencgaClient.studies()
-            .searchNotes(filters)
-            .then(response => {
-                const results = response.getResults();
-                if (results) {
-                    // Check if user clicked in Tab or JSON format
-                    if (e.detail.option.toUpperCase() === "TAB") {
-                        const fields = ["id,scope,tags,userId, visibility, creationDate, modificationDate, valueType"];
-                        const data = UtilsNew.toTableString(results, fields);
-                        UtilsNew.downloadData(data, "notes_" + this.opencgaSession.study.id + ".tsv", "text/plain");
-                    } else {
-                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "notes_" +this.opencgaSession.study.id + ".json", "application/json");
-                    }
-                } else {
-                    console.error("Error in result format");
-                }
-            })
-            .catch(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-            })
-            .finally(() => {
-                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
-                this.requestUpdate();
-            });
-    }
-
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
@@ -531,8 +493,6 @@ export default class NoteGrid extends LitElement {
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
-                    @download="${this.onDownload}"
-                    @export="${this.onDownload}"
                     @actionClick="${e => this.onActionClick(e)}"
                     @noteCreate="${this.renderTable}">
                 </opencb-grid-toolbar>
@@ -557,7 +517,7 @@ export default class NoteGrid extends LitElement {
             showActions: true,
 
             showCreate: true,
-            showExport: true,
+            showExport: false,
             showSettings: true,
             exportTabs: ["download", "link", "code"],
         };
