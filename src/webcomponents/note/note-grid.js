@@ -301,7 +301,7 @@ export default class NoteGrid extends LitElement {
                 title: "Tags",
                 field: "tags",
                 formatter: tags => {
-                    return (tags || []).map(t => `<span class="badge rounded-pill text-bg-primary">${t}</span>`).join("") || "-";
+                    return (tags || []).map(t => `<span class="badge rounded-pill text-bg-primary">${t}</span>`).join(" ") || "-";
                 },
                 visible: this.gridCommons.isColumnVisible("tags")
             },
