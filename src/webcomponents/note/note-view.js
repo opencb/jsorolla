@@ -38,6 +38,12 @@ export default class NoteView extends LitElement {
             note: {
                 type: Object,
             },
+            noteId: {
+                type: String,
+            },
+            noteScope: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object,
             },
@@ -56,24 +62,61 @@ export default class NoteView extends LitElement {
             defaultValue: "-",
             pdf: false,
         };
+        this._note = null;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("noteId") || changedProperties.has("noteScope")) {
+            this.noteIdOrScopeObserver();
+        }
+        if (changedProperties.has("note")) {
+            this.noteObserver();
+        }
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
+    noteObserver() {
+        this._note = this.note;
+    }
+
+    noteIdOrScopeObserver() {
+        this._note = null;
+        if (this.opencgaSession && this.noteId && this.noteScope) {
+            let noteSearchPromise = null;
+            if (this.noteScope === "STUDY") {
+                noteSearchPromise = this.opencgaSession.opencgaClient.studies()
+                    .searchNotes(this.opencgaSession.study.fqn, {
+                        id: this.noteId,
+                    });
+            } else {
+                noteSearchPromise = this.opencgaSession.opencgaClient.organization()
+                    .searchNotes({
+                        id: this.noteId,
+                    });
+            }
+            noteSearchPromise
+                .then(response => {
+                    this._note = response?.responses[0]?.results?.[0];
+                    this.requestUpdate();
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+    }
+
     render() {
-        if (!this.note) {
+        if (!this._note) {
             return nothing;
         }
 
         return html`
             <data-form
-                .data="${this.note}"
+                .data="${this._note}"
                 .config="${this._config}">
             </data-form>
         `;
