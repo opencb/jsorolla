@@ -454,6 +454,9 @@ export default class NoteGrid extends LitElement {
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "Note JSON copied to clipboard.",
+                });
                 break;
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
