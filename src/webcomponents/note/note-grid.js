@@ -301,26 +301,7 @@ export default class NoteGrid extends LitElement {
                 title: "Tags",
                 field: "tags",
                 formatter: tags => {
-                    if (tags?.length == 0) {
-                        return "-";
-                    }
-
-                    if (tags?.length > 5) {
-                        const fiveTags = tags.slice(-4);
-                        const restTags = tags.slice(5);
-                        let contentHtml = fiveTags.map(tag => String.raw`
-
-                                <span class="badge rounded-pill text-bg-primary">${tag}</span>
-
-                        `).join("");
-                        contentHtml += `<a tooltip-title="Files" tooltip-text='${restTags.join("")}'>... view all tags (${restTags.length})</a>`;
-                        return contentHtml;
-                    } else {
-                        return tags.map(tag => String.raw`
-                            <span class="badge rounded-pill text-bg-primary">${tag}</span>
-                        `).join("");
-                    }
-
+                    return (tags || []).map(t => `<span class="badge rounded-pill text-bg-primary">${t}</span>`).join("") || "-";
                 },
                 visible: this.gridCommons.isColumnVisible("tags")
             },
