@@ -138,11 +138,14 @@ export default class NoteBrowser extends LitElement {
                                 @noteUpdate="${e => params.onComponentUpdate(e, "note")}"
                                 @settingsUpdate="${() => this.onSettingsUpdate()}">
                             </note-grid>
-                            <note-detail
-                                .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}"
-                                .note="${params.detail.note}">
-                            </note-detail>
+                            ${params?.detail?.note ? html`
+                                <note-detail
+                                    .opencgaSession="${params.opencgaSession}"
+                                    .noteId="${params.detail?.note?.id}"
+                                    .noteScope="${params?.detail?.note?.scope}"
+                                    .config="${params.config.filter.detail}">
+                                </note-detail>
+                            ` : nothing}
                         `;
                     }
                 },
