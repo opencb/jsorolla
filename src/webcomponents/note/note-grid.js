@@ -276,31 +276,6 @@ export default class NoteGrid extends LitElement {
         });
     }
 
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
-
-    async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
-        switch (action) {
-            case "edit":
-                this.noteUpdate = row;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
-                break;
-            case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
-                break;
-            case "download-json":
-                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
-                break;
-            case "qualityControl":
-                alert("Not implemented yet");
-                break;
-        }
-    }
-
     _getDefaultColumns() {
         this._columns = [
             {
@@ -400,6 +375,67 @@ export default class NoteGrid extends LitElement {
         return this._columns;
     }
 
+    actionsFormatter() {
+        const user = this.opencgaSession?.user?.id;
+        const hasAdminPermissions = CatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, user) || CatalogUtils.isAdmin(this.opencgaSession?.study, user);
+
+        return `
+            <div class="d-inline-block dropdown">
+                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-toolbox" aria-hidden="true"></i>
+                    <span>Actions</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
+                            <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
+                        </a>
+                    </li>
+                    <li>
+                        <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
+                            <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a data-action="edit" href="javascript: void 0" class="dropdown-item ${hasAdminPermissions ? "" : "disabled"}">
+                            <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
+                        </a>
+                    </li>
+                    <li>
+                        <a data-action="delete" href="javascript: void 0" class="dropdown-item ${hasAdminPermissions ? "" : "disabled"}">
+                            <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        `;
+    }
+    onColumnChange(e) {
+        this.gridCommons.onColumnChange(e);
+    }
+
+    async onActionClick(e, _, row) {
+        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
+        switch (action) {
+            case "edit":
+                this.noteUpdate = row;
+                this.requestUpdate();
+                await this.updateComplete;
+                ModalUtils.show(`${this._prefix}UpdateModal`);
+                break;
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
+            case "qualityControl":
+                alert("Not implemented yet");
+                break;
+        }
+    }
+
     async onDownload(e) {
         // Activate the GIF
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
@@ -436,43 +472,6 @@ export default class NoteGrid extends LitElement {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
                 this.requestUpdate();
             });
-    }
-
-    actionsFormatter() {
-        const user = this.opencgaSession?.user?.id;
-        const hasAdminPermissions = CatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, user) || CatalogUtils.isAdmin(this.opencgaSession?.study, user);
-
-        return `
-            <div class="d-inline-block dropdown">
-                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-toolbox" aria-hidden="true"></i>
-                    <span>Actions</span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
-                            <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
-                        </a>
-                    </li>
-                    <li>
-                        <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
-                            <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a data-action="edit" href="javascript: void 0" class="dropdown-item ${hasAdminPermissions ? "" : "disabled"}">
-                            <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                        </a>
-                    </li>
-                    <li>
-                        <a data-action="delete" href="javascript: void 0" class="dropdown-item ${hasAdminPermissions ? "" : "disabled"}">
-                            <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        `;
     }
 
     renderModalUpdate() {
