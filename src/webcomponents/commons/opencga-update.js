@@ -328,6 +328,9 @@ export default class OpencgaUpdate extends LitElement {
                         this.opencgaSession.opencgaClient.organization() :
                         this.opencgaSession.opencgaClient.studies();
                     this.methodUpdate = "updateNotes";
+                    this.resourceUpdateParams = {
+                        tagsAction: "SET",
+                    };
             }
         }
     }
