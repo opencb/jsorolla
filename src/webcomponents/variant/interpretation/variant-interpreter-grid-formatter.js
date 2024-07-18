@@ -846,21 +846,16 @@ export default class VariantInterpreterGridFormatter {
         const sampleFormat = sampleEntry.data;
 
         // 1. Get INFO fields
-        const infoFields = [];
-        if (file && file.data) {
-            for (const key of Object.keys(file.data)) {
-                if (key !== "FILTER" && key !== "QUAL") {
-                    const html = `<div class="form-group" style="margin: 2px 2px">
-                                            <label class="col-md-5">${key}</label>
-                                            <div class="col-md-7">${file.data[key]}</div>
-                                          </div>`;
-                    infoFields.push(html);
-                }
-            }
-        } else {
-            // This can happen when no ref/ref calls are loaded
-            console.warn("file is undefined");
-        }
+        const infoFields = Object.keys(file?.data || {})
+            .filter(key => key !== "FILTER" && key !== "QUAL")
+            .map(key => {
+                return `
+                    <div class="row mb-1">
+                        <div class="col-4 fw-bold">${key}</div>
+                        <div class="col-8">${file.data[key]}</div>
+                    </div>
+                `;
+            });
 
         // 2. Get FORMAT fields
         const formatFields = (variant?.studies?.[0]?.sampleDataKeys || [])
@@ -869,9 +864,9 @@ export default class VariantInterpreterGridFormatter {
                 const key = fieldKey !== "GT" ? fieldKey : `${fieldKey} (${variant.reference || "-"}/${variant.alternate || "-"})`;
                 const value = sampleFormat[fieldIndex] ? sampleFormat[fieldIndex] : "-";
                 return `
-                    <div class="form-group" style="margin: 2px 2px">
-                        <label class="col-md-5">${key}</label>
-                        <div class="col-md-7">${value}</div>
+                    <div class="row mb-1">
+                        <div class="col-4 fw-bold">${key}</div>
+                        <div class="col-8">${value}</div>
                     </div>
                 `;
             });
@@ -879,59 +874,57 @@ export default class VariantInterpreterGridFormatter {
         // 3. Get SECONDARY ALTERNATES fields
         const secondaryAlternates = [];
         for (const v of variant.studies[0].secondaryAlternates) {
-            const html = `<div class="form-group" style="margin: 2px 2px">
-                                    <label class="col-md-5">${v.chromosome}:${v.start}-${v.end}</label>
-                                    <div class="col-md-7">${v.reference}/${v.alternate} ${v.type}</div>
-                                  </div>`;
+            const html = `
+                <div class="row mb-1">
+                    <div class="col-4 fw-bold">${v.chromosome}:${v.start}-${v.end}</div>
+                    <div class="col-8">${v.reference}/${v.alternate} ${v.type}</div>
+                </div>
+            `;
             secondaryAlternates.push(html);
         }
 
         // 4. Build the Tooltip text
-        const tooltipText = `<div class="zygosity-formatter">
-                                <form class="form-horizontal">
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SUMMARY</label>
-                                    </div>
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-4">Sample ID</label>
-                                        <div class="col-md-8">${sampleEntry?.sampleId ? sampleEntry.sampleId : "-"}</div>
-                                    </div>
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-4">File Name</label>
-                                        <div class="col-md-8">${file?.fileId ? file.fileId : "-"}</div>
-                                    </div>
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-4">File FILTER</label>
-                                        <div class="col-md-8">${file?.data.FILTER}</div>
-                                    </div>
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-4">File QUAL</label>
-                                        <div class="col-md-8">${Number(file?.data.QUAL).toFixed(2)}</div>
-                                    </div>
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-4">File VCF call</label>
-                                        <div class="col-md-8">${file?.call?.variantId ? file.call.variantId :
-            `${variant.chromosome}:${variant.start}:${variant.reference}:${variant.alternate}`}
-                                        </div>
-                                    </div>
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SAMPLE DATA</label>
-                                    </div>
-                                    ${formatFields.join("")}
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">FILE INFO</label>
-                                    </div>
-                                    ${infoFields.join("")}
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SECONDARY ALTERNATES</label>
-                                    </div>
-                                    ${secondaryAlternates?.length > 0 ? secondaryAlternates.join("") :
-            `<div class="form-group" style="margin: 2px 2px">
-                                                <label class="col-md-12">-</label>
-                                           </div>`
-        }
-                                </form>
-                             </div>`;
+        const tooltipText = `
+            <div class="zygosity-formatter">
+                <div class="fw-bold text-secondary mb-2">SUMMARY</div>
+                <div class="ms-2 mb-3">
+                    <div class="row mb-1">
+                        <div class="col-4 fw-bold">Sample ID</div>
+                        <div class="col-8">${sampleEntry?.sampleId ? sampleEntry.sampleId : "-"}</div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-4 fw-bold">File Name</div>
+                        <div class="col-8">${file?.fileId ? file.fileId : "-"}</div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-4 fw-bold">File FILTER</div>
+                        <div class="col-8">${file?.data.FILTER}</div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-4 fw-bold">File QUAL</div>
+                        <div class="col-8">${Number(file?.data.QUAL).toFixed(2)}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4 fw-bold">File VCF call</div>
+                        <div class="col-8">
+                            ${file?.call?.variantId ? file.call.variantId : `${variant.chromosome}:${variant.start}:${variant.reference}:${variant.alternate}`}
+                        </div>
+                    </div>
+                </div>
+                <div class="fw-bold text-secondary mb-2">SAMPLE DATA</div>
+                <div class="ms-2 mb-3">
+                    ${formatFields?.length > 0 ? formatFields.join("") : "-"}
+                </div>
+                <div class="fw-bold text-secondary mb-2">FILE INFO</div>
+                <div class="ms-2 mb-3">
+                    ${infoFields.length > 0 ? infoFields.join("") : "-"}
+                </div>
+                <div class="fw-bold text-secondary mb-2">SECONDARY ALTERNATES</div>
+                <div class="ms-2">
+                    ${secondaryAlternates?.length > 0 ? secondaryAlternates.join("") : "-"}
+                </div>
+            </div>
+        `;
         return tooltipText;
     }
 

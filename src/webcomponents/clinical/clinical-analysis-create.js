@@ -458,9 +458,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             display: {
                                 render: (panels, dataFormFilterChange) => {
                                     const handlePanelsFilterChange = e => {
-                                        // eslint-disable-next-line no-param-reassign
-                                        const panelList = e.detail.value
-                                            ?.split(",")
+                                        const panelList = (e.detail?.value?.split(",") || [])
                                             .filter(panelId => panelId)
                                             .map(panelId => ({id: panelId}));
                                         dataFormFilterChange(panelList);
@@ -496,8 +494,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             display: {
                                 render: (flags, dataFormFilterChange) => {
                                     const handleFlagsFilterChange = e => {
-                                        const flagList = e.detail.value
-                                            ?.split(",")
+                                        const flagList = (e.detail?.value?.split(",") || [])
                                             .filter(flagId => flagId)
                                             .map(flagId => ({id: flagId}));
                                         dataFormFilterChange(flagList);
@@ -506,7 +503,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         <clinical-flag-filter
                                             .flag="${flags?.map(f => f.id).join(",")}"
                                             .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags || []}"
-                                            .multiple=${true}
+                                            .multiple="${true}"
                                             @filterChange="${e => handleFlagsFilterChange(e, "flags.id")}">
                                         </clinical-flag-filter>
                                     `;
@@ -899,8 +896,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             display: {
                                 render: (analysts, dataFormFilterChange) => {
                                     const handleAnalystsFilterChange = e => {
-                                        const analystList = e.detail.value
-                                            ?.split(",")
+                                        const analystList = (e.detail?.value?.split(",") || [])
                                             .filter(analystId => analystId)
                                             .map(analystId => ({id: analystId}));
                                         dataFormFilterChange(analystList);
@@ -909,7 +905,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         <clinical-analyst-filter
                                             .analyst="${analysts?.map(f => f.id).join(",")}"
                                             .analysts="${this._users}"
-                                            .multiple=${true}
+                                            .multiple="${true}"
                                             @filterChange="${e => handleAnalystsFilterChange(e, "analyst.id")}">
                                         </clinical-analyst-filter>
                                     `;

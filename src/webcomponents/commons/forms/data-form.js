@@ -744,11 +744,11 @@ export default class DataForm extends LitElement {
         // Check for horizontal layout
         if (layout === "horizontal") {
             return html`
-                <div class="row mb-2 ${elementContainerClassName}" style="${elementContainerStyle}">
+                <div class="row mb-3 ${elementContainerClassName}" style="${elementContainerStyle}">
                     ${title && titleVisible ? html`
-                        <label class="col-md-${titleWidth} col-form-label fw-bold ${titleClassName}" style="text-align:${titleAlign};${titleStyle}">
+                        <div class="col-md-${titleWidth} fw-bold ${titleClassName}" style="text-align:${titleAlign};${titleStyle}">
                             ${title} ${titleRequiredMark}
-                        </label>
+                        </div>
                     ` : nothing}
                     <div class="col-md-${(width - titleWidth)}">
                         ${content}
@@ -762,7 +762,7 @@ export default class DataForm extends LitElement {
             `;
         } else {
             return html`
-                <div class="row mb-1 ${elementContainerClassName}" style="${elementContainerStyle}">
+                <div class="row mb-3 ${elementContainerClassName}" style="${elementContainerStyle}">
                     <div class="col-md-${width}">
                         ${title && titleVisible ? html`
                             <label class="fw-bold form-label pt-0 ${titleClassName}" style="${titleStyle}">
@@ -929,7 +929,7 @@ export default class DataForm extends LitElement {
         }
 
         const content = html`
-            <div class="form-check mt-2">
+            <div class="form-check">
                 <input
                     id="${this._prefix}FilterCheckbox"
                     type="checkbox"
@@ -954,9 +954,6 @@ export default class DataForm extends LitElement {
     _createToggleSwitchElement(element) {
         const value = this.getValue(element.field);
         const disabled = this._getBooleanValue(element.display?.disabled, false, element);
-        const activeClassName = element.display?.activeClassName ?? element.display?.activeClass ?? "";
-        const inactiveClassName = element.display?.inactiveClassName ?? element.display?.inactiveClass ?? "";
-
         const content = html`
             <div class="">
                 <toggle-switch
@@ -964,8 +961,6 @@ export default class DataForm extends LitElement {
                     .value="${value}"
                     .onText="${element.display?.onText}"
                     .offText="${element.display?.offText}"
-                    .activeClass="${activeClassName}"
-                    .inactiveClass="${inactiveClassName}"
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
                     @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
                 </toggle-switch>
@@ -973,7 +968,6 @@ export default class DataForm extends LitElement {
         `;
 
         return this._createElementTemplate(element, value, content);
-
     }
 
     _createToggleButtonsElement(element) {
