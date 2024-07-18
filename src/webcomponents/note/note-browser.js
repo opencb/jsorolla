@@ -18,9 +18,8 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/opencga-browser.js";
-import "../commons/opencb-facet-results.js";
-import "../commons/facet-filter.js";
 import "../commons/forms/toggle-radio.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 import "./note-grid.js";
 import "./note-detail.js";
 
@@ -193,7 +192,17 @@ export default class NoteBrowser extends LitElement {
                                 id: "id",
                                 name: "Note ID",
                                 type: "string",
-                                placeholder: "note"
+                                render: (onFilterChange, query, opencgaSession) => {
+                                    const resource = query?.scope === "ORGANIZATION" ? "NOTE_ORGANIZATION" : "NOTE_STUDY";
+                                    return html`
+                                        <catalog-search-autocomplete
+                                            .resource="${resource}"
+                                            .value="${query?.id}"
+                                            .opencgaSession="${opencgaSession}"
+                                            @filterChange="${e => onFilterChange("id", e.detail.value)}">
+                                        </catalog-search-autocomplete>
+                                    `;
+                                },
                             },
                             {
                                 id: "visibility",
