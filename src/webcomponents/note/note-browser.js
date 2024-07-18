@@ -213,7 +213,7 @@ export default class NoteBrowser extends LitElement {
                             },
                             {
                                 id: "date",
-                                name: "Date",
+                                name: "Creation Date",
                                 description: ""
                             },
                         ]
