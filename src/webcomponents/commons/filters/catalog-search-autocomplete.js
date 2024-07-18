@@ -255,15 +255,14 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 const page = params?.data?.page || 1;
                 const attr = params?.data?.term ? {[this.searchField || this.RESOURCES[this.resource].searchField]: "~/" + params?.data?.term.trim() + "/i"} : null;
                 const filters = {
-                    ...this.resource !== "NOTE" ? {study: this.opencgaSession.study.fqn} : {},
+                    study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: false,
                     skip: (page - 1) * this._config.limit,
                     ...this.query || this.RESOURCES[this.resource].query,
                     ...attr,
                 };
-                (this.resource === "NOTE" ?
-                    this.RESOURCES[this.resource].client.searchNotes(this.opencgaSession.study.fqn, filters) : this.RESOURCES[this.resource].client.search(filters))
+                this.RESOURCES[this.resource].client.search(filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
             },
