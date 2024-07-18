@@ -218,16 +218,29 @@ export default class CatalogSearchAutocomplete extends LitElement {
                     include: "id,path",
                 }
             },
-            "NOTE": {
+            "NOTE_ORGANIZATION": {
                 searchField: "id",
                 placeholder: "Start typing",
-                client: this.opencgaSession.opencgaClient.studies(),
+                // eslint-disable-next-line no-unused-vars
+                fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.organization().searchNotes(params),
                 fields: item => ({
                     "name": item.id,
                 }),
                 query: {
-                    include: "id"
-                }
+                    include: "id",
+                    scope: "ORGANIZATION",
+                },
+            },
+            "NOTE_STUDY": {
+                searchField: "id",
+                placeholder: "Start typing",
+                fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.studies().searchNotes(study, params),
+                fields: item => ({
+                    "name": item.id,
+                }),
+                query: {
+                    include: "id",
+                },
             },
         };
         this._config = this.getDefaultConfig();
