@@ -133,8 +133,7 @@ export default class NoteUpdate extends LitElement {
                         {
                             title: "Scope",
                             field: "scope",
-                            type: "select",
-                            required: true,
+                            type: "toggle-buttons",
                             defaultValue: "STUDY",
                             allowedValues: ["STUDY", "ORGANIZATION"],
                             display: {
@@ -145,7 +144,6 @@ export default class NoteUpdate extends LitElement {
                             title: "Note ID",
                             field: "id",
                             type: "input-text",
-                            required: true,
                             display: {
                                 disabled: true,
                             }
