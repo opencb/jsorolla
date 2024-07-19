@@ -64,7 +64,7 @@ export default class ToggleButtons extends LitElement {
                 id="${this._prefix}BtnRadio${value}"
                 class="btn-check ${this.classes}"
                 .checked="${value === this.value}"
-                .disabled="${this.diabled || item?.disabled}"
+                .disabled="${this.disabled || item?.disabled}"
                 @click="${() => this.filterChange(value)}">
             <label class="btn btn-outline-primary" for="${this._prefix}BtnRadio${value}">
                 ${item?.name ?? item?.text ?? item?.id ?? item}
