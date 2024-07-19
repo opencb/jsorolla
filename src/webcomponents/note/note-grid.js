@@ -117,7 +117,7 @@ export default class NoteGrid extends LitElement {
         };
     }
 
-    fetchNotes(query) {
+    fetchNote(query) {
         const scope = query?.scope;
         switch (scope) {
             case "ORGANIZATION":
@@ -180,7 +180,7 @@ export default class NoteGrid extends LitElement {
                     const {study, ...filters} = this.filters;
                     // Store the current filters
                     this.lastFilters = {...this.filters};
-                    this.fetchNotes(filters)
+                    this.fetchNote(filters)
                         .then(response => {
                             notesResponse = response;
                             // Prepare data for columns extensions
@@ -445,13 +445,27 @@ export default class NoteGrid extends LitElement {
                 ModalUtils.show(`${this._prefix}UpdateModal`);
                 break;
             case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: "Note JSON copied to clipboard.",
-                });
+                this.fetchNote({id: row.id, scope: row.scope})
+                    .then(response => {
+                        UtilsNew.copyToClipboard(JSON.stringify(response.responses[0].results[0], null, "\t"));
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: "Note JSON copied to clipboard.",
+                        });
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                    });
                 break;
             case "download-json":
-                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                this.fetchNote({id: row.id, scope: row.scope})
+                    .then(response => {
+                        UtilsNew.downloadData([JSON.stringify(response.responses[0].results[0], null, "\t")], row.id + ".json");
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                    });
                 break;
             case "delete":
                 this.onDeleteNote(row);
