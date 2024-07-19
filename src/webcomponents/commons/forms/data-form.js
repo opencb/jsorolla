@@ -973,11 +973,13 @@ export default class DataForm extends LitElement {
     _createToggleButtonsElement(element) {
         const value = this.getValue(element.field);
         const allowedValues = element.allowedValues || [];
+        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
         const content = html`
             <toggle-buttons
                 .data="${allowedValues}"
                 .value="${value}"
                 .classes="${this._isUpdated(element) ? "updated" : ""}"
+                .disabled="${disabled}"
                 @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
             </toggle-buttons>
         `;
