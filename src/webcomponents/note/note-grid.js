@@ -356,9 +356,20 @@ export default class NoteGrid extends LitElement {
         return this._columns;
     }
 
-    actionsFormatter() {
+    actionsFormatter(value, row) {
         const user = this.opencgaSession?.user?.id;
-        const hasAdminPermissions = CatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, user) || CatalogUtils.isAdmin(this.opencgaSession?.study, user);
+        let hasAdminPermissions = false;
+        // Case 1: user is an admin organization or owner. In this case, he has permission to perform any action
+        // regardless the scope of the note
+        if (CatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, user)) {
+            hasAdminPermissions = true;
+        } else {
+            // If user is not an organization admin or owner, we will check the scope of the note
+            // If the note has STUDY scope and the user is a study admin, he has permission to perform any action to this note
+            if (row.scope === "STUDY" && CatalogUtils.isAdmin(this.opencgaSession?.study, user)) {
+                hasAdminPermissions = true;
+            }
+        }
 
         return `
             <div class="d-inline-block dropdown">
