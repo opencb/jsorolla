@@ -168,11 +168,9 @@ context("Variant Interpreter Grid Cancer CNV", () => {
 
         it("should display Cohort Stats (Population Frequencies) tooltip", () => {
             cy.get("tbody tr:first > td")
-                .eq(10)
-                .within(() => {
-                    cy.get("a")
-                        .trigger("mouseover");
-                });
+                .eq(13)
+                .find("a")
+                .trigger("mouseover");
             cy.get(".qtip-content")
                 .should("be.visible");
         });
