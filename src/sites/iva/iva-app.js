@@ -984,7 +984,7 @@ class IvaApp extends LitElement {
     }
 
     changeActiveStudy(studyFqn) {
-        if (this.opencgaSession.study.fqn === studyFqn) {
+        if (this.opencgaSession?.study?.fqn === studyFqn) {
             console.log("New selected study is already the current active study!");
             return;
         }
