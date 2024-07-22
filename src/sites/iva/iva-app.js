@@ -991,7 +991,7 @@ class IvaApp extends LitElement {
 
         // Change active study
         let studyFound = false;
-        for (const project of this.opencgaSession.projects) {
+        for (const project of (this.opencgaSession.projects || [])) {
             const studyIndex = project.studies.findIndex(s => s.fqn === studyFqn);
             if (studyIndex >= 0) {
                 this.opencgaSession.project = project;
