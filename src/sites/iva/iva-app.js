@@ -1305,7 +1305,7 @@ class IvaApp extends LitElement {
             <!-- This is where main IVA application is rendered -->
             <div class="container-fluid" style="min-height:calc(100vh - 101px);">
                 ${!this.isCreatingSession ? html`
-                    ${this.config.enabledComponents.home && !this.isCreatingSession ? html`
+                    ${this.config.enabledComponents.home ? html`
                         <div class="d-flex justify-content-center" id="home">
                             <custom-welcome
                                 .app="${this.app}"
