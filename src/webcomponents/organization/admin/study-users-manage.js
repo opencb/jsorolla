@@ -34,11 +34,11 @@ export default class StudyUsersManage extends LitElement {
 
     static get properties() {
         return {
-            studyId: {
+            studyFqn: {
                 type: String,
             },
-            organization: {
-                type: Object,
+            groups: {
+                type: Array,
             },
             opencgaSession: {
                 type: Object,
@@ -50,8 +50,6 @@ export default class StudyUsersManage extends LitElement {
     }
 
     #init() {
-        this.component = {}; // Original object
-        this._component = {}; // Updated object
         this.updateParams = {};
         this.isLoading = false;
         this.displayConfig = {};
@@ -64,18 +62,18 @@ export default class StudyUsersManage extends LitElement {
         };
     }
 
-    #initOriginalObjects() {
-        // 1. Dataform variables
+    #initOriginalObjects(users) {
+        // 1. Data in data-form
+        // Original object
         this.component = {
-            selectedGroups: "",
-            selectedUsers: [],
+            selectedGroups: this.groups.map(group => group.id).join(",") || "",
+            selectedUsers: users?.map(user => user.id) || [],
         };
+        // Modified object
         this._component = UtilsNew.objectClone(this.component);
         // 2. Query variables
         this._userGroupUpdates = [];
-        // 3. Display variables
-        this._groupAllowedValues = this.study.groups;
-        this._selectedGroups = [];
+        // 3. Display
         this._config = this.getDefaultConfig();
     }
 
@@ -86,9 +84,9 @@ export default class StudyUsersManage extends LitElement {
 
     // --- LIT LIFE CYCLE
     update(changedProperties) {
-        if (changedProperties.has("studyId") ||
-            changedProperties.has("opencgaSession") ||
-            changedProperties.has("organization")) {
+        if (changedProperties.has("studyFqn") ||
+            changedProperties.has("groups") ||
+            changedProperties.has("opencgaSession")) {
             this.propertyObserver();
         }
         if (changedProperties.has("displayConfig")) {
@@ -101,42 +99,35 @@ export default class StudyUsersManage extends LitElement {
     }
 
     // --- OBSERVERS ---
-    propertyObserver() {
-        if (this.studyId && this.opencgaSession && this.organization.id) {
+    async propertyObserver() {
+        if (this.opencgaSession?.organization?.id && this.groups && this.studyFqn) {
+            const filters = {
+                organization: this.opencgaSession.organization.id,
+                include: "id",
+                count: true,
+                limit: 1,
+            };
             this.#setLoading(true);
-            this.opencgaSession.opencgaClient.studies()
-                .info(this.studyId)
-                .then(response => {
-                    this.study = UtilsNew.objectClone(response.responses[0].results[0]);
-                    this.#initOriginalObjects();
-                })
-                .catch(error => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-                })
-                .finally(() => {
-                    this.#setLoading(false);
-                });
+            try {
+                const responseNoUsers = await this.opencgaSession.opencgaClient.users().search(filters);
+                const noUsers = responseNoUsers.responses[0].numTotalResults;
+                if (noUsers > 0) {
+                    filters.limit = noUsers;
+                    const responseUsers = await this.opencgaSession.opencgaClient.users().search(filters);
+                    const users = UtilsNew.objectClone(responseUsers.responses[0].result);
+                    this.#initOriginalObjects(users);
+                }
+            } catch (error) {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            }
+            this.#setLoading(false);
         }
     }
 
     // --- EVENTS ---
     onFieldChange(e) {
         const param = e.detail.param;
-        this.updatedFields = FormUtils.getUpdatedFields(this.variant, this.updatedFields, param, e.detail.value, e.detail.action);
-
-        if (param === "selectedGroups") {
-            // Update the selectedGroups local variable. This is needed because the select-field-filter.js component is
-            // returning comma separated string
-            const selectedGroupIds = this._component.selectedGroups?.split(",") || [];
-            this._selectedGroups = selectedGroupIds
-                .map(selectedGroupId => this._groupAllowedValues.find(group => group.id === selectedGroupId));
-            // If a group has been removed, remove possible updates stored in the array of changes
-            this._userGroupUpdates = this._userGroupUpdates.filter((update => selectedGroupIds.includes(update.groupId)));
-        }
-        if (param === "selectedUsers") {
-            // If a user has been removed, remove possible updates stored in the array of changes
-            this._userGroupUpdates = this._userGroupUpdates.filter((update => this._component.selectedUsers.includes(update.userId)));
-        }
+        this.updatedFields = FormUtils.getUpdatedFields(this.component, this.updatedFields, param, e.detail.value, e.detail.action);
         this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
@@ -146,7 +137,7 @@ export default class StudyUsersManage extends LitElement {
             title: "Discard changes",
             message: "Are you sure you want to discard the changes made?",
             ok: () => {
-                this.#initOriginalObjects();
+                this.#initOriginalObjects({});
                 this.requestUpdate();
             },
         });
@@ -166,13 +157,14 @@ export default class StudyUsersManage extends LitElement {
                     users: [update.userId],
                 };
                 this.opencgaSession.opencgaClient.studies()
-                    .updateGroupsUsers(this.study.fqn, update.groupId, data, params)
+                    .updateGroupsUsers(this.studyFqn, update.groupId, data, params)
                     .then(() => {
+                        const studyId = this.studyFqn.split(":").pop();
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             title: `User in Group Update`,
                             message: `
                                 ${update.userId} ${update.isChecked ? "ADDED to" : "REMOVED from"}
-                                ${update.groupId} in study ${this.study.id} correctly.
+                                ${update.groupId} in study ${studyId} correctly.
                             `,
                         });
                     })
@@ -217,93 +209,62 @@ export default class StudyUsersManage extends LitElement {
     // Double-check if the user is undoing a previous change on a specific user / group.
     _findChangePosition(userId, groupId) {
         // pos will equal -1 if a previous changes has been undone
-        return this._userGroupUpdates
-            .findIndex(update => update.userId === userId && update.groupId === groupId);
+        return this._userGroupUpdates.findIndex(update => update.userId === userId && update.groupId === groupId);
     }
 
     _findCurrentValue(userId, groupId) {
-        // 1. Check if this user has been added/removed from this group
-        const change = this._userGroupUpdates
-            .find(update => update.userId === userId && update.groupId === groupId);
+        // Check if this user has been added/removed from this group
+        const change = this._userGroupUpdates.find(update => update.userId === userId && update.groupId === groupId);
         if (change) {
+            // 2. If added/removed, return value
             return change.isChecked;
+        } else {
+            // 2. If not, check if the user was initially on this group
+            const group = this.groups.find(group => group.id === groupId);
+            return group.userIds.includes(userId);
         }
-        // 2. If not, check if the user was initially on this group
-        const group = this._selectedGroups.find(group => group.id === groupId);
-        return group.userIds.includes(userId);
+    }
+
+    renderStyle() {
+        // Note 20240724 Vero: This css class enables vertical scroll on tbody
+        return html `
+            <style>
+                .study-users-manage-table {
+                    display: grid;
+                    grid-template-rows: 1fr fit-content(512px);
+                }
+                .study-users-manage-table tr {
+                    display: grid;
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                }
+                .study-users-manage-table tbody {
+                    overflow: auto;
+                }
+            </style>
+        `;
     }
 
     // --- RENDER ---
     render() {
-        if (!this.study) {
+        if (!this.component) {
             return nothing;
         }
 
         return html`
-            <data-form
-                .data="${this._component}"
-                .config="${this._config}"
-                .updateParams="${this.updatedFields}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${e => this.onClear(e)}"
-                @submit="${e => this.onSubmit(e)}">
-            </data-form>
+            ${this.renderStyle()}
+                <data-form
+                    .data="${this._component}"
+                    .config="${this._config}"
+                    .updateParams="${this.updatedFields}"
+                    @fieldChange="${e => this.onFieldChange(e)}"
+                    @clear="${e => this.onClear(e)}"
+                    @submit="${e => this.onSubmit(e)}">
+                </data-form>
         `;
     }
 
     getDefaultConfig() {
         const sections = [
-            {
-                description: `This interface allows you to simultaneously manage multiple users in multiple groups within the selected study.
-                Please note that adding a user to the special group @members will only grant them access to the metadata of the study.
-                However, once users are in the @members group, Study Administrators can grant them additional permissions
-                at the study level or within specific groups.`,
-                display: {
-                    descriptionClassName: "d-block text-secondary",
-                },
-                elements: [
-                    {
-                        title: "Select Group(s)",
-                        field: "selectedGroups",
-                        type: "select",
-                        required: true,
-                        multiple: true,
-                        all: false,
-                        allowedValues: this._groupAllowedValues,
-                        display: {
-                            // apply: () => ,
-                            placeholder: "Select group or groups...",
-                        },
-                    },
-                    {
-                        title: "Select User(s)",
-                        field: "selectedUsers",
-                        type: "custom",
-                        required: true,
-                        display: {
-                            visible: this._selectedGroups?.length > 0,
-                            render: (users, dataFormFilterChange, updateParams) => {
-                                const userIds = (users || []).join(",");
-                                const handleUsersFilterChange = e => {
-                                    // We need to convert value from a string with commas to an array of IDs
-                                    const userList = (e.detail.value?.split(",") || []);
-                                    dataFormFilterChange(userList);
-                                };
-                                return html`
-                                    <catalog-search-autocomplete
-                                        .value="${userIds}"
-                                        .resource="${"USERS"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .classes="${updateParams?.users ? "selection-updated" : ""}"
-                                        .config="${{multiple: true}}"
-                                        @filterChange="${e => handleUsersFilterChange(e)}">
-                                    </catalog-search-autocomplete>
-                                `;
-                            },
-                        },
-                    },
-                ],
-            },
             {
                 display: {
                     descriptionClassName: "d-block text-secondary",
@@ -311,10 +272,11 @@ export default class StudyUsersManage extends LitElement {
                 },
                 elements: [
                     {
-                        title: "Table",
+                        // title: "Table",
                         field: "selectedUsers",
                         type: "table",
                         display: {
+                            className: "study-users-manage-table",
                             width: 12,
                             columns: [
                                 {
@@ -325,7 +287,7 @@ export default class StudyUsersManage extends LitElement {
                                         render: (value, update, params, data, row) => row,
                                     },
                                 },
-                                ...this._selectedGroups?.map(group => ({
+                                ...this.groups?.map(group => ({
                                     id: group.id,
                                     title: group.id,
                                     type: "custom",
@@ -351,7 +313,6 @@ export default class StudyUsersManage extends LitElement {
                 ],
             },
         ];
-
         return {
             id: "",
             display: this.displayConfig,

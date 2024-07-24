@@ -121,7 +121,7 @@ export default class StudyAdminGrid extends LitElement {
                     <study-create
                         .project=${this.project}
                         .opencgaSession="${this.opencgaSession}"
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
+                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                         @studyCreate="${e => this.onStudyEvent(e)}">
                     </study-create>
                 `,
@@ -342,6 +342,7 @@ export default class StudyAdminGrid extends LitElement {
         this.action = e.currentTarget.dataset.action;
         this.studyId = row.id;
         this.studyFqn = row.fqn;
+        this.studyGroups = row.groups;
         this.requestUpdate();
         await this.updateComplete;
         ModalUtils.show(this.modals[this.action]["modalId"]);
@@ -365,7 +366,7 @@ export default class StudyAdminGrid extends LitElement {
                 <group-admin-create
                     .studyFqn="${this.studyFqn}"
                     .opencgaSession="${this.opencgaSession}"
-                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
+                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                     @groupCreate="${e => this.onStudyEvent(e, `${this._prefix}CreateGroupModal`)}">
                 </group-admin-create>
             `,
@@ -383,7 +384,7 @@ export default class StudyAdminGrid extends LitElement {
             render: () => html`
                 <study-update
                     .studyId="${this.studyId}"
-                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
+                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                     .opencgaSession="${this.opencgaSession}"
                     @studyUpdate="${e => this.onStudyEvent(e, `${this._prefix}UpdateStudyModal`)}">
                 </study-update>
@@ -401,9 +402,9 @@ export default class StudyAdminGrid extends LitElement {
             },
             render: () => html`
                 <study-users-manage
-                    .studyId="${this.studyId}"
-                    .organization="${this.organization}"
-                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
+                    .studyFqn="${this.studyFqn}"
+                    .groups="${this.studyGroups.filter(group => ["@members", "@admins"].includes(group.id))}"
+                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                     .opencgaSession="${this.opencgaSession}"
                     @studyUpdate="${e => this.onStudyEvent(e, `${this._prefix}ManageUsersStudyModal`)}">
                 </study-users-manage>
