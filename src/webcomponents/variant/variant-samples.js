@@ -492,9 +492,9 @@ export default class VariantSamples extends LitElement {
                         },
                     ]
                 },
-                {
-                    separator: true
-                },
+                // {
+                //     separator: true
+                // },
                 {
                     id: "Secondary Alternate Genotypes",
                     fields: [
