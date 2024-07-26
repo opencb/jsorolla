@@ -104,21 +104,6 @@ export default class OpencgaCatalogUtils {
             console.error(`No valid parameters, study: ${study}, user: ${userLogged}`);
             return false;
         }
-        // CAUTION: in organizations, label before @ is now organization name, not owner
-        /*
-            // Check if user is the Study owner
-            const studyOwner = study.fqn.split("@")[0];
-            if (userLogged === studyOwner) {
-                return true;
-            } else {
-                // Check if user is a Study admin, belongs to @admins group
-                const admins = study.groups.find(group => group.id === "@admins");
-                if (admins.userIds.includes(userLogged)) {
-                    return true;
-                }
-            }
-            return false;
-        */
         const admins = study.groups.find(group => group.id === "@admins");
         return !!admins.userIds.includes(userLogged);
     }
