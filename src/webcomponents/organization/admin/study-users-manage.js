@@ -19,6 +19,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import FormUtils from "../../commons/forms/form-utils";
 import LitUtils from "../../commons/utils/lit-utils";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 
 export default class StudyUsersManage extends LitElement {
 
@@ -64,7 +65,6 @@ export default class StudyUsersManage extends LitElement {
 
     #initOriginalObjects() {
         // 1. Data in data-form
-        // Original object
         this.userRole = {
             "org-owner": {
                 displayName: "OWNER",
@@ -79,7 +79,7 @@ export default class StudyUsersManage extends LitElement {
                 check: userId => this.groups.find(group => group.id === "@admins").userIds.includes(userId),
             },
         };
-
+        // Original object
         this.component = {
             selectedGroups: this.groups.map(group => group.id).join(",") || "",
             selectedUsers: this.users?.map(user => user.id) || [],
@@ -91,6 +91,7 @@ export default class StudyUsersManage extends LitElement {
         this._userGroupUpdates = [];
 
         // 3. Display
+        this.forceDisable = [];
         this._config = this.getDefaultConfig();
     }
 
@@ -219,6 +220,18 @@ export default class StudyUsersManage extends LitElement {
                 groupId: groupId,
             });
         }
+        // If a user is member not admin:
+        //  - If removed from member => disable admin
+        //  - If added to admin => disable member
+        //  - And enable them back if the change is undone
+        // To avoid undetermined user permissions on submit if contradictory changes are submitted.
+        if (groupId === "@admins" && this.groups.find(group => group.id === "@members" && group.userIds.includes(userId))) {
+            this.forceDisable[`${userId}.@members`] = e.currentTarget.checked;
+        }
+        if (groupId === "@members" && this.groups.find(group => group.id === "@admins" && !group.userIds.includes(userId))) {
+            this.forceDisable[`${userId}.@admins`] = !e.currentTarget.checked;
+        }
+
         this._config = {...this._config};
         this.requestUpdate();
     }
@@ -323,16 +336,20 @@ export default class StudyUsersManage extends LitElement {
                                     type: "custom",
                                     display: {
                                         helpMessage: "",
-                                        render: (checked, dataFormFilterChange, updateParams, data, row) => {
-                                            const currentValue = this._findCurrentValue(row, group.id);
-                                            const changePosition = this._findChangePosition(row, group.id);
+                                        render: (checked, dataFormFilterChange, updateParams, data, userId) => {
+                                            const currentValue = this._findCurrentValue(userId, group.id);
+                                            const changePosition = this._findChangePosition(userId, group.id);
+                                            // If the user is organization admin or owner,
+                                            // the checkboxes in members and admins need to be disabled
+                                            const userIsOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdminOwner(this.opencgaSession.organization, userId);
                                             return html`
                                                 <div class="form-check form-switch">
                                                     <input
                                                         class="form-check-input"
                                                         type="checkbox"
                                                         .checked="${currentValue}"
-                                                        @click="${e => this.onUserGroupChange(e, row, group.id)}">
+                                                        .disabled="${userIsOrganizationAdmin || this.forceDisable[`${userId}.${group.id}`]}"
+                                                        @click="${e => this.onUserGroupChange(e, userId, group.id)}">
                                                     ${changePosition >= 0 ? html`<span style="color: darkorange">*</span>` : ""}
                                                 </div>
                                             `;
