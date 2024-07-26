@@ -66,7 +66,7 @@ export default class StudyAdminGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
-        this.action = "";
+        this._action = "";
         this.displayConfigDefault = {
             header: {
                 horizontalAlign: "center",
@@ -150,11 +150,11 @@ export default class StudyAdminGrid extends LitElement {
                 permission: this.permissions["organization"](),
                 divider: false,
             },
-            "add-users": {
-                label: "Manage Users in Study",
+            "manage-users": {
+                label: "Manage Organization Users in Study",
                 icon: "fas fa-user-plus",
                 modalId: `${this._prefix}ManageUsersStudyModal`,
-                render: () => this.renderAddUsersStudy(),
+                render: () => this.renderManageUsersStudy(),
                 permission: this.permissions["organization"](),
                 divider: true,
             },
@@ -339,17 +339,21 @@ export default class StudyAdminGrid extends LitElement {
 
     // *** EVENTS ***
     async onActionClick(e, value, row) {
-        this.action = e.currentTarget.dataset.action;
+        this._action = e.currentTarget.dataset.action;
         this.studyId = row.id;
         this.studyFqn = row.fqn;
-        this.studyGroups = row.groups;
+        if (this._action === "manage-users") {
+            // Manage organization users: (a) add/remove from study, (b) set/unset as study admins
+            this.groups = row.groups.filter(group => ["@members", "@admins"].includes(group.id));
+        }
         this.requestUpdate();
         await this.updateComplete;
-        ModalUtils.show(this.modals[this.action]["modalId"]);
+        ModalUtils.show(this.modals[this._action]["modalId"]);
     }
 
     onStudyEvent(e, id) {
         // Fixme 20240616 Vero: find out a way to close modal creates!
+        this._action = "";
         ModalUtils.close(id);
     }
 
@@ -357,7 +361,7 @@ export default class StudyAdminGrid extends LitElement {
     renderGroupCreate() {
         return ModalUtils.create(this, `${this._prefix}CreateGroupModal`, {
             display: {
-                modalTitle: `Group Create`,
+                modalTitle: `Group Create in Study: ${this.studyId}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-group-create",
                 modalSize: "modal-lg"
@@ -376,14 +380,14 @@ export default class StudyAdminGrid extends LitElement {
     renderStudyUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateStudyModal`, {
             display: {
-                modalTitle: `Update Study`,
+                modalTitle: `Update Study: ${this.studyId}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-study-update",
                 modalSize: "modal-lg"
             },
             render: () => html`
                 <study-update
-                    .studyId="${this.studyId}"
+                    .studyFqn="${this.studyFqn}"
                     .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                     .opencgaSession="${this.opencgaSession}"
                     @studyUpdate="${e => this.onStudyEvent(e, `${this._prefix}UpdateStudyModal`)}">
@@ -392,23 +396,25 @@ export default class StudyAdminGrid extends LitElement {
         });
     }
 
-    renderAddUsersStudy() {
+    renderManageUsersStudy() {
         return ModalUtils.create(this, `${this._prefix}ManageUsersStudyModal`, {
             display: {
-                modalTitle: `Manage Users in Study: ${this.studyId}`,
+                modalTitle: `Manage Organization Users in Study: ${this.studyId}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-users-study-update",
                 modalSize: "modal-lg"
             },
-            render: () => html`
-                <study-users-manage
-                    .studyFqn="${this.studyFqn}"
-                    .groups="${this.studyGroups.filter(group => ["@members", "@admins"].includes(group.id))}"
-                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
-                    .opencgaSession="${this.opencgaSession}"
-                    @studyUpdate="${e => this.onStudyEvent(e, `${this._prefix}ManageUsersStudyModal`)}">
-                </study-users-manage>
-            `,
+            render: () => {
+                return html`
+                    <study-users-manage
+                        .studyFqn="${this.studyFqn}"
+                        .groups="${this.groups}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                        @studyUpdate="${e => this.onStudyEvent(e, `${this._prefix}ManageUsersStudyModal`)}">
+                    </study-users-manage>
+                `;
+            }
         });
     }
 
@@ -434,7 +440,7 @@ export default class StudyAdminGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
             <!-- 3. On action click, render update modal -->
-            ${this.action ? this.modals[this.action]["render"](): nothing}
+            ${this._action ? this.modals[this._action]["render"](): nothing}
         `;
     }
 

@@ -137,7 +137,7 @@ export default class StudyUsersManage extends LitElement {
             title: "Discard changes",
             message: "Are you sure you want to discard the changes made?",
             ok: () => {
-                this.#initOriginalObjects({});
+                this.#initOriginalObjects([]);
                 this.requestUpdate();
             },
         });
@@ -156,7 +156,7 @@ export default class StudyUsersManage extends LitElement {
                 const data = {
                     users: [update.userId],
                 };
-                this.opencgaSession.opencgaClient.studies()
+                return this.opencgaSession.opencgaClient.studies()
                     .updateGroupsUsers(this.studyFqn, update.groupId, data, params)
                     .then(() => {
                         const studyId = this.studyFqn.split(":").pop();
@@ -184,8 +184,9 @@ export default class StudyUsersManage extends LitElement {
         Promise.all(_userGroupPromises)
             .finally(() => {
                 this.#setLoading(false);
-                this.#initOriginalObjects();
+                this.#initOriginalObjects([]);
                 LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", {});
+                LitUtils.dispatchCustomEvent(this, "studyUpdate", this.study, {});
             });
     }
 
