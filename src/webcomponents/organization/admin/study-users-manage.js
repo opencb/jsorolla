@@ -62,17 +62,34 @@ export default class StudyUsersManage extends LitElement {
         };
     }
 
-    #initOriginalObjects(users) {
+    #initOriginalObjects() {
         // 1. Data in data-form
         // Original object
+        this.userRole = {
+            "org-owner": {
+                displayName: "OWNER",
+                check: userId => this.opencgaSession.organization.owner === userId,
+            },
+            "org-admin": {
+                displayName: "ADMIN",
+                check: userId => this.opencgaSession.organization.admins.includes(userId),
+            },
+            "study-admin": {
+                displayName: "STUDY ADMIN",
+                check: userId => this.groups.find(group => group.id === "@admins").userIds.includes(userId),
+            },
+        };
+
         this.component = {
             selectedGroups: this.groups.map(group => group.id).join(",") || "",
-            selectedUsers: users?.map(user => user.id) || [],
+            selectedUsers: this.users?.map(user => user.id) || [],
         };
         // Modified object
         this._component = UtilsNew.objectClone(this.component);
+
         // 2. Query variables
         this._userGroupUpdates = [];
+
         // 3. Display
         this._config = this.getDefaultConfig();
     }
@@ -114,8 +131,8 @@ export default class StudyUsersManage extends LitElement {
                 if (noUsers > 0) {
                     filters.limit = noUsers;
                     const responseUsers = await this.opencgaSession.opencgaClient.users().search(filters);
-                    const users = UtilsNew.objectClone(responseUsers.responses[0].result);
-                    this.#initOriginalObjects(users);
+                    this.users = UtilsNew.objectClone(responseUsers.responses[0].result);
+                    this.#initOriginalObjects();
                 }
             } catch (error) {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -137,7 +154,7 @@ export default class StudyUsersManage extends LitElement {
             title: "Discard changes",
             message: "Are you sure you want to discard the changes made?",
             ok: () => {
-                this.#initOriginalObjects([]);
+                this.#initOriginalObjects();
                 this.requestUpdate();
             },
         });
@@ -184,7 +201,6 @@ export default class StudyUsersManage extends LitElement {
         Promise.all(_userGroupPromises)
             .finally(() => {
                 this.#setLoading(false);
-                this.#initOriginalObjects([]);
                 LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", {});
                 LitUtils.dispatchCustomEvent(this, "studyUpdate", this.study, {});
             });
@@ -285,7 +301,20 @@ export default class StudyUsersManage extends LitElement {
                                     title: "User Id",
                                     type: "custom",
                                     display: {
-                                        render: (value, update, params, data, row) => row,
+                                        render: (value, update, params, data, userId) => {
+                                            const role = Object.values(this.userRole)
+                                                .find(role => role.check(userId)) || {};
+                                            return html`
+                                                <div class="d-flex align-items-center">
+                                                    ${role?.displayName ? html`
+                                                        <div class="me-2">${userId}</div>
+                                                        <div class="badge bg-light text-primary small">${role.displayName}</div>
+                                                    ` : html`
+                                                        <div>${userId}</div>
+                                                    `}
+                                                </div>
+                                            `;
+                                        }
                                     },
                                 },
                                 ...this.groups?.map(group => ({
@@ -295,14 +324,16 @@ export default class StudyUsersManage extends LitElement {
                                     display: {
                                         helpMessage: "",
                                         render: (checked, dataFormFilterChange, updateParams, data, row) => {
+                                            const currentValue = this._findCurrentValue(row, group.id);
+                                            const changePosition = this._findChangePosition(row, group.id);
                                             return html`
                                                 <div class="form-check form-switch">
                                                     <input
                                                         class="form-check-input"
                                                         type="checkbox"
-                                                        .checked="${this._findCurrentValue(row, group.id)}"
+                                                        .checked="${currentValue}"
                                                         @click="${e => this.onUserGroupChange(e, row, group.id)}">
-                                                    ${this._findChangePosition(row, group.id) >= 0 ? html`<span style="color: darkorange">*</span>` : ""}
+                                                    ${changePosition >= 0 ? html`<span style="color: darkorange">*</span>` : ""}
                                                 </div>
                                             `;
                                         }
