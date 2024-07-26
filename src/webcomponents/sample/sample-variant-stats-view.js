@@ -205,7 +205,8 @@ class SampleVariantStatsView extends LitElement {
                         <div class="col-md-2">
                             <select-field-filter
                                 .data="${this.statsSelect}"
-                                .value=${this.variantStats.id}
+                                .value="${this.variantStats.id}"
+                                .forceSelection="${true}"
                                 .config="${{
                                     liveSearch: false,
                                     multiple: false
