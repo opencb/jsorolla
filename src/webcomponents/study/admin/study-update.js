@@ -34,7 +34,7 @@ export default class StudyUpdate extends LitElement {
 
     static get properties() {
         return {
-            studyId: {
+            studyFqn: {
                 type: String
             },
             opencgaSession: {
@@ -86,8 +86,8 @@ export default class StudyUpdate extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("studyId")) {
-            this.studyIdObserver();
+        if (changedProperties.has("studyFqn")) {
+            this.studyFqnObserver();
         }
         if (changedProperties.has("displayConfig")) {
             this.displayConfigObserver();
@@ -95,12 +95,12 @@ export default class StudyUpdate extends LitElement {
         super.update(changedProperties);
     }
 
-    studyIdObserver() {
-        if (this.studyId && this.opencgaSession) {
+    studyFqnObserver() {
+        if (this.studyFqn && this.opencgaSession) {
             let error;
             this.#setLoading(true);
             this.opencgaSession.opencgaClient.studies()
-                .info(this.studyId)
+                .info(this.studyFqn)
                 .then(response => {
                     this.study = UtilsNew.objectClone(response.responses[0].results[0]);
                     this.#initOriginalObjects();
@@ -172,8 +172,8 @@ export default class StudyUpdate extends LitElement {
                     title: "Study Update",
                     message: `Study ${this.study.id} updated correctly`
                 });
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", this._study, {}, error);
-                LitUtils.dispatchCustomEvent(this, "studyUpdate", this._study, {}, error);
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", this.study, {}, error);
+                LitUtils.dispatchCustomEvent(this, "studyUpdate", this.study, {}, error);
             })
             .catch(reason => {
                 error = reason;
