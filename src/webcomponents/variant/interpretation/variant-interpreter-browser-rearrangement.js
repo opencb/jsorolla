@@ -291,9 +291,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                     hiddenFields: [],
                     lockedFields: [
                         {id: "sample"},
-                        {id: "sampleData"},
-                        {id: "file"},
-                        {id: "fileData"},
+                        // {id: "sampleData"},
+                        // {id: "file"},
+                        // {id: "fileData"},
                     ],
                 },
                 callers: [],

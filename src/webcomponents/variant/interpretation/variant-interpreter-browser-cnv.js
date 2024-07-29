@@ -251,9 +251,9 @@ class VariantInterpreterBrowserCNV extends LitElement {
     getDefaultConfig() {
         const lockedFields = [
             {id: "sample"},
-            {id: "sampleData"},
-            {id: "file"},
-            {id: "fileData"},
+            // {id: "sampleData"},
+            // {id: "file"},
+            // {id: "fileData"},
             {id: "type"},
         ];
 
