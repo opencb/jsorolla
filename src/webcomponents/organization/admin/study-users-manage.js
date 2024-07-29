@@ -17,9 +17,9 @@
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import FormUtils from "../../commons/forms/form-utils";
-import LitUtils from "../../commons/utils/lit-utils";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import FormUtils from "../../commons/forms/form-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 export default class StudyUsersManage extends LitElement {
 
@@ -226,7 +226,7 @@ export default class StudyUsersManage extends LitElement {
         //  - And enable them back if the change is undone
         // To avoid undetermined user permissions on submit if contradictory changes are submitted.
         if (groupId === "@admins" && this.groups.find(group => group.id === "@members" && group.userIds.includes(userId))) {
-            this.forceDisable[`${userId}.@members`] = e.currentTarget.checked;
+            this.forceDisable[`${userId}.@members`] = (e.currentTarget.checked && pos === -1);
         }
         if (groupId === "@members" && this.groups.find(group => group.id === "@admins" && !group.userIds.includes(userId))) {
             this.forceDisable[`${userId}.@admins`] = !e.currentTarget.checked;
@@ -332,7 +332,7 @@ export default class StudyUsersManage extends LitElement {
                                 },
                                 ...this.groups?.map(group => ({
                                     id: group.id,
-                                    title: group.id,
+                                    title: group.id === "@members" ? "Study Member" : "Study Admin",
                                     type: "custom",
                                     display: {
                                         helpMessage: "",
