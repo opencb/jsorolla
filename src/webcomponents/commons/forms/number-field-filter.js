@@ -150,6 +150,7 @@ export default class NumberFieldFilter extends LitElement {
                         <select-field-filter
                             .data="${this._config.values}"
                             .value="${this.state.comparator}"
+                            .forceSelection="${this._config.comparatorForceSelection}"
                             .config="${{
                                 liveSearch: false
                             }}"
