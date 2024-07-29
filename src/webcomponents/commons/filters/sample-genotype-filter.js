@@ -84,10 +84,10 @@ export default class SampleGenotypeFilter extends LitElement {
         return {
             genotypes: [
                 {
-                    id: "0/1", name: "HET"
+                    id: "0/1", name: "HET (0/1)"
                 },
                 {
-                    id: "1/1", name: "HOM_ALT"
+                    id: "1/1", name: "HOM_ALT (1/1)"
                 },
                 {
                     separator: true
@@ -98,12 +98,12 @@ export default class SampleGenotypeFilter extends LitElement {
                 {
                     id: "1/2", name: "BIALLELIC (1/2)"
                 },
+                {
+                    id: "NA", name: "NA"
+                }
                 // {
                 //     id: "./.", name: "Missing"
                 // },
-                // {
-                //     id: "NA", name: "NA"
-                // }
             ]
         };
     }

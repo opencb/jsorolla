@@ -293,28 +293,6 @@ class VariantInterpreterBrowserCNV extends LitElement {
                             {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
-                                params: {
-                                    genotypes: [
-                                        {
-                                            id: "0/1", name: "HET"
-                                        },
-                                        {
-                                            id: "1/1", name: "HOM ALT"
-                                        },
-                                        {
-                                            separator: true
-                                        },
-                                        {
-                                            id: "1", name: "HAPLOID (1)"
-                                        },
-                                        {
-                                            id: "1/2", name: "BIALLELIC (1/2)"
-                                        },
-                                        {
-                                            id: "NA", name: "NA"
-                                        }
-                                    ]
-                                },
                                 tooltip: tooltips.sample,
                             },
                             {

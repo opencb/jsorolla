@@ -135,7 +135,9 @@ class VariantInterpreterBrowserRd extends LitElement {
                 switch (this.clinicalAnalysis.type.toUpperCase()) {
                     case "SINGLE":
                     case "CANCER":
-                        this._sampleQuery = this.sample.id + ":" + ["0/1", "1/1", "1", "1/2"].join(",");
+                        // Nacho (29-7-24): we have found too many exceptions in the genotypes, we should NOT add the genotypes here
+                        // this._sampleQuery = this.sample.id + ":" + ["0/1", "1/1", "1", "1/2"].join(",");
+                        this._sampleQuery = this.sample.id;
                         break;
                     case "FAMILY":
                         // Add proband genotypes
@@ -348,25 +350,28 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
                                 visible: () => this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "CANCER",
-                                params: {
-                                    genotypes: [
-                                        {
-                                            id: "0/1", name: "HET (0/1)"
-                                        },
-                                        {
-                                            id: "1/1", name: "HOM_ALT (1/1)"
-                                        },
-                                        {
-                                            separator: true
-                                        },
-                                        {
-                                            id: "1", name: "HAPLOID (1)"
-                                        },
-                                        {
-                                            id: "1/2", name: "BIALLELIC (1/2)"
-                                        },
-                                    ]
-                                },
+                                // params: {
+                                //     genotypes: [
+                                //         {
+                                //             id: "0/1", name: "HET (0/1)"
+                                //         },
+                                //         {
+                                //             id: "1/1", name: "HOM_ALT (1/1)"
+                                //         },
+                                //         {
+                                //             separator: true
+                                //         },
+                                //         {
+                                //             id: "1", name: "HAPLOID (1)"
+                                //         },
+                                //         {
+                                //             id: "1/2", name: "BIALLELIC (1/2)"
+                                //         },
+                                //         {
+                                //             id: "NA", name: "NA"
+                                //         }
+                                //     ]
+                                // },
                                 tooltip: tooltips.sample,
                             },
                             {
