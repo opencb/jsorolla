@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import VariantUtils from "./variant-utils.js";
+import {guardPage} from "../commons/html-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/tool-header.js";
 import "./variant-browser-filter.js";
@@ -296,32 +297,25 @@ export default class VariantBrowser extends LitElement {
     render() {
         // Check if there is any project available
         if (!this.opencgaSession?.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue.</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         return html`
             <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
             <div class="row">
-                <div class="col-md-2 left-menu">
-
-                    <div class="search-button-wrapper">
+                <div class="col-2 mb-3">
+                    <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onRun}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
                             <strong>${this._config.searchButtonText || "Search"}</strong>
                         </button>
                     </div>
-
-                    <ul class="nav nav-tabs left-menu-tabs" role="tablist">
-                        <li role="presentation" class="active">
-                            <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">${this._config.filter.title}</a>
+                    <ul class="nav nav-tabs mb-3" role="tablist">
+                        <li class="nav-item" role="presentation" >
+                            <a class="nav-link active fw-bold" href="#filters_tab" aria-controls="profile" role="tab" data-bs-toggle="tab">${this._config.filter.title}</a>
                         </li>
-                        <li role="presentation">
-                            <a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">${this._config.aggregation.title}</a>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link fw-bold" href="#facet_tab" aria-controls="home" role="tab" data-bs-toggle="tab">${this._config.aggregation.title}</a>
                         </li>
                     </ul>
 
@@ -351,7 +345,7 @@ export default class VariantBrowser extends LitElement {
 
                 <div class="col-md-10">
                     <!-- TAB buttons -->
-                    <div class="content-pills" role="toolbar" aria-label="toolbar">
+                    <div class="content-pills mb-3" role="toolbar" aria-label="toolbar">
                         <button
                             type="button"
                             class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""} content-pills`}"

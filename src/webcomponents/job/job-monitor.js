@@ -174,45 +174,54 @@ export class JobMonitor extends LitElement {
 
     render() {
         return html`
-            <ul id="job-monitor" class="nav navbar-nav notification-nav">
-                <li class="notification">
-                    <a href="#" class="dropdown-toggle dropdown-button-wrapper" title="Job Monitor" data-toggle="dropdown" role="button"
-                       aria-haspopup="true" aria-expanded="false" @click="${this.toggleDropdown}">
+            <ul id="job-monitor" class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle dropdown-button-wrapper"
+                    title="Job Monitor" data-bs-toggle="dropdown" role="button"
+                    aria-haspopup="true" aria-expanded="false" @click="${this.toggleDropdown}">
                         <div class="dropdown-button-icon">
                             <i class="fas fa-rocket"></i>
                         </div>
-                        <span class="badge badge-pill badge-primary ${this.updatedCnt > 0 ? "" : "invisible"}">${this.updatedCnt}</span>
+                        <span class="position-absolute top-0 start-100 mt-1 translate-middle badge bg-danger rounded-pill ${this.updatedCnt > 0 ? "" : "invisible"}">
+                            ${this.updatedCnt}
+                        </span>
                     </a>
-                    <ul class="dropdown-menu">
-                        <li class="info">
-                            <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple">ALL</button>
-                            <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="PENDING,QUEUED,RUNNING">Running</button>
-                            <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
-                            <button @click="${this.forceRefresh}" class="btn btn-small btn-default ripple pull-right" title="Force immediate refresh" id="#refresh-job">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <!-- <li class="info">Jobs done since your last access /*moment(this.opencgaSession.user.configs.IVA.lastAccess).format("DD-MM-YYYY HH:mm:ss") */</li> -->
+                        <li class="d-flex justify-content-around mx-1 mb-1">
+                            <button @click="${this.filterJobs}" class="btn btn-small btn btn-outline-secondary m-1 flex-fill">ALL</button>
+                            <button @click="${this.filterJobs}" class="btn btn-small btn btn-outline-secondary m-1 flex-fill" data-type="PENDING,QUEUED,RUNNING">Running</button>
+                            <button @click="${this.filterJobs}" class="btn btn-small btn btn-outline-secondary m-1 flex-fill" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
+                            <button @click="${this.forceRefresh}" class="btn btn-small btn btn-outline-secondary m-1" title="Force immediate refresh" id="#refresh-job"><i class="fas fa-sync-alt"></i></button>
                         </li>
-                        ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
-                            <li>
-                                <a href="#job" class="job-monitor-item">
-                                    <div class="media">
-                                        <div class="media-left rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
-                                            <i class="fas fa-rocket"></i>
+                        ${
+                            this.filteredJobs.length ? this.filteredJobs.map(job => html`
+                                <li>
+                                    <a href="javascript: void 0" class="dropdown-item border-top ${job.updated && !job._visited ?
+                                            `updated status-${job?.internal?.status?.id || job?.internal?.status?.name}` : ""}"
+                                            @click=${() => this.openJob(job.id)}>
+                                        <div class="d-flex align-items-center overflow-hidden" style="zoom:1">
+                                            <div class="flex-shrink-0 fs-2 rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
+                                                <i class="text-secondary fas fa-rocket"></i>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                ${job.updated && !job._visited ? html`<span class="badge bg-primary rounded-pill">NEW</span>` : ""}
+                                                <div class="mt-0 text-truncate" style="max-width: 300px">${job.id}</div>
+                                                <small class="text-secondary">${job.tool?.id || ""}
+                                                <div class="vr"></div>
+                                                ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
+                                                <div>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</div>
+                                            </div>
                                         </div>
-                                        <div class="media-body">
-                                            <h4 class="media-heading">${job.id}</h4>
-                                            <small>${job.tool.id}</small> |
-                                            <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
-                                            <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</p>
-                                        </div>
-                                    </div>
-                                 </a>
-                            </li>
-                        `) : html`
-                            <li>
-                                <a>No jobs</a>
-                            </li>
-                        `}
+                                    </a>
+                                </li>
+                            `) : html`
+                                    <li>
+                                        <a class="dropdown-item border-top">
+                                            <div class="mt-1 fw-bold">No jobs</div>
+                                        </a>
+                                    </li>`
+                        }
                     </ul>
                 </li>
             </ul>

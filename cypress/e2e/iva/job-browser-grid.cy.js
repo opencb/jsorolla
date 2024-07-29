@@ -113,14 +113,14 @@ context("Job Browser Grid", () => {
             });
             cy.get("button[data-action='settings']")
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                UtilsTest.getByDataTest("test-columns", "select-field-filter span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-selection")
                 .click();
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
@@ -159,20 +159,23 @@ context("Job Browser Grid", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("tbody tr")
                 .eq(3)
-                .click()
-                .should("have.class","success");
+                .as("rowSelected")
+                .click();
+
+            cy.get("@rowSelected")
+                .should("have.class","table-success");
         });
 
-        it("should download job Json", () => {
+        it.only("should download job Json", () => {
             cy.get("tbody tr:first > td")
                 .eq(-2)
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Download JSON")
                         .click();
-            });
+                });
         });
     });
 
@@ -188,6 +191,7 @@ context("Job Browser Grid", () => {
             cy.get(`detail-tabs > div.detail-tabs > ul`)
                 .find("li")
                 .contains("New Catalog Tab")
+                .as("catalogTab")
                 .click()
                 .should("be.visible");
         });

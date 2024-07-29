@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new";
 
 export default class CustomVerticalNavBar extends LitElement {
@@ -53,6 +53,10 @@ export default class CustomVerticalNavBar extends LitElement {
             },
             clicked: {
                 type: String,
+            },
+            _activeItem: {
+                type: String,
+                state: true
             }
         };
     }
@@ -66,6 +70,7 @@ export default class CustomVerticalNavBar extends LitElement {
         // Selectors
         this.#divMenu = "admin-vertical-navbar";
         this.#divContent = "admin-vertical-content";
+        this._activeItem = "";
     }
 
     #initActiveMenu() {
@@ -89,7 +94,7 @@ export default class CustomVerticalNavBar extends LitElement {
     }
 
     firstUpdated() {
-        this.#initActiveMenu();
+        // this.#initActiveMenu();
     }
 
     // --- OBSERVERS ---
@@ -128,8 +133,9 @@ export default class CustomVerticalNavBar extends LitElement {
 
         // Set current active-item
         const navItems = document.querySelectorAll(`#${this.#divMenu} .nav-item`);
-        [...navItems].forEach(item => item.classList.remove("active-item"));
-        document.querySelector(`[data-id=${this.clicked}]`).classList.add("active-item");
+        [...navItems].forEach(item => item.classList.remove("active"));
+        document.querySelector(`[data-id=${this.clicked}]`)
+            .querySelector(".nav-link").classList.add("active");
 
         // Display selected content
         const navContents = document.querySelectorAll(`#${this.#divContent} > div[role=tabpanel]`);
@@ -140,235 +146,21 @@ export default class CustomVerticalNavBar extends LitElement {
         this.requestUpdate();
     }
 
-    // --- RENDER METHODS ---
-
-    #renderStyle() {
-        return html`
-        <style>
-            .custom-vertical-navbar {
-                display: flex;
-                align-items: stretch;
-            }
-
-            /*Remove rounded coners*/
-            nav.sidebar.navbar {
-                border-radius: 0;
-                width: 100%;
-                height: 100%;
-                min-height: 85vh;
-            }
-
-            .custom-vertical-navbar ul.nav.navbar-nav.left {
-                width: 100%;
-            }
-
-            .nav-item {
-                margin-bottom: 3px;
-                padding: 10px 15px;
-                color: white;
-                width: 100%;
-                border-radius: 3px;
-                line-height: 30px;
-
-                /*transform: translate3d(0px, 0, 0);*/
-                /*transition: transform*/
-                /*    0.3s ease 0s,*/
-                /*    opacity 0.3s ease 0s,*/
-                /*    all .15s ease-in;*/
-            }
-
-            .active-item {
-                /*background: linear-gradient(60deg,#ffa726,#fb8c00);;*/
-                background-color: #E25D1D;
-                /*box-shadow: 0 4px 20px 0 rgba(0,0,0,.14), 0 7px 10px -5px rgba(226, 93, 29,.4);*/
-            }
-
-            .nav-item > .nav-link:hover{
-                background-color: inherit;
-            }
-
-            .nav-item:hover:not(.active-item) {
-                background-color: #767687;
-                cursor: pointer;
-            }
-
-            .navbar.navbar-inverse.main-navbar {
-                top: 0;
-                width: 100%;
-            }
-
-            nav.sidebar, .main {
-                -webkit-transition: margin 200ms ease-out;
-                -moz-transition: margin 200ms ease-out;
-                -o-transition: margin 200ms ease-out;
-                transition: margin 200ms ease-out;
-            }
-
-            /* Add gap to nav and right windows.*/
-            .main {
-                padding: 10px 10px 0 10px;
-            }
-
-            /* .....NavBar: Icon only with coloring/layout.....*/
-            /*small/medium side display*/
-            @media (min-width: 768px) {
-                /*Allow main to be next to Nav*/
-                .main {
-                    width: calc(100% - 40px); /*keeps 100% minus nav size*/
-                    margin-left: 40px;
-                    float: right;
-                }
-
-                /*lets nav bar to be showed on mouseover*/
-                nav.sidebar:hover + .main {
-                    margin-left: 200px;
-                }
-
-                /*Center Study Name*/
-                nav.sidebar.navbar.sidebar > .container .navbar-brand, .navbar > .container-fluid .navbar-brand {
-                    margin-left: 0;
-                }
-
-                /*Center Study Name*/
-                nav.sidebar .navbar-brand, nav.sidebar .navbar-header {
-                    text-align: center;
-                    width: 100%;
-                    margin-left: 0;
-                }
-
-                /*Center Icons*/
-                nav.sidebar a {
-                    padding-right: 13px;
-                }
-
-                /*adds border top to first nav box */
-                nav.sidebar .navbar-nav.left > li:first-child {
-                    border-top: 1px #e5e5e5 solid;
-                }
-
-                /* adds border to bottom nav boxes */
-                nav.sidebar .navbar-nav.left > li {
-                    border-bottom: 0 #e5e5e5 solid;
-                }
-
-                /* Colors/style dropdown box*/
-                nav.sidebar .navbar-nav.left .open .dropdown-menu {
-                    position: static;
-                    float: none;
-                    width: auto;
-                    margin-top: 0;
-                    background-color: transparent;
-                    border: 0;
-                    -webkit-box-shadow: none;
-                    box-shadow: none;
-                }
-
-                /*allows nav box to use 100% width*/
-                nav.sidebar .navbar-collapse, nav.sidebar .container-fluid {
-                    padding: 0;
-                }
-
-                /*colors dropdown box text */
-                .navbar-inverse .navbar-nav.left .open .dropdown-menu > li > a {
-                    /*color: #777;*/
-                    color: #d2d2d2;
-                    white-space: normal;
-                }
-
-                /*gives sidebar width/height*/
-                nav.sidebar {
-                    /*position: fixed;*/
-                    /*height: 100%;*/
-                    /*width: 250px;*/
-                    margin-left: -200px;
-                    float: left;
-                    /* z-index: 8000; */
-                    margin-bottom: 0;
-                    overflow-y: auto;
-                    padding-bottom: 10%
-                }
-
-                /*give sidebar 100% width;*/
-                nav.sidebar li {
-                    width: 100%;
-                }
-
-                /* Move nav to full on mouse over*/
-                nav.sidebar:hover {
-                    margin-left: 0;
-                }
-
-                /*for hiden things when navbar hidden*/
-                .forAnimate {
-                    opacity: 0;
-                }
-            }
-
-            /* .....NavBar: Fully showing nav bar..... */
-            @media (min-width: 1330px) {
-
-                /*Allow main to be next to Nav*/
-                .main {
-                    width: calc(100% - 200px); /*keeps 100% minus nav size*/
-                    margin-left: 200px;
-                }
-
-                /*Show all nav*/
-                nav.sidebar {
-                    margin-left: 0;
-                    /*float: left;*/
-                }
-
-                /*Show hidden items on nav*/
-                nav.sidebar .forAnimate {
-                    opacity: 1;
-                }
-            }
-
-            nav:hover .forAnimate {
-                opacity: 1;
-            }
-
-            section {
-                padding-left: 15px;
-            }
-
-            .settings-header-wrapper,
-            .settings-header-wrapper > div {
-                display: flex;
-                align-items: center;
-                flex: 1;
-                font-size: 2.5rem;
-                color: var(--main-color-darker);
-            }
-
-            .settings-header-wrapper {
-                margin: 1rem 0;
-                padding-bottom: 0.5rem;
-                border-bottom: 1px solid #C2C4C6;
-            }
-
-            .settings-header-icon {
-                margin-right: 1rem;
-            }
-
-
-        </style>`;
+    #onClickTool(e) {
+        e.preventDefault();
+        this._activeItem = e.currentTarget.dataset.id;
     }
+
+    // --- RENDER METHODS ---
 
     // QUESTION: Make it optional?
     #renderToggle() {
         return html`
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse"
-                        data-target="#bs-sidebar-navbar-collapse-1">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand">${this.study?.name}</a>
-            </div>`;
+            <a class="d-flex text-decoration-none align-items-center text-white">
+                <span class="fs-4">${this.study?.name}</span>
+            </a>
+            <hr class="text-white">
+        `;
     }
 
     /* QUESTION 1: in config submenu, should we consider category and separator?
@@ -376,6 +168,65 @@ export default class CustomVerticalNavBar extends LitElement {
          To replace [category | separator] keys with 'type'.
     */
     #renderMenu() {
+        // d-inline-flex align-items-center rounded border-0 text-white text-decoration-none bg-secondary rounded-5 w-100 px-2 py-2
+        const getMenuItem = name => name.replaceAll(/\s/g, "").toLowerCase();
+        const isFirstMenuItem = (idx, subIdx) => this._activeItem === "" && idx === 0 && subIdx === 0;
+        return html`
+                <!-- To check the visibility of each menu and submenu item-->
+                <ul class="list-unstyled ps-0">
+                ${
+                    UtilsNew.getVisibleItems(this._config.menu, this.opencgaSession)
+                        .map((item, idx) => item.submenu && UtilsNew.hasVisibleItems(item.submenu, this.opencgaSession) ? html `
+                            <li class="mb-1">
+                                <a class="d-inline-flex align-items-center rounded border-0 collapsed text-white text-decoration-none"
+                                    role="button" data-bs-toggle="collapse" data-bs-target="#${getMenuItem(item.name)}-collapse" aria-haspopup="true" aria-expanded="true">
+                                    ${item.name}
+                                </a>
+                                <div class="collapse show" id="${getMenuItem(item.name)}-collapse">
+                                    <ul class="nav nav-pills flex-column mt-2"
+                                    style="--bs-nav-link-color: rgba(255, 255, 255, .75); --bs-nav-link-hover-color: #fff; --bs-nav-pills-link-active-color: var(--bs-white); --bs-nav-pills-link-active-bg: var(--bs-orange);">
+                                        ${
+                                            UtilsNew.getVisibleItems(item.submenu, this.opencgaSession).map((subItem, subIdx) => {
+                                                const type = ["category", "separator"].find(type => type in subItem);
+                                                switch (type) {
+                                                    case "category":
+                                                        return html `
+                                                            <li class="nav-item">
+                                                                <a class="nav-link" style="cursor:auto!important;">
+                                                                    <strong>${subItem.name}</strong>
+                                                                </a>
+                                                            </li>
+                                                            `;
+                                                    case "separator":
+                                                        return html `
+                                                            <li class="border-top my-3">
+                                                                <hr class="text-white">
+                                                            </li>
+                                                            `;
+                                                    default:
+                                                        return html `
+                                                            <li class="nav-item" data-id="${subItem.id}" @click=${this.#onClickTool}>
+                                                            <!-- TODO: fix for formatting icon | name -->
+                                                                <a class="nav-link ${this._activeItem === subItem.id || isFirstMenuItem(idx, subIdx) ? "active" : ""}" id="${subItem.id}-tab"
+                                                                    type="button" role="tab" aria-controls="${subItem.id}-tab" aria-selected="false">
+                                                                    ${subItem.name}
+                                                                </a>
+                                                            </li>
+                                                        `;
+                                                }
+                                            })
+                                        }
+                                    </ul>
+                                </div>
+                            </li>
+                        ` : html `
+                            <li>TODO: NO SUBMENU</li>
+                        `)}
+                </ul>
+        `;
+    }
+
+    #renderMenuOld() {
         return html`
             <div class="collapse navbar-collapse navbar-ex1-collapse admin-side-navbar" id="${this.#divMenu}">
                 <!-- To check the visibility of each menu and submenu item-->
@@ -385,9 +236,9 @@ export default class CustomVerticalNavBar extends LitElement {
                         .map(item => item.submenu && UtilsNew.hasVisibleItems(item.submenu, this.opencgaSession) ? html `
                             <li class="dropdown open">
                                 <!-- CAUTION: href attribute removed. To discuss: toggle open always-->
-                                <a class="dropdown-toggle" data-toggle="dropdown open"
-                                   role="button" aria-haspopup="true" aria-expanded="true">
-                                    ${item.name} <!-- <span class="caret"></span> -->
+                                <a class="dropdown-toggle" data-bs-toggle="dropdown open"
+                                role="button" aria-haspopup="true" aria-expanded="true">
+                                    ${item.name}
                                 </a>
                                 <ul class="dropdown-menu" @click="${this._onItemNavClick}">
                                 ${
@@ -399,7 +250,7 @@ export default class CustomVerticalNavBar extends LitElement {
                                                     return html `
                                                         <li>
                                                         <a class="nav-item-category"
-                                                           style="cursor:auto!important;">
+                                                        style="cursor:auto!important;">
                                                             <strong>${subItem.name}</strong>
                                                         </a>
                                                         <!--<p class="navbar-text">$submenuItem.name}</p>-->
@@ -407,7 +258,7 @@ export default class CustomVerticalNavBar extends LitElement {
                                                     `;
                                                 case "separator":
                                                     return html `
-                                                        <li role="separator" class="divider"></li>
+                                                        <li><hr class="dropdown-divider"></li>
                                                     `;
                                                 default:
                                                     return html `
@@ -430,31 +281,32 @@ export default class CustomVerticalNavBar extends LitElement {
     }
 
     #renderContent() {
+        const isFirstMenuItem = (idx, subIdx) => this._activeItem === "" && idx === 0 && subIdx === 0;
         return html`
-            <div class="content-tab-wrapper admin-vertical-content" id="${this.#divContent}" style="margin: 0 20px">
-            ${UtilsNew.getVisibleItems(this._config.menu, this.opencgaSession)
-            .map(menuItem => menuItem.submenu && UtilsNew.hasVisibleItems(menuItem.submenu, this.opencgaSession) ? html `
-                ${UtilsNew.getVisibleItems(menuItem.submenu, this.opencgaSession).map(subItem => !subItem.render ? null : html `
-                    <div id="${subItem.id}" role="tabpanel" class="tab-pane content-tab active">
-                        <!-- TODO: HEADER in a div-->
-                        <div class="settings-header-wrapper" id="settings-title-wrapper">
-                            <div class="settings-header-title-wrapper">
-                                <div class="settings-header-icon"><i class="${subItem.icon}"></i></div>
-                                <div class="settings-header-title">${subItem.name}</div>
-                            </div>
-                            <div class="settings-header-info-wrapper">
-                                <div></div>
-                            </div>
-                        </div>
-                        <!-- TODO: CONTENT in a div -->
-                        <div class="settings-content-wrapper" id="settings-content-wrapper">
-                            ${subItem.render(this.opencgaSession, this.study)}
-                        </div>
-                    </div>
-                `)}
-            ` : html `
-                <li>TODO: NO SUBMENU</li>
-            `)
+            <div class="tab-content" id="${this.#divContent}" style="margin: 0 20px">
+            ${
+                UtilsNew.getVisibleItems(this._config.menu, this.opencgaSession)
+                    .map((menuItem, idx) => menuItem.submenu && UtilsNew.hasVisibleItems(menuItem.submenu, this.opencgaSession) ? html `
+                        ${
+                            UtilsNew.getVisibleItems(menuItem.submenu, this.opencgaSession).map((subItem, subIdx) => !subItem.render ? nothing : html `
+                                <div class="tab-pane fade ${this._activeItem === subItem.id || isFirstMenuItem(idx, subIdx) ?
+                                "active show" :""}" id="${subItem.id}" role="tabpanel"  aria-labelledby="${subItem.id}-tab" tabindex="0">
+                                    <!-- TODO: HEADER in a div-->
+                                    <div class="d-flex">
+                                        <h3 class="fs-3 text-body-emphasis">
+                                            <i class="${subItem.icon}"></i>
+                                            ${subItem.name}
+                                        </h3>
+                                    </div>
+                                    <hr class="mt-0 mb-3">
+                                    <!-- TODO: CONTENT in a div -->
+                                    <div class="settings-content-wrapper" id="settings-content-wrapper">
+                                        ${subItem.render(this.opencgaSession, this.study)}
+                                    </div>
+                                </div>
+                            `)
+                        }` : html` <li>TODO: NO SUBMENU</li>
+                        `)
             }
             </div>
         `;
@@ -463,23 +315,21 @@ export default class CustomVerticalNavBar extends LitElement {
     render() {
         return html`
             <!-- STYLE -->
-            ${this.#renderStyle()}
+            <!-- \${this.#renderStyle()} -->
             <!-- TOOL HEADER -->
             <!-- <tool-header title="$this._config.name}" icon="$this._config.icon}"></tool-header> -->
-            <div class="custom-vertical-navbar row">
+            <div class="d-flex flex-nowrap">
                 <!-- NAVIGATION -->
-                <div class="col-md-2">
-                    <nav class="navbar navbar-inverse sidebar" role="navigation">
-                        <!-- 1. Brand and toggle get grouped for better mobile display -->
-                        ${this.#renderToggle()}
-                        <!-- 1. MENU -->
-                        ${this.#renderMenu()}
-                    </nav>
+                <div class="d-flex flex-column flex-shrink-0 p-3 min-vh-100" style="background-color: var(--main-bg-color); margin-left:-1rem; margin-top: -1rem; width: 300px;">
+                    <!-- 1. Brand and toggle get grouped for better mobile display -->
+                    ${this.#renderToggle()}
+                    <!-- 1. MENU -->
+                    ${this.#renderMenu()}
                 </div>
                 <!-- 2. CONTENT -->
                 <!-- CAUTION: Enable this option if config has key "display" instead of "render" -->
                 <!-- <div class="this._config.display?.contentClass}" style="this._config.display?.contentStyle}">-->
-                <div class="col-md-10" style="">
+                <div class="w-100">
                     ${this.#renderContent()}
                 </div>
             </div>

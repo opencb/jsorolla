@@ -104,6 +104,7 @@ export default class FamilyGrid extends LitElement {
                     modalTitle: "Family Create",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                 },
                 render: () => html `
                     <family-create
@@ -143,6 +144,34 @@ export default class FamilyGrid extends LitElement {
         this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
+    fetchClinicalAnalysis(rows, casesLimit) {
+        if (rows && rows.length > 0) {
+            return this.opencgaSession.opencgaClient.clinical()
+                .search({
+                    family: rows.map(family => family.id).join(","),
+                    study: this.opencgaSession.study.fqn,
+                    include: "id,proband.id,family.members,family.id",
+                    limit: casesLimit * 10
+                })
+                .then(response => {
+                    return rows.forEach(family => {
+                        (response?.responses?.[0]?.results || []).forEach(clinicalAnalysis => {
+                            if (clinicalAnalysis?.family?.id === family.id) {
+                                if (family?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
+                                    family.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
+                                } else {
+                                    // eslint-disable-next-line no-param-reassign
+                                    family.attributes = {
+                                        OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
+                                    };
+                                }
+                            }
+                        });
+                    });
+                });
+        }
+    }
+
     renderTable() {
         if (this.families?.length > 0) {
             this.renderLocalTable();
@@ -162,6 +191,8 @@ export default class FamilyGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -178,8 +209,9 @@ export default class FamilyGrid extends LitElement {
                 detailView: this._config.detailView,
                 detailFormatter: this.detailFormatter,
                 gridContext: this,
-                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
+                    let familyResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
@@ -195,48 +227,19 @@ export default class FamilyGrid extends LitElement {
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.families()
                         .search(this.filters)
-                        .then(familyResponse => {
-                            // Fetch Clinical Analysis ID per Family in 1 single query
-                            const familyIds = familyResponse.responses[0].results
-                                .map(family => family.id)
-                                .join(",");
-
-                            if (familyIds) {
-                                this.opencgaSession.opencgaClient
-                                    .clinical()
-                                    .search({
-                                        family: familyIds,
-                                        study: this.opencgaSession.study.fqn,
-                                        include: "id,proband.id,family.members,family.id",
-                                        limit: casesLimit * 10
-                                    })
-                                    .then(caseResponse => {
-                                        familyResponse.getResults().forEach(family => {
-                                            for (const clinicalAnalysis of caseResponse.getResults()) {
-                                                if (clinicalAnalysis?.family?.id === family.id) {
-                                                    if (family?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
-                                                        family.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
-                                                    } else {
-                                                        family.attributes = {
-                                                            OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
-                                                        };
-                                                    }
-                                                }
-                                            }
-                                        });
-                                        params.success(familyResponse);
-                                    })
-                                    .catch(e => {
-                                        console.error(e);
-                                        params.error(e);
-                                    });
-                            } else {
-                                params.success(familyResponse);
-                            }
+                        .then(response => {
+                            familyResponse = response;
+                            return this.fetchClinicalAnalysis(familyResponse.responses?.[0]?.results || [], casesLimit);
                         })
-                        .catch(e => {
-                            console.error(e);
-                            params.error(e);
+                        .then(() => {
+                            // Prepare data for columns extensions
+                            const rows = familyResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
+                        .then(() => params.success(familyResponse))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
                         });
                 },
                 responseHandler: response => {
@@ -270,7 +273,9 @@ export default class FamilyGrid extends LitElement {
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
-                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
+                onLoadError: (e, restResponse) => {
+                    this.gridCommons.onLoadError(e, restResponse);
+                },
             });
         }
     }
@@ -279,9 +284,31 @@ export default class FamilyGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._getDefaultColumns(),
-            data: this.families,
-            sidePagination: "local",
+            // data: this.families,
+            sidePagination: "server",
+            // Josemi Note 2024-01-18: we have added the ajax function for local families also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.families.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.families.length,
+                    rows: response,
+                };
+            },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config property
@@ -293,7 +320,7 @@ export default class FamilyGrid extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
@@ -323,7 +350,7 @@ export default class FamilyGrid extends LitElement {
             result += `
                 <div style="width: 90%;padding-left: 20px">
                     <table class="table table-hover table-no-bordered">
-                        <thead>
+                        <thead class="table-light">
                             <tr class="table-header">
                                 ${tableCheckboxHeader}
                                 <th>ID</th>
@@ -498,52 +525,51 @@ export default class FamilyGrid extends LitElement {
                 field: "actions",
                 align: "center",
                 formatter: (value, row) => `
-                    <div class="inline-block dropdown">
-                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                    <div class="d-inline-block dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
                             <span>Actions</span>
-                            <span class="caret" style="margin-left: 5px"></span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
+                                    <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
                                 </a>
                             </li>
                             <li>
-                                <a data-action="download-json" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
+                                    <i class="fas fa-download" aria-hidden="true"></i> Download JSON
                                 </a>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="qualityControl" class="btn force-text-left ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
+                                <a data-action="qualityControl" class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
                                         title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                    <i class="fas fa-rocket icon-padding" aria-hidden="true"></i> Calculate Quality Control
+                                    <i class="fas fa-rocket" aria-hidden="true"></i> Calculate Quality Control
                                 </a>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
-                                    <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
+                                    <a data-action="interpreter" class="dropdown-item ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
                                         href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
-                                        <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
+                                        <i class="fas fa-user-md" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
                                     </a>
                                 `).join("") : `
-                                    <a data-action="interpreter" class="btn force-text-left disabled" href="#">
-                                        <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> No cases found
+                                    <a data-action="interpreter" class="dropdown-item disabled" href="#">
+                                        <i class="fas fa-user-md" aria-hidden="true"></i> No cases found
                                     </a>
                                 `}
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) || "disabled" }">
+                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) || "disabled" }">
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
                             <li>
-                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
-                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                <a data-action="delete" href="javascript: void 0" class="dropdown-item disabled">
+                                    <i class="fas fa-trash" aria-hidden="true"></i> Delete
                                 </a>
                             </li>
                         </ul>
@@ -598,6 +624,25 @@ export default class FamilyGrid extends LitElement {
             });
     }
 
+    renderModalUpdate() {
+        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+            display: {
+                modalTitle: `Family Update: ${this.familyUpdateId}`,
+                modalDraggable: true,
+                modalCyDataName: "modal-update",
+                modalSize: "modal-lg"
+            },
+            render: active => html`
+                <family-update
+                    .familyId="${this.familyUpdateId}"
+                    .active="${active}"
+                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                    .opencgaSession="${this.opencgaSession}">
+                </family-update>
+            `,
+        });
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
@@ -618,23 +663,7 @@ export default class FamilyGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-                display: {
-                    modalTitle: `Family Update: ${this.familyUpdateId}`,
-                    modalDraggable: true,
-                    modalCyDataName: "modal-update",
-                },
-                render: active => {
-                    return html `
-                        <family-update
-                            .familyId="${this.familyUpdateId}"
-                            .active="${active}"
-                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </family-update>
-                    `;
-                }
-            })}
+            ${this.renderModalUpdate()}
         `;
     }
 

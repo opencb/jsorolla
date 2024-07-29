@@ -59,7 +59,8 @@ export default class ClinicalInterpretationCreate extends LitElement {
         this._users = [];
 
         this.displayConfigDefault = {
-            buttonsAlign: "right",
+            width: 12,
+            buttonsAlign: "end",
             buttonClearText: "Clear",
             buttonOkText: "Create Interpretation",
             titleVisible: true,
@@ -224,8 +225,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                     const panelLock = !!this.clinicalAnalysis?.panelLock;
                                     const panelList = panelLock ? this.clinicalAnalysis.panels : this.opencgaSession.study?.panels;
                                     const handlePanelsFilterChange = e => {
-                                        const panelList = e.detail.value
-                                            ?.split(",")
+                                        const panelList = (e.detail?.value?.split(",") || [])
                                             .filter(panelId => panelId)
                                             .map(panelId => ({id: panelId}));
                                         dataFormFilterChange(panelList);
@@ -283,7 +283,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                                 <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
                                             </div>
                                         </div>
-                                `;
+                                    `;
                                 }
                             },
                             elements: [

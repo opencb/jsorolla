@@ -201,6 +201,10 @@ export default class CohortBrowser extends LitElement {
                 detail: {
                     title: "Cohort",
                     showTitle: true,
+                    display: {
+                        titleClass: "mt-4",
+                        contentClass: "p-3"
+                    },
                     items: [
                         {
                             id: "cohort-view",

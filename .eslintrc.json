@@ -21,9 +21,10 @@
   "rules": {
     "indent": ["error", 4, {
       "SwitchCase": 1,
-      "ignoredNodes": ["TemplateLiteral"]
+      "ignoredNodes": ["TemplateLiteral","TaggedTemplateExpression","ObjectExpression","ArrowFunctionExpression"]
       }
     ],
+    "no-multiple-empty-lines":["error",{"max":1}],
     "max-len": ["error", 230],
     "no-console": ["error", { "allow": ["log", "warn", "error", "time", "timeEnd"] }],
     "no-param-reassign": ["warn", { "props": true }],

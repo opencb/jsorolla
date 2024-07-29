@@ -211,8 +211,12 @@ export default getSitesToBuild().map(site => ({
         chunkFileNames: () => {
             return "[name]-[hash].js"; // configuration of manualChunks about name format and folder.
         },
-        entryFileNames: () => {
-            return "lib/[name].js"; // configuration for entry script module and inline script
+        entryFileNames: entryInfo => {
+            // Check for extensions entry --> save into 'extensions' folder
+            if (entryInfo.name === "extensions") {
+                return "extensions/[name].js";
+            }
+            return "lib/[name].js";
         },
         assetFileNames: assetInfo => {
             // if (assetInfo.name.includes("genome-browser.config")) {
@@ -227,9 +231,9 @@ export default getSitesToBuild().map(site => ({
                 return "css/[name]-[hash][extname]";
             }
 
-            if (assetInfo.name.includes("extensions")) {
-                return "extensions/[name][extname]";
-            }
+            // if (assetInfo.name.includes("extensions")) {
+            //     return "extensions/[name][extname]";
+            // }
 
             if (assetInfo.name.endsWith(".js") && !isConfig(assetInfo.name)) {
                 return "vendors/js/[name]-[hash][extname]";
@@ -242,4 +246,5 @@ export default getSitesToBuild().map(site => ({
             return "vendors/[name]-[hash][extname]";
         },
     },
+
 }));

@@ -178,6 +178,7 @@ export default class OpencgaExport extends LitElement {
         });
     }
 
+    // ! Deprecated method dont use
     _changeTab(e) {
         const {viewId, tabId} = e.currentTarget.dataset;
         $(`#${viewId} > .content-pills`, this).removeClass("active");
@@ -476,168 +477,185 @@ const client = new OpenCGAClient({
     }
 
     render() {
+        // TODO: Refactor this code
         return html`
-            <div>
-                <ul class="nav nav-tabs">
-                    ${~this.tabs.indexOf("download") ? html`<li class="active"><a data-toggle="tab" href="#${this._prefix}download">Download Table</a></li>` : nothing}
-                    ${~this.tabs.indexOf("export") ? html`<li><a data-toggle="tab" href="#${this._prefix}export">Export Query</a></li>` : nothing}
-                    ${~this.tabs.indexOf("link") ? html`<li><a data-toggle="tab" href="#link">Link</a></li>` : nothing}
-                    ${~this.tabs.indexOf("code") ? html`<li><a data-toggle="tab" href="#code">Opencga Script Code</a></li>` : nothing}
-                </ul>
-            </div>
+            <ul class="nav nav-tabs mb-3" role="tablist">
+                ${~this.tabs.indexOf("download") ? html`
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" data-bs-toggle="tab" role="tab" href="#${this._prefix}download">Download Table</a>
+                    </li>` : nothing
+                }
+                ${~this.tabs.indexOf("export") ? html`
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" role="tab" href="#${this._prefix}export">Export Query</a>
+                    </li>` : nothing
+                }
+                ${~this.tabs.indexOf("link") ? html`
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" role="tab" href="#link">Link</a>
+                    </li>` : nothing
+                }
+                ${~this.tabs.indexOf("code") ? html`
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" role="tab" href="#code">Opencga Script Code</a>
+                    </li>` : nothing
+                }
+            </ul>
 
             <div class="tab-content">
                 <div id="${this._prefix}download" class="tab-pane ${classMap({active: this.tabs[0] === "download"})}">
-                    <form class="form-horizontal">
-                        <div class="form-group" style="margin-top: 10px">
-                            <div class="col-md-12">
-                                <div class="alert alert-warning" style="margin-bottom: 10px">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    <span>
-                                        <b>Note:</b>
-                                        ${UtilsNew.renderHTML(this._config.exportNote.replace("%limit%", this._config.exportLimit))}
-                                    </span>
-                                </div>
-                            </div>
+                    <!-- TODO: is it really necessary use form? -->
+                    <form>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <b>Note:</b>
+                            ${UtilsNew.renderHTML(this._config.exportNote.replace("%limit%", this._config.exportLimit))}
                         </div>
 
-                        <div class="form-group">
-                            <div class="col-md-12">
-                                <h4 class="export-section-title">Select Output Format</h4>
-                                <button type="button" class="btn export-buttons ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
-                                    <i class="fas fa-table fa-2x"></i>
-                                    <span class="export-buttons-text">TSV</span>
-                                </button>
-                                <button type="button" class="btn export-buttons ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
-                                    <i class="fas fa-file-code fa-2x"></i>
-                                    <span class="export-buttons-text">JSON</span>
-                                </button>
-                            </div>
+                        <div class="col-md-12 mb-3">
+                            <h4>Select Output Format</h4>
+                            <button type="button" class="btn btn-light px-5 py-4 ${classMap({active: this.format === "tab"})}" data-bs-toggle="button" data-format="tab" @click="${this.changeFormat}">
+                                <i class="fas fa-table fa-2x"></i>
+                                <div>TSV</div>
+                            </button>
+                            <button type="button" class="btn btn-light px-5 py-4 ${classMap({active: this.format === "json"})}" data-bs-toggle="button" data-format="json" @click="${this.changeFormat}">
+                                <i class="fas fa-file-code fa-2x"></i>
+                                <div>JSON</div>
+                            </button>
                         </div>
-                        <div>
+
                             ${this.format === "tab" && this.exportFields?.length ? html`
-                                <span data-toggle="collapse" class="export-fields-button collapsed" data-target="#${this._prefix}exportFields">
-                                    Customise export fields
-                                </span>
-                                <div id="${this._prefix}exportFields" class="collapse">
-                                    <ul>
-                                        ${this.exportFields.filter(li => !li.excludeFromExport).map((li, i) => html`
-                                        <li>
-                                            <label><input type="checkbox" .checked=${li.export} @change="${e => this.changeExportField(e, i)}"> ${li.id} </label>
-                                            ${li.children ? html`
-                                                <ul>
-                                                    ${li.children
-                                                        .filter(li => !li.excludeFromExport)
-                                                        .map((s, y) => html`
-                                                            <li><label><input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}</label></li>
+                                <div>
+                                    <span data-bs-toggle="collapse" class="export-fields-button collapsed" data-bs-target="#${this._prefix}exportFields">
+                                        Customise export fields
+                                    </span>
+                                    <div id="${this._prefix}exportFields" class="collapse">
+                                        <ul>
+                                            ${this.exportFields.filter(li => !li.excludeFromExport).map((li, i) => html`
+                                            <li>
+                                                <label>
+                                                    <input type="checkbox" .checked=${li.export} @change="${e => this.changeExportField(e, i)}"> ${li.id}
+                                                </label>
+                                                ${li.children ? html`
+                                                    <ul>
+                                                        ${li.children.filter(li => !li.excludeFromExport).map((s, y) => html`
+                                                            <li>
+                                                                <label>
+                                                                    <input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}
+                                                                </label>
+                                                            </li>
                                                         `)}
-                                                </ul>
-                                            ` : ""}
-                                        </li>
-                                        `)}
-                                    </ul>
-                                </div>
-                            ` : ""}
-                        </div>
-                    </form>
+                                                    </ul>
+                                                ` : ""}
+                                            </li>
+                                            `)}
+                                        </ul>
+                                    </div>
+                                </div>` : nothing}
+                        </form>
 
-                    <div class="modal-footer" style="padding-top: 25px">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" @click="${this.onDownloadClick}">
                             ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
-                            <i class="fa fa-download icon-padding" aria-hidden="true"></i> Download
+                            <i class="fa fa-download" aria-hidden="true"></i> Download
                         </button>
                     </div>
                 </div>
 
                 <div id="${this._prefix}export" class="tab-pane ${classMap({active: this.tabs[0] === "export"})}">
-                    <form class="form-horizontal">
-                        <div class="form-group" style="margin-top: 10px">
+                    <form>
+                        <div class="row g-1 mb-3">
                             <div class="col-md-12">
-                                <div class="alert alert-warning" style="margin-bottom: 10px">
+                                <div class="alert alert-warning">
                                     <i class="fas fa-exclamation-triangle"></i>
-                                    <span>
-                                        <span style="font-weight: bold">Note: </span>This option will launch an
-                                        <span style="font-weight: bold">async job</span> in the server to export all records, note that no limit is applied.
+                                        <b>Note:</b>This option will launch an
+                                        <b>async job</b> in the server to export all records, note that no limit is applied.
                                         This might take few minutes depending on the data size and cluster load.
-                                    </span>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="form-group">
                             <div class="col-md-12">
-                                <h4 class="export-section-title">Select Output Format</h4>
-                                <button type="button" class="btn export-buttons ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
+                                <h4>Select Output Format</h4>
+                                <button class="btn btn-light px-5 py-4 ${classMap({active: this.format === "tab"})}" type="button" data-format="tab" @click="${this.changeFormat}">
                                     <i class="fas fa-table fa-2x"></i>
-                                    <span class="export-buttons-text">
+                                    <div>
                                         ${(this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") ? "VCF" : "CSV"}
-                                    </span>
+                                    </div>
                                 </button>
                                 ${(this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") ? html`
-                                    <button type="button" class="btn export-buttons ${classMap({active: this.format === "vep"})}" data-format="vep" @click="${this.changeFormat}">
+                                    <button class="btn btn-light px-5 py-4 ${classMap({active: this.format === "vep"})}" type="button" data-format="vep" @click="${this.changeFormat}">
                                         <i class="fas fa-file-code fa-2x"></i>
-                                        <span class="export-buttons-text">Ensembl VEP</span>
+                                        <div>Ensembl VEP</div>
                                     </button>
                                 ` : null}
-                                <button type="button" class="btn export-buttons ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
+                                <button class="btn btn-light px-5 py-4 ${classMap({active: this.format === "json"})}" type="button" data-format="json" @click="${this.changeFormat}">
                                     <i class="fas fa-file-code fa-2x"></i>
-                                    <span class="export-buttons-text">JSON</span>
+                                    <div>JSON</div>
                                 </button>
                             </div>
-                        </div>
 
-                        <div class="form-group">
                             <div class="col-md-12">
-                                <h4 class="export-section-title">Job Info</h4>
-                                <label for="inputPassword" class="col-md-2 control-label">Job ID</label>
+                                <h4>Job Info</h4>
+                                <label class="col-md-2 form-label">
+                                    Job ID
+                                </label>
                                 <div class="col-md-10">
                                     <input type="text" class="form-control" placeholder="Enter Job ID, leave empty for default."
-                                           value="${this.config.resource?.toLowerCase()}_export_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}" @input="${this.changeJobId}">
+                                            value="${this.config.resource?.toLowerCase()}_export_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}" @input="${this.changeJobId}">
                                 </div>
                             </div>
                         </div>
                     </form>
 
-                    <div class="modal-footer" style="padding-top: 25px">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" @click="${this.launchJob}">Launch job</button>
                     </div>
                 </div>
 
                 <div id="link" class="tab-pane ${classMap({active: this.tabs[0] === "link"})}">
-                    <div class="btn-group btn-group-tab" role="toolbar" aria-label="toolbar">
-                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.link["url"]})}" @click="${this._changeTab}" data-view-id="link"
-                                data-tab-id="url">URL
-                        </button>
-                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.link["curl"]})}" @click="${this._changeTab}" data-view-id="link"
-                                data-tab-id="curl">cURL
-                        </button>
-                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.link["wget"]})}" @click="${this._changeTab}" data-view-id="link"
-                                data-tab-id="wget">WGET
-                        </button>
-                    </div>
+                    <ul class="nav nav-pills mb-3" role="tablist" aria-label="group">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link ${classMap({active: this.activeTab.link["url"]})}"
+                                    data-bs-toggle="pill" data-bs-target="#${this._prefix}url" data-view-id="link"
+                                    type="button" data-tab-id="url">URL
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link ${classMap({active: this.activeTab.link["curl"]})}" type="button"
+                                    data-bs-toggle="pill" data-bs-target="#${this._prefix}curl" data-view-id="link"
+                                    data-tab-id="curl">cURL
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link ${classMap({active: this.activeTab.link["wget"]})}" type="button"
+                                    data-bs-toggle="pill" data-bs-target="#${this._prefix}wget" data-view-id="link"
+                                    data-tab-id="wget">WGET
+                            </button>
+                        </li>
+                    </ul>
 
-                    <div class="content-tab-wrapper">
-                        <div id="${this._prefix}url" class="content-tab active">
-                            <div class="code-wrapper">
-                                <div class="clipboard-button" data-clipboard-target="div.language-url" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-url" contentEditable="true">
-                                    ${this.generateCode("url")}
-                                </div>
+                    <div class="tab-content">
+                        <div id="${this._prefix}url" class="tab-pane active" role="tabpanel">
+                            <div class="code-wrapper rounded p-2">
+                                <div class="d-flex justify-content-end" data-clipboard-target="div.language-url" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                    <div class="code language-url" contentEditable="true">
+                                        ${this.generateCode("url")}
+                                    </div>
                             </div>
                         </div>
-                        <div id="${this._prefix}curl" class="content-tab">
-                            <div class="code-wrapper">
-                                <div class="clipboard-button" data-clipboard-target="div.language-curl" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                        <div id="${this._prefix}curl" class="tab-pane" role="tabpanel">
+                            <div class="code-wrapper rounded p-2">
+                                <div class="d-flex justify-content-end" data-clipboard-target="div.language-curl" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
                                 <div class="code language-curl" contentEditable="true">
                                     ${this.generateCode("curl")}
                                 </div>
                             </div>
                         </div>
-                        <div id="${this._prefix}wget" class="content-tab">
-                            <div class="code-wrapper">
-                                <div class="clipboard-button" data-clipboard-target="div.language-wget" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                        <div id="${this._prefix}wget" class="tab-pane" role="tabpanel">
+                            <div class="code-wrapper rounded p-2">
+                                <div class="d-flex justify-content-end" data-clipboard-target="div.language-wget" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
                                 <div class="code language-wget" contentEditable="true">
                                     ${this.generateCode("wget")}
                                 </div>
@@ -645,56 +663,76 @@ const client = new OpenCGAClient({
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
 
 
                 <div id="code" class="tab-pane ${classMap({active: this.tabs[0] === "code"})}">
-                    <div class="btn-group btn-group-tab" role="toolbar" aria-label="toolbar">
-                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.code["cli"]})}"
-                                @click="${this._changeTab}" data-view-id="code" data-tab-id="cli">CLI
-                        </button>
-                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.code["python"]})}"
-                                @click="${this._changeTab}" data-view-id="code" data-tab-id="python">Python
-                        </button>
-                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.code["r"]})}"
-                                @click="${this._changeTab}" data-view-id="code" data-tab-id="r">R
-                        </button>
-                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.code["js"]})}"
-                                @click="${this._changeTab}" data-view-id="code" data-tab-id="js">Javascript
-                        </button>
-                    </div>
+                    <ul class="nav nav-pills mb-3" role="tablist" aria-label="group">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link ${classMap({active: this.activeTab.code["cli"]})}"
+                                    data-bs-toggle="pill" data-bs-target="#${this._prefix}cli" data-view-id="code"
+                                    type="button" data-tab-id="cli">CLI
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link ${classMap({active: this.activeTab.code["python"]})}"
+                                    data-bs-toggle="pill" data-bs-target="#${this._prefix}python" data-view-id="code"
+                                    type="button" data-tab-id="python">Python
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link ${classMap({active: this.activeTab.code["r"]})}"
+                                    data-bs-toggle="pill" data-bs-target="#${this._prefix}r" data-view-id="code"
+                                    type="button" data-tab-id="r">R
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link ${classMap({active: this.activeTab.code["js"]})}"
+                                    data-bs-toggle="pill" data-bs-target="#${this._prefix}js" data-view-id="code"
+                                    type="button" data-tab-id="js">Javascript
+                            </button>
+                        </li>
+                    </ul>
 
-                    <div class="content-tab-wrapper">
-                        <div id="${this._prefix}cli" class="content-tab active">
-                            <div class="code-wrapper">
-                                <div class="clipboard-button" data-clipboard-target="div.language-r" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                    <div class="tab-content">
+                        <div id="${this._prefix}cli" class="tab-pane active" role="tabpanel">
+                            <div class="code-wrapper rounded p-2">
+                                <div class="d-flex justify-content-end" data-clipboard-target="div.language-cli" @click="${this.clipboard}">
+                                    <i class="far fa-copy"></i>
+                                </div>
                                 <div class="code language-cli" contentEditable="true">
                                     ${this.generateCode("cli")}
                                 </div>
                             </div>
                         </div>
-                        <div id="${this._prefix}python" class="content-tab">
-                            <div class="code-wrapper">
-                                <div class="clipboard-button" data-clipboard-target="div.language-python" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                        <div id="${this._prefix}python" class="tab-pane" role="tabpanel">
+                            <div class="code-wrapper rounded p-2">
+                                <div class="d-flex justify-content-end" data-clipboard-target="div.language-python" @click="${this.clipboard}">
+                                    <i class="far fa-copy"></i>
+                                </div>
                                 <div class="code language-python" contentEditable="true">
                                     ${this.generateCode("python")}
                                 </div>
                             </div>
                         </div>
-                        <div id="${this._prefix}r" class="content-tab">
-                            <div class="code-wrapper">
-                                <div class="clipboard-button" data-clipboard-target="div.language-r" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                        <div id="${this._prefix}r" class="tab-pane" role="tabpanel">
+                            <div class="code-wrapper rounded p-2">
+                                <div class="d-flex justify-content-end" data-clipboard-target="div.language-r" @click="${this.clipboard}">
+                                    <i class="far fa-copy"></i>
+                                </div>
                                 <div class="code language-r" contentEditable="true">
                                     ${this.generateCode("r")}
                                 </div>
                             </div>
                         </div>
-                        <div id="${this._prefix}js" class="content-tab">
-                            <div class="code-wrapper">
-                                <div class="clipboard-button" data-clipboard-target="div.language-javascript" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                        <div id="${this._prefix}js" class="tab-pane" role="tabpanel">
+                            <div class="code-wrapper rounded p-2">
+                                <div class="d-flex justify-content-end" data-clipboard-target="div.language-javascript" @click="${this.clipboard}">
+                                    <i class="far fa-copy"></i>
+                                </div>
                                 <div class="code language-javascript" contentEditable="true">
                                     ${this.generateCode("js")}
                                 </div>
@@ -702,7 +740,7 @@ const client = new OpenCGAClient({
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>

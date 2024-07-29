@@ -133,8 +133,11 @@ export default class DetailTabs extends LitElement {
     renderTitle() {
         const title = typeof this._config.title === "function" ? this._config.title(this.data) : this._config.title + " " + (this.data?.id || "");
         return html`
-            <div class="panel ${this._config?.display?.titleClass}" style="${this._config?.display?.titleStyle}">
-                <h3 class="break-word">${title}</h3>
+            <div class="${this._config?.display?.titleClass || nothing}" style="${this._config?.display?.titleStyle || nothing}">
+                <h3>${title}</h3>
+                <div class="text-secondary text-opacity-25">
+                    <hr>
+                </div>
             </div>
         `;
     }
@@ -143,12 +146,16 @@ export default class DetailTabs extends LitElement {
         return this.getVisibleTabs().map(item => {
             const isActive = this._activeTab === item.id;
             return html`
-                <li role="presentation"
-                    class="${this._config.display?.tabTitleClass} ${isActive ? "active" : ""}"
+                <li role="tablist"
+                    class="nav-item"
                     style="${this._config.display?.tabTitleStyle}">
-                    <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
+                    <a
+                        class="nav-link fw-bold fs-5 ${this._config.display?.tabTitleClass} ${isActive ? "active" : ""}"
+                        href="#${this._prefix}${item.id}"
+                        role="tab"
+                        data-bs-toggle="tab" data-id="${item.id}"
                         @click="${this.changeTab}">
-                        <span>${item.name}</span>
+                        <span class="fw-bold">${item.name}</span>
                     </a>
                 </li>
             `;
@@ -159,7 +166,7 @@ export default class DetailTabs extends LitElement {
         return this.getVisibleTabs().map(item => {
             const isActive = this._activeTab === item.id;
             return html`
-                <div id="${item.id}-tab" role="tabpanel" style="display: ${isActive ? "block" : "none"}">
+                <div class="d-${isActive ? "block": "none"}" id="${item.id}-tab" role="tabpanel">
                     ${item.render(this.data, isActive, this.opencgaSession, this.cellbaseClient)}
                 </div>
             `;
@@ -181,17 +188,18 @@ export default class DetailTabs extends LitElement {
         }
 
         // Allow custom tabs alignment:  "center" or "justified"
-        const align = this._config?.display?.align || "";
+        const align = this._config?.display?.align || ""; // deprecated
+        const classes = this._config?.display?.classes;
         const contentClass = this.mode === DetailTabs.PILLS_VERTICAL_MODE ? "col-md-10" : "";
         const visibleTabsCount = this.getVisibleTabs().length;
 
         return html`
             ${this._config.title ? this.renderTitle() : null}
-            <div class="detail-tabs">
+            <div class="detail-tabs row">
                 ${!(this._config.hideTabsIfOnlyOneVisible && visibleTabsCount === 1) ? html`
                     <!-- TABS -->
                     ${this.mode === DetailTabs.TABS_MODE ? html`
-                        <ul class="nav nav-tabs ${align ? `nav-${align}` : ""}" role="tablist">
+                        <ul class="nav nav-tabs ${classes ? `${classes}` : ""}" role="tablist">
                             ${this.renderTabTitle()}
                         </ul>
                     ` : nothing}
@@ -206,7 +214,7 @@ export default class DetailTabs extends LitElement {
                     <!-- PILLS -->
                     ${this.mode === DetailTabs.PILLS_VERTICAL_MODE ? html`
                         <div class="col-md-2">
-                            <ul class="nav nav-pills nav-stacked" role="tablist">
+                            <ul class="nav flex-column nav-pills me-3" role="tablist">
                                 ${this.renderTabTitle()}
                             </ul>
                         </div>
@@ -214,7 +222,7 @@ export default class DetailTabs extends LitElement {
                 ` : null}
 
                 <!-- TAB CONTENT -->
-                <div class="${contentClass} ${this._config.display?.contentClass}" style="${this._config.display?.contentStyle}">
+                <div class="${contentClass} ${this._config.display?.contentClass}" style="${this._config.display?.contentStyle || nothing}">
                     ${this.renderTabContent()}
                 </div>
             </div>
@@ -234,8 +242,8 @@ export default class DetailTabs extends LitElement {
                 tabTitleClass: "",
                 tabTitleStyle: "",
 
-                contentClass: "",
-                contentStyle: "padding: 10px",
+                contentClass: "p-3",
+                contentStyle: "",
             },
             items: [],
             // Example:

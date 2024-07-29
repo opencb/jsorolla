@@ -31,8 +31,6 @@ context("Cohort Browser Grid", () => {
 
     // TOOLBAR
     context("Cohort Toolbar", () => {
-        const toolbarComponent = "";
-
         beforeEach(() => {
             cy.get(browserGrid)
                 .find(`div[data-cy="toolbar"]`)
@@ -59,7 +57,6 @@ context("Cohort Browser Grid", () => {
     // MODAL CREATE
     context("Modal Create", () => {
         beforeEach(() => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get(browserGrid)
                 .find(`button[data-action="create"]`)
                 .click();
@@ -69,44 +66,38 @@ context("Cohort Browser Grid", () => {
         });
         // 1. Open modal and render create
         it("should render create modal", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("div.modal-dialog")
                 .should("be.visible");
         });
         // 2. Render title
         it("should render create title", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("h4.modal-title")
                 .should("contain.text", "Cohort Create");
         });
         // 3. Render button clear
         it("should render button clear", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .contains("button", "Clear")
                 .should("be.visible");
         });
         // 4. Render button create
         it("should render button create", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .contains("button", "Create")
                 .should("be.visible");
         });
         // 5. Render tabs
         it("should render form tabs", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.at.least", 1);
         });
         // 6. Render Cohort ID
         it("should have form field ID", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .find(`data-form div.form-horizontal div.row.form-group  label.control-label`)
+                .find(`data-form div.form-horizontal div.row div.col-md-3`)
                 .should("contain.text", "Cohort ID");
         });
     });
@@ -179,7 +170,7 @@ context("Cohort Browser Grid", () => {
 
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:"div",
+                tag: "div",
                 elementId: "SettingModal"
             }).as("settingModal");
 
@@ -214,30 +205,30 @@ context("Cohort Browser Grid", () => {
                 });
         });
 
-        it("should hide columns [Cohort ID,Creation Date]",() => {
-            const columns = ["Cohort ID","Creation Date"];
+        it("should hide columns [Cohort ID,Creation Date]", () => {
+            const columns = ["Cohort ID", "Creation Date"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");
 
             columns.forEach(col => {
                 cy.get("@headerColumns")
-                    .contains("div",col)
+                    .contains("div", col)
                     .should("be.visible");
             });
             cy.get("button[data-action='settings']")
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                UtilsTest.getByDataTest("test-columns", "select-field-filter span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-selection")
                 .click();
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:"div",
+                tag: "div",
                 elementId: "SettingModal"
             }).as("settingModal");
 
@@ -262,8 +253,8 @@ context("Cohort Browser Grid", () => {
         });
 
         it("should change page", () => {
-            UtilsTest.changePage(browserGrid,2);
-            UtilsTest.changePage(browserGrid,3);
+            UtilsTest.changePage(browserGrid, 2);
+            UtilsTest.changePage(browserGrid, 3);
         });
     });
 
@@ -273,15 +264,15 @@ context("Cohort Browser Grid", () => {
             cy.get("tbody tr")
                 .eq(3)
                 .click()
-                .should("have.class","success");
-            });
+                .should("have.class", "table-success");
+        });
     });
 
     context("extension", () => {
         it("should display 'Extra Column' column", () => {
             cy.get("thead th")
                 .contains("Extra column")
-                .should('be.visible');
+                .should("be.visible");
         });
 
         it("should display 'New Catalog Tab' Tab", () => {
@@ -289,6 +280,7 @@ context("Cohort Browser Grid", () => {
             cy.get(`detail-tabs > div.detail-tabs > ul`)
                 .find("li")
                 .contains("New Catalog Tab")
+                .as("catalogTab")
                 .click()
                 .should("be.visible");
         });
@@ -305,7 +297,7 @@ context("Cohort Browser Grid", () => {
             cy.get(`tbody tr[data-uniqueid="${cohort}"]`)
                 .find(`td:first`)
                 .trigger("click");
-        
+
             cy.get(`detail-tabs h3`)
                 .should("contain.text", `Cohort ${cohort}`);
         });
@@ -315,7 +307,7 @@ context("Cohort Browser Grid", () => {
                 .find("li")
                 .contains("JSON Data")
                 .trigger("click");
-            
+
             cy.get("json-viewer")
                 .should("be.visible");
         });

@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import GridCommons from "../../commons/grid-commons.js";
 import "./clinical-interpretation-summary.js";
 import "./clinical-interpretation-create.js";
 import "./clinical-interpretation-update.js";
@@ -31,7 +30,7 @@ export default class ClinicalInterpretationManager extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -55,30 +54,21 @@ export default class ClinicalInterpretationManager extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-
-        this.gridId = this._prefix + "Grid";
-        this.interpretationVersions = [];
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+        this._config = this.getDefaultConfig();
+        this.clinicalAnalysisManager = null;
     }
 
     update(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver();
-        }
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
         if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
         super.update(changedProperties);
@@ -97,55 +87,23 @@ export default class ClinicalInterpretationManager extends LitElement {
         }
     }
 
-    clinicalAnalysisObserver() {
-        if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-
-            // this.interpretations = [
-            //     {
-            //         ...this.clinicalAnalysis.interpretation, primary: true
-            //     },
-            //     ...this.clinicalAnalysis.secondaryInterpretations
-            // ];
-
-            const params = {
-                study: this.opencgaSession.study.fqn,
-                version: "all",
-            };
-            this.opencgaSession.opencgaClient.clinical().infoInterpretation(this.clinicalAnalysis.interpretation.id, params)
-                .then(response => {
-                    this.interpretationVersions = response.responses[0].results.reverse();
-
-                    // We always refresh UI when clinicalAnalysisObserver is called
-                    // await this.updateComplete;
-                    this.requestUpdate();
-                    this.renderHistoryTable();
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
-        }
-    }
-
     renderInterpretation(interpretation, primary) {
-        const interpretationLockAction = interpretation.locked ?
-            this.renderItemAction(interpretation, "unlock", "fa-unlock", "Unlock") :
-            this.renderItemAction(interpretation, "lock", "fa-lock", "Lock");
+        const locked = interpretation?.locked;
         const interpretationTitle = interpretation.locked ?
             html`<i class="fas fa-lock"></i> Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`:
             html`Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`;
 
-        const editInterpretationTitle = `Edit interpretation #${interpretation.id.split(".")[1]}: ${interpretation.id}`;
+        const editInterpretationTitle = `Edit Interpretation #${interpretation.id.split(".")[1]}: ${interpretation.id}`;
 
         return html`
-            <div style="display:flex;padding-bottom:4px;">
-                <div style="margin-right:auto;">
-                    <h5 style="font-weight: bold">
+            <div class="d-flex pb-1">
+                <div class="me-auto">
+                    <h5 class="fw-bold">
                         ${interpretationTitle}
                     </h5>
                 </div>
                 <div class="${classMap({primary: primary})}">
-                    <div class="dropdown action-dropdown">
+                    <div class="d-flex gap-2">
                         <clinical-interpretation-update
                             .clinicalInterpretation="${interpretation}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
@@ -153,9 +111,12 @@ export default class ClinicalInterpretationManager extends LitElement {
                             .mode="${"modal"}"
                             .displayConfig="${
                                 {
-                                    modalTitle: editInterpretationTitle,
-                                    modalButtonClassName: "btn-default btn-sm",
+                                    modalSize: "modal-lg",
+                                    buttonClearText: "Cancel",
+                                    buttonOkText: "Update",
+                                    modalButtonClassName: "btn-light",
                                     modalDisabled: this.clinicalAnalysis.locked || interpretation.locked,
+                                    modalTitle: editInterpretationTitle,
                                     modalButtonName: "Edit Interpretation",
                                     modalButtonIcon: "fas fa-solid fa-file-medical",
                                     modalButtonsVisible: false,
@@ -166,36 +127,23 @@ export default class ClinicalInterpretationManager extends LitElement {
                             @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">
                         </clinical-interpretation-update>
 
-                        <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown"
-                                ?disabled="${this.clinicalAnalysis.locked ? "disabled" : ""}">
-                            Action <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            ${primary ? html`
-                                <li>
-                                    <a
-                                        class="btn disabled force-text-left"
-                                        data-action="restorePrevious"
-                                        data-interpretation-id="${interpretation.id}"
-                                        data-islocked="${interpretation.locked}"
-                                        @click="${this.onActionClick}">
-                                        <i class="fas fa-code-branch icon-padding" aria-hidden="true"></i>
-                                        Restore previous version
-                                    </a>
-                                </li>
-                                <!-- Action Lock/Unlock -->
-                                ${interpretationLockAction}
-                                <li role="separator" class="divider"></li>
+                        <div class="dropdown">
+                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" ?disabled="${this.clinicalAnalysis.locked}">
+                                <i class="fas fa-toolbox pe-1"></i>
+                                Actions
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                ${this.renderItemAction(interpretation, "download", "fa-download", "Download JSON")}
+                                <li><hr class="dropdown-divider"></li>
+                                ${!primary ? html`
+                                    ${this.renderItemAction(interpretation, "setAsPrimary", "fa-map-marker", "Set as primary")}
+                                ` : nothing}
+                                ${this.renderItemAction(interpretation, locked ? "unlock" : "lock", locked ? "fa-unlock" : "fa-lock", locked ? "Unlock" : "Lock")}
+                                <li><hr class="dropdown-divider"></li>
                                 ${this.renderItemAction(interpretation, "clear", "fa-eraser", "Clear")}
-                            ` : html`
-                                ${this.renderItemAction(interpretation, "setAsPrimary", "fa-map-marker", "Set as primary")}
-                                <!-- Action Lock/Unlock -->
-                                ${interpretationLockAction}
-                                <li role="separator" class="divider"></li>
-                                ${this.renderItemAction(interpretation, "clear", "fa-eraser", "Clear")}
-                                ${this.renderItemAction(interpretation, "delete", "fa-trash", "Delete")}
-                            `}
-                        </ul>
+                                ${this.renderItemAction(interpretation, "delete", "fa-trash", "Delete", primary)}
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -207,91 +155,33 @@ export default class ClinicalInterpretationManager extends LitElement {
         `;
     }
 
-    renderHistoryTable() {
-        this.table = $("#" + this.gridId);
-        this.table.bootstrapTable("destroy");
-        this.table.bootstrapTable({
-            data: this.interpretationVersions,
-            columns: this._initTableColumns(),
-            uniqueId: "id",
-            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
-            icons: GridCommons.GRID_ICONS,
-            gridContext: this,
-            sidePagination: "local",
-            pagination: true,
-            formatNoMatches: () => "No previous versions",
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-        });
-    }
-
-    renderItemAction(interpretation, action, icon, name) {
+    renderItemAction(interpretation, action, icon, name, defaultDisabled = false) {
+        const disabled = defaultDisabled || (interpretation?.locked && ((action !== "unlock") && (action !== "setAsPrimary")));
         return html`
             <li>
                 <a
-                    class="btn force-text-left"
-                    ?disabled="${interpretation.locked && ((action !== "unlock") && (action !== "setAsPrimary"))}"
+                    class="${`dropdown-item ${disabled ? "disabled" : ""}`}"
+                    ?disabled="${disabled}"
                     data-action="${action}"
                     data-interpretation-id="${interpretation.id}"
                     data-islocked="${interpretation.locked}"
+                    style="cursor:pointer;"
                     @click="${this.onActionClick}">
-                    <i class="fas ${icon} icon-padding" aria-hidden="true"></i> ${name}
+                    <i class="fas ${icon} me-1" aria-hidden="true"></i> ${name}
                 </a>
             </li>
         `;
     }
 
-    _initTableColumns() {
-        this._columns = [
-            {
-                title: "ID",
-                field: "id"
-            },
-            {
-                title: "Version",
-                field: "version"
-            },
-            {
-                title: "Modification Date",
-                field: "modificationDate",
-                formatter: modificationDate => UtilsNew.dateFormatter(modificationDate, "D MMM YYYY, h:mm:ss a")
-            },
-            {
-                title: "Primary Findings",
-                field: "primaryFindings",
-                formatter: primaryFindings => primaryFindings?.length
-            },
-            {
-                title: "Status",
-                field: "internal.status.name"
-            },
-            {
-                title: "Actions",
-                formatter: () => `
-                    <div class="btn-group" role="group" aria-label="...">
-                        <button class="btn btn-link disabled" type="button" data-action="view">View</button>
-                        <button class="btn btn-link" type="button" data-action="restore">Restore</button>
-                    </div>
-                `,
-                valign: "middle",
-                events: {
-                    "click button": this.onActionClick.bind(this)
-                },
-                visible: !this._config.columns?.hidden?.includes("actions")
-            }
-        ];
-
-        return this._columns;
-    }
-
     onActionClick(e) {
+        e.preventDefault();
         const {action, interpretationId, islocked} = e.currentTarget.dataset;
         const interpretationCallback = () => {
             this.onClinicalInterpretationUpdate();
         };
 
-        // islock is a strring
-        if (islocked === "true" && ((action !== "unlock") && (action !== "setAsPrimary"))) {
+        // Only some actions are allowed when the interpretation is locked: unclock, set as primary, and download
+        if (islocked === "true" && ((action !== "unlock") && (action !== "setAsPrimary") && (action !== "download"))) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
                 message: `${interpretationId} is locked!`,
             });
@@ -311,6 +201,9 @@ export default class ClinicalInterpretationManager extends LitElement {
                     break;
                 case "unlock":
                     this.clinicalAnalysisManager.unLockInterpretation(interpretationId, interpretationCallback);
+                    break;
+                case "download":
+                    this.clinicalAnalysisManager.downloadInterpretation(interpretationId);
                     break;
             }
         }
@@ -334,14 +227,15 @@ export default class ClinicalInterpretationManager extends LitElement {
         return html`
             <div class="interpreter-content-tab">
                 <div class="row">
-                    <div class="col-md-8" style="margin-bottom:16px">
-                        <h3 style="padding-bottom: 5px">Interpretations</h3>
-                        <div class="pull-right">
+                    <div class="col-md-8 mb-3">
+                        <h3 style="pb-2">Interpretations</h3>
+                        <div class="float-end">
                             <clinical-interpretation-create
                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                 .opencgaSession="${this.opencgaSession}"
                                 .mode="${"modal"}"
                                 .displayConfig="${{
+                                    modalSize: "modal-lg",
                                     modalButtonClassName: "btn-primary",
                                     modalButtonName: "Create Interpretation",
                                     modalTitle: "Create Interpretation",
@@ -355,12 +249,12 @@ export default class ClinicalInterpretationManager extends LitElement {
                         </div>
                     </div>
 
-                    <div class="col-md-8" style="margin-bottom:16px">
+                    <div class="col-md-8 mb-3">
                         <h4>Primary Interpretation</h4>
                         ${this.renderInterpretation(this.clinicalAnalysis.interpretation, true)}
                     </div>
 
-                    <div class="col-md-8" style="margin-bottom:16px">
+                    <div class="col-md-8 mb-3">
                         <h4>Secondary Interpretations</h4>
                         ${this.clinicalAnalysis?.secondaryInterpretations?.length > 0 ? html`
                             ${this.clinicalAnalysis.secondaryInterpretations.map(interpretation => html`
@@ -371,11 +265,6 @@ export default class ClinicalInterpretationManager extends LitElement {
                         ` : html`
                             <label>No secondary interpretations found</label>
                         `}
-                    </div>
-
-                    <div class="col-md-10" style="padding-top: 10px">
-                        <h3>Primary Interpretation History - ${this.clinicalAnalysis.interpretation.id}</h3>
-                        <table id="${this.gridId}"></table>
                     </div>
                 </div>
             </div>

@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2023 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,23 +18,10 @@ import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 
-// TODO reorganize props multiple/forceSelection
-
-/** NOTE - Design choice: to allow deselection, the single mode (this.multiple=false), has been implemented with the multiple flag in bootstrap-select, but forcing 1 selection with data-max-options=1
- *  (this has no consequences for the developer point of view). This behaviour can be over overridden using "forceSelection" prop.
- *
- *  NOTE putting names in data-content attr instead of as <option> content itself allows HTML entities to be correctly decoded.
- *
- *  Usage:
- * <select-field-filter .data="${["A","B","C"]}" .value=${"A"} @filterChange="${e => console.log(e)}"></select-field-filter>
- * <select-field-filter .data="${[{id: "a", name: "A"}, {id:"b", name: "B"}, {id: "c", name: "C"}]}" .value=${"a"} @filterChange="${e => console.log(e)}"></select-field-filter>
- */
-
 export default class SelectFieldFilter extends LitElement {
 
     constructor() {
         super();
-
         // Set status and init private properties
         this._init();
     }
@@ -46,35 +33,13 @@ export default class SelectFieldFilter extends LitElement {
     static get properties() {
         return {
             // NOTE value (default Values) can be either a single value as string or a comma separated list (in case of multiple=true we support array of strings)
+            // value are items selected by default
             value: {
                 type: String
             },
-            title: {
-                type: String
-            },
-            placeholder: {
-                type: String
-            },
-            multiple: {
-                type: Boolean
-            },
-            all: {
-                type: Boolean
-            },
-            disabled: {
-                type: Boolean
-            },
-            required: {
-                type: Boolean
-            },
-            maxOptions: {
-                type: Number
-            },
-            liveSearch: {
-                type: Boolean
-            },
-            forceSelection: {
-                type: Boolean
+            // the expected format is either an array of string or an array of objects {id, name}
+            data: {
+                type: Object
             },
             classes: {
                 type: String
@@ -88,8 +53,7 @@ export default class SelectFieldFilter extends LitElement {
             separator: {
                 type: String,
             },
-            // the expected format is either an array of string or an array of objects {id, name}
-            data: {
+            config: {
                 type: Object
             }
         };
@@ -97,102 +61,273 @@ export default class SelectFieldFilter extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
-        this.multiple = false;
-        this.all = false;
         this.data = [];
         this.classes = "";
-        this.elm = this._prefix + "selectpicker";
-        this.size = 20; // Default size
-        this.selectedTextFormat = "";
-        this.separator = ","; // Default separator
+        this._config = this.getDefaultConfig();
     }
 
     firstUpdated() {
-        this.selectPicker = $("#" + this.elm, this);
-        this.selectPicker.selectpicker({
-            iconBase: "fas",
-            tickIcon: "fa-check",
-            val: "",
-            multipleSeparator: this.separator
-        });
-        // this.selectPicker.selectpicker("val", "");
+        this.select = $("#" + this._prefix);
+        if (this._config?.multiple) {
+            this.customAdapter();
+        }
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
+        super.update(changedProperties);
     }
 
     updated(changedProperties) {
         if (changedProperties.has("data")) {
-            // TODO check why lit-element execute this for all existing select-field-filter instances..wtf
-            this.data = this.data ?? [];
-            this.selectPicker.selectpicker("refresh");
+            // this._config = {...this.getDefaultConfig(), ...this.config};
+            this.loadData();
         }
 
-        if (changedProperties.has("disabled")) {
-            this.selectPicker.selectpicker("refresh");
+        if (changedProperties.has("value")) {
+            this.loadValueSelected();
         }
 
-        if (changedProperties.has("value") || changedProperties.has("data") || changedProperties.has("disabled")) {
-            let val = "";
-            if (this.value) {
-                if (this.multiple) {
-                    if (Array.isArray(this.value)) {
-                        val = this.value;
-                    } else {
-                        val = this.value.split(",");
-                    }
-                } else {
-                    val = this.value;
-                }
-            }
-            // CAUTION 20230309 Vero: bug reported where selected disabled option is not stored in val.
-            //  this.selectPicker.selectpicker("val", val), it is not setting the array val if val is disabled
-            //  https://github.com/snapappointments/bootstrap-select/issues/1823#event-4943462544
-            this.selectPicker.selectpicker("val", val);
-        }
-
-        if (changedProperties.has("classes")) {
-            if (this.classes) {
-                this.selectPicker.selectpicker("setStyle", this.classes, "add");
+        if (typeof this.select.data("select2")?.$selection !== "undefined" && changedProperties.has("classes")) {
+            // For update select style
+            if (this.classes === "selection-updated") {
+                this.select.data("select2").$selection.addClass(this.classes);
             } else {
-                // if classes os removed then we need to removed the old assigned classes
-                this.selectPicker.selectpicker("setStyle", changedProperties.get("classes"), "remove");
-                this.selectPicker.selectpicker("setStyle", "btn-default", "add");
+                this.select.data("select2").$selection.removeClass("selection-updated");
             }
         }
     }
 
-    filterChange(e) {
-        // CAUTION 20230309 Vero: bug reported where selected disabled option is not stored in val.
-        //  https://github.com/snapappointments/bootstrap-select/issues/1823#event-4943462544
-        //  Possible solution:
-        const disabled = Object.values(e.target.options).filter(data => data.disabled === true).map(data => {
-            if (data.selected) {
-                return data.value;
-            }
-        });
-        // const selection = this.selectPicker.selectpicker("val");
-        const selection = Array.isArray(this.selectPicker.selectpicker("val")) ?
-            [...this.selectPicker.selectpicker("val"), ...disabled] :
-            this.selectPicker.selectpicker("val");
-
-        let val = null;
-        if (selection && selection.length) {
-            if (this.multiple) {
-                val = selection.join(",");
-            } else {
-                if (this.forceSelection) {
-                    // single mode that DOESN'T allow deselection
-                    // forceSelection means multiple flag in selectpicker is false, this is the only case `selection` is not an array
-                    val = selection;
-                } else {
-                    // single mode that allows deselection
-                    val = selection[0];
-                }
-            }
+    loadData() {
+        if (!this.data || this.data.length === 0) {
+            return;
         }
 
-        LitUtils.dispatchCustomEvent(this, "filterChange", val, {
-            data: this.data,
-        }, null, {bubbles: false, composed: false});
+        this.select.empty();
+        const options = this.data.map(item => this.getOptions(item));
+
+        const selectConfig = {
+            ...this._config,
+            theme: "bootstrap-5",
+            dropdownParent: document.querySelector(`#${this._prefix}`).parentElement,
+            selectionCssClass: this._config?.selectionClass ? this.config?.selectionClass : "",
+            multiple: !!this._config?.multiple,
+            placeholder: this._config?.placeholder ?? "Select an option",
+            allowClear: !!this._config?.multiple,
+            disabled: this._config?.disabled ?? false,
+            width: "80%",
+            data: options,
+            tokenSeparator: this._config?.separator,
+            closeOnSelect: !this._config?.multiple,
+            templateResult: e => this.optionsFormatter(e),
+            ...this._config?.liveSearch ? {} : {minimumResultsForSearch: Infinity}, // To hide search box
+        };
+
+        const searchBox = this._config?.liveSearch && this._config?.multiple ? {dropdownAdapter: $.fn.select2.amd.require("CustomDropdownAdapter")} : {};
+        const selectAdapter = this._config?.multiple ? {
+            templateSelection: data => {
+                const items = Array.from(data.all).filter(opt => opt.text !== "" && typeof opt.text !== "undefined");
+                return `Selected ${data.selected.length} out of ${items.length}`;
+            },
+            // Make selection-box similar to single select
+            selectionAdapter: $.fn.select2.amd.require("CustomSelectionAdapter"),
+            ...searchBox
+        } : {};
+
+        this.select.select2({...selectConfig, ...selectAdapter})
+            .on("select2:select", e => this.filterChange(e))
+            .on("select2:unselect", e => this.filterChange(e));
+
+        if (this.value) {
+            // temporal solution for now to load selected values
+            this.loadValueSelected();
+        }
+
+        // Clear select
+        if (UtilsNew.isEmpty(this.value)) {
+            this.select.val(null).trigger("change");
+        }
+
+    }
+
+    customAdapter() {
+        $.fn.select2.amd.define("CustomSelectionAdapter", [
+            "select2/utils",
+            "select2/selection/multiple",
+            "select2/selection/placeholder",
+            "select2/selection/eventRelay",
+            "select2/selection/single",
+        ], (Utils, MultipleSelection, Placeholder, EventRelay, SingleSelection) => {
+
+            // Decorates MultipleSelection with Placeholder
+            let adapter = Utils.Decorate(MultipleSelection, Placeholder);
+            // Decorates adapter with EventRelay - ensures events will continue to fire
+            // e.g. selected, changed
+            adapter = Utils.Decorate(adapter, EventRelay);
+
+            adapter.prototype.render = function () {
+                // Use selection-box from SingleSelection adapter
+                // This implementation overrides the default implementation
+                const $selection = SingleSelection.prototype.render.call(this);
+                return $selection;
+            };
+
+            adapter.prototype.update = function (data) {
+                // copy and modify SingleSelection adapter
+                this.clear();
+
+                const $rendered = this.$selection.find(".select2-selection__rendered");
+                const noItemsSelected = data.length === 0;
+                let formatted = "";
+
+                if (noItemsSelected) {
+                    formatted = this.options.get("placeholder") || "";
+                } else {
+                    const itemsData = {
+                        selected: data || [],
+                        all: this.$element.find("option") || []
+                    };
+                    // Pass selected and all items to display method
+                    // which calls templateSelection
+                    formatted = this.display(itemsData, $rendered);
+                }
+
+                $rendered.empty().append(formatted);
+                $rendered.prop("title", formatted);
+            };
+
+            return adapter;
+        });
+
+        $.fn.select2.amd.define("CustomDropdownAdapter", [
+            "select2/utils",
+            "select2/dropdown",
+            "select2/dropdown/attachBody",
+            "select2/dropdown/attachContainer",
+            "select2/dropdown/search",
+            "select2/dropdown/minimumResultsForSearch",
+            "select2/dropdown/closeOnSelect",
+        ], (Utils, Dropdown, AttachBody, AttachContainer, Search, MinimumResultsForSearch, CloseOnSelect) => {
+
+            // Decorate Dropdown with Search functionalities
+            const dropdownWithSearch = Utils.Decorate(Dropdown, Search);
+            dropdownWithSearch.prototype.render = function () {
+                // Copy and modify default search render method
+                const $rendered = Dropdown.prototype.render.call(this);
+                // Add ability for a placeholder in the search box
+                const placeholder = this.options.get("placeholderForSearch") || "";
+                const $search = $(
+                    `<span class="select2-search select2-search--dropdown">
+                        <input class="select2-search__field" placeholder="${placeholder}" type="search"
+                        tabindex="-1" autocomplete="off" autocorrect="off" autocapitalize="off"
+                        spellcheck="false" role="textbox"/>
+                    </span>`
+                );
+
+                this.$searchContainer = $search;
+                this.$search = $search.find("input");
+
+                $rendered.prepend($search);
+                return $rendered;
+            };
+
+            // Decorate the dropdown+search with necessary containers
+            let adapter = Utils.Decorate(dropdownWithSearch, AttachContainer);
+            adapter = Utils.Decorate(adapter, AttachBody);
+
+            return adapter;
+        });
+    }
+
+    optionsFormatter(item) {
+        // optgroup elements
+        if (typeof item.children !== "undefined") {
+            return $(`
+                <hr class="m-0 mb-2"/>
+                <span class='fw-bold text-secondary'>
+                    <small>${item.text}</small>
+                </span>
+            `);
+        }
+
+        if (typeof item.text === "undefined" || item.text === "") {
+            return $(`<hr class="mt-0 mb-1">`);
+        }
+
+        return $(`
+            <div class="d-flex justify-content-between align-items-center py-1">
+                <span>${item.text}</span>
+                <i class="fas fa-check d-none"></i>
+            </div>
+        `);
+    }
+
+    loadValueSelected() {
+        let val = "";
+        if (this.value && this._config?.multiple) {
+            val = Array.isArray(this.value) ? this.value : this.value.split(",");
+        } else {
+            val = UtilsNew.isNotUndefinedOrNull(this.value) ? this.value : "";
+        }
+        this.select.val(val);
+        this.select.trigger("change");
+    }
+
+    transformData(data) {
+        // id, name;
+        let _data = [];
+        if (data) {
+            _data = data?.map(({name, ...props}) => ({...props, text: name}));
+            console.log("Output transform: ", _data);
+        }
+    }
+
+    getOptions(item) {
+        if (!UtilsNew.isObject(item)) {
+            return {
+                id: item,
+                text: item
+            };
+        }
+
+        if (item.fields && item.fields.length > 0) {
+            return {
+                text: item?.id || item?.name,
+                children: item.fields.map(opt => ({id: opt.id, text: opt?.name || opt?.id}))
+            };
+        }
+
+        return {
+            id: item.id,
+            text: item?.name || item?.id,
+            selected: item.selected ?? false,
+            disabled: item.disabled ?? false
+        };
+    }
+
+    filterChange(e) {
+        const disabled = Object.values(e.target.options)
+            .filter(data => data.disabled === true)
+            .map(data => {
+                if (data.selected) {
+                    return data.value;
+                }
+            });
+
+        const selection = Array.isArray(this.select.select2("data")) ?
+            [...this.select.select2("data").map(el => el.id), ...disabled] :
+            this.select.select2("data").map(el => el.id);
+
+        let val = "";
+        if (selection && selection.length) {
+            if (this._config?.multiple) {
+                val = selection.join(",");
+            }
+        }
+        LitUtils.dispatchCustomEvent(this, "filterChange", selection.join(","),
+        {}, null, {bubbles: false, composed: false});
     }
 
     selectAll(e) {
@@ -216,77 +351,74 @@ export default class SelectFieldFilter extends LitElement {
         }, null, {bubbles: false, composed: false});
     }
 
-    renderOption(option) {
-        let dataContent;
-        if (option.description) {
-            dataContent = `<span title="${option.description}">${option.name ?? option.id}</span>`;
-        } else {
-            dataContent = `<span>${option.name ?? option.id}</span>`;
-        }
+    renderShowSelectAll() {
         return html`
-            <option
-                ?disabled="${option.disabled}"
-                ?selected="${option.selected}"
-                .value="${option.id ?? option.name}"
-                data-content="${dataContent}">
-            </option>
+            <span class="input-group-text rounded-start-0">
+                <input class="form-check-input mt-0" id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." @click=${this.selectAll}>
+                <span class="fw-bold ms-1">All</span>
+            </span>
+        `;
+    }
+
+    renderStyle() {
+        return html`
+            <style>
+                .select-field-filter .select2-results__options {
+                    max-height: 600px !important;
+                }
+
+                .select-field-filter .select2-results__option--selected {
+                    background-color: #fff !important;
+                    color: #000 !important;
+                }
+                .select-field-filter .select2-results__option--selected:hover {
+                    background-color: #e9ecef !important;
+                }
+                .select-field-filter .select2-results__option--selected i.fa-check {
+                    display: inline-block !important;
+                }
+                .select-field-filter .select2-results__group {
+                    display: block;
+                    padding: 6px 4px !important;
+                }
+            </style>
         `;
     }
 
     render() {
-        // This code decides the text of the dropdown, it's a complex logic that can be configured with the selectedTextFormat prop
-        let selectedTextFormat = "";
-        if (this.selectedTextFormat) {
-            selectedTextFormat = this.selectedTextFormat;
-        } else {
-            if (this.title) {
-                selectedTextFormat = "static";
-            } else {
-                selectedTextFormat = "values";
-            }
-        }
-
         return html`
-            <div id="${this._prefix}-select-field-filter-wrapper" class="select-field-filter">
-                <div class="${this.all ? "input-group" : ""}">
-                    <select id="${this.elm}"
-                            class="${this.elm}"
-                            ?multiple="${!this.forceSelection}"
-                            ?disabled="${this.disabled}"
-                            ?required="${this.required}"
-                            title="${this.placeholder ?? (this.multiple ? "Select option(s)" : "Select an option")}"
-                            data-live-search="${this.liveSearch ? "true" : "false"}"
-                            data-size="${this.size}"
-                            data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"
-                            data-width="100%"
-                            data-title="${this.title || nothing}"
-                            data-selected-text-format="${selectedTextFormat}"
-                            data-style="btn-default ${this.classes}"
-                            @change="${this.filterChange}">
-                        ${this.data?.map(opt => html`
-                            ${opt?.separator ? html`<option data-divider="true"></option>` : html`
-                                ${opt?.fields?.length > 0 ? html`
-                                    <optgroup label="${opt.id ?? opt.name}">
-                                        ${opt.fields.map(subopt => html`
-                                            ${UtilsNew.isObject(subopt) ? this.renderOption(subopt) : html`<option>${subopt}</option>`}
-                                        `)}
-                                    </optgroup>
-                                ` : html`
-                                    ${UtilsNew.isObject(opt) ? this.renderOption(opt) : html`<option data-content="${opt}">${opt}</option>`}
-                                `}
-                            `}
-                        `)}
-                    </select>
-
-                    ${this.all ? html`
-                        <span class="input-group-addon">
-                            <input id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." style="margin: 0 5px" @click=${this.selectAll}>
-                            <span style="font-weight: bold">All</span>
-                        </span>` : nothing
-                    }
-                </div>
+            ${this.renderStyle()}
+            <div class="input-group mb-1 select-field-filter">
+                <select
+                    class="form-select"
+                    id="${this._prefix}"
+                    @change="${this.filterChange}">
+                </select>
+                ${this.all ? this.renderShowSelectAll() : nothing}
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            title: "",
+            separator: [","],
+            multiple: false,
+            selectionClass: "",
+            all: false,
+            required: false,
+            liveSearch: false,
+            classes: "",
+            showSelectAll: false,
+            limit: 10,
+            disablePagination: false,
+            minimumInputLength: 0,
+            maxItems: 0, // maxOptions
+            disabled: false,
+            placeholder: "Select option(s)",
+            freeTag: false,
+            tags: false
+        };
     }
 
 }

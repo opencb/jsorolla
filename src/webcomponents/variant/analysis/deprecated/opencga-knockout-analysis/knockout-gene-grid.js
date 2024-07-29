@@ -84,7 +84,6 @@ export default class KnockoutGeneGrid extends LitElement {
             })
         }*/
 
-
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
@@ -100,6 +99,8 @@ export default class KnockoutGeneGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             // data: this.tableData,
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._initTableColumns(),
             sidePagination: "local",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -123,7 +124,8 @@ export default class KnockoutGeneGrid extends LitElement {
                         params.error(e);
                     });
             },
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement)
         });
     }
@@ -214,9 +216,10 @@ export default class KnockoutGeneGrid extends LitElement {
 
     render() {
         return html`
-            <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                                 @columnChange="${this.onColumnChange}"
-                                 @download="${this.onDownload}">
+            <opencb-grid-toolbar
+                .config="${this.toolbarConfig}"
+                @columnChange="${this.onColumnChange}"
+                @download="${this.onDownload}">
             </opencb-grid-toolbar>
             <div class="row">
                 <table id="${this.gridId}"></table>

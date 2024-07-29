@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 import "../forms/select-field-filter.js";
-
 
 export default class StudyFilter extends LitElement {
 
@@ -72,10 +71,10 @@ export default class StudyFilter extends LitElement {
     opencgaSessionObserver() {
         this._studies = [];
         if (this.opencgaSession?.project?.studies?.length) {
-            // 1. Add current study as the first element and mark it as disabled
+            // 1. Add current active study as the first element and mark it as disabled
             this._studies.push({
-                name: this.opencgaSession.study.name,
                 id: this.opencgaSession.study.fqn,
+                name: this.opencgaSession.study.name,
                 selected: true,
                 disabled: true,
             });
@@ -124,37 +123,41 @@ export default class StudyFilter extends LitElement {
         }
 
         return html`
-            <div class="form-group">
+            <div class="mb-3">
                 <select-field-filter
                     .data="${this._studies}"
                     .value="${this._selection}"
-                    .multiple="${true}"
-                    .disabled="${this._config?.disabled}"
+                    .config="${this._config}"
                     @filterChange="${event => this.onStudyChange(event)}">
                 </select-field-filter>
-                <fieldset class="switch-toggle-wrapper">
-                    <div class="switch-toggle text-white alert alert-light">
+                <fieldset class="d-grid my-1 mx-0" ?disabled="${this._selection.length < 2}">
+                    <div class="btn-group" role="group">
                         <input
                             id="${this._prefix}orInput"
                             name="studyFilterOperator"
                             type="radio"
+                            class="btn-check"
                             value=","
                             ?checked="${this._operator === ","}"
                             ?disabled="${this._selection.length < 2}"
                             @change="${event => this.onOperatorChange(event)}"
                         />
-                        <label for="${this._prefix}orInput" class="rating-label rating-label-or">In any of (OR)</label>
+                        <label class="btn btn-outline-primary" for="${this._prefix}orInput">
+                            In any of (OR)
+                        </label>
                         <input
                             id="${this._prefix}andInput"
                             name="studyFilterOperator"
                             type="radio"
+                            class="btn-check"
                             value=";"
                             ?checked="${this._operator === ";"}"
                             ?disabled="${this._selection.length < 2}"
                             @change="${event => this.onOperatorChange(event)}"
                         />
-                        <label for="${this._prefix}andInput" class="rating-label rating-label-and">In all (AND)</label>
-                        <a class="btn btn-primary btn-small"></a>
+                        <label class="btn btn-outline-primary" for="${this._prefix}andInput">
+                            In all (AND)
+                        </label>
                     </div>
                 </fieldset>
             </div>
@@ -163,6 +166,7 @@ export default class StudyFilter extends LitElement {
 
     getDefaultConfig() {
         return {
+            multiple: true,
             disabled: false,
         };
     }

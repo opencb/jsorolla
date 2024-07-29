@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import GridCommons from "../../commons/grid-commons.js";
 
 export default class VariantConsequenceTypeView extends LitElement {
 
@@ -123,7 +124,7 @@ export default class VariantConsequenceTypeView extends LitElement {
 
     geneNameFormatter(value, row, index) {
         if (value) {
-            return `<a href="https://www.genenames.org/tools/search/#!/all?query=${value}" target="_blank">${value}</a>`;
+            return `<a class="text-decoration-none" href="https://www.genenames.org/tools/search/#!/all?query=${value}" target="_blank">${value}</a>`;
         } else {
             return "-";
         }
@@ -131,7 +132,7 @@ export default class VariantConsequenceTypeView extends LitElement {
 
     ensemblGeneFormatter(value, row, index) {
         if (value) {
-            return `<a href="https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${value}" target="_blank">${value}</a>`;
+            return `<a class="text-decoration-none" href="https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${value}" target="_blank">${value}</a>`;
         } else {
             return "-";
         }
@@ -139,7 +140,7 @@ export default class VariantConsequenceTypeView extends LitElement {
 
     ensemblTranscriptFormatter(value, row, index) {
         if (value) {
-            return `<a href="https://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${value}" target="_blank">${value}</a>`;
+            return `<a class="text-decoration-none" href="https://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${value}" target="_blank">${value}</a>`;
         } else {
             return "-";
         }
@@ -155,12 +156,11 @@ export default class VariantConsequenceTypeView extends LitElement {
 
     consequenceTypeFormatter(values, row, index) {
         if (values) {
-            let result = [];
-            for (let soTerm of values) {
-                let color = this._consequenceTypeColorMap && this._consequenceTypeColorMap[soTerm.name]
-                    ? this._consequenceTypeColorMap[soTerm.name]
-                    : "black";
-                result.push(`<span style="color: ${color}">${soTerm.name}</span>&nbsp;(<a href="http://www.sequenceontology.org/browser/current_svn/term/${soTerm.accession}" target="_blank">${soTerm.accession}</a>)`);
+            const result = [];
+            for (const soTerm of values) {
+                const color = this._consequenceTypeColorMap && this._consequenceTypeColorMap[soTerm.name] ?
+                    this._consequenceTypeColorMap[soTerm.name] : "black";
+                result.push(`<span style="color: ${color}">${soTerm.name}</span>&nbsp;(<a class="text-decoration-none" href="http://www.sequenceontology.org/browser/current_svn/term/${soTerm.accession}" target="_blank">${soTerm.accession}</a>)`);
             }
             return result.join("<br>");
         } else {
@@ -214,11 +214,15 @@ export default class VariantConsequenceTypeView extends LitElement {
 
         $("#" + this._prefix + "ConsequenceTypeTable").bootstrapTable("destroy");
         $("#" + this._prefix + "ConsequenceTypeTable").bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: this.consequenceTypes,
             pagination: true,
             showExport: true,
             detailView: true,
             detailFormatter: this.detailFormatter,
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             columns: [
                 [
                     {

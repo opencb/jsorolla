@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./select-field-filter.js";
 
@@ -37,7 +37,7 @@ export default class NumberFieldFilter extends LitElement {
                 type: String
             },
             config: {
-                type: String
+                type: Object
             },
             value: {
                 type: String
@@ -74,10 +74,10 @@ export default class NumberFieldFilter extends LitElement {
         };
         this.defaultComparators = [
             {id: "<", name: "<"},
-            {id: "<=", name: "&#8804;"},
+            {id: "<=", name: "<="},
             {id: "=", name: "="},
             {id: ">", name: ">"},
-            {id: ">=", name: "&#8805;"},
+            {id: ">=", name: ">="},
         ];
     }
 
@@ -137,41 +137,48 @@ export default class NumberFieldFilter extends LitElement {
 
     render() {
         return html`
-            <div class="number-field-filter form-group" data-cy="number-field-filter-wrapper-${this.label ?? ""}">
+            <div class="row g-2" data-cy="number-field-filter-wrapper-${this.label ?? ""}">
                 ${this.label ? html`
-                        <div class="col-md-${this._config.layout[0]} control-label" data-toggle="tooltip" data-placement="top" title="${this.label}" style="padding-top: 5px">
+                        <label class="col-md-${this._config.layout[0]} col-sm-2 col-form-label"
+                            data-bs-toggle="tooltip" data-placement="top" title="${this.label}">
                             ${this.label}
-                        </div>` : null
+                        </label>` : nothing
                 }
 
                 ${this._config.comparator ? html`
-                        <div class="col-md-${this._config.layout[1]}">
-                            <select-field-filter
-                                    .data="${this._config.values}"
-                                    .value="${this.state.comparator}"
-                                    ?forceSelection="${this._config.comparatorForceSelection}"
-                                    @filterChange="${e => this.filterChange(e, "comparator", e.detail.value)}">
-                            </select-field-filter>
-                        </div>` : null
+                    <div class="col-md-${this._config.layout[1]}">
+                        <select-field-filter
+                            .data="${this._config.values}"
+                            .value="${this.state.comparator}"
+                            .config="${{
+                                liveSearch: false
+                            }}"
+                            @filterChange="${e => this.filterChange(e, "comparator", e.detail.value)}">
+                        </select-field-filter>
+                    </div>` : nothing
                 }
 
                 ${this.allowedValues?.length > 0 ? html`
                     <div class="col-md-${this._config.layout[2]}">
-                        <select-field-filter    .data="${this.allowedValues}"
-                                                .value="${this.state.value ?? ""}"
-                                                placeholder="Select ..."
-                                                @filterChange="${e => this.filterChange(e, "value", e.detail.value)}">
+                        <select-field-filter
+                            .data="${this.allowedValues}"
+                            .value="${this.state.value ?? ""}"
+                            .config="${{
+                                placeholder: "Select ...",
+                                liveSearch: false,
+                            }}"
+                            @filterChange="${e => this.filterChange(e, "value", e.detail.value)}">
                         </select-field-filter>
                     </div>` : html`
                     <div class="col-md-${this._config.layout[2]}">
                         <input  type="${this.type ?? "number"}"
-                                class="form-control ${this._prefix}FilterTextInput"
-                                data-field="value"
-                                .min="${this.min ?? false}"
-                                .max="${this.max ?? false}"
-                                .step="${this.step ?? false}"
-                                .value="${this.state.value ?? ""}"
-                                @input="${e => this.filterChange(e, "value", e.target.value)}">
+                            class="form-control ${this._prefix}FilterTextInput"
+                            data-field="value"
+                            .min="${this.min ?? false}"
+                            .max="${this.max ?? false}"
+                            .step="${this.step ?? false}"
+                            .value="${this.state.value ?? ""}"
+                            @input="${e => this.filterChange(e, "value", e.target.value)}">
                     </div>`
                 }
             </div>

@@ -108,6 +108,7 @@ export default class DiseasePanelGrid extends LitElement {
                     modalTitle: "Disease Panel Create",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                 },
                 render: () => html`
                     <disease-panel-create
@@ -166,6 +167,8 @@ export default class DiseasePanelGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -180,8 +183,9 @@ export default class DiseasePanelGrid extends LitElement {
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 gridContext: this,
-                formatLoadingMessage: () => String.raw`<div><loading-spinner></loading-spinner></div>`,
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
+                    let panelsResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
@@ -194,7 +198,13 @@ export default class DiseasePanelGrid extends LitElement {
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.panels()
                         .search(this.filters)
-                        .then(response => params.success(response))
+                        .then(response => {
+                            panelsResponse = response;
+                            // Prepare data for columns extensions
+                            const rows = panelsResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
+                        .then(() => params.success(panelsResponse))
                         .catch(error => {
                             console.error(error);
                             params.error(error);
@@ -240,9 +250,31 @@ export default class DiseasePanelGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._getDefaultColumns(),
-            data: this.diseasePanels,
-            sidePagination: "local",
+            // data: this.diseasePanels,
+            sidePagination: "server",
+            // Josemi Note 2024-01-18: we have added the ajax function for local disease panels also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.diseasePanels.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.diseasePanels.length,
+                    rows: response,
+                };
+            },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
             uniqueId: "id",
@@ -252,7 +284,8 @@ export default class DiseasePanelGrid extends LitElement {
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
@@ -357,8 +390,8 @@ export default class DiseasePanelGrid extends LitElement {
                     let idLinkHtml = "";
                     if (row?.source && row?.source?.project === "PanelApp") {
                         idLinkHtml = `
-                            <a href="${BioinfoUtils.getPanelAppLink(row?.source?.id)}" title="Panel ID: ${row?.id}" target="_blank">
-                                ${row?.id ?? "-"} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
+                            <a class="text-decoration-none" href="${BioinfoUtils.getPanelAppLink(row?.source?.id)}" title="Panel ID: ${row?.id}" target="_blank">
+                                ${row?.id ?? "-"} <i class="fas fa-external-link-alt ps-1"></i>
                             </a>
                         `;
                     }
@@ -435,38 +468,37 @@ export default class DiseasePanelGrid extends LitElement {
                 formatter: () => {
                     const isAdmin = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID);
                     return `
-                        <div class="inline-block dropdown">
-                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                        <div class="d-inline-block dropdown" style="display: flex; justify-content: center;">
+                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
                                 <span>Actions</span>
-                                <span class="caret" style="margin-left: 5px"></span>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-right">
+                            <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
-                                    <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
-                                        <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                    <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
+                                        <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
                                     </a>
                                 </li>
                                 <li>
-                                    <a data-action="download-json" href="javascript: void 0" class="btn force-text-left">
-                                        <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                    <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
+                                        <i class="fas fa-download" aria-hidden="true"></i> Download JSON
                                     </a>
                                 </li>
-                                <li role="separator" class="divider"></li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a data-action="copy" href="javascript: void 0" class="btn force-text-left ${isAdmin ? "" : "disabled"}">
-                                        <i class="fas fa-user icon-padding" aria-hidden="true"></i> Make a Copy
+                                    <a data-action="copy" href="javascript: void 0" class="dropdown-item ${isAdmin ? "" : "disabled" }">
+                                        <i class="fas fa-user" aria-hidden="true"></i> Make a Copy
                                     </a>
                                 </li>
-                                <li role="separator" class="divider"></li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a data-action="edit" class="btn force-text-left ${isAdmin ? "" : "disabled" }">
-                                        <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
+                                    <a data-action="edit" class="dropdown-item ${isAdmin ? "" : "disabled" }">
+                                        <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
                                     </a>
                                 </li>
                                 <li>
-                                    <a data-action="delete" href="javascript: void 0" class="btn force-text-left ${isAdmin ? "" : "disabled"}">
-                                        <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                    <a data-action="delete" href="javascript: void 0" class="dropdown-item ${isAdmin ? "" : "disabled" }">
+                                        <i class="fas fa-trash" aria-hidden="true"></i> Delete
                                     </a>
                                 </li>
                             </ul>
@@ -521,6 +553,25 @@ export default class DiseasePanelGrid extends LitElement {
             });
     }
 
+    renderModalUpdate() {
+        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+            display: {
+                modalTitle: `Disease Panel Update: ${this.diseasePanelUpdateId}`,
+                modalDraggable: true,
+                modalCyDataName: "modal-update",
+                modalSize: "modal-lg"
+            },
+            render: active => html`
+                <disease-panel-update
+                    .diseasePanelId="${this.diseasePanelUpdateId}"
+                    .active="${active}"
+                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                    .opencgaSession="${this.opencgaSession}">
+                </disease-panel-update>
+            `,
+        });
+    }
+
     render() {
         // CAUTION 20230517 Vero: the event dispatched from disease-panel-create.js is called sessionPanelUpdate.
         return html`
@@ -542,23 +593,7 @@ export default class DiseasePanelGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-                display: {
-                    modalTitle: `Disease Panel Update: ${this.diseasePanelUpdateId}`,
-                    modalDraggable: true,
-                    modalCyDataName: "modal-update",
-                },
-                render: active => {
-                    return html `
-                        <disease-panel-update
-                            .diseasePanelId="${this.diseasePanelUpdateId}"
-                            .active="${active}"
-                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </disease-panel-update>
-                    `;
-                }
-            })}
+            ${this.renderModalUpdate()}
         `;
     }
 
