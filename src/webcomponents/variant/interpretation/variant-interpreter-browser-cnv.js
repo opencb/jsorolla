@@ -305,6 +305,12 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                             separator: true
                                         },
                                         {
+                                            id: "1", name: "HAPLOID (1)"
+                                        },
+                                        {
+                                            id: "1/2", name: "BIALLELIC (1/2)"
+                                        },
+                                        {
                                             id: "NA", name: "NA"
                                         }
                                     ]
