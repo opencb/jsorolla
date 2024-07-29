@@ -502,6 +502,9 @@ export default class VariantSamples extends LitElement {
                         {
                             id: "./.", name: "Missing (./0, ./1, ./.)"
                         },
+                        {
+                            id: "NA", name: "NA (No genotype call provided)"
+                        },
                     ]
                 },
             ],
