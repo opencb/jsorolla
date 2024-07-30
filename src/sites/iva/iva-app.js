@@ -1009,21 +1009,15 @@ class IvaApp extends LitElement {
                 lastStudy: studyFqn
             });
 
-            // 2. This is a terrible hack to exit interpreter when we change the current study
-            if (this.tool === "#interpreter") {
-                window.location.hash = "#clinical-analysis-portal";
-
-                // Nacho: this should not be needed anymore
-                // 2. Set the new Hash URL
-                // let newHashFragmentUrl = this.tool !== "#interpreter" ? this.tool : "#clinicalAnalysisPortal";
-                // if (this.opencgaSession?.project) {
-                //     newHashFragmentUrl += "/" + this.opencgaSession.project.id;
-                //     if (this.opencgaSession.study) {
-                //         newHashFragmentUrl += "/" + this.opencgaSession.study.id;
-                //     }
-                // }
-                // window.location.hash = newHashFragmentUrl;
+            // 2. Set the new Hash URL
+            let newHashFragmentUrl = this.tool !== "#interpreter" ? this.tool : "#clinical-analysis-portal";
+            if (this.opencgaSession?.project) {
+                newHashFragmentUrl += "/" + this.opencgaSession.project.id;
+                if (this.opencgaSession.study) {
+                    newHashFragmentUrl += "/" + this.opencgaSession.study.id;
+                }
             }
+            window.location.hash = newHashFragmentUrl;
 
             // 3. Reset queries from old studies
             this.queries = {};
