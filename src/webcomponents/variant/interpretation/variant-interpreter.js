@@ -485,7 +485,7 @@ class VariantInterpreter extends LitElement {
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
-                            <a class="dropdown-item" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                            <a class="dropdown-item" href="#clinical-analysis-portal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
                                 <i class="fas fa-sign-out-alt pe-1"></i> Exit Interpreter
                             </a>
                         </li>
