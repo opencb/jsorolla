@@ -62,14 +62,16 @@ export default class SampleGenotypeFilter extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
 
         super.update(changedProperties);
     }
 
     filterChange(e) {
-
         // Prepare sample query filter
         let sampleFilter = this.sampleId;
         if (e.detail.value) {
@@ -77,6 +79,21 @@ export default class SampleGenotypeFilter extends LitElement {
         }
 
         LitUtils.dispatchCustomEvent(this, "filterChange", sampleFilter);
+    }
+
+    render() {
+        const genotypes = this.genotypes ?? [];
+        return html`
+            <select-field-filter
+                .data="${this._config?.genotypes}"
+                .value=${genotypes}
+                .config="${{
+                    multiple: true,
+                    liveSearch: false
+                }}"
+                @filterChange="${this.filterChange}">
+            </select-field-filter>
+        `;
     }
 
     getDefaultConfig() {
@@ -106,21 +123,6 @@ export default class SampleGenotypeFilter extends LitElement {
                 // },
             ]
         };
-    }
-
-    render() {
-        const genotypes = this.genotypes ?? [];
-        return html`
-            <select-field-filter
-                .data="${this._config?.genotypes}"
-                .value=${genotypes}
-                .config="${{
-                    multiple: true,
-                    liveSearch: false
-                }}"
-                @filterChange="${this.filterChange}">
-            </select-field-filter>
-        `;
     }
 
 }
