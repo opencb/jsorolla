@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import {guardPage} from "../commons/html-utils.js";
 import "../commons/tool-header.js";
 import "../study/study-form.js";
 import "../study/study-create.js";
@@ -87,100 +88,46 @@ export default class ProjectsAdmin extends LitElement {
     renderVerticalDotAction(user, project) {
         const isAdmin = OpencgaCatalogUtils.checkUserAccountView(user, this.opencgaSession?.user?.id);
         return html`
-            <div style="float: right; padding:10px">
+            <div class="float-end p-2">
                 <div class="dropdown">
-                    <a id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a id="dLabel" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-ellipsis-v fa-lg" style="color:#fff"></i>
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
-                        <li class="${!isAdmin ? "disabled" : "item-pointer"}">
-                            <a @click="${() => this.actionModal("createStudy", "show", project)}">
-                                <i class="fas fa-file icon-padding"></i> New Study
+                        <li>
+                            <a class="dropdown-item ${!isAdmin ? "disabled" : "item-pointer"}"
+                                @click="${() => this.actionModal("createStudy", "show", project)}">
+                                <i class="fas fa-file pe-1"></i> New Study
                             </a>
                         </li>
-                        <li class="divider"></li>
-                        <li class="${!isAdmin ? "disabled" : "item-pointer"}">
-                            <a @click="${() => this.actionModal("updateProject", "show", project)}">
-                                <i class="fas fa-edit icon-padding"></i>Edit
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item ${!isAdmin ? "disabled" : "item-pointer"}"
+                                @click="${() => this.actionModal("updateProject", "show", project)}">
+                                <i class="fas fa-edit pe-1"></i>Edit
                             </a>
                         </li>
-                        <li class="disabled ${!isAdmin ? "disabled" : "item-pointer"}">
-                            <a><i class="fas fa-copy icon-padding"></i> Duplicate</a>
+                        <li>
+                            <a class="dropdown-item disabled ${!isAdmin ? "disabled" : "item-pointer"}">
+                                <i class="fas fa-copy pe-1"></i>
+                                Duplicate
+                            </a>
                         </li>
-                        <li class="disabled ${!isAdmin ? "disabled" : "item-pointer"}">
-                            <a><i class="fas fa-trash icon-padding"></i> Delete</a>
+                        <li>
+                            <a class="dropdown-item disabled ${!isAdmin ? "disabled" : "item-pointer"}">
+                                <i class="fas fa-trash pe-1"></i>
+                                    Delete
+                            </a>
                         </li>
                     </ul>
                 </div>
             </div>`;
     }
 
-    // Project and Studies Style (OLD)
-    renderProjectAndStudies(project) {
-        return html`
-            <div class="col-md-4">
-                <div class="panel panel-default shadow">
-                    <div class="panel-body text-center">
-                        <!-- Vertical dots   -->
-                        <!-- {this.renderVerticalDotAction()} -->
-                        <h4>${project.name}</h4>
-                        <div>
-                            ${project.description ? html`
-                                <span>${project.description}</span>
-                            ` : html`
-                                <span style="font-style: italic">No description available</span>`
-                            }
-                        </div>
-                        <div>
-                            <span>${project.organism.scientificName} ${project.organism.assembly}</span>
-                        </div>
-                        <div>
-                            <span>${project.fqn}</span>
-                        </div>
-                        <div>
-                            <span>Created on ${UtilsNew.dateFormatter(project.creationDate)}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row" style="padding: 5px 10px">
-                    ${project.studies.map(study => html`
-                        <div class="col-md-6">
-                            <!-- TODO: Pass Info Study to the Study admin -->
-                            <a href="#study-admin/${study.fqn}">
-                                <div class="panel panel-default shadow-sm">
-                                    <div class="panel-body text-center" style="color: black">
-                                        <div>
-                                            <h4>${study.name}</h4>
-                                        </div>
-                                        <div>
-                                            <span class="help-text">${study.description || "No description available"}</span>
-                                        </div>
-                                        <div>
-                                            <span>${study.fqn}</span>
-                                        </div>
-                                        <div>
-                                            <span>Created on ${UtilsNew.dateFormatter(study.creationDate)}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>`
-                    )}
-                </div>
-            </div>
-        `;
-    }
-
     // Project and Studies Style Alternative
-    renderProjectAndStudiesAlt(project, user) {
+    renderProjectAndStudies(project, user) {
         return html`
             <style>
-                .panel-body.project{
-                    padding-top:0px;
-                    padding-bottom:0px;
-                }
-
                 .border-dotted-right {
                     border:2px solid #000;
                     outline: 1px dashed #fff;
@@ -190,71 +137,72 @@ export default class ProjectsAdmin extends LitElement {
                     color:#fff;
                     padding: 0px;
                 }
-                /* This to has the same height all studies.. */
-                .panel-body.studies {
-                    overflow: hidden;
-                    white-space: nowrap;
-                    text-overflow: ellipsis; /*TODO: fix, this style not working*/
-                }
             </style>
 
-            <div class="row project">
-                <div class="panel panel-default shadow">
-                    <div class="panel-body project">
-                        <div class="row">
-                            <div class="col-md-2 border-dotted-right">
-                                <!-- Vertical dots   -->
-                                ${this.renderVerticalDotAction(user, project)}
-                                <h3 style="margin:5px">Project</h3>
-                                <div class="text-block text-center" style="padding-top: 5px;">
-                                    <h4>${project.name}</h4>
-                                    <div>
-                                        ${project.description ? html`
-                                            <span>${project.description}</span>
-                                        ` : html`
-                                            <span style="font-style: italic">No description available</span>`
-                                        }
-                                    </div>
-                                    <div>
-                                        <span>${project.organism.scientificName} ${project.organism.assembly}</span>
-                                    </div>
-                                    <div>
-                                        <span>${project.fqn}</span>
-                                    </div>
-                                    <div>
-                                        <span>Created on ${UtilsNew.dateFormatter(project.creationDate)}</span>
-                                    </div>
-                                </div>
+            <div class="card border border-0 shadow">
+                <div class="row">
+                    <div class="col-md-2 border-dotted-right">
+                        <!-- Vertical dots   -->
+                        ${this.renderVerticalDotAction(user, project)}
+                        <h3 class="m-1">Project</h3>
+                        <div class="text-center pt-2">
+                            <h4>${project.name}</h4>
+                            <div>
+                                ${project.description ? html`
+                                    <span>
+                                        ${project.description}
+                                    </span>
+                                ` : html`
+                                    <span class="fst-italic">
+                                        No description available
+                                    </span>`
+                                }
                             </div>
-                            <div class="col-md-10">
-                                <h4 style="margin:10px;margin-bottom:15px">Studies</h4>
-                                <!-- Show Study by project -->
-                                ${project.studies.map(study => this.renderStudy(study))}
+                            <div>
+                                <span>${project.organism.scientificName} ${project.organism.assembly}</span>
+                            </div>
+                            <div>
+                                <span>${project.fqn}</span>
+                            </div>
+                            <div>
+                                <span>Created on ${UtilsNew.dateFormatter(project.creationDate)}</span>
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-10">
+                        <h4 class="m-2 mb-3">Studies</h4>
+                        <!-- Show Study by project -->
+                        <div class="d-flex flex-wrap gap-3">
+                            ${project.studies.map(study => this.renderStudy(study))}
+                        </div>
+                    </div>
                 </div>
-            </div>`;
+            </div>
+            `;
     }
 
     renderStudy(study) {
         return html`
             <div class="col-md-3">
                 <!-- TODO: Pass Info Study to the Study admin -->
-                <a href="#study-admin/${study.fqn}">
-                    <div class="panel panel-default child shadow-sm">
-                        <div class="panel-body studies" style="color: black">
+                <a class="text-decoration-none" href="#study-admin/${study.fqn}">
+                    <div class="card shadow-sm">
+                        <div class="card-body studies" style="color: black">
                             ${this.opencgaSession.study.fqn === study.fqn ?
-                                html`<span class="label label-success pull-right">Current</span>` : ""}
-                            <div class="text-block text-center"  style="padding-top:10px;">
+                                html`<span class="badge text-bg-success position-absolute top-0 end-0 me-1 mt-1">Current</span>` : nothing}
+                            <div class="text-block text-center pt-2">
                                 <div>
                                     <h4>${study.name}</h4>
                                 </div>
                                 <div>
-                                    <span class="help-text">${study.description || "No description available"}</span>
+                                    <span class="text-body-secondary">
+                                        ${study.description || "No description available"}
+                                    </span>
                                 </div>
                                 <div>
-                                    <span>${study.fqn}</span>
+                                    <span>
+                                        ${study.fqn}
+                                    </span>
                                 </div>
                                 <div>
                                     <span>Created on ${UtilsNew.dateFormatter(study.creationDate)}</span>
@@ -265,7 +213,6 @@ export default class ProjectsAdmin extends LitElement {
                 </a>
             </div>`;
     }
-
 
     renderModal(id, name) {
         let content;
@@ -302,8 +249,8 @@ export default class ProjectsAdmin extends LitElement {
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                             <h4 class="modal-title">${name}</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             ${content}
@@ -313,97 +260,52 @@ export default class ProjectsAdmin extends LitElement {
             </div>`;
     }
 
-
     render() {
         // Check if there is any project available
         if (!this.opencgaSession?.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>`;
+            return guardPage();
         }
 
         return html`
             <style>
-                .panel.panel-default.child:hover {
+                .card-body.studies:hover {
                     background-color: #eee;
                 }
 
-                .panel-body.text-center .text-name {
-                    font-size: 16px
-                }
-
-                .btn.outline {
-                    border: 1px solid black;
-                    background-color: white;
-                    color: black;
-                    padding: 14px 28px;
-                    font-size: 16px;
-                    cursor: pointer;
-                }
-
-                .btn.outline.child {
-                    height:85px
-                }
-
-                .outline.primary {
-                    border-color:#286090;
-                    color: #286090;
-                }
-
-                .primary:hover {
-                    background: #286090;
-                    color: white;
-                }
-
-                .btn-custom {
-                    margin-top:20px
-                }
-
-                @media (min-width:992px){
-                    .row.auto-clear .col-md-4:nth-child(3n+1){clear:left;}
-                }
                 /* Move to global.css */
                 /* This prevent to execute a onClick event. */
                 .disabled:active{
                     pointer-events:none
                 }
 
-                .item-pointer > a{
+                .item-pointer {
                     cursor:pointer
                 }
             </style>
 
-            <div>
+            <div class="mx-auto p-2" style="width:90%">
                 <!-- Show Project by User-->
-                ${this.owners.map(owner => {
-                    return html`
-                        <div class="row" style="border-bottom: rgba(201, 76, 76, 0.7);}">
-                            <div class="col-md-6">
-                                <h2><i class="fas fa-user fa-sm" style="padding-right: 10px"></i>${owner}</h2>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="pull-right">
-                                    <button class="btn-custom btn btn-primary"
-                                        ?disabled=${!OpencgaCatalogUtils.checkUserAccountView(owner, this.opencgaSession?.user?.id)}
-                                        @click="${() => this.actionModal("createProject", "show")}">New Project
+                ${
+                    this.owners.map(owner => {
+                        return html`
+                            <div class="d-flex" style="border-bottom: rgba(201, 76, 76, 0.7);}">
+                                <div class="p-2">
+                                    <h2><i class="fas fa-user fa-sm"></i>${owner}</h2>
+                                </div>
+                                <div class="p-2 ms-auto">
+                                    <button class="btn btn-primary" ?disabled=${!OpencgaCatalogUtils.checkUserAccountView(owner, this.opencgaSession?.user?.id)}
+                                        @click="${() => this.actionModal("createProject", "show")}">
+                                        New Project
                                     </button>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="row auto-clear">
-                            <!-- <div class="col-md-12">
-                                <h3>Projects and Studies</h3>
-                            </div> -->
-                            <div class="clearfix"></div>
-                            <!-- Show Project and Studies -->
-                            <div class="col-md-12">
-                                ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(owner + "@")).map(project => this.renderProjectAndStudiesAlt(project, owner))}
-                            </div>
-                        </div>`;
-                })}
+                            <div class="d-flex flex-column gap-3">
+                                <!-- Show Project and Studies -->
+                                ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(owner + "@")).map(project => this.renderProjectAndStudies(project, owner))}
+                            </div>`;
+                    })
+                }
             </div>
 
             <!-- TODO: These modals can be a single one, the component will be rendered according to whether you have selected: study or project inside div. modal-body -->

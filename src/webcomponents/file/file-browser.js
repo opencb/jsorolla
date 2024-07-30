@@ -15,7 +15,7 @@
  */
 
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import WebUtils from "../commons/utils/web-utils";
 import "./file-preview.js";
 import "./file-view.js";
@@ -99,7 +99,7 @@ export default class FileBrowser extends LitElement {
             description: "",
             views: [
                 {
-                    id: "table-tab",
+                    id: "table-tab-file",
                     name: "Table result",
                     icon: "fa fa-table",
                     active: true,
@@ -110,18 +110,21 @@ export default class FileBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
-                            @selectrow="${e => params.onClickRow(e, "file")}"
-                            @fileUpdate="${e => params.onComponentUpdate(e, "file")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @fileUpdate="${e => params.onComponentUpdate(e)}"
                             @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
                         </file-grid>
-                        <file-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .fileId="${params.detail.file?.id}">
-                        </file-detail>`
+                        ${params?.detail ? html`
+                            <file-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .fileId="${params.detail?.id}">
+                            </file-detail>
+                        ` : nothing}
+                    `,
                 },
                 {
-                    id: "facet-tab",
+                    id: "facet-tab-file",
                     name: "Aggregation stats",
                     icon: "fas fa-chart-bar",
                     render: params => html`
@@ -201,17 +204,7 @@ export default class FileBrowser extends LitElement {
                         ]
                     }
                 ],
-                examples: [
-                    {
-                        id: "Alignment",
-                        active: false,
-                        query: {
-                            format: "BAM,SAM,BIGWIG",
-                            bioformat: "ALIGNMENT",
-                            creationDate: ">=20200216"
-                        }
-                    }
-                ],
+                examples: [],
                 result: {
                     grid: {}
                 },

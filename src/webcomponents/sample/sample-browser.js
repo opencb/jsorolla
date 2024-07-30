@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import WebUtils from "../commons/utils/web-utils";
 import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
 import "./sample-grid.js";
 import "./sample-detail.js";
-import Logger from "../../core/logger";
 
 export default class SampleBrowser extends LitElement {
 
@@ -101,25 +100,25 @@ export default class SampleBrowser extends LitElement {
                     name: "Table result",
                     icon: "fa fa-table",
                     active: true,
-                    render: params => {
-                        return html`
-                            <sample-grid
-                                .toolId="${this.COMPONENT_ID}"
-                                .opencgaSession="${params.opencgaSession}"
-                                .query="${params.executedQuery}"
-                                .config="${params.config.filter.result.grid}"
-                                .active="${true}"
-                                @selectrow="${e => params.onClickRow(e, "sample")}"
-                                @sampleUpdate="${e => params.onComponentUpdate(e, "sample")}"
-                                @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
-                            </sample-grid>
+                    render: params => html`
+                        <sample-grid
+                            .toolId="${this.COMPONENT_ID}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
+                            .config="${params.config.filter.result.grid}"
+                            .active="${true}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @sampleUpdate="${e => params.onComponentUpdate(e)}"
+                            @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
+                        </sample-grid>
+                        ${params?.detail ? html`
                             <sample-detail
                                 .opencgaSession="${params.opencgaSession}"
                                 .config="${params.config.filter.detail}"
-                                .sampleId="${params.detail.sample?.id}">
+                                .sampleId="${params.detail?.id}">
                             </sample-detail>
-                        `;
-                    }
+                        ` : nothing}
+                    `,
                 },
                 {
                     id: "facet-tab",
@@ -132,7 +131,8 @@ export default class SampleBrowser extends LitElement {
                             .active="${params.active}"
                             .query="${params.facetQuery}"
                             .data="${params.facetResults}">
-                        </opencb-facet-results>`
+                        </opencb-facet-results>
+                    `,
                 }
             ],
             filter: {

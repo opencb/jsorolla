@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-
+import "./variant-interpreter-browser-save.js";
 
 class VariantInterpreterBrowserToolbar extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -55,20 +53,20 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.write = false;
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
+        super.update(changedProperties);
     }
 
     onFilterInclusionVariants() {
@@ -83,26 +81,38 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
             variants: this.clinicalAnalysis.interpretation.primaryFindings,
         });
+        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
+        // when user clicks the 'Filter' button in the View menu (primary findings).
+        this.querySelector(`div#${this._prefix}View ul.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
     onFilterModifiedVariants() {
         LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
             variants: [
                 ...this.state.addedVariants,
+                ...this.state.updatedVariants,
                 ...this.state.removedVariants,
             ],
         });
+        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
+        // when user clicks the 'Filter Variants' button in the Save menu.
+        this.querySelector(`div#${this._prefix}Save ul.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
     onResetModifiedVariants() {
         LitUtils.dispatchCustomEvent(this, "resetVariants", null);
+        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
+        // when user clicks the 'Discard Changes' button in the Save menu.
+        this.querySelector(`div#${this._prefix}Save ul.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
-    onSaveInterpretation() {
+    onSaveInterpretation(event) {
         LitUtils.dispatchCustomEvent(this, "saveInterpretation", null, {
-            comment: this.comment
+            comment: event?.detail?.comment || {},
         });
-        this.comment = {};
+        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
+        // when user clicks the 'Save' button in the Save menu.
+        this.querySelector(`div#${this._prefix}Save ul.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
     onSaveFieldsChange(type, e) {
@@ -116,6 +126,26 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                 break;
         }
     }
+
+    // onInterpretationChangesModalShow() {
+    //     ModalUtils.show();
+    // }
+
+    // renderInterpretationChangesSaveModal() {
+    //     return ModalUtils.create(this, `${this._prefix}InterpretationChangesSaveModal`, {
+    //         display: {
+    //             modalTitle: "Review and Save Interpretation Changes",
+    //             modalDraggable: false,
+    //             modalSize: "modal-lg"
+    //         },
+    //         render: () => html`
+    //             <variant-interpreter-save
+    //                 .clinicalAnalysis="${this.clinicalAnalysis}"
+    //                 .state="${this.state}">
+    //             </variant-interpreter-save>
+    //         `,
+    //     });
+    // }
 
     renderInclusionVariant(inclusion) {
         const iconHtml = html`
@@ -137,210 +167,121 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
         return html`
             <div style="border-left: 2px solid #0c2f4c; margin: 15px 0">
-                <div style="margin: 5px 10px; display: flex; align-items: center; justify-content: space-between;">${inclusionHtml} ${iconHtml}</div>
+                <div class="d-flex align-items-center justify-content-between my-1 mx-2">${inclusionHtml} ${iconHtml}</div>
                 ${
                     inclusion.variants?.length > 0 ? inclusion.variants.map(variant => {
                         const GT = variant.studies[0]?.samples[0]?.data[0] || "No GT found";
                         const FILTER = variant.studies[0]?.files[0]?.data.FILTER || "NA";
                         return html`
-                            <div class="help-block" style="display: flex; flex-direction: column; overflow-wrap: break-word;">
-                                <span style="margin: 0 20px">${variant.id}</span>
-                                <span style="margin: 0 20px;float: right">Genotype: ${GT} (${FILTER})</span>
+                            <div class="text-body-secondary d-flex flex-column" style="overflow-wrap: break-word;">
+                                <span class="my-0 mx-3">${variant.id}</span>
+                                <span class="my-0 mx-3 float-end">Genotype: ${GT} (${FILTER})</span>
                             </div>
                         `;
-                    }) : html `<div class="help-block"><span style="margin: 0 20px">No variants found.</span></div>`
+                    }) : html `<div class="text-body-secondary"><span class="my-0 mx-3">No variants found.</span></div>`
                 }
             </div>
         `;
     }
 
-    renderVariant(variant, icon) {
+    renderVariant(variant) {
         const geneNames = Array.from(new Set(variant.annotation.consequenceTypes.filter(ct => ct.geneName).map(ct => ct.geneName)));
-        const iconHtml = icon ? html`<span style="cursor: pointer"><i class="${icon}"></i></span>` : "";
 
         return html`
-            <div class="break-word" style="border-left: 2px solid #0c2f4c; margin: 15px 0;">
-                <div style="margin: 5px 10px">${variant.id} (${variant.type}) ${iconHtml}</div>
-                <div style="margin: 5px 10px">${variant.annotation.displayConsequenceType}</div>
-                <div style="margin: 5px 10px">${geneNames.join(", ")}</div>
+            <div class="mb-1 border-start border-4 border-primary">
+                <div class="my-1 mx-2"><b>${variant.id}</b> <i class="ps-3">${variant.annotation.displayConsequenceType || ""}</i></div>
+                <div class="my-1 mx-2 small">${geneNames.join(", ")}</div>
             </div>
         `;
     }
 
     render() {
-        const primaryFindings = this.clinicalAnalysis.interpretation?.primaryFindings;
         const hasVariantsToSave = this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length;
+        const primaryFindings = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
 
         return html`
-            <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0 5px 20px 0">
-                <div class="pull-right" role="group">
-                    <div class="btn-group" style="margin-right: 2px">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+            <div class="d-flex justify-content-end mb-3">
+                <div class="btn-toolbar gap-1"  role="toolbar" aria-label="toolbar"  >
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false" title="Show inclusion list of variants">
-                            <i class="fas fa-tasks icon-padding" aria-hidden="true"></i>
+                            <i class="fas fa-tasks pe-1" aria-hidden="true"></i>
                             <strong>Inclusion Variants</strong>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 420px">
-                            <li style="margin: 5px 10px">
-                                <div style="margin: 5px 0">
-                                    <span style="font-weight: bold">Variants Included</span>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}ResetMenu" style="width: 420px">
+                            <li class="my-1 mx-2">
+                                <div class="my-1 mx-0">
+                                    <span class="fw-bold">Variants Included</span>
                                 </div>
                                 <div>
                                     ${this.variantInclusionState?.length > 0 ? html`
                                         ${this.variantInclusionState.map(inclusion => this.renderInclusionVariant(inclusion))}
 
-                                        <li role="separator" class="divider"></li>
-                                        <li style="margin: 5px 10px">
-                                            <div style="float: right">
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li class="my-1 mx-2">
+                                            <div class="float-end">
                                                 <button
                                                     type="button"
-                                                    class="btn btn-primary"
-                                                    @click="${this.onFilterInclusionVariants}" style="margin: 5px">Filter
+                                                    class="btn btn-primary m-1"
+                                                    @click="${this.onFilterInclusionVariants}">Filter
                                                 </button>
                                             </div>
                                         </li>
                                     ` : html`
-                                        <div style="margin: 5px 5px">Variant Inclusion list not def</div>
+                                        <div class="m-1">Variant Inclusion list not def</div>
                                     `}
                                 </div>
                             </li>
                         </ul>
                     </div>
-
-                    <div class="btn-group" style="margin-right: 2px">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                                aria-expanded="false" title="Show saved variants">
-                            <i class="fas fa-eye icon-padding" aria-hidden="true"></i>
+                    <div class="dropdown" id="${this._previx}View">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" title="Show saved variants">
+                            <i class="fas fa-eye pe-1" aria-hidden="true"></i>
                             <strong>View</strong>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
-                            <li style="margin: 5px 10px">
-                                <div style="margin: 5px 0">
-                                    <span style="font-weight: bold">Primary Findings</span>
+                        <ul class="dropdown-menu dropdown-menu-end" style="width:400px">
+                            <li class="my-1 mx-2">
+                                <div class="my-1 mx-0">
+                                    <span class="fw-bold">Primary Findings</span>
                                 </div>
-                                <div>
+                                <div class="overflow-y-auto m-1" style="max-height:350px;">
                                     ${primaryFindings?.length > 0 ? html`
                                         ${primaryFindings.map(variant => this.renderVariant(variant))}
                                     ` : html`
-                                        <div style="margin: 5px 5px">No primary findings found</div>
+                                        <div class="m-1">No primary findings found</div>
                                     `}
                                 </div>
                             </li>
-                            <li role="separator" class="divider"></li>
-                            <li style="margin: 5px 10px">
-                                <div style="float: right">
-                                    <button type="button" ?disabled="${!this.clinicalAnalysis.interpretation?.primaryFindings?.length}"
-                                            class="btn btn-primary ${this.clinicalAnalysis.interpretation?.primaryFindings?.length ? "" : "disabled"}"
-                                            @click="${this.onFilterPrimaryFindingVariants}" style="margin: 5px">Filter
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="my-1 mx-2">
+                                <div class="float-end">
+                                    <button class="btn btn-primary ${primaryFindings.length > 0 ? "" : "disabled"}" @click="${this.onFilterPrimaryFindingVariants}">
+                                        <i class="fas fa-filter me-1"></i> Filter
                                     </button>
                                 </div>
                             </li>
                         </ul>
                     </div>
-
-                    <div class="btn-group" style="margin-right: 2px">
-                        <button type="button" id="${this._prefix}ResetMenu" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                                aria-expanded="false" title="Remove not saved variants" ?disabled="${!this.write}">
-                            <i class="fas fa-eraser icon-padding" aria-hidden="true"></i>
-                            <strong>Reset</strong>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
-                            <li style="margin: 5px 10px">
-                                <div style="margin: 5px 0">
-                                    <span style="font-weight: bold">Added Variants</span>
-                                </div>
-                                <div>
-                                    ${this.state.addedVariants?.length > 0 ? html`
-                                        ${this.state.addedVariants.map(variant => this.renderVariant(variant, ""))}
-                                    ` : html`
-                                        <div style="margin: 5px 5px">No new variants selected</div>
-                                    `}
-                                </div>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li style="margin: 5px 10px">
-                                <div style="margin: 5px 0">
-                                    <span style="font-weight: bold">Removed Variants</span>
-                                </div>
-                                <div>
-                                    ${this.state.removedVariants?.length > 0 ? html`
-                                        ${this.state.removedVariants.map(variant => this.renderVariant(variant, ""))}
-                                    ` : html`
-                                        <div style="margin: 5px 5px">No variants to remove</div>
-                                    `}
-                                </div>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li style="margin: 5px 10px">
-                                <div style="float: right">
-                                    <button type="button" ?disabled="${!(this.state.addedVariants?.length || this.state.removedVariants?.length)}"
-                                            class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}"
-                                            @click="${this.onFilterModifiedVariants}" style="margin: 5px">Filter
-                                    </button>
-                                    <button type="button" ?disabled="${!(this.state.addedVariants?.length || this.state.removedVariants?.length)}"
-                                            class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}"
-                                            @click="${this.onResetModifiedVariants}" style="margin: 5px">Reset
-                                    </button>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="btn-group">
-                        <button type="button" id="${this._prefix}SaveMenu" class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"} dropdown-toggle"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Save variants in the server" ?disabled="${!this.write}">
-                            <i class="fas fa-save icon-padding" aria-hidden="true"></i>
+                    <div class="dropdown" id="${this._prefix}Save">
+                        <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"} ${!this.write ? "disabled" : ""} dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" title="Save variants">
+                            <i class="fas fa-save pe-1"></i>
                             <strong>Save</strong>
                             ${hasVariantsToSave ? html`
-                                <span class="badge" style="margin-left: 5px">
+                                <span class="badge bg-white text-danger rounded-pill ms-1">
                                     ${this.state.addedVariants.length + this.state.removedVariants.length + this.state.updatedVariants.length}
                                 </span>
-                            ` : null}
+                            ` : nothing}
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}SaveMenu" style="width: 360px">
-                            <li style="margin: 5px 10px">
-                                <div style="margin: 5px 0">
-                                    <span style="font-weight: bold">Change summary</span>
-                                </div>
-                                <div style="margin: 5px 10px">
-                                    <div>
-                                        <label style="font-weight: normal; width: 180px">New selected variants</label>
-                                        <span style="color: darkgreen;font-weight: bold">${this.state.addedVariants?.length}</span>
-                                    </div>
-                                    <div>
-                                        <label style="font-weight: normal; width: 180px">Removed variants</label>
-                                        <span style="color: darkred;font-weight: bold">${this.state.removedVariants?.length}</span>
-                                    </div>
-                                    <div>
-                                        <label style="font-weight: normal; width: 180px">Updated variants</label>
-                                        <span style="color: darkblue;font-weight: bold">${this.state.updatedVariants?.length}</span>
-                                    </div>
-                                </div>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li style="margin: 5px 10px">
-                                <div style="margin: 5px 0">
-                                    <span style="font-weight: bold">Add new comment</span>
-                                </div>
-                                <div style="margin: 5px 0">
-                                    <text-field-filter
-                                        placeholder="Add comment..." .rows=${3} @filterChange="${e => this.onSaveFieldsChange("message", e)}"></text-field-filter>
-                                </div>
-                                <div style="margin: 5px 0">
-                                    <text-field-filter
-                                        placeholder="Add tags..."
-                                        .rows=${1}
-                                        @filterChange="${e => this.onSaveFieldsChange(e)}">
-                                    </text-field-filter>
-                                </div>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li style="margin: 5px 10px">
-                                <div style="float: right">
-                                    <button type="button" ?disabled="${!hasVariantsToSave}" class="btn btn-primary ${hasVariantsToSave ? "" : "disabled"}"
-                                            @click="${this.onSaveInterpretation}" style="margin: 5px">Save
-                                    </button>
-                                </div>
+                        <ul class="dropdown-menu dropdown-menu-end" style="width:500px;">
+                            <li>
+                                <variant-interpreter-browser-save
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .state="${this.state}"
+                                    @saveVariants="${e => this.onSaveInterpretation(e)}"
+                                    @discardVariants="${() => this.onResetModifiedVariants()}"
+                                    @filterVariants="${() => this.onFilterModifiedVariants()}">
+                                </variant-interpreter-browser-save>
                             </li>
                         </ul>
                     </div>

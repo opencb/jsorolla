@@ -81,9 +81,7 @@ export default class NotificationManager {
                 </div>
                 ${options.display?.showCloseButton ? `
                     <div style="margin-left:16px;">
-                        <button type="button" class="close" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 ` : ""}
             </div>
@@ -113,7 +111,7 @@ export default class NotificationManager {
 
         // Register event to remove the notification when the close button is clicked
         if (options.display?.showCloseButton) {
-            element.querySelector("button.close").addEventListener("click", () => {
+            element.querySelector("button.btn-close").addEventListener("click", () => {
                 return removeNotification();
             });
         }
@@ -213,19 +211,17 @@ export default class NotificationManager {
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
                             <h4 class="modal-title" id="myModalLabel">${options.title}</h4>
+                            <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             ${options.message}
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default cancel" data-dismiss="modal">
+                            <button type="button" class="btn btn-light cancel" data-bs-dismiss="modal">
                                 ${options.display?.cancelButtonText || "Cancel"}
                             </button>
-                            <button type="button" class="btn btn-primary ok" data-dismiss="modal">
+                            <button type="button" class="btn btn-primary ok" data-bs-dismiss="modal">
                                 ${options.display?.okButtonText || "OK"}
                             </button>
                         </div>
@@ -261,7 +257,9 @@ export default class NotificationManager {
 
         // Append confirmation and display modal
         this.confirmationDiv.appendChild(element);
-        $(element).modal("show");
+        // $(element).modal("show");
+        const elementModal = new bootstrap.Modal(element);
+        elementModal.show();
     }
 
     // Get default config for the notification manager

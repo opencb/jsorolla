@@ -443,6 +443,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 // Append circos plot
                 if (this.circosPlot) {
                     this.sample.qualityControl.variant.genomePlot.file = results[0].responses[0].results[0].id;
+                    this.sample.qualityControl.variant.genomePlot.description = this.save.description || "";
                     this.sample.qualityControl.variant.genomePlot.config = {
                         title: this.circosConfig?.title,
                         density: this.circosConfig?.density,
@@ -505,7 +506,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             ` : null}
             <div class="row">
                 <div class="col-md-2 left-menu">
-                    <div class="search-button-wrapper">
+                    <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" @click="${this.onRun}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
                             <strong>${this._config.filter.searchButtonText || "Search"}</strong>
@@ -527,24 +528,22 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 <div class="col-md-10">
                     ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
                         <div>
-                            <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
-                                <div class="pull-right" role="group">
-                                    <div class="btn-group" style="margin-right: 2px">
-                                        <data-form
-                                            .data=${this.settings}
-                                            .config="${this.getSettingsConfig()}"
-                                            @fieldChange="${e => this.onSettingsFieldChange(e)}"
-                                            @submit="${this.onSettingsOk}">
-                                        </data-form>
-                                    </div>
-                                    <div class="btn-group">
-                                        <data-form
-                                            .data=${this.save}
-                                            .config="${this.getSaveConfig()}"
-                                            @fieldChange="${e => this.onSaveFieldChange(e)}"
-                                            @submit="${this.onSave}">
-                                        </data-form>
-                                    </div>
+                            <div class="d-flex justify-content-end mt-0 ms-1 mb-3 me-0" role="toolbar" aria-label="toolbar">
+                                <div class="btn-group me-1">
+                                    <data-form
+                                        .data=${this.settings}
+                                        .config="${this.getSettingsConfig()}"
+                                        @fieldChange="${e => this.onSettingsFieldChange(e)}"
+                                        @submit="${this.onSettingsOk}">
+                                    </data-form>
+                                </div>
+                                <div class="btn-group">
+                                    <data-form
+                                        .data=${this.save}
+                                        .config="${this.getSaveConfig()}"
+                                        @fieldChange="${e => this.onSaveFieldChange(e)}"
+                                        @submit="${this.onSave}">
+                                    </data-form>
                                 </div>
                             </div>
                         </div>
@@ -568,7 +567,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
 
                         <div class="main-view">
                             ${this.executedQuery ? html`
-                                <div class="" style="padding: 0px 15px">
+                                <div class="px-3 py-0">
                                     <sample-cancer-variant-stats-plots
                                         .opencgaSession="${this.opencgaSession}"
                                         .query="${this.executedQuery}"
@@ -581,7 +580,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                     </sample-cancer-variant-stats-plots>
                                 </div>
                             ` : html`
-                                <div class="alert alert-info" role="alert" style="margin: 0px 15px">
+                                <div class="alert alert-info px-3 py-0" role="alert">
                                     <i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.
                                 </div>
                             `}
@@ -605,12 +604,14 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             display: {
                 style: "margin: 0px 25px 0px 0px",
                 modalTitle: "Display Settings",
+                modalButtonName: "Settings",
                 modalButtonIcon: "fas fa-cog",
                 modalButtonClassName: "btn btn-primary",
                 labelWidth: 4,
                 labelAlign: "right",
                 defaultValue: "",
                 defaultLayout: "horizontal",
+                modalSize: "modal-lg"
             },
             sections: [
                 {
@@ -653,12 +654,14 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             display: {
                 style: "margin: 0px 25px 0px 0px",
                 modalTitle: "Save Variant Stats",
+                modalButtonName: "Save",
                 modalButtonIcon: "fas fa-save",
                 modalButtonClassName: "btn btn-primary",
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultValue: "",
                 defaultLayout: "horizontal",
+                modalSize: "modal-lg"
             },
             sections: [
                 {

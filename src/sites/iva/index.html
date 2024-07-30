@@ -17,6 +17,7 @@
 <!DOCTYPE html>
 
 <html lang="en">
+
 <head>
 
     <!--
@@ -27,7 +28,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- This is configured below in the onLoad() function -->
-    <title></title>
+    <title>OpenCB Suite</title>
 
     <!-- Favicon -->
     <link rel="icon" href="favicon.ico">
@@ -55,7 +56,6 @@
     <script src="{{ IVA_CONFIG_PATH }}/config.js"></script>
     <script src="{{ IVA_CONFIG_PATH }}/settings.js"></script>
     <script src="{{ IVA_CONFIG_PATH }}/opencga-variant-constants.js"></script>
-<!--    <script src="{{ IVA_CONFIG_PATH }}/browsers.settings.js"></script>-->
     <script src="{{ IVA_CONFIG_PATH }}/custom-actions.js"></script>
     <script src="{{ IVA_CONFIG_PATH }}/pages.settings.js"></script>
 
@@ -83,10 +83,6 @@
     <script defer src="{{ IVA_CONFIG_PATH }}/opencga-family-view.settings.js"></script>
     <script defer src="{{ IVA_CONFIG_PATH }}/rga-browser.settings.js"></script>
 
-    <!-- build:js[webcomponents/webcomponents-loader.js] -->
-    <script type="text/javascript" src="../../../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-    <!-- /build -->
-
     <!-- build:js[assets/js/vendor.js] -->
     <script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/lodash/lodash.min.js"></script>
@@ -98,22 +94,37 @@
     <script type="text/javascript" src="../../../node_modules/cookies-js/dist/cookies.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/crypto-js/core.js"></script>
     <script type="text/javascript" src="../../../node_modules/crypto-js/sha256.js"></script>
-    <script type="text/javascript" src="../../../node_modules/jquery.json-viewer/json-viewer/jquery.json-viewer.js"></script>
+    <script type="text/javascript"
+        src="../../../node_modules/jquery.json-viewer/json-viewer/jquery.json-viewer.js"></script>
+
+    <!-- Bs5 Js -->
+    <script type="text/javascript" src="../../../node_modules/@popperjs/core/dist/umd/popper.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../../../node_modules/bootstrap-table/dist/bootstrap-table.min.js"></script>
+
+    <!-- bootstrap-select -->
     <script type="text/javascript" src="../../../node_modules/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
+
+    <!-- select2 Js -->
+    <script type="text/javascript" src="../../../node_modules/select2/dist/js/select2.full.min.js"></script>
+
+    <!-- datetimepicker Tempus Dominus-->
+    <script type="text/javascript" src="../../../node_modules/@eonasdan/tempus-dominus/dist/js/tempus-dominus.min.js"></script>
+    <!-- ########### -->
+
+    <!-- Old Bootstrap  -->
+    <script type="text/javascript" src="../../../node_modules/bootstrap-table/dist/bootstrap-table.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/bootstrap-treeview/dist/bootstrap-treeview.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/bootstrap-validator/dist/validator.min.js"></script>
-    <script type="text/javascript" src="../../../node_modules/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-<!--    <script type="text/javascript" src="../../../node_modules/bootstrap-notify/bootstrap-notify.min.js" ></script>-->
+    <!-- ########### -->
+
     <script type="text/javascript" src="../../../node_modules/jwt-decode/build/jwt-decode.min.js"></script>
-    <script type="text/javascript" src="../../../node_modules/bootstrap-3-typeahead/bootstrap3-typeahead.min.js"></script>
+    <script type="text/javascript"
+        src="../../../node_modules/bootstrap-3-typeahead/bootstrap3-typeahead.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/@svgdotjs/svg.js/dist/svg.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/sweetalert2/dist/sweetalert2.min.js"></script>
-<!-- <script type="text/javascript" src="../node_modules/@highlightjs/cdn-assets/highlight.min.js"></script> -->
+    <!-- <script type="text/javascript" src="../node_modules/@highlightjs/cdn-assets/highlight.min.js"></script> -->
     <script type="text/javascript" src="../../../node_modules/clipboard/dist/clipboard.min.js"></script>
-    <script type="text/javascript" src="../../../node_modules/select2/dist/js/select2.min.js"></script>
 
     <!-- /build -->
     <!-- pdfMake Libraries -->
@@ -122,22 +133,33 @@
     <script type="text/javascript" src="../../../node_modules/html-to-pdfmake/browser.js"></script>
 
     <!-- build:css[assets/css/vendor.css] -->
+
+    <!-- Bs5 css -->
     <link rel="stylesheet" href="../../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+
+    <!-- bootstrap-select -->
+    <link rel="stylesheet" href="../../../node_modules/bootstrap-select/dist/css/bootstrap-select.min.css">
+
+    <!-- select2 Css -->
+    <link rel="stylesheet" href="../../../node_modules/select2/dist/css/select2.min.css">
+    <link rel="stylesheet" href="../../../node_modules/select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.min.css">
+
+    <!-- datetimepicker Tempus Dominus-->
+    <link rel="stylesheet" href="../../../node_modules/@eonasdan/tempus-dominus/dist/css/tempus-dominus.min.css">
+
+    <!-- Old Bootstrap 3 Css -->
     <link rel="stylesheet" href="../../../node_modules/animate.css/animate.min.css">
     <link rel="stylesheet" href="../../../node_modules/bootstrap-table/dist/bootstrap-table.min.css">
-    <link rel="stylesheet" href="../../../node_modules/bootstrap-select/dist/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="../../../node_modules/bootstrap-treeview/dist/bootstrap-treeview.min.css">
     <link rel="stylesheet" href="../../../node_modules/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css">
-    <link rel="stylesheet" href="../../../node_modules/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">
     <link rel="stylesheet" href="../../../node_modules/jquery.json-viewer/json-viewer/jquery.json-viewer.css">
     <link rel="stylesheet" href="../../../node_modules/sweetalert2/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="../../../node_modules/@highlightjs/cdn-assets/styles/default.min.css">
-    <link rel="stylesheet" href="../../../node_modules/select2/dist/css/select2.min.css">
-    <link rel="stylesheet" href="../../../node_modules/select2-bootstrap-theme/dist/select2-bootstrap.min.css">
-    <!-- /build -->
 
+    <!-- ######### -->
+    <!-- /build -->
     <!-- Load JSorolla dependencies -->
     <!-- build:delete -->
     <!--
@@ -180,12 +202,14 @@
 
     <!-- Load IVA CSS styles -->
     <!-- build:css[assets/css/styles.css] -->
+
+
     <link rel="stylesheet" href="../../../styles/css/global.css">
-    <link rel="stylesheet" href="../../../styles/css/style.css">
-    <link rel="stylesheet" href="../../../styles/css/toggle-switch.css">
-    <link rel="stylesheet" href="../../../styles/css/magic-check.css">
+
+    <!-- Old bootstrap 3 -->
     <link rel="stylesheet" href="../../genome-browser/css/genome-browser.css">
     <link rel="stylesheet" href="../../core/visualisation/viz-styles.css">
+    <!-- ######### -->
     <!-- /build -->
     <!-- LitElement assets -->
     <!-- build:void[] -->
@@ -193,39 +217,65 @@
         // We need to initialize IVA_EXTENSIONS as an empty array
         window.IVA_EXTENSIONS = [];
     </script>
-    <script src="{{ IVA_EXTENSIONS_PATH }}/extensions.js"></script>
+    <script type="module" src="{{ IVA_EXTENSIONS_PATH }}/extensions.js"></script>
     <script type="module" src="./iva-app.js"></script>
     <!-- /build -->
 
+    <style>
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #007bff;
+            color: #fff;
+            text-align: center;
+            font-size: 24px;
+            line-height: 46px;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            z-index: 9999;
+        }
+
+        .back-to-top:hover {
+            cursor: pointer;
+            opacity: 0.8;
+        }
+    </style>
 </head>
 
 <body>
-    <script type="text/javascript">
-        $(function(){
+    <iva-app></iva-app>
+    <!-- Back to Top button -->
+    <a href="#" class="back-to-top" id="back-to-top">
+        <i class="fa fa-chevron-up text-white"></i>
+    </a>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
             document.title = SUITE.name;
-            // Back to top button
-            $(window).scroll(function () {
-                if ($(this).scrollTop() > 100) {
-                    $('#back-to-top').fadeIn();
+            // Show or hide the back-to-top button based on scroll position
+            window.addEventListener('scroll', function () {
+                if (window.pageYOffset > 100) {
+                    document.getElementById('back-to-top').style.opacity = '1';
                 } else {
-                    $('#back-to-top').fadeOut();
+                    document.getElementById('back-to-top').style.opacity = '0';
                 }
             });
-            // scroll body to 0px on click
-            $('#back-to-top').click(function () {
-                $('body,html').animate({
-                    scrollTop: 0
-                }, 500);
-                return false;
+
+            // Smooth scroll to top when the button is clicked
+            document.getElementById('back-to-top').addEventListener('click', function (e) {
+                e.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             });
         });
-        $.fn.select2.defaults.set( "theme", "bootstrap" );
-
     </script>
 
-<iva-app></iva-app>
-
-<a id="back-to-top" href="#" class="btn btn-primary btn-lg back-to-top" role="button" data-placement="left"><i class="fa fa-chevron-up" aria-hidden="true"></i></a>
-
 </body>
+
 </html>

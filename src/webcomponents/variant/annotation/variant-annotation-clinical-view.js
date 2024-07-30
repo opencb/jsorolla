@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
 export default class VariantAnnotationClinicalView extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -30,30 +32,29 @@ export default class VariantAnnotationClinicalView extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
-            cellbaseClient: {
-                type: Object
-            },
             variantId: {
                 type: String
             },
             traitAssociation: {
                 type: Array
             },
-            geneTraitAssociation: {
-                type: Array
-            }
+            cellbaseClient: {
+                type: Object
+            },
+            assembly: {
+                type: String
+            },
+            opencgaSession: {
+                type: Object
+            },
         };
     }
 
-    _init() {
-        this._prefix = "vacv" + UtilsNew.randomString(6);
+    #init() {
+        this._prefix = UtilsNew.randomString(8);
     }
 
-    firstUpdated(_changedProperties) {
-        // super.firstUpdated(_changedProperties);
+    firstUpdated() {
         this.renderVariantTraitTable();
     }
 
@@ -61,51 +62,25 @@ export default class VariantAnnotationClinicalView extends LitElement {
         if (changedProperties.has("variantId")) {
             this.variantIdObserver();
         }
-
         if (changedProperties.has("traitAssociation")) {
             this.renderVariantTraitTable();
-        }
-
-        if (changedProperties.has("geneTraitAssociation")) {
-            this.renderGeneTraitTable();
         }
     }
 
     variantIdObserver() {
-        // console.log("variantIdObserver", this.variantId, this.cellbaseClient);
         if (this.cellbaseClient) {
             if (this.variantId) {
-                this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
+                this.cellbaseClient
+                    .get("genomic", "variant", this.variantId, "annotation", {assembly: this.assembly || this.opencgaSession.project.organism.assembly}, {})
                     .then(restResponse => {
-                        this.populationFrequencies = restResponse.getResult(0).populationFrequencies;
-                        // this.variant = {id: this.variantId, annotation: response.responses[0].results[0]};
                         this.variantAnnotation = restResponse.getResult(0);
-                        this.numberConsequenceTypes = 0;
-                        this.numberPopulationFrequencies = 0;
-                        this.numberVTA = 0;
-                        this.numberGTA = 0;
-
-                        // TODO review
-                        if (this.variantAnnotation.geneTraitAssociation != null) {
-
-                            this.geneTraitAssociation = this.variantAnnotation.geneTraitAssociation;
-                            this.traitAssociation = this.variantAnnotation.traitAssociation;
-
-                            this.numberConsequenceTypes = this.variantAnnotation.consequenceTypes.length;
-                            this.numberPopulationFrequencies = UtilsNew.isNotEmptyArray(this.variantAnnotation.populationFrequencies) ? this.variantAnnotation.populationFrequencies.length : 0;
-                            this.numberVTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.traitAssociation) ? this.variantAnnotation.traitAssociation.length : 0;
-                            this.numberGTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.geneTraitAssociation) ? this.variantAnnotation.geneTraitAssociation.length : 0;
-                        }
-                        // this.requestUpdate();
-
+                        this.traitAssociation = this.variantAnnotation.traitAssociation;
                     });
-            } else {
-
             }
         }
     }
 
-    idFormatter(value, row, index) {
+    idFormatter(value, row) {
         let html = "-";
         if (row) {
             switch (row.source.name.toLowerCase()) {
@@ -113,109 +88,124 @@ export default class VariantAnnotationClinicalView extends LitElement {
                     if (row.id.startsWith("RCV")) {
                         html = `<a href="https://www.ncbi.nlm.nih.gov/clinvar/${row.id}" target="_blank">${row.id}</a>`;
                     } else {
-                        html = `<a href="https://www.ncbi.nlm.nih.gov/clinvar/variation/${row.id}" target="_blank">${row.id}</a>`;
+                        html = `<a href="${BioinfoUtils.getClinvarVariationLink(row.id)}" target="_blank">${row.id}</a>`;
                     }
                     break;
                 case "cosmic":
-                    html = `<a href="https://cancer.sanger.ac.uk/cosmic/search?q=${row.id}" target="_blank">${row.id}</a>`;
+                    html = `<a href="${BioinfoUtils.getCosmicVariantLink(row.id)}" target="_blank">${row.id}</a>`;
                     break;
             }
         }
         return html;
     }
 
-    sourceFormatter(value, row, index) {
-        let name = "-";
+    sourceFormatter(value) {
         if (value) {
             switch (value.name) {
                 case "clinvar":
-                    name = "ClinVar";
-                    break;
+                    return "ClinVar";
                 case "cosmic":
-                    name = "COSMIC";
-                    break;
+                    return "COSMIC";
+                default:
+                    console.error("Source not valid: " + value.name);
+                    return "-";
             }
         }
-        return name;
     }
 
-    geneFormatter(value, row, index) {
-        const genes = [];
+    geneFormatter(value) {
         if (value) {
-            for (const geneIndex in value) {
-                if (value[geneIndex].featureType === "gene") {
-                    genes.push(value[geneIndex].xrefs.symbol);
-                }
-            }
+            const genes = value
+                .filter(v => v.featureType === "gene")
+                .map(v => v.xrefs.symbol);
+            return genes?.length > 0 ? genes.join(", ") : "-";
         }
-        if (genes.length === 0) {
-            return "-";
-        } else {
-            return genes.join(", ");
-        }
+        return "-";
     }
 
-    heritableTraitsFormatter(value, row, index) {
+    heritableTraitsFormatter(value) {
         const traits = [];
         if (value) {
-            for (const traitIndex in value) {
-                if (value[traitIndex].trait !== "not specified" && value[traitIndex].trait !== "not provided") {
-                    traits.push(value[traitIndex].trait);
+            for (const heritableTrait of value) {
+                if (heritableTrait.trait !== "not specified" && heritableTrait.trait !== "not provided") {
+                    traits.push(`<div style="margin: 5px 0">${heritableTrait.trait}</div>`);
                 }
             }
         }
-        if (traits.length === 0) {
+        if (traits.length > 0) {
+            return traits.join("");
+        } else {
             return "-";
-        } else {
-            return traits.join("<br>");
         }
     }
 
-    clinicalSignificanceFormatter(value, row, index) {
-        // clinvar - ClinicalSignificance_in_source_file
-        // cosmic - FATHMM_PREDICTION
-        let result = "-";
-        if (value && value.clinicalSignificance) {
-            result = value.clinicalSignificance;
-        } else {
-            const name = row?.source?.name;
-            let data;
-            switch (name) {
-                case "cosmic":
-                    data = row?.additionalProperties?.filter(item => item.id === "FATHMM_PREDICTION");
-                    result = UtilsNew.isNotEmptyArray(data) ? data[0].value : "-";
-                    break;
-                case "clinvar":
-                    data = row?.additionalProperties?.filter(item => item.id === "ClinicalSignificance_in_source_file");
-                    result = UtilsNew.isNotEmptyArray(data) ? data[0].value : "-";
-                    break;
-                default:
-                    result = "-";
-                    break;
-            }
-        }
-        return result;
-    }
-
-    inheritanceModeFormatter(value, row, index) {
-        let result = "-";
+    inheritanceModeFormatter(value) {
         if (value) {
-            for (const moi of value) {
-                if (moi.inheritanceMode) {
-                    result += moi.inheritanceMode + "<br>";
+            const inheritanceModes = value
+                .filter(v => v.inheritanceMode)
+                .map(v => `<div style="margin: 5px 0">${v.inheritanceMode}</div>`);
+            return inheritanceModes.join("") || "-";
+        }
+        return "-";
+    }
+
+    clinicalSignificanceFormatter(value, row) {
+        const germlineStarRating = {
+            "practice guideline": 4,
+            "reviewed by expert panel": 3,
+            "criteria provided, multiple submitters, no conflicts": 2,
+            "criteria provided, conflicting classifications": 1,
+            "criteria provided, single submitter": 1,
+            "CRITERIA_PROVIDED_SINGLE_SUBMITTER": 1,
+        };
+
+        let result, data;
+        const name = row?.source?.name;
+        switch (name.toLowerCase()) {
+            case "cosmic":
+                data = row?.additionalProperties?.filter(item => item.id === "FATHMM_PREDICTION");
+                result = `
+                    <div>
+                        <label>FATHMM Prediction:</label><span style="padding-left: 5px">${Number.parseFloat(data?.[0]?.value) || "NA"}</span>
+                    </div>
+                `;
+                break;
+            case "clinvar":
+                data = row?.additionalProperties?.filter(item => item.name === "ClinicalSignificance_in_source_file");
+                // Prepare star rating HTML
+                const starRating = row?.additionalProperties?.filter(item => item.name === "ReviewStatus_in_source_file");
+                const starRatingHtml = [];
+                for (let i = 0; i < 4; i++) {
+                    if (i < germlineStarRating[starRating?.[0]?.value]) {
+                        starRatingHtml.push(`<i class="fas fa-star" style="color: darkgoldenrod"></i>`);
+                    } else {
+                        starRatingHtml.push(`<i class="far fa-star" style="color: darkgoldenrod"></i>`);
+                    }
                 }
-            }
+                result = `
+                    <div>
+                        ${data?.[0]?.value || "-"}
+                    </div>
+                    <div title="${starRating?.[0]?.value || ""}">
+                        ${starRatingHtml?.length > 0 ? starRatingHtml.join("") : ""}
+                    </div>
+                `;
+                break;
+            default:
+                result = "-";
+                break;
         }
         return result;
     }
 
-    alleleOriginFormatter(value, row, index) {
+    alleleOriginFormatter(value) {
         if (value) {
             return value.join("<br>");
         }
+        return "-";
     }
 
-    tumourSiteFormatter(value, row, index) {
+    tumourSiteFormatter(value) {
         let result = "-";
         if (value) {
             const primary = value.primarySite ? value.primarySite : "";
@@ -230,7 +220,7 @@ export default class VariantAnnotationClinicalView extends LitElement {
         return result;
     }
 
-    tumourHistologyFormatter(value, row, index) {
+    tumourHistologyFormatter(value) {
         let result = "-";
         if (value) {
             const primary = value.primaryHistology ? value.primaryHistology : "";
@@ -245,14 +235,15 @@ export default class VariantAnnotationClinicalView extends LitElement {
         return result;
     }
 
-
     renderVariantTraitTable() {
         if (!this.traitAssociation) {
             this.traitAssociation = [];
         }
 
-        $("#" + this._prefix + "ConsequenceTypeTable").bootstrapTable("destroy");
-        $("#" + this._prefix + "ConsequenceTypeTable").bootstrapTable({
+        $("#" + this._prefix + "VariantTraitAssociation").bootstrapTable("destroy");
+        $("#" + this._prefix + "VariantTraitAssociation").bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: this.traitAssociation,
             pagination: false,
             columns: [
@@ -347,14 +338,11 @@ export default class VariantAnnotationClinicalView extends LitElement {
         });
     }
 
-    renderGeneTraitTable() {
-
-    }
-
     render() {
         return html`
-            <div style="padding: 20px">
-                <table id="${this._prefix}ConsequenceTypeTable"></table>
+            <h3>Variant Trait Association</h3>
+            <div style="padding: 10px">
+                <table id="${this._prefix}VariantTraitAssociation"></table>
             </div>
         `;
     }

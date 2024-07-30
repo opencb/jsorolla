@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement, nothing} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/select-field-filter.js";
-
 
 export default class FamilyGenotypeFilter extends LitElement {
 
@@ -54,16 +54,6 @@ export default class FamilyGenotypeFilter extends LitElement {
         this.modeOfInheritanceList = MODE_OF_INHERITANCE;
         this.modeSelectData = [];
 
-        this.depths = [
-            {id: "5", name: "5x"}, // , selected: true
-            {id: "10", name: "10x"},
-            {id: "15", name: "15x"},
-            {id: "20", name: "20x"},
-            {id: "30", name: "30x"},
-            {id: "40", name: "40x"},
-            {id: "50", name: "50x"}
-        ];
-
         this.showModeOfInheritance = true;
         this.mode = "CUSTOM";
 
@@ -80,7 +70,6 @@ export default class FamilyGenotypeFilter extends LitElement {
         if (changedProperties.has("genotype")) {
             this.genotypeObserver();
         }
-
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
@@ -90,13 +79,12 @@ export default class FamilyGenotypeFilter extends LitElement {
                 ...this.config,
             };
         }
-
         super.update(changedProperties);
     }
 
     firstUpdated() {
         // Render the first time after preparing the DOM
-        $("select.selectpicker", this).selectpicker("render");
+        // $("select.selectpicker", this).selectpicker("render");
     }
 
     // Builds the table data
@@ -162,8 +150,6 @@ export default class FamilyGenotypeFilter extends LitElement {
     genotypeObserver() {
         this.state = {};
         if (this.genotype) {
-            // TODO handle AND and OR. Comma is already used for GTs.
-            // this.logicalOperator = this.genotype.split(",") > this.genotype.split(";") ? "," : ";";
             this.genotype.split(";").forEach(sample => {
                 const [id, gt] = sample.split(":");
                 this.state[id] = {
@@ -188,16 +174,12 @@ export default class FamilyGenotypeFilter extends LitElement {
                 if (sample.genotypes.length) {
                     _sample.push(id + ":" + sample.genotypes.join(","));
                 }
-                /* if (sample.dp) {
-                    _sampleData.push(id + ":DP>=" + sample.dp);
-                }*/
             });
         }
+
         LitUtils.dispatchCustomEvent(this, "filterChange", null, {
             value: {
                 sample: _sample.length ? _sample.join(";") : null,
-                // sampleData: _sampleData.length ? _sampleData.join() : null
-                // includeSample: this.includeSample,
             },
             errorState: this.errorState,
         });
@@ -206,40 +188,48 @@ export default class FamilyGenotypeFilter extends LitElement {
     // Queries variant/family/genotypes to get the genotypes according to family pedigree
     // @param mode {String} Mode of inheritance
     onModeOfInheritance(mode) {
-        this.opencgaSession.opencgaClient.variants().genotypesFamily(mode, {
-            study: this.opencgaSession.study.fqn,
-            family: this.clinicalAnalysis.family.id,
-            disorder: this.clinicalAnalysis.disorder.id,
-            completePenetrance: true
-        }).then(response => {
-            const genotypeResultMap = response.getResult(0);
-            let countGenoypes = 0;
-            if (genotypeResultMap) {
-                const state = {};
-                Object.keys(genotypeResultMap).forEach(individualId => {
-                    this.tableData.forEach(sample => {
-                        if (sample.individualId === individualId) {
-                            state[sample.id] = {
-                                id: sample.id,
-                                genotypes: genotypeResultMap[individualId]
-                            };
-                            countGenoypes += genotypeResultMap[individualId].length;
-                        }
-                    });
-                });
-                this.errorState = countGenoypes <= 0 ? "The selected Mode of Inheritance is not compatible with the family pedigree" : false;
-                // keeps the last legal state
-                if (!this.errorState) {
-                    this.modeOfInheritance = mode;
-                    this.state = {...state};
+        this.opencgaSession.opencgaClient.variants()
+            .genotypesFamily(mode, {
+                study: this.opencgaSession.study.fqn,
+                family: this.clinicalAnalysis.family.id,
+                disorder: this.clinicalAnalysis.disorder.id,
+                completePenetrance: true
+            })
+            .then(response => {
+                const genotypeResultMap = response.getResult(0);
+                // Nacho: Autosomal Recessive means two copies of an abnormal gene must be present in order for the disease or trait to develop.
+                // So we need to add 1/2 to the proband.
+                if (mode === "AUTOSOMAL_RECESSIVE") {
+                    genotypeResultMap[this.clinicalAnalysis.proband.id].push("1/2");
                 }
-                this.notifySampleFilterChange();
-                this.requestUpdate();
-            }
 
-        }).catch(function (response) {
-            console.error(response);
-        });
+                let countGenoypes = 0;
+                if (genotypeResultMap) {
+                    const state = {};
+                    Object.keys(genotypeResultMap).forEach(individualId => {
+                        this.tableData.forEach(sample => {
+                            if (sample.individualId === individualId) {
+                                state[sample.id] = {
+                                    id: sample.id,
+                                    genotypes: genotypeResultMap[individualId]
+                                };
+                                countGenoypes += genotypeResultMap[individualId].length;
+                            }
+                        });
+                    });
+                    this.errorState = countGenoypes <= 0 ? "The selected Mode of Inheritance is not compatible with the family pedigree" : false;
+                    // keeps the last legal state
+                    if (!this.errorState) {
+                        this.modeOfInheritance = mode;
+                        this.state = {...state};
+                    }
+                    this.notifySampleFilterChange();
+                    this.requestUpdate();
+                }
+            })
+            .catch(function (response) {
+                console.error(response);
+            });
     }
 
     // Update state on genotype change
@@ -307,112 +297,60 @@ export default class FamilyGenotypeFilter extends LitElement {
 
     // Return the default genotype values according the role
     defaultGenotype(sample) {
-        return sample.id === this.clinicalAnalysis.proband.samples[0].id ? ["0/1", "1/1"] : [...this._config.defaultGenotypes];
-    }
-
-    // Toggle depthAll flag
-    changeDepthAll() {
-        this.depthAll = !this.depthAll;
-        this.requestUpdate();
-    }
-
-    // Update state on depth Change
-    // @param e {Object} Event
-    // @param sampleId {String} Sample Id
-    async onSampleTableDepthChange(e, sampleId) {
-        e.preventDefault();
-
-        if (this.depthAll) {
-            Object.keys(this.state).forEach(id => {
-                this.state[id].dp = e.detail.value;
-            });
-        } else {
-            this.state[sampleId].dp = e.detail.value;
-        }
-        this.state = {...this.state};
-        this.notifySampleFilterChange();
-        this.requestUpdate();
-    }
-
-    getSexIcon(sample) {
-        const value = sample.sex?.id || sample.sex || null;
-        return value ? this._config.sexIconMap[value] : "";
+        return sample.id === this.clinicalAnalysis.proband.samples[0].id ? ["0/1", "1/1", "1/2"] : [...this._config.defaultGenotypes];
     }
 
     render() {
         return html`
-            <style>
-                #opencga-variant-filter-clinical {
-                    /*font-size: 12px;*/
-                }
-
-                #segregation-select {
-                    width: 200px;
-                }
-
-                #opencga-variant-filter-clinical .mode-button > div {
-                    margin-right: 20px;
-                    display: inline-block;
-                    vertical-align: top;
-                }
-
-                #opencga-variant-filter-clinical .select-field-filter-wrapper {
-                    display: inline-block;
-                    width: 180px;
-                }
-            </style>
-
-            <div id="opencga-variant-filter-clinical" class="row">
-                <div class="form-check col-md-12">
-                    <div style="padding: 5px 5px 10px 5px; font-size: 14px">
-                        You can manually select sample genotypes or select a
-                        <span style="font-weight: bold;margin: 0px">Mode of Inheritance</span>
-                        such as RECESSIVE OR COMPOUND HETEROZYGOUS.
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <div>
+                        You can manually select
+                        <span class="fw-bold m-0">Custom Genotypes</span>
+                        or select a
+                        <span class="fw-bold m-0">Mode of Inheritance</span>
+                        such as AUTOSOMAL RECESSIVE or COMPOUND HETEROZYGOUS.
                     </div>
                 </div>
-
-                <div class="col-md-4">
+                <div class="col-md-4 mb-2">
                     <div class="form-check-label mode-button">
                         <select-field-filter
                             .data="${this.modeSelectData}"
                             value="${this.mode}"
+                            .config="${{
+                                liveSearch: false,
+                                multiple: false,
+                            }}"
                             @filterChange="${this.setMode}">
                         </select-field-filter>
                     </div>
                 </div>
                 <div class="col-md-12">
                     <div>
-                        <h4 style="padding-top: 10px; margin-bottom: 0px">
-                            Select Sample Genoypes
-                        </h4>
+                        <h4 class="mb-2">Select Sample Genoypes</h4>
                         <table id="${this._prefix}BasicTable" class="table table-hover table-no-bordered">
-                            <thead>
+                            <thead class="table-light">
                             <tr>
                                 <th rowspan="2">Sample</th>
                                 <th rowspan="2">Individual</th>
                                 <th rowspan="2">Role</th>
                                 <th rowspan="2">Sex (karyotype)</th>
-                                <th rowspan="2">Affected (${this.clinicalAnalysis.disorder.id})</th>
-                                <th rowspan="1" colspan="3" style="text-align: center">Genotypes</th>
-                                <!--<th rowspan="2" style="width: 100px">Min. Depth
-                                    <br>
-                                    <label>
-                                        <input
-                                            type="checkbox"
-                                            title="Apply to all samples"
-                                            .checked="\${this.depthAll}"
-                                            @change="\${this.changeDepthAll}"/> All
-                                    </label>
-                                </th>-->
+                                <th rowspan="2">Affected <br>
+                                    <a href="${BioinfoUtils.getOntologyLink(this.clinicalAnalysis.disorder.id)}" target="_blank">
+                                        ${BioinfoUtils.getIdName(this.clinicalAnalysis.disorder.id, this.clinicalAnalysis.disorder.name)}
+                                    </a>
+                                </th>
+                                <th rowspan="1" colspan="4" style="text-align: center">Genotypes</th>
                             </tr>
                             <tr>
-                                <th scope="col">HOM_REF</th>
-                                <th scope="col">HET</th>
-                                <th scope="col">HOM_ALT</th>
+                                <th scope="col">HOM_REF (0/0)</th>
+                                <th scope="col">HET (0/1)</th>
+                                <th scope="col">HOM_ALT (1/1)</th>
+                                <th scope="col">BIALLELIC (1/2)</th>
                             </tr>
                             </thead>
                             <tbody>
-                            ${this.tableData && this.tableData.length ? this.tableData.map(sample => html`
+                            ${this.tableData?.length > 0 ? this.tableData.map(sample => html`
                                 <tr data-sample="${sample.id}">
                                     <td style="vertical-align: middle">
                                         <div>
@@ -424,20 +362,21 @@ export default class FamilyGenotypeFilter extends LitElement {
                                             </span>
                                         </div>
                                     </td>
-                                    <td style="padding-left: 0px">
-                                        ${sample.individualId}
+                                    <td>
+                                        <span>
+                                            ${sample.individualId}
+                                        </span>
                                     </td>
-                                    <td style="padding-left: 0px">
+                                    <td>
                                         <span style="color: ${sample.role.toUpperCase() === "PROBAND" ? "darkred" : "black"}">${sample.role}</span>
                                     </td>
 
-                                    <td style="padding-left: 0px">
+                                    <td>
                                         <span>
-                                            <i class="fas ${this.getSexIcon(sample)} icon-padding"></i>
                                             ${sample.sex?.id || sample.sex || "Not specified"} (${sample.karyotypicSex || "Not specified"})
                                         </span>
                                     </td>
-                                    <td style="padding-left: 25px">
+                                    <td>
                                         ${sample.affected ? html`
                                             <span data-toggle="tooltip" data-placement="bottom" title="Affected">
                                                 <i class='fa fa-check' style='color: green'></i>
@@ -450,7 +389,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                                     </td>
                                     ${~["PROBAND", "FATHER", "MOTHER"].indexOf(sample.role.toUpperCase()) && ~this.modes.indexOf(this.mode) ? html`
                                         <td colspan="3">
-                                            <div class="alert-info text-center" style="padding: 4px 0 1px;"> ${this.mode}</div>
+                                            <div class="alert alert-info text-center p-0 m-0"> ${this.mode}</div>
                                         </td>
                                     ` : html`
                                         <td style="padding-left: 20px">
@@ -476,19 +415,18 @@ export default class FamilyGenotypeFilter extends LitElement {
                                                 .checked="${this.state?.[sample.id]?.genotypes.includes("1/1")}"
                                                 ?disabled="${this.mode !== "CUSTOM"}"
                                                 @change="${this.onSampleTableChange}">
+                                        </td>
+                                        <td style="padding-left: 20px">
+                                            <input
+                                                type="checkbox"
+                                                class="sample-checkbox" data-gt="1/2" data-sample-id="${sample.id}"
+                                                .checked="${this.state?.[sample.id]?.genotypes.includes("1/2")}"
+                                                ?disabled="${this.mode !== "CUSTOM"}"
+                                                @change="${this.onSampleTableChange}">
                                         </td>`
                                     }
-                                    <!--<td style="padding-left: 10px;">
-                                        <select-field-filter
-                                            .data="\${this.depths}"
-                                            .value="\${this.state?.[sample.id]?.dp}"
-                                            @filterChange="\${e => this.onSampleTableDepthChange(e, sample.id)}"
-                                            placeholder="Depth"
-                                            .disabled="\${"PROBAND" !== sample.role.toUpperCase() && this.depthAll}">
-                                        </select-field-filter>
-                                    </td>-->
                                 </tr>
-                            `) : null}
+                            `) : nothing}
                             </tbody>
                         </table>
                     </div>
@@ -516,12 +454,7 @@ export default class FamilyGenotypeFilter extends LitElement {
 
     getDefaultConfig() {
         return {
-            defaultGenotypes: ["0/0", "0/1", "1/1"],
-            sexIconMap: {
-                MALE: "fa-mars",
-                FEMALE: "fa-venus",
-                UNKNOWN: "fa-genderless"
-            }
+            defaultGenotypes: ["0/0", "0/1", "1/1", "1/2"],
         };
     }
 

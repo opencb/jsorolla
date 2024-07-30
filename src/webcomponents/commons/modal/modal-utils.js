@@ -16,8 +16,6 @@
 
 import {html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils";
-import UtilsNew from "../../../core/utils-new";
-
 
 export default class ModalUtils {
 
@@ -36,6 +34,7 @@ export default class ModalUtils {
     static create(self, id, config) {
         // Parse modal parameters, all of them must start with prefix 'modal'
         const modalWidth = config.display?.modalWidth || "768px";
+        const modalSize = config.display?.modalSize || "";
         const modalTitle = config.display?.modalTitle || "";
         const modalTitleHeader = config.display?.modalTitleHeader || "h4";
         const modalTitleClassName = config.display?.modalTitleClassName || "";
@@ -44,18 +43,24 @@ export default class ModalUtils {
         const modalDraggable = config.display?.modalDraggable || false;
         const modalCyDataName = config.display?.modalCyDataName || "";
 
-        return html `
-            <div class="modal fade" id="${id}" data-draggable="${modalDraggable}"
-                tabindex="-1" role="dialog"
-                aria-labelledby="DataModalLabel" aria-hidden="true" data-cy="${modalCyDataName}">
-                <div class="modal-dialog" style="width: ${modalWidth}">
+        return html`
+            <div
+                class="modal fade"
+                id="${id}"
+                data-draggable="${modalDraggable}"
+                tabindex="-1"
+                role="dialog"
+                aria-labelledby="DataModalLabel"
+                aria-hidden="true"
+                data-cy="${modalCyDataName}"
+            >
+                <div class="modal-dialog ${modalSize}" style="width: ${modalWidth}">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-                                    @click="${e => LitUtils.dispatchCustomEvent(self, "modalClose", null, e)}">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
                             ${ModalUtils.#getTitleHeader(modalTitleHeader, modalTitle, "modal-title " + modalTitleClassName, modalTitleStyle)}
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                                    @click="${e => config?.onCancel ? config.onCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}">
+                            </button>
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
@@ -64,11 +69,24 @@ export default class ModalUtils {
                         </div>
                         ${btnsVisible? html`
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                        @click="${e => LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}">Cancel</button>
-                                <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                        @click="${e => LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}">Save</button>
-                            </div>`: nothing}
+                                <button
+                                    type="button"
+                                    class="btn btn-light"
+                                    data-bs-dismiss="modal"
+                                    @click="${e => config?.onCancel ? config.onCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}"
+                                >
+                                    ${config?.display?.cancelButtonText || "Cancel"}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary"
+                                    data-bs-dismiss="modal"
+                                    @click="${e => config?.onOk ? config.onOk(e) : LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}"
+                                >
+                                    ${config?.display?.okButtonText || "Save"}
+                                </button>
+                            </div>
+                        `: nothing}
                     </div>
                 </div>
             </div>
@@ -139,6 +157,5 @@ export default class ModalUtils {
         modalHeader.onmousedown = dragMouseDown;
         modalHeader.style.cursor = "move";
     }
-
 
 }

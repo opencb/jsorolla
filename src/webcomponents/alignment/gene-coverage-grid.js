@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -96,6 +96,8 @@ export default class GeneCoverageGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: this.transcriptCoverageStats,
             columns: this._initTableColumns(),
             sidePagination: "local",
@@ -108,7 +110,7 @@ export default class GeneCoverageGrid extends LitElement {
             pageList: this._config.pageList,
             showExport: this._config.showExport,
             detailView: !!this.detailFormatter,
-            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPageChange: (page, size) => {
                 const result = this.gridCommons.onPageChange(page, size);
@@ -132,6 +134,8 @@ export default class GeneCoverageGrid extends LitElement {
                 this.table = $("#" + this.gridId);
                 this.table.bootstrapTable("destroy");
                 this.table.bootstrapTable({
+                    theadClasses: "table-light",
+                    buttonsClass: "light",
                     columns: this._columns,
                     uniqueId: "id",
                     iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -143,7 +147,7 @@ export default class GeneCoverageGrid extends LitElement {
                     pageList: this._config.pageList,
                     showExport: this._config.showExport,
                     detailView: !!this.detailFormatter,
-                    formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                    loadingTemplate: () => GridCommons.loadingFormatter(),
                     ajax: params => {
                         this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, this.geneIds, {study: this.opencgaSession.study.fqn})
                             .then(restResponse => {
@@ -306,17 +310,6 @@ export default class GeneCoverageGrid extends LitElement {
         }
     }
 
-    getDefaultConfig() {
-        return {
-            pagination: true,
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            showExport: false,
-            alleleStringLengthMax: 15,
-            showToolbar: true,
-        };
-    }
-
     render() {
         return html`
             ${this.loading ? html`
@@ -326,8 +319,8 @@ export default class GeneCoverageGrid extends LitElement {
             ` : null}
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar @download="${this.onDownload}">
-                </opencb-grid-toolbar>` :
-            null}
+                </opencb-grid-toolbar>` : nothing
+            }
             <div class="gene-coverage-grid">
                 <table id="${this.gridId}"></table>
             </div>
@@ -337,6 +330,17 @@ export default class GeneCoverageGrid extends LitElement {
                 </div>
             ` : null}
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            showExport: false,
+            alleleStringLengthMax: 15,
+            showToolbar: true,
+        };
     }
 
 }

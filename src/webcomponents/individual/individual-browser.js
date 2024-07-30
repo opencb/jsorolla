@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import WebUtils from "../commons/utils/web-utils";
 import "./qc/individual-qc-inferred-sex.js";
 import "./qc/individual-qc-mendelian-errors.js";
@@ -114,15 +114,18 @@ export default class IndividualBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .query="${params.executedQuery}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "individual")}"
-                            @individualUpdate="${e => params.onComponentUpdate(e, "individual")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @individualUpdate="${e => params.onComponentUpdate(e)}"
                             @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
                         </individual-grid>
-                        <individual-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .individualId="${params.detail.individual?.id}">
-                        </individual-detail>`
+                        ${params?.detail ? html`
+                            <individual-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .individualId="${params.detail?.id}">
+                            </individual-detail>
+                        ` : nothing}
+                    `
                 },
                 {
                     id: "facet-tab",
@@ -234,6 +237,10 @@ export default class IndividualBrowser extends LitElement {
                 detail: {
                     title: "Individual",
                     showTitle: true,
+                    display: {
+                        titleClass: "mt-4",
+                        contentClass: "p-3"
+                    },
                     items: [
                         {
                             id: "individual-view",
@@ -495,7 +502,6 @@ export default class IndividualBrowser extends LitElement {
             annotations: {}
         };
     }
-
 
 }
 

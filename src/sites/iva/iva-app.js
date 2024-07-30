@@ -20,12 +20,9 @@
 /* eslint-disable valid-jsdoc */
 import {html, LitElement, nothing} from "lit";
 import "./getting-started.js";
-// import "./iva-settings.js";
 
-// @dev[jsorolla]
 import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
-import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
@@ -38,7 +35,6 @@ import "../../webcomponents/variant/variant-beacon.js";
 import "../../webcomponents/opencga/opencga-gene-view.js";
 import "../../webcomponents/opencga/opencga-transcript-view.js";
 import "../../webcomponents/opencga/opencga-protein-view.js";
-// import "../../webcomponents/user/opencga-projects.js";
 import "../../webcomponents/sample/sample-browser.js";
 import "../../webcomponents/sample/sample-view.js";
 import "../../webcomponents/sample/sample-variant-stats-browser.js";
@@ -47,7 +43,6 @@ import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/disease-panel/disease-panel-browser.js";
 import "../../webcomponents/disease-panel/disease-panel-update.js";
 import "../../webcomponents/file/file-browser.js";
-// import "../../webcomponents/file/file-update.js";
 import "../../webcomponents/family/family-browser.js";
 import "../../webcomponents/family/family-update.js";
 import "../../webcomponents/individual/individual-browser.js";
@@ -86,9 +81,7 @@ import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/study/admin/study-admin-iva.js";
 import "../../webcomponents/study/admin/catalog-admin.js";
 import "../../webcomponents/study/admin/variant/study-variant-admin.js";
-import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/user/user-profile.js";
-// import "../../webcomponents/user/user-password-reset.js";
 import "../../webcomponents/api/rest-api.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
@@ -131,16 +124,17 @@ class IvaApp extends LitElement {
      * @private
      */
     _init() {
+        this.settings = {};
+
         // Save URL to be used during the initialisation
         this.URL = new URL(window.location);
-
         // Prepare Logger instance
         Logger.setLevel("INFO");
         if (this.URL.searchParams.has("LOG_LEVEL")) {
             const logLevel = this.URL.searchParams.get("LOG_LEVEL");
             Logger.setLevel(logLevel);
-        }
 
+        }
         // 1. Set 'config/ object
         // 1.1 Prepare a temporary '_config' object to store all the different configuration
         const _config = SUITE;
@@ -172,7 +166,6 @@ class IvaApp extends LitElement {
         const components = [
             "home",
             "gettingstarted",
-            "login",
             "aboutzetta",
             // "reset-password",
             // "settings",
@@ -440,7 +433,8 @@ class IvaApp extends LitElement {
     }
 
     opencgaSessionObserver() {
-        this.renderHashFragments();
+        // this.renderHashFragments();
+        this.hashFragmentListener();
         // this.queries = {};
         // this.requestUpdate();
     }
@@ -509,7 +503,7 @@ class IvaApp extends LitElement {
             .then(response => {
                 // study = response.responses[0].results[0];
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: `Study Settings Update`,
+                    title: "Study Settings Update",
                     message: `${study.id} settings updated correctly`,
                 });
             })
@@ -524,17 +518,14 @@ class IvaApp extends LitElement {
             return;
         }
         this.isCreatingSession = true;
-        console.log("Init creating opencgasession");
+        console.log("Init creating opencgaSession ...");
         this.requestUpdate();
         await this.updateComplete;
         this.opencgaClient.createSession()
             .then(response => {
-                const _response = response;
-                console.log("_createOpenCGASession", response);
-
+                // 1. Check if project array has been defined in the config.js
                 // This is only valid when public IVA/OpenCGA installations
-                // Check if project array has been defined in the config.js
-                if (UtilsNew.isNotEmptyArray(this.config.opencga.projects)) {
+                if (this.config.opencga.projects?.length > 0) {
                     // We store the project and study ids the user needs to visualise (defined in the config.js)
                     const configProjects = {};
                     for (let i = 0; i < this.config.opencga.projects.length; i++) {
@@ -567,16 +558,58 @@ class IvaApp extends LitElement {
                     }
 
                     // TODO we must query projects/info URL to get the whole object
-                    _response.projects = activeProjects || [];
+                    response.projects = activeProjects || [];
                     if (UtilsNew.isNotEmptyArray(response.projects[0].studies)) {
-                        _response.project = response.projects[0];
-                        _response.study = response.projects[0].studies[0];
+                        response.project = response.projects[0];
+                        response.study = response.projects[0].studies[0];
                     }
                 }
-                // this forces the observer to be executed.
-                if (UtilsNew.isNotEmptyArray(response.projects) && response.projects.some(p => UtilsNew.isNotEmptyArray(p.studies))) {
+
+                // 2. Set the default active project and study.
+                // 2.1 Check if the user has set a project/study in the URL
+                const [hashTool, hashProject, hashStudy, hashQuery] = window.location.hash.split("/");
+                if (hashProject && hashStudy) {
+                    const project = response.projects.find(p => p.id === hashProject);
+                    const study = project.studies.find(s => s.id === hashStudy);
+                    if (project && study) {
+                        console.log("Setting active project and study from hash");
+                        response.project = project;
+                        response.study = study;
+                    } else {
+                        console.error(`Project '${hashProject}' and Study '${hashStudy}' not found`);
+                    }
+                } else {
+                    // 2.2 Check if lastStudy form User Configuration matches
+                    for (const project of response.projects) {
+                        if (project.studies?.length > 0) {
+                            for (const study of project.studies) {
+                                if (response.user?.configs?.IVA?.lastStudy === study.fqn) {
+                                    response.project = project;
+                                    response.study = study;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // 2.3 if not 'lastStudy' found then set the first project and study.
+                    // If the user doesn't have his own default study then we select the first project and study as default
+                    if (!response.project && !response.study) {
+                        for (const project of response.projects) {
+                            if (project.studies?.length > 0) {
+                                response.project = project;
+                                response.study = project.studies[0];
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // 3. Update data structures and refresh.
+                // This forces the observer to be executed.
+                if (response.projects?.length > 0 && response.projects.some(p => UtilsNew.isNotEmptyArray(p.studies))) {
                     this.opencgaSession = {
-                        ..._response,
+                        ...response,
                         URL: this.URL,
                         ivaDefaultSettings: {
                             version: this.version,
@@ -592,11 +625,10 @@ class IvaApp extends LitElement {
                     this.config = {...this.config};
                 } else {
                     this.opencgaSession = {
-                        ..._response,
+                        ...response,
                     };
                     this.config = {...this.config};
                 }
-
             })
             .catch(e => {
                 console.error(e);
@@ -678,12 +710,22 @@ class IvaApp extends LitElement {
         this.opencgaClient.refresh();
     }
 
-    async logout() {
-        // this delete token in the client and removes the Cookies
-        await this.opencgaClient.logout();
+    logout() {
+        // 1. Check if logged user is a local user
+        // This is only needed if SSO mode is enabled. If not, logged user is always local
+        let isLocalUser = true;
+        if (this.opencgaClient?._config?.sso?.active && this.opencgaClient?._config?.token) {
+            // eslint-disable-next-line no-undef
+            const decoded = jwt_decode(this.opencgaClient._config.token);
+            isLocalUser = decoded?.authOrigin === "OPENCGA";
+        }
 
-        // Check if sso is active: we will redirect to 'meta/sso/logout' endpoint
-        if (this.opencgaClient?._config?.sso?.active) {
+        // 2. Delete token and remove cookies
+        this.opencgaClient.logout();
+
+        // 3. Check if sso is active and logged user is not local
+        // In this case, we will redirect to 'meta/sso/logout' endpoint
+        if (this.opencgaClient?._config?.sso?.active && !isLocalUser) {
             // eslint-disable-next-line no-undef
             Cookies.expire(this.opencgaClient._config.sso.cookie);
 
@@ -796,56 +838,24 @@ class IvaApp extends LitElement {
 
     changeTool(e) {
         // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-        e.preventDefault();
+        // e.preventDefault();
 
         const target = e.currentTarget;
-        $(".navbar-inverse ul > li", this).removeClass("active");
-        $(target).parent("li").addClass("active");
+        $(".navbar-zetta ul > li > a", this).removeClass("active");
+        $(target).addClass("active");
         if ($(target).closest("ul").hasClass("dropdown-menu")) {
-            $(target).closest("ul").closest("li").addClass("active");
+            $(target).closest("ul").closest("li > a").addClass("active");
         }
 
-        if (target?.attributes?.href) {
-            this.tool = target.attributes.href.value;
-        } else {
-            this.tool = "#home";
-        }
+        // if (target?.attributes?.href) {
+        //     this.tool = target.attributes.href.value;
+        // } else {
+        //     this.tool = "#home";
+        // }
 
-        this.renderHashFragments();
+        // // this.renderHashFragments();
+        // this.hashFragmentListener();
     }
-
-    renderHashFragments(tool) {
-        console.log(`Update hash fragment URL with tool: '${tool ? `#${tool}` : this.tool}'`);
-
-        // Keep global 'tool' param updated.
-        if (tool && this.tool !== `#${tool}`) {
-            this.tool = `#${tool}`;
-        }
-
-        // Build hash fragment URL as: #tool/projectId/studyId
-        let newHashFragmentUrl = tool ? `#${tool}` : this.tool;
-        if (this.opencgaSession?.project) {
-            newHashFragmentUrl += "/" + this.opencgaSession.project.id;
-            if (this.opencgaSession.study) {
-                newHashFragmentUrl += "/" + this.opencgaSession.study.id;
-            }
-        }
-
-        if (window.location.hash === newHashFragmentUrl) { // || newHashFragmentUrl === "#interpreter"
-            this.hashFragmentListener();
-        } else {
-            window.location.hash = newHashFragmentUrl;
-        }
-    }
-
-    route(e) {
-        this.tool = e.detail.hash;
-        if (e.detail?.resource) {
-            this.queries = {...this.queries, [e.detail.resource]: e.detail?.query};
-        }
-        this.renderHashFragments();
-    }
-
 
     hashFragmentListener() {
         console.log("hashFragmentListener - Hide all enabled elements");
@@ -868,11 +878,19 @@ class IvaApp extends LitElement {
 
         // 4. Parse project and study
         if (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
-            this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
+            if (hashProject && hashStudy) {
+                this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
+            }
         }
 
-        // 5. Update location.hash
-        window.location.hash = `${hashTool}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+        // 5. Update location.hash (only if project.id and study.id are defined)
+        if (this.opencgaSession?.project?.id && this.opencgaSession?.study?.id) {
+            // Josemi NOTE 2024-04-25 Added additional check to prevent removing the query section of the url if the tool is interpreter
+            // as we need it tell IVA which clinical analysis should open if user reloads the browser tab.
+            if (hashTool !== "#interpreter") {
+                window.location.hash = `${hashTool || "home"}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+            }
+        }
 
         // 6. Parse query fragment in 'featureId'
         if (hashTool && hashQuery) {
@@ -881,11 +899,9 @@ class IvaApp extends LitElement {
             let query = {};
             // Check if key=value list exist
             if (hashQuery.includes("=")) {
-                const filters = hashQuery.split("&");
-                for (const filter of filters) {
-                    const [key, value] = filter.split("=");
-                    query[key] = value;
-                }
+                Array.from(new URLSearchParams(hashQuery).entries()).forEach(entry => {
+                    query[entry[0]] = entry[1];
+                });
             } else {
                 // Default query filter is 'id'
                 query = {id: hashQuery};
@@ -969,14 +985,14 @@ class IvaApp extends LitElement {
     }
 
     changeActiveStudy(studyFqn) {
-        if (this.opencgaSession.study.fqn === studyFqn) {
+        if (this.opencgaSession?.study?.fqn === studyFqn) {
             console.log("New selected study is already the current active study!");
             return;
         }
 
         // Change active study
         let studyFound = false;
-        for (const project of this.opencgaSession.projects) {
+        for (const project of (this.opencgaSession?.projects || [])) {
             const studyIndex = project.studies.findIndex(s => s.fqn === studyFqn);
             if (studyIndex >= 0) {
                 this.opencgaSession.project = project;
@@ -987,14 +1003,29 @@ class IvaApp extends LitElement {
         }
 
         if (studyFound) {
-            // Update the lastStudy in config iff has changed
-            this.opencgaClient.updateUserConfig("IVA", {...this.opencgaSession.user.configs["IVA"], lastStudy: studyFqn});
+            // 1. Update the lastStudy in config iff has changed
+            this.opencgaClient.updateUserConfig("IVA", {
+                ...this.opencgaSession.user.configs["IVA"],
+                lastStudy: studyFqn
+            });
 
-            // This is a terrible hack to exit interpreter when we change the current study
+            // 2. This is a terrible hack to exit interpreter when we change the current study
             if (this.tool === "#interpreter") {
                 window.location.hash = "#clinical-analysis-portal";
+
+                // Nacho: this should not be needed anymore
+                // 2. Set the new Hash URL
+                // let newHashFragmentUrl = this.tool !== "#interpreter" ? this.tool : "#clinicalAnalysisPortal";
+                // if (this.opencgaSession?.project) {
+                //     newHashFragmentUrl += "/" + this.opencgaSession.project.id;
+                //     if (this.opencgaSession.study) {
+                //         newHashFragmentUrl += "/" + this.opencgaSession.study.id;
+                //     }
+                // }
+                // window.location.hash = newHashFragmentUrl;
             }
 
+            // 3. Reset queries from old studies
             this.queries = {};
 
             // Refresh the session and update cellbase
@@ -1014,7 +1045,7 @@ class IvaApp extends LitElement {
             this.opencgaSession = {...this.opencgaSession};
         } else {
             // TODO Convert this into a user notification
-            console.error("Study not found!");
+            console.error(`Study '${studyFqn}' not found!`);
         }
     }
 
@@ -1092,12 +1123,10 @@ class IvaApp extends LitElement {
 
     // TODO this should keep in sync the query object between variant-browser and variant-facet
     onQueryChange(e) {
-        debugger
         console.warn("onQueryChange", e);
         this.browserSearchQuery = {...e.detail.query};
         // this.browserSearchQuery = {};
     }
-
 
     onQueryFilterSearch(e, source) {
         // FIXME filters component emits a event containing {detail:{query:Object}} while active-filter emits {detail:{Object}}
@@ -1112,14 +1141,7 @@ class IvaApp extends LitElement {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
     }
 
-    toggleSideBar(e) {
-        e.preventDefault();
-        // const sidenav = this.querySelector("#side-nav");
-        $("#side-nav").toggleClass("active");
-        $("#overlay").toggleClass("active");
-    }
-
-    onChangeApp(e, toggle) {
+    onChangeApp(e) {
         // If an App ID exists we display the corresponding app. If not we just show the Suite
         if (e.currentTarget.dataset.id) {
             this.app = this.config.apps.find(app => app.id === e.currentTarget.dataset.id);
@@ -1127,13 +1149,8 @@ class IvaApp extends LitElement {
             this.app = this.getActiveAppConfig();
         }
 
-        // We only want to toggle when clicked in the sidenav
-        if (toggle) {
-            this.toggleSideBar(e);
-        }
-
+        // Change current tool in navbar
         this.changeTool(e);
-        this.requestUpdate();
     }
 
     getActiveAppConfig() {
@@ -1193,8 +1210,8 @@ class IvaApp extends LitElement {
     onStudyUpdateRequest(e) {
         if (e.detail.value) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                title: `Refresh Session`,
-                message: `Session updated correctly`,
+                title: "Refresh Session",
+                message: "Session updated correctly",
             });
             this._createOpenCGASession();
 
@@ -1234,7 +1251,7 @@ class IvaApp extends LitElement {
 
         if (page) {
             return html`
-                <div class="content" id="page">
+                <div class="d-flex justify-content-center align-items-center vh-100" id="page">
                     <custom-page .page="${page}"></custom-page>
                 </div>
             `;
@@ -1250,26 +1267,13 @@ class IvaApp extends LitElement {
                 <custom-landing
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.config}"
-                    @login="${this.onLogin}"
-                    @redirect="${this.route}">
+                    @login="${this.onLogin}">
                 </custom-landing>
             `;
         }
 
         return html`
             <style>
-                .notification-nav {
-                    margin-right: 0;
-                }
-
-                .notification-nav > li > a .badge  {
-                    position: relative;
-                    z-index: 10;
-                    bottom: -7px;
-                    left: 11px;
-                    background-color: #41a7ff;
-                }
-
                 .center {
                     margin: auto;
                     text-align: justify;
@@ -1289,8 +1293,7 @@ class IvaApp extends LitElement {
             <custom-sidebar
                 .config="${this.config}"
                 .loggedIn="${this.isLoggedIn()}"
-                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
-                @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}">
+                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}">
             </custom-sidebar>
 
             <!-- Navbar -->
@@ -1301,27 +1304,25 @@ class IvaApp extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this.config}"
                 @logout="${() => this.logout()}"
-                @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}"
                 @changeTool="${e => this.changeTool(e.detail.value)}"
                 @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
                 @studySelect="${ e => this.onStudySelect(e.detail.event, e.detail.study)}"
-                @jobSelected="${e => this.onJobSelected(e)}"
-                @route="${this.route}">
+                @jobSelected="${e => this.onJobSelected(e)}">
             </custom-navbar>
-
-            ${ this.isCreatingSession ? html `
-                <div class="login-overlay">
+            <!-- Rodiel 2023-03-01 Note:  Is it necessary to add 'isCreatingSession' to all components,
+            or should those components be added in the 'else' block?" -->
+            ${ this.isCreatingSession ? html`
+                <div class="login-overlay position-absolute top-50 start-50 translate-middle">
                     <loading-spinner
                         .description="${"Creating session..."}">
                     </loading-spinner>
                 </div>
-            ` : nothing
-            }
+            ` : nothing}
 
             <!-- This is where main IVA application is rendered -->
-            <div class="container-fluid" style="min-height:calc(100vh - 100px);">
-                ${this.config.enabledComponents.home ? html`
-                    <div class="content" id="home">
+            <div class="container-fluid" style="min-height:calc(100vh - 101px);">
+                ${this.config.enabledComponents.home && !this.isCreatingSession ? html`
+                    <div class="d-flex justify-content-center" id="home">
                         <custom-welcome
                             .app="${this.app}"
                             .config="${this.config}"
@@ -1330,34 +1331,34 @@ class IvaApp extends LitElement {
                             @changeApp="${e => this.onChangeApp(e.detail.e, false)}">
                         </custom-welcome>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 <!-- Render custom page content if enabled -->
-                ${this.config.enabledComponents.customPage ? this.renderCustomPage() : null}
+                ${this.config.enabledComponents.customPage ? this.renderCustomPage() : nothing}
 
                 ${this.config.enabledComponents.terms ? html`
                     <div class="content" id="terms">
                         <terms-web version="${this.config.version}"></terms-web>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents.contact ? html`
                     <div class="content" id="contact">
                         <contact-web version="${this.config.version}"></contact-web>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents.faq ? html`
                     <div class="content" id="faq">
                         <faq-web version="${this.config.version}"></faq-web>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents.gettingstarted ? html`
                     <div class="content" id="getting-started">
                         <getting-started .opencgaSession="${this.opencgaSession}" .config="${this.config}"></getting-started>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents?.aboutzetta ? html`
                     <div class="content" id="faq">
@@ -1366,17 +1367,7 @@ class IvaApp extends LitElement {
                             .opencgaSession="${this.opencgaSession}">
                         </custom-page>
                     </div>
-                ` : null}
-
-                ${this.config.enabledComponents.login ? html`
-                    <div class="content" id="login">
-                        <user-login
-                            .opencgaSession="${this.opencgaSession}"
-                            @login="${this.onLogin}"
-                            @redirect="${this.route}">
-                        </user-login>
-                    </div>
-                ` : null}
+                ` : nothing}
 
 
                 <!-- CATALOG Tools -->
@@ -1498,7 +1489,7 @@ class IvaApp extends LitElement {
                             @facetSearch="${this.quickFacetSearch}">
                         </variant-browser>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents.beacon ? html`
                     <div class="content" id="beacon">
@@ -1506,7 +1497,7 @@ class IvaApp extends LitElement {
                             .opencgaSession="${this.opencgaSession}">
                         </variant-beacon>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["rga"] ? html`
                     <div class="content" id="rga">
@@ -1516,7 +1507,7 @@ class IvaApp extends LitElement {
                             .settings="${this.settings.RGA_BROWSER}">
                         </rga-browser>
                     </div>
-                ` : null}
+                ` : nothing}
 
 
                 <!-- CLINICAL Tools -->
@@ -1557,7 +1548,7 @@ class IvaApp extends LitElement {
                             @samplechange="${this.onSampleChange}">
                         </variant-rd-interpreter>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["cancer-interpreter"] ? html`
                     <div class="content" id="cancer-interpreter">
@@ -1573,13 +1564,13 @@ class IvaApp extends LitElement {
                             @samplechange="${this.onSampleChange}">
                         </variant-cancer-interpreter>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents.genomeBrowser ? html`
                     <div class="content" id="genomeBrowser">
                         Not available yet...
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["diseasePanelUpdate"] ? html`
                     <div class="content" id="disease-panel">
@@ -1603,7 +1594,7 @@ class IvaApp extends LitElement {
                             }>
                         </disease-panel-update>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 <!--todo check-->
                 ${this.config.enabledComponents["sample-view"] ? html`
@@ -1613,7 +1604,7 @@ class IvaApp extends LitElement {
                             .config="${this.config.sampleView}">
                         </opencga-sample-view>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["fileUpdate"] ? html`
                     <tool-header title="${`File <span class="inverse"> ${this.fileId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
@@ -1637,7 +1628,7 @@ class IvaApp extends LitElement {
                             }>
                         </file-update>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["sampleUpdate"] ? html`
                     <tool-header title="${`Sample <span class="inverse"> ${this.sampleId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
@@ -1661,7 +1652,7 @@ class IvaApp extends LitElement {
                             }>
                         </sample-update>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["individualUpdate"] ? html`
                     <tool-header title="${`Individual <span class="inverse"> ${this.individualId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
@@ -1685,7 +1676,7 @@ class IvaApp extends LitElement {
                             }>
                         </individual-update>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["familyUpdate"] ? html`
                     <tool-header title="${`Family <span class="inverse"> ${this.familyId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
@@ -1709,7 +1700,7 @@ class IvaApp extends LitElement {
                             }>
                         </family-update>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents.gene ? html`
                     <div class="content" id="gene">
@@ -1725,7 +1716,7 @@ class IvaApp extends LitElement {
                             @querySearch="${e => this.onQueryFilterSearch(e, "variant")}">
                         </opencga-gene-view>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents.transcript ? html`
                     <div class="content feature-view" id="transcript">
@@ -1741,7 +1732,7 @@ class IvaApp extends LitElement {
                             .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
                         </opencga-transcript-view>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents.protein ? html`
                     <div class="content feature-view" id="protein">
@@ -1758,56 +1749,56 @@ class IvaApp extends LitElement {
                             .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
                         </opencga-protein-view>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["cat-browser"] ? html`
                     <div class="content" id="cat-browser">
                         <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "variant-browser")}">
                         </category-page>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["cat-analysis"] ? html`
                     <div class="content" id="cat-analysis">
                         <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "analysis")}">
                         </category-page>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["cat-clinical"] ? html`
                     <div class="content" id="cat-clinical">
                         <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "clinical")}">
                         </category-page>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["cat-tools"] ? html`
                     <div class="content" id="cat-tools">
                         <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "tools")}">
                         </category-page>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["cat-catalog"] ? html`
                     <div class="content" id="cat-catalog">
                         <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "catalog")}">
                         </category-page>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["cat-alignment"] ? html`
                     <div class="content" id="cat-alignment">
                         <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "alignment")}">
                         </category-page>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["cat-ga4gh"] ? html`
                     <div class="content" id="cat-ga4gh">
                         <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "ga4gh")}">
                         </category-page>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["sampleVariantStatsBrowser"] ? html`
                     <div class="content" id="sampleVariantStatsBrowser">
@@ -1818,146 +1809,152 @@ class IvaApp extends LitElement {
                             .settings="${{...VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS, showTitle: true}}">
                         </sample-variant-stats-browser>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["sampleCancerVariantStatsBrowser"] ? html`
                     <div class="content" id="sampleCancerVariantStatsBrowser">
                         <sample-cancer-variant-stats-browser .opencgaSession="${this.opencgaSession}" .sampleId="${this.sampleId}" .active="${true}"></sample-cancer-variant-stats-browser>
                     </div>
-                ` : null}
+                ` : nothing}
 
 
                 <!-- ANALYSIS Tools  -->
                 ${this.config.enabledComponents["sample-variant-stats"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="sample-variant-stats-analysis">
-                        <sample-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></sample-variant-stats-analysis>
+                    <div class="container py-3" id="sample-variant-stats-analysis">
+                        <sample-variant-stats-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </sample-variant-stats-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["cohort-variant-stats"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="cohort-variant-stats-analysis">
+                    <div class="container py-3" id="cohort-variant-stats-analysis">
                         <cohort-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></cohort-variant-stats-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["eligibility"] ? html`
                     <div class="content" id="opencga-variant-eligibility-analysis">
                         <opencga-variant-eligibility-analysis .opencgaSession="${this.opencgaSession}"></opencga-variant-eligibility-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["sample-eligibility"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="sample-eligibility-analysis">
+                    <div class="container py-3" id="sample-eligibility-analysis">
                         <sample-eligibility-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </sample-eligibility-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["knockout"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="knockout-analysis">
+                    <div class="container py-3" id="knockout-analysis">
                         <knockout-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </knockout-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["inferred-sex"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="inferred-sex-analysis">
+                    <div class="container py-3" id="inferred-sex-analysis">
                         <inferred-sex-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .config=${{title: ""}}>
                         </inferred-sex-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["individual-relatedness"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="individual-relatedness-analysis">
+                    <div class="container py-3" id="individual-relatedness-analysis">
                         <individual-relatedness-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .config=${{title: ""}}>
                         </individual-relatedness-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["mendelian-error"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="mendelian-error-analysis">
+                    <div class="container py-3" id="mendelian-error-analysis">
                         <mendelian-error-analysis .opencgaSession="${this.opencgaSession}"></mendelian-error-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["sample-qc"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="sample-qc-analysis">
+                    <div class="container py-3" id="sample-qc-analysis">
                         <sample-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .config=${{title: ""}}>
                         </sample-qc-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["individual-qc"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="individual-qc-analysis">
+                    <div class="container py-3" id="individual-qc-analysis">
                         <individual-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .config=${{title: ""}}>
                         </individual-qc-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["family-qc"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="family-qc-analysis">
+                    <div class="container py-3" id="family-qc-analysis">
                         <family-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .config=${{title: ""}}>
                         </family-qc-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["plink"] ? html`
                     <div class="content" id="opencga-plink-analysis">
                         <opencga-plink-analysis .opencgaSession="${this.opencgaSession}"></opencga-plink-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["gatk"] ? html`
                     <div class="content" id="opencga-gatk-analysis">
                         <opencga-gatk-analysis .opencgaSession="${this.opencgaSession}"></opencga-gatk-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["variant-export"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="variant-export-analysis">
+                    <div class="container py-3" id="variant-export-analysis">
                         <variant-export-analysis .opencgaSession="${this.opencgaSession}"></variant-export-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["variant-stats-exporter"] ? html`
-                    <div class="content" id="opencga-variant-stats-exporter-analysis">
-                        <opencga-variant-stats-exporter-analysis .opencgaSession="${this.opencgaSession}"></opencga-variant-stats-exporter-analysis>
+                    <div id="opencga-variant-stats-exporter-analysis">
+                        <opencga-variant-stats-exporter-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </opencga-variant-stats-exporter-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["mutational-signature"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="mutational-signature-analysis">
-                        <mutational-signature-analysis .opencgaSession="${this.opencgaSession}"></mutational-signature-analysis>
+                    <div class="container py-3" id="mutational-signature-analysis">
+                        <mutational-signature-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </mutational-signature-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["gwas"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="gwas-analysis">
+                    <div class="container py-3" id="gwas-analysis">
                         <gwas-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </gwas-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["rd-tiering"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="rd-tiering-analysis">
+                    <div class="container py-3" id="rd-tiering-analysis">
                         <rd-tiering-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </rd-tiering-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["clinical-analysis-create"] ? html`
                     <tool-header title="${"Create Case"}" icon="${"fas fa-window-restore"}"></tool-header>
@@ -1967,7 +1964,7 @@ class IvaApp extends LitElement {
                             @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
                         </clinical-analysis-create>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents.account ? html`
                     <div class="content" id="account">
@@ -1976,56 +1973,54 @@ class IvaApp extends LitElement {
                             .settings="${this.settings.USER_PROFILE_SETTINGS}">
                         </user-profile>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["file-manager"] ? html`
                     <div class="content" id="file-manager">
                         <file-manager .opencgaSession="${this.opencgaSession}"></file-manager>
                     </div>
-                ` : null}
-
+                ` : nothing}
 
                 <!-- Alignment Analysis-->
                 ${this.config.enabledComponents["alignment-index"] ? html`
                     <div id="alignment-index" class="content">
                         <opencga-alignment-index-analysis .opencgaSession="${this.opencgaSession}"></opencga-alignment-index-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["coverage-index"] ? html`
                     <div id="coverage-index" class="content">
                         <opencga-coverage-index-analysis .opencgaSession="${this.opencgaSession}"></opencga-coverage-index-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["alignment-stats"] ? html`
                     <div id="alignment-stats" class="content col-md-6 col-md-offset-3">
                         <opencga-alignment-stats-analysis .opencgaSession="${this.opencgaSession}"></opencga-alignment-stats-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["job-view"] ? html`
                     <tool-header title="${this.jobSelected || "No job selected"}" icon="${"fas fa-rocket"}"></tool-header>
-                    <div id="job-view" class="content col-md-8 col-md-offset-2">
+                    <div class="container py-3" id="job-view">
                         <job-view
                             mode="full"
                             .jobId="${this.jobSelected}"
                             .opencgaSession="${this.opencgaSession}">
                         </job-view>
                     </div>
-                ` : null
-                }
+                ` : nothing}
 
                 <!-- Admin -->
                 ${this.config.enabledComponents["projects-admin"] ? html`
                     <tool-header title="Projects Admin" icon="${"fas fa-rocket"}"></tool-header>
-                    <div id="projects-admin" class="content col-md-10 col-md-offset-1">
+                    <div id="projects-admin">
                         <projects-admin
                             .opencgaSession="${this.opencgaSession}"
                             @sessionUpdateRequest="${this.onSessionUpdateRequest}">
                         </projects-admin>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["catalog-admin"] ? html`
                     <div class="content row" id="catalog-admin">
@@ -2034,28 +2029,27 @@ class IvaApp extends LitElement {
                             @sessionUpdateRequest="${this.onSessionUpdateRequest}">
                         </catalog-admin>
                     </div>
-                ` : null}
-
+                ` : nothing}
 
                 ${this.config.enabledComponents["opencga-admin"] ? html`
                     <tool-header title="Study Dashboard" icon="${"fas fa-rocket"}"></tool-header>
-                    <div id="projects-admin" class="content row col-md-10 col-md-offset-1">
+                    <div id="projects-admin">
                         <projects-admin
                             .opencgaSession="${this.opencgaSession}"
                             @sessionUpdateRequest="${this.onSessionUpdateRequest}">
                         </projects-admin>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["study-admin"] ? html`
-                    <div class="content row" id="study-admin">
+                    <div class="content" id="study-admin">
                         <study-admin
                             .study="${this.opencgaSession.study}"
                             .opencgaSession="${this.opencgaSession}"
                             @studyUpdateRequest="${this.onStudyUpdateRequest}">
                         </study-admin>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 <!-- NOTE Vero: "row" class to avoid tricky css for undoing the margin bootstrap of container-fluid -->
                 <!-- Remove this from the parameters: .study="$ {this.opencgaSession.study}" -->
@@ -2067,7 +2061,7 @@ class IvaApp extends LitElement {
                             @studyUpdateRequest="${this.onStudyUpdateRequest}">
                         </study-admin-iva>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["study-variant-admin"] ? html`
                     <div class="content row">
@@ -2077,21 +2071,21 @@ class IvaApp extends LitElement {
                             @studyUpdateRequest="${this.onStudyUpdateRequest}">
                         </study-variant-admin>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["rest-api"] ? html`
                     <tool-header title="REST API" icon="${"fas fa-rocket"}"></tool-header>
                     <div class="content">
                         <rest-api .opencgaSession="${this.opencgaSession}"></rest-api>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${ExtensionsManager.getTools().map(tool => html`
                     ${this.config.enabledComponents[tool.id] ? html`
                         <div class="content">
                             ${tool.render(this.opencgaSession)}
                         </div>
-                    ` : null}
+                    ` : nothing}
                 `)}
             </div>
 

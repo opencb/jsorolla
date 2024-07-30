@@ -127,15 +127,15 @@ export default class StudyAdminCohort extends LitElement {
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">
-                                <div class="col-md-6" style="margin: 20px 10px">
-                                    <div style="float: right">
+                                <div class="col-md-6 mx-3 my-4">
+                                    <div class="d-flex justify-content-end">
                                         <div class="btn-group">
                                             ${UtilsNew.isNotEmpty(this.cohort) ? html `
-                                                <button class="btn btn-default ripple btn-sm" type="button" @click="${e => this.clearForm(e)}">
-                                                    <i class="fas fa-arrow-left icon-hover"></i>  Back
+                                                <button class="btn btn-light" type="button" @click="${e => this.clearForm(e)}">
+                                                    <i class="fas fa-arrow-left"></i>  Back
                                                 </button>
-                                                <button class="btn btn-default ripple btn-sm" type="button" @click="${e => this.editForm(e)}">
-                                                    <i class="${this.editCohort? "far fa-eye": "fa fa-edit"} icon-hover"></i> ${this.editCohort? "View" : "Edit"}
+                                                <button class="btn btn-light" type="button" @click="${e => this.editForm(e)}">
+                                                    <i class="${this.editCohort? "far fa-eye": "fa fa-edit"}"></i> ${this.editCohort? "View" : "Edit"}
                                                 </button>`: nothing}
                                         </div>
                                     </div>
@@ -162,7 +162,7 @@ export default class StudyAdminCohort extends LitElement {
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">
-                                <div class="col-md-6" style="margin: 20px 10px">
+                                <div class="col-md-6 mx-3 my-4">
                                     <cohort-create
                                         .opencgaSession="${opencgaSession}">
                                     </cohort-create>
@@ -178,10 +178,10 @@ export default class StudyAdminCohort extends LitElement {
         return html`
             <div style="margin: 25px 40px">
                 <detail-tabs
-                        .data="${{}}"
-                        .config="${this._config}"
-                        .mode="${DetailTabs.PILLS_MODE}"
-                        .opencgaSession="${this.opencgaSession}">
+                    .data="${{}}"
+                    .config="${this._config}"
+                    .mode="${DetailTabs.PILLS_MODE}"
+                    .opencgaSession="${this.opencgaSession}">
                 </detail-tabs>
             </div>`;
     }

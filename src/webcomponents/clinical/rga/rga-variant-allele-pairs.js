@@ -141,6 +141,8 @@ export default class RgaVariantAllelePairs extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             // data: this.tableData,
             columns: this._initTableColumns(),
             sidePagination: "server",
@@ -152,7 +154,7 @@ export default class RgaVariantAllelePairs extends LitElement {
             pagination: this._config.pagination,
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             ajax: async params => {
                 try {
                     const pageNumber = this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1;
@@ -225,7 +227,6 @@ export default class RgaVariantAllelePairs extends LitElement {
         }
         return _variantData;
     }
-
 
     _initTableColumns() {
         return [
@@ -326,7 +327,7 @@ export default class RgaVariantAllelePairs extends LitElement {
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
-            `;
+        `;
     }
 
 }

@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
+import "../commons/filters/variant-filter.js";
 import "../commons/filters/region-filter.js";
 import "../commons/filters/clinvar-accessions-filter.js";
 import "../commons/filters/clinical-annotation-filter.js";
@@ -34,7 +35,6 @@ import "../commons/filters/go-accessions-filter.js";
 import "../commons/filters/hpo-accessions-filter.js";
 import "../commons/filters/population-frequency-filter.js";
 import "../commons/filters/protein-substitution-score-filter.js";
-import "../commons/filters/sample-filter.js";
 import "../commons/filters/sample-genotype-filter.js";
 import "../commons/filters/individual-hpo-filter.js";
 import "./family-genotype-modal.js";
@@ -337,21 +337,38 @@ export default class VariantBrowserFilter extends LitElement {
         } else {
             switch (subsection.id) {
                 case "study":
+                    const sampleSelected = !!this.preparedQuery?.sample;
                     content = html`
+                        ${sampleSelected ? html`
+                            <div class="alert alert-warning" role="alert">
+                                You can not select multiple studies if at least one sample has been selected in <b>Sample Filter</b>.
+                            </div>
+                        ` : nothing}
                         <study-filter
+                            .value="${this.preparedQuery.study}"
                             .opencgaSession="${this.opencgaSession}"
+                            .config="${{disabled: sampleSelected}}"
                             @filterChange="${e => this.onFilterChange("study", e.detail.value)}">
-                        </study-filter>`;
+                        </study-filter>
+                    `;
                     break;
                 case "sample":
+                    const multiStudySelected = this.preparedQuery?.study?.split(/[,;]/)?.length > 1;
                     content = html`
+                        ${multiStudySelected ? html`
+                            <div class="alert alert-warning" role="alert">
+                                You cannot select samples if more than one study has been selected in <b>Study Filter</b>.
+                            </div>
+                        ` : nothing}
                         <catalog-search-autocomplete
+                            title="${multiStudySelected ? "You cannot select samples with more than one study" : ""}"
                             .value="${this.preparedQuery.sample}"
                             .opencgaSession="${this.opencgaSession}"
                             .resource="${"SAMPLE"}"
-                            .config="${{multiple: true, maxItems: 3}}"
+                            .config="${{multiple: true, maxItems: 3, disabled: multiStudySelected}}"
                             @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
-                        </catalog-search-autocomplete>`;
+                        </catalog-search-autocomplete>
+                    `;
                     break;
                 case "cohort":
                     // FIXME subsection.cohorts must be renamed to subsection.studies
@@ -424,6 +441,13 @@ export default class VariantBrowserFilter extends LitElement {
                             .opencgaSession="${subsection.params.opencgaSession || this.opencgaSession}"
                             @filterChange="${e => this.onFilterChange("fileData", e.detail.value)}">
                         </variant-file-info-filter>`;
+                    break;
+                case "variant":
+                    content = html`
+                        <variant-filter
+                            .id="${this.preparedQuery.id}"
+                            @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
+                        </variant-filter>`;
                     break;
                 case "region":
                     content = html`
@@ -619,18 +643,16 @@ export default class VariantBrowserFilter extends LitElement {
         // We need to avoid rendering empty filters.
         if (content !== "") {
             return html`
-                <div class="form-group">
+                <div class="mb-2">
                     ${subsection.title ? html`
-                        <div id="${this._prefix}${subsection.id}" class="browser-subsection" data-cy="${subsection.id}">
-                            <span>${this._getFilterField(subsection.title)}</span>
+                        <label class="form-label fw-bold d-flex justify-content-between align-items-center" id="${this._prefix}${subsection.id}" data-cy="${subsection.id}">
+                            ${this._getFilterField(subsection.title)}
                             ${subsection.tooltip ? html`
-                                <div class="tooltip-div pull-right">
-                                    <a tooltip-title="Info" tooltip-text="${subsection.tooltip}">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a>
-                                </div>
+                                <a tooltip-title="Info" tooltip-text="${subsection.tooltip}">
+                                    <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
+                                </a>
                             ` : null}
-                        </div>
+                        </label>
                     `: null}
                     <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                         ${this._createMessage(subsection)}
@@ -646,7 +668,7 @@ export default class VariantBrowserFilter extends LitElement {
 
     render() {
         return html`
-            <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
+            <div class="d-flex flex-column gap-3" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
                 ${this.renderFilterMenu()}
             </div>
         `;

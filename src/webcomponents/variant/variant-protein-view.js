@@ -154,10 +154,10 @@ export default class VariantProteinView extends LitElement {
             ${this.proteins && this.proteins.length ? this.proteins.map(protein => html`
                 ${protein.active ? html`
                     <br>
-                    <li role="presentation" class="active"><a href="#${this._prefix}${protein.id}" role="tab" data-toggle="tab">${protein.id}</a></li>
+                    <li role="presentation" class="active"><a href="#${this._prefix}${protein.id}" role="tab" data-bs-toggle="tab">${protein.id}</a></li>
                 ` : html`
                     <br>
-                    <li role="presentation"><a href="#${this._prefix}${protein.id}" role="tab" data-toggle="tab">${protein.id}</a></li>
+                    <li role="presentation"><a href="#${this._prefix}${protein.id}" role="tab" data-bs-toggle="tab">${protein.id}</a></li>
                 `}
             `) : null }
         </ul>

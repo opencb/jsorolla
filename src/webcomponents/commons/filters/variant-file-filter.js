@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import "../forms/select-field-filter.js";
 
 export default class VariantFileFilter extends LitElement {
 
@@ -70,10 +71,13 @@ export default class VariantFileFilter extends LitElement {
     render() {
         return html`
             <select-field-filter
-                    .data="${this.files}"
-                    .value="${this.value}"
-                    .multiple="${true}"
-                    @filterChange="${this.filterChange}">
+                .data="${this.files}"
+                .value="${this.value}"
+                .config="${{
+                    multiple: true,
+                    liveSearch: false,
+                }}"
+                @filterChange="${this.filterChange}">
             </select-field-filter>
         `;
     }

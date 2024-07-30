@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
@@ -60,10 +60,18 @@ export default class UserLogin extends LitElement {
         LitUtils.dispatchCustomEvent(this, "redirect", null, {hash: to});
     }
 
+    getOrganization() {
+        if (this.opencgaSession?.opencgaClient?._config?.organizations?.length === 1) {
+            return this.opencgaSession.opencgaClient._config.organizations[0];
+        }
+        // If not, return the organization from the input field
+        return (this.querySelector("#organization")?.value || "").trim();
+    }
+
     onSubmit() {
         const user = (this.querySelector("#user").value || "").trim();
         const password = (this.querySelector("#password").value || "").trim();
-        const organization = (this.querySelector("#organization")?.value || "").trim();
+        const organization = this.getOrganization();
 
         this.hasEmptyUser = user.length === 0;
         this.hasEmptyPassword = password.length === 0;
@@ -130,63 +138,50 @@ export default class UserLogin extends LitElement {
         }
     }
 
-    // NOTE Josemi 20220317: reset password is disabled until we have an endpoint in OpenCGA to allow users
-    // to reset it's password
-    renderResetPasswordLink() {
-        return null;
-        // return html`
-        //     <div align="center">
-        //         <a @click="${() => this.redirect("#reset-password")}" style="cursor:pointer;">Forgot your password?</a>
-        //     </div>
-        // `;
-    }
-
     render() {
         return html`
-            <style>
-                /* Josemi NOTe 2024-02-01 */
-                /* Terrible style hack to fix rounded corners in organization field */
-                .organization-field .select2-selection {
-                    border-top-left-radius: 0px !important;
-                    border-bottom-left-radius: 0px !important;
-                }
-            </style>
             <div class="container-fluid" style="max-width:480px;">
-                <div class="panel panel-default">
-                    <div class="panel-body" style="padding:32px;">
-                        <div class="form-group ${this.hasEmptyUser ? "has-error" : ""}">
-                            <label for="user" class="control-label label-login">User ID</label>
-                            <div class="input-group">
-                                <span class="input-group-addon" id="username">
-                                    <i class="fa fa-user fa-lg"></i>
-                                </span>
-                                <input id="user" type="text" class="form-control" placeholder="User ID" @keyup="${e => this.onKeyUp(e)}">
-                            </div>
+                <div class="card">
+                    <div class="card-body">
+                        <label for="user" class="form-label fw-bold">User ID</label>
+                        <div class="input-group mb-3 ${this.hasEmptyUser ? "is-invalid" : ""}">
+                            <span class="input-group-text" id="username">
+                                <i class="fa fa-user fa-lg"></i>
+                            </span>
+                            <input id="user" class="form-control" type="text" placeholder="User ID"
+                                @keyup="${e => this.onKeyUp(e)}">
                         </div>
-                        <div class="form-group ${this.hasEmptyPassword ? "has-error" : ""}">
-                            <label for="pass" class="control-label label-login">Password</label>
-                            <div class="input-group">
-                                <span class="input-group-addon" id="username">
+                        <label for="pass" class="form-label fw-bold">Password</label>
+                        <div class="form-group ${this.hasEmptyPassword ? "is-invalid" : ""}">
+                            <div class="input-group mb-3">
+                                <span id="username" class="input-group-text" >
                                     <i class="fa fa-key fa-lg"></i>
                                 </span>
-                                <input id="password" type="password" class="form-control" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
+                                <input id="password" class="form-control" type="password" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
                             </div>
                         </div>
-                        <div class="form-group organization-field">
-                            <label for="organization" class="control-label label-login">Organization</label>
-                            <div class="input-group">
-                                <span class="input-group-addon">
-                                    <i class="fa fa-building fa-lg"></i>
-                                </span>
-                                <input id="organization" type="text" class="form-control" placeholder="Organization ID" @keyup="${e => this.onKeyUp(e)}">
+                        ${(this.opencgaSession?.opencgaClient?._config?.organizations?.length > 1) ? html`
+                            <div class="form-group">
+                                <label for="organization" class="form-label fw-bold">Organization</label>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">
+                                        <i class="fa fa-building fa-lg"></i>
+                                    </span>
+                                    <select class="form-select" id="organization">
+                                        ${this.opencgaSession?.opencgaClient?._config?.organizations.map(organization => html`
+                                            <option value="${organization}">${organization}</option>
+                                        `)}
+                                    </select>
+                                </div>
                             </div>
+                        ` : nothing}
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
+                                <strong>Sign In</strong>
+                            </button>
                         </div>
-                        <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
-                            <strong>Sign In</strong>
-                        </button>
                     </div>
                 </div>
-                ${this.renderResetPasswordLink()}
             </div>
         `;
     }

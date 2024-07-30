@@ -3675,15 +3675,15 @@ NavigationBar.prototype = {
         var navgationHtml = '' +
             '<div class="btn-toolbar" role="toolbar">' +
             '   <div class="btn-group btn-group-xs">' +
-            '       <button id="restoreDefaultRegionButton" class="btn btn-default" type="button"><i class="fa fa-repeat" aria-hidden="true"></i></button>' +
+            '       <button id="restoreDefaultRegionButton" class="btn btn-light" type="button"><i class="fa fa-repeat" aria-hidden="true"></i></button>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
-            '       <button id="regionHistoryButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><i class="fa fa-video-camera" aria-hidden="true"></i><span class="caret"></button>' +
+            '       <button id="regionHistoryButton" class="btn btn-light dropdown-toggle" data-toggle="dropdown"  type="button" ><i class="fa fa-video-camera" aria-hidden="true"></i><span class="caret"></button>' +
             '       <ul id="regionHistoryMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
-            '       <button id="speciesButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" >' +
+            '       <button id="speciesButton" class="btn btn-light dropdown-toggle" data-toggle="dropdown"  type="button" >' +
             '           <span id="speciesText"></span>&nbsp;<span class="caret"></span>' +
             '       </button>' +
             '       <ul id="speciesMenu" class="dropdown-menu" role="menu">' +
@@ -3691,41 +3691,41 @@ NavigationBar.prototype = {
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
 //            '       <div class="pull-left" style="height:22px;line-height: 22px;color:#708090">Chr&nbsp;</div>' +
-            '       <button id="chromosomesButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" >' +
+            '       <button id="chromosomesButton" class="btn btn-light dropdown-toggle" data-toggle="dropdown"  type="button" >' +
             '           <span id="chromosomesText"></span>&nbsp;<span class="caret"></span>' +
             '       </button>' +
             '       <ul id="chromosomesMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs" data-toggle="buttons">' +
-            '       <label id="karyotypeButton" class="btn btn-default"><input type="checkbox"><span class="ocb-icon ocb-icon-karyotype"></span></label>' +
-            '       <label id="chromosomeButton" class="btn btn-default"><input type="checkbox"><span class="ocb-icon ocb-icon-chromosome"></span></label>' +
-            '       <label id="regionButton" class="btn btn-default"><input type="checkbox"><span class="ocb-icon ocb-icon-region"></span></label>' +
+            '       <label id="karyotypeButton" class="btn btn-light"><input type="checkbox"><span class="ocb-icon ocb-icon-karyotype"></span></label>' +
+            '       <label id="chromosomeButton" class="btn btn-light"><input type="checkbox"><span class="ocb-icon ocb-icon-chromosome"></span></label>' +
+            '       <label id="regionButton" class="btn btn-light"><input type="checkbox"><span class="ocb-icon ocb-icon-region"></span></label>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
-            '       <button id="zoomOutButton" class="btn btn-default btn-xs" type="button"><i class="fa fa-minus" aria-hidden="true"></i></button>' +
+            '       <button id="zoomOutButton" class="btn btn-light btn-sm" type="button"><i class="fa fa-minus" aria-hidden="true"></i></button>' +
             '       <div id="progressBarCont" class="progress pull-left" style="width:200px;height:10px;margin:5px 2px 0px 2px;background-color: #d5d5d5">' +
             '           <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%">' +
             '           </div>' +
             '       </div>' +
 
-            '       <button id="zoomInButton" class="btn btn-default btn-xs" type="button"><i class="fa fa-plus" aria-hidden="true"></i></button>' +
+            '       <button id="zoomInButton" class="btn btn-light btn-sm" type="button"><i class="fa fa-plus" aria-hidden="true"></i></button>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs" style="margin:0px 0px 0px 15px;">' +
             '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Position:&nbsp;</div>' +
             '       <div class="input-group pull-left">' +
             '           <input id="regionField" style="width:200px;height:22px" type="text" class="form-control">' +
             '       </div>' +
-            '       <button id="goButton" class="btn btn-default btn-xs" type="button">Go!</button>' +
+            '       <button id="goButton" class="btn btn-light btn-sm" type="button">Go!</button>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
-            '       <button id="moveFurtherLeftButton" class="btn btn-default" type="button"><span class="ocb-icon ocb-icon-arrow-w-bold"></span></button>' +
-            '       <button id="moveLeftButton" class="btn btn-default" type="button"><span class="ocb-icon ocb-icon-arrow-w"></span></button>' +
-            '       <button id="moveRightButton" class="btn btn-default" type="button"><span class="ocb-icon ocb-icon-arrow-e"></span></button>' +
-            '       <button id="moveFurtherRightButton" class="btn btn-default" type="button"><span class="ocb-icon ocb-icon-arrow-e-bold"></span></button>' +
+            '       <button id="moveFurtherLeftButton" class="btn btn-light" type="button"><span class="ocb-icon ocb-icon-arrow-w-bold"></span></button>' +
+            '       <button id="moveLeftButton" class="btn btn-light" type="button"><span class="ocb-icon ocb-icon-arrow-w"></span></button>' +
+            '       <button id="moveRightButton" class="btn btn-light" type="button"><span class="ocb-icon ocb-icon-arrow-e"></span></button>' +
+            '       <button id="moveFurtherRightButton" class="btn btn-light" type="button"><span class="ocb-icon ocb-icon-arrow-e-bold"></span></button>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
-            '       <button id="autoheightButton" class="btn btn-default" type="button"><i class="fa fa-arrows-v" aria-hidden="true"></i></button>' +
+            '       <button id="autoheightButton" class="btn btn-light" type="button"><i class="fa fa-arrows-v" aria-hidden="true"></i></button>' +
             '   </div>' +
             '   <div class="btn-group pull-right">' +
             '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Search:&nbsp;</div>' +
@@ -3734,7 +3734,7 @@ NavigationBar.prototype = {
             '       </div>' +
             '       <ul id="quickSearchMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
-            '       <button id="goButton" class="btn btn-default btn-xs" type="button"><i class="fa fa-search" aria-hidden="true"></i></button>' +
+            '       <button id="goButton" class="btn btn-light btn-sm" type="button"><i class="fa fa-search" aria-hidden="true"></i></button>' +
             '   </div>' +
             '</div>' +
             '';
@@ -4196,7 +4196,7 @@ ChromosomePanel.prototype = {
             $(this.div).append(this.titleDiv);
 
             if (this.collapsible == true) {
-                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs" style="margin-left:10px;height:20px"><i class="fa fa-minus" aria-hidden="true"></i></div>');
+                this.collapseDiv = $('<div type="button" class="btn btn-light btn-sm" style="margin-left:10px;height:20px"><i class="fa fa-minus" aria-hidden="true"></i></div>');
                 $(this.titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
@@ -4716,7 +4716,7 @@ KaryotypePanel.prototype = {
             $(this.div).append(this.titleDiv);
 
             if(this.collapsible == true){
-                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs" style="margin-left:10px;height:20px"><i class="fa fa-minus" aria-hidden="true"></i></div>');
+                this.collapseDiv = $('<div type="button" class="btn btn-light btn-sm" style="margin-left:10px;height:20px"><i class="fa fa-minus" aria-hidden="true"></i></div>');
                 $(this.titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
@@ -7452,7 +7452,7 @@ TrackListPanel.prototype = {
             $(this.div).append(titleDiv);
 
             if (this.collapsible == true) {
-                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs" style="margin-left:10px;height:20px"><i class="fa fa-minus" aria-hidden="true"></i></div>');
+                this.collapseDiv = $('<div type="button" class="btn btn-light btn-sm" style="margin-left:10px;height:20px"><i class="fa fa-minus" aria-hidden="true"></i></div>');
                 $(titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
@@ -8474,7 +8474,7 @@ Track.prototype = {
             '<div class="btn-toolbar">' +
             '   <div class="btn-group btn-group-xs">' +
             '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><i class="fa fa-cog" aria-hidden="true"></i></button>' +
-            '   <button id="titleBtn" type="button" class="btn btn-xs btn-default" data-toggle="button"><span id="titleDiv">' + this.title + '</span></button>' +
+            '   <button id="titleBtn" type="button" class="btn btn-xs btn-light" data-toggle="button"><span id="titleDiv">' + this.title + '</span></button>' +
             '   </div>' +
             '</div>')[0];
 

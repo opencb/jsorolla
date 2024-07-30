@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "../../commons/forms/data-form.js";
+import "../../commons/forms/select-field-filter.js";
 
 export default class VariantInterpreterGridConfig extends LitElement {
 
@@ -208,7 +209,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 }
             },
             display: {
-                width: 10,
+                width: 12,
                 titleVisible: false,
                 titleAlign: "left",
                 titleWidth: 4,
@@ -239,9 +240,12 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
                                         <select-field-filter
-                                            .data="${this.config.pageList}"
-                                            .value="${this.config.pageSize}"
-                                            .multiple="${false}"
+                                            .data="${this.config?.pageList}"
+                                            .value="${this.config?.pageSize}"
+                                            .config="${{
+                                                liveSearch: false,
+                                                multiple: false
+                                            }}"
                                             .classes="${"btn-sm"}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                         </select-field-filter>
@@ -267,9 +271,11 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                         <select-field-filter
                                             .data="${this.selectColumnData}"
                                             .value="${this.selectedColumns?.join(",")}"
-                                            .title="${"Columns"}"
-                                            .multiple="${true}"
-                                            .classes="${"btn-sm"}"
+                                            .config="${{
+                                                title: "Columns",
+                                                multiple: true,
+                                                liveSearch: false,
+                                            }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value?.split(",") ?? [])}">
                                         </select-field-filter>
                                     `;
@@ -285,7 +291,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     display: {
                         titleHeader: "h4",
                         titleStyle: "margin: 5px 5px",
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "d-block text-secondary",
                         descriptionStyle: "margin: 0px 10px",
                         visible: () => !!this.config?.genotype?.type
                     },
@@ -307,7 +313,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     display: {
                         titleHeader: "h4",
                         titleStyle: "margin: 5px 5px",
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "d-block text-secondary",
                         descriptionStyle: "margin: 0px 10px",
                         visible: () => !!this.config?.geneSet
                     },
@@ -457,7 +463,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     display: {
                         titleHeader: "h4",
                         titleStyle: "margin: 5px 5px",
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "d-block text-secondary",
                         descriptionStyle: "margin: 0px 10px",
                         visible: () => !!this.config?.populationFrequenciesConfig
                     },

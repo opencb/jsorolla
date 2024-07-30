@@ -170,18 +170,18 @@ describe("Data Form Component", () => {
         });
 
         it("should render toggle switch", () => {
-            UtilsTest.getByDataTest("test1-inputToggleSwitch","button")
+            UtilsTest.getByDataTest("test1-inputToggleSwitch","input")
                 .should("have.length",2)
         });
 
         it("should render toggle buttons", () => {
-            UtilsTest.getByDataTest("test1-inputToggleButtons","button")
+            UtilsTest.getByDataTest("test1-inputToggleButtons","input")
                 .should("have.length",3)
         });
     })
 
 
-    context("Complex Field", () => {
+    context.only("Complex Field", () => {
         it("should render object list", () => {
             cy.log("Soon! render object list form");
         });
@@ -251,13 +251,8 @@ describe("Data Form Component", () => {
         });
 
         it("should a table", () => {
-            cy.get("label")
-                .contains("Table Example")
-                .parents("div[class='row form-group ']")
-                .within(() => {
-                    cy.get("table")
-                        .should("be.visible");
-                });
+            UtilsTest.getByDataTest("test1-inputTable", "table")
+                .should("be.visible");
         });
 
         it("should render 3 simple charts", () => {
@@ -283,41 +278,12 @@ describe("Data Form Component", () => {
     // Add element to the list
     // Remove element to the list
     // check require, validation, disable and others for inputc
-
     // test: check if generate correctly url
-    // test: check if generate correctly url
-
-
     // it("when submit is pressed, input display error for empty field", () => {
-    //     // how to identify btn data-form
-    //     cy.get("button[class='btn btn-primary ']").contains("OK").click();
-
-    //     // TODO: search all input with require attr and verify is it visible
-    //     cy.get(".has-error").should("be.visible");
-    // });
-
+    // how to identify btn data-form
+    // search all input with require attr and verify is it visible
     // it("should type the first input field", () => {
-    //     UtilsTest.getByDataTest("test1--id", "input").type("testing input fill");
-    //     // cy.get("div[data-test-id='test1--status.description'] textarea").type("testing input fill");
-
-    //     UtilsTest.getByDataTest("test1--status.description", "textarea").type("testing input fill");
-    //     // cy.get("button[class='btn btn-primary ']").contains("OK").click();
-    // });
-
-    // // Approach #3 to access to type field (More specific field)
-    // it.skip("should type the first input field", () => {
-    //     // cy.get("label").contains("Sample ID").parents("div[class='row form-group ']").within(()=> {
-    //     //     cy.get("input[type='text']").type("testing input fill");
-    //     // });
-    //     UtilsTest.enterField("Sample ID", "testing values");
-    //     UtilsTest.submitForm();
-    // });
-
-    // it("the second field should be disabled", () => {
-    //     // cy.get("textarea").first().should("be.disabled");
-    //     UtilsTest.getByDataTest("test1--description", "textarea")
-    //         .should("be.disabled");
-    // });
+    // Approach #3 to access to type field (More specific field)
 
 });
 

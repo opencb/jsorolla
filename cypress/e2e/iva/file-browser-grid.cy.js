@@ -163,14 +163,14 @@ context("File Browser Grid", () => {
             });
             cy.get("button[data-action='settings']")
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                UtilsTest.getByDataTest("test-columns", "select-field-filter span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-selection")
                 .click();
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
@@ -209,7 +209,7 @@ context("File Browser Grid", () => {
                 cy.get("tbody tr")
                     .eq(3)
                     .click()
-                    .should("have.class","success");
+                    .should("have.class","table-success");
         });
 
         it("should download file json",{tags:"@shortTask"}, () => {
@@ -218,7 +218,7 @@ context("File Browser Grid", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get(`ul[class*="dropdown-menu"][class*="show"]`)
                         .contains("a","Download JSON")
                         .click();
             });
@@ -237,6 +237,7 @@ context("File Browser Grid", () => {
             cy.get(`detail-tabs > div.detail-tabs > ul`)
                 .find("li")
                 .contains("New Catalog Tab")
+                .as("catalogTab")
                 .click()
                 .should("be.visible");
         });

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 
 import UtilsNew from "../../core/utils-new.js";
@@ -23,6 +23,7 @@ import "../variant/interpretation/variant-interpreter-grid.js";
 import "../variant/interpretation/variant-interpreter-detail.js";
 import "../variant/variant-browser-filter.js";
 import GridCommons from "../commons/grid-commons.js";
+import {Namespace, TempusDominus} from "@eonasdan/tempus-dominus";
 
 class ClinicalAnalysisAuditBrowser extends LitElement {
 
@@ -106,13 +107,26 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
 
     clinicalAnalysisObserver() {
         if (this.clinicalAnalysis && this.clinicalAnalysis.audit) {
-            const dates = this.clinicalAnalysis.audit.map(event => moment(event.date, "YYYYMMDDHHmmss"));
-            $("#" + this._prefix + "PickerDate").datetimepicker({
-                format: "DD/MM/YYYY",
-                // defaultDate: moment.max(dates),
-                enabledDates: dates,
-                showClear: true
-            }).on("dp.change", e => this.onDateFilterChange(e));
+            // const dates = this.clinicalAnalysis.audit.map(event => moment(event.date, "YYYYMMDDHHmmss"));
+            const dates = this.clinicalAnalysis.audit.map(event => new Date(moment(event.date, "YYYYMMDDHHmmss")));
+            // $("#" + this._prefix + "PickerDate").datetimepicker({
+            //     format: "DD/MM/YYYY",
+            //     // defaultDate: moment.max(dates),
+            //     enabledDates: dates,
+            //     showClear: true
+            // }).on("dp.change", e => this.onDateFilterChange(e));
+            const pickerDate = new TempusDominus(document.getElementById(this._prefix + "PickerDate"), {
+                display: {
+                    theme: "light",
+                },
+                localization: {
+                    format: "dd/MM/yyyy",
+                },
+                restrictions: {
+                    enabledDates: dates,
+                }
+            });
+            pickerDate.subscribe(Namespace.events.change, e => this.onDateFilterChange(e));
 
             this._audit = [...this.clinicalAnalysis.audit].sort((a, b) => b.date - a.date);
             this.updateTable(); // Manually update table
@@ -138,13 +152,15 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
 
         return html`
             ${Object.keys(timeline).sort().reverse().map(date => html`
-                <ul class="">
-                    <li class="date">${moment(date, "YYYYMMDD").format("D MMM YYYY")}</li>
+                <ul class="list-unstyled">
+                    <li class="h3 text-body-tertiary">${moment(date, "YYYYMMDD").format("D MMM YYYY")}</li>
                     ${timeline[date].map(entry => html`
-                        <li class="event" data-date="${UtilsNew.dateFormatter(entry.date, "h:mm:ss a")}">
-                            <span class="author">${entry.author}</span>
-                            <h3>${entry.action}</h3>
-                            <p>${entry.message}</p>
+                        <li class="event rounded" data-date="${UtilsNew.dateFormatter(entry.date, "h:mm:ss a")}">
+                            <div class="d-flex flex-column gap-3">
+                                <span class="fw-bold text-body-tertiary">${entry.author}</span>
+                                <h3>${entry.action}</h3>
+                                <p>${entry.message}</p>
+                            </div>
                         </li>
                     `)}
                 </ul>
@@ -156,10 +172,11 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
         let date;
         if (e.date) {
             // custom event fired by datepicker
-            date = e.date.format("YYYYMMDD");
+            // date = e.date.format("YYYYMMDD");
+            date = e.date.format("yyyyMMdd");
         } else if (e.target.value) {
             // native @input event
-            date = moment(e.target.value, "DD/MM/YYYY").format("YYYYMMDD");
+            date = new Date(moment(e.target.value, "DD/MM/YYYY").format("YYYYMMDD"));
         }
         // console.log("date", date)
         if (date) {
@@ -181,10 +198,10 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
         if (keyword) {
             this._audit = this.clinicalAnalysis.audit.filter(event => {
                 return event.author.toLowerCase().includes(keyword) ||
-                        event.action.toLowerCase().includes(keyword) ||
-                        event.message.toLowerCase().includes(keyword) ||
-                        event.author.toLowerCase().includes(keyword) ||
-                        event.date.toLowerCase().includes(keyword);
+                    event.action.toLowerCase().includes(keyword) ||
+                    event.message.toLowerCase().includes(keyword) ||
+                    event.author.toLowerCase().includes(keyword) ||
+                    event.date.toLowerCase().includes(keyword);
             });
         } else {
             this._audit = [...this.clinicalAnalysis.audit];
@@ -204,6 +221,8 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: this._audit,
             columns: this._getTableColumns(),
             sidePagination: "local",
@@ -216,7 +235,7 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
             pageList: this._config.pageList,
             paginationVAlign: "both",
             formatShowingRows: this.gridCommons.formatShowingRows,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement)
         });
     }
@@ -246,14 +265,6 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
         ];
     }
 
-    getDefaultConfig() {
-        return {
-            pagination: true,
-            pageSize: 25,
-            pageList: [25, 50, 100],
-            timelinePageSize: 20,
-        };
-    }
 
     render() {
         if (!this.clinicalAnalysis) {
@@ -278,52 +289,61 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
             </style>
             <div class="row" id="interpretation-audit">
                 <div class="col-md-8">
-                    <div class="form-inline control-bar-wrapper">
-                        <div class="btn-group view-button-wrapper">
-                            <span data-id="timeline" class="view-button btn btn-default ${classMap({active: this.activeTab === "timeline"})}" @click="${this._changeTab}">
-                                <i class="fas fa-th-list icon-padding"></i>
-                            </span>
-                            <span data-id="table" class="view-button btn btn-default ${classMap({active: this.activeTab === "table"})}" @click="${this._changeTab}">
-                                <i class="fas fa-table icon-padding"></i>
-                            </span>
+                    <div class="row row-cols-lg-auto g-3 justify-content-end align-items-center mb-3">
+                        <div class="col-12">
+                            <div class="btn-group">
+                                <button class="view-button btn btn-light ${classMap({active: this.activeTab === "timeline"})}" data-id="timeline" @click="${this._changeTab}">
+                                    <i class="fas fa-th-list pe-1"></i>
+                                </button>
+                                <button class="view-button btn btn-light ${classMap({active: this.activeTab === "table"})}"  data-id="table" @click="${this._changeTab}">
+                                    <i class="fas fa-table pe-1"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="form-group">
+                        <div class="col-12">
                             <div class="input-group">
-                                <div class="input-group-addon">
+                                <span class="input-group-text">
                                     <i class="fas fa-search"></i>
-                                </div>
+                                </span>
                                 <input type="text" class="form-control" placeholder="Filter events.." @input="${this.filter}">
                             </div>
                         </div>
-                        <div class='input-group date' id="${this._prefix}PickerDate" data-field="${1}">
-                            <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" placeholder="Date">
-                            <span class="input-group-addon">
-                                <span class="fa fa-calendar"></span>
-                            </span>
+                        <div class="col-12">
+                            <div class='input-group date' id="${this._prefix}PickerDate" data-field="${1}">
+                                <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" placeholder="Date">
+                                <span class="input-group-text ">
+                                    <span class="fa fa-calendar"></span>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-8">
-                    <div class="interpretation-audit">
-                        <div class="content-tab-wrapper">
-                            <div id="${this._prefix}timeline" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab === "timeline"})}">
-                                <div class="interpretation-audit-timeline">
-                                    ${this.renderTimeline()}
-                                </div>
-                                ${this._audit && this._audit.length > this.timelineEnd ? html`
-                                    <div class="btn btn-default ripple load-next-event-button" @click="${this.showNextEvents}">
-                                        Load next ${Math.min(this._config.timelinePageSize, this._audit.length - this.timelineEnd)} events..
-                                    </div>
-                                ` : null}
-                            </div>
-                            <div id="${this._prefix}table" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab === "table"})}">
-                                <table id="${this.gridId}"></table>
-                            </div>
+                    <div id="${this._prefix}timeline" role="tabpanel" class="${this.activeTab !== "timeline" ? "d-none" : nothing }">
+                        <div class="interpretation-audit-timeline">
+                            ${this.renderTimeline()}
                         </div>
+                        ${this._audit && this._audit.length > this.timelineEnd ? html`
+                            <div class="btn btn-light load-next-event-button" @click="${this.showNextEvents}">
+                                Load next ${Math.min(this._config.timelinePageSize, this._audit.length - this.timelineEnd)} events..
+                            </div>
+                        ` : nothing}
+                    </div>
+                    <div id="${this._prefix}table" role="tabpanel" class="${this.activeTab !== "table" ? "d-none" : nothing }">
+                        <table id="${this.gridId}"></table>
                     </div>
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            pagination: true,
+            pageSize: 25,
+            pageList: [25, 50, 100],
+            timelinePageSize: 20,
+        };
     }
 
 }

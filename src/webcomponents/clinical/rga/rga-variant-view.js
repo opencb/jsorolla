@@ -209,7 +209,7 @@ export default class RgaVariantView extends LitElement {
                     title: "Gene",
                     field: "genes",
                     rowspan: 2
-                // formatter: (value, row) => this.geneFormatter(value, row)
+                    // formatter: (value, row) => this.geneFormatter(value, row)
                 },
                 {
                     title: "dbSNP",
@@ -300,17 +300,17 @@ export default class RgaVariantView extends LitElement {
                 //     // formatter: this.individualFormatter.bind(this)
                 //
                 // }
-            /* ...this.samples.map(sample => {
-                return {
-                    title: `Sample ${sample.sampleId}`,
-                    field: sample.sampleId,
-                    visible: !!~this.activeSamples.indexOf(sample.sampleId),
-                    formatter: (v, row) => {
-                        return row.data.find(a => a.sampleId === sample.sampleId)?.variant?.knockoutType;
-                        // return JSON.stringify(v)
-                    }
-                };
-            })*/]
+                /* ...this.samples.map(sample => {
+                    return {
+                        title: `Sample ${sample.sampleId}`,
+                        field: sample.sampleId,
+                        visible: !!~this.activeSamples.indexOf(sample.sampleId),
+                        formatter: (v, row) => {
+                            return row.data.find(a => a.sampleId === sample.sampleId)?.variant?.knockoutType;
+                            // return JSON.stringify(v)
+                        }
+                    };
+                })*/]
         ];
 
         return this._columns;
@@ -474,6 +474,8 @@ export default class RgaVariantView extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             // data: this.tableData,
             columns: this._initTableColumns(),
             method: "get",
@@ -486,7 +488,7 @@ export default class RgaVariantView extends LitElement {
             pagination: this._config.pagination,
             paginationVAlign: "both",
             formatShowingRows: (pageFrom, pageTo, totalRows) => this.formatShowingRows(pageFrom, pageTo, totalRows),
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             ajax: params => {
                 const _filters = {
                     study: this.opencgaSession.study.fqn,

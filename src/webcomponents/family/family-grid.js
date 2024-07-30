@@ -18,10 +18,11 @@ import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
-import ModalUtils from "../commons/modal/modal-utils";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import ModalUtils from "../commons/modal/modal-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import WebUtils from "../commons/utils/web-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils";
 
 export default class FamilyGrid extends LitElement {
 
@@ -64,21 +65,22 @@ export default class FamilyGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
-        this.displayConfigDefault = {
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom",
-            },
-        };
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config")) {
+            this.propertyObserver();
+        }
+
+        super.update(changedProperties);
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
-            changedProperties.has("toolId") ||
-            changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) && this.active) {
-            this.propertyObserver();
+        if (changedProperties.size > 0 && this.active) {
+            this.renderTable();
         }
     }
 
@@ -106,6 +108,7 @@ export default class FamilyGrid extends LitElement {
                     modalTitle: "Family Create",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                 },
                 render: () => html `
                     <family-create
@@ -140,18 +143,19 @@ export default class FamilyGrid extends LitElement {
             //             @configChange="${this.onGridConfigChange}">
             //         </catalog-browser-grid-config>`
             // }
-
         };
-        this.renderTable();
+
+        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
-    fetchClinicalAnalysis(rows) {
+    fetchClinicalAnalysis(rows, casesLimit) {
         if (rows && rows.length > 0) {
             return this.opencgaSession.opencgaClient.clinical()
                 .search({
                     family: rows.map(family => family.id).join(","),
                     study: this.opencgaSession.study.fqn,
                     include: "id,proband.id,family.members,family.id",
+                    limit: casesLimit * 10
                 })
                 .then(response => {
                     return rows.forEach(family => {
@@ -178,7 +182,6 @@ export default class FamilyGrid extends LitElement {
         } else {
             this.renderRemoteTable();
         }
-        this.requestUpdate();
     }
 
     renderRemoteTable() {
@@ -192,6 +195,8 @@ export default class FamilyGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -199,7 +204,6 @@ export default class FamilyGrid extends LitElement {
                 icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
                 silentSort: false,
-                // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
@@ -208,7 +212,7 @@ export default class FamilyGrid extends LitElement {
                 showExport: this._config.showExport,
                 detailView: !!this.detailFormatter,
                 detailFormatter: (value, row) => this.detailFormatter(value, row),
-                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let familyResponse = null;
                     this.filters = {
@@ -218,14 +222,17 @@ export default class FamilyGrid extends LitElement {
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         ...this.query
                     };
+
+                    // Calculate the number of cases to fetch
+                    const casesLimit = this.table?.bootstrapTable("getOptions")?.pageSize || this._config.pageSize || 10;
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.families()
                         .search(this.filters)
                         .then(response => {
                             familyResponse = response;
-                            // Fetch Clinical Analysis ID per Family in 1 single query
-                            return this.fetchClinicalAnalysis(familyResponse.responses?.[0]?.results || []);
+                            return this.fetchClinicalAnalysis(familyResponse.responses?.[0]?.results || [], casesLimit);
                         })
                         .then(() => {
                             // Prepare data for columns extensions
@@ -244,16 +251,8 @@ export default class FamilyGrid extends LitElement {
                 },
                 onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onDblClickRow: (row, element) => {
-
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
+                    this.detailFormatter ?
+                        this.table.bootstrapTable("toggleDetailView", element[0].dataset.index) : null;
                 },
                 onCheck: row => {
                     this.gridCommons.onCheck(row.id, row);
@@ -281,6 +280,8 @@ export default class FamilyGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._getDefaultColumns(),
             // data: this.families,
             sidePagination: "server",
@@ -314,7 +315,7 @@ export default class FamilyGrid extends LitElement {
             showExport: this._config.showExport,
             detailView: !!this.detailFormatter,
             detailFormatter: (value, row) => this.detailFormatter(value, row),
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
@@ -338,7 +339,7 @@ export default class FamilyGrid extends LitElement {
             result += `
                 <div style="width: 90%;padding-left: 20px">
                     <table class="table table-hover table-no-bordered">
-                        <thead>
+                        <thead class="table-light">
                             <tr class="table-header">
                                 <th>ID</th>
                                 <th>Sex</th>
@@ -415,7 +416,7 @@ export default class FamilyGrid extends LitElement {
                 field: "id",
                 formatter: familyId => `<div><span style="font-weight: bold">${familyId}</span></div>`,
                 sortable: true,
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
@@ -443,7 +444,7 @@ export default class FamilyGrid extends LitElement {
                     }
                     return html;
                 },
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("members")
             },
             {
@@ -451,7 +452,7 @@ export default class FamilyGrid extends LitElement {
                 title: "Disorders",
                 field: "disorders",
                 formatter: disorders => CatalogGridFormatter.disorderFormatter(disorders),
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("disorders")
             },
             {
@@ -459,7 +460,7 @@ export default class FamilyGrid extends LitElement {
                 title: "Phenotypes",
                 field: "phenotypes",
                 formatter: CatalogGridFormatter.phenotypesFormatter,
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("phenotypes")
             },
             {
@@ -467,7 +468,7 @@ export default class FamilyGrid extends LitElement {
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
@@ -476,7 +477,7 @@ export default class FamilyGrid extends LitElement {
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
                 sortable: true,
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
@@ -492,60 +493,62 @@ export default class FamilyGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
+                align: "center",
                 formatter: (value, row) => `
-                    <div class="dropdown">
-                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                    <div class="d-inline-block dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
                             <span>Actions</span>
-                            <span class="caret" style="margin-left: 5px"></span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
+                                    <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
                                 </a>
                             </li>
                             <li>
-                                <a data-action="download-json" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
+                                    <i class="fas fa-download" aria-hidden="true"></i> Download JSON
                                 </a>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="qualityControl" class="btn force-text-left ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
+                                <a data-action="qualityControl" class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
                                         title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                    <i class="fas fa-rocket icon-padding" aria-hidden="true"></i> Calculate Quality Control
+                                    <i class="fas fa-rocket" aria-hidden="true"></i> Calculate Quality Control
                                 </a>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
-                                        <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
-                                           href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
-                                            <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
-                                        </a>
-                                    `).join("") : `<a data-action="interpreter" class="btn force-text-left disabled" href="#">
-                                        <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> No cases found
-                                    </a>`
-                }
+                                    <a data-action="interpreter" class="dropdown-item ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
+                                        href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
+                                        <i class="fas fa-user-md" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
+                                    </a>
+                                `).join("") : `
+                                    <a data-action="interpreter" class="dropdown-item disabled" href="#">
+                                        <i class="fas fa-user-md" aria-hidden="true"></i> No cases found
+                                    </a>
+                                `}
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) || "disabled" }">
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
                             <li>
-                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
-                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                <a data-action="delete" href="javascript: void 0" class="dropdown-item disabled">
+                                    <i class="fas fa-trash" aria-hidden="true"></i> Delete
                                 </a>
                             </li>
                         </ul>
-                    </div>`,
+                    </div>
+                `,
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
-                visible: !this._config.columns?.hidden?.includes("actions")
+                visible: this.gridCommons.isColumnVisible("actions")
             });
         }
 
@@ -599,6 +602,7 @@ export default class FamilyGrid extends LitElement {
                 modalTitle: `Family Update: ${this.familyUpdateId}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
+                modalSize: "modal-lg"
             },
             render: active => html`
                 <family-update
@@ -624,10 +628,10 @@ export default class FamilyGrid extends LitElement {
                     @export="${this.onDownload}"
                     @actionClick="${e => this.onActionClick(e)}"
                     @familyCreate="${this.renderTable}">
-                </opencb-grid-toolbar>` : nothing
-            }
+                </opencb-grid-toolbar>
+            ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "./opencga-analysis-tool-form-field.js";
@@ -47,7 +47,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     }
 
     _init() {
-        this._prefix = "oatf-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         // OpenCGA Analysis use 2 different set of parameters: 'data' and 'params':
         //  - data: contains the specific params for the analysis
@@ -212,84 +212,99 @@ export default class OpencgaAnalysisToolForm extends LitElement {
         }
 
         return html`
-            <div class="panel-group">
                 <!--
                     <pre style="font-size: 10px;height: 25vh;">
                         \${JSON.stringify(this.config.sections, null, "\t")}
                     </pre>
                 -->
-                <form id="${this._prefix}analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
+                <form class="d-flex flex-column gap-2 mb-3" id="${this._prefix}analysis-form" data-bs-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
                     ${this.config.sections.map((section, i) => html`
-                         <div class="panel panel-default shadow-sm">
-                             <div class="panel-body" role="tab" id="${this._prefix}Heading${i}">
-                                 <h4 class="panel-title">
-                                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
+                        <div class="card shadow">
+                            <div class="card-header" role="tab" id="${this._prefix}Heading${i}">
+                                <h4 class="card-title">
+                                    <a class="collapsed text-decoration-none" role="button" data-bs-toggle="collapse" data-parent="#${this._prefix}Accordion"
                                         href="#${this._prefix}section-${i}" aria-expanded="true" aria-controls="${this._prefix}-${i}">
                                         ${section.title}
-                                     </a>
-                                 </h4>
-                             </div>
-                             <div id="${this._prefix}section-${i}" class="panel-collapse ${!section.collapsed ? "in" : ""}" role="tabpanel" aria-labelledby="${this._prefix}${i}Heading">
-                                 <div class="panel-body">
-                                     <div class="row">
-                                         ${section.parameters && section.parameters.length ? section.parameters.map(param => html`
-                                             <opencga-analysis-tool-form-field
+                                    </a>
+                                </h4>
+                            </div>
+                            <div class="collapse show" id="${this._prefix}section-${i}" role="tabpanel" aria-labelledby="${this._prefix}${i}Heading">
+                                <div class="card-body">
+                                    <div class="row">
+                                    ${section.parameters && section.parameters.length ? section.parameters.map(param => html`
+                                            <opencga-analysis-tool-form-field
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .cellbaseClient=${this.cellbaseClient}
                                                 .config="${param}" @fieldChange="${this.onFieldChange}">
                                             </opencga-analysis-tool-form-field>
-                                         `) : null }
-                                     </div>
-                                 </div>
+                                        `) : nothing }
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     `)}
 
                     <!-- Job Info section -->
                     ${(this.config.job.visible ?? true) ? html`
-                        <div class="panel panel-default shadow-sm">
-                            <div class="panel-body" role="tab" id="${this._prefix}HeadingJob">
-                                <h4 class="panel-title">
-                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
+                        <div class="card shadow">
+                            <div class="card-header" role="tab" id="${this._prefix}HeadingJob">
+                                <h4 class="card-title">
+                                    <a class="collapsed text-decoration-none" role="button" data-bs-toggle="collapse" data-parent="#${this._prefix}Accordion"
                                             href="#${this._prefix}section-job" aria-expanded="true">
                                         ${this.config.job.title}
                                     </a>
                                 </h4>
                             </div>
-                            <div id="${this._prefix}section-job" class="panel-collapse" role="tabpanel">
-                                <div class="panel-body">
+                            <div id="${this._prefix}section-job" class="collapse show" role="tabpanel">
+                                <div class="card-body">
                                     <div class="row">
-                                        <div style="padding: 4px 20px; width: 480px">
-                                            <label>Job ID</label>
-                                            <text-field-filter placeholder="job ID" .value="${this.jobId}" @filterChange="${e => this.onJobFieldChange("jobId", e.detail.value)}"></text-field-filter>
+                                        <div class="row mb-3">
+                                            <label class="fw-bold form-label">Job ID</label>
+                                            <div class="col-md-6">
+                                                <text-field-filter
+                                                    placeholder="job ID"
+                                                    .value="${this.jobId}"
+                                                    @filterChange="${e => this.onJobFieldChange("jobId", e.detail.value)}">
+                                                </text-field-filter>
+                                            </div>
                                         </div>
-                                        <div style="padding: 4px 20px; width: 480px">
-                                            <label>Job tags</label>
-                                            <text-field-filter placeholder="Comma-separated tags, eg. variant, stats, ... " .value="" @filterChange="${e => this.onJobFieldChange("jobTags", e.detail.value)}"></text-field-filter>
+                                        <div class="row mb-3">
+                                            <label class="fw-bold form-label">Job tags</label>
+                                            <div class="col-md-6">
+                                                <text-field-filter
+                                                    placeholder="Comma-separated tags, eg. variant, stats, ... "
+                                                    value=""
+                                                    @filterChange="${e => this.onJobFieldChange("jobTags", e.detail.value)}">
+                                                </text-field-filter>
+                                            </div>
                                         </div>
-                                        <div style="padding: 4px 20px; width: 480px">
-                                            <label>Job Description</label>
-                                            <text-field-filter placeholder="job description" .value="" @filterChange="${e => this.onJobFieldChange("jobDescription", e.detail.value)}"></text-field-filter>
+                                        <div class="row mb-3">
+                                            <label class="fw-bold form-label">Job Description</label>
+                                            <div class="col-md-6">
+                                                <text-field-filter
+                                                    placeholder="job description"
+                                                    value=""
+                                                    @filterChange="${e => this.onJobFieldChange("jobDescription", e.detail.value)}">
+                                                </text-field-filter>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    ` : null}
-                    <div class="pull-right button-wrapper">
+                    ` : nothing}
+                    <div class="d-flex justify-content-end">
                         ${this.runnable ?
                             html`
-                                <button type="button" class="ripple btn btn-primary btn-lg" @click="${this.onRun}">Run</button>` :
+                                <button type="button" class="btn btn-primary btn-lg" @click="${this.onRun}">Run</button>` :
                             html`
                                 <a tooltip-title="Permission denied" tooltip-text="EXECUTE_JOB permission not available">
                                     <i class="fas fa-exclamation-circle text-danger"></i>
                                 </a>
-                                <button type="button" class="ripple btn btn-primary btn-lg disabled"> Run </button>`
+                                <button type="button" class="btn btn-primary btn-lg disabled"> Run </button>`
                         }
                     </div>
                 </form>
-           </div>
-           <div class="v-space"></div>
         `;
     }
 

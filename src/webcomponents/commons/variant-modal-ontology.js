@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
@@ -175,49 +175,45 @@ export default class VariantModalOntology extends LitElement {
     renderShowMore(showMore, index, lastIndex, node, parent) {
         if (showMore && ((index+1) >= lastIndex) && ((index+1) <= parent.children_count)) {
             return html`
-                <div class="ontology-node" role="tab">
-                    <span class="leaf" style="margin-left: ${node.depth}em; color: #337ab7"
+                <li class="list-group-item list-group-item-action">
+                    <span class="text-primary" style="cursor:pointer"
                         @click="${() => this.showMoreItems(parent, lastIndex)}">
                         Show More...
                     </span>
-                </div>`;
+                </li>`;
         }
     }
 
     drawNode(node, index, parent, showMore) {
         const isLoading = flag => flag ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`:"";
         const isExpanded = flag => flag ? html`<i class="fas fa-plus"></i>` : html`<i class="fas fa-minus"></i>`;
-        const isCollapsed = flag => flag ? "in" : "";
+        const isCollapsed = flag => flag ? "show" : "";
         const isChildrenExpanded = flag => flag ?
-            html`${node.nodes.map((nodeChild, i) => this.drawNode(nodeChild, i, node, node?.children_count > node?.nodes?.length))}` :
-            "";
-        const childrenSize = node.has_children ?
-            html`<span class="label label-primary">${node.children_count} Terms</span>`:"";
+            html`${node.nodes.map((nodeChild, i) => this.drawNode(nodeChild, i, node, node?.children_count > node?.nodes?.length))}` : nothing;
+        const childrenSize = node.has_children ? html`<span class="badge text-bg-primary">${node.children_count} Terms</span>`: nothing;
         const lastIndex = parent?.nodes?.length;
         return html`
-            <div role="tablist">
-                <div class="ontology-node ${classMap({active: node.obo_id === this.selectedItem?.obo_id})}" role="tab"
+            <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-start ${classMap({"list-group-item-success": node.obo_id === this.selectedItem?.obo_id})}"
                 @click="${() => this.selectItem(node)}" data-obo-id="${node.obo_id}">
-                    ${node.has_children ? html`
-                        <span style="margin-left: ${node.depth}em">
-                            <span @click="${() => this.toggleNode(node)}" class="" role="button" data-toggle="collapse" aria-expanded="true">
-                                ${isExpanded(!node.state.expanded)}
-                            </span>
-                            ${node.name} ${childrenSize} ${isLoading(node.state.loading)}
-                        </span>
-                    `: html`
-                        <span class="leaf" style="margin-left: ${node.depth}em;">
-                            ${node.name}
-                        </span>
-                    `}
-                </div>
                 ${node.has_children ? html`
-                    <div class="panel-collapse collapse ${isCollapsed(node.state.expanded)}" role="tabpanel" >
-                        ${isChildrenExpanded(node.state.expanded)}
+                    <div class="ms-${node.depth} me-auto">
+                        <span style="cursor:pointer" @click="${() => this.toggleNode(node)}" aria-expanded="true">
+                            ${isExpanded(!node.state.expanded)} ${node.name} ${isLoading(node.state.loading)}
+                        </span>
                     </div>
-                ` : ""}
-                ${this.renderShowMore(showMore, index, lastIndex, node, parent)}
-            </div>
+                    ${childrenSize}
+                `: html`
+                    <div class="ms-${node.depth}">
+                        ${node.name}
+                    </div>
+                `}
+            </li>
+            ${node.has_children ? html`
+                <div class="tab-pane fade ${isCollapsed(node.state.expanded)}" role="tabpanel">
+                    ${isChildrenExpanded(node.state.expanded)}
+                </div>
+            ` : nothing}
+            ${this.renderShowMore(showMore, index, lastIndex, node, parent)}
         `;
     }
 
@@ -225,62 +221,61 @@ export default class VariantModalOntology extends LitElement {
         return html`
             <div class="modal fade" id="${this._config.ontologyFilter}_ontologyModal" tabindex="-1" role="dialog"
                 aria-labelledby="ontologyLabel">
-                <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
+                <div class="modal-dialog modal-xl" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
                             <h4 class="modal-title" id="${this._prefix}EditorLabel">${this.term} terms selector</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="container-fluid">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <ontology-autocomplete-filter
-                                            .cellbaseClient="${this.cellbaseClient}"
-                                            .value="${this.selectedTerms}"
-                                            .config="${this._config}"
-                                            @filterChange="${this.updateTerms}">
-                                        </ontology-autocomplete-filter>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <ontology-autocomplete-filter
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .value="${this.selectedTerms}"
+                                        .config="${this._config}"
+                                        @filterChange="${this.updateTerms}">
+                                    </ontology-autocomplete-filter>
+                                </div>
+
+                                <div class="col-md-6 overflow-auto" style="height:600px">
+                                    <div class="card">
+                                        <ul class="list-group list-group-flush">
+                                            ${this.rootTree?.nodes.map(node => this.drawNode(node, false))}
+                                        </ul>
                                     </div>
                                 </div>
-                                <div class="row ontology-tree-wrapper">
-                                    <div class="col-md-6 ontology-tree" style="padding-bottom:10px">
-                                        ${this.rootTree?.nodes.map(node => this.drawNode(node, false))}
-                                    </div>
-                                    <div class="col-md-6">
-                                        ${this.selectedItem ? html`
-                                            <ul class="list-group infoHpo">
-                                                <li class="list-group-item">
-                                                    <strong>Name: </strong>${this.selectedItem.name}
-                                                </li>
-                                                <li class="list-group-item">
-                                                    <strong>ID: </strong>${this.selectedItem.obo_id}
-                                                </li>
-                                                <li class="list-group-item"><strong>IRI: </strong>
-                                                    <a href="${BioinfoUtils.getOboLink(this.selectedItem.obo_id)}" target="_blank">
-                                                        ${BioinfoUtils.getOboLink(this.selectedItem.obo_id)}
-                                                    </a>
-                                                </li>
-                                                <li class="list-group-item">
-                                                    <strong>Synonyms: </strong>${this.selectedItem.synonyms?.join(", ")}
-                                                </li>
-                                                <li class="list-group-item">
-                                                    <strong>Description: </strong>${this.selectedItem.description}
-                                                </li>
-                                                <li class="list-group-item">
-                                                    <strong>Comment: </strong>${this.selectedItem?.comment}
-                                                </li>
-                                            </ul>
-                                            <button type="button" class="btn btn-default btn-small" @click="${() => this.addTerm(this.selectedItem.obo_id)}">Add Term</button>
-                                        ` : ""}
-                                    </div>
+                                <div class="col-md-6">
+                                    ${this.selectedItem ? html`
+                                        <ul class="list-group">
+                                            <li class="list-group-item">
+                                                <strong>Name: </strong>${this.selectedItem.name}
+                                            </li>
+                                            <li class="list-group-item">
+                                                <strong>ID: </strong>${this.selectedItem.obo_id}
+                                            </li>
+                                            <li class="list-group-item"><strong>IRI: </strong>
+                                                <a href="${BioinfoUtils.getOboLink(this.selectedItem.obo_id)}" target="_blank">
+                                                    ${BioinfoUtils.getOboLink(this.selectedItem.obo_id)}
+                                                </a>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <strong>Synonyms: </strong>${this.selectedItem.synonyms?.join(", ")}
+                                            </li>
+                                            <li class="list-group-item">
+                                                <strong>Description: </strong>${this.selectedItem.description}
+                                            </li>
+                                            <li class="list-group-item">
+                                                <strong>Comment: </strong>${this.selectedItem?.comment}
+                                            </li>
+                                        </ul>
+                                        <button type="button" class="btn btn-light mt-3" @click="${() => this.addTerm(this.selectedItem.obo_id)}">Add Term</button>
+                                    ` : ""}
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary ripple" data-dismiss="modal">OK</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
                         </div>
                     </div>
                 </div>

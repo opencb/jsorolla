@@ -77,25 +77,25 @@ export default class CheckboxFieldFilter extends LitElement {
 
     render() {
         return html`
-            <ul class="magic-checkbox-wrapper">
+            <div class="magic-checkbox-wrapper ms-2">
                 ${this.data.map((el, i) => {
                     const {id, name} = UtilsNew.isObject(el) ? el : {id: el, name: el};
                     return html`
-                        <li>
-                            <input class="magic-checkbox"
-                                   type="checkbox"
-                                   id="${this._prefix}checkbox${i}"
-                                   value="${id}"
-                                   .checked="${this.state[id]}"
-                                   ?disabled="${this.disabled}"
-                                   @click="${this.filterChange}">
-                            <label for="${this._prefix}checkbox${i}" style="font-weight: normal; padding-top: 2px">
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                type="checkbox"
+                                id="${this._prefix}checkbox${i}"
+                                value="${id}"
+                                .checked="${this.state[id]}"
+                                ?disabled="${this.disabled}"
+                                @click="${this.filterChange}">
+                            <label class="form-check-label" for="${this._prefix}checkbox${i}">
                                 ${UtilsNew.renderHTML(name)}
                             </label>
-                        </li>
+                        </div>
                     `;
                 })}
-            </ul>
+            </div>
         `;
     }
 

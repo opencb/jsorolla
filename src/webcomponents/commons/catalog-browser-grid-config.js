@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import LitUtils from "./utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "./utils/notification-utils.js";
 import "./forms/data-form.js";
-
+import "./forms/select-field-filter.js";
 
 export default class CatalogBrowserGridConfig extends LitElement {
 
@@ -217,8 +217,11 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                         <select-field-filter
                                             .data="${this.config?.pageList}"
                                             .value="${this.config?.pageSize}"
-                                            .multiple="${false}"
                                             .classes="${"btn-sm"}"
+                                            .config="${{
+                                                multiple: false,
+                                                liveSearch: false,
+                                            }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                         </select-field-filter>
                                     `;
@@ -243,9 +246,12 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                         <select-field-filter
                                             .data="${this.selectColumnData}"
                                             .value="${this.selectedColumns?.join(",")}"
-                                            .title="${"Columns"}"
-                                            .multiple="${true}"
                                             .classes="${"btn-sm"}"
+                                            .config="${{
+                                                title: "Columns",
+                                                liveSearch: false,
+                                                multiple: true,
+                                            }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value?.split(",") ?? [])}">
                                         </select-field-filter>
                                     `;

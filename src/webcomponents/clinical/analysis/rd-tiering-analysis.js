@@ -178,10 +178,12 @@ export default class RdTieringAnalysis extends LitElement {
                                     <select-field-filter
                                         .data="${diseasePanels}"
                                         .value=${panels || ""}
-                                        .liveSearch=${diseasePanels?.length > 5}
-                                        .multiple="${true}"
-                                        .disabled="${casePanelLock}"
-                                        separator="\n"
+                                        .config="${{
+                                            multiple: true,
+                                            liveSearch: diseasePanels?.length > 5,
+                                            disabled: casePanelLock,
+                                            separator: "\n"
+                                        }}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </select-field-filter>
                                 `;

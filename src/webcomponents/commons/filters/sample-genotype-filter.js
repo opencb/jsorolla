@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
+import "../forms/select-field-filter.js";
 
 export default class SampleGenotypeFilter extends LitElement {
 
@@ -68,6 +69,7 @@ export default class SampleGenotypeFilter extends LitElement {
     }
 
     filterChange(e) {
+
         // Prepare sample query filter
         let sampleFilter = this.sampleId;
         if (e.detail.value) {
@@ -85,29 +87,35 @@ export default class SampleGenotypeFilter extends LitElement {
                     id: "0/1", name: "HET"
                 },
                 {
-                    id: "1/1", name: "HOM ALT"
+                    id: "1/1", name: "HOM_ALT"
                 },
                 {
                     separator: true
                 },
                 {
-                    id: "./.", name: "Missing"
+                    id: "1/2", name: "BIALLELIC (1/2)"
                 },
-                {
-                    id: "NA", name: "NA"
-                }
+                // {
+                //     id: "./.", name: "Missing"
+                // },
+                // {
+                //     id: "NA", name: "NA"
+                // }
             ]
         };
     }
 
     render() {
+        const genotypes = this.genotypes ?? [];
         return html`
             <select-field-filter
-                    multiple
-                    .data="${this._config.genotypes}"
-                    .value=${this.genotypes}
-                    .multiple="true"
-                    @filterChange="${this.filterChange}">
+                .data="${this._config?.genotypes}"
+                .value=${genotypes}
+                .config="${{
+                    multiple: true,
+                    liveSearch: false
+                }}"
+                @filterChange="${this.filterChange}">
             </select-field-filter>
         `;
     }

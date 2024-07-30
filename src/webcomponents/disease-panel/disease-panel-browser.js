@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import WebUtils from "../commons/utils/web-utils";
 import {construction} from "../commons/under-construction.js";
 import "./disease-panel-gene-view.js";
@@ -116,15 +116,18 @@ export default class DiseasePanelBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "diseasePanel")}"
-                            @diseasePanelUpdate="${e => params.onComponentUpdate(e, "diseasePanel")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @diseasePanelUpdate="${e => params.onComponentUpdate(e)}"
                             @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
                         </disease-panel-grid>
-                        <disease-panel-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .diseasePanelId="${params.detail.diseasePanel?.id}">
-                        </disease-panel-detail>`
+                        ${params?.detail ? html`
+                            <disease-panel-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .diseasePanelId="${params.detail?.id}">
+                            </disease-panel-detail>
+                        ` : nothing}
+                    `,
                 },
             ],
             filter: {
@@ -217,6 +220,10 @@ export default class DiseasePanelBrowser extends LitElement {
                 detail: {
                     title: "Selected Disease Panel:",
                     showTitle: true,
+                    display: {
+                        titleClass: "mt-4",
+                        contentClass: "p-3"
+                    },
                     items: [
                         {
                             id: "disease-panel-view",

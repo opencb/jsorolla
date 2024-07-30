@@ -21,7 +21,7 @@ import ClinicalAnalysisUtils from "../clinical-analysis-utils.js";
 import "../clinical-analysis-comment-editor.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/forms/text-field-filter.js";
-
+import "../../commons/forms/select-field-filter.js";
 
 class ClinicalInterpretationEditor extends LitElement {
 
@@ -87,7 +87,7 @@ class ClinicalInterpretationEditor extends LitElement {
     opencgaSessionObserver() {
         this._users = [];
         if (this.opencgaSession && this.opencgaSession.study) {
-            for (let group of this.opencgaSession.study.groups) {
+            for (const group of this.opencgaSession.study.groups) {
                 if (group.id === "@members") {
                     this._users.push(...group.userIds.filter(user => user !== "*"));
                 }
@@ -118,13 +118,18 @@ class ClinicalInterpretationEditor extends LitElement {
     renderStatus(status) {
         return html`
             <div class="">
-                <select-field-filter .data="${ClinicalAnalysisUtils.getInterpretationStatuses()}" .value="${status.id}"
-                                     .classes="${this.updateParams.status ? "updated" : ""}"
-                                     @filterChange="${e => {e.detail.param = "interpretation.status.id"; this.onFieldChange(e)}}">
+                <select-field-filter
+                    .data="${ClinicalAnalysisUtils.getInterpretationStatuses()}"
+                    .value="${status.id}"
+                    .classes="${this.updateParams.status ? "updated" : ""}"
+                    @filterChange="${e => {
+                        e.detail.param = "interpretation.status.id";
+                        this.onFieldChange(e);
+                    }}">
                 </select-field-filter>
-                ${status.description
-                        ? html`<span class="help-block" style="padding: 0px 5px">${status.description}</span>`
-                        : null
+                ${status.description ?
+                        html`<span class="d-block text-secondary" style="padding: 0px 5px">${status.description}</span>` :
+            null
                 }
             </div>`;
     }
@@ -133,7 +138,7 @@ class ClinicalInterpretationEditor extends LitElement {
         switch (e.detail.param) {
             case "interpretation.status.id":
             case "interpretation.analyst.id":
-                let field = e.detail.param.split(".")[1];
+                const field = e.detail.param.split(".")[1];
                 if (this._clinicalAnalysis.interpretation[field]?.id !== e.detail.value && e.detail.value !== null) {
                     this.clinicalAnalysis.interpretation[field].id = e.detail.value;
                     this.updateParams[field] = {
@@ -159,7 +164,7 @@ class ClinicalInterpretationEditor extends LitElement {
     }
 
     onCommentChange(e) {
-        this.commentsUpdate = e.detail
+        this.commentsUpdate = e.detail;
     }
 
     getDefaultConfig() {
@@ -208,8 +213,8 @@ class ClinicalInterpretationEditor extends LitElement {
                             type: "custom",
                             display: {
                                 render: proband => {
-                                    let sex = (proband.sex && proband.sex !== "UNKNOWN") ? `(${proband.sex})` : "";
-                                    let sampleIds = proband.samples.map(sample => sample.id).join(", ");
+                                    const sex = (proband.sex && proband.sex !== "UNKNOWN") ? `(${proband.sex})` : "";
+                                    const sampleIds = proband.samples.map(sample => sample.id).join(", ");
                                     return html`
                                         <span style="padding-right: 25px">${proband.id} ${sex}</span>
                                         <span style="font-weight: bold; padding-right: 10px">Sample(s):</span><span>${sampleIds}</span>`;
@@ -385,11 +390,12 @@ class ClinicalInterpretationEditor extends LitElement {
         }
 
         return html`
-            <data-form  .data="${this.clinicalAnalysis}"
-                        .config="${this._config}"
-                        @fieldChange="${e => this.onFieldChange(e)}"
-                        @clear="${this.onClear}"
-                        @submit="${this.onRun}">
+            <data-form
+                .data="${this.clinicalAnalysis}"
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onRun}">
             </data-form>
         `;
     }

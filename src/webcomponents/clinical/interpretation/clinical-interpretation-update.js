@@ -71,7 +71,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
             defaultLayout: "horizontal",
             buttonsVisible: true,
             buttonsWidth: 8,
-            buttonsAlign: "right",
+            buttonsAlign: "end",
         };
         this.config = this.getDefaultConfig();
     }
@@ -177,6 +177,11 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                             }
                         },
                         {
+                            title: "Lock",
+                            type: "toggle-switch",
+                            field: "locked",
+                        },
+                        {
                             title: "Disease Panels",
                             field: "panels",
                             type: "custom",
@@ -186,8 +191,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                                     const panelLock = !!this.clinicalAnalysis?.panelLock;
                                     const panelList = panelLock ? this.clinicalAnalysis?.panels : this.opencgaSession.study?.panels;
                                     const handlePanelsFilterChange = e => {
-                                        const panelList = e.detail.value
-                                            ?.split(",")
+                                        const panelList = (e.detail?.value?.split(",") || [])
                                             .filter(panelId => panelId)
                                             .map(panelId => ({id: panelId}));
                                         dataFormFilterChange(panelList);
@@ -198,7 +202,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                                             .diseasePanels="${panelList}"
                                             .panel="${panels?.map(panel => panel.id).join(",")}"
                                             .showExtendedFilters="${false}"
-                                            .showSelectedPanels="${false}"
+                                            .showSelectedPanels="${true}"
                                             .classes="${updateParams.panels ? "selection-updated" : ""}"
                                             .disabled="${panelLock}"
                                             @filterChange="${e => handlePanelsFilterChange(e)}">

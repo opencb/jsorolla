@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "./variant-cohort-stats-grid.js";
 
@@ -23,7 +23,7 @@ export default class VariantCohortStats extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -50,12 +50,17 @@ export default class VariantCohortStats extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.active = false;
+        this.studyNames = {};
     }
 
     update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+
         if (changedProperties.has("variantId") || changedProperties.has("active")) {
             this.variantIdObserver();
         }
@@ -63,46 +68,60 @@ export default class VariantCohortStats extends LitElement {
         super.update(changedProperties);
     }
 
+    opencgaSessionObserver() {
+        this.studyNames = {};
+        if (this.opencgaSession?.project?.studies) {
+            this.opencgaSession.project.studies.forEach(study => {
+                this.studyNames[study.id] = study.name;
+                this.studyNames[study.fqn] = study.name;
+            });
+        }
+    }
+
     variantIdObserver() {
         if (this.variantId && this.variantId.split(":").length > 2 && this.active) {
-            const params = {
-                id: this.variantId,
-                study: this.opencgaSession.study.fqn,
-                includeStudy: "all",
-                exclude: "annotation,studies.files,studies.samples,studies.scores,studies.issues",
-                useSearchIndex: "no"
-            };
-            this.opencgaSession.opencgaClient.variants().query(params)
+            this.opencgaSession.opencgaClient.variants()
+                .query({
+                    id: this.variantId,
+                    study: this.opencgaSession.study.fqn,
+                    includeStudy: "all",
+                    exclude: "annotation,studies.files,studies.samples,studies.scores,studies.issues",
+                    useSearchIndex: "no",
+                })
                 .then(response => {
                     if (response.responses[0].results[0]) {
                         this.variant = response.responses[0].results[0];
-                        this.requestUpdate();
+                        // this.requestUpdate();
                     }
                 })
-                .catch(function(reason) {
-                    console.error(reason);
+                .catch(error => {
+                    console.error(error);
                 });
         }
     }
 
     render() {
-        let studyNames = {};
-        for (let study of this.opencgaSession.project.studies) {
-            studyNames[study.id] = study.name;
-            studyNames[study.fqn] = study.name;
+        if (!this.variant || !(this.variant?.studies?.length > 0)) {
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle pe-1"></i>
+                    <span>No studies available for this variant.</span>
+                </div>
+            `;
         }
 
         return html`
-            ${this.variant?.studies?.length > 0 && this.variant.studies.map(study => html`
-                <h3>
-                    ${studyNames[study.studyId]}
-                </h3>
-                <div style="padding: 10px">
-                    <variant-cohort-stats-grid .stats="${study.stats}"></variant-cohort-stats-grid>
+            ${this.variant.studies.map(study => html`
+                <h3>${this.studyNames[study.studyId] || ""}</h3>
+                <div style="">
+                    <variant-cohort-stats-grid
+                        .stats="${study.stats}">
+                    </variant-cohort-stats-grid>
                 </div>
             `)}
         `;
     }
+
 }
 
 customElements.define("variant-cohort-stats", VariantCohortStats);

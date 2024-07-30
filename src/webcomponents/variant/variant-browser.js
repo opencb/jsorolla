@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import WebUtils from "../commons/utils/web-utils";
 import UtilsNew from "../../core/utils-new.js";
 import VariantUtils from "./variant-utils.js";
+import {guardPage} from "../commons/html-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/tool-header.js";
 import "./variant-browser-filter.js";
@@ -85,9 +86,6 @@ export default class VariantBrowser extends LitElement {
         this.COMPONENT_ID = "variant-browser";
         this._prefix = UtilsNew.randomString(8);
 
-        this.results = [];
-        this._showInitMessage = true;
-
         this.searchActive = true;
         this.facetActive = true;
         this.query = {};
@@ -108,9 +106,8 @@ export default class VariantBrowser extends LitElement {
         }
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
-            this.settingsObserver();
         }
-        if (changedProperties.has("query")) {
+        if (changedProperties.has("query") || changedProperties.has("opencgaSession")) {
             this.queryObserver();
         }
         if (changedProperties.has("selectedFacet")) {
@@ -126,41 +123,28 @@ export default class VariantBrowser extends LitElement {
 
     opencgaSessionObserver() {
         if (this?.opencgaSession?.study?.fqn) {
-            this.checkProjects = true;
-            this.query = {study: this.opencgaSession.study.fqn};
+            this.preparedQuery = {...this._config?.filter?.defaultFilter};
+            this.executedQuery = {...this._config?.filter?.defaultFilter};
 
-            // TODO FIXME
-            /** temp fix this.onRun(): when you switch study this.facetQuery contains the old study when you perform a new Aggregation query.
-             *  As a consequence, we need to update preparedQuery as this.onRun() uses it (without it the old study is in query in table result as well)
-             */
-            this.preparedQuery = {study: this.opencgaSession.study.fqn};
+            // Search must be disabled even defaultFilter is empty
+            this.searchActive = false;
+            this.variant = null;
+
             this.facetQuery = null;
             this.preparedFacetQueryFormatted = null;
-            // this.requestUpdate();
-            // this.onRun();
-
-            // this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
-        } else {
-            this.checkProjects = false;
         }
     }
 
     queryObserver() {
         if (this.opencgaSession?.study?.fqn) {
             // NOTE UtilsNew.objectCompare avoid repeating remote requests.
-            if (!UtilsNew.objectCompare(this.query, this._query)) {
-                this._query = {...this.query};
-                if (this.query) {
-                    this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-                    this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-                } else {
-                    this.preparedQuery = {study: this.opencgaSession.study.fqn};
-                    this.executedQuery = {study: this.opencgaSession.study.fqn};
-                }
-                // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
+            if (!UtilsNew.isEmpty(this.query) && !UtilsNew.objectCompare(this.query, this.executedQuery)) {
+                this.preparedQuery = {...this.query};
+                this.executedQuery = {...this.query};
+
                 LitUtils.dispatchCustomEvent(this, "queryChange", undefined, this.preparedQuery);
-                this.detail = {};
                 this.searchActive = false; // Disable search button
+                this.variant = null;
             }
         }
     }
@@ -188,11 +172,10 @@ export default class VariantBrowser extends LitElement {
         });
     }
 
-    async onRun() {
-        // NOTE notifySearch() triggers this chain: notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in variant-browser
-        // queryObserver() here stops the repetition of the remote request by checking if it has changed
-        this.query = {...this.preparedQuery};
-        // updates this.queries in iva-app
+    onRun() {
+        this.executedQuery = {...this.preparedQuery};
+        this.searchActive = false;
+        this.variant = null;
         this.notifySearch(this.preparedQuery);
 
         this.facetQueryBuilder();
@@ -207,6 +190,7 @@ export default class VariantBrowser extends LitElement {
         } else {
             this.facetQuery = null;
         }*/
+        this.requestUpdate();
     }
 
     changeView(id) {
@@ -217,6 +201,9 @@ export default class VariantBrowser extends LitElement {
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
+        this.searchActive = false;
+        this.variant = null;
+        this.notifySearch(this.preparedQuery);
         this.requestUpdate();
     }
 
@@ -227,21 +214,26 @@ export default class VariantBrowser extends LitElement {
 
     onActiveFilterChange(e) {
         VariantUtils.validateQuery(e.detail);
-        this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
-        this.notifySearch(this.query);
+        this.preparedQuery = {...e.detail};
+        this.executedQuery = {...e.detail};
+        this.searchActive = false;
+        this.variant = null;
+        this.notifySearch(this.preparedQuery);
         this.facetQueryBuilder();
+        this.requestUpdate();
     }
 
     onActiveFilterClear() {
-        // console.log("onActiveFilterClear");
-        this.query = {study: this.opencgaSession.study.fqn};
-        this.preparedQuery = {...this.query};
-        this.notifySearch(this.query);
+        this.preparedQuery = {};
+        this.executedQuery = {};
+        this.searchActive = false;
+        this.variant = null;
+        this.notifySearch(this.preparedQuery);
         this.facetQueryBuilder();
+        this.requestUpdate();
     }
 
     onFacetQueryChange(e) {
-        // console.log("onFacetQueryChange");
         this.preparedFacetQueryFormatted = e.detail.value;
         this.requestUpdate();
     }
@@ -249,24 +241,17 @@ export default class VariantBrowser extends LitElement {
     onActiveFacetChange(e) {
         this.selectedFacet = {...e.detail};
         this.preparedFacetQueryFormatted = {...e.detail};
-        // this.onRun();
         this.facetQueryBuilder();
         this.requestUpdate();
     }
 
-    onActiveFacetClear(e) {
+    onActiveFacetClear() {
         this.selectedFacet = {};
         this.onRun();
-        this.requestUpdate();
     }
 
     onQueryComplete() {
         this.searchActive = true;
-        this.requestUpdate();
-    }
-
-    onClickRow(e) {
-        this.detail = {...this.detail, [e.detail.resource]: e.detail.data};
         this.requestUpdate();
     }
 
@@ -291,32 +276,25 @@ export default class VariantBrowser extends LitElement {
     render() {
         // Check if there is any project available
         if (!this.opencgaSession?.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue.</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         return html`
             <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
             <div class="row">
-                <div class="col-md-2 left-menu">
-
-                    <div class="search-button-wrapper">
+                <div class="col-2 mb-3">
+                    <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onRun}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
                             <strong>${this._config.searchButtonText || "Search"}</strong>
                         </button>
                     </div>
-
-                    <ul class="nav nav-tabs left-menu-tabs" role="tablist">
-                        <li role="presentation" class="active">
-                            <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">${this._config.filter.title}</a>
+                    <ul class="nav nav-tabs mb-3" role="tablist">
+                        <li class="nav-item" role="presentation" >
+                            <a class="nav-link active fw-bold" href="#filters_tab" aria-controls="profile" role="tab" data-bs-toggle="tab">${this._config.filter.title}</a>
                         </li>
-                        <li role="presentation">
-                            <a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">${this._config.aggregation.title}</a>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link fw-bold" href="#facet_tab" aria-controls="home" role="tab" data-bs-toggle="tab">${this._config.aggregation.title}</a>
                         </li>
                     </ul>
 
@@ -324,7 +302,7 @@ export default class VariantBrowser extends LitElement {
                         <div role="tabpanel" class="tab-pane active" id="filters_tab">
                             <variant-browser-filter
                                 .opencgaSession=${this.opencgaSession}
-                                .query="${this.query}"
+                                .query="${this.preparedQuery}"
                                 .cellbaseClient="${this.cellbaseClient}"
                                 .config="${this._config.filter}"
                                 @queryChange="${this.onQueryFilterChange}"
@@ -346,7 +324,7 @@ export default class VariantBrowser extends LitElement {
 
                 <div class="col-md-10">
                     <!-- TAB buttons -->
-                    <div class="content-pills" role="toolbar" aria-label="toolbar">
+                    <div class="content-pills mb-3" role="toolbar" aria-label="toolbar">
                         <button
                             type="button"
                             class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""} content-pills`}"
@@ -374,6 +352,7 @@ export default class VariantBrowser extends LitElement {
                         <opencga-active-filters
                             facetActive
                             resource="VARIANT"
+                            .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${this.opencgaSession}"
                             .defaultStudy="${this.opencgaSession.study?.fqn}"
                             .query="${this.preparedQuery}"
@@ -382,6 +361,7 @@ export default class VariantBrowser extends LitElement {
                             .executedFacetQuery="${this.executedFacetQueryFormatted}"
                             .alias="${this._config.filter.activeFilters.alias}"
                             .filters="${this._config.filter.examples}"
+                            .defaultFilter="${this._config.filter.defaultFilter}"
                             .config="${this._config.filter.activeFilters}"
                             @activeFacetChange="${this.onActiveFacetChange}"
                             @activeFacetClear="${this.onActiveFacetClear}"
@@ -406,13 +386,14 @@ export default class VariantBrowser extends LitElement {
                                     @userGridSettingsUpdate="${this.onUserGridSettingsUpdate}">
                                 </variant-browser-grid>
 
-                                <!-- Bottom tabs with specific variant information -->
-                                <variant-browser-detail
-                                    .variant="${this.variant}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .config="${this._config.filter.detail}">
-                                </variant-browser-detail>
+                                ${this.variant ? html`
+                                    <variant-browser-detail
+                                        .variant="${this.variant}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .config="${this._config.filter.detail}">
+                                    </variant-browser-detail>
+                                ` : nothing}
                             </div>
 
                             <div id="facet-tab" class="${`content-tab ${this.activeTab === "facet-tab" ? "active" : ""}`}">
@@ -487,6 +468,11 @@ export default class VariantBrowser extends LitElement {
                         title: "Genomic",
                         collapsed: true,
                         filters: [
+                            {
+                                id: "variant",
+                                title: "Variant ID",
+                                tooltip: tooltips.variant
+                            },
                             {
                                 id: "region",
                                 title: "Genomic Location",
@@ -715,11 +701,6 @@ export default class VariantBrowser extends LitElement {
                                 </json-viewer>
                             `,
                         }
-                        // TODO Think about Neeworks
-                        // {
-                        //     id: "network",
-                        //     title: "Reactome Pathways"
-                        // },
                     ]
                 }
             },

@@ -18,6 +18,7 @@ import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import GridCommons from "../../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import {guardPage} from "../../commons/html-utils.js";
 
 export default class StudyAdminAudit extends LitElement {
 
@@ -128,6 +129,8 @@ export default class StudyAdminAudit extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
@@ -143,7 +146,7 @@ export default class StudyAdminAudit extends LitElement {
                 showExport: this._config.showExport,
                 detailView: !!this.detailFormatter,
                 detailFormatter: (value, row) => this.detailFormatter(value, row),
-                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     const query = {
                         study: this.study.fqn,
@@ -238,103 +241,84 @@ export default class StudyAdminAudit extends LitElement {
         }
     }
 
-    getDefaultConfig() {
-        return {
-            filter: {
-                sections: [
-                    {
-                        title: "",
-                        filters: [
-                            {id: "userId"},
-                            {id: "resource"},
-                            {id: "action"},
-                            {id: "status"},
-                        ]
-                    }
-                ],
-            },
-            pagination: true,
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            showExport: false,
-            showToolbar: true,
-            showActions: true,
-        };
-    }
-
     clear() {
         this.query = {};
     }
 
     render() {
         if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
-            return html`
-            <div class="guard-page">
-                <i class="fas fa-lock fa-5x"></i>
-                <h3>No permission to view this page</h3>
-            </div>`;
+            return guardPage("No permission to view this page");
         }
 
         return html`
-            <div class="pull-left" style="margin: 10px 0">
-                <div class="lhs">
-
+            <div class="d-flex my-2">
+                <div class="row row-cols-lg-auto g-2 align-items-center">
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "userId") ? html`
                         <!-- User ID -->
-                        <div class="btn-group">
+                        <div class="col-12">
                             <select-field-filter
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config=${this._config}
-                                    .data="${this.sortedUserIds}"
-                                    .value="${this.query?.userId}"
-                                    placeholder="${"User: All"}"
-                                    multiple
-                                    @filterChange="${e => this.onFilterChange("userId", e.detail.value)}">
+                                .data="${this.sortedUserIds || []}"
+                                .config=${{
+                                    ...this._config,
+                                    multiple: true,
+                                    placeholder: "User: All",
+                                    liveSearch: false,
+                                }}
+                                .value="${this.query?.userId}"
+                                @filterChange="${e => this.onFilterChange("userId", e.detail.value)}">
                             </select-field-filter>
                         </div>
-                    `: null}
+                    `: nothing}
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "action") ? html`
                         <!-- TODO: Action build autocomplete-->
-                        <div class="btn-group">
+                        <div class="col-12">
                             <select-field-filter
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .data="${this.actionValues}"
-                                    .config=${this._config}
-                                    .value="${this.query?.action}"
-                                    placeholder="${"Action: All"}"
-                                    multiple
-                                    @filterChange="${e => this.onFilterChange("action", e.detail.value)}">
+                                .data="${this.actionValues}"
+                                .config=${{
+                                    ...this._config,
+                                    multiple: true,
+                                    placeholder: "Action: All",
+                                    liveSearch: false,
+                                }}
+                                .value="${this.query?.action}"
+                                @filterChange="${e => this.onFilterChange("action", e.detail.value)}">
                             </select-field-filter>
                         </div>
-                    ` : null}
+                    ` : nothing}
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "resource") ? html`
                         <!-- Resource -->
-                        <div class="btn-group">
+                        <div class="col-12">
                             <select-field-filter
-                                    .data="${this.resourceTypeValues}"
-                                    .value=${this.query?.resource}
-                                    placeholder="${"Resource: All"}"
-                                    @filterChange="${e => this.onFilterChange("resource", e.detail.value)}">
+                                .data="${this.resourceTypeValues}"
+                                .value=${this.query?.resource}
+                                .config=${{
+                                    placeholder: "Resource: All",
+                                    liveSearch: false,
+                                }}
+                                @filterChange="${e => this.onFilterChange("resource", e.detail.value)}">
                             </select-field-filter>
                         </div>
-                    ` : null}
+                    ` : nothing}
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "status") ? html`
                         <!-- Status -->
-                        <div class="btn-group">
+                        <div class="col-12">
                             <select-field-filter
-                                    .data="${this.statusTypeValues}"
-                                    .value=${this.query?.status}
-                                    placeholder="${"Status: All"}"
-                                    @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
+                                .data="${this.statusTypeValues}"
+                                .value=${this.query?.status}
+                                .config=${{
+                                    placeholder: "Status: All",
+                                    liveSearch: false,
+                                }}
+                                @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
                             </select-field-filter>
                         </div>
-                    ` : null}
+                    ` : nothing}
 
-                    <div class="btn-group">
-                        <button type="button" id="${this._prefix}ClearAuditMenu" class="btn btn-default btn-xs ripple"
+                    <div class="col-12">
+                        <button type="button" id="${this._prefix}ClearAuditMenu" class="btn btn-light btn-xs"
                                 aria-haspopup="true" aria-expanded="false" title="Clear filters"
                                 @click="${e => this.clear(e)}">
                             <i class="fas fa-times" aria-hidden="true"></i>
@@ -343,17 +327,17 @@ export default class StudyAdminAudit extends LitElement {
                 </div>
             </div>
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow" style="margin: 20px 0">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}AuditBrowserGrid"></table>
             </div>
 
             <!-- Modal -->
             <div class="modal fade" id="${this._prefix}SaveModal" tabindex="-1" role="dialog"
-                aria-labelledby="${this._prefix}SaveModalLabel" aria-hidden="true">
+                 aria-labelledby="${this._prefix}SaveModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                             <h4 class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
@@ -373,12 +357,36 @@ export default class StudyAdminAudit extends LitElement {
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}">Save</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${this.save}">Save</button>
                         </div>
                     </div>
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            filter: {
+                sections: [
+                    {
+                        title: "",
+                        filters: [
+                            {id: "userId"},
+                            {id: "resource"},
+                            {id: "action"},
+                            {id: "status"},
+                        ]
+                    }
+                ],
+            },
+            pagination: true,
+            pageSize: 10,
+            pageList: [5, 10, 25],
+            showExport: false,
+            showToolbar: true,
+            showActions: true,
+        };
     }
 
 }

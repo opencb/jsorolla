@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 import "../../job/job-monitor.js";
-
 
 export default class CustomNavBar extends LitElement {
 
@@ -50,10 +49,6 @@ export default class CustomNavBar extends LitElement {
         };
     }
 
-    onSideBarToggle(e) {
-        LitUtils.dispatchCustomEvent(this, "sideBarToggle", "", {event: e}, null);
-    }
-
     onChangeTool(e) {
         LitUtils.dispatchCustomEvent(this, "changeTool", e);
     }
@@ -72,10 +67,10 @@ export default class CustomNavBar extends LitElement {
         const iconHtml = link.icon ? html`<i class="${link.icon} icon-padding" aria-hidden="true"></i>` : null;
         if (link.url) {
             return html`
-                <a data-cy="${link.id}" href="${url}" role="${button ? "button" : "link"}" target="${link.tab ? "_blank" : "_self"}">${iconHtml} ${link.name}</a>`;
+                <a class="dropdown-item" data-cy="${link.id}" href="${url}" role="${button ? "button" : "link"}" target="${link.tab ? "_blank" : "_self"}">${iconHtml} ${link.name}</a>`;
         } else {
             return html`
-                <a data-cy="${link.id}" href="${url}" role="${button ? "button" : "link"}">${iconHtml} ${link.name}</a>`;
+                <a class="dropdown-item" data-cy="${link.id}" href="${url}" role="${button ? "button" : "link"}">${iconHtml} ${link.name}</a>`;
         }
     }
 
@@ -83,20 +78,18 @@ export default class CustomNavBar extends LitElement {
         LitUtils.dispatchCustomEvent(this, "logout");
     }
 
-    render() {
-        return html `
+    getVisibleUserMenuItems() {
+        return (this.config?.userMenu || []).filter(item => UtilsNew.isAppVisible(item, this.opencgaSession));
+    }
+
+    renderStyle() {
+        return html`
             <style>
-                .navbar-inverse {
+                .navbar-zetta {
                     background-color: var(--main-bg-color);
                 }
 
-                nav.navbar.navbar-inverse.main-navbar > div {
-                    display: flex;
-                    align-items: center;
-                    flex-wrap: wrap;
-                }
-
-                div#bs-example-navbar-collapse-1 {
+                /* div#bs-example-navbar-collapse-1 {
                     display: flex!important;
                     flex-wrap: wrap;
                     flex: 1;
@@ -106,28 +99,33 @@ export default class CustomNavBar extends LitElement {
                     flex-wrap: wrap;
                     flex: 1 1 auto;
                     padding: 0 10px;
+                } */
+
+                .navbar-zetta .navbar-nav .nav-link.active,
+                .navbar-nav .nav-link.show {
+                    color: #fff;
                 }
 
-                .navbar-inverse .navbar-nav > .open > a,
-                .navbar-inverse .navbar-nav > .open > a:focus,
-                .navbar-inverse .navbar-nav > .open > a:hover {
+                .navbar-zetta .navbar-nav > .show > a,
+                .navbar-zetta .navbar-nav > .show > a:focus,
+                .navbar-zetta .navbar-nav > .show > a:hover {
                     background-color: var(--main-bg-color-darker);
                     /*filter: brightness(0.8); this involves text as well..*/
                 }
 
-                .navbar-inverse .navbar-nav > .active > a,
-                .navbar-inverse .navbar-nav > .active > a:focus,
-                .navbar-inverse .navbar-nav > .active > a:hover {
+                .navbar-zetta .navbar-nav > .active > a,
+                .navbar-zetta .navbar-nav > .active > a:focus,
+                .navbar-zetta .navbar-nav > .active > a:hover {
                     background-color: var(--main-bg-color-darker);
                 }
 
-                .navbar-inverse .navbar-nav > li > a {
+                .navbar-zetta .navbar-nav > li > a {
                     color: #d2d2d2;
                 }
 
-                .navbar-inverse .dropdown-menu > .active > a,
-                .navbar-inverse .dropdown-menu > .active > a:focus,
-                .navbar-inverse .dropdown-menu > .active > a:hover {
+                .navbar-zetta .dropdown-menu > .active > a,
+                .navbar-zetta .dropdown-menu > .active > a:focus,
+                .navbar-zetta .dropdown-menu > .active > a:hover {
                     background-color: var(--main-bg-color);
                 }
 
@@ -164,43 +162,11 @@ export default class CustomNavBar extends LitElement {
                     background-color: #41a7ff;
                 }
 
-                #refresh-job {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex: 1;
-                    max-width: 6px;
-                    margin-left: 2em;
-                }
-
-                .center {
-                    margin: auto;
-                    text-align: justify;
-                    width: 60%;
-                    font-size: 18px;
-                    color: #797979;
-                }
-
                 .feature-view {
                     margin: auto;
                     text-align: justify;
                     width: 90%;
                 }
-
-                .app-logo {
-                    display: flex;
-                    align-items: center;
-                }
-
-                .suite-logo {
-                    display: flex;
-                    align-items: center;
-                }
-
-                .suite-logo > img {
-                    height: 20px;
-                }
-
 
                 ul.nav.navbar-nav.navbar-right {
                     display: flex;
@@ -215,115 +181,105 @@ export default class CustomNavBar extends LitElement {
 
                 .dropdown-button-wrapper,
                 .dropdown-button-text {
-                    display: flex!important;
+                    display: flex;
                     align-items: center;
                 }
                 .dropdown-button-wrapper {
-                    padding: 8px 12px!important;
+                    margin-right: 0.25em;
+                    padding: 8px 12px !important;
                     border-radius: 4px;
                     background-color: var(--footer-color-deflt-blue);
                 }
 
-                .dropdown-button-icon {
-                    margin-right: 5px;
-                }
-                .caret {
-                    margin-left: 5px;
+
+                #refresh-job {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex: 1;
+                    max-width: 6px;
+                    margin-left: 2em;
                 }
 
-                #aboutButton {
-                    margin-right: 5px;
-                }
                 #logoutButton{
                     margin-right: 8px;
                     background-color: var(--zetta-color-secondary-orange);
                 }
-                #job-monitor,
-                #fileButton {
-                    margin-right: 5px;
-                }
-                #logoutButton > .dropdown-button-icon {
-                    margin-right: 0;
-                }
 
-                #about-zetta{
-                    display: flex;
-                    align-items: center;
-                }
             </style>
 
-            <nav class="navbar navbar-inverse main-navbar">
-                <div>
+        `;
+    }
+
+    render() {
+        return html `
+            ${this.renderStyle()}
+            <nav class="navbar navbar-zetta navbar-expand-lg p-1">
+                <div class="container-fluid p-1">
+
                     <!-- Left Sidebar Icon -->
                     ${this.config.apps?.filter(app => UtilsNew.isAppVisible(app, this.opencgaSession)).length > 1 ? html`
-                        <ul class="nav navbar-nav">
-                            <li>
-                                <a href="#" @click="${this.onSideBarToggle}" id="waffle-icon-wrapper">
-                                    <div id="waffle-icon"></div>
-                                </a>
-                            </li>
-                        </ul>
-                    ` : null}
-
-                    <!-- Brand and toggle get grouped for better mobile display -->
-                    <div class="navbar-header">
-                        <a href="#home" class="navbar-brand suite-logo" @click="${this.onChangeTool}">
-                            <!-- Fixed logo -->
-                            ${this.config?.logo ? html`
-                                <img src="${this.config?.logo}" alt="logo">
-                            ` : null}
-                            <!-- No application logo provided -->
-                            ${!this.config?.logo && this.config?.name ? html`
-                                <span style="color:var(--main-color-white);font-size:24px;margin-right:4px;">
-                                    <strong>${this.config.name}</strong>
-                                </span>
-                            ` : null}
+                        <a class="navbar-brand" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasIva">
+                            <div id="waffle-icon"></div>
                         </a>
-                        ${this.app?.id !== "suite" ? html `
-                            <div class="navbar-brand app-logo">
-                                <!-- Application logo provided -->
-                                ${this.app?.logo ? html`
-                                    <img src="${this.app?.logo}" alt="App logo" style="color: white">
-                                ` : null}
-                                <!-- No application logo provided -->
-                                ${!this.app?.logo && this.app?.name ? html`
-                                    <span style="color:white;font-size:24px;margin-right:4px;">
+                    ` : nothing}
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <a href="#home" class="navbar-brand d-flex justify-content-center" style="height: 2.0rem;" @click="${this.onChangeTool}">
+                        <!-- Fixed logo -->
+                        ${this.config?.logo ? html`
+                            <img  class="d-inline-block" src="${this.config?.logo}" alt="logo">
+                        ` : nothing}
+                        <!-- No application logo provided -->
+                        ${!this.config?.logo && this.config?.name ? html`
+                            <span style="color:var(--main-color-white);font-size:24px;margin-right:4px;">
+                                <strong>${this.config.name}</strong>
+                            </span>
+                        ` : nothing}
+                    </a>
+                    ${this.app?.id !== "suite" ? html `
+                        <div class="navbar-brand d-flex justify-content-center align-items-center me-n1" style="height: 2.5rem;">
+                            <!-- Application logo provided -->
+                            ${this.app?.logo ? html`
+                                <img class="d-inline-block" src="${this.app?.logo}" alt="App logo">
+                            ` : nothing}
+                            <!-- No application logo provided -->
+                            ${!this.app?.logo && this.app?.name ? html`
+                                <span style="color:var(--main-color-white);font-size:24px;margin-right:4px;">
                                     <strong>${this.app.name}</strong>
                                 </span>
-                                ` : null}
-                            </div>
-                        ` : null}
-                    </div>
+                            ` : nothing}
+                        </div>
+                    ` : nothing}
 
                     <!-- Collect the nav links, form, and other content for toggling -->
-                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="fas fa-bars "></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <!-- Controls aligned to the LEFT -->
-                        <ul class="nav navbar-nav">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <!-- This code parse the config menu arrays and creates a custom menu taking into account visibility -->
                             ${this.app?.menu?.filter?.(item => UtilsNew.isAppVisible(item, this.opencgaSession)).map(item => html`
                                 ${item.submenu && item.submenu.some(sm => UtilsNew.isAppVisible(sm, this.opencgaSession)) ? html`
                                     <!-- If there is a submenu we create a dropdown menu item -->
-                                    <li class="dropdown">
-                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                                           aria-haspopup="true" aria-expanded="false">
-                                            ${item.name} <span class="caret"></span>
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button"
+                                        aria-haspopup="true" aria-expanded="false">
+                                            ${item.name}
                                         </a>
                                         <ul class="dropdown-menu">
-                                            ${item.submenu
-                                                .filter(subItem => UtilsNew.isAppVisible(subItem, this.opencgaSession))
-                                                .map(subItem => subItem.category ? html`
-                                                    <li>
-                                                        <a class="nav-item-category"
-                                                           style="background-color:white!important;cursor:auto!important;">
-                                                            <strong>${subItem.name}</strong>
-                                                        </a>
-                                                    </li>
+                                            ${item.submenu.filter(subItem => UtilsNew.isAppVisible(subItem, this.opencgaSession)).map(subItem => subItem.category ? html`
+                                                        <li>
+                                                            <a class="dropdown-item">
+                                                                <strong>${subItem.name}</strong>
+                                                            </a>
+                                                        </li>
                                                 ` : subItem.separator ? html`
-                                                    <li role="separator" class="divider"></li>
+                                                    <li><hr class="dropdown-divider"></li>
                                                 ` : html`
                                                     <li>
-                                                        <a href="#${subItem.id}" @click="${this.onChangeTool}"
-                                                           data-id="${subItem.id}">${subItem.name}</a>
+                                                        <a class="dropdown-item" href="#${subItem.id}" @click="${this.onChangeTool}"
+                                                        data-id="${subItem.id}">${subItem.name}</a>
                                                     </li>
                                                 `)
                                             }
@@ -331,45 +287,48 @@ export default class CustomNavBar extends LitElement {
                                     </li>
                                 ` : html`
                                     <!-- If there is no submenu we just display a button -->
-                                    <li>
-                                        <a href="#${item.id}" role="button" @click="${this.onChangeTool}">${item.name}</a>
+                                    <!-- TODO: add active if this is current page -->
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#${item.id}" role="button" @click="${this.onChangeTool}">${item.name}</a>
                                     </li>`
                                 }
                             `)}
                         </ul>
                         <!-- Controls aligned to the RIGHT: settings and about-->
-                        <ul class="nav navbar-nav navbar-right">
+                        <ul class="navbar-nav justify-content-end">
                             <!-- Studies dropdown -->
                             ${this.opencgaSession?.projects?.length ? html`
-                                <li class="dropdown"  title="Projects and Studies">
+                                <li class="nav-item dropdown"  title="Projects and Studies">
                                     <a id="projects-button" href="#"
-                                       class="dropdown-toggle study-switcher dropdown-button-wrapper"
-                                       data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"
-                                       data-cy="active-study">
+                                        class="nav-link dropdown-toggle study-switcher dropdown-button-wrapper"
+                                        data-bs-toggle="dropdown"
+                                        role="button"
+                                        aria-haspopup="true" aria-expanded="false"
+                                        data-cy="active-study">
                                         <!-- <div class="dropdown-button-icon"><i class="fa fa-database fa-lg"></i></div>-->
                                         <div class="dropdown-button-text" id="study-wrapper">
                                             <div class="project-name">${this.opencgaSession.project?.name}:</div>
                                             <div class="study-id">${this.opencgaSession.study.name}</div>
                                         </div>
-                                        <div class="caret"></div>
                                     </a>
                                     <ul class="dropdown-menu">
                                         ${this.opencgaSession.projects.filter(project => project?.studies.length > 0).map(project => html`
                                             <li>
-                                                <a title="${project.fqn}">
+                                                <a class="dropdown-item" title="${project.fqn}">
                                                     <b>${project.name} [${project.fqn.split("@")[0]}]</b>
                                                 </a>
                                             </li>
                                             ${project.studies && project.studies.length && project.studies.map(study => html`
                                                 <li>
-                                                    <a href="javascript: void 0"
-                                                       data-cy-fqn="${study.fqn}"
-                                                       data-study="${study.id}"
-                                                       data-project="${project.id}"
-                                                       data-project-name="${project.name}"
-                                                       data-study-name="${study.name}"
-                                                       title="${study.fqn}"
-                                                       @click="${e => this.onStudySelect(e, study)}">
+                                                    <a  class="dropdown-item"
+                                                        href="javascript: void 0"
+                                                        data-cy-fqn="${study.fqn}"
+                                                        data-study="${study.id}"
+                                                        data-project="${project.id}"
+                                                        data-project-name="${project.name}"
+                                                        data-study-name="${study.name}"
+                                                        title="${study.fqn}"
+                                                        @click="${e => this.onStudySelect(e, study)}">
                                                         ${study.name}
                                                     </a>
                                                 </li>
@@ -377,61 +336,62 @@ export default class CustomNavBar extends LitElement {
                                         `)}
                                     </ul>
                                 </li>
-                                <li class="separator"></li>
-                            ` : null}
+                                <li class="border-end mx-1 my-1 ms-0" style="--bs-border-color: rgba(255, 255, 255, 0.3);"></li>
+                            ` : nothing}
 
                             <!-- Jobs -->
                             ${UtilsNew.isAppVisible(this.config?.jobMonitor, this.opencgaSession) || UtilsNew.isAppVisible(this.app?.jobMonitor, this.opencgaSession) ? html`
                                 <job-monitor
                                     .opencgaSession="${this.opencgaSession}">
                                 </job-monitor>
-                            ` : null}
+                            ` : nothing}
 
                             ${UtilsNew.isAppVisible(this.config?.fileExplorer, this.opencgaSession) || UtilsNew.isAppVisible(this.app?.fileExplorer, this.opencgaSession) ? html`
-                                <li id="fileButton">
+                                <li id="fileButton" >
                                     <a href="#file-manager" class="dropdown-button-wrapper"
-                                       title="File Manager" role="button" @click="${this.onChangeTool}">
+                                        title="File Manager" role="button" @click="${this.onChangeTool}">
                                         <div class="dropdown-button-icon"><i class="fas fa-folder-open"></i></div>
                                     </a>
                                 </li>
-                            ` : null}
+                            ` : nothing}
 
                             ${UtilsNew.isAppVisible(this.config?.restApi, this.opencgaSession) || UtilsNew.isAppVisible(this.app?.restApi, this.opencgaSession) ? html`
                                 <li id="restButton">
                                     <a href="#rest-api" class="dropdown-button-wrapper"
-                                       title="RESTful API tool" role="button" @click="${this.onChangeTool}">
+                                        title="RESTful API tool" role="button" @click="${this.onChangeTool}">
                                         <div class="dropdown-button-icon"><i class="fas fa-code"></i></div>
                                     </a>
                                 </li>
-                                <li class="separator"></li>
-                            ` : null}
+                                <li class="border-end mx-1 my-1 ms-0" style="--bs-border-color: rgba(255, 255, 255, 0.3);"></li>
+                            ` : nothing}
 
                             <!-- About dropdown menu-->
                             ${this.config?.about.dropdown ? html`
-                                <li class="dropdown">
-                                    <a id="aboutButton" href="#" class="dropdown-toggle dropdown-button-wrapper" data-toggle="dropdown"
-                                       role="button" aria-haspopup="true" aria-expanded="false">
+                                <li class="nav-item dropdown">
+                                    <a id="aboutButton" href="#" class="nav-link dropdown-toggle dropdown-button-wrapper gap-1"
+                                        data-bs-toggle="dropdown"
+                                        role="button" aria-haspopup="true" aria-expanded="false">
                                         <div class="dropdown-button-icon">
                                             <i class="fas fa-question-circle"></i>
                                         </div>
                                         <div class="dropdown-button-text">About</div>
-                                        <div class="caret"></div>
                                     </a>
-                                    <ul class="dropdown-menu">
+                                    <ul class="dropdown-menu dropdown-menu-end">
                                         ${this.config.about?.links && this.config.about?.links.map(link => html`
                                             <li>${this.createAboutLink(link, false)}</li>
                                         `)}
                                         ${this.config?.aboutPage ? html `
-                                            <li role="separator" class="divider"></li>
+                                            <li><hr class="dropdown-divider"></li>
                                             <li>
-                                                <a data-cy="about-zetta" href="#aboutzetta" role="button" id="about-zetta">
+                                                <a id="about-zetta" class="dropdown-item gap-1" href="#aboutzetta"
+                                                    data-cy="about-zetta" role="button" >
                                                     <img height="16px" src="${this.config.aboutPage.favicon}">
-                                                    <div style="margin-left:10px">
+                                                    <span>
                                                         ${this.config.aboutPage.linkTitle || html `About Zetta Genomics`}
-                                                    </div>
+                                                    </span>
                                                 </a>
                                             </li>
-                                        `: null}
+                                        `: nothing}
                                     </ul>
                                 </li>
                             ` : this.config.about?.links && this.config.about?.links.map(link => html`
@@ -440,41 +400,42 @@ export default class CustomNavBar extends LitElement {
 
                             <!-- User -->
                             ${this.loggedIn ? html`
-                                <li class="dropdown" data-cy="user-menu">
-                                    <a id="userButton" href="#" class="dropdown-toggle dropdown-button-wrapper" data-toggle="dropdown"
-                                       role="button" aria-haspopup="true" aria-expanded="false">
+                                <li class="nav-item dropdown" data-cy="user-menu">
+                                    <a id="userButton" class="nav-link dropdown-toggle dropdown-button-wrapper gap-1"
+                                        href="#" data-bs-toggle="dropdown"
+                                        role="button" aria-haspopup="true" aria-expanded="false">
                                         <div class="dropdown-button-icon">
                                             <i class="fas fa-user-circle"></i>
                                         </div>
                                         <div class="dropdown-button-text" >
                                             ${this.opencgaSession.user?.name ?? this.opencgaSession.user?.id}
                                         </div>
-                                        <div class="caret"></div>
                                     </a>
-                                    <ul class="dropdown-menu">
-                                        ${this.config?.userMenu?.length ? this.config.userMenu
-                                            .filter(item => UtilsNew.isAppVisible(item, this.opencgaSession))
-                                            .map(item => html`
-                                                <li>
-                                                    <a href="${item.url}" data-user-menu="${item.id}">
-                                                        <i class="${item.icon} icon-padding" aria-hidden="true"></i>${item.name}
-                                                    </a>
-                                                </li>
-                                            `) : null}
-                                        <li role="separator" class="divider"></li>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        ${this.getVisibleUserMenuItems().map(item => html`
+                                            <li>
+                                                <a class="dropdown-item" href="${item.url}" data-user-menu="${item.id}">
+                                                    <i class="${item.icon} me-1" aria-hidden="true"></i>${item.name}
+                                                </a>
+                                            </li>
+                                        `)}
+                                        <li><hr class="dropdown-divider"></li>
                                         <li>
-                                            <a data-user-menu="logout" role="button" style="color: var(--zetta-color-secondary-orange)"
-                                               @click="${this.logout}">
-                                                <i class="fa fa-sign-out-alt icon-padding" aria-hidden="true"></i>Log out
+                                            <a  class="dropdown-item"
+                                                data-user-menu="logout" role="button"
+                                                style="color: var(--zetta-color-secondary-orange)"
+                                                @click="${this.logout}">
+                                                <i class="fa fa-sign-out-alt me-1" aria-hidden="true"></i>Log out
                                             </a>
                                         </li>
                                     </ul>
-                                </li>` : null}
+                                </li>
+                            ` : nothing}
                         </ul>
                     </div>
                 </div>
             </nav>
-            <!-- End of navigation bar -->`;
+        `;
     }
 
 }

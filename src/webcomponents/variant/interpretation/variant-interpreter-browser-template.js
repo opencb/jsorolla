@@ -79,9 +79,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.searchActive = true;
         this.variant = null;
         this.query = {};
-        this.savedVariants = [];
-        this.notSavedVariantIds = 0;
-        this.removedVariantIds = 0;
 
         // Saves the current active view
         this.activeView = "table";
@@ -90,17 +87,12 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.variantInclusionState = [];
 
         this.currentQueryBeforeSaveEvent = null;
+        this.clinicalAnalysisManager = null;
         this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-    }
-
     update(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis")) {
+        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("opencgaSession")) {
             this.clinicalAnalysisObserver();
         }
         if (changedProperties.has("query")) {
@@ -116,16 +108,16 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        // Init saved variants with the primary findings of the main interpretation
-        if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
-            this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
+        // Reset clinical analysis manager
+        if (this.opencgaSession && this.clinicalAnalysis) {
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
-        this.settingsObserver();
 
         // When refreshing AFTER saving variants we set the same query as before refreshing, check 'onSaveVariants'
         if (this.currentQueryBeforeSaveEvent) {
             this.query = {...this.currentQueryBeforeSaveEvent};
             this.currentQueryBeforeEvent = null;
+            this.variant = null;
         }
     }
 
@@ -134,20 +126,15 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.searchActive = false;
+            this.variant = null;
         }
-        this.requestUpdate();
     }
 
     opencgaSessionObserver() {
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-
         this.getInclusionVariantIds();
     }
 
     settingsObserver() {
-        if (!this.clinicalAnalysis) {
-            return;
-        }
         // merge filters
         this._config = {
             ...this.getDefaultConfig(),
@@ -189,26 +176,22 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     getInclusionVariantIds() {
         if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.inclusion?.length > 0) {
             const localVariantInclusionState = [];
-            const promises = [];
             const inclusionList = this.opencgaSession.study.internal.configuration.clinical.interpretation.inclusion;
-            for (const inclusion of inclusionList) {
-                localVariantInclusionState.push(
-                    {
-                        ...inclusion,
-                        variants: []
-                    }
-                );
+            const promises = inclusionList.map(inclusion => {
+                localVariantInclusionState.push({
+                    ...inclusion,
+                    variants: [],
+                });
                 const inclusionQuery = {
                     ...inclusion.query,
-
                     // Additional filters
-                    sample: this.clinicalAnalysis.proband.samples[0].id,
+                    sample: this.clinicalAnalysis?.proband?.samples?.[0]?.id,
                     include: "id,studies.files,studies.samples",
                     count: false,
                     study: this.opencgaSession.study.fqn,
                 };
-                promises.push(this.opencgaSession.opencgaClient.clinical().queryVariant(inclusionQuery));
-            }
+                return this.opencgaSession.opencgaClient.clinical().queryVariant(inclusionQuery);
+            });
 
             // Process all results and update object state
             Promise.all(promises).then(values => {
@@ -259,10 +242,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
     onFilterVariants(e) {
         const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id), "study"];
-        const variantIds = e.detail.variants.map(v => v.id);
+        const variantIds = new Set(e.detail.variants.map(v => v.id));
         this.query = {
             ...UtilsNew.filterKeys(this.executedQuery, lockedFields),
-            id: variantIds.join(","),
+            id: Array.from(variantIds).join(","),
         };
         this.notifyQueryChange();
         this.requestUpdate();
@@ -300,6 +283,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
         this.query = {...e.detail.query}; // We need to update the internal query to propagate to filters
+        this.variant = null;
         this.notifyQueryChange();
         this.requestUpdate();
     }
@@ -307,6 +291,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     onActiveFilterChange(e) {
         VariantUtils.validateQuery(e.detail);
         this.query = {...e.detail};
+        this.variant = null;
         this.notifyQueryChange();
         this.requestUpdate();
     }
@@ -353,27 +338,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.requestUpdate();
     }
 
-    renderViewButton(id, title, icon) {
-        return html`
-            <button class="${`btn btn-success ${this.activeView === id ? "active" : ""}`}" @click="${() => this.onChangeView(id)}">
-                <i class="${`fa fa-${icon} icon-padding`}" aria-hidden="true"></i>
-                <strong>${title}</strong>
-            </button>
-        `;
-    }
-
-    render() {
-        // Check Project exists
-        if (!this.opencgaSession?.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No project available to browse. Please login to continue</h3>
-                </div>
-            `;
-        }
-
-        return html`
+    renderStyles() {
+        return html `
             <style>
                 .prioritization-center {
                     margin: auto;
@@ -410,29 +376,42 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 .clinical-analysis-id-wrapper .text-filter-wrapper {
                     margin: 20px 0;
                 }
-            </style>
+            </style>`;
+    }
 
+    renderViewButton(id, title, icon) {
+        return html`
+            <button class="${`btn btn-success ${this.activeView === id ? "active" : ""}`}" @click="${() => this.onChangeView(id)}">
+                <i class="${`fa fa-${icon} icon-padding`}" aria-hidden="true"></i>
+                <strong>${title}</strong>
+            </button>`;
+    }
+
+    render() {
+        // Check Project exists
+        if (!this.opencgaSession?.study) {
+            return nothing;
+        }
+
+        return html`
             ${this._config.showTitle ? html`
                 <tool-header
                     title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}"
                     icon="${this._config.icon}">
                 </tool-header>
-            ` : null}
+            ` : nothing}
 
             ${this.clinicalAnalysis.interpretation.locked ? html`
-                <div class="row">
-                    <div class="panel panel-warning col-sm-8 col-sm-offset-2" style="padding: 0">
-                        <div class="panel-heading" style="font-size: 1.1em">
-                            <label>Interpretation locked:</label> you cannot modify this interpretation. You can unlock the interpretation in
-                            <span style="font-style: italic;">Case Info >> Interpretation Manager</span>.
-                        </div>
-                    </div>
-                </div>` : null
-            }
+                <div class="alert alert-warning">
+                    <label>Interpretation locked:</label> you cannot modify this interpretation. You can unlock the interpretation in
+                    <span class="fst-italic">Case Info >> Interpretation Manager</span>.
+                </div>
+            ` : nothing}
 
-            <div class="row">
-                <div class="col-md-2">
-                    <div class="search-button-wrapper">
+            <!-- Rodiel 27-09-23 NOTE: Using 'row' and 'col' has problems for standard resolution, so I opted for 'flex -->
+            <div class="d-flex gap-4">
+                <div class="col-2">
+                    <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onSearch}">
                             <i class="fa fa-search" aria-hidden="true"></i>
                             <strong>${this._config.filter?.searchButtonText || "Search"}</strong>
@@ -451,9 +430,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     </variant-browser-filter>
                 </div> <!-- Close col-md-2 -->
 
-                <div class="col-md-10">
+                <div class="flex-grow-1">
                     <!-- View toolbar -->
-                    <div class="content-pills" role="toolbar" aria-label="toolbar">
+                    <div class="content-pills mb-3" role="toolbar" aria-label="toolbar">
                         ${this.renderViewButton("table", "Table Result", "table")}
                         ${!this.settings?.hideGenomeBrowser ? this.renderViewButton("genome-browser", "Genome Browser", "dna") : nothing}
                     </div>
@@ -517,14 +496,16 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                 </variant-interpreter-rearrangement-grid>`
                             }
                             <!-- Bottom tabs with detailed variant information -->
-                            <variant-interpreter-detail
-                                .opencgaSession="${this.opencgaSession}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .toolId="${this.toolId}"
-                                .variant="${this.variant}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .config=${this._config.filter.detail}>
-                            </variant-interpreter-detail>
+                            ${this.variant ? html`
+                                <variant-interpreter-detail
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .toolId="${this.toolId}"
+                                    .variant="${this.variant}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .config="${this._config.filter.detail}">
+                                </variant-interpreter-detail>
+                            ` : nothing}
                         </div>
                         <!-- Genome browser view -->
                         ${!this.settings?.hideGenomeBrowser ? html`
@@ -618,7 +599,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                     end: region.end,
                                     name: `
                                         <div>${gene.name}</div>
-                                        <div class="small text-muted">${region.toString()}</div>
+                                        <div class="small text-secondary">${region.toString()}</div>
                                     `,
                                 };
                             })
@@ -649,7 +630,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             start: feature.start,
                             end: feature.end ?? (feature.start + 1),
                             name: `
-                                <div style="padding-top:4px;padding-bottom:4px;">
+                                <div class="py-1">
                                     <div>${feature.id} (${feature.type})</div>
                                     ${feature.annotation.displayConsequenceType ? `
                                         <div class="small text-primary">
@@ -657,7 +638,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                         </div>
                                     ` : ""}
                                     ${genes.length > 0 ? `
-                                        <div class="small text-muted">${genes.join(", ")}</div>
+                                        <div class="small text-secondary">${genes.join(", ")}</div>
                                     ` : ""}
                                 </div>
                             `,

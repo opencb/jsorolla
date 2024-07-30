@@ -19,6 +19,14 @@ import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 
 export default class CatalogGridFormatter {
 
+    static sexFormatter(value, row) {
+        let sexHtml = `${UtilsNew.isEmpty(row?.sex) ? "Not specified" : row.sex.id || row.sex}`;
+        if (row?.karyotypicSex && row.karyotypicSex !== "UNKNOWN") {
+            sexHtml += ` (${row.karyotypicSex?.id || row.karyotypicSex})`;
+        }
+        return sexHtml;
+    }
+
     static phenotypesFormatter(phenotypes) {
         if (!phenotypes || phenotypes.length === 0) {
             return "-";
@@ -33,19 +41,20 @@ export default class CatalogGridFormatter {
                 }
                 // Add phenotype ID if exists
                 if (phenotype.id && phenotype.id !== phenotype.name) {
-                    if (phenotype.source && phenotype.source.toUpperCase() === "HPO") {
+                    const ontologyLink = BioinfoUtils.getOntologyLink(phenotype.id);
+                    if (ontologyLink.startsWith("http")) {
                         result.push(`
-                            <a target="_blank" href="${BioinfoUtils.getHpoLink(phenotype.id)}"> (${phenotype.id})</a>
+                            <a target="_blank" href="${ontologyLink}"> (${phenotype.id})</a>
                         `);
                     } else {
-                        result.push(phenotype.id);
+                        result.push(`(${phenotype.id})`);
                     }
                 }
                 // Add phenotype status if exists
                 // if (phenotype.status) {
                 //     result.push(`(${phenotype.status})`);
                 // }
-                return `<div style="margin: 2px 0; white-space: nowrap">${result.join("")}</div>`;
+                return `<div style="margin: 2px 0; white-space: nowrap">${result.join(" ")}</div>`;
             });
 
         if (phenotypesHtml?.length > 0) {
@@ -79,7 +88,7 @@ export default class CatalogGridFormatter {
                     const ontologyLink = BioinfoUtils.getOntologyLink(disorder.id);
                     if (ontologyLink.startsWith("http")) {
                         // We have identified the ontology source and created a link
-                        idHtml = `<a href="${ontologyLink}" target="_blank">${disorder.id}</a>`;
+                        idHtml = `<a class="text-decoration-none" href="${ontologyLink}" target="_blank">${disorder.id}</a>`;
                     }
                     if (disorder.name && disorder.name !== disorder.id) {
                         html += `
@@ -107,15 +116,15 @@ export default class CatalogGridFormatter {
             for (const panel of panels) {
                 if (panel.source?.project?.toUpperCase() === "PANELAPP") {
                     panelHtml += `
-                        <div style="margin:5px 0px">
-                            <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
+                        <div class="my-1 mx-0">
+                            <a class="text-decoration-none" href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
                                 ${panel.name} (${panel.source.project} v${panel.source.version})
                             </a>
                         </div>
                     `;
                 } else {
                     panelHtml += `
-                        <div style="margin:5px 0px">${panel.id}</div>
+                        <div class="my-1 mx-0">${panel.id}</div>
                     `;
                 }
             }
@@ -146,15 +155,15 @@ export default class CatalogGridFormatter {
             }
 
             if (bamAndVcfFiles?.length > 0) {
-                let html = `<div style="white-space: nowrap">`;
+                let html = `<div class="text-nowrap">`;
                 for (let i = 0; i < bamAndVcfFiles.length; i++) {
                     // Display first 3 files
                     if (i < 3) {
                         html += `
-                            <div style="margin: 2px 0">${bamAndVcfFiles[i]}</div>
+                            <div class="text-dark " style="font-size: 13px; margin: 2px 0">${bamAndVcfFiles[i]}</div>
                         `;
                     } else {
-                        html += `<a tooltip-title="Files" tooltip-text='${bamAndVcfFiles.join("<br>")}'>... view all files (${bamAndVcfFiles.length})</a>`;
+                        html += `<a class="text-link" style="cursor:pointer" tooltip-title="Files" tooltip-text='${bamAndVcfFiles.join("<br>")}'>... view all files (${bamAndVcfFiles.length})</a>`;
                         break;
                     }
                 }
@@ -178,14 +187,14 @@ export default class CatalogGridFormatter {
             let result = "";
             for (const clinicalAnalysis of clinicalAnalysisArray) {
                 result += `
-                    <div style="margin: 5px 0">
-                        <a title="Go to Case Interpreter" style="white-space: nowrap" href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
-                            <i aria-hidden="true" class="fas fa-user-md icon-padding"></i> ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
-                       </a>
+                    <div class="my-1 mx-0">
+                        <a title="Go to Case Interpreter" class="text-nowrap text-decoration-none" href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
+                            <i aria-hidden="true" class="fas fa-user-md"></i> ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
+                        </a>
                     </div>
                 `;
             }
-            return result;
+            return `<div class="d-grid gap-2 d-md-flex flex-column">${result}</div>`;
         } else {
             return "-";
         }
@@ -214,7 +223,7 @@ export default class CatalogGridFormatter {
             if (annotationSets?.length > 0) {
                 // We display all variableSetIds
                 for (const annotationSet of annotationSets) {
-                    html += `<div class="help-block" style="margin: 5px 0 2px 0">${annotationSet.variableSetId}</div>`;
+                    html += `<div class="d-block text-secondary" style="margin: 5px 0 2px 0">${annotationSet.variableSetId}</div>`;
                     for (const variable of Object.keys(annotationSet.annotations).sort()) {
                         html += `
                             <div style="white-space: nowrap">

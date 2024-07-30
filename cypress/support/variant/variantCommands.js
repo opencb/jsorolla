@@ -84,9 +84,9 @@ Cypress.Commands.add("saveCurrentFilter", data =>{
 
 // All browser has filters
 Cypress.Commands.add("removeFilters", name => {
-    cy.get(".active-filter-label").click();
+    cy.get(".cy-active-filter-label").click();
     cy.get("ul.saved-filter-wrapper").contains(name);
-    cy.get(`span.action-buttons i[data-cy=delete][data-filter-id='${name}']`).click();
+    cy.get(`span.cy-action-buttons i[data-cy=delete][data-filter-id='${name}']`).click();
     cy.get("#myModalLabel").contains("Are you sure?");
     cy.get(":nth-child(5) > .modal > .modal-dialog > .modal-content > .modal-footer > .btn-primary").click();
 });
@@ -107,7 +107,7 @@ Cypress.Commands.add("setFeatureIds", value => {
 
 Cypress.Commands.add("setGeneBiotype", value => {
     cy.get("div[data-cy='biotype']").contains("span", "Gene Biotype");
-    cy.get(".subsection-content biotype-filter select-field-filter ul[role='presentation']").contains(value).click({force: true});
+    cy.get(".cy-subsection-content biotype-filter select-field-filter ul[role='presentation']").contains(value).click({force: true});
 });
 
 Cypress.Commands.add("setVariantType", value => {

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
@@ -281,6 +282,19 @@ export default class ClinicalAnalysisManager {
 
     unLockInterpretation(interpretationId, callback) {
         this.#updateInterpretation(interpretationId, {locked: false}, `Interpretation '${interpretationId}' Unlocked.`, callback);
+    }
+
+    downloadInterpretation(interpretationId) {
+        return this.opencgaSession.opencgaClient.clinical()
+            .infoInterpretation(interpretationId, {
+                study: this.opencgaSession.study.fqn,
+            })
+            .then(response => {
+                UtilsNew.downloadJSON(response?.responses?.[0]?.results?.[0], `interpretation-${interpretationId}.json`);
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
     }
 
     updateVariant(variant, interpretation, callback) {

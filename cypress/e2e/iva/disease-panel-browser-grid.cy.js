@@ -32,8 +32,6 @@ context("Disease Panel Browser Grid", () => {
 
     // TOOLBAR
     context("Disease Panel Toolbar", () => {
-        const toolbarComponent = "";
-
         beforeEach(() => {
             cy.get("@container")
                 .find("div[data-cy='toolbar']")
@@ -75,37 +73,32 @@ context("Disease Panel Browser Grid", () => {
         });
         // 2. Render title
         it("should render create title", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("h4.modal-title")
                 .should("contain.text", "Disease Panel Create");
         });
         // 3. Render button clear
         it("should render button clear", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .contains("button", "Clear")
                 .should("be.visible");
         });
         // 4. Render button create
         it("should render button create", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .contains("button", "Create")
                 .should("be.visible");
         });
         // 5. Render tabs
         it("should render form tabs", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.greaterThan", 1);
         });
         // 6. Render Disease Panel ID
         it("should have form field ID", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .find("data-form div.form-horizontal div.row.form-group  label.control-label")
+                .find("data-form div.form-horizontal div.row div.col-md-3")
                 .should("contain.text", "Disease Panel ID");
         });
     });
@@ -113,7 +106,6 @@ context("Disease Panel Browser Grid", () => {
     // MODAL UPDATE
     context("Modal Update", () => {
         beforeEach(() => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@container")
                 .find("table tbody tr td button.dropdown-toggle")
                 .first()
@@ -122,50 +114,43 @@ context("Disease Panel Browser Grid", () => {
                 .find("a[data-action='edit']")
                 .first()
                 .click();
-            cy.get("@container")
-                .find("div[data-cy='modal-update']")
+            cy.get("div[data-cy='modal-update']")
                 .as("modal-update");
         });
         // 1. Open modal and render update
         it("should render update modal", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("div.modal-dialog")
                 .should("be.visible");
         });
         // 2. Render title
         it("should render update title", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("h4.modal-title")
                 .should("contain.text", "Disease Panel Update");
         });
         // 3. Render button clear
         it("should render button clear", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .contains("button", "Discard Changes")
                 .should("be.visible");
         });
         // 4. Render button create
         it("should render button create", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .contains("button", "Update")
                 .should("be.visible");
         });
         // 5. Render tabs
         it("should render form tabs", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.greaterThan", 1);
         });
         // 6. Render Sample ID
         it("should have form field ID equal to sample selected", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
-                .find("data-form div.row div.row.form-group  label.control-label")
+                .find("data-form div.row div.row div.col-md-3")
                 .should("contain.text", "Disease Panel ID");
         });
     });
@@ -222,14 +207,14 @@ context("Disease Panel Browser Grid", () => {
             });
             cy.get("button[data-action='settings']")
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                UtilsTest.getByDataTest("test-columns", "select-field-filter span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-selection")
                 .click();
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
@@ -314,6 +299,7 @@ context("Disease Panel Browser Grid", () => {
         });
 
         context("data format", () => {
+
             beforeEach(() => {
                 cy.get("@grid")
                     .find("tbody tr[data-index='0']")
@@ -332,7 +318,6 @@ context("Disease Panel Browser Grid", () => {
     });
 
     context("Detail", () => {
-
         beforeEach(() => {
             cy.get("@container")
                 .find("div[data-cy='dpb-detail']")

@@ -108,6 +108,7 @@ export default class Types {
     * @property {boolean} titleVisible -
     * @property {number} titleWidth - add a with for the display
     * @property {string} modalWidth -
+    * @property {string} modalSize -
     * @property {boolean} modalDisabled  -
     * @property {string} modalButtonClassName  -
     * @property {string} modalButtonStyle

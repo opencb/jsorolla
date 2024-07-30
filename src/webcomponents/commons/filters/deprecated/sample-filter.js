@@ -237,7 +237,7 @@ export default class SampleFilter extends LitElement {
                             <span>Sample Genotype Summary</span>
                         </div>
                         <table class="table sample-genotype-table" style="margin-bottom: 10px">
-                            <thead>
+                            <thead class="table-light">
                                 <tr>
                                     <th scope="col">Sample ID</th>
                                     <th scope="col">GT</th>

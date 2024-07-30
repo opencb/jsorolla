@@ -235,13 +235,14 @@ class OpencbFacetResults extends LitElement {
 
             ${!this.facetResults.length && !this.loading && !this.errorState ?
                 !this.query ? html`
-                    <div class="alert alert-info" role="alert">
-                        <i class="fas fa-3x fa-info-circle align-middle"></i>
-                        Please select the aggregation fields in the Aggregation Tab on the left and then click on <b>Search</b> button.
+                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                        <i class="fas fa-3x fa-info-circle flex-shrink-0 me-2"></i>
+                        <div>Please select the aggregation fields in the Aggregation Tab on the left and then click on <b>Search</b> button.</div>
                     </div>
                 ` : html`
-                    <div class="alert alert-warning" role="alert">
-                        <i class="fas fa-3x fa-exclamation-circle align-middle"></i> Empty results
+                    <div class="alert alert-warning d-flex align-items-center" role="alert">
+                        <i class="fas fa-3x fa-exclamation-circle flex-shrink-0 me-2"></i>
+                        <div>Empty results</div>
                     </div>
             ` : null}
         </div>

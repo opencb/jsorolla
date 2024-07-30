@@ -20,7 +20,6 @@ import "./clinical-analysis-create.js";
 import "../disease-panel/disease-panel-browser.js";
 import "../disease-panel/disease-panel-create.js";
 import "../commons/tool-header.js";
-import LitUtils from "../commons/utils/lit-utils";
 
 export default class ClinicalAnalysisPortal extends LitElement {
 
@@ -59,10 +58,10 @@ export default class ClinicalAnalysisPortal extends LitElement {
             <div>
                 ${this._config.views.map(view => html`
                     <button
-                        class="${`btn btn-default ${this.currentView === view.id ? "active" : ""}`}"
+                        class="${`btn btn-light ${this.currentView === view.id ? "active" : ""}`}"
                         @click="${() => this.#onViewChange(view.id)}">
                         ${view.icon ? html`
-                            <i class="${`fas ${view.icon} icon-padding`}"></i>
+                            <i class="${`fas ${view.icon} ps-1`}"></i>
                         ` : null}
                         <strong>${view.name}</strong>
                     </button>
@@ -73,8 +72,8 @@ export default class ClinicalAnalysisPortal extends LitElement {
 
     renderViewTitle(title) {
         return html`
-            <div style="margin-top:32px;margin-bottom:24px;">
-                <h2 style="font-weight:bold;">${title}</h2>
+            <div class="my-4">
+                <h2 class="fw-bold">${title}</h2>
             </div>
         `;
     }
@@ -82,7 +81,7 @@ export default class ClinicalAnalysisPortal extends LitElement {
     render() {
         if (!this.opencgaSession) {
             return html`
-                <div class="guard-page">
+                <div class="d-flex flex-column justify-content-center align-items-center pt-5">
                     <i class="fas fa-lock fa-5x"></i>
                     <h3>No public projects available to browse. Please login to continue</h3>
                 </div>

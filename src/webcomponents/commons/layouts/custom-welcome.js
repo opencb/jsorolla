@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import {guardPage} from "../html-utils.js";
 
 export default class CustomWelcome extends LitElement {
 
@@ -69,16 +70,17 @@ export default class CustomWelcome extends LitElement {
             });
 
             return html`
-                <div class="row hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
+            <!-- row hi-icon-wrap hi-icon-effect-9 hi-icon-animation -->
+                <div class="d-flex justify-content-around gap-2">
                     ${visibleApps.map(item => html`
-                        <a class="icon-wrapper" href="#home" data-id="${item.id}" @click="${this.onChangeApp}">
-                            <div class="hi-icon">
-                                <img alt="${item.name}" src="${item.icon}"/>
-                            </div>
-                            <div style="margin-top:10px;">
-                                <span style="font-weight:bold;">${item.name}</span>
-                            </div>
-                        </a>
+                        <div class="w-50 shadow p-3 mb-5 bg-body rounded-5 text-center zetta-animation-pulse">
+                            <a class="text-decoration-none" href="#home" data-id="${item.id}" @click="${this.onChangeApp}">
+                                    <div class="hi-icon">
+                                        <img alt="${item.name}" src="${item.icon}"/>
+                                    </div>
+                                    <b class="text-decoration-none">${item.name}</b>
+                                </a>
+                        </div>
                     `)}
                 </div>
             `;
@@ -102,36 +104,32 @@ export default class CustomWelcome extends LitElement {
             });
 
             return html`
-                <div class="panel-default-wrapper">
-                    ${featuredTools.map(item => {
-                        const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
-                        return html`
-                            <div class="panel panel-default" data-cy-welcome-card-id="${item.id}">
-                                <div class="panel-body">
-                                    <a href="#${itemLink}" style="text-decoration:none!important;">
-                                        <div align="center" class="">
-                                            ${ item?.icon.includes("fas") ? html`
-                                                <i class="${item.icon}" style="font-size: 5em;"></i>
-                                            ` : html`
-                                                <img alt="${item.name}" width="100px" src="${item.icon}"/>
-                                            `}
-                                        </div>
-                                        <h4 style="margin-bottom:0; text-align: center">
-                                            <div>${item.name}</div>
-                                        </h4>
-                                    </a>
+                <div class="d-flex justify-content-center mt-2 gap-2">
+                    ${
+                        featuredTools.map(item => {
+                            const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
+                            return html`
+                                <div class="card w-50 shadow p-3 mb-5 bg-body rounded border-0" data-cy-welcome-card-id="${item.id}">
+                                    <div class="card-body d-flex flex-column">
+                                        <a class="text-decoration-none" href="#${itemLink}">
+                                            <div class="text-center">
+                                                ${ item?.icon.includes("fas") ? html`
+                                                    <i class="${item.icon}" style="font-size: 5em;"></i>
+                                                ` : html`
+                                                    <img alt="${item.name}" width="100px" src="${item.icon}"/>
+                                                `}
+                                            </div>
+                                            <h4 class="card-title text-center">${item.name}</h4>
+                                        </a>
+                                        ${item.description ? UtilsNew.renderHTML(item.description) : ""}
+                                            <a class="btn btn-primary btn-lg mt-auto text-white" href="#${itemLink}">
+                                                Enter
+                                            </a>
+                                    </div>
                                 </div>
-                                <div class="panel-body">
-                                    ${item.description ? UtilsNew.renderHTML(item.description) : ""}
-                                </div>
-                                <div class="panel-body">
-                                    <a class="btn btn-primary btn-block btn-lg" href="#${itemLink}">
-                                        <div style="color:white;">Enter</div>
-                                    </a>
-                                </div>
-                            </div>
-                        `;
-                    })}
+                            `;
+                        })
+                    }
                 </div>
             `;
         }
@@ -140,10 +138,6 @@ export default class CustomWelcome extends LitElement {
     renderStyle() {
         return html`
             <style>
-                div#home {
-                    display: flex;
-                    align-items: center;
-                }
                 .getting-started {
                     display: inline-block;
                     border: 4px var(--main-bg-color) solid;
@@ -188,56 +182,11 @@ export default class CustomWelcome extends LitElement {
                     color: #fff
                 }
 
-                .panel-default-wrapper {
-                    display: flex;
-                    justify-content: center;
-                    flex-wrap: wrap;
-                    margin-top: 2rem;
-                }
-
-                .panel-default-wrapper > .panel-default > .panel-body {
-                    display: flex;
-                    flex-direction: column;
-                    flex: 1
-                }
-
-                .panel-default-wrapper > .panel-default > .panel-body:last-child {
-                    flex: 0
-                }
-
-                .panel.panel-default {
-                    display: flex;
-                    flex-direction: column;
-                    flex: 1;
-                    -webkit-box-shadow: 0 2px 5px #b3b4bd;
-                    border: 0;
-                    margin: 0 1rem;
-                    max-width: 20em;
-                }
-
-                .panel-body a.btn.btn-primary.btn-block.btn-lg {
-                    background-color: var(--footer-color-payne-blue);
-                    border: 0;
-                }
-
                 #bottomLogo {
                     display: flex;
                     justify-content: center;
                     margin: 3em 0;
                 }
-
-                #welcome-title {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin: 1em 0;
-                }
-
-                #welcome-title h1 {
-                    display: inline;
-                    margin: 0 0 0 1rem;
-                }
-
             </style>
         `;
     }
@@ -247,59 +196,56 @@ export default class CustomWelcome extends LitElement {
 
         if (!UtilsNew.isNotEmptyArray(this.opencgaSession?.projects) ||
             this.opencgaSession.projects.every(p => !UtilsNew.isNotEmptyArray(p.studies))) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>You don´t have projects or/and studies. Please contact the admin</h3>
-                </div>`;
+            return guardPage("You don't have projects or/and studies. Please contact the admin");
         }
 
         return html`
             ${this.renderStyle()}
 
-            <div class="container" style="margin: 2em 0;">
+            <div class="container mt-3">
                 <!-- Welcome page logo -->
+
                 ${welcomePage?.logo ? html`
-                    <div align="center">
-                        <img
-                            alt="${welcomePage.display?.logoAlt || "logo"}"
-                            class="${welcomePage.display?.logoClass}"
-                            src="${welcomePage.logo}"
-                            style="${welcomePage.display?.logoStyle}"
-                            width="${welcomePage.display?.logoWidth || "300px"}"
-                        />
-                    </div>
-                ` : null}
+                <div class="text-center mt-5">
+                    <img
+                        alt="${welcomePage.display?.logoAlt || "logo"}"
+                        class="${welcomePage.display?.logoClass}"
+                        src="${welcomePage.logo}"
+                        style="${welcomePage.display?.logoStyle}"
+                        width="${welcomePage.display?.logoWidth || "300px"}"
+                    />
+                </div>
+                ` : nothing}
 
                 <!-- Welcome page title -->
                 ${welcomePage?.title ? html`
-                    <div id="welcome-title">
+                    <div class="d-flex justify-content-center my-3">
                         <img src="${welcomePage.appLogo?.img}" height="${welcomePage.appLogo?.height || "40px"}"/>
                         <h1 class="${welcomePage.display?.titleClass}" style="${welcomePage.display?.titleStyle}">
                             ${welcomePage.title}
                         </h1>
                     </div>
-                `: null}
+                `: nothing}
 
                 <!-- Welcome page subtitle -->
                 ${welcomePage?.subtitle ? html`
                     <h4 class="${welcomePage.display?.subtitleClass}" style="${welcomePage.display?.subtitleStyle}">
                         ${welcomePage.subtitle}
                     </h4>
-                ` : null}
+                ` : nothing}
 
                 <!-- Custom content -->
                 ${welcomePage?.content ? html`
                     <div style="${welcomePage.display?.contentStyle || "margin-bottom:16px;"}">
                         ${UtilsNew.renderHTML(welcomePage.content)}
                     </div>
-                ` : null}
+                ` : nothing}
 
                 <!-- Applications or tools -->
                 ${this.renderApplicationsOrTools()}
 
                 <!-- Display custom links -->
-                <div align="center" class="row" style="margin-top:50px;">
+                <div class="text-center mt-5">
                     ${(welcomePage?.links || []).map(link => html`
                         <a class="getting-started" href="${link.url}" target="${link.target || "_blank"}"><span>${link.title}</span></a>
                     `)}
@@ -307,6 +253,7 @@ export default class CustomWelcome extends LitElement {
 
                 <!-- Logo at the bottom of the content -->
                 ${welcomePage?.bottomLogo?.img ? html`
+                <!-- d-flex justify-content-center mx-3 my-0 -->
                     <div id="bottomLogo">
                         ${welcomePage.bottomLogo.link ? html `
                             <a href="${welcomePage.bottomLogo.link}" target="blank">
@@ -322,8 +269,7 @@ export default class CustomWelcome extends LitElement {
                             />
                         `}
                     </div>
-                ` : null}
-
+                ` : nothing}
             </div>
         `;
     }

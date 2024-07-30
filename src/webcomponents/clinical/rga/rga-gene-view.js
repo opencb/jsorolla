@@ -98,6 +98,8 @@ export default class RgaGeneView extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._columns,
             method: "get",
             sidePagination: "server",
@@ -112,7 +114,7 @@ export default class RgaGeneView extends LitElement {
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
             detailView: !!this.detailFormatter,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             ajax: async params => {
                 const _filters = {
                     study: this.opencgaSession.study.fqn,
@@ -437,15 +439,13 @@ export default class RgaGeneView extends LitElement {
         return html`
             <opencb-grid-toolbar
                 .config="${this.toolbarConfig}"
-                 @columnChange="${this.onColumnChange}"
-                 @download="${this.onDownload}">
+                @columnChange="${this.onColumnChange}"
+                @download="${this.onDownload}">
             </opencb-grid-toolbar>
 
             <div id="${this._prefix}GridTableDiv" data-cy="gene-view-grid">
                 <table id="${this._prefix}RgaGeneBrowserGrid"></table>
             </div>
-
-
         `;
     }
 

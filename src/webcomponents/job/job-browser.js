@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import WebUtils from "../commons/utils/web-utils";
+import {guardPage} from "../commons/html-utils.js";
 import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
@@ -80,12 +81,7 @@ export default class JobBrowser extends LitElement {
     render() {
         // No openCGA session available
         if (!this.opencgaSession) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         return html`
@@ -119,15 +115,17 @@ export default class JobBrowser extends LitElement {
                             .search="${params.executedQuery}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .files="${params.files}"
-                            @selectrow="${e => params.onClickRow(e, "job")}"
-                            @jobUpdate="${e => params.onComponentUpdate(e, "job")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @jobUpdate="${e => params.onComponentUpdate(e)}"
                             @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
                         </job-grid>
-                        <job-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .jobId="${params.detail.job?.id}">
-                        </job-detail>
+                        ${params?.detail ? html`
+                            <job-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .jobId="${params.detail?.id}">
+                            </job-detail>
+                        ` : nothing}
                     `,
                 },
                 {
@@ -232,15 +230,7 @@ export default class JobBrowser extends LitElement {
                         ],
                     },
                 ],
-                examples: [
-                    {
-                        id: "Example 1 - Get VCF and BAM",
-                        active: false,
-                        query: {
-                            format: "VCF,BAM",
-                        },
-                    },
-                ],
+                examples: [],
                 result: {
                     grid: {
                         pageSize: 10,

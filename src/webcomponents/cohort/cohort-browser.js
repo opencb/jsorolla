@@ -15,7 +15,7 @@
  */
 
 
-import {LitElement, html} from "lit";
+import {html, LitElement, nothing} from "lit";
 import WebUtils from "../commons/utils/web-utils";
 import "../commons/opencga-browser.js";
 import "./cohort-grid.js";
@@ -94,7 +94,7 @@ export default class CohortBrowser extends LitElement {
                     name: "Table result",
                     icon: "fa fa-table",
                     active: true,
-                    render: params => html `
+                    render: params => html`
                         <cohort-grid
                             .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
@@ -103,15 +103,18 @@ export default class CohortBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "cohort")}"
-                            @cohortUpdate="${e => params.onComponentUpdate(e, "cohort")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @cohortUpdate="${e => params.onComponentUpdate(e)}"
                             @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
                         </cohort-grid>
-                        <cohort-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .cohortId="${params.detail.cohort?.id}">
-                        </cohort-detail>`
+                        ${params?.detail ? html`
+                            <cohort-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .cohortId="${params.detail?.id}">
+                            </cohort-detail>
+                        ` : nothing}
+                    `,
                 },
                 {
                     id: "facet-tab",
@@ -169,23 +172,17 @@ export default class CohortBrowser extends LitElement {
                         ]
                     }
                 ],
-                examples: [
-                    {
-                        id: "Full",
-                        query: {
-                            annotation: "Pedigree:versionControl.GitVersionControl=git",
-                            type: "TIME_SERIES,FAMILY",
-                            id: "lp",
-                            samples: "hg"
-                        }
-                    }
-                ],
+                examples: [],
                 result: {
                     grid: {}
                 },
                 detail: {
                     title: "Cohort",
                     showTitle: true,
+                    display: {
+                        titleClass: "mt-4",
+                        contentClass: "p-3"
+                    },
                     items: [
                         {
                             id: "cohort-view",

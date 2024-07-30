@@ -128,6 +128,8 @@ export default class CellbaseVariantAnnotationView extends LitElement {
                     // Gene Trait Association definition
                     $("#" + this._prefix + "GTATable").bootstrapTable("destroy");
                     $("#" + this._prefix + "GTATable").bootstrapTable({
+                        theadClasses: "table-light",
+                        buttonsClass: "light",
                         data: this.variantAnnotation.geneTraitAssociation,
                         columns: [
                             [

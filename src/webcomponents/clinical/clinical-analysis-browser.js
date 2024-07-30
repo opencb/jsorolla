@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import WebUtils from "../commons/utils/web-utils";
 import "../commons/opencga-browser.js";
@@ -22,7 +22,6 @@ import "./clinical-analysis-view.js";
 import "./clinical-analysis-grid.js";
 import "./clinical-analysis-detail.js";
 import "./clinical-analysis-group.js";
-
 
 export default class ClinicalAnalysisBrowser extends LitElement {
 
@@ -122,16 +121,18 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .active="${params.active}"
                             @selectanalysis="${params.onSelectClinicalAnalysis}"
-                            @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}"
-                            @rowUpdate="${e => params.onComponentUpdate(e, "clinicalAnalysis")}"
-                            @clinicalAnalysisUpdate="${e => params.onComponentUpdate(e, "clinicalAnalysis")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @rowUpdate="${e => params.onComponentUpdate(e)}"
+                            @clinicalAnalysisUpdate="${e => params.onComponentUpdate(e)}"
                             @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
                         </clinical-analysis-grid>
-                        <clinical-analysis-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .clinicalAnalysisId="${params.detail.clinicalAnalysis?.id}">
-                        </clinical-analysis-detail>
+                        ${params?.detail ? html`
+                            <clinical-analysis-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .clinicalAnalysisId="${params.detail?.id}">
+                            </clinical-analysis-detail>
+                        ` : nothing}
                     `,
                 },
                 {
@@ -222,6 +223,10 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                 detail: {
                     title: "Clinical Analysis",
                     showTitle: true,
+                    display: {
+                        titleClass: "mt-4",
+                        contentClass: "p-3"
+                    },
                     items: [
                         {
                             id: "clinical-analysis-view",

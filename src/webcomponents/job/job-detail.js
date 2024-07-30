@@ -121,6 +121,10 @@ export default class JobDetail extends LitElement {
         return {
             title: "Job",
             showTitle: true,
+            display: {
+                titleClass: "mt-4",
+                contentClass: "p-3"
+            },
             items: [
                 {
                     id: "job-view",

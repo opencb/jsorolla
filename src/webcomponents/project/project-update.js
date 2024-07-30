@@ -124,8 +124,8 @@ export default class ProjectUpdate extends LitElement {
             case "description":
             case "organism.scientificName":
             case "organism.assembly":
-            // case "cellbase.url":
-            // case "cellbase.version":
+                // case "cellbase.url":
+                // case "cellbase.version":
                 this.updateParams = {
                     ...FormUtils.updateObjectParams(
                         this._project,

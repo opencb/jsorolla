@@ -20,7 +20,6 @@ import GridCommons from "../commons/grid-commons.js";
 import VariantGridFormatter from "../variant/variant-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 
-
 export default class DiseasePanelGeneView extends LitElement {
 
     constructor() {
@@ -90,6 +89,8 @@ export default class DiseasePanelGeneView extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this.getDefaultColumns(),
             data: this.genePanels,
             sidePagination: "local",
@@ -104,7 +105,7 @@ export default class DiseasePanelGeneView extends LitElement {
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
             detailView: !!this.detailFormatter,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             // onPageChange: (page, size) => {
             //     const result = this.gridCommons.onPageChange(page, size);
@@ -131,7 +132,7 @@ export default class DiseasePanelGeneView extends LitElement {
                 ${VariantGridFormatter.getGeneTooltip(geneName, this.opencgaSession?.project?.organism?.assembly)}
             `;
             geneLinks.push(`
-                <a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px">
+                <a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px">
                     ${geneName}
                 </a>`);
         }
@@ -180,7 +181,7 @@ export default class DiseasePanelGeneView extends LitElement {
                                 <ul>
                                     ${modesOfInheritanceContent}
                                 </ul>` : "-"
-                            }
+                        }
                         `;
                     },
                 },
@@ -191,14 +192,14 @@ export default class DiseasePanelGeneView extends LitElement {
                     align: "center",
                     formatter: (value, row) => {
                         const statusConfidence = {
-                            "HIGH": "label label-success",
-                            "MEDIUM": "label label-warning",
-                            "LOW": "label label-danger",
+                            "HIGH": "badge text-bg-success",
+                            "MEDIUM": "badge text-bg-warning",
+                            "LOW": "badge text-bg-danger",
                         };
                         if (row.confidence) {
                             return `
                                 <h4>
-                                    <span class="${statusConfidence[row.confidence] || "label label-default"}">${row.confidence}</span>
+                                    <span class="${statusConfidence[row.confidence] || "badge bg-secondary"}">${row.confidence}</span>
                                 </h4>`;
                         } else {
                             return "-";

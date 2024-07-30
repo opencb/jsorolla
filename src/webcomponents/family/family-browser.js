@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import WebUtils from "../commons/utils/web-utils";
 import "../commons/opencga-browser.js";
 import "../commons/facet-filter.js";
 import "./family-grid.js";
 import "./family-detail.js";
-
 
 export default class FamilyBrowser extends LitElement {
 
@@ -108,15 +107,17 @@ export default class FamilyBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .active="${true}"
                             .eventNotifyName="${params.eventNotifyName}"
-                            @selectrow="${e => params.onClickRow(e, "family")}"
-                            @familyUpdate="${e => params.onComponentUpdate(e, "family")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @familyUpdate="${e => params.onComponentUpdate(e)}"
                             @userGridSettingsUpdate="${() => this.onUserGridSettingsUpdate()}">
                         </family-grid>
-                        <family-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .family="${params.detail.family}">
-                        </family-detail>
+                        ${params?.detail ? html`
+                            <family-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .familyId="${params.detail?.id}">
+                            </family-detail>
+                        ` : nothing}
                     `,
                 },
                 {
@@ -195,6 +196,10 @@ export default class FamilyBrowser extends LitElement {
                 detail: {
                     title: "Family",
                     showTitle: true,
+                    display: {
+                        titleClass: "mt-4",
+                        contentClass: "p-3"
+                    },
                     items: [
                         {
                             id: "family-view",

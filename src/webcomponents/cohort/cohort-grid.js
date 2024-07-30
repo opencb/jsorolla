@@ -20,9 +20,9 @@ import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import ModalUtils from "../commons/modal/modal-utils";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
-
+import ModalUtils from "../commons/modal/modal-utils.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import WebUtils from "../commons/utils/web-utils.js";
 
 export default class CohortGrid extends LitElement {
 
@@ -64,21 +64,22 @@ export default class CohortGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
-        this.displayConfigDefault = {
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom",
-            },
-        };
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
+            changedProperties.has("toolId") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config")) {
+            this.propertyObserver();
+        }
+
+        super.update(changedProperties);
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
-            changedProperties.has("toolId") ||
-            changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) && this.active) {
-            this.propertyObserver();
+        if (changedProperties.size > 0 && this.active) {
+            this.renderTable();
         }
     }
 
@@ -106,6 +107,7 @@ export default class CohortGrid extends LitElement {
                     modalTitle: "Cohort Create",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                 },
                 render: () => html `
                     <cohort-create
@@ -141,16 +143,16 @@ export default class CohortGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
-        this.renderTable(this.active);
+
+        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
-    renderTable(active) {
+    renderTable() {
         if (this.cohorts?.length > 0) {
             this.renderLocalTable();
         } else {
-            this.renderRemoteTable(active);
+            this.renderRemoteTable();
         }
-        this.requestUpdate();
     }
 
     renderLocalTable() {
@@ -182,14 +184,13 @@ export default class CohortGrid extends LitElement {
             },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
-            // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             showExport: this._config.showExport,
             detailView: !!this.detailFormatter,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
@@ -198,33 +199,20 @@ export default class CohortGrid extends LitElement {
         });
     }
 
-    renderRemoteTable(active) {
-        if (!active) {
-            return;
-        }
-
-        this.cohorts = [];
+    renderRemoteTable() {
         if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
-            // const filters = {...this.query};
-
-            // Make a copy of the cohorts (if they exist), we will use this private copy until it is assigned to this.cohorts
-            if (UtilsNew.isNotUndefined(this.cohorts)) {
-                this._cohorts = this.cohorts;
-            } else {
-                this._cohorts = [];
-            }
-
             this._columns = this._getDefaultColumns();
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
-                // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
@@ -232,7 +220,7 @@ export default class CohortGrid extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: !!this.detailFormatter,
-                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let cohorstResponse = null;
                     this.filters = {
@@ -266,8 +254,7 @@ export default class CohortGrid extends LitElement {
                 onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onDblClickRow: (row, element) => {
                     this.detailFormatter ?
-                        this.table.bootstrapTable("toggleDetailView", element[0].dataset.index) :
-                        nothing;
+                        this.table.bootstrapTable("toggleDetailView", element[0].dataset.index) : null;
                 },
                 onCheck: row => {
                     this.gridCommons.onCheck(row.id, row);
@@ -284,10 +271,11 @@ export default class CohortGrid extends LitElement {
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
-                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
+                onLoadError: (e, restResponse) => {
+                    this.gridCommons.onLoadError(e, restResponse);
+                }
             });
         }
-        this.requestUpdate();
     }
 
     onColumnChange(e) {
@@ -317,18 +305,17 @@ export default class CohortGrid extends LitElement {
                     return `
                         <div>
                             <span style="font-weight: bold; margin: 5px 0">${cohortId}</span>
-                            ${cohort.name ? `<span class="help-block" style="margin: 5px 0">${cohort.name}</span>` : ""}
+                            ${cohort.name ? `<span class="d-block text-secondary" style="margin: 5px 0">${cohort.name}</span>` : ""}
                         </div>`;
                 },
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
                 id: "numSamples",
                 title: "Number of Samples",
                 field: "numSamples",
-                // formatter: (value, row) => row.numSamples ?? 0,
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("numSamples")
             },
             {
@@ -336,7 +323,7 @@ export default class CohortGrid extends LitElement {
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
-                halign: this.displayConfigDefault.header.horizontalAlign,
+                halign: "center",
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
@@ -353,31 +340,30 @@ export default class CohortGrid extends LitElement {
                 title: "Actions",
                 field: "actions",
                 formatter: () => `
-                    <div class="dropdown">
-                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                    <div class="d-inline-block dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
                             <span>Actions</span>
-                            <span class="caret" style="margin-left: 5px"></span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li role="separator" class="divider"></li>
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) || "disabled" }">
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
-
                             </li>
                             <li>
-                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
+                                <a data-action="delete" href="javascript: void 0" class="dropdown-item btn force-text-left disabled">
                                     <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
                                 </a>
                             </li>
                         </ul>
-                    </div>`,
+                    </div>
+                `,
+                align: "center",
                 events: {
-                    "click a": this.onActionClick.bind(this)
+                    "click a": this.onActionClick.bind(this),
                 },
-                visible: !this._config.columns?.hidden?.includes("actions")
+                visible: this.gridCommons.isColumnVisible("actions"),
             });
         }
 
@@ -443,6 +429,7 @@ export default class CohortGrid extends LitElement {
             display: {
                 modalTitle: `Cohort Update: ${this.cohortUpdateId}`,
                 modalDraggable: true,
+                modalSize: "modal-lg",
             },
             render: active => html`
                 <cohort-update
@@ -471,7 +458,7 @@ export default class CohortGrid extends LitElement {
                 </opencb-grid-toolbar>
             ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
 

@@ -18,8 +18,8 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import GridCommons from "../../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import {guardPage, construction} from "../../commons/html-utils.js";
 import "../permission/permission-browser-grid.js";
-import {construction} from "../../commons/under-construction.js";
 
 export default class StudyAdminPermissions extends LitElement {
 
@@ -83,9 +83,7 @@ export default class StudyAdminPermissions extends LitElement {
                     icon: "fas fa-clipboard-list",
                     active: false,
                     render: () => {
-                        return html`
-                            ${construction}
-                        `;
+                        return construction;
                     }
                 }
             ]
@@ -95,20 +93,16 @@ export default class StudyAdminPermissions extends LitElement {
     render() {
 
         if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
-            return html`
-            <div class="guard-page">
-                <i class="fas fa-lock fa-5x"></i>
-                <h3>No permission to view this page</h3>
-            </div>`;
+            return guardPage("No permission to view this page");
         }
 
         return html`
             <div style="margin: 25px 40px">
                 <detail-tabs
-                        .data=${this.study}
-                        .mode=${"pills"}
-                        .config="${this._config}"
-                        .opencgaSession="${this.opencgaSession}">
+                    .data=${this.study}
+                    .mode=${"pills"}
+                    .config="${this._config}"
+                    .opencgaSession="${this.opencgaSession}">
                 </detail-tabs>
             </div>
             `;

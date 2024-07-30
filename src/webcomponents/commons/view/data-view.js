@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import {guardPage} from "../html-utils.js";
 import "../simple-chart.js";
 import "../json-viewer.js";
 import "../../download-button.js";
@@ -308,7 +309,7 @@ export default class DataView extends LitElement {
 
         return html`
             <table class="table" style="display: inline">
-                <thead>
+                <thead class="table-light">
                     <tr>
                         ${element.display.columns.map(elem => html`
                             <th scope="col">${elem.name}</th>
@@ -375,13 +376,17 @@ export default class DataView extends LitElement {
         }
         // Call to render function if defined
         if (element.display.render) {
-            //it covers the case the result of this.getValue is actually undefined
+            // it covers the case the result of this.getValue is actually undefined
             return data ? element.display.render(data) : this.getDefaultValue(element);
         }
     }
 
     _createDownloadElement(element) {
-        return html`<download-button .json="${this.data}" name="${element.name}"></download-button>`
+        return html`
+            <download-button
+                .json="${this.data}"
+                name="${element.name}">
+            </download-button>`;
     }
 
     postRender() {
@@ -392,12 +397,7 @@ export default class DataView extends LitElement {
     render() {
         // Check Project exists
         if (!this.data) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No valid data provided: ${this.data}</h3>
-                </div>
-            `;
+            return guardPage(`No valid data provided: ${this.data}`);
         }
 
         // Check configuration
@@ -406,7 +406,7 @@ export default class DataView extends LitElement {
                 <div class="guard-page">
                     <i class="fas fa-exclamation fa-5x"></i>
                     <h3>No valid configuration provided. Please check configuration:</h3>
-                    <div style="padding: 10px">
+                    <div class="p-2">
                         <pre>${JSON.stringify(this.config, null, 2)}</pre>
                     </div>
                 </div>
@@ -415,17 +415,20 @@ export default class DataView extends LitElement {
 
         return html`
                 <!-- Header -->
-                ${this.config.title && this.config.display.showTitle ? html`
+                ${
+                    this.config.title && this.config.display.showTitle ? html`
                     <div>
                         <h2>${this.config.title}</h2>
-                    </div>`
-            : null}
+                    </div>` :
+                        nothing
+                }
                 <div>
                     ${this.config.sections.map(section => this._createSection(section))}
                 </div>
             </div>
         `;
     }
+
 }
 
 customElements.define("data-view", DataView);
