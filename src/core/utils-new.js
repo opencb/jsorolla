@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import browser from "@babel/plugin-transform-runtime/src/get-runtime-path/browser";
-
 export default class UtilsNew {
 
     static get MESSAGE_SUCCESS() {
