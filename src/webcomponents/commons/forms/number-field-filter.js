@@ -123,18 +123,6 @@ export default class NumberFieldFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
-    getDefaultConfig() {
-        const wantedComparators = (this.comparators || "<,<=,=,>=,>").split(",");
-        return {
-            layout: [3, 4, 5], // in case the label is not needed the expected value of the first element is 0
-            comparator: true,
-            comparatorForceSelection: true,
-            values: this.defaultComparators.filter(item => {
-                return wantedComparators.includes(item.id);
-            }),
-        };
-    }
-
     render() {
         return html`
             <div class="row g-2" data-cy="number-field-filter-wrapper-${this.label ?? ""}">
@@ -184,6 +172,18 @@ export default class NumberFieldFilter extends LitElement {
                 }
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        const wantedComparators = (this.comparators || "<,<=,=,>=,>").split(",");
+        return {
+            layout: [3, 4, 5], // in case the label is not needed the expected value of the first element is 0
+            comparator: true,
+            comparatorForceSelection: true,
+            values: this.defaultComparators.filter(item => {
+                return wantedComparators.includes(item.id);
+            }),
+        };
     }
 
 }
