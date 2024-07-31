@@ -332,8 +332,8 @@ export default class StudyAdminGrid extends LitElement {
 
     datesFormatter(value, study) {
         return `
-            <div class="text-body-secondary">${CatalogGridFormatter.dateFormatter(study.modificationDate, study)}</div>
-            <div class="">${CatalogGridFormatter.dateFormatter(study.creationDate, study)}</div>
+            <div class="">${CatalogGridFormatter.dateFormatter(study.modificationDate, study)}</div>
+            <div class="text-body-secondary">${CatalogGridFormatter.dateFormatter(study.creationDate, study)}</div>
         `;
     }
 
