@@ -49,7 +49,6 @@ export default class GroupAdminCreate extends LitElement {
     }
 
     #init() {
-        this.group = {};
         this.isLoading = false;
         this.displayConfigDefault = {
             style: "margin: 10px",
@@ -151,8 +150,7 @@ export default class GroupAdminCreate extends LitElement {
             title: "Clear group",
             message: "Are you sure to clear?",
             ok: () => {
-                this.group = {};
-                this._config = this.getDefaultConfig();
+                this.#initOriginalObjects();
                 this.requestUpdate();
             },
         });
