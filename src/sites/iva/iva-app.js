@@ -2057,8 +2057,6 @@ class IvaApp extends LitElement {
                 ${this.config.enabledComponents["study-admin"] ? html`
                     <div class="content" id="study-admin">
                         <study-admin
-                            .organizationId="${this.opencgaSession?.user?.organization}"
-                            .study="${this.opencgaSession.study}"
                             .opencgaSession="${this.opencgaSession}"
                             @studyUpdateRequest="${this.onStudyUpdateRequest}">
                         </study-admin>

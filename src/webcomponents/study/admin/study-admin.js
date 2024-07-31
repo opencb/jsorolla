@@ -15,20 +15,16 @@
  */
 
 import {LitElement, html} from "lit";
-
+import LitUtils from "../../commons/utils/lit-utils";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "./study-admin-users.js";
 import "./study-admin-permissions.js";
 import "./study-admin-variable.js";
 import "./study-admin-audit.js";
 import "./study-admin-configuration.js";
-
 import "../../variant/operation/clinical-analysis-configuration-operation.js";
 import "../../variant/operation/variant-secondary-sample-index-configure-operation.js";
-
-import LitUtils from "../../commons/utils/lit-utils";
 import "../../commons/layouts/custom-vertical-navbar.js";
-import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
-import UtilsNew from "../../../core/utils-new";
 
 export default class StudyAdmin extends LitElement {
 
@@ -44,14 +40,8 @@ export default class StudyAdmin extends LitElement {
 
     static get properties() {
         return {
-            organizationId: {
-                type: String,
-            },
             studyId: {
                 type: String
-            },
-            study: {
-                type: Object
             },
             opencgaSession: {
                 type: Object
@@ -60,14 +50,11 @@ export default class StudyAdmin extends LitElement {
     }
 
     #init() {
+        this.study = {};
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("organizationId")) {
-            this.organizationIdObserver();
-        }
-
         if (changedProperties.has("studyId") || changedProperties.has("opencgaSession")) {
             this.studyIdObserver();
         }
@@ -78,48 +65,7 @@ export default class StudyAdmin extends LitElement {
         this.isLoading = value;
         this.requestUpdate();
     }
-
-    organizationIdObserver() {
-        // FIXME Vero: on creating a new group, for instance,
-        //  the session is updated but the org id does not change.
-        //  I need to get the organization info again to refresh the grid.
-        //  For now, I will query org info only with property opencgaSession change.
-        //  TO think about it.
-        // if (this.organizationId && this.opencgaSession) {
-        if (this.organizationId || this.opencgaSession) {
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.organization()
-                // FIXME Vero: To remove hardcoded organization when the following bug is fixed:
-                //  https://app.clickup.com/t/36631768/TASK-5980
-                // .info(this.organizationId)
-                .info("test")
-                .then(response => {
-                    this.organization = UtilsNew.objectClone(response.responses[0].results[0]);
-                })
-                .catch(reason => {
-                    // this.organization = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    LitUtils.dispatchCustomEvent(this, "organizationInfo", this.organization, {}, error);
-                    this.#setLoading(false);
-                });
-        }
-    }
-
     studyIdObserver() {
-        /*
-        for (const project of this.opencgaSession?.projects) {
-            for (const study of project.studies) {
-                if (study.id === this.studyId || study.fqn === this.studyId) {
-                    this.study = study;
-                    break;
-                }
-            }
-        }
-        */
         if (this.studyId && this.opencgaSession) {
             let error;
             this.#setLoading(true);
@@ -129,7 +75,6 @@ export default class StudyAdmin extends LitElement {
                     this.study = response.responses[0].results[0];
                 })
                 .catch(reason => {
-                    this.study = {};
                     error = reason;
                     console.error(reason);
                 })
@@ -138,15 +83,13 @@ export default class StudyAdmin extends LitElement {
                     LitUtils.dispatchCustomEvent(this, "studySearch", this.study, {}, error);
                     this.#setLoading(false);
                 });
-        } else {
-            this.study = {};
         }
     }
 
     render() {
         const activeMenuItem = "UsersAndGroups";
-        if (this.opencgaSession.study && this.organization) {
-            if (!OpencgaCatalogUtils.isOrganizationAdminOwner(this.organization, this.opencgaSession.user.id) &&
+        if (this.opencgaSession.study && this.opencgaSession.organization) {
+            if (!OpencgaCatalogUtils.isOrganizationAdminOwner(this.opencgaSession.organization, this.opencgaSession.user.id) &&
                 !OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
                 return html`
                     <tool-header class="page-title-no-margin"  title="${this._config.name}" icon="${this._config.icon}"></tool-header>
@@ -209,7 +152,6 @@ export default class StudyAdmin extends LitElement {
                     submenu: [
                         {
                             id: "UsersAndGroups",
-                            // label: "Users and Groups",
                             name: "Users and Groups",
                             icon: "fas fa-user-friends",
                             visibility: "private",
@@ -235,7 +177,6 @@ export default class StudyAdmin extends LitElement {
                         },
                         {
                             id: "Permissions",
-                            // label: "Permissions",
                             name: "Permissions",
                             icon: "fas fa-key",
                             visibility: "private",
@@ -247,7 +188,6 @@ export default class StudyAdmin extends LitElement {
                         },
                         {
                             id: "VariableSets",
-                            // label: "Variable Sets",
                             name: "Variable Sets",
                             icon: "fas fa-book",
                             visibility: "private",
@@ -320,7 +260,6 @@ export default class StudyAdmin extends LitElement {
                 //     submenu: [
                 //         // {
                 //         //     id: "Solr",
-                //         //     // label: "Solr",
                 //         //     name: "Solr",
                 //         //     // CAUTION: icon vs. img in config.js?
                 //         //     img: "/sites/iva/img/logos/Solr.png",
@@ -328,7 +267,7 @@ export default class StudyAdmin extends LitElement {
                 //         // },
                 //         // {
                 //         //     id: "Rysnc",
-                //         //     label: "Rysnc",
+                //         //     name: "Rysnc",
                 //         //     icon: "",
                 //         //     visibility: "private",
                 //         // },
