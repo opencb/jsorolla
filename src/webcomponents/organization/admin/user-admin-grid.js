@@ -287,27 +287,27 @@ export default class UserAdminGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("noAttempts"),
             },
             {
+                id: "status",
+                title: "Status",
+                field: "internal.status",
+                formatter: value => CatalogGridFormatter.userStatusFormatter(value, this._config.userStatus),
+                visible: this.gridCommons.isColumnVisible("status")
+            },
+            {
                 id: "lastModifiedDate",
-                title: "Last Modified date",
+                title: "Last Modified Date",
                 field: "internal.lastModified",
                 formatter: (value, row) => UtilsNew.dateFormatter(row.internal.lastModified),
                 visible: this.gridCommons.isColumnVisible("lastModifiedDate")
             },
             {
                 id: "dates",
-                title: "Creation / Expiration dates",
+                title: "Expiration / Creation Dates",
                 field: "dates",
                 halign: this.displayConfigDefault.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => this.datesFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("dates")
-            },
-            {
-                id: "status",
-                title: "Status",
-                field: "internal.status",
-                formatter: value => CatalogGridFormatter.userStatusFormatter(value, this._config.userStatus),
-                visible: this.gridCommons.isColumnVisible("status")
             },
         ];
 
@@ -406,8 +406,8 @@ export default class UserAdminGrid extends LitElement {
             expirationDateClass = "text-danger";
         }
         return `
-            <div class="text-body-secondary">${UtilsNew.dateFormatter(user.account.creationDate)}</div>
             <div class="${expirationDateClass}">${expirationDateString}</div>
+            <div class="text-body-secondary">${UtilsNew.dateFormatter(user.account.creationDate)}</div>
         `;
     }
 

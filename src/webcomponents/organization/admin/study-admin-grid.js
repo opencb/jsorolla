@@ -245,18 +245,18 @@ export default class StudyAdminGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("name")
             },
             {
-                title: "Creation Date / Modification Date",
+                title: "Groups",
+                field: "groups",
+                formatter: (groups, row) => this.groupsFormatter(groups, row),
+                visible: this.gridCommons.isColumnVisible("modificationDate")
+            },
+            {
+                title: "Modification / Creation Dates",
                 field: "dates",
                 halign: this.displayConfigDefault.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => this.datesFormatter(value, row),
             },
-            {
-                title: "Groups",
-                field: "groups",
-                formatter: (groups, row) => this.groupsFormatter(groups, row),
-                visible: this.gridCommons.isColumnVisible("modificationDate")
-            }
         ];
 
         if (this._config.annotations?.length > 0) {
@@ -332,8 +332,8 @@ export default class StudyAdminGrid extends LitElement {
 
     datesFormatter(value, study) {
         return `
-            <div class="text-body-secondary">${CatalogGridFormatter.dateFormatter(study.creationDate, study)}</div>
             <div class="text-body-secondary">${CatalogGridFormatter.dateFormatter(study.modificationDate, study)}</div>
+            <div class="text-body-secondary">${CatalogGridFormatter.dateFormatter(study.creationDate, study)}</div>
         `;
     }
 

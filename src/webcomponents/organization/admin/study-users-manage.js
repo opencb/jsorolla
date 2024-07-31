@@ -226,7 +226,7 @@ export default class StudyUsersManage extends LitElement {
         //  - And enable them back if the change is undone
         // If a user is member and admin:
         //  - If removed from admin and added back  => do not disable member
-        // If a user is not member and not admin
+        // If a user is not member and not admin:
         //  - If added to member and removed back => do not disable admin
         // To avoid undetermined user permissions on submit if contradictory changes are submitted.
         if (groupId === "@admins" && this.groups.find(group => group.id === "@members" && group.userIds.includes(userId))) {
