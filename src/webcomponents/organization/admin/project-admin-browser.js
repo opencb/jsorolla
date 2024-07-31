@@ -92,7 +92,7 @@ export default class ProjectAdminBrowser extends LitElement {
                 },
                 render: () => html `
                     <project-create
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
+                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                         .opencgaSession="${this.opencgaSession}">
                     </project-create>`
             },
@@ -133,7 +133,7 @@ export default class ProjectAdminBrowser extends LitElement {
                     <project-update
                         .projectId="${this.projectId}"
                         .organization="${this.organization}"
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
+                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                         .opencgaSession="${this.opencgaSession}">
                     </project-update>
                 `;
