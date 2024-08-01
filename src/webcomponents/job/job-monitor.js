@@ -208,7 +208,7 @@ export class JobMonitor extends LitElement {
                             ${this.updatedCnt}
                         </span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
+                    <ul class="dropdown-menu dropdown-menu-end" style="width:350px;">
                         <li class="d-flex justify-content-around mx-1 mb-1">
                             <button @click="${this.filterJobs}" class="btn btn-small btn btn-outline-secondary m-1 flex-fill">ALL</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn btn-outline-secondary m-1 flex-fill" data-type="PENDING,QUEUED,RUNNING">Running</button>
