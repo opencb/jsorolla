@@ -161,6 +161,7 @@ export default class StudyAdmin extends LitElement {
                                         .study="${study}">
                                 </study-admin-users>`,
                         },
+                        /*
                         {
                             id: "groups",
                             name: "Groups",
@@ -175,6 +176,7 @@ export default class StudyAdmin extends LitElement {
                                 `;
                             }
                         },
+                         */
                         {
                             id: "Permissions",
                             name: "Permissions",
