@@ -99,10 +99,6 @@ export class JobMonitor extends LitElement {
     }
 
     fetchLastJobs() {
-        // if (!this?.opencgaSession?.token || !$("#job-monitor").is(":visible")) {
-        //     clearInterval(this.interval);
-        //     return;
-        // }
         this.opencgaSession.opencgaClient.jobs()
             .search({
                 study: this.opencgaSession.study.fqn,
@@ -116,6 +112,7 @@ export class JobMonitor extends LitElement {
                 // this._updatedJobsCount = 0;
                 const newJobsList = response?.responses?.[0]?.results || [];
                 // 1. Process the list of new jobs returned by OpenCGA
+                // Note: we check if the previous list of jobs is not empty, to prevent marking all jobs as new jobs
                 if (this._jobs.length > 0) {
                     newJobsList.forEach(job => {
                         const oldJob = this._jobs.find(j => j.id === job.id);
@@ -143,15 +140,9 @@ export class JobMonitor extends LitElement {
                 this._jobs = newJobsList;
                 this.requestUpdate();
             })
-            .catch(restResponse => {
-                console.error(restResponse);
+            .catch(response => {
+                console.error(response);
             });
-    }
-
-    filterJobs(e) {
-        this.filterTypes = e.currentTarget.dataset?.type?.split(",");
-        this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.id || job.internal.status.name) ?? 1);
-        this.requestUpdate();
     }
 
     openJob(jobId) {
