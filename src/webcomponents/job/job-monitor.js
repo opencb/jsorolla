@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
@@ -55,8 +55,9 @@ export class JobMonitor extends LitElement {
         this.filteredJobs = [];
         this.updatedCnt = 0;
         this.restCnt = 0;
-        
+
         this._interval = -1;
+        this._updatedJobsCount = 0;
         this._config = this.getDefaultConfig();
     }
 
@@ -92,44 +93,6 @@ export class JobMonitor extends LitElement {
         }
     }
 
-    async applyUpdated() {
-        // oldList and newList are always the same length
-        const oldList = this._jobs;
-        const newList = this.jobs;
-        // `index` is the position of the first job of oldList in newList (newly added jobs are index < k)
-        const index = newList.findIndex(job => job.id === oldList[0].id);
-        const k = index > -1 ? index : newList.length; // -1 occurs iff the whole list is made of new jobs
-        this.jobs = newList.map((job, i) => {
-            if (i < k) {
-                // handle the new jobs
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
-                    message: `${job.id}, "The job has been added`,
-                });
-                return {...job, updated: true};
-            } else {
-                // handle the change of state
-                // FIXME remove this in v2.3
-                const statusId = job.internal.status.id || job.internal.status.name;
-                const oldStatusId = oldList[i - k].internal.status.id || oldList[i - k].internal.status.name;
-                if (statusId !== oldStatusId) {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
-                        message: `${job.id} The job has now status ${job?.internal?.status?.id || job?.internal?.status?.name}`,
-                    });
-                    return {...job, updated: true};
-                } else {
-                    // if the ids are the same I want to keep the `updated` status
-                    // return {...job, updated: false};
-                    return {...oldList[i - k]};
-                }
-            }
-        });
-        // accumulate all the updated (not visited) status
-        this.updatedCnt = this.jobs.reduce((acc, job) => job.updated && !job._visited ? acc + 1 : acc, 0);
-        this.requestUpdate();
-        await this.updateComplete;
-        this._jobs = this.jobs;
-    }
-
     fetchLastJobs() {
         // if (!this?.opencgaSession?.token || !$("#job-monitor").is(":visible")) {
         //     clearInterval(this.interval);
@@ -144,12 +107,34 @@ export class JobMonitor extends LitElement {
                 include: "id,internal.status,tool,creationDate",
                 order: -1,
             })
-            .then(restResponse => {
-                if (!this._jobs.length) {
-                    this._jobs = restResponse.getResults();
+            .then(response => {
+                this._updatedJobsCount = 0;
+                const newJobsList = response?.responses?.[0]?.results || [];
+                // 1. Process the list of new jobs returned by OpenCGA
+                if (this._jobs.length > 0) {
+                    newJobsList.forEach(job => {
+                        const oldJob = this._jobs.find(j => j.id === job.id);
+                        if (oldJob) {
+                            const statusId = job?.internal?.status?.id || "-";
+                            const oldStatusId = oldJob?.internal?.status?.id || "-";
+                            // If this job exists in the previous list, and now it has a different status, display a confirmation message
+                            if (statusId !== oldStatusId) {
+                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
+                                    message: `The job <b>${job?.id}</b> has now status ${statusId}.`,
+                                });
+                                this._updatedJobsCount = this._updatedJobsCount + 1;
+                            }
+                        } else {
+                            // This is a new job, so we display an info notification to the user
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
+                                message: `The job <b>${job?.id}</b> has been added.`,
+                            });
+                            this._updatedJobsCount = this._updatedJobsCount + 1;
+                        }
+                    });
                 }
-                this.jobs = restResponse.getResults();
-                // await this.applyUpdated();
+                // 2. Save the new jobs list
+                this._jobs = newJobsList;
                 this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.id || job.internal.status.name) ?? 1);
                 this.requestUpdate();
             })
@@ -195,9 +180,11 @@ export class JobMonitor extends LitElement {
                         <div class="dropdown-button-icon">
                             <i class="fas fa-rocket"></i>
                         </div>
-                        <span class="position-absolute top-0 start-100 mt-1 translate-middle badge bg-danger rounded-pill ${this.updatedCnt > 0 ? "" : "invisible"}">
-                            ${this.updatedCnt}
-                        </span>
+                        ${this._updatedJobsCount > 0 ? html`
+                            <span class="position-absolute top-0 start-100 mt-1 translate-middle badge bg-danger rounded-pill">
+                                ${this._updatedJobsCount}
+                            </span>
+                        ` : nothing}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" style="width:350px;">
                         <li class="d-flex justify-content-around mx-1 mb-2 gap-2">
