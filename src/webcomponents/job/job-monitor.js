@@ -55,18 +55,26 @@ export class JobMonitor extends LitElement {
         this.filteredJobs = [];
         this.updatedCnt = 0;
         this.restCnt = 0;
-
+        
+        this._interval = -1;
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.launchMonitor();
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.launchMonitor();
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
+        super.update();
+    }
+
+    updated() {
+        // TODO
     }
 
     launchMonitor() {
@@ -123,28 +131,25 @@ export class JobMonitor extends LitElement {
     }
 
     fetchLastJobs() {
-        if (!this?.opencgaSession?.token || !$("#job-monitor").is(":visible")) {
-            clearInterval(this.interval);
-            return;
-        }
-
-        const query = {
-            study: this.opencgaSession.study.fqn,
-            internalStatus: "PENDING,QUEUED,RUNNING,DONE,ERROR,ABORTED",
-            limit: this._config.limit || 10,
-            sort: "creationDate",
-            include: "id,internal.status,tool,creationDate",
-            order: -1
-        };
-        this.opencgaSession.opencgaClient.jobs().search(query)
-            .then(async restResponse => {
-                // console.log("restResponse", restResponse);
-                // first call
+        // if (!this?.opencgaSession?.token || !$("#job-monitor").is(":visible")) {
+        //     clearInterval(this.interval);
+        //     return;
+        // }
+        this.opencgaSession.opencgaClient.jobs()
+            .search({
+                study: this.opencgaSession.study.fqn,
+                internalStatus: "PENDING,QUEUED,RUNNING,DONE,ERROR,ABORTED",
+                limit: this._config.limit || 10,
+                sort: "creationDate",
+                include: "id,internal.status,tool,creationDate",
+                order: -1,
+            })
+            .then(restResponse => {
                 if (!this._jobs.length) {
                     this._jobs = restResponse.getResults();
                 }
                 this.jobs = restResponse.getResults();
-                await this.applyUpdated();
+                // await this.applyUpdated();
                 this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.id || job.internal.status.name) ?? 1);
                 this.requestUpdate();
             })
@@ -178,13 +183,8 @@ export class JobMonitor extends LitElement {
         }));
     }
 
-    forceRefresh(e) {
-        e.stopPropagation();
+    forceRefresh() {
         this.fetchLastJobs();
-    }
-
-    toggleDropdown() {
-        this.dropdown = !this.dropdown;
     }
 
     getDefaultConfig() {
@@ -198,9 +198,7 @@ export class JobMonitor extends LitElement {
         return html`
             <ul id="job-monitor" class="navbar-nav">
                 <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle dropdown-button-wrapper"
-                    title="Job Monitor" data-bs-toggle="dropdown" role="button"
-                    aria-haspopup="true" aria-expanded="false" @click="${this.toggleDropdown}">
+                    <a href="#" class="nav-link dropdown-toggle dropdown-button-wrapper" data-bs-toggle="dropdown" role="button">
                         <div class="dropdown-button-icon">
                             <i class="fas fa-rocket"></i>
                         </div>
@@ -209,11 +207,15 @@ export class JobMonitor extends LitElement {
                         </span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" style="width:350px;">
-                        <li class="d-flex justify-content-around mx-1 mb-1">
-                            <button @click="${this.filterJobs}" class="btn btn-small btn btn-outline-secondary m-1 flex-fill">ALL</button>
-                            <button @click="${this.filterJobs}" class="btn btn-small btn btn-outline-secondary m-1 flex-fill" data-type="PENDING,QUEUED,RUNNING">Running</button>
-                            <button @click="${this.filterJobs}" class="btn btn-small btn btn-outline-secondary m-1 flex-fill" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
-                            <button @click="${this.forceRefresh}" class="btn btn-small btn btn-outline-secondary m-1" title="Force immediate refresh" id="#refresh-job"><i class="fas fa-sync-alt"></i></button>
+                        <li class="d-flex justify-content-around mx-1 mb-2 gap-2">
+                            <button @click="${this.filterJobs}" class="btn btn-sm btn-outline-secondary flex-fill">
+                                <strong>All</strong>
+                            </button>
+                            <button @click="${this.filterJobs}" class="btn btn-sm btn-outline-secondary flex-fill" data-type="PENDING,QUEUED,RUNNING">Running</button>
+                            <button @click="${this.filterJobs}" class="btn btn-sm btn-outline-secondary flex-fill" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
+                            <button @click="${this.forceRefresh}" class="btn btn-sm btn-outline-secondary" title="Force immediate refresh" id="#refresh-job">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
                         </li>
                         ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
                             <li>
@@ -238,7 +240,7 @@ export class JobMonitor extends LitElement {
                         `) : html`
                             <li>
                                 <div class="pt-2 pb-1 text-center fw-bold border-top">
-                                    No jobs available.
+                                    No jobs on this category.
                                 </div>
                             </li>
                         `}
