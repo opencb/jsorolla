@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
@@ -23,8 +23,7 @@ export class JobMonitor extends LitElement {
 
     constructor() {
         super();
-
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -42,7 +41,7 @@ export class JobMonitor extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.JOBS_TYPES = {
             ALL: {
                 title: "All",
@@ -91,7 +90,7 @@ export class JobMonitor extends LitElement {
         clearInterval(this._interval);
         if (this.opencgaSession) {
             // Check if the user has VIEW_JOBS permission in the current study
-            if (OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "VIEW_JOBS")) {
+            if (CatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "VIEW_JOBS")) {
                 this.fetchLastJobs();
                 this._interval = setInterval(() => this.fetchLastJobs(), this._config.interval);
             }
