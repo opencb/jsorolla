@@ -209,41 +209,39 @@ export class JobMonitor extends LitElement {
                         </span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <!-- <li class="info">Jobs done since your last access /*moment(this.opencgaSession.user.configs.IVA.lastAccess).format("DD-MM-YYYY HH:mm:ss") */</li> -->
                         <li class="d-flex justify-content-around mx-1 mb-1">
                             <button @click="${this.filterJobs}" class="btn btn-small btn btn-outline-secondary m-1 flex-fill">ALL</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn btn-outline-secondary m-1 flex-fill" data-type="PENDING,QUEUED,RUNNING">Running</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn btn-outline-secondary m-1 flex-fill" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
                             <button @click="${this.forceRefresh}" class="btn btn-small btn btn-outline-secondary m-1" title="Force immediate refresh" id="#refresh-job"><i class="fas fa-sync-alt"></i></button>
                         </li>
-                        ${
-                            this.filteredJobs.length ? this.filteredJobs.map(job => html`
-                                <li>
-                                    <a href="javascript: void 0" class="dropdown-item border-top ${job.updated && !job._visited ?
-                                            `updated status-${job?.internal?.status?.id || job?.internal?.status?.name}` : ""}"
-                                            @click=${() => this.openJob(job.id)}>
-                                        <div class="d-flex align-items-center overflow-hidden" style="zoom:1">
-                                            <div class="flex-shrink-0 fs-2 rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
-                                                <i class="text-secondary fas fa-rocket"></i>
-                                            </div>
-                                            <div class="flex-grow-1 ms-3">
-                                                ${job.updated && !job._visited ? html`<span class="badge bg-primary rounded-pill">NEW</span>` : ""}
-                                                <div class="mt-0 text-truncate" style="max-width: 300px">${job.id}</div>
-                                                <small class="text-secondary">${job?.tool?.id}
-                                                <div class="vr"></div>
-                                                ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
-                                                <div>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</div>
-                                            </div>
+                        ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
+                            <li>
+                                <a href="javascript: void 0" class="dropdown-item border-top ${job.updated && !job._visited ?
+                                        `updated status-${job?.internal?.status?.id || job?.internal?.status?.name}` : ""}"
+                                        @click=${() => this.openJob(job.id)}>
+                                    <div class="d-flex align-items-center overflow-hidden" style="zoom:1">
+                                        <div class="flex-shrink-0 fs-2 rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
+                                            <i class="text-secondary fas fa-rocket"></i>
                                         </div>
-                                    </a>
-                                </li>
-                            `) : html`
-                                    <li>
-                                        <a class="dropdown-item border-top">
-                                            <div class="mt-1 fw-bold">No jobs</div>
-                                        </a>
-                                    </li>`
-                        }
+                                        <div class="flex-grow-1 ms-3">
+                                            ${job.updated && !job._visited ? html`<span class="badge bg-primary rounded-pill">NEW</span>` : ""}
+                                            <div class="mt-0 text-truncate" style="max-width: 300px">${job.id}</div>
+                                            <small class="text-secondary">${job?.tool?.id}
+                                            <div class="vr"></div>
+                                            ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
+                                            <div>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                        `) : html`
+                            <li>
+                                <div class="pt-2 pb-1 text-center fw-bold border-top">
+                                    No jobs available.
+                                </div>
+                            </li>
+                        `}
                     </ul>
                 </li>
             </ul>
