@@ -43,16 +43,24 @@ export class JobMonitor extends LitElement {
     }
 
     _init() {
-        this.iconMap = {
-            info: "fa fa-info-circle fa-2x",
-            success: "fa fa-thumbs-up fa-2x",
-            warning: "fa fa-exclamation-triangle fa-2x",
-            danger: "fa ffa fa-exclamation-circle fa-2x",
-            error: "fa ffa fa-exclamation-circle fa-2x"
+        this.JOBS_TYPES = {
+            ALL: {
+                title: "All",
+                jobsTypes: [],
+            },
+            RUNNING: {
+                title: "Running",
+                jobsTypes: ["PENDING", "QUEUED", "RUNNING"],
+            },
+            FINISHED: {
+                title: "Finished",
+                jobsTypes: ["UNREGISTERED", "DONE", "ERROR", "ABORTED"],
+            },
         };
         this._jobs = [];
         this._interval = -1;
         this._updatedJobsCount = 0;
+        this._visibleJobsTypes = "ALL";
         this._config = this.getDefaultConfig();
     }
 
@@ -60,6 +68,7 @@ export class JobMonitor extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this._jobs = [];
             this._updatedJobsCount = 0;
+            this._visibleJobsTypes = "ALL";
         }
         if (changedProperties.has("config")) {
             this._config = {
@@ -129,7 +138,6 @@ export class JobMonitor extends LitElement {
                 }
                 // 2. Save the new jobs list
                 this._jobs = newJobsList;
-                this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.id || job.internal.status.name) ?? 1);
                 this.requestUpdate();
             })
             .catch(restResponse => {
@@ -138,7 +146,6 @@ export class JobMonitor extends LitElement {
     }
 
     filterJobs(e) {
-        e.stopPropagation();
         this.filterTypes = e.currentTarget.dataset?.type?.split(",");
         this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.id || job.internal.status.name) ?? 1);
         this.requestUpdate();
@@ -162,8 +169,60 @@ export class JobMonitor extends LitElement {
         }));
     }
 
-    forceRefresh() {
+    onRefresh() {
         this.fetchLastJobs();
+    }
+
+    onJobTypeChange(event, newJobType) {
+        event.stopPropagation();
+        this._visibleJobsTypes = newJobType;
+        this.requestUpdate();
+    }
+
+    renderJobsButtons() {
+        return Object.keys(this.JOBS_TYPES).map(type => html`
+            <button @click="${event => this.onJobTypeChange(event, type)}" class="btn btn-sm btn-outline-secondary flex-fill">
+                <strong>${this.JOBS_TYPES[type].title}</strong>
+            </button>
+        `);
+    }
+
+    renderVisibleJobsList() {
+        // Get the list of visible jobs with the selected type
+        const visibleJobs = this._jobs.filter(job => {
+            return this._visibleJobsTypes === "ALL" || this.JOBS_TYPES[this._visibleJobsTypes].jobsTypes.includes(job?.internal?.status?.id);
+        });
+        if (visibleJobs.length > 0) {
+            return visibleJobs.map(job => html`
+                <li>
+                    <a href="javascript: void 0" class="dropdown-item border-top ${job.updated && !job._visited ?
+                            `updated status-${job?.internal?.status?.id || job?.internal?.status?.name}` : ""}"
+                            @click=${() => this.openJob(job.id)}>
+                        <div class="d-flex align-items-center overflow-hidden" style="zoom:1">
+                            <div class="flex-shrink-0 fs-2 rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
+                                <i class="text-secondary fas fa-rocket"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                ${job.updated && !job._visited ? html`<span class="badge bg-primary rounded-pill">NEW</span>` : ""}
+                                <div class="mt-0 text-truncate" style="max-width: 300px">${job.id}</div>
+                                <small class="text-secondary">${job?.tool?.id}
+                                <div class="vr"></div>
+                                ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
+                                <div>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</div>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+            `);
+        } else {
+            return html`
+                <li>
+                    <div class="pt-2 pb-1 text-center fw-bold border-top">
+                        No jobs on this category.
+                    </div>
+                </li>
+            `;
+        }
     }
 
     render() {
@@ -182,42 +241,12 @@ export class JobMonitor extends LitElement {
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" style="width:350px;">
                         <li class="d-flex justify-content-around mx-1 mb-2 gap-2">
-                            <button @click="${this.filterJobs}" class="btn btn-sm btn-outline-secondary flex-fill">
-                                <strong>All</strong>
-                            </button>
-                            <button @click="${this.filterJobs}" class="btn btn-sm btn-outline-secondary flex-fill" data-type="PENDING,QUEUED,RUNNING">Running</button>
-                            <button @click="${this.filterJobs}" class="btn btn-sm btn-outline-secondary flex-fill" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
-                            <button @click="${this.forceRefresh}" class="btn btn-sm btn-outline-secondary" title="Force immediate refresh" id="#refresh-job">
+                            ${this.renderJobsButtons()}
+                            <button @click="${() => this.onRefresh()}" class="btn btn-sm btn-outline-secondary" title="Force immediate refresh">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
                         </li>
-                        ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
-                            <li>
-                                <a href="javascript: void 0" class="dropdown-item border-top ${job.updated && !job._visited ?
-                                        `updated status-${job?.internal?.status?.id || job?.internal?.status?.name}` : ""}"
-                                        @click=${() => this.openJob(job.id)}>
-                                    <div class="d-flex align-items-center overflow-hidden" style="zoom:1">
-                                        <div class="flex-shrink-0 fs-2 rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
-                                            <i class="text-secondary fas fa-rocket"></i>
-                                        </div>
-                                        <div class="flex-grow-1 ms-3">
-                                            ${job.updated && !job._visited ? html`<span class="badge bg-primary rounded-pill">NEW</span>` : ""}
-                                            <div class="mt-0 text-truncate" style="max-width: 300px">${job.id}</div>
-                                            <small class="text-secondary">${job?.tool?.id}
-                                            <div class="vr"></div>
-                                            ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
-                                            <div>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                        `) : html`
-                            <li>
-                                <div class="pt-2 pb-1 text-center fw-bold border-top">
-                                    No jobs on this category.
-                                </div>
-                            </li>
-                        `}
+                        ${this.renderVisibleJobsList()}
                     </ul>
                 </li>
             </ul>
