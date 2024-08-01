@@ -144,11 +144,8 @@ export class JobMonitor extends LitElement {
             });
     }
 
-    // eslint-disable-next-line no-unused-vars
     getJobUrl(jobId) {
-        // TODO: uncomment when IVA supports adding query filters in the URL
-        // return `#job-browser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${jobId}`;
-        return "#job";
+        return `#job/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${jobId}`;
     }
 
     onRefresh() {
