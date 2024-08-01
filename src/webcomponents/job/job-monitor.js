@@ -187,13 +187,6 @@ export class JobMonitor extends LitElement {
         this.fetchLastJobs();
     }
 
-    getDefaultConfig() {
-        return {
-            limit: 10,
-            interval: 30000
-        };
-    }
-
     render() {
         return html`
             <ul id="job-monitor" class="navbar-nav">
@@ -248,6 +241,13 @@ export class JobMonitor extends LitElement {
                 </li>
             </ul>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            limit: 10,
+            interval: 30000,
+        };
     }
 
 }
