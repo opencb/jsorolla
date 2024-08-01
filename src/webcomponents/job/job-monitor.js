@@ -174,7 +174,7 @@ export class JobMonitor extends LitElement {
 
     renderJobsButtons() {
         return Object.keys(this.JOBS_TYPES).map(type => html`
-            <button @click="${event => this.onJobTypeChange(event, type)}" class="btn btn-sm btn-outline-secondary flex-fill">
+            <button class="btn btn-sm ${type === this._visibleJobsTypes ? "btn-secondary" : "btn-outline-secondary"} flex-fill" @click="${e => this.onJobTypeChange(e, type)}">
                 <strong>${this.JOBS_TYPES[type].title}</strong>
             </button>
         `);
