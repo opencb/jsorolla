@@ -157,7 +157,8 @@ context("Disease Panel Browser Grid", () => {
 
     context("Modal Setting", () => {
         it("should move modal setting", () => {
-            cy.get("button[data-action='settings']")
+            cy.get("@container")
+                .find(`button[data-action="settings"]`)
                 .click();
 
             BrowserTest.getElementByComponent({
