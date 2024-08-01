@@ -108,7 +108,6 @@ export class JobMonitor extends LitElement {
                 order: -1,
             })
             .then(response => {
-                // this._updatedJobsCount = 0;
                 const newJobsList = response?.responses?.[0]?.results || [];
                 // 1. Process the list of new jobs returned by OpenCGA
                 // Note: we check if the previous list of jobs is not empty, to prevent marking all jobs as new jobs
