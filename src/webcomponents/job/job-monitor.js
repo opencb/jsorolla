@@ -144,22 +144,11 @@ export class JobMonitor extends LitElement {
             });
     }
 
-    openJob(jobId) {
-        // -> e.stopPropagation();
-        const job = this.jobs.find(job => job.id === jobId);
-        job._visited = true;
-        this.jobs = [...this.jobs];
-        this.requestUpdate();
-
-        this.dispatchEvent(new CustomEvent("route", {
-            detail: {
-                hash: "#job",
-                resource: "job",
-                query: {id: jobId}
-            },
-            bubbles: true, // this is necessary as the event is handled in iva-app
-            composed: true
-        }));
+    // eslint-disable-next-line no-unused-vars
+    getJobUrl(jobId) {
+        // TODO: uncomment when IVA supports adding query filters in the URL
+        // return `#job-browser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${jobId}`;
+        return "#job";
     }
 
     onRefresh() {
@@ -188,7 +177,7 @@ export class JobMonitor extends LitElement {
         if (visibleJobs.length > 0) {
             return visibleJobs.map(job => html`
                 <li>
-                    <a href="javascript: void 0" class="dropdown-item border-top" @click="${() => this.openJob(job.id)}">
+                    <a href="${this.getJobUrl(job.id)}" class="dropdown-item border-top">
                         <div class="d-flex align-items-center overflow-hidden">
                             <div class="flex-shrink-0 fs-2 rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
                                 <i class="text-secondary fas fa-rocket"></i>
