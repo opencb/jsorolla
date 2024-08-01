@@ -198,8 +198,8 @@ export class JobMonitor extends LitElement {
         if (visibleJobs.length > 0) {
             return visibleJobs.map(job => html`
                 <li>
-                    <a href="javascript: void 0" class="dropdown-item border-top" @click=${() => this.openJob(job.id)}>
-                        <div class="d-flex align-items-center overflow-hidden" style="zoom:1">
+                    <a href="javascript: void 0" class="dropdown-item border-top" @click="${() => this.openJob(job.id)}">
+                        <div class="d-flex align-items-center overflow-hidden">
                             <div class="flex-shrink-0 fs-2 rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
                                 <i class="text-secondary fas fa-rocket"></i>
                             </div>
@@ -207,7 +207,7 @@ export class JobMonitor extends LitElement {
                                 ${this._addedJobs.has(job.id) ? html`
                                     <span class="badge bg-primary rounded-pill">NEW</span>
                                 ` : nothing}
-                                <div class="mt-0 text-truncate" style="max-width:300px">
+                                <div class="mt-0 text-truncate" style="max-width:275px">
                                     ${job.id}
                                 </div>
                                 <small class="text-secondary">
