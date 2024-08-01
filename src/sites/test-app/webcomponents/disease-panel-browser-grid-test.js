@@ -21,7 +21,6 @@ import "../../../webcomponents/disease-panel/disease-panel-detail.js";
 import "../../../webcomponents/disease-panel/disease-panel-create.js";
 import "../../../webcomponents/disease-panel/disease-panel-update.js";
 
-
 class DiseasePanelBrowserGridTest extends LitElement {
 
     constructor() {
@@ -134,7 +133,7 @@ class DiseasePanelBrowserGridTest extends LitElement {
                     showColumns: true,
                     showDownload: false,
                     showExport: false,
-                    showSettings: false,
+                    showSettings: true,
                     exportTabs: ["download", "link", "code"]
                 },
             },
