@@ -57,10 +57,11 @@ export class JobMonitor extends LitElement {
                 jobsTypes: ["UNREGISTERED", "DONE", "ERROR", "ABORTED"],
             },
         };
-        this._jobs = [];
         this._interval = -1;
-        this._updatedJobsCount = 0;
-        this._visibleJobsTypes = "ALL";
+        this._jobs = [];
+        this._addedJobs= new Set(); // Used for displaying the NEW label in each new job
+        this._updatedJobsCount = 0; // To store the number of changes (new jobs, state changes)
+        this._visibleJobsTypes = "ALL"; // Current visible jobs tyles
         this._config = this.getDefaultConfig();
     }
 
@@ -68,6 +69,7 @@ export class JobMonitor extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this._jobs = [];
             this._updatedJobsCount = 0;
+            this._addedJobs = new Set();
             this._visibleJobsTypes = "ALL";
         }
         if (changedProperties.has("config")) {
@@ -133,6 +135,7 @@ export class JobMonitor extends LitElement {
                                 message: `The job <b>${job?.id}</b> has been added.`,
                             });
                             this._updatedJobsCount = this._updatedJobsCount + 1;
+                            this._addedJobs.add(job.id);
                         }
                     });
                 }
@@ -195,20 +198,26 @@ export class JobMonitor extends LitElement {
         if (visibleJobs.length > 0) {
             return visibleJobs.map(job => html`
                 <li>
-                    <a href="javascript: void 0" class="dropdown-item border-top ${job.updated && !job._visited ?
-                            `updated status-${job?.internal?.status?.id || job?.internal?.status?.name}` : ""}"
-                            @click=${() => this.openJob(job.id)}>
+                    <a href="javascript: void 0" class="dropdown-item border-top" @click=${() => this.openJob(job.id)}>
                         <div class="d-flex align-items-center overflow-hidden" style="zoom:1">
                             <div class="flex-shrink-0 fs-2 rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
                                 <i class="text-secondary fas fa-rocket"></i>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                ${job.updated && !job._visited ? html`<span class="badge bg-primary rounded-pill">NEW</span>` : ""}
-                                <div class="mt-0 text-truncate" style="max-width: 300px">${job.id}</div>
-                                <small class="text-secondary">${job?.tool?.id}
-                                <div class="vr"></div>
-                                ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
-                                <div>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</div>
+                                ${this._addedJobs.has(job.id) ? html`
+                                    <span class="badge bg-primary rounded-pill">NEW</span>
+                                ` : nothing}
+                                <div class="mt-0 text-truncate" style="max-width:300px">
+                                    ${job.id}
+                                </div>
+                                <small class="text-secondary">
+                                    <span>${job?.tool?.id}</span>
+                                    <div class="vr"></div>
+                                    ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}
+                                </small>
+                                <div>
+                                    ${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}
+                                </div>
                             </div>
                         </div>
                     </a>
