@@ -51,11 +51,6 @@ export class JobMonitor extends LitElement {
             error: "fa ffa fa-exclamation-circle fa-2x"
         };
         this._jobs = [];
-        this.jobs = [];
-        this.filteredJobs = [];
-        this.updatedCnt = 0;
-        this.restCnt = 0;
-
         this._interval = -1;
         this._updatedJobsCount = 0;
         this._config = this.getDefaultConfig();
@@ -63,7 +58,8 @@ export class JobMonitor extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.launchMonitor();
+            this._jobs = [];
+            this._updatedJobsCount = 0;
         }
         if (changedProperties.has("config")) {
             this._config = {
@@ -74,22 +70,20 @@ export class JobMonitor extends LitElement {
         super.update();
     }
 
-    updated() {
-        // TODO
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
+            this.launchMonitor();
+        }
     }
 
     launchMonitor() {
-        if (OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "VIEW_JOBS")) {
-        // Make a first query
-            clearInterval(this.interval);
-            this._jobs = [];
-            this.jobs = [];
-            this.filteredJobs = [];
-            this.fetchLastJobs();
-            // and then every 'interval' ms
-            this.interval = setInterval(() => {
+        clearInterval(this._interval);
+        if (this.opencgaSession) {
+            // Check if the user has VIEW_JOBS permission in the current study
+            if (OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "VIEW_JOBS")) {
                 this.fetchLastJobs();
-            }, this._config.interval);
+                this._interval = setInterval(() => this.fetchLastJobs(), this._config.interval);
+            }
         }
     }
 
@@ -108,7 +102,7 @@ export class JobMonitor extends LitElement {
                 order: -1,
             })
             .then(response => {
-                this._updatedJobsCount = 0;
+                // this._updatedJobsCount = 0;
                 const newJobsList = response?.responses?.[0]?.results || [];
                 // 1. Process the list of new jobs returned by OpenCGA
                 if (this._jobs.length > 0) {
