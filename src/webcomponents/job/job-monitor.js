@@ -229,7 +229,7 @@ export class JobMonitor extends LitElement {
                                             <div class="flex-grow-1 ms-3">
                                                 ${job.updated && !job._visited ? html`<span class="badge bg-primary rounded-pill">NEW</span>` : ""}
                                                 <div class="mt-0 text-truncate" style="max-width: 300px">${job.id}</div>
-                                                <small class="text-secondary">${job.tool.id}
+                                                <small class="text-secondary">${job?.tool?.id}
                                                 <div class="vr"></div>
                                                 ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
                                                 <div>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</div>
