@@ -84,6 +84,16 @@ export default class OrganizationAdminUpdate extends LitElement {
 
     #initOriginalObjects() {
         this._organization = UtilsNew.objectClone(this.organization);
+        // const {configuration, ...rest} = UtilsNew.objectClone(this.organization);
+        // this._organization = {
+        //     ...UtilsNew.objectClone(configuration),
+        //     // token: {
+        //     //     algorithm: "",
+        //     //     secretKey: "",
+        //     //     expiration: 0
+        //     // },
+        //     // defaultUserExpirationDate: "",
+        // };
         this.updatedFields = {};
         this.displayConfigObserver();
     }
@@ -143,25 +153,25 @@ export default class OrganizationAdminUpdate extends LitElement {
     onSubmit() {
         const params = {
             includeResult: true,
-            adminsAction: "", // FIXME: no empty action
+            authenticationOriginsAction: "SET",
         };
 
-        const updateParams = FormUtils.getUpdateParams(this._organization, this.updatedFields, this.updateCustomisation);
-
-        // FIXME ****************
-        //  WAITING FOR TASK: https://app.clickup.com/t/36631768/TASK-5979
-        // FIXME \****************
-        /*
+        let updateParams = FormUtils.getUpdateParams(this._organization, this.updatedFields, this.updateCustomisation);
+        const {configuration, ...rest} = UtilsNew.objectClone(updateParams);
+        delete updateParams.configuration;
+        updateParams = {
+            ...configuration,
+            ...updateParams,
+        };
         let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.organization()
-            .update(this.organization.id, updateParams, params)
-            .then(response => {
-                this._organization = UtilsNew.objectClone(response.responses[0].results[0]);
+            .updateConfiguration(this.organization.id, updateParams, params)
+            .then(() => {
                 this._config = this.getDefaultConfig();
                 this.updatedFields = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: `Organization Update`,
+                    title: `Organization Configuration Update`,
                     message: `Organization ${this.organization.id} updated correctly`,
                 });
                 LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", this._organization, {}, error);
@@ -174,7 +184,6 @@ export default class OrganizationAdminUpdate extends LitElement {
             .finally(() => {
                 this.#setLoading(false);
             });
-         */
     }
 
     render() {
@@ -199,6 +208,11 @@ export default class OrganizationAdminUpdate extends LitElement {
         return {
             display: this.displayConfig,
             sections: [
+                // CAUTION 20240731 Vero: The update of this datapoint is not included in the endpoint organization().updateConfiuration().
+                //  Since currently the interface is just displaying a button for updating the configuration,
+                //  and for consistency conceived to use a single endpoint per modal, it needs to be discussed with CTO or line-manager
+                //  where to place this endpoint it in IVA (if needed).
+                /*
                 {
                     title: "General Information",
                     elements: [
@@ -209,6 +223,7 @@ export default class OrganizationAdminUpdate extends LitElement {
                         },
                     ],
                 },
+                 */
                 {
                     title: "Token",
                     elements: [
@@ -219,18 +234,31 @@ export default class OrganizationAdminUpdate extends LitElement {
                             elements: [
                                 {
                                     title: "Algorithm",
-                                    field: "algorithm",
+                                    field: "token.algorithm",
                                     type: "input-text",
+                                    display: {
+                                        placeholder: "Change the algorithm...",
+                                        helpMessage: "The default algorithm is HS256.",
+                                    },
                                 },
                                 {
                                     title: "Secret Key",
-                                    field: "secretKey",
+                                    field: "token.secretKey",
                                     type: "input-text",
+                                    display: {
+                                        placeholder: "Change the secret key...",
+                                        helpMessage: "",
+                                    },
                                 },
                                 {
                                     title: "Expiration",
-                                    field: "expiration",
+                                    field: "token.expiration",
                                     type: "input-num",
+                                    allowedValues: [0],
+                                    display: {
+                                        placeholder: "Change the expiration time...",
+                                        helpMessage: "The expiration time is configured in seconds. The default expiration time is 3600s.",
+                                    },
                                 },
                             ],
                         }
@@ -246,17 +274,14 @@ export default class OrganizationAdminUpdate extends LitElement {
                             elements: [
                                 {
                                     title: "Simplify Permissions",
-                                    field: "simplifyPermissions",
+                                    field: "configuration.optimizations.simplifyPermissions",
                                     type: "checkbox",
-                                    display: {
-                                        placeholder: "Add an ID",
-                                    }
                                 },
                             ],
                         },
                         {
                             title: "Default User Expiration Date",
-                            field: "configuration.defaultUserExpirationDate",
+                            field: "defaultUserExpirationDate",
                             type: "input-date",
                             display: {
                                 placeholder: "Change the default user expiration date"
@@ -289,7 +314,7 @@ export default class OrganizationAdminUpdate extends LitElement {
                                     title: "Type",
                                     field: "configuration.authenticationOrigins[].type",
                                     type: "select",
-                                    allowedValues: ["OPENCGA", "LDAP", "AzureAD"],
+                                    allowedValues: ["OPENCGA", "LDAP", "AzureAD", "SSO"],
                                     display: {
                                         placeholder: "Select a type...",
                                     },

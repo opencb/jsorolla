@@ -96,7 +96,7 @@ export default class OrganizationAdminDetail extends LitElement {
             },
              */
             "organization-update": {
-                label: "Edit Organisation",
+                label: "Edit Organisation (coming soon...)",
                 icon: "far fa-edit",
                 modalId: `${this._prefix}UpdateOrganizationModal`,
                 render: () => this.renderOrganizationUpdate(),
@@ -167,7 +167,7 @@ export default class OrganizationAdminDetail extends LitElement {
                             <!-- Display components on the RIGHT -->
                             <div id="${this._prefix}toolbar" class="d-flex me-1" data-cy="organization-toolbar">
                                 <div class="d-flex gap-1" data-cy="organization-toolbar-wrapper">
-                                    <button data-action="${modalKey}" type="button" class="btn btn-light"  @click="${e => this.onActionClick(e, modal.render())}">
+                                    <button data-action="${modalKey}" type="button" class="btn btn-light disabled"  @click="${e => this.onActionClick(e, modal.render())}">
                                         <div class="d-flex align-items-center">
                                             <div class="me-2"><i class="${modal.icon} ${color}" aria-hidden="true"></i></div>
                                             <div class="me-4 ${color}">${modal.label}...</div>
@@ -234,7 +234,7 @@ export default class OrganizationAdminDetail extends LitElement {
                             field: "admins",
                             type: "list",
                             display: {
-                                defaultValue: "Admins not found or empty",
+                                defaultValue: "The organisation does not have admins yet.",
                                 contentLayout: "bullets",
                             },
                         },
