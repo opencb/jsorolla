@@ -52,7 +52,7 @@ export default class OrganizationAdmin extends LitElement {
             if (!OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, this.opencgaSession.user.id)) {
                 return html `
                     <div class="d-flex flex-column align-items-center justify-content-center">
-                        <h1 class="display-1"><i class="fa-solid fa-user-shield me-4"></i></i>Restricted access</h1>
+                        <h1 class="display-1"><i class="fas fa-user-shield me-4"></i>Restricted access</h1>
                         <h3>The page you are trying to access has restricted access.</h3>
                         <h3>Please refer to your system administrator.</h3>
                     </div>
