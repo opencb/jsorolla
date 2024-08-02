@@ -115,7 +115,7 @@ export default class JobDetailLog extends LitElement {
     }
 
     async fetchContent(job, params = {}, append = false) {
-        const statusWithoutLogs = ["PENDING", "ABORTED", "QUEUED"];
+        const statusWithoutLogs = ["PENDING", "QUEUED"];
         if (!append) {
             this.content = "";
         }
