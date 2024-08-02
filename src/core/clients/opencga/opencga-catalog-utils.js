@@ -89,13 +89,22 @@ export default class OpencgaCatalogUtils {
         return false;
     }
 
-    static isOrganizationAdminOwner(organization, userLogged) {
-        if (!organization || !userLogged) {
-            console.error(`No valid parameters, organization: ${organization}, user: ${userLogged}`);
+    // Check if the provided user is admin in the organization
+    static isOrganizationAdmin(organization, userId) {
+        if (!organization || !userId) {
             return false;
         }
-        // Check if user is Organization owner
-        return !!(organization.admins.includes(userLogged) || organization.owner === userLogged);
+        // 1. Check if user is the organization admin
+        if (organization?.owner === userId) {
+            return true;
+        } else {
+            // Check if user is an admin of the organization
+            if (organization?.admins?.includes?.(userId)) {
+                return true;
+            }
+        }
+        // Other case, user is not admin of the organization
+        return false;
     }
 
     // Check if the user has the right the permissions in the study.

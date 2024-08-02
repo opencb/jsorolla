@@ -345,7 +345,7 @@ export default class StudyUsersManage extends LitElement {
                                             const changePosition = this._findChangePosition(userId, group.id);
                                             // If the user is organization admin or owner,
                                             // the checkboxes in members and admins need to be disabled
-                                            const userIsOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdminOwner(this.opencgaSession.organization, userId);
+                                            const userIsOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, userId);
                                             return html`
                                                 <div class="form-check form-switch">
                                                     <input

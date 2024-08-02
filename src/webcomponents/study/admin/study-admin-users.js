@@ -162,7 +162,7 @@ export default class StudyAdminUsers extends LitElement {
         // FIXME!!: admin/owner organization or/and admin study.
         //  Study Admin: right now, study admin can not add/remove admins. Check with Pedro again
         // const isOwner = OpencgaCatalogUtils.checkUserAccountView(this.field.owner, this.field.loggedUser);
-        const isOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdminOwner(this.field.opencgaSession.organization, row.id);
+        const isOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.field.opencgaSession.organization, row.id);
         const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.field.study, row.id);
         const loggedUserIsStudyAdmin = OpencgaCatalogUtils.isAdmin(this.field.study, this.field.loggedUser);
         const checked = this.field.groupsMap?.get(this.field.groupId).findIndex(e => e.id === row.id) !== -1;
