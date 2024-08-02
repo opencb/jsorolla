@@ -228,10 +228,10 @@ export default class JobDetailLog extends LitElement {
                 <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                     <div class="btn-group command-buttons" role="group">
                         <button type="button" class="btn btn-light ${this.command === "head" ? "active" : ""}" @click="${() => this.setCommand("head")}">
-                            <i class="fas fa-align-left icon-padding"></i> Head
+                            <i class="fas fa-align-left me-1"></i> Head
                         </button>
                         <button type="button" class="btn btn-light ${this.command === "tail" ? "active" : ""}" @click="${() => this.setCommand("tail")}">
-                            <i class="fas fa-align-left icon-padding"></i>
+                            <i class="fas fa-align-left me-1"></i>
                             Tail
                             <i class="fas fa-sync-alt ${this.command === "tail" && this.job.internal.status.name === "RUNNING" ? "anim-rotate" : "disabled"}"></i>
                         </button>
@@ -240,10 +240,10 @@ export default class JobDetailLog extends LitElement {
                 <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                     <div class="btn-group" role="group" style="margin-left: 0px">
                         <button type="button" class="btn btn-light ${this.type === "stderr" ? "active" : ""}" @click="${() => this.setType("stderr")}">
-                            <i class="fas fa-exclamation icon-padding"></i> Stderr
+                            <i class="fas fa-exclamation me-1"></i> Stderr
                         </button>
                         <button type="button" class="btn btn-light ${this.type === "stdout" ? "active" : ""}" @click="${() => this.setType("stdout")}">
-                            <i class="fas fa-info icon-padding"></i> Stdout
+                            <i class="fas fa-info me-1"></i> Stdout
                         </button>
                     </div>
                 </div>
