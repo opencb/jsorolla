@@ -53,7 +53,7 @@ export class JobMonitor extends LitElement {
             },
             FINISHED: {
                 title: "Finished",
-                jobsTypes: ["UNREGISTERED", "DONE", "ERROR", "ABORTED"],
+                jobsTypes: ["DONE", "ERROR", "ABORTED"],
             },
         };
         this._interval = -1;
