@@ -363,7 +363,6 @@ export default class OpencgaRestInput extends LitElement {
         url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
 
         if (this.endpoint.method === "GET" || this.endpoint.method === "DELETE") {
-            url += "sid=" + this.opencgaSession.opencgaClient._config.token;
             this.#getOrDeleteEndpoint(url);
         }
 
