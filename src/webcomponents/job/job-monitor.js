@@ -60,7 +60,7 @@ export class JobMonitor extends LitElement {
         this._jobs = [];
         this._addedJobs= new Set(); // Used for displaying the NEW label in each new job
         this._updatedJobsCount = 0; // To store the number of changes (new jobs, state changes)
-        this._visibleJobsTypes = "ALL"; // Current visible jobs types (one of JOB_TYPES)
+        this._visibleJobsType = "ALL"; // Current visible jobs types (one of JOB_TYPES)
         this._config = this.getDefaultConfig();
     }
 
@@ -69,7 +69,7 @@ export class JobMonitor extends LitElement {
             this._jobs = [];
             this._updatedJobsCount = 0;
             this._addedJobs = new Set();
-            this._visibleJobsTypes = "ALL";
+            this._visibleJobsType = "ALL";
         }
         if (changedProperties.has("config")) {
             this._config = {
@@ -153,13 +153,13 @@ export class JobMonitor extends LitElement {
 
     onJobTypeChange(event, newJobType) {
         event.stopPropagation();
-        this._visibleJobsTypes = newJobType;
+        this._visibleJobsType = newJobType;
         this.requestUpdate();
     }
 
     renderJobsButtons() {
         return Object.keys(this.JOBS_TYPES).map(type => html`
-            <button class="btn btn-sm ${type === this._visibleJobsTypes ? "btn-secondary" : "btn-outline-secondary"} flex-fill" @click="${e => this.onJobTypeChange(e, type)}">
+            <button class="btn btn-sm ${type === this._visibleJobsType ? "btn-secondary" : "btn-outline-secondary"} flex-fill" @click="${e => this.onJobTypeChange(e, type)}">
                 <strong>${this.JOBS_TYPES[type].title}</strong>
             </button>
         `);
@@ -168,7 +168,7 @@ export class JobMonitor extends LitElement {
     renderVisibleJobsList() {
         // Get the list of visible jobs with the selected type
         const visibleJobs = this._jobs.filter(job => {
-            return this._visibleJobsTypes === "ALL" || this.JOBS_TYPES[this._visibleJobsTypes].jobsTypes.includes(job?.internal?.status?.id);
+            return this._visibleJobsType === "ALL" || this.JOBS_TYPES[this._visibleJobsType].jobsTypes.includes(job?.internal?.status?.id);
         });
         if (visibleJobs.length > 0) {
             return visibleJobs.map(job => html`
