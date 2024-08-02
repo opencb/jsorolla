@@ -147,7 +147,8 @@ export class JobMonitor extends LitElement {
         return `#job/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${jobId}`;
     }
 
-    onRefresh() {
+    onRefresh(event) {
+        event.stopPropagation();
         this.fetchLastJobs();
     }
 
@@ -228,7 +229,7 @@ export class JobMonitor extends LitElement {
                             <div class="btn-group w-100">
                                 ${this.renderJobsButtons()}
                             </div>
-                            <button @click="${() => this.onRefresh()}" class="btn btn-light" title="Force immediate refresh">
+                            <button @click="${e => this.onRefresh(e)}" class="btn btn-light" title="Force immediate refresh">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
                         </li>
