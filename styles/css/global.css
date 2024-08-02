@@ -368,6 +368,15 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
 .anim-spaceOutUp {
     animation: spaceOutUp .5s infinite;
 }
+.anim-rotate {
+    animation: rotate 1.5s linear infinite;
+}
+
+@keyframes rotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
 
 @keyframes float {
     0% {
