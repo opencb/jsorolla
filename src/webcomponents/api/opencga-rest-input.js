@@ -387,8 +387,12 @@ export default class OpencgaRestInput extends LitElement {
             });
 
         let error, result;
+        const options = {
+            method: this.endpoint.method,
+            token: this.opencgaSession.opencgaClient._config.token,
+        };
         this.#setLoading(true);
-        this.restClient.call(url, {method: this.endpoint.method})
+        this.restClient.call(url, options)
             .then(response => {
                 result = UtilsNew.objectClone(response.responses[0].results);
             })
