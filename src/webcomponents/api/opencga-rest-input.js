@@ -434,7 +434,7 @@ export default class OpencgaRestInput extends LitElement {
         const _options = {
             sid: this.opencgaSession.opencgaClient._config.token,
             token: this.opencgaSession.opencgaClient._config.token,
-            data: isForm ? this.formatBody(this.data?.body) : JSON.parse(this.dataJson?.body),
+            data: isForm ? this.formatBody(this.data?.body) : JSON.parse(this.dataJson?.body || "{}"),
             method: "POST",
         };
 
