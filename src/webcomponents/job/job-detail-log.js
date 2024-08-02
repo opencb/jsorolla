@@ -227,10 +227,10 @@ export default class JobDetailLog extends LitElement {
             <div class="jobs-details-log">
                 <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                     <div class="btn-group command-buttons" role="group">
-                        <button type="button" class="btn btn-light btn-small ${this.command === "head" ? "active" : ""}" @click="${() => this.setCommand("head")}">
+                        <button type="button" class="btn btn-light ${this.command === "head" ? "active" : ""}" @click="${() => this.setCommand("head")}">
                             <i class="fas fa-align-left icon-padding"></i> Head
                         </button>
-                        <button type="button" class="btn btn-light btn-small ${this.command === "tail" ? "active" : ""}" @click="${() => this.setCommand("tail")}">
+                        <button type="button" class="btn btn-light ${this.command === "tail" ? "active" : ""}" @click="${() => this.setCommand("tail")}">
                             <i class="fas fa-align-left icon-padding"></i>
                             Tail
                             <i class="fas fa-sync-alt ${this.command === "tail" && this.job.internal.status.name === "RUNNING" ? "anim-rotate" : "disabled"}"></i>
@@ -239,10 +239,10 @@ export default class JobDetailLog extends LitElement {
                 </div>
                 <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                     <div class="btn-group" role="group" style="margin-left: 0px">
-                        <button type="button" class="btn btn-light btn-small ${this.type === "stderr" ? "active" : ""}" @click="${() => this.setType("stderr")}">
+                        <button type="button" class="btn btn-light ${this.type === "stderr" ? "active" : ""}" @click="${() => this.setType("stderr")}">
                             <i class="fas fa-exclamation icon-padding"></i> Stderr
                         </button>
-                        <button type="button" class="btn btn-light btn-small ${this.type === "stdout" ? "active" : ""}" @click="${() => this.setType("stdout")}">
+                        <button type="button" class="btn btn-light ${this.type === "stdout" ? "active" : ""}" @click="${() => this.setType("stdout")}">
                             <i class="fas fa-info icon-padding"></i> Stdout
                         </button>
                     </div>
