@@ -528,7 +528,7 @@ export default class UserAdminGrid extends LitElement {
                     .userId="${this.userId}"
                     .organization="${this.organization}"
                     .action="${action}"
-                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top", buttonClearText: ""}}"
                     .opencgaSession="${this.opencgaSession}"
                     @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ChangeAdminModal`)}">
                 </user-admin-admins-change>

@@ -62,6 +62,7 @@ export default class UserAdminAdminsChange extends LitElement {
             titleStyle: "color: var(--main-bg-color);margin-bottom:16px;font-weight:bold;",
             defaultLayout: "horizontal",
             buttonOkText: "Confirm",
+            buttonClearText: "",
         };
     }
 
@@ -85,17 +86,17 @@ export default class UserAdminAdminsChange extends LitElement {
             this.displayMessages = {
                 "REMOVE": {
                     title: `Remove user '${this.userId}' from the list of organisation users.`,
-                    text: `The user '${this.userId}' will be removed from the list of organisation administrators.
+                    text: `The user '${this.userId}' will be REMOVED from the list of organisation administrators.
                     As a result, they will no longer be able to perform specific actions such as creating or editing users,
                     modifying organisation information, or creating projects and studies.`,
-                    successText: `The '${this.userId}' has been successfully removed from the list of organisation administrators`,
+                    successText: `The '${this.userId}' has been successfully REMOVED from the list of organisation administrators`,
                 },
                 "ADD": {
                     title: `Add user '${this.userId}' to the list of organisation users.`,
-                    text: `The user '${this.userId}' will be added to the list of organisation administrators.
+                    text: `The user '${this.userId}' will be ADDED to the list of organisation administrators.
                     As a result, they be able to perform specific actions such as creating or editing users,
                     modifying organisation information, or creating projects and studies.`,
-                    successText: `The '${this.userId}' has been successfully added to the list of organisation administrators`,
+                    successText: `The '${this.userId}' has been successfully ADDED to the list of organisation administrators`,
                 },
             };
             this.displayTitle = this.displayMessages[this.action].title;
@@ -155,7 +156,6 @@ export default class UserAdminAdminsChange extends LitElement {
         return {
             icon: "fas fa-edit",
             buttons: {
-                clearText: "Discard Changes",
                 okText: "Confirm",
             },
             display: this.displayConfig || this.displayConfigDefault,
