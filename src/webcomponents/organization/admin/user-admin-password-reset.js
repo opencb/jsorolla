@@ -37,25 +37,14 @@ export default class UserAdminPasswordReset extends LitElement {
             userId: {
                 type: String
             },
-            organization: {
-                type: Object,
-            },
             opencgaSession: {
-                type: Object
-            },
-            displayConfig: {
                 type: Object
             },
         };
     }
 
     #init() {
-        this.user = {}; // Original object
-        this._user = {}; // Updated object
-        this.userId = "";
-        this.displayConfig = {};
-        this.updatedFields = {};
-
+        this._user = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -64,92 +53,77 @@ export default class UserAdminPasswordReset extends LitElement {
         this.requestUpdate();
     }
 
-    #initConfigNotification() {
-        this._config.notification = {
-            title: "",
-            text: "Some changes have been done in the form. Not saved changes will be lost",
-            type: "notification",
-            display: {
-                visible: () => UtilsNew.isNotEmpty(this.updatedFields),
-                notificationType: "warning",
-            },
-        };
-    }
-
-    #initOriginalObjects() {
-        this._user = UtilsNew.objectClone(this.user);
-        this.updatedFields = {};
-    }
-
     update(changedProperties) {
-        if (changedProperties.has("userId")) {
+        if (changedProperties.has("userId") || changedProperties.has("opencgaSession")) {
             this.userIdObserver();
-        }
-        if (changedProperties.has("displayConfig")) {
-            this._config = this.getDefaultConfig();
-            if (!this._config?.notification) {
-                this.#initConfigNotification();
-            }
         }
         super.update(changedProperties);
     }
 
     userIdObserver() {
-        if (this.userId && this.opencgaSession) {
-            const params = {
-                organization: this.organization.id,
-            };
-            let error;
-            this.#setLoading(true);
+        if (this.opencgaSession && this.userId) {
             this.opencgaSession.opencgaClient.users()
-                .info(this.userId, params)
+                .info(this.userId, {
+                    organization: this.opencgaSession.organization.id,
+                })
                 .then(response => {
-                    this.user = UtilsNew.objectClone(response.responses[0].results[0]);
-                    this.#initOriginalObjects();
+                    this._user = UtilsNew.objectClone(response.responses[0].results[0]);
+                    this.requestUpdate();
                 })
-                .catch(reason => {
-                    error = reason;
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-                })
-                .finally(() => {
-                    LitUtils.dispatchCustomEvent(this, "userInfo", this.user, {}, error);
-                    this.#setLoading(false);
+                .catch(response => {
+                    console.error(response);
                 });
         }
     }
 
-    render() {
-        return html `
-            <detail-tabs
-                .data="${this._user}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}">
-            </detail-tabs>
-        `;
+    onSubmit() {
+        let error;
+        this.#setLoading(true);
+        //  Reset password
+        this.opencgaSession.opencgaClient.users()
+            .resetPassword(this._user.id)
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: `User Reset Password`,
+                    message: `User ${this._user.id} password reset correctly`,
+                });
+                LitUtils.dispatchCustomEvent(this, "closeNotification", this._user.id, {}, error);
+                this._user = null;
+            })
+            .catch(reason => {
+                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            })
+            .finally(() => {
+                this.#setLoading(false);
+            });
     }
 
-    getDefaultConfig() {
-        return {
-            title: "",
-            showTitle: false,
-            items: [
-                {
-                    id: "reset-password",
-                    name: "Reset Password",
-                    active: true,
-                    render: (user, active, opencgaSession) => {
-                        return html`
-                            <user-password-reset
-                                .user="${user}"
-                                .opencgaSession="${opencgaSession}"
-                                .displayConfig="${{titleVisible: false}}">
-                            </user-password-reset>
-                        `;
-                    }
-                },
-            ],
-        };
+    render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: `Reset Password: User <b>${this._user.id}</b> in organization ${this.opencgaSession.organization.id}`,
+            message: `
+                Are you sure you want to reset ${this._user.id}'s password?
+                <br><br>
+                The user <b>${this._user.id}</b> will receive an email with a temporary password in the following
+                email address:
+                <span class="text-muted">${this._user.email}</span>.
+            `,
+            ok: () => {
+                this.onSubmit();
+            },
+            cancel: () => {
+                this._user = null;
+                LitUtils.dispatchCustomEvent(this, "closeNotification", null);
+            },
+        });
     }
+
+    getDefaultConfig() {}
 
 }
 

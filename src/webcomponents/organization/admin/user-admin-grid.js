@@ -124,7 +124,7 @@ export default class UserAdminGrid extends LitElement {
                 render: () => html `
                     <user-admin-create
                         .organization="${this.organization}"
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
+                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                         .opencgaSession="${this.opencgaSession}"
                         @userCreate="${e => this.renderRemoteTable(e)}">
                     </user-admin-create>`
@@ -185,8 +185,8 @@ export default class UserAdminGrid extends LitElement {
                 label: "Delete User",
                 icon: "fas fa-trash-alt ",
                 color: "text-danger",
-                // modalId: `${this._prefix}DeleteModal`,
-                // render: () => this.renderModalPasswordReset(),
+                // modalId: `${this._prefix}DeleteUserModal`,
+                // render: () => this.renderModalDeleteUser(),
                 permission: "disabled", // CAUTION: Not possible to delete users for now
             },
         };
@@ -418,12 +418,23 @@ export default class UserAdminGrid extends LitElement {
         this.adminAction = e.currentTarget.dataset.admin ?? "";
         this.requestUpdate();
         await this.updateComplete;
-        ModalUtils.show(this.modals[this.action]["modalId"]);
+        // NOTE 20240804 Vero: Since reset password does not need inputs, it has been decided that it should be
+        // a notification instead of the regular update modal. Therefore, in this case, a modal is not created and
+        // should not be shown.
+        if (this.action !== "reset-password") {
+            ModalUtils.show(this.modals[this.action]["modalId"]);
+        }
     }
 
     onUserUpdate(e, id) {
         ModalUtils.close(id);
         this.renderRemoteTable();
+    }
+
+    onCloseNotification() {
+        this.userId = null;
+        this.action = "";
+        this.requestUpdate();
     }
 
     // *** RENDER METHODS ***
@@ -440,7 +451,7 @@ export default class UserAdminGrid extends LitElement {
                     <user-admin-details-update
                         .userId="${this.userId}"
                         .organization="${this.organization}"
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
+                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                         .opencgaSession="${this.opencgaSession}"
                         @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}UpdateDetailsModal`)}">
                     </user-admin-details-update>
@@ -475,31 +486,19 @@ export default class UserAdminGrid extends LitElement {
     */
 
     renderModalPasswordReset() {
-        return ModalUtils.create(this, `${this._prefix}ResetPasswordModal`, {
-            display: {
-                modalTitle: `Reset Password: User ${this.userId} in organization ${this.organization.id}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-password-reset",
-                modalSize: "modal-lg"
-            },
-            render: () => {
-                return html`
-                    <user-admin-password-reset
-                        .userId="${this.userId}"
-                        .organization="${this.organization}"
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "bottom"}}"
-                        .opencgaSession="${this.opencgaSession}"
-                        @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ResetPasswordModal`)}">
-                    </user-admin-password-reset>
-                `;
-            },
-        });
+        return html`
+            <user-admin-password-reset
+                .userId="${this.userId}"
+                .opencgaSession="${this.opencgaSession}"
+                @closeNotification="${e => this.onCloseNotification(e)}">
+            </user-admin-password-reset>
+        `;
     }
 
     renderModalStatusUpdate() {
         return ModalUtils.create(this, `${this._prefix}ChangeStatusModal`, {
             display: {
-                modalTitle: `Update Status: User ${this.userId} in organization ${this.organization.id}`,
+                modalTitle: `Update Status: User '${this.userId}' in organization '${this.organization.id}'`,
                 modalDraggable: true,
                 modalCyDataName: "modal-user-admin-status-update",
                 modalSize: "modal-lg"
@@ -508,7 +507,7 @@ export default class UserAdminGrid extends LitElement {
                 <user-admin-status-update
                     .userId="${this.userId}"
                     .organization="${this.organization}"
-                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom", userStatus: this._config.userStatus}}"
+                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top", userStatus: this._config.userStatus}}"
                     .opencgaSession="${this.opencgaSession}"
                     @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ChangeStatusModal`)}">
                 </user-admin-status-update>
@@ -529,7 +528,7 @@ export default class UserAdminGrid extends LitElement {
                     .userId="${this.userId}"
                     .organization="${this.organization}"
                     .action="${action}"
-                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "bottom"}}"
+                    .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                     .opencgaSession="${this.opencgaSession}"
                     @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ChangeAdminModal`)}">
                 </user-admin-admins-change>
