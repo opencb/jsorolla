@@ -337,7 +337,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     <span class="badge ${currentPriorityLabel} me-auto top-0">
                         ${currentPriorityText}
                     </span>
-
                 </button>
                 ${isEditable ? `
                     <ul class="dropdown-menu">
@@ -380,7 +379,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
             <div class="dropdown">
                 <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" ${!isEditable ? "disabled=\"disabled\"" : ""}>
                     <span class='me-auto'">${currentStatus}</span>
-
                 </button>
                 ${isEditable ? `
                     <ul class="dropdown-menu">
