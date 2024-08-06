@@ -414,6 +414,11 @@ export default class VariantSamples extends LitElement {
 
     render() {
         return html`
+            <style>
+                variant-samples .select2-dropdown {
+                    width: 250px !important;
+                }
+            </style>
             <div>
                 ${this.numSamples !== this.numUserTotalSamples ? html`
                     <div class="alert alert-warning">
@@ -427,17 +432,16 @@ export default class VariantSamples extends LitElement {
 
                 <div class="row" style="margin-top: 20px">
                     <div class="col-md-12">
-                        <div class="col-md-4"><label>Select genotypes:</label></div>
+                        <div class="col-md-4"><label>Select Genotypes:</label></div>
                     </div>
                     <div class="col-md-12">
                         <div class="col-md-4">
                             <div class="input-group">
                                 <select-field-filter
-                                    multiple
                                     .data="${this.config.genotypes}"
-                                    .value=${this.selectedGenotypes}
-                                    .multiple=${"true"}
-                                    .selectedTextFormat=${"count > 3"}
+                                    .value="${this.selectedGenotypes}"
+                                    .selectedTextFormat="${"count > 3"}"
+                                    .config="${{multiple: true}}"
                                     @filterChange="${this.onSelectFilterChange}">
                                 </select-field-filter>
                                 <span class="input-group-btn">
@@ -488,9 +492,9 @@ export default class VariantSamples extends LitElement {
                         },
                     ]
                 },
-                {
-                    separator: true
-                },
+                // {
+                //     separator: true
+                // },
                 {
                     id: "Secondary Alternate Genotypes",
                     fields: [
