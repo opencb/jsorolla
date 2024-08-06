@@ -436,7 +436,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     async onActionClick(e, _, row) {
-        const action = e.currentTarget.dataset.action?.toLowerCase() || e.detail.action;
+        const action = e.currentTarget?.dataset?.action?.toLowerCase() || e.detail?.action;
         switch (action) {
             case "edit":
                 this.clinicalAnalysisUpdateId = row.id;
