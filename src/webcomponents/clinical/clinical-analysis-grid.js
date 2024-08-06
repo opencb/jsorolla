@@ -351,7 +351,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                                         </div>
                                         <div class="small text-secondary">${priority.description}</div>
                                     </div>
-                                    ${priority.id === value?.id ? "<i class=\"fas fa-check\"></i>" : ""}
+                                    ${priority.id === value?.id ? `<i class="fas fa-check"></i>` : ""}
                                 </a>
                             </li>
                         `).join("")}
