@@ -343,14 +343,14 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     <ul class="dropdown-menu">
                         ${_priorities.map(priority => `
                             <li>
-                                <a class="d-flex dropdown-item" data-action="priorityChange" data-priority="${priority.id}">
+                                <a class="d-flex dropdown-item py-2" data-action="priorityChange" data-priority="${priority.id}" style="cursor:pointer;">
                                     <div class="flex-grow-1">
-                                        <span class="badge ${priorityRankToColor[priority?.rank ?? ""] ?? ""}">
-                                            ${priority.id}
-                                        </span>
-                                        <p class="form-text">
-                                            <small>${priority.description}</small>
-                                        </p>
+                                        <div class="">
+                                            <span class="badge ${priorityRankToColor[priority?.rank ?? ""] ?? ""}">
+                                                ${priority.id}
+                                            </span>
+                                        </div>
+                                        <div class="small text-secondary">${priority.description}</div>
                                     </div>
                                     ${priority.id === value?.id ? "<i class=\"fas fa-check\"></i>" : ""}
                                 </a>
