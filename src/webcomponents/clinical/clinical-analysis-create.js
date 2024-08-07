@@ -368,7 +368,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 const interpretationData = {
                     method: {
                         name: "opencga-default",
-                        version: this.opencgaSession.opencgaClient?._config?.version || "-",
+                        version: this.opencgaSession.about.Version,
                         dependencies: [
                             {
                                 name: "Cellbase",
