@@ -363,6 +363,26 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 study: this.opencgaSession.study.fqn,
                 includeResult: true
             })
+            .then(response => {
+                const interpretationId = response?.responses?.[0]?.results?.[0]?.interpretation?.id;
+                const interpretationData = {
+                    method: {
+                        name: "opencga-default",
+                        version: this.opencgaSession.opencgaClient?._config?.version || "-",
+                        dependencies: [
+                            {
+                                name: "Cellbase",
+                                version: this.opencgaSession.project?.cellbase?.version || "-",
+                            },
+                        ],
+                    },
+                };
+                return this.opencgaSession.opencgaClient.clinical()
+                    .updateInterpretation(data.id, interpretationId, interpretationData, {
+                        study: this.opencgaSession.study.fqn,
+                        methodsAction: "SET",
+                    });
+            })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Clinical analysis created",
