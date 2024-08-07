@@ -358,7 +358,11 @@ export default class ClinicalAnalysisCreate extends LitElement {
             delete data.dueDate;
         }
 
-        this.opencgaSession.opencgaClient.clinical().create(data, {study: this.opencgaSession.study.fqn, createDefaultInterpretation: true})
+        this.opencgaSession.opencgaClient.clinical()
+            .create(data, {
+                study: this.opencgaSession.study.fqn,
+                includeResult: true
+            })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Clinical analysis created",
