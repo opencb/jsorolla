@@ -53,6 +53,9 @@ export default class SelectFieldFilter extends LitElement {
             separator: {
                 type: String,
             },
+            forceSelection: {
+                type: Boolean,
+            },
             config: {
                 type: Object
             }
@@ -115,7 +118,7 @@ export default class SelectFieldFilter extends LitElement {
             selectionCssClass: this._config?.selectionClass ? this.config?.selectionClass : "",
             multiple: !!this._config?.multiple,
             placeholder: this._config?.placeholder ?? "Select an option",
-            allowClear: !!this._config?.multiple,
+            allowClear: !this.forceSelection,
             disabled: this._config?.disabled ?? false,
             width: "80%",
             data: options,
