@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import PolymerUtils from "../PolymerUtils.js";
 
-
 export default class OpencgaPanelFilter extends LitElement {
 
     constructor() {
