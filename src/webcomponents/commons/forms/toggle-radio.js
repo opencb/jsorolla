@@ -18,10 +18,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 
-/**
- *  Usage:
- * <toggle-radio .value="true" .onText="YES" .offText="NO"></toggle-radio>
- */
 export default class ToggleRadio extends LitElement {
 
     constructor() {
@@ -35,58 +31,49 @@ export default class ToggleRadio extends LitElement {
 
     static get properties() {
         return {
-            value: {
-                type: Boolean
+            data: {
+                type: Array,
             },
-            config: {
-                type: Object
+            value: {
+                type: Boolean,
+            },
+            disabled: {
+                type: Boolean,
             },
         };
     }
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-        this._config = {...this.getDefaultConfig()};
     }
 
-    update(changedProperties) {
-        if (changedProperties.has("value")) {
-            this._value = this.value;
-        }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-        }
-        super.update(changedProperties);
-    }
-
-    filterChange(val) {
-        LitUtils.dispatchCustomEvent(this, "filterChange", val === "ON");
+    onFilterChange(value) {
+        LitUtils.dispatchCustomEvent(this, "filterChange", value);
     }
 
     render() {
-        return html`
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" ?checked="${this.value}"
-                    name="inlineRadioOptions" id="${this._prefix}onToggle" value="ON"
-                    @click="${() => this.filterChange("ON")}"
-                    ?disabled="${this._config.disabled}">
-                <label class="form-check-label" for="${this._prefix}onToggle">${this._config.onText}</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio"
-                    @click="${() => this.filterChange("OFF")}" ?checked="${!this.value}"
-                    name="inlineRadioOptions" id="${this._prefix}offToggle" value="OFF" ?disabled="${this._config.disabled}">
-                <label class="form-check-label" for="${this._prefix}offToggle">${this._config.offText}</label>
-            </div>
-        `;
-    }
-
-    getDefaultConfig() {
-        return {
-            onText: "ON",
-            offText: "OFF",
-            disabled: false
-        };
+        return (this.data || []).map(item => {
+            // Allowed values for data property
+            // 1. Array of objects: [{id: "", name: ""}, ...]
+            // 2. Array of values: ["ON", "OFF"]
+            const value = item?.id ?? item;
+            return html`
+                <div class="form-check form-check-inline">
+                    <input
+                        class="form-check-input"
+                        type="radio"
+                        name="inlineRadioOptions"
+                        id="${this._prefix}Toggle${value}"
+                        value="${value}"
+                        .checked="${this.value === value}"
+                        .disabled="${this.disabled || item?.disabled}"
+                        @click="${() => this.onFilterChange(value)}">
+                    <label class="form-check-label" for="${this._prefix}Toggle${value}">
+                        ${item?.name ?? item?.text ?? item?.id ?? item}
+                    </label>
+                </div>
+            `;
+        });
     }
 
 }

@@ -88,8 +88,8 @@ import "../../webcomponents/study/admin/catalog-admin.js";
 import "../../webcomponents/study/admin/variant/study-variant-admin.js";
 import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/user/user-profile.js";
-// import "../../webcomponents/user/user-password-reset.js";
 import "../../webcomponents/api/rest-api.js";
+import "../../webcomponents/note/note-browser.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
@@ -99,6 +99,7 @@ import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/commons/layouts/custom-landing.js";
 
 import "../../webcomponents/clinical/rga/rga-browser.js";
+
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 import ExtensionsManager from "../../webcomponents/extensions-manager.js";
 
@@ -238,6 +239,8 @@ class IvaApp extends LitElement {
             "projects-admin",
             // REST-API
             "rest-api",
+            // note
+            "note-browser",
         ];
 
         // Add custom tools
@@ -1736,6 +1739,17 @@ class IvaApp extends LitElement {
                                 @querySearch="${e => this.onQueryFilterSearch(e, "job")}"
                                 @activeFilterChange="${e => this.onQueryFilterSearch(e, "job")}">
                             </job-browser>
+                        </div>
+                    ` : nothing}
+
+                    ${this.config.enabledComponents["note-browser"] ? html`
+                        <div class="content" id="note-browser">
+                            <note-browser
+                                .opencgaSession="${this.opencgaSession}"
+                                .query="${this.queries["note-browser"]}"
+                                .settings="${this.settings.NOTE_BROWSER}"
+                                @querySearch="${e => this.onQueryFilterSearch(e, "note-browser")}">
+                            </note-browser>
                         </div>
                     ` : nothing}
 
