@@ -311,19 +311,19 @@ export default class UtilsNew {
         switch (statusId) {
             case "PENDING":
             case "QUEUED":
-                return `<span class="text-primary"><i class="far fa-clock"></i> ${statusId}${description}</span>`;
+                return `<span class="text-primary"><i class="far fa-clock me-1"></i> ${statusId}${description}</span>`;
             case "RUNNING":
-                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${statusId}${description}</span>`;
+                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate me-1"></i> ${statusId}${description}</span>`;
             case "DONE":
-                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${statusId}${description}</span>`;
+                return `<span class="text-success"><i class="fas fa-check-circle me-1"></i> ${statusId}${description}</span>`;
             case "ERROR":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${statusId}${description}</span>`;
+                return `<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i> ${statusId}${description}</span>`;
             case "UNKNOWN":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${statusId}${description}</span>`;
+                return `<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i> ${statusId}${description}</span>`;
             case "ABORTED":
-                return `<span class="text-warning"><i class="fas fa-ban"></i> ${statusId}${description}</span>`;
+                return `<span class="text-warning"><i class="fas fa-ban me-1"></i> ${statusId}${description}</span>`;
             case "DELETED":
-                return `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${statusId}${description}</span>`;
+                return `<span class="text-primary"><i class="fas fa-trash-alt me-1"></i> ${statusId}${description}</span>`;
         }
         return "-";
     }

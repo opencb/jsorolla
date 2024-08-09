@@ -142,6 +142,11 @@ const CATALOG_NAVBAR_MENU = {
             visibility: "public"
         },
         {
+            id: "note-browser",
+            name: "Note Browser",
+            visibility: "public",
+        },
+        {
             separator: true,
             visibility: "public"
         },
