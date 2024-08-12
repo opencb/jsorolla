@@ -305,7 +305,9 @@ export default class UtilsNew {
     }
 
     // Capitalizes the first letter of a string and lowercase the rest.
-    static capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join("").toLowerCase();
+    static capitalize([first, ...rest]) {
+        return first.toUpperCase() + rest.join("").toLowerCase();
+    }
 
     /*
      * This function creates a table (rows and columns) a given Object or array of Objects using the fields provided.
