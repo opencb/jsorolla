@@ -682,12 +682,8 @@ export default class JobGrid extends LitElement {
         const params = {
             study: this.opencgaSession.study.fqn
         };
-        let error;
         this.opencgaSession.opencgaClient.jobs()
-            .retry(
-                {
-                    job: this.jobRetryObj?.id
-                }, params)
+            .retry({job: this.jobRetryObj?.id}, params)
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Job Retry",
@@ -695,7 +691,6 @@ export default class JobGrid extends LitElement {
                 });
             })
             .catch(reason => {
-                error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             });
     }
@@ -704,12 +699,8 @@ export default class JobGrid extends LitElement {
         const params = {
             study: this.opencgaSession.study.fqn
         };
-        let error;
         this.opencgaSession.opencgaClient.jobs()
-            .kill(
-                {
-                    job: this.jobKillObj?.id
-                }, params)
+            .kill(this.jobKillObj?.id, params)
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Job Kill",
@@ -717,7 +708,6 @@ export default class JobGrid extends LitElement {
                 });
             })
             .catch(reason => {
-                error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             });
     }

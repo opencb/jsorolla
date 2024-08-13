@@ -363,7 +363,6 @@ export default class OpencgaRestInput extends LitElement {
         url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
 
         if (this.endpoint.method === "GET" || this.endpoint.method === "DELETE") {
-            url += "sid=" + this.opencgaSession.opencgaClient._config.token;
             this.#getOrDeleteEndpoint(url);
         }
 
@@ -388,8 +387,12 @@ export default class OpencgaRestInput extends LitElement {
             });
 
         let error, result;
+        const options = {
+            method: this.endpoint.method,
+            token: this.opencgaSession.opencgaClient._config.token,
+        };
         this.#setLoading(true);
-        this.restClient.call(url, {method: this.endpoint.method})
+        this.restClient.call(url, options)
             .then(response => {
                 result = UtilsNew.objectClone(response.responses[0].results);
             })
@@ -431,7 +434,7 @@ export default class OpencgaRestInput extends LitElement {
         const _options = {
             sid: this.opencgaSession.opencgaClient._config.token,
             token: this.opencgaSession.opencgaClient._config.token,
-            data: isForm ? this.formatBody(this.data?.body) : JSON.parse(this.dataJson?.body),
+            data: isForm ? this.formatBody(this.data?.body) : JSON.parse(this.dataJson?.body || "{}"),
             method: "POST",
         };
 

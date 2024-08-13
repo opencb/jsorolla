@@ -31,11 +31,11 @@ const hosts = [
 ];
 
 const opencga = {
-    host: hosts[1].url,
+    host: hosts[2].url,
     version: "v2",
     organizations: [],
     cookie: {
-        prefix: "iva-" + hosts[1].id,
+        prefix: "iva-" + hosts[2].id,
         secure: true,
     },
     sso: {
@@ -140,6 +140,11 @@ const CATALOG_NAVBAR_MENU = {
             id: "cohort",
             name: "Cohort Browser",
             visibility: "public"
+        },
+        {
+            id: "note-browser",
+            name: "Note Browser",
+            visibility: "public",
         },
         {
             separator: true,
