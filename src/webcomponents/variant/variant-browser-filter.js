@@ -506,10 +506,11 @@ export default class VariantBrowserFilter extends LitElement {
                     content = html`
                         <role-in-cancer-filter
                             .config="${subsection.params?.rolesInCancer || ROLE_IN_CANCER}"
-                            .roleInCancer=${this.preparedQuery.generoleInCancer}
+                            .roleInCancer="${this.preparedQuery.geneRoleInCancer}"
                             .disabled="${disabled}"
                             @filterChange="${e => this.onFilterChange("geneRoleInCancer", e.detail.value)}">
-                        </role-in-cancer-filter>`;
+                        </role-in-cancer-filter>
+                    `;
                     break;
                 case "proteinSubstitutionScore":
                     content = html`

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import {LitElement, html, nothing} from "lit";
+import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
@@ -23,8 +23,7 @@ export class JobMonitor extends LitElement {
 
     constructor() {
         super();
-
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -42,186 +41,205 @@ export class JobMonitor extends LitElement {
         };
     }
 
-    _init() {
-        this.iconMap = {
-            info: "fa fa-info-circle fa-2x",
-            success: "fa fa-thumbs-up fa-2x",
-            warning: "fa fa-exclamation-triangle fa-2x",
-            danger: "fa ffa fa-exclamation-circle fa-2x",
-            error: "fa ffa fa-exclamation-circle fa-2x"
+    #init() {
+        this.JOBS_TYPES = {
+            ALL: {
+                title: "All",
+                jobsTypes: [],
+            },
+            RUNNING: {
+                title: "Running",
+                jobsTypes: ["PENDING", "QUEUED", "RUNNING"],
+            },
+            FINISHED: {
+                title: "Finished",
+                jobsTypes: ["DONE", "ERROR", "ABORTED"],
+            },
         };
+        this._interval = -1;
         this._jobs = [];
-        this.jobs = [];
-        this.filteredJobs = [];
-        this.updatedCnt = 0;
-        this.restCnt = 0;
-
+        this._addedJobs= new Set(); // Used for displaying the NEW label in each new job
+        this._updatedJobsCount = 0; // To store the number of changes (new jobs, state changes)
+        this._visibleJobsType = "ALL"; // Current visible jobs types (one of JOB_TYPES)
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        // Make sure we stop calling fetchLastJobs when the component is removed from DOM
+        clearInterval(this._interval);
+    }
+
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.launchMonitor();
+            this._jobs = [];
+            this._updatedJobsCount = 0;
+            this._addedJobs = new Set();
+            this._visibleJobsType = "ALL";
         }
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
+        }
+        super.update();
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
             this.launchMonitor();
         }
     }
 
     launchMonitor() {
-        if (OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "VIEW_JOBS")) {
-        // Make a first query
-            clearInterval(this.interval);
-            this._jobs = [];
-            this.jobs = [];
-            this.filteredJobs = [];
-            this.fetchLastJobs();
-            // and then every 'interval' ms
-            this.interval = setInterval(() => {
+        clearInterval(this._interval);
+        if (this.opencgaSession) {
+            // Check if the user has VIEW_JOBS permission in the current study
+            if (CatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "VIEW_JOBS")) {
                 this.fetchLastJobs();
-            }, this._config.interval);
-        }
-    }
-
-    async applyUpdated() {
-        // oldList and newList are always the same length
-        const oldList = this._jobs;
-        const newList = this.jobs;
-        // `index` is the position of the first job of oldList in newList (newly added jobs are index < k)
-        const index = newList.findIndex(job => job.id === oldList[0].id);
-        const k = index > -1 ? index : newList.length; // -1 occurs iff the whole list is made of new jobs
-        this.jobs = newList.map((job, i) => {
-            if (i < k) {
-                // handle the new jobs
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
-                    message: `${job.id}, "The job has been added`,
-                });
-                return {...job, updated: true};
-            } else {
-                // handle the change of state
-                // FIXME remove this in v2.3
-                const statusId = job.internal.status.id || job.internal.status.name;
-                const oldStatusId = oldList[i - k].internal.status.id || oldList[i - k].internal.status.name;
-                if (statusId !== oldStatusId) {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
-                        message: `${job.id} The job has now status ${job?.internal?.status?.id || job?.internal?.status?.name}`,
-                    });
-                    return {...job, updated: true};
-                } else {
-                    // if the ids are the same I want to keep the `updated` status
-                    // return {...job, updated: false};
-                    return {...oldList[i - k]};
-                }
+                this._interval = setInterval(() => this.fetchLastJobs(), this._config.interval);
             }
-        });
-        // accumulate all the updated (not visited) status
-        this.updatedCnt = this.jobs.reduce((acc, job) => job.updated && !job._visited ? acc + 1 : acc, 0);
-        this.requestUpdate();
-        await this.updateComplete;
-        this._jobs = this.jobs;
+        }
     }
 
     fetchLastJobs() {
-        if (!this?.opencgaSession?.token || !$("#job-monitor").is(":visible")) {
-            clearInterval(this.interval);
-            return;
-        }
-
-        const query = {
-            study: this.opencgaSession.study.fqn,
-            internalStatus: "PENDING,QUEUED,RUNNING,DONE,ERROR,ABORTED",
-            limit: this._config.limit || 10,
-            sort: "creationDate",
-            include: "id,internal.status,tool,creationDate",
-            order: -1
-        };
-        this.opencgaSession.opencgaClient.jobs().search(query)
-            .then(async restResponse => {
-                // console.log("restResponse", restResponse);
-                // first call
-                if (!this._jobs.length) {
-                    this._jobs = restResponse.getResults();
+        this.opencgaSession.opencgaClient.jobs()
+            .search({
+                study: this.opencgaSession.study.fqn,
+                internalStatus: "PENDING,QUEUED,RUNNING,DONE,ERROR,ABORTED",
+                limit: this._config.limit || 10,
+                sort: "creationDate",
+                include: "id,internal.status,tool,creationDate",
+                order: -1,
+            })
+            .then(response => {
+                const newJobsList = response?.responses?.[0]?.results || [];
+                // 1. Process the list of new jobs returned by OpenCGA
+                // Note: we check if the previous list of jobs is not empty, to prevent marking all jobs as new jobs
+                if (this._jobs.length > 0) {
+                    newJobsList.forEach(job => {
+                        const oldJob = this._jobs.find(j => j.id === job.id);
+                        if (oldJob) {
+                            const statusId = job?.internal?.status?.id || "-";
+                            const oldStatusId = oldJob?.internal?.status?.id || "-";
+                            // If this job exists in the previous list, and now it has a different status, display a confirmation message
+                            if (statusId !== oldStatusId) {
+                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
+                                    message: `The job <b>${job?.id}</b> has now status ${statusId}.`,
+                                });
+                                this._updatedJobsCount = this._updatedJobsCount + 1;
+                            }
+                        } else {
+                            // This is a new job, so we display an info notification to the user
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
+                                message: `The job <b>${job?.id}</b> has been added.`,
+                            });
+                            this._updatedJobsCount = this._updatedJobsCount + 1;
+                            this._addedJobs.add(job.id);
+                        }
+                    });
                 }
-                this.jobs = restResponse.getResults();
-                await this.applyUpdated();
-                this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.id || job.internal.status.name) ?? 1);
+                // 2. Save the new jobs list
+                this._jobs = newJobsList;
                 this.requestUpdate();
             })
-            .catch(restResponse => {
-                console.error(restResponse);
+            .catch(response => {
+                console.error(response);
             });
     }
 
-    filterJobs(e) {
-        e.stopPropagation();
-        this.filterTypes = e.currentTarget.dataset?.type?.split(",");
-        this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.id || job.internal.status.name) ?? 1);
-        this.requestUpdate();
+    getJobUrl(jobId) {
+        return `#job/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${jobId}`;
     }
 
-    forceRefresh(e) {
-        e.stopPropagation();
+    onRefresh(event) {
+        event.stopPropagation();
         this.fetchLastJobs();
     }
 
-    toggleDropdown() {
-        this.dropdown = !this.dropdown;
+    onJobTypeChange(event, newJobType) {
+        event.stopPropagation();
+        this._visibleJobsType = newJobType;
+        this.requestUpdate();
+    }
+
+    renderJobsButtons() {
+        return Object.keys(this.JOBS_TYPES).map(type => html`
+            <button class="btn btn-light ${type === this._visibleJobsType ? "active" : ""} flex-fill" @click="${e => this.onJobTypeChange(e, type)}">
+                <strong>${this.JOBS_TYPES[type].title}</strong>
+            </button>
+        `);
+    }
+
+    renderVisibleJobsList() {
+        // Get the list of visible jobs with the selected type
+        const visibleJobs = this._jobs.filter(job => {
+            return this._visibleJobsType === "ALL" || this.JOBS_TYPES[this._visibleJobsType].jobsTypes.includes(job?.internal?.status?.id);
+        });
+        if (visibleJobs.length > 0) {
+            return visibleJobs.map(job => html`
+                <li>
+                    <a href="${this.getJobUrl(job.id)}" class="dropdown-item border-top">
+                        <div class="d-flex align-items-center overflow-hidden">
+                            <div class="flex-shrink-0 fs-2 rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
+                                <i class="text-secondary fas fa-rocket"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                ${this._addedJobs.has(job?.id) ? html`
+                                    <span class="badge bg-primary rounded-pill">NEW</span>
+                                ` : nothing}
+                                <div class="mt-0 text-truncate" style="max-width:275px">
+                                    ${job?.id || "-"}
+                                </div>
+                                <small class="text-secondary">
+                                    <span>${job?.tool?.id || "-"}</span>
+                                    <div class="vr"></div>
+                                    ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}
+                                </small>
+                                <div>
+                                    ${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+            `);
+        } else {
+            return html`
+                <li>
+                    <div class="pt-2 pb-1 text-center fw-bold border-top">
+                        No jobs on this category.
+                    </div>
+                </li>
+            `;
+        }
     }
 
     render() {
         return html`
             <ul id="job-monitor" class="navbar-nav">
                 <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle dropdown-button-wrapper"
-                    title="Job Monitor" data-bs-toggle="dropdown" role="button"
-                    aria-haspopup="true" aria-expanded="false" @click="${this.toggleDropdown}">
+                    <a href="#" class="nav-link dropdown-toggle dropdown-button-wrapper" data-bs-toggle="dropdown" role="button">
                         <div class="dropdown-button-icon">
                             <i class="fas fa-rocket"></i>
                         </div>
-                        <span class="position-absolute top-0 start-100 mt-1 translate-middle badge bg-danger rounded-pill ${this.updatedCnt > 0 ? "" : "invisible"}">
-                            ${this.updatedCnt}
-                        </span>
+                        ${this._updatedJobsCount > 0 ? html`
+                            <span class="position-absolute top-0 start-100 mt-1 translate-middle badge bg-danger rounded-pill">
+                                ${this._updatedJobsCount}
+                            </span>
+                        ` : nothing}
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <!-- <li class="info">Jobs done since your last access /*moment(this.opencgaSession.user.configs.IVA.lastAccess).format("DD-MM-YYYY HH:mm:ss") */</li> -->
-                        <li class="d-flex justify-content-around mx-1 mb-1">
-                            <button @click="${this.filterJobs}" class="btn btn-small btn btn-outline-secondary m-1 flex-fill">ALL</button>
-                            <button @click="${this.filterJobs}" class="btn btn-small btn btn-outline-secondary m-1 flex-fill" data-type="PENDING,QUEUED,RUNNING">Running</button>
-                            <button @click="${this.filterJobs}" class="btn btn-small btn btn-outline-secondary m-1 flex-fill" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
-                            <button @click="${this.forceRefresh}" class="btn btn-small btn btn-outline-secondary m-1" title="Force immediate refresh" id="#refresh-job"><i class="fas fa-sync-alt"></i></button>
+                    <ul class="dropdown-menu dropdown-menu-end" style="width:350px;">
+                        <li class="d-flex justify-content-around mx-1 mb-2 gap-2">
+                            <div class="btn-group w-100">
+                                ${this.renderJobsButtons()}
+                            </div>
+                            <button @click="${e => this.onRefresh(e)}" class="btn btn-light" title="Force immediate refresh">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
                         </li>
-                        ${
-                            this.filteredJobs.length ? this.filteredJobs.map(job => html`
-                                <li>
-                                    <a href="javascript: void 0" class="dropdown-item border-top ${job.updated && !job._visited ?
-                                            `updated status-${job?.internal?.status?.id || job?.internal?.status?.name}` : ""}"
-                                            @click=${() => this.openJob(job.id)}>
-                                        <div class="d-flex align-items-center overflow-hidden" style="zoom:1">
-                                            <div class="flex-shrink-0 fs-2 rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
-                                                <i class="text-secondary fas fa-rocket"></i>
-                                            </div>
-                                            <div class="flex-grow-1 ms-3">
-                                                ${job.updated && !job._visited ? html`<span class="badge bg-primary rounded-pill">NEW</span>` : ""}
-                                                <div class="mt-0 text-truncate" style="max-width: 300px">${job.id}</div>
-                                                <small class="text-secondary">${job.tool?.id || ""}
-                                                <div class="vr"></div>
-                                                ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
-                                                <div>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li>
-                            `) : html`
-                                    <li>
-                                        <a class="dropdown-item border-top">
-                                            <div class="mt-1 fw-bold">No jobs</div>
-                                        </a>
-                                    </li>`
-                        }
+                        ${this.renderVisibleJobsList()}
                     </ul>
                 </li>
             </ul>
@@ -231,7 +249,7 @@ export class JobMonitor extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            interval: 30000
+            interval: 30000,
         };
     }
 
