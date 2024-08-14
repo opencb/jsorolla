@@ -73,10 +73,6 @@ export default class UserInfo extends LitElement {
                             },
                         },
                         {
-                            title: "Account type",
-                            field: "account.type"
-                        },
-                        {
                             title: "Member since",
                             field: "account.creationDate",
                             display: {
