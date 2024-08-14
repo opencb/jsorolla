@@ -696,7 +696,7 @@ export default class JobGrid extends LitElement {
             {
                 render: () => html`
                     <button type="button" data-cy="job-refresh" class="btn btn-light" @click="${() => this.table.bootstrapTable("refresh")}">
-                        <i class="fas fa-sync-alt"></i> Refresh
+                        <i class="fas fa-sync-alt me-1"></i> Refresh
                     </button>
                 `,
             }
