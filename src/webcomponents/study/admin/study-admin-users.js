@@ -252,7 +252,7 @@ export default class StudyAdminUsers extends LitElement {
                 },
                 {
                     title: "Created on",
-                    field: "account.creationDate",
+                    field: "creationDate",
                     formatter: (value, row) => {
                         return value ? UtilsNew.dateFormatter(value) : "NA";
                     },
