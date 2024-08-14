@@ -74,7 +74,7 @@ export default class UserInfo extends LitElement {
                         },
                         {
                             title: "Member since",
-                            field: "account.creationDate",
+                            field: "creationDate",
                             display: {
                                 defaultValue: "Not provided",
                                 format: date => UtilsNew.dateFormatter(date)
