@@ -214,7 +214,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                 render: (status, dataFormFilterChange) => html`
                                     <clinical-status-filter
                                         .status="${status?.id}"
-                                        .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.status[this.clinicalAnalysis.type.toUpperCase()]}"
+                                        .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.status || []}"
                                         .multiple=${false}
                                         @filterChange="${e => dataFormFilterChange({id: e.detail.value})}">
                                     </clinical-status-filter>
