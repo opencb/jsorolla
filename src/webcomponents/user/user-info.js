@@ -82,9 +82,7 @@ export default class UserInfo extends LitElement {
                         },
                         {
                             title: "Synced from",
-                            field: "account.authentication",
-                            // CAUTION 20240229 VERO: bug in visible function:
-                            //  the argument authentication is the entire data model, not the field account.authentication
+                            field: "internal.account.authentication",
                             display: {
                                 visible: authentication => authentication.id === "internal",
                                 format: authentication => authentication.id,
