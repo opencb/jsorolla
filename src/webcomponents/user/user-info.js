@@ -84,7 +84,9 @@ export default class UserInfo extends LitElement {
                             title: "Synced from",
                             field: "internal.account.authentication",
                             display: {
-                                visible: authentication => authentication.id === "internal",
+                                visible: user => {
+                                    return user?.internal?.account?.authentication?.id !== "OPENCGA";
+                                },
                                 format: authentication => authentication.id,
                             }
                         }
