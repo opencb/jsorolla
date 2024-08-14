@@ -171,7 +171,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                                     return html`
                                         <clinical-status-filter
                                             .status="${statusId}"
-                                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.status[this.clinicalAnalysis?.type?.toUpperCase()]}"
+                                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.status || []}"
                                             .multiple=${false}
                                             .classes="${updatedFields?.["status.id"] ? "selection-updated" : ""}"
                                             .disabled="${updatedFields?.locked?.after ?? !! this.clinicalAnalysis?.locked}"
