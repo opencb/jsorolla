@@ -22,7 +22,8 @@ import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./sample-update.js";
-import ModalUtils from "../commons/modal/modal-utils";
+import ModalUtils from "../commons/modal/modal-utils.js";
+import WebUtils from "../commons/utils/web-utils.js";
 
 export default class SampleGrid extends LitElement {
 
@@ -89,6 +90,7 @@ export default class SampleGrid extends LitElement {
             ...this.getDefaultConfig(),
             ...this.config,
         };
+
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Config for the grid toolbar
@@ -116,6 +118,7 @@ export default class SampleGrid extends LitElement {
                     </sample-create>
                 `,
             },
+
             // Uncomment in case we need to change defaults
             // export: {
             //     display: {
@@ -143,6 +146,8 @@ export default class SampleGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
+
+        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
     fetchClinicalAnalysis(rows, casesLimit) {
@@ -480,8 +485,8 @@ export default class SampleGrid extends LitElement {
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
+                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) || "disabled" }">
+                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
                             <li>
