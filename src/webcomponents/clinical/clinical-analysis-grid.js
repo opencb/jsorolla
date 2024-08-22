@@ -337,22 +337,21 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     <span class="badge ${currentPriorityLabel} me-auto top-0">
                         ${currentPriorityText}
                     </span>
-
                 </button>
                 ${isEditable ? `
                     <ul class="dropdown-menu">
                         ${_priorities.map(priority => `
                             <li>
-                                <a class="d-flex dropdown-item" data-action="priorityChange" data-priority="${priority.id}">
+                                <a class="d-flex dropdown-item py-2" data-action="priorityChange" data-priority="${priority.id}" style="cursor:pointer;">
                                     <div class="flex-grow-1">
-                                        <span class="badge ${priorityRankToColor[priority?.rank ?? ""] ?? ""}">
-                                            ${priority.id}
-                                        </span>
-                                        <p class="form-text">
-                                            <small>${priority.description}</small>
-                                        </p>
+                                        <div class="">
+                                            <span class="badge ${priorityRankToColor[priority?.rank ?? ""] ?? ""}">
+                                                ${priority.id}
+                                            </span>
+                                        </div>
+                                        <div class="small text-secondary">${priority.description}</div>
                                     </div>
-                                    ${priority.id === value?.id ? "<i class=\"fas fa-check\"></i>" : ""}
+                                    ${priority.id === value?.id ? `<i class="fas fa-check"></i>` : ""}
                                 </a>
                             </li>
                         `).join("")}
@@ -380,18 +379,17 @@ export default class ClinicalAnalysisGrid extends LitElement {
             <div class="dropdown">
                 <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" ${!isEditable ? "disabled=\"disabled\"" : ""}>
                     <span class='me-auto'">${currentStatus}</span>
-
                 </button>
                 ${isEditable ? `
                     <ul class="dropdown-menu">
                         ${_status[row.type].map(({id, description}) => `
                             <li>
-                                <a class="d-flex dropdown-item" data-action="statusChange" data-status="${id}">
+                                <a class="d-flex dropdown-item py-2" data-action="statusChange" data-status="${id}" style="cursor:pointer;">
                                     <div class="flex-grow-1">
-                                        ${id === currentStatus ? `<strong>${id}</strong>` : id}
-                                        <p class="form-text"><small>${description}</small></p>
+                                        <div class="${id === currentStatus ? "fw-bold" : ""}">${id}</div>
+                                        <div class="small text-secondary">${description}</div>
                                     </div>
-                                    ${id === currentStatus ? "<i class=\"fas fa-check\"></i>" : ""}
+                                    ${id === currentStatus ? `<i class="fas fa-check"></i>` : ""}
                                 </a>
                             </li>
                         `).join("")}
@@ -436,7 +434,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
+        const action = e.currentTarget?.dataset?.action?.toLowerCase() || e.detail?.action;
         switch (action) {
             case "edit":
                 this.clinicalAnalysisUpdateId = row.id;
