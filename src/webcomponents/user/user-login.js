@@ -138,17 +138,6 @@ export default class UserLogin extends LitElement {
         }
     }
 
-    // NOTE Josemi 20220317: reset password is disabled until we have an endpoint in OpenCGA to allow users
-    // to reset it's password
-    renderResetPasswordLink() {
-        return null;
-        // return html`
-        //     <div align="center">
-        //         <a @click="${() => this.redirect("#reset-password")}" style="cursor:pointer;">Forgot your password?</a>
-        //     </div>
-        // `;
-    }
-
     render() {
         return html`
             <div class="container-fluid" style="max-width:480px;">
@@ -193,7 +182,6 @@ export default class UserLogin extends LitElement {
                         </div>
                     </div>
                 </div>
-                ${this.renderResetPasswordLink()}
             </div>
         `;
     }

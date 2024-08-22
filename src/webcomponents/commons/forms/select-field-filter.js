@@ -303,7 +303,9 @@ export default class SelectFieldFilter extends LitElement {
 
         return {
             id: item.id,
-            text: item?.name || item?.id
+            text: item?.name || item?.id,
+            selected: item.selected ?? false,
+            disabled: item.disabled ?? false
         };
     }
 

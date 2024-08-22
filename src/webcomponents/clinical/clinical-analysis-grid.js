@@ -22,7 +22,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import ModalUtils from "../commons/modal/modal-utils";
+import ModalUtils from "../commons/modal/modal-utils.js";
 
 export default class ClinicalAnalysisGrid extends LitElement {
 
@@ -337,22 +337,21 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     <span class="badge ${currentPriorityLabel} me-auto top-0">
                         ${currentPriorityText}
                     </span>
-
                 </button>
                 ${isEditable ? `
                     <ul class="dropdown-menu">
                         ${_priorities.map(priority => `
                             <li>
-                                <a class="d-flex dropdown-item" data-action="priorityChange" data-priority="${priority.id}">
+                                <a class="d-flex dropdown-item py-2" data-action="priorityChange" data-priority="${priority.id}" style="cursor:pointer;">
                                     <div class="flex-grow-1">
-                                        <span class="badge ${priorityRankToColor[priority?.rank ?? ""] ?? ""}">
-                                            ${priority.id}
-                                        </span>
-                                        <p class="form-text">
-                                            <small>${priority.description}</small>
-                                        </p>
+                                        <div class="">
+                                            <span class="badge ${priorityRankToColor[priority?.rank ?? ""] ?? ""}">
+                                                ${priority.id}
+                                            </span>
+                                        </div>
+                                        <div class="small text-secondary">${priority.description}</div>
                                     </div>
-                                    ${priority.id === value?.id ? "<i class=\"fas fa-check\"></i>" : ""}
+                                    ${priority.id === value?.id ? `<i class="fas fa-check"></i>` : ""}
                                 </a>
                             </li>
                         `).join("")}
@@ -380,18 +379,17 @@ export default class ClinicalAnalysisGrid extends LitElement {
             <div class="dropdown">
                 <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" ${!isEditable ? "disabled=\"disabled\"" : ""}>
                     <span class='me-auto'">${currentStatus}</span>
-
                 </button>
                 ${isEditable ? `
                     <ul class="dropdown-menu">
                         ${_status[row.type].map(({id, description}) => `
                             <li>
-                                <a class="d-flex dropdown-item" data-action="statusChange" data-status="${id}">
+                                <a class="d-flex dropdown-item py-2" data-action="statusChange" data-status="${id}" style="cursor:pointer;">
                                     <div class="flex-grow-1">
-                                        ${id === currentStatus ? `<strong>${id}</strong>` : id}
-                                        <p class="form-text"><small>${description}</small></p>
+                                        <div class="${id === currentStatus ? "fw-bold" : ""}">${id}</div>
+                                        <div class="small text-secondary">${description}</div>
                                     </div>
-                                    ${id === currentStatus ? "<i class=\"fas fa-check\"></i>" : ""}
+                                    ${id === currentStatus ? `<i class="fas fa-check"></i>` : ""}
                                 </a>
                             </li>
                         `).join("")}
@@ -436,7 +434,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
+        const action = e.currentTarget?.dataset?.action?.toLowerCase() || e.detail?.action;
         switch (action) {
             case "edit":
                 this.clinicalAnalysisUpdateId = row.id;
@@ -655,7 +653,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     const session = this.opencgaSession;
                     const url = `#interpreter/${session.project.id}/${session.study.id}/${row.id}`;
                     const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(session.study, session.user.id, "WRITE_CLINICAL_ANALYSIS");
-                    const hasAdminAccess = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled";
+                    const hasAdminAccess = hasWriteAccess || "disabled";
                     const lockActionIcon = row.locked ? "fa-unlock" : "fa-lock";
                     const lockActionText = row.locked ? "Unlock" : "Lock";
                     const isOwnOrIsLocked = row.locked || !row.analysts?.some(analyst => analyst.id === this.opencgaSession?.user?.id) ? "disabled" : "";
