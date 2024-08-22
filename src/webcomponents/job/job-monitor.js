@@ -64,6 +64,12 @@ export class JobMonitor extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        // Make sure we stop calling fetchLastJobs when the component is removed from DOM
+        clearInterval(this._interval);
+    }
+
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this._jobs = [];
@@ -180,14 +186,14 @@ export class JobMonitor extends LitElement {
                                 <i class="text-secondary fas fa-rocket"></i>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                ${this._addedJobs.has(job.id) ? html`
+                                ${this._addedJobs.has(job?.id) ? html`
                                     <span class="badge bg-primary rounded-pill">NEW</span>
                                 ` : nothing}
                                 <div class="mt-0 text-truncate" style="max-width:275px">
-                                    ${job.id}
+                                    ${job?.id || "-"}
                                 </div>
                                 <small class="text-secondary">
-                                    <span>${job?.tool?.id}</span>
+                                    <span>${job?.tool?.id || "-"}</span>
                                     <div class="vr"></div>
                                     ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}
                                 </small>

@@ -22,7 +22,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import ModalUtils from "../commons/modal/modal-utils";
+import ModalUtils from "../commons/modal/modal-utils.js";
 
 export default class ClinicalAnalysisGrid extends LitElement {
 
@@ -653,7 +653,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     const session = this.opencgaSession;
                     const url = `#interpreter/${session.project.id}/${session.study.id}/${row.id}`;
                     const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(session.study, session.user.id, "WRITE_CLINICAL_ANALYSIS");
-                    const hasAdminAccess = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled";
+                    const hasAdminAccess = hasWriteAccess || "disabled";
                     const lockActionIcon = row.locked ? "fa-unlock" : "fa-lock";
                     const lockActionText = row.locked ? "Unlock" : "Lock";
                     const isOwnOrIsLocked = row.locked || !row.analysts?.some(analyst => analyst.id === this.opencgaSession?.user?.id) ? "disabled" : "";
