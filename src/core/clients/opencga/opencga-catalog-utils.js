@@ -117,6 +117,24 @@ export default class OpencgaCatalogUtils {
         return !!admins.userIds.includes(userLogged);
     }
 
+    // Check if the provided user is admin in the organization
+    static isOrganizationAdmin(organization, userId) {
+        if (!organization || !userId) {
+            return false;
+        }
+        // 1. Check if user is the organization admin
+        if (organization?.owner === userId) {
+            return true;
+        } else {
+            // Check if user is an admin of the organization
+            if (organization?.admins?.includes?.(userId)) {
+                return true;
+            }
+        }
+        // Other case, user is not admin of the organization
+        return false;
+    }
+
     // Find study object in opencgaSession
     static getStudyInSession(opencgaSession, studyId) {
         let study = {};

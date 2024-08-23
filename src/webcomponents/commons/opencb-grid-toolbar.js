@@ -21,6 +21,7 @@ import LitUtils from "./utils/lit-utils";
 import ModalUtils from "./modal/modal-utils.js";
 import "./opencga-export.js";
 import "../variant/interpretation/variant-interpreter-grid-config.js";
+import WebUtils from "./utils/web-utils.js";
 
 export default class OpencbGridToolbar extends LitElement {
 
@@ -74,6 +75,8 @@ export default class OpencbGridToolbar extends LitElement {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
+
+            this.permissionID = WebUtils.getPermissionID(this._config.resource, "WRITE");
         }
 
         super.update(changedProperties);
@@ -122,7 +125,7 @@ export default class OpencbGridToolbar extends LitElement {
             isCreateDisabledTooltip = this._config?.create?.display?.disabledTooltip;
         } else {
             const hasPermissions = OpencgaCatalogUtils
-                .checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`);
+                .checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, this.permissionID);
             if (!hasPermissions) {
                 isCreateDisabled = true;
                 isCreateDisabledTooltip = "Creating a new instance requires write permissions on the study. Please, contact your administrator if you need different access rights.";
@@ -191,7 +194,7 @@ export default class OpencbGridToolbar extends LitElement {
             <!-- Add modals-->
             ${(this._config?.create &&
             (this._settings.showCreate || this._settings.showNew) &&
-            OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`)) ?
+            OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, this.permissionID)) ?
             ModalUtils.create(this, `${this._prefix}CreateModal`, this._config.create) :
             nothing}
 
