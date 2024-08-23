@@ -21,8 +21,9 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
-import ModalUtils from "../commons/modal/modal-utils";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import ModalUtils from "../commons/modal/modal-utils.js";
+import WebUtils from "../commons/utils/web-utils.js";
 
 export default class JobGrid extends LitElement {
 
@@ -148,6 +149,8 @@ export default class JobGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
+
+        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
     renderTable() {
@@ -604,8 +607,8 @@ export default class JobGrid extends LitElement {
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="edit" class="dropdown-item disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
+                                <a data-action="edit" class="dropdown-item disabled ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) || "disabled" }">
+                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
                             <li>
