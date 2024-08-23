@@ -80,7 +80,7 @@ export default class ProjectAdminBrowser extends LitElement {
 
         this.toolbarConfig = {
             toolId: this.toolId,
-            resource: "PROJECTS",
+            resource: "PROJECT",
             create: {
                 display: {
                     modalTitle: "Project Create",

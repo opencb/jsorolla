@@ -110,7 +110,7 @@ export default class UserAdminGrid extends LitElement {
 
         this.toolbarConfig = {
             toolId: this.toolId,
-            resource: "USERS",
+            resource: "USER",
             columns: this._getDefaultColumns(),
             create: {
                 display: {

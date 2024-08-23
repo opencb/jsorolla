@@ -108,7 +108,7 @@ export default class StudyAdminGrid extends LitElement {
 
         this.toolbarConfig = {
             toolId: this.toolId,
-            resource: "STUDIES",
+            resource: "STUDY",
             columns: this._getDefaultColumns(),
             create: {
                 display: {
