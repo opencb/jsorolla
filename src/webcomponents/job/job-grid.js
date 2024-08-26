@@ -618,7 +618,7 @@ export default class JobGrid extends LitElement {
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="edit" class="dropdown-item disabled ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) ? "" : "disabled" }"
+                                <a data-action="edit" class="dropdown-item disabled ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) ? "" : "disabled"}"
                                         href="javascript: void 0">
                                     <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
                                 </a>
