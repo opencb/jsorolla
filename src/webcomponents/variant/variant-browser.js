@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import VariantUtils from "./variant-utils.js";
 import {guardPage} from "../commons/html-utils.js";
@@ -150,6 +150,7 @@ export default class VariantBrowser extends LitElement {
 
             // Search must be disabled even defaultFilter is empty
             this.searchActive = false;
+            this.variant = null;
 
             this.facetQuery = null;
             this.preparedFacetQueryFormatted = null;
@@ -165,6 +166,7 @@ export default class VariantBrowser extends LitElement {
 
                 LitUtils.dispatchCustomEvent(this, "queryChange", undefined, this.preparedQuery);
                 this.searchActive = false; // Disable search button
+                this.variant = null;
             }
         }
     }
@@ -195,6 +197,7 @@ export default class VariantBrowser extends LitElement {
     onRun() {
         this.executedQuery = {...this.preparedQuery};
         this.searchActive = false;
+        this.variant = null;
         this.notifySearch(this.preparedQuery);
 
         this.facetQueryBuilder();
@@ -221,6 +224,7 @@ export default class VariantBrowser extends LitElement {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
         this.searchActive = false;
+        this.variant = null;
         this.notifySearch(this.preparedQuery);
         this.requestUpdate();
     }
@@ -235,6 +239,7 @@ export default class VariantBrowser extends LitElement {
         this.preparedQuery = {...e.detail};
         this.executedQuery = {...e.detail};
         this.searchActive = false;
+        this.variant = null;
         this.notifySearch(this.preparedQuery);
         this.facetQueryBuilder();
         this.requestUpdate();
@@ -244,6 +249,7 @@ export default class VariantBrowser extends LitElement {
         this.preparedQuery = {};
         this.executedQuery = {};
         this.searchActive = false;
+        this.variant = null;
         this.notifySearch(this.preparedQuery);
         this.facetQueryBuilder();
         this.requestUpdate();
@@ -402,13 +408,14 @@ export default class VariantBrowser extends LitElement {
                                     @settingsUpdate="${this.onSettingsUpdate}">
                                 </variant-browser-grid>
 
-                                <!-- Bottom tabs with specific variant information -->
-                                <variant-browser-detail
-                                    .variant="${this.variant}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .config="${this._config.filter.detail}">
-                                </variant-browser-detail>
+                                ${this.variant ? html`
+                                    <variant-browser-detail
+                                        .variant="${this.variant}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .config="${this._config.filter.detail}">
+                                    </variant-browser-detail>
+                                ` : nothing}
                             </div>
 
                             <div id="facet-tab" class="${`content-tab ${this.activeTab === "facet-tab" ? "active" : ""}`}">

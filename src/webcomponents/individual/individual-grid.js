@@ -19,9 +19,10 @@ import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
-import ModalUtils from "../commons/modal/modal-utils";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import ModalUtils from "../commons/modal/modal-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import WebUtils from "../commons/utils/web-utils.js";
 
 export default class IndividualGrid extends LitElement {
 
@@ -143,6 +144,8 @@ export default class IndividualGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
+
+        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
     fetchClinicalAnalysis(rows, casesLimit) {
@@ -597,10 +600,9 @@ export default class IndividualGrid extends LitElement {
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) ? "" : "disabled"}"
+                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) ? "" : "disabled" }"
                                         href="javascript: void 0">
                                     <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                                </a>
                             </li>
                             <li>
                                 <a data-action="delete" href="javascript: void 0" class="dropdown-item disabled">

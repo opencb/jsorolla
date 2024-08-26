@@ -23,8 +23,9 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/catalog-browser-grid-config.js";
 import "../commons/opencb-grid-toolbar.js";
-import ModalUtils from "../commons/modal/modal-utils";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter";
+import ModalUtils from "../commons/modal/modal-utils.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
+import WebUtils from "../commons/utils/web-utils.js";
 
 export default class DiseasePanelGrid extends LitElement {
 
@@ -143,6 +144,8 @@ export default class DiseasePanelGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
+
+        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
     renderTable() {
@@ -463,7 +466,7 @@ export default class DiseasePanelGrid extends LitElement {
                 field: "actions",
                 align: "center",
                 formatter: () => {
-                    const isAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
+                    const isAdmin = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID);
                     return `
                         <div class="d-inline-block dropdown" style="display: flex; justify-content: center;">
                             <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
