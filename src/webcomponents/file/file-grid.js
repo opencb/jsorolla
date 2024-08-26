@@ -454,6 +454,7 @@ export default class OpencgaFileGrid extends LitElement {
                                 <a data-action="edit" class="dropdown-item disabled ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) ? "" : "disabled" }"
                                         href="javascript: void 0">
                                     <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
+                                </a>
                             </li>
                             <li>
                                 <a class="dropdown-item disabled" data-action="delete" href="javascript: void 0">

@@ -357,6 +357,7 @@ export default class CohortGrid extends LitElement {
                                 <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) ? "" : "disabled" }"
                                         href="javascript: void 0">
                                     <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
+                                </a>
                             </li>
                             <li>
                                 <a data-action="delete" href="javascript: void 0" class="dropdown-item btn force-text-left disabled">
