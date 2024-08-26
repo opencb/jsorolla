@@ -231,9 +231,6 @@ export default class StudyAdminUsers extends LitElement {
                 {
                     title: "User Name",
                     field: "name",
-                    formatter: (value, row) => {
-                        return value === this.owner ? `<span style="font-weight: bold">${value} (owner)</span>` : value;
-                    },
                     rowspan: 2,
                     colspan: 1,
                     sortable: true
@@ -252,8 +249,8 @@ export default class StudyAdminUsers extends LitElement {
                 },
                 {
                     title: "Created on",
-                    field: "account.creationDate",
-                    formatter: (value, row) => {
+                    field: "creationDate",
+                    formatter: value => {
                         return value ? UtilsNew.dateFormatter(value) : "NA";
                     },
                     rowspan: 2,
