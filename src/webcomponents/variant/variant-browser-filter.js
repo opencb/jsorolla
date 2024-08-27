@@ -396,13 +396,17 @@ export default class VariantBrowserFilter extends LitElement {
                     `;
                     break;
                 case "sample-genotype":
-                    const sampleConfig = subsection.params?.genotypes ? {genotypes: subsection.params.genotypes} : {};
+                    // Josemi Note 20240730 - We had to change the value of the falsy expression to 'null' to prevent unnecesary
+                    // renders, as if we keep an empty object '{}' as falsy expression Lit will treat it as a new configuration object
+                    // and will force the select-field-filter to load the genotypes as a new data, even the genotypes list is the same.
+                    const sampleConfig = subsection.params?.genotypes ? {genotypes: subsection.params.genotypes} : null;
                     content = html`
                         <sample-genotype-filter
                             .sample="${this.preparedQuery.sample}"
                             .config="${sampleConfig}"
                             @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
-                        </sample-genotype-filter>`;
+                        </sample-genotype-filter>    
+                    `;
                     break;
                 case "individual-hpo":
                     content = html`

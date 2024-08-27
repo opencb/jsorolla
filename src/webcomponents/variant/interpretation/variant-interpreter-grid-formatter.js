@@ -311,16 +311,16 @@ export default class VariantInterpreterGridFormatter {
                                         </a>
                                     </div>` : `
                                         <div style="margin: 5px 0">${panel.id}</div>`
-                                }
+                        }
                             </div>
                             ${gene.modesOfInheritance ? `
                                 <div class="text-body-secondary" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modesOfInheritance.join(", ")}</div>
                                 ` : ""
-                            }
+                        }
                             ${gene.confidence ? `
                                 <div style="color: ${confidenceColor}" title="Panel Confidence of gene ${gene.name}">${gene.confidence}</div>
                                 ` : ""
-                            }
+                        }
                         `;
                     } else {
                         panelHtml = re.panelId;
@@ -624,8 +624,12 @@ export default class VariantInterpreterGridFormatter {
                 allelesHtml.push(`<span style="color: ${color}">${allelesSeq[i]}</span>`);
             }
 
-            const bar = genotype.includes("/") ? "/" : "|";
-            res = `<span>${allelesHtml[0]} ${bar} ${allelesHtml[1]}</span>`;
+            if (allelesHtml.length === 1) {
+                res = `<span>${allelesHtml[0]}</span>`;
+            } else {
+                const bar = genotype.includes("/") ? "/" : "|";
+                res = `<span>${allelesHtml[0]} ${bar} ${allelesHtml[1]}</span>`;
+            }
         }
         return res;
     }

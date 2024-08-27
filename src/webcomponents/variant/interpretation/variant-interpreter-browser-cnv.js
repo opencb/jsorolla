@@ -251,9 +251,9 @@ class VariantInterpreterBrowserCNV extends LitElement {
     getDefaultConfig() {
         const lockedFields = [
             {id: "sample"},
-            {id: "sampleData"},
-            {id: "file"},
-            {id: "fileData"},
+            // {id: "sampleData"},
+            // {id: "file"},
+            // {id: "fileData"},
             {id: "type"},
         ];
 
@@ -293,22 +293,6 @@ class VariantInterpreterBrowserCNV extends LitElement {
                             {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
-                                params: {
-                                    genotypes: [
-                                        {
-                                            id: "0/1", name: "HET"
-                                        },
-                                        {
-                                            id: "1/1", name: "HOM ALT"
-                                        },
-                                        {
-                                            separator: true
-                                        },
-                                        {
-                                            id: "NA", name: "NA"
-                                        }
-                                    ]
-                                },
                                 tooltip: tooltips.sample,
                             },
                             {
