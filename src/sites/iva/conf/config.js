@@ -25,8 +25,8 @@ const hosts = [
         url: "https://demo.app.zettagenomics.com/opencga"
     },
     {
-        id: "reference",
-        url: "https://test.app.zettagenomics.com/reference/opencga"
+        id: "xeta-110e",
+        url: "https://test.app.zettagenomics.com/xeta-110e/opencga"
     },
 ];
 
