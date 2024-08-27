@@ -22,10 +22,8 @@ import {html, LitElement, nothing} from "lit";
 import "./getting-started.js";
 import "./iva-settings.js";
 
-// @dev[jsorolla]
 import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
-import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
@@ -38,7 +36,6 @@ import "../../webcomponents/variant/variant-beacon.js";
 import "../../webcomponents/opencga/opencga-gene-view.js";
 import "../../webcomponents/opencga/opencga-transcript-view.js";
 import "../../webcomponents/opencga/opencga-protein-view.js";
-// import "../../webcomponents/user/opencga-projects.js";
 import "../../webcomponents/sample/sample-browser.js";
 import "../../webcomponents/sample/sample-view.js";
 import "../../webcomponents/sample/sample-variant-stats-browser.js";
@@ -47,7 +44,6 @@ import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/disease-panel/disease-panel-browser.js";
 import "../../webcomponents/disease-panel/disease-panel-update.js";
 import "../../webcomponents/file/file-browser.js";
-// import "../../webcomponents/file/file-update.js";
 import "../../webcomponents/family/family-browser.js";
 import "../../webcomponents/family/family-update.js";
 import "../../webcomponents/individual/individual-browser.js";
@@ -86,7 +82,6 @@ import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/study/admin/study-admin-iva.js";
 import "../../webcomponents/study/admin/catalog-admin.js";
 import "../../webcomponents/study/admin/variant/study-variant-admin.js";
-import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/user/user-profile.js";
 import "../../webcomponents/api/rest-api.js";
 import "../../webcomponents/note/note-browser.js";
@@ -159,7 +154,6 @@ class IvaApp extends LitElement {
         const components = [
             "home",
             "gettingstarted",
-            "login",
             "aboutzetta",
             // "reset-password",
             "settings",
@@ -826,39 +820,6 @@ class IvaApp extends LitElement {
         // this.hashFragmentListener();
     }
 
-    // renderHashFragments(tool) {
-    //     console.log(`Update hash fragment URL with tool: '${tool ? `#${tool}` : this.tool}'`);
-    //
-    //     // Keep global 'tool' param updated.
-    //     if (tool && this.tool !== `#${tool}`) {
-    //         this.tool = `#${tool}`;
-    //     }
-    //
-    //     // Build hash fragment URL as: #tool/projectId/studyId
-    //     let newHashFragmentUrl = tool ? `#${tool}` : this.tool;
-    //     if (this.opencgaSession?.project) {
-    //         newHashFragmentUrl += "/" + this.opencgaSession.project.id;
-    //         if (this.opencgaSession.study) {
-    //             newHashFragmentUrl += "/" + this.opencgaSession.study.id;
-    //         }
-    //     }
-    //
-    //     if (window.location.hash === newHashFragmentUrl) { // || newHashFragmentUrl === "#interpreter"
-    //         this.hashFragmentListener();
-    //     } else {
-    //         window.location.hash = newHashFragmentUrl;
-    //     }
-    // }
-
-    route(e) {
-        this.tool = e.detail.hash;
-        if (e.detail?.resource) {
-            this.queries = {...this.queries, [e.detail.resource]: e.detail?.query};
-        }
-        // this.renderHashFragments();
-        this.hashFragmentListener();
-    }
-
     hashFragmentListener() {
         console.log("hashFragmentListener - Hide all enabled elements");
 
@@ -994,7 +955,7 @@ class IvaApp extends LitElement {
 
         // Change active study
         let studyFound = false;
-        for (const project of (this.opencgaSession.projects || [])) {
+        for (const project of (this.opencgaSession?.projects || [])) {
             const studyIndex = project.studies.findIndex(s => s.fqn === studyFqn);
             if (studyIndex >= 0) {
                 this.opencgaSession.project = project;
@@ -1252,8 +1213,7 @@ class IvaApp extends LitElement {
                 <custom-landing
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.config}"
-                    @login="${this.onLogin}"
-                    @redirect="${this.route}">
+                    @login="${this.onLogin}">
                 </custom-landing>
             `;
         }
@@ -1293,8 +1253,7 @@ class IvaApp extends LitElement {
                 @changeTool="${e => this.changeTool(e.detail.value)}"
                 @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
                 @studySelect="${ e => this.onStudySelect(e.detail.event, e.detail.study)}"
-                @jobSelected="${e => this.onJobSelected(e)}"
-                @route="${this.route}">
+                @jobSelected="${e => this.onJobSelected(e)}">
             </custom-navbar>
 
             ${ this.isCreatingSession ? html`
@@ -1353,16 +1312,6 @@ class IvaApp extends LitElement {
                                 .page="${this.config.aboutPage}"
                                 .opencgaSession="${this.opencgaSession}">
                             </custom-page>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.login ? html`
-                        <div class="content" id="login">
-                            <user-login
-                                .opencgaSession="${this.opencgaSession}"
-                                @login="${this.onLogin}"
-                                @redirect="${this.route}">
-                            </user-login>
                         </div>
                     ` : nothing}
 

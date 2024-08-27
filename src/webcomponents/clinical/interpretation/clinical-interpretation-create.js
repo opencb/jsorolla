@@ -131,7 +131,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                 dependencies: [
                     {
                         name: "OpenCGA",
-                        version: this.opencgaSession.opencgaClient?._config?.version || "-",
+                        version: this.opencgaSession?.about?.Version || "-",
                     },
                     {
                         name: "Cellbase",
