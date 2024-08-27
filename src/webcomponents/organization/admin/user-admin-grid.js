@@ -283,7 +283,7 @@ export default class UserAdminGrid extends LitElement {
             {
                 id: "noAttempts",
                 title: "Failed Attempts",
-                field: "internal.failedAttempts",
+                field: "internal.account.failedAttempts",
                 visible: this.gridCommons.isColumnVisible("noAttempts"),
             },
             {
