@@ -94,10 +94,7 @@ export default class StudyAdminIva extends LitElement {
             let error;
             this.#setLoading(true);
             this.opencgaSession.opencgaClient.organization()
-                // FIXME Vero: To remove hardcoded organization when the following bug is fixed:
-                //  https://app.clickup.com/t/36631768/TASK-5980
-                // .info(this.organizationId)
-                .info("test")
+                .info(this.opencgaSession.organization.id)
                 .then(response => {
                     this.organization = UtilsNew.objectClone(response.responses[0].results[0]);
                 })
