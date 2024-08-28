@@ -139,7 +139,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             }
 
             // 3. panelIntersection param: if panel lock is enabled, this param should be also enabled
-            if (this.clinicalAnalysis.panelLock) {
+            if (this.clinicalAnalysis.panelLocked) {
                 this.query.panelIntersection = true;
             }
 

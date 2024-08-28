@@ -493,7 +493,7 @@ export default class OpencgaFileGrid extends LitElement {
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toUpperCase() === "TAB") {
-                        const fields = ["id", "name", "path", "format", "bioformat", "size", "creationDate", "modificationDate", "internal.status.name"];
+                        const fields = ["id", "name", "path", "format", "bioformat", "size", "creationDate", "modificationDate", "internal.status.id"];
                         const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "files_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {

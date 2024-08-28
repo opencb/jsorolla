@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
+import WebUtils from "../../commons/utils/web-utils.js";
 
 export default class ClinicalInterpretationSummary extends LitElement {
 
@@ -146,7 +147,7 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                                 </div>
                                             </div>
                                             <div>
-                                                <span style="font-size:1.2em;">${interpretation.id}</span>
+                                                <span style="font-size:1.2em;">${WebUtils.getDisplayName(interpretation)}</span>
                                                 <span style="color:grey;margin-left:8px;">version ${interpretation.version}</span>
                                             </div>
                                         </div>

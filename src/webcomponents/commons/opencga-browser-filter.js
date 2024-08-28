@@ -316,7 +316,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                     content = html`
                         <clinical-status-filter
                             .status="${this.preparedQuery[subsection.id]}"
-                            .statuses="${Object.values(this.opencgaSession.study.internal?.configuration?.clinical?.status)?.flat()}"
+                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status || []}"
                             .multiple="${true}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                         </clinical-status-filter>

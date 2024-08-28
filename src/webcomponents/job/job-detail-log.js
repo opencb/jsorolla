@@ -92,7 +92,7 @@ export default class JobDetailLog extends LitElement {
 
     // setInterval makes sense only in case of Tail log
     setReloadInterval() {
-        if (this.active && this.command === "tail" && this.job.internal.status.name === "RUNNING") {
+        if (this.active && this.command === "tail" && this.job.internal.status.id === "RUNNING") {
             this.requestUpdate();
             this.interval = setInterval(() => {
                 if ($(".jobs-details-log", this).is(":visible")) {
@@ -202,7 +202,7 @@ export default class JobDetailLog extends LitElement {
                     <button type="button" class="btn btn-light ${this.command === "tail" ? "active" : ""}" @click="${() => this.setCommand("tail")}">
                         <i class="fas fa-align-left me-1"></i>
                         Tail
-                        <i class="fas fa-sync-alt ${this.command === "tail" && this.job.internal.status.name === "RUNNING" ? "anim-rotate" : "text-secondary"} ms-2"></i>
+                        <i class="fas fa-sync-alt ${this.command === "tail" && this.job?.internal?.status?.id === "RUNNING" ? "anim-rotate" : "text-secondary"} ms-2"></i>
                     </button>
                 </div>
                 <div class="btn-group">
