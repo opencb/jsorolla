@@ -117,12 +117,13 @@ export default class StudyAdminGrid extends LitElement {
                     modalCyDataName: "modal-study-create",
                     modalSize: "modal-lg"
                 },
+                modalId: `${this._prefix}CreateStudyModal`,
                 render: () => html `
                     <study-create
                         .project=${this.project}
                         .opencgaSession="${this.opencgaSession}"
                         .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
-                        @studyCreate="${e => this.onStudyEvent(e)}">
+                        @studyCreate="${() => this.onStudyCreate()}">
                     </study-create>
                 `,
             },
@@ -352,9 +353,13 @@ export default class StudyAdminGrid extends LitElement {
     }
 
     onStudyEvent(e, id) {
-        // Fixme 20240616 Vero: find out a way to close modal creates!
         this._action = "";
         ModalUtils.close(id);
+    }
+
+    onStudyCreate() {
+        // Close modal
+        ModalUtils.close(this.toolbarConfig.create.modalId);
     }
 
     // *** RENDER METHODS ***

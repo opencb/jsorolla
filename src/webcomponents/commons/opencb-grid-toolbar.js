@@ -95,7 +95,9 @@ export default class OpencbGridToolbar extends LitElement {
         const action = e.currentTarget.dataset.action;
         switch (action) {
             case "create":
-                ModalUtils.show(`${this._prefix}CreateModal`);
+                this._config.create?.modalId ?
+                    ModalUtils.show(this._config.create.modalId) :
+                    ModalUtils.show(`${this._prefix}CreateModal`);
                 break;
             case "export":
                 ModalUtils.show(`${this._prefix}ExportModal`);
@@ -195,7 +197,7 @@ export default class OpencbGridToolbar extends LitElement {
             ${(this._config?.create &&
             (this._settings.showCreate || this._settings.showNew) &&
             OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, this.permissionID)) ?
-            ModalUtils.create(this, `${this._prefix}CreateModal`, this._config.create) :
+            ModalUtils.create(this, this._config.create?.modalId || `${this._prefix}CreateModal`, this._config.create) :
             nothing}
 
             ${this._settings?.showExport && this._config?.export ? ModalUtils.create(this, `${this._prefix}ExportModal`, this._config.export) : nothing}

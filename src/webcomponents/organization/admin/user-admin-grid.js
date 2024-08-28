@@ -121,12 +121,13 @@ export default class UserAdminGrid extends LitElement {
                     // disabled: true,
                     // disabledTooltip: "...",
                 },
+                modalId: `${this._prefix}CreateUserModal`,
                 render: () => html `
                     <user-admin-create
                         .organization="${this.organization}"
                         .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                         .opencgaSession="${this.opencgaSession}"
-                        @userCreate="${e => this.renderRemoteTable(e)}">
+                        @userCreate="${e => this.onUserCreate(e)}">
                     </user-admin-create>`
             },
         };
@@ -431,6 +432,11 @@ export default class UserAdminGrid extends LitElement {
         this.renderRemoteTable();
     }
 
+    onUserCreate() {
+        // Close modal
+        ModalUtils.close(this.toolbarConfig.create.modalId);
+    }
+
     onCloseNotification() {
         this.userId = null;
         this.action = "";
@@ -542,8 +548,7 @@ export default class UserAdminGrid extends LitElement {
                 <opencb-grid-toolbar
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
-                    .config="${this.toolbarConfig}"
-                    @userCreate="${e => this.renderRemoteTable(e)}">
+                    .config="${this.toolbarConfig}">
                 </opencb-grid-toolbar>
             `;
         }

@@ -107,9 +107,6 @@ export default class UserAdminCreate extends LitElement {
         this._user.organization = this.organization.id;
         delete this._user.confirmPassword;
 
-        // CAUTION:
-        //  - POST admin/users/create or
-        //  - POST users/create ?
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.users()
             .create(this._user)
@@ -120,14 +117,14 @@ export default class UserAdminCreate extends LitElement {
                     message: `User ${newUser.id} created in organization ${this.organization.id} successfully`,
                 });
                 LitUtils.dispatchCustomEvent(this, "userCreate", newUser, {});
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", newUser, {});
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", {}, {});
             })
             .catch(reason => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                this.#initOriginalObjects();
                 this.#setLoading(false);
+                this.#initOriginalObjects();
             });
     }
 

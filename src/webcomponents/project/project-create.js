@@ -114,8 +114,8 @@ export default class ProjectCreate extends LitElement {
                     title: "Project Create",
                     message: "New project created correctly"
                 });
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", {}, {}, error);
-                // LitUtils.dispatchCustomEvent(this, "projectCreate", project, {}, error);
+                LitUtils.dispatchCustomEvent(this, "projectCreate", {}, {});
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", {}, {});
             })
             .catch(reason => {
                 error = reason;

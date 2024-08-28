@@ -125,8 +125,8 @@ export default class StudyCreate extends LitElement {
                     title: "Study Create",
                     message: "New study created correctly"
                 });
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", {}, {}, error);
-                LitUtils.dispatchCustomEvent(this, "studyCreate", {}, {}, error);
+                LitUtils.dispatchCustomEvent(this, "studyCreate", {}, {});
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", {}, {});
             })
             .catch(reason => {
                 study = this.study;

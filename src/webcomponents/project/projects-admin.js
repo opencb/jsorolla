@@ -218,7 +218,7 @@ export default class ProjectsAdmin extends LitElement {
         let content;
         switch (id) {
             case "createProject":
-                content=html`
+                content = html`
                     <project-create
                         .opencgaSession="${this.opencgaSession}"
                         .displayConfig="${{modal: true, buttonClearText: "Cancel"}}"

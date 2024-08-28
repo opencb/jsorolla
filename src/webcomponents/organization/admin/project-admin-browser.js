@@ -90,10 +90,12 @@ export default class ProjectAdminBrowser extends LitElement {
                     // disabled: true,
                     // disabledTooltip: "...",
                 },
+                modalId: `${this._prefix}CreateProjectModal`,
                 render: () => html `
                     <project-create
                         .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
-                        .opencgaSession="${this.opencgaSession}">
+                        .opencgaSession="${this.opencgaSession}"
+                        @projectCreate="${e => this.onProjectCreate(e)}">
                     </project-create>`
             },
         };
@@ -116,6 +118,11 @@ export default class ProjectAdminBrowser extends LitElement {
         this.requestUpdate();
         await this.updateComplete;
         ModalUtils.show(this.modals[this.action]["modalId"]);
+    }
+
+    onProjectCreate() {
+        // Close modal
+        ModalUtils.close(this.toolbarConfig.create.modalId);
     }
 
     // *** RENDER ***
