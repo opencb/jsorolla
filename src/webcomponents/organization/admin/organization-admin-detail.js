@@ -96,7 +96,7 @@ export default class OrganizationAdminDetail extends LitElement {
             },
              */
             "organization-update": {
-                label: "Edit Organisation (coming soon...)",
+                label: "Edit Organization (coming soon...)",
                 icon: "far fa-edit",
                 modalId: `${this._prefix}UpdateOrganizationModal`,
                 render: () => this.renderOrganizationUpdate(),
@@ -139,7 +139,7 @@ export default class OrganizationAdminDetail extends LitElement {
     renderOrganizationUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateOrganizationModal`, {
             display: {
-                modalTitle: `Update Organisation: ${this.organization.id}`,
+                modalTitle: `Update Organization: ${this.organization.id}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-organization-update",
                 modalSize: "modal-lg"
@@ -201,16 +201,16 @@ export default class OrganizationAdminDetail extends LitElement {
     // *** CONFIG ***
     getDefaultConfig() {
         return {
-            title: "Organisation",
+            title: "Organization",
             type: "tabs",
             icon: "",
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
-                    title: "Organisation View",
+                    title: "Organization View",
                     elements: [
                         {
-                            title: "Organisation ID",
+                            title: "Organization ID",
                             type: "complex",
                             display: {
                                 template: "${id} (UUID: ${uuid})",
@@ -222,7 +222,7 @@ export default class OrganizationAdminDetail extends LitElement {
                             },
                         },
                         {
-                            title: "Organisation Name",
+                            title: "Organization Name",
                             field: "name"
                         },
                         {
@@ -234,7 +234,7 @@ export default class OrganizationAdminDetail extends LitElement {
                             field: "admins",
                             type: "list",
                             display: {
-                                defaultValue: "The organisation does not have admins yet.",
+                                defaultValue: "The organization does not have admins yet.",
                                 contentLayout: "bullets",
                             },
                         },

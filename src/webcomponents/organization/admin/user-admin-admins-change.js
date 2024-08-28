@@ -85,18 +85,18 @@ export default class UserAdminAdminsChange extends LitElement {
         if (this.action && this.userId) {
             this.displayMessages = {
                 "REMOVE": {
-                    title: `Remove user '${this.userId}' from the list of organisation users.`,
-                    text: `The user '${this.userId}' will be REMOVED from the list of organisation administrators.
+                    title: `Remove user '${this.userId}' from the list of organization users.`,
+                    text: `The user '${this.userId}' will be REMOVED from the list of organization administrators.
                     As a result, they will no longer be able to perform specific actions such as creating or editing users,
-                    modifying organisation information, or creating projects and studies.`,
-                    successText: `The '${this.userId}' has been successfully REMOVED from the list of organisation administrators`,
+                    modifying organization information, or creating projects and studies.`,
+                    successText: `The '${this.userId}' has been successfully REMOVED from the list of organization administrators`,
                 },
                 "ADD": {
-                    title: `Add user '${this.userId}' to the list of organisation users.`,
-                    text: `The user '${this.userId}' will be ADDED to the list of organisation administrators.
+                    title: `Add user '${this.userId}' to the list of organization users.`,
+                    text: `The user '${this.userId}' will be ADDED to the list of organization administrators.
                     As a result, they be able to perform specific actions such as creating or editing users,
-                    modifying organisation information, or creating projects and studies.`,
-                    successText: `The '${this.userId}' has been successfully ADDED to the list of organisation administrators`,
+                    modifying organization information, or creating projects and studies.`,
+                    successText: `The '${this.userId}' has been successfully ADDED to the list of organization administrators`,
                 },
             };
             this.displayTitle = this.displayMessages[this.action].title;
@@ -122,7 +122,7 @@ export default class UserAdminAdminsChange extends LitElement {
             .then(response => {
                 this.user = UtilsNew.objectClone(response.responses[0].results[0]);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: `Organisation Admin`,
+                    title: `Organization Admin`,
                     message: this.displaySuccessText,
                 });
                 LitUtils.dispatchCustomEvent(this, "userUpdate", this.user, {});

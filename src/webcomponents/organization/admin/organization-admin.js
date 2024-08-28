@@ -159,7 +159,7 @@ export default class OrganizationAdmin extends LitElement {
                 submenu: [
                     {
                         id: "settings",
-                        name: "Organisation",
+                        name: "Organization",
                         icon: "fas fa-sitemap",
                         visibility: "private",
                         render: (opencgaSession, organization) => {
