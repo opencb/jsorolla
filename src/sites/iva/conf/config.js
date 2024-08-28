@@ -25,8 +25,8 @@ const hosts = [
         url: "https://demo.app.zettagenomics.com/opencga"
     },
     {
-        id: "xeta-110e",
-        url: "https://test.app.zettagenomics.com/xeta-110e/opencga"
+        id: "reference",
+        url: "https://test.app.zettagenomics.com/TASK-5809-x/opencga"
     },
 ];
 
@@ -764,7 +764,7 @@ const SUITE = {
             menu: [
                 {
                     id: "organization-admin",
-                    name: "Organisations Admin",
+                    name: "Organizations Admin",
                     fa_icon: "fas fa-file-invoice",
                     icon: "img/tools/icons/variant_browser.svg",
                     description: "",
