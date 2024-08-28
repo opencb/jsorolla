@@ -478,7 +478,7 @@ export default class ClinicalAnalysisView extends LitElement {
                                     },
                                     {
                                         title: "Status",
-                                        field: "status.name",
+                                        field: "status.id",
                                         display: {
                                             defaultValue: "-",
                                         },

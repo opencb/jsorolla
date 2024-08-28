@@ -370,7 +370,7 @@ export default class JobGrid extends LitElement {
                                             <tr class="detail-view-row">
                                                 <td>${job.id}</td>
                                                 <td>${job.tool.id}</td>
-                                                <td>${UtilsNew.jobStatusFormatter(job.internal.status)}</td>
+                                                <td>${WebUtils.jobStatusFormatter(job.internal.status)}</td>
                                                 <td>${job.priority}</td>
                                                 <td>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</td>
                                                 <td>${job.visited}</td>
@@ -547,7 +547,7 @@ export default class JobGrid extends LitElement {
                 id: "status",
                 title: "Status",
                 field: "internal.status",
-                formatter: status => UtilsNew.jobStatusFormatter(status),
+                formatter: status => WebUtils.jobStatusFormatter(status),
                 visible: this.gridCommons.isColumnVisible("status")
             },
             {
@@ -661,7 +661,7 @@ export default class JobGrid extends LitElement {
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toLowerCase() === "tab") {
-                        const fields = ["id", "tool.id", "priority", "tags", "creationDate", "internal.status.name", "visited"];
+                        const fields = ["id", "tool.id", "priority", "tags", "creationDate", "internal.status.id", "visited"];
                         const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "job_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {

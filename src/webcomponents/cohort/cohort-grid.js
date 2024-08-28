@@ -417,7 +417,7 @@ export default class CohortGrid extends LitElement {
                                 _.id,
                                 _.samples ? _.samples.map(_ => `${_.id}`).join(",") : "",
                                 _.creationDate ? CatalogGridFormatter.dateFormatter(_.creationDate) : "-",
-                                _.status.name,
+                                _.status.id,
                                 _.type
                             ].join("\t"))];
                         UtilsNew.downloadData(dataString, "cohort_" + this.opencgaSession.study.id + ".tsv", "text/plain");

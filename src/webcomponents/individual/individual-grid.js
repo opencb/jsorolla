@@ -404,7 +404,7 @@ export default class IndividualGrid extends LitElement {
                         <td>${preparationMethod}</td>
                         <td>${cellLine}</td>
                         <td>${creationDate}</td>
-                        <td>${sample.status ? sample.status.name : ""}</td>
+                        <td>${sample?.status?.id || ""}</td>
                     </tr>
                 `;
             }
