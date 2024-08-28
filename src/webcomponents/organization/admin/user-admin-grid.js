@@ -277,7 +277,7 @@ export default class UserAdminGrid extends LitElement {
             {
                 id: "authentication",
                 title: "Authentication",
-                field: "account.authentication.id",
+                field: "internal.account.authentication.id",
                 visible: this.gridCommons.isColumnVisible("authentication")
             },
             {
@@ -398,7 +398,7 @@ export default class UserAdminGrid extends LitElement {
     }
 
     datesFormatter(value, user) {
-        const expirationDateString = UtilsNew.dateFormatter(user.account.expirationDate);
+        const expirationDateString = UtilsNew.dateFormatter(user.internal.account.expirationDate);
         const expirationDate = new Date(expirationDateString);
         const currentDate = new Date();
         let expirationDateClass = null;
@@ -407,7 +407,7 @@ export default class UserAdminGrid extends LitElement {
         }
         return `
             <div class="${expirationDateClass}">${expirationDateString}</div>
-            <div class="text-body-secondary">${UtilsNew.dateFormatter(user.account.creationDate)}</div>
+            <div class="text-body-secondary">${UtilsNew.dateFormatter(user.creationDate)}</div>
         `;
     }
 

@@ -55,14 +55,15 @@ export default class UserAdminDetailsUpdate extends LitElement {
         this.userId = "";
         this.displayConfig = {};
         this.updatedFields = {};
-        // Some of the user fields modeled in the form cannot be updated
+        // Some of the fields modeled for USER cannot be updated at all or updated through the endpoint used in this component.
+        // They need to be removed from the object.
         this.updateCustomisation = [
-            params => {
-                if (params.account?.expirationDate) {
-                    // eslint-disable-next-line no-param-reassign
-                    params.account = {expirationDate: params.account.expirationDate};
-                }
-            },
+            "internal.status",
+            "internal.registrationDate",
+            "internal.lastModified",
+            "internal.account.password",
+            "internal.account.failedAttempts",
+            "internal.account.authentication",
         ];
         this._config = this.getDefaultConfig();
     }
@@ -160,6 +161,7 @@ export default class UserAdminDetailsUpdate extends LitElement {
         const params = {
             includeResult: true,
         };
+        debugger
         const updateParams = FormUtils.getUpdateParams(this._user, this.updatedFields, this.updateCustomisation);
 
         this.#setLoading(true);
@@ -238,7 +240,7 @@ export default class UserAdminDetailsUpdate extends LitElement {
                     elements: [
                         {
                             title: "Expiration Date",
-                            field: "account.expirationDate",
+                            field: "internal.account.expirationDate",
                             type: "input-date",
                             display: {
                                 format: date => UtilsNew.dateFormatter(date)
