@@ -136,7 +136,7 @@ export default class OpencbGridToolbar extends LitElement {
 
         return html`
             <div class="opencb-grid-toolbar">
-                <div class="row mb-3">
+                <div class="row mb-2">
                     <div id="${this._prefix}ToolbarLeft" class="col-md-6">
                         <!-- Display components on the LEFT -->
                     </div>

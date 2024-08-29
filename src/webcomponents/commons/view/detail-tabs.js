@@ -110,9 +110,7 @@ export default class DetailTabs extends LitElement {
 
     changeTab(e) {
         this._activeTab = e.currentTarget.dataset.id;
-        LitUtils.dispatchCustomEvent(this, "activeTabChange", this._activeTab, null, null, {
-            bubbles: false,
-        });
+        LitUtils.dispatchCustomEvent(this, "activeTabChange", this._activeTab, null, null, {bubbles: false});
         this.requestUpdate();
     }
 
@@ -133,11 +131,8 @@ export default class DetailTabs extends LitElement {
     renderTitle() {
         const title = typeof this._config.title === "function" ? this._config.title(this.data) : this._config.title + " " + (this.data?.id || "");
         return html`
-            <div class="${this._config?.display?.titleClass || nothing}" style="${this._config?.display?.titleStyle || nothing}">
+            <div class="mt-3 ${this._config?.display?.titleClass || ""}" style="${this._config?.display?.titleStyle || ""}">
                 <h3>${title}</h3>
-                <div class="text-secondary text-opacity-25">
-                    <hr>
-                </div>
             </div>
         `;
     }
@@ -174,14 +169,16 @@ export default class DetailTabs extends LitElement {
     }
 
     render() {
-        // If data is undefined or null
+        // 1. Check If data is undefined or null
         if (!this.data) {
             return html`<h3>${this._config?.errorMessage || "No data found"}</h3>`;
         }
+
         // 2. Check the 'mode' is correct
         if (this.mode !== DetailTabs.TABS_MODE && this.mode !== DetailTabs.PILLS_MODE && this.mode !== DetailTabs.PILLS_VERTICAL_MODE) {
             return html`<h3>No valid mode: '${this.mode || ""}'</h3>`;
         }
+
         // 3. Check tabs exist
         if (this._config?.items?.length === 0) {
             return html`<h3>No tab items provided</h3>`;

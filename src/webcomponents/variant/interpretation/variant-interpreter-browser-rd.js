@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-template.js";
 import "./exomiser/variant-interpreter-exomiser-view.js";
 import "../variant-samples.js";
 import "../../visualization/protein-lollipop-variant-view.js";
+import "../annotation/variant-annotation-pharmacogenomics-view.js";
 
 class VariantInterpreterBrowserRd extends LitElement {
 
@@ -168,7 +169,7 @@ class VariantInterpreterBrowserRd extends LitElement {
             }
 
             // 3. panelIntersection param: if panel lock is enabled, this param should be also enabled
-            if (this.clinicalAnalysis.panelLock) {
+            if (this.clinicalAnalysis.panelLocked) {
                 this.query.panelIntersection = true;
             }
 
@@ -219,15 +220,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                 this.files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
             }
 
-            // 5.1. Read defaultFilter from study internal configuration
-            if (this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.defaultFilter) {
-                this.query = {
-                    ...this.query,
-                    ...this.opencgaSession.study.internal.configuration.clinical.interpretation.defaultFilter,
-                };
-            }
-
-            // 5.2. Read defaultFilter from browser settings
+            // 5. Read defaultFilter from browser settings
             if (this.settings?.menu?.defaultFilter) {
                 this.query = {
                     ...this.query,
@@ -315,7 +308,7 @@ class VariantInterpreterBrowserRd extends LitElement {
         ];
 
         // Add panels to locked fields
-        if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLock) {
+        if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLocked) {
             lockedFields.push({id: "panel"});
             lockedFields.push({id: "panelIntersection"});
         }
@@ -436,7 +429,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "region",
                                 title: "Genomic Location",
                                 message: {
-                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Regions will be intersected with selected panels.",
                                 },
                                 tooltip: tooltips.region,
@@ -445,7 +438,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "feature",
                                 title: "Feature IDs (gene, SNPs, ...)",
                                 message: {
-                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Feature regions will be intersected with selected panels.",
                                 },
                                 tooltip: tooltips.feature,
@@ -463,27 +456,6 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 params: {
                                     types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV"]
                                 },
-                            }
-                        ]
-                    },
-                    {
-                        title: "Clinical",
-                        collapsed: true,
-                        filters: [
-                            {
-                                id: "diseasePanels",
-                                title: "Disease Panels",
-                                disabled: () => this.clinicalAnalysis.panelLock,
-                                message: {
-                                    visible: () => this.clinicalAnalysis.panelLock,
-                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
-                                },
-                                tooltip: tooltips.diseasePanels
-                            },
-                            {
-                                id: "clinical-annotation",
-                                title: "Clinical Annotation",
-                                tooltip: tooltips.clinical
                             }
                         ]
                     },
@@ -511,6 +483,27 @@ class VariantInterpreterBrowserRd extends LitElement {
                                     populationFrequencyIndexConfiguration: this.opencgaSession?.study?.internal?.configuration
                                         ?.variantEngine?.sampleIndex?.annotationIndexConfiguration?.populationFrequency,
                                 },
+                            }
+                        ]
+                    },
+                    {
+                        title: "Clinical",
+                        collapsed: true,
+                        filters: [
+                            {
+                                id: "diseasePanels",
+                                title: "Disease Panels",
+                                disabled: () => this.clinicalAnalysis.panelLock,
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
+                                },
+                                tooltip: tooltips.diseasePanels
+                            },
+                            {
+                                id: "clinical-annotation",
+                                title: "Clinical Annotation",
+                                tooltip: tooltips.clinical
                             }
                         ]
                     },
@@ -645,6 +638,15 @@ class VariantInterpreterBrowserRd extends LitElement {
                                     .traitAssociation="${variant?.annotation?.traitAssociation}"
                                     .geneTraitAssociation="${variant?.annotation?.geneTraitAssociation}">
                                 </variant-annotation-clinical-view>
+                            `,
+                        },
+                        {
+                            id: "annotationPharmacogenomics",
+                            name: "Pharmacogenomics",
+                            render: variant => html`
+                                <variant-annotation-pharmacogenomics-view
+                                    .pharmacogenomics="${variant?.annotation?.pharmacogenomics}">
+                                </variant-annotation-pharmacogenomics-view>
                             `,
                         },
                         {

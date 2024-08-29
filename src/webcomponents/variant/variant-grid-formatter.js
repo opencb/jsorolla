@@ -68,22 +68,12 @@ export default class VariantGridFormatter {
             return;
         }
 
-        // let ref = variant.reference ? variant.reference : "-";
-        // let alt = variant.alternate ? variant.alternate : "-";
-        //
-        // // Check size
-        // const maxAlleleLength = config?.alleleStringLengthMax ? config.alleleStringLengthMax : 20;
-        // ref = (ref.length > maxAlleleLength) ? ref.substring(0, 4) + "..." + ref.substring(ref.length - 4) : ref;
-        // alt = (alt.length > maxAlleleLength) ? alt.substring(0, 4) + "..." + alt.substring(alt.length - 4) : alt;
-        //
-        // // Ww need to escape < and > symbols from <INS>, <DEL>, ...
-        // alt = alt.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-        const variantId = VariantFormatter.variantIdFormatter(id, variant);
+        const variantId = VariantFormatter.variantIdFormatter(id, variant, config?.alleleStringLengthMax || 20);
 
-        // Create links for tooltip
+        // 1. Create links for tooltip
         let tooltipText = "";
         const variantRegion = variant.chromosome + ":" + variant.start + "-" + variant.end;
-        // 1. Add Decipher only if variant is a SNV or we have the original call. INDELS cannot be linked in the Variant Browser
+        // 1.1. Add Decipher only if variant is a SNV or we have the original call. INDELS cannot be linked in the Variant Browser
         if (variant.id || variant.studies[0]?.files[0]?.call?.variantId) {
             const variantId = variant.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || variant.id;
             tooltipText += `
@@ -100,7 +90,8 @@ export default class VariantGridFormatter {
                 </div>
             `;
         }
-        // 2. Add links to external browsers
+
+        // 1. 2. Add links to external browsers
         tooltipText += `
             <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Genome Browsers</div>
             <div style="padding: 5px">
@@ -115,7 +106,7 @@ export default class VariantGridFormatter {
             </div>
         `;
 
-        // const snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
+        // 3. Display the dbSNP ID link if exist
         const snpId = VariantFormatter.snpFormatter(id, variant, index, assembly);
         let snpHtml;
         if (snpId) {
@@ -126,7 +117,10 @@ export default class VariantGridFormatter {
             }
         }
 
-        // Add highlight icons
+        // 4.
+        // const typeHtml = VariantGridFormatter.typeFormatter(id, variant);
+
+        // 5. Add highlight icons
         let iconHighlights = [];
         if (config?.highlights?.length > 0) {
             iconHighlights = config.highlights
@@ -149,48 +143,9 @@ export default class VariantGridFormatter {
                 </a>
                 ${iconHighlights.join("")}
             </div>
-            ${snpHtml ? `<div style="margin: 5px 0px">${snpHtml}</div>` : ""}
+            ${snpHtml ? `<div style="margin: 5px 0">${snpHtml}</div>` : ""}
         `;
     }
-
-    // static snpFormatter(value, row, index, assembly) {
-    //     // We try first to read SNP ID from the 'names' of the variant (this identifier comes from the file).
-    //     // If this ID is not a "rs..." then we search the rs in the CellBase XRef annotations.
-    //     // This field is in annotation.xref when source: "dbSNP".
-    //     let snpId = "";
-    //     if (row.names && row.names.length > 0) {
-    //         for (const name of row.names) {
-    //             if (name.startsWith("rs")) {
-    //                 snpId = name;
-    //                 break;
-    //             }
-    //         }
-    //     } else {
-    //         if (row.annotation) {
-    //             if (row.annotation.id && row.annotation.id.startsWith("rs")) {
-    //                 snpId = row.annotation.id;
-    //             } else {
-    //                 if (row.annotation.xrefs) {
-    //                     for (const xref of row.annotation.xrefs) {
-    //                         if (xref.source === "dbSNP") {
-    //                             snpId = xref.id;
-    //                             break;
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //
-    //     if (snpId) {
-    //         if (assembly.toUpperCase() === "GRCH37") {
-    //             return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
-    //         } else {
-    //             return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
-    //         }
-    //     }
-    //     return snpId;
-    // }
 
     static geneFormatter(variant, index, query, opencgaSession, gridCtSettings) {
         // FIXME
@@ -228,9 +183,10 @@ export default class VariantGridFormatter {
                 if (geneName && !visited[geneName]) {
                     let geneViewMenuLink = "";
                     if (opencgaSession.project && opencgaSession.study) {
-                        geneViewMenuLink = `<div class='p-1'>
-                                                <a class='text-decoration-none' style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a>
-                                            </div>`;
+                        geneViewMenuLink = `
+                            <div class='p-1'>
+                                <a class='text-decoration-none' style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a>
+                            </div>`;
                     }
 
                     const tooltipText = `
@@ -242,19 +198,23 @@ export default class VariantGridFormatter {
                     if (query?.ct) {
                         // If gene contains one of the query.ct
                         if (geneHasQueryCt.has(geneName)) {
-                            geneWithCtLinks.push(`<a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;">
-                                                    ${geneName}
-                                                </a>`);
+                            geneWithCtLinks.push(
+                                `<a class="gene-tooltip text-decoration-none text-nowrap" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin: 5px 2px;">
+                                    ${geneName}
+                                 </a>`
+                            );
                         } else {
-                            geneLinks.push(`<a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;color: darkgray;font-style: italic">
-                                                    ${geneName}
-                                            </a>`);
+                            geneLinks.push(
+                                `<a class="gene-tooltip text-decoration-none text-nowrap" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin: 5px 2px;color: darkgray;font-style: italic">
+                                    ${geneName}
+                                </a>`);
                         }
                     } else {
                         // No query.ct passed
-                        geneLinks.push(`<a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px">
-                                                ${geneName}
-                                        </a>`);
+                        geneLinks.push(
+                            `<a class="gene-tooltip text-decoration-none text-nowrap" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin: 5px 2px">
+                                ${geneName}
+                            </a>`);
                     }
                     visited[geneName] = true;
                 }
@@ -262,17 +222,17 @@ export default class VariantGridFormatter {
 
             // Do not write more than 4 genes per line, this could be easily configurable
             let resultHtml = "";
-            const maxDisplayedGenes = 10;
+            const maxDisplayedGenes = 5;
             const allGenes = geneWithCtLinks.concat(geneLinks);
 
             if (allGenes.length <= maxDisplayedGenes) {
-                resultHtml = allGenes.join(",");
+                resultHtml = allGenes.join("<br>");
             } else {
                 resultHtml = `
                     <div data-role="genes-list" data-variant-index="${index}">
-                        ${allGenes.slice(0, maxDisplayedGenes).join(",")}
+                        ${allGenes.slice(0, maxDisplayedGenes).join("<br>")}
                         <span data-role="genes-list-extra" style="display:none">
-                            ,${allGenes.slice(maxDisplayedGenes).join(",")}
+                            ${allGenes.slice(maxDisplayedGenes).join("<br>")}
                         </span>
                         <div style="margin-top:8px;">
                             <a data-role="genes-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
@@ -839,6 +799,73 @@ export default class VariantGridFormatter {
         return "-";
     }
 
+    static siftPproteinScoreFormatter(value, row, consequenceTypeColors) {
+        let min = 10;
+        let description = "";
+        if (row && row.annotation?.consequenceTypes?.length > 0) {
+            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
+                    for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
+                        const substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
+                        if (substitutionScore.source === "sift" && substitutionScore.score < min) {
+                            min = substitutionScore.score;
+                            description = substitutionScore.description;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (min < 10) {
+            return `<span style="color: ${consequenceTypeColors?.pssColor.get("sift")[description]}" title=${min}>${description}</span>`;
+        }
+        return "-";
+    }
+
+    static polyphenProteinScoreFormatter(value, row, consequenceTypeColors) {
+        let max = 0;
+        let description = "";
+        if (row && row.annotation?.consequenceTypes?.length > 0) {
+            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
+                    for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
+                        const substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
+                        if (substitutionScore.source === "polyphen" && substitutionScore.score >= max) {
+                            max = substitutionScore.score;
+                            description = substitutionScore.description;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (max > 0) {
+            return `<span style="color: ${consequenceTypeColors?.pssColor.get("polyphen")[description]}" title=${max}>${description}</span>`;
+        }
+        return "-";
+    }
+
+    static revelProteinScoreFormatter(value, row, index) {
+        let max = 0;
+        if (row && row.annotation?.consequenceTypes?.length > 0) {
+            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
+                    for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
+                        const substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
+                        if (substitutionScore.source === "revel" && substitutionScore.score >= max) {
+                            max = substitutionScore.score;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (max > 0) {
+            return `<span style="color: ${max > 0.5 ? "darkorange" : "black"}" title=${max}>${max}</span>`;
+        }
+        return "-";
+    }
+
     static caddScaledFormatter(value, row, index) {
         if (row && row.type !== "INDEL" && row.annotation?.functionalScore?.length > 0) {
             for (const functionalScore of row.annotation.functionalScore) {
@@ -879,7 +906,7 @@ export default class VariantGridFormatter {
             const color = (dscore >= 0.8) ? "red" : (dscore >= 0.5) ? "darkorange" : "black";
             return `
                 <div>
-                    <span title="${transcriptId || "not found"}" style="color: ${color}">${dscore}</span>
+                    <span title="${transcriptId || "not found"}" style="color: ${color}">${dscore || "-"}</span>
                 </div>
             `;
         } else {
@@ -1032,7 +1059,7 @@ export default class VariantGridFormatter {
 
     static clinicalTraitAssociationFormatter(value, row, index) {
         const phenotypeHtml = "<span><i class='fa fa-times' style='color: red'></i></span>";
-        // Check for ClinVar and Cosmic annotations
+        // Check for ClinVar, Cosmic and HGMD annotations
         if (row?.annotation?.traitAssociation) {
             // Filter the traits for this column and check the number of existing traits
             const traits = row.annotation.traitAssociation.filter(trait => trait.source.name.toUpperCase() === this.field.toUpperCase());
@@ -1041,8 +1068,8 @@ export default class VariantGridFormatter {
             }
 
             let tooltipText = "";
-            switch (this.field) {
-                case "clinvar":
+            switch (this.field?.toUpperCase()) {
+                case "CLINVAR":
                     const results = [];
                     const clinicalSignificanceVisited = new Set();
                     for (const trait of traits) {
@@ -1133,7 +1160,7 @@ export default class VariantGridFormatter {
                     }
 
                     return `<a class="clinvar-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${results.join("<br>")}</a>`;
-                case "cosmic":
+                case "COSMIC":
                     // Prepare the tooltip links
                     const cosmicMap = new Map();
                     traits.forEach(trait => {
@@ -1167,6 +1194,29 @@ export default class VariantGridFormatter {
                         <a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
                             <span style="color: green">${cosmicMap.size} ${cosmicMap.size > 1 ? "studies" : "study" }</span>
                         </a>`;
+                case "HGMD":
+                    // Prepare the tooltip links
+                    const hgmdMap = new Map();
+                    traits.forEach(trait => {
+                        if (!hgmdMap.has(trait.id)) {
+                            hgmdMap.set(trait.id, new Set());
+                        }
+                    });
+
+                    Array.from(hgmdMap.entries()).forEach(([traitId, histologies]) => {
+                        tooltipText += `
+                            <div style="margin: 10px 5px">
+                                <div>
+                                    ${traitId}</a>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    return `
+                        <a class="hgmd-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <span style="color: green">${hgmdMap.size} ${hgmdMap.size > 1 ? "entries" : "entry" }</span>
+                        </a>`;
                 default:
                     console.error("Wrong clinical source : " + this.field);
                     break;
@@ -1198,9 +1248,17 @@ export default class VariantGridFormatter {
                             <label style="">Gene: ${hotspot.geneName} - Aminoacid: ${hotspot.aminoacidPosition} (${AMINOACID_CODE[hotspot.aminoacidReference]})</label>
                             <div style="">Cancer Type: ${hotspot.cancerType} - ${hotspot.variants.length} ${hotspot.variants.length === 1 ? "mutation" : "mutations"}</div>
                         </div>
-                        <div>${hotspotVariantsText.join("")}</div>
-                    </div>
-                `;
+                        <div>
+                            ${hotspot.variants
+                    .map(variant => `
+                                    <span
+                                        class="d-block text-secondary"
+                                        style="margin: 5px 1px">${AMINOACID_CODE[hotspot.aminoacidReference]}${hotspot.aminoacidPosition}${AMINOACID_CODE[variant.aminoacidAlternate]}: ${variant.count} sample(s)
+                                    </span>`)
+                    .join("")
+                }
+                        </div>
+                    </div>`;
             }
 
             if (cancerHotspotsHtml.size > 0) {
@@ -1216,16 +1274,16 @@ export default class VariantGridFormatter {
 
     static clinicalOmimFormatter(value, row) {
         const entries = (row?.annotation?.geneTraitAssociation || [])
-            .filter(item => (item?.id || "").startsWith("OMIM:"))
+            .filter(item => item?.id?.startsWith("OMIM:"))
             .map(item => item.id.replace("OMIM:", ""));
 
-        if (entries?.length > 0) {
+        if (entries.length > 0) {
             const uniqueEntries = new Set(entries);
             const entriesLinks = Array.from(uniqueEntries)
                 .map(entry => {
                     return `
-                        <div style="">
-                            <a href="${BioinfoUtils.getOmimLink(entry)}" target="_blank">${entry}</a>
+                        <div style="margin: 10px 5px">
+                            <a href="${BioinfoUtils.getOmimOntologyLink(entry)}" target="_blank">${entry}</a>
                         </div>
                     `;
                 });
@@ -1244,6 +1302,32 @@ export default class VariantGridFormatter {
             `;
         }
     }
+
+    static clinicalPharmGKBFormatter(value, row) {
+        if (row?.annotation?.pharmacogenomics?.length > 0) {
+            const entriesLinks = row.annotation.pharmacogenomics.map(entry => {
+                return `
+                    <div style="margin: 10px 5px">
+                        <a href="${BioinfoUtils.getPharmGKBLink(entry.id)}" target="_blank">${entry.name} (${entry.id})</a>
+                    </div>
+                `;
+            });
+            const tooltipText = entriesLinks.join("");
+
+            return `
+                <a class="hotspots-tooltip" tooltip-title='Info' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                    <span style='color:green;'>${row.annotation.pharmacogenomics.length}<br>${row.annotation.pharmacogenomics.length === 1 ? "entry" : "entries"}</span>
+                </a>
+            `;
+        } else {
+            return `
+                <span title='No pharmacogenomic records found for this variant'>
+                    <i class='fa fa-times' style='color: gray'></i>
+                </span>
+            `;
+        }
+    }
+
 
     static clinicalTableDetail(value, row, index) {
         const clinvar = [];

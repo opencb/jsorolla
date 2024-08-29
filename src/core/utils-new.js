@@ -265,7 +265,7 @@ export default class UtilsNew {
     }
 
     static initTooltip(scope) {
-        $("a[tooltip-title], span[tooltip-title]", scope).each(function () {
+        $("a[tooltip-title], span[tooltip-title], table[tooltip-title], td[tooltip-title]", scope).each(function () {
             $(this).qtip({
                 content: {
                     title: $(this).attr("tooltip-title"),
@@ -304,32 +304,10 @@ export default class UtilsNew {
         return document.createRange().createContextualFragment(`${html}`);
     }
 
-    static jobStatusFormatter(status, appendDescription = false) {
-        const description = appendDescription && status.description ? `<br>${status.description}` : "";
-        // FIXME remove this backward-compatibility check in next v2.3
-        const statusId = status.id || status.name;
-        switch (statusId) {
-            case "PENDING":
-            case "QUEUED":
-                return `<span class="text-primary"><i class="far fa-clock me-1"></i> ${statusId}${description}</span>`;
-            case "RUNNING":
-                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate me-1"></i> ${statusId}${description}</span>`;
-            case "DONE":
-                return `<span class="text-success"><i class="fas fa-check-circle me-1"></i> ${statusId}${description}</span>`;
-            case "ERROR":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i> ${statusId}${description}</span>`;
-            case "UNKNOWN":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i> ${statusId}${description}</span>`;
-            case "ABORTED":
-                return `<span class="text-warning"><i class="fas fa-ban me-1"></i> ${statusId}${description}</span>`;
-            case "DELETED":
-                return `<span class="text-primary"><i class="fas fa-trash-alt me-1"></i> ${statusId}${description}</span>`;
-        }
-        return "-";
-    }
-
     // Capitalizes the first letter of a string and lowercase the rest.
-    static capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join("").toLowerCase();
+    static capitalize([first, ...rest]) {
+        return first.toUpperCase() + rest.join("").toLowerCase();
+    }
 
     /*
      * This function creates a table (rows and columns) a given Object or array of Objects using the fields provided.
@@ -1097,6 +1075,16 @@ export default class UtilsNew {
                 .split(",")
                 .map(item => item.trim())
                 .filter(item => !!item);
+    }
+
+    // Group elements in array by the value in the given key
+    static groupBy(array, key) {
+        return array.reduce((result, currentValue) => {
+            const objectValue = UtilsNew.getObjectValue(currentValue, key);
+            // eslint-disable-next-line no-param-reassign
+            (result[objectValue] = result[objectValue] || []).push(currentValue);
+            return result;
+        }, {});
     }
 
 }
