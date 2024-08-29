@@ -265,7 +265,7 @@ export default class UtilsNew {
     }
 
     static initTooltip(scope) {
-        $("a[tooltip-title], span[tooltip-title]", scope).each(function () {
+        $("a[tooltip-title], span[tooltip-title], table[tooltip-title], td[tooltip-title]", scope).each(function () {
             $(this).qtip({
                 content: {
                     title: $(this).attr("tooltip-title"),
@@ -1075,6 +1075,16 @@ export default class UtilsNew {
                 .split(",")
                 .map(item => item.trim())
                 .filter(item => !!item);
+    }
+
+    // Group elements in array by the value in the given key
+    static groupBy(array, key) {
+        return array.reduce((result, currentValue) => {
+            const objectValue = UtilsNew.getObjectValue(currentValue, key);
+            // eslint-disable-next-line no-param-reassign
+            (result[objectValue] = result[objectValue] || []).push(currentValue);
+            return result;
+        }, {});
     }
 
 }

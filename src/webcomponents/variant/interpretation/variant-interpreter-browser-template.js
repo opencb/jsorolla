@@ -416,8 +416,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 <div class="col-2">
                     <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onSearch}">
-                            <i class="fa fa-search" aria-hidden="true"></i>
-                            <strong>${this._config.filter?.searchButtonText || "Search"}</strong>
+                            <i class="fa fa-search mx-1" aria-hidden="true"></i>
+                            <span class="fw-bold fs-5">${this._config.filter?.searchButtonText || "Search"}</span>
                         </button>
                     </div>
                     <variant-browser-filter

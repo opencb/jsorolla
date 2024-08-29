@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-template.js";
 import "./exomiser/variant-interpreter-exomiser-view.js";
 import "../variant-samples.js";
 import "../../visualization/protein-lollipop-variant-view.js";
+import "../annotation/variant-annotation-pharmacogenomics-view.js";
 
 class VariantInterpreterBrowserRd extends LitElement {
 
@@ -459,27 +460,6 @@ class VariantInterpreterBrowserRd extends LitElement {
                         ]
                     },
                     {
-                        title: "Clinical",
-                        collapsed: true,
-                        filters: [
-                            {
-                                id: "diseasePanels",
-                                title: "Disease Panels",
-                                disabled: () => this.clinicalAnalysis.panelLocked,
-                                message: {
-                                    visible: () => this.clinicalAnalysis.panelLocked,
-                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
-                                },
-                                tooltip: tooltips.diseasePanels
-                            },
-                            {
-                                id: "clinical-annotation",
-                                title: "Clinical Annotation",
-                                tooltip: tooltips.clinical
-                            }
-                        ]
-                    },
-                    {
                         title: "Consequence Type",
                         collapsed: true,
                         filters: [
@@ -503,6 +483,27 @@ class VariantInterpreterBrowserRd extends LitElement {
                                     populationFrequencyIndexConfiguration: this.opencgaSession?.study?.internal?.configuration
                                         ?.variantEngine?.sampleIndex?.annotationIndexConfiguration?.populationFrequency,
                                 },
+                            }
+                        ]
+                    },
+                    {
+                        title: "Clinical",
+                        collapsed: true,
+                        filters: [
+                            {
+                                id: "diseasePanels",
+                                title: "Disease Panels",
+                                disabled: () => this.clinicalAnalysis.panelLock,
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
+                                },
+                                tooltip: tooltips.diseasePanels
+                            },
+                            {
+                                id: "clinical-annotation",
+                                title: "Clinical Annotation",
+                                tooltip: tooltips.clinical
                             }
                         ]
                     },
@@ -637,6 +638,15 @@ class VariantInterpreterBrowserRd extends LitElement {
                                     .traitAssociation="${variant?.annotation?.traitAssociation}"
                                     .geneTraitAssociation="${variant?.annotation?.geneTraitAssociation}">
                                 </variant-annotation-clinical-view>
+                            `,
+                        },
+                        {
+                            id: "annotationPharmacogenomics",
+                            name: "Pharmacogenomics",
+                            render: variant => html`
+                                <variant-annotation-pharmacogenomics-view
+                                    .pharmacogenomics="${variant?.annotation?.pharmacogenomics}">
+                                </variant-annotation-pharmacogenomics-view>
                             `,
                         },
                         {

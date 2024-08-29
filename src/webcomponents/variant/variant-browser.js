@@ -30,6 +30,7 @@ import "./annotation/cellbase-variant-annotation-summary.js";
 import "./annotation/variant-consequence-type-view.js";
 import "./annotation/cellbase-population-frequency-grid.js";
 import "./annotation/variant-annotation-clinical-view.js";
+import "./annotation/variant-annotation-pharmacogenomics-view.js";
 import "./variant-cohort-stats.js";
 import "./variant-samples.js";
 
@@ -306,16 +307,16 @@ export default class VariantBrowser extends LitElement {
                 <div class="col-2 mb-3">
                     <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onRun}">
-                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
-                            <strong>${this._config.searchButtonText || "Search"}</strong>
+                            <i class="fa fa-search mx-1" aria-hidden="true"></i>
+                            <span class="fw-bold fs-5">${this._config.searchButtonText || "Search"}</span>
                         </button>
                     </div>
                     <ul class="nav nav-tabs mb-3" role="tablist">
                         <li class="nav-item" role="presentation" >
-                            <a class="nav-link active fw-bold" href="#filters_tab" aria-controls="profile" role="tab" data-bs-toggle="tab">${this._config.filter.title}</a>
+                            <a class="active nav-link fw-bold fs-5" href="#filters_tab" aria-controls="profile" role="tab" data-bs-toggle="tab">${this._config.filter.title}</a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a class="nav-link fw-bold" href="#facet_tab" aria-controls="home" role="tab" data-bs-toggle="tab">${this._config.aggregation.title}</a>
+                            <a class="nav-link fw-bold fs-5" href="#facet_tab" aria-controls="home" role="tab" data-bs-toggle="tab">${this._config.aggregation.title}</a>
                         </li>
                     </ul>
 
@@ -675,6 +676,15 @@ export default class VariantBrowser extends LitElement {
                                     .traitAssociation="${variant?.annotation?.traitAssociation}"
                                     .geneTraitAssociation="${variant?.annotation?.geneTraitAssociation}">
                                 </variant-annotation-clinical-view>
+                            `,
+                        },
+                        {
+                            id: "annotationPharmacogenomics",
+                            name: "Pharmacogenomics",
+                            render: variant => html`
+                                <variant-annotation-pharmacogenomics-view
+                                    .pharmacogenomics="${variant?.annotation?.pharmacogenomics}">
+                                </variant-annotation-pharmacogenomics-view>
                             `,
                         },
                         {

@@ -570,19 +570,19 @@ export default class IndividualGrid extends LitElement {
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
-                                    <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
+                                    <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
                                 </a>
                             </li>
                             <li>
                                 <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
-                                    <i class="fas fa-download" aria-hidden="true"></i> Download JSON
+                                    <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a data-action="qualityControl" class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
                                         title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                    <i class="fas fa-rocket" aria-hidden="true"></i> Calculate Quality Control
+                                    <i class="fas fa-rocket" me-1 aria-hidden="true"></i> Calculate Quality Control
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
@@ -590,23 +590,24 @@ export default class IndividualGrid extends LitElement {
                                 ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
                                     <a data-action="interpreter" class="dropdown-item ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
                                         href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
-                                        <i class="fas fa-user-md" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
+                                        <i class="fas fa-user-md me-1" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
                                     </a>
                                 `).join("") : `
                                     <a data-action="interpreter" class="dropdown-item disabled" href="#">
-                                        <i class="fas fa-user-md" aria-hidden="true"></i> No cases found
+                                        <i class="fas fa-user-md me-1" aria-hidden="true"></i> No cases found
                                     </a>
                                 `}
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) || "disabled" }">
-                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
+                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) ? "" : "disabled"}"
+                                        href="javascript: void 0">
+                                    <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
                             <li>
                                 <a data-action="delete" href="javascript: void 0" class="dropdown-item disabled">
-                                    <i class="fas fa-trash" aria-hidden="true"></i> Delete
+                                    <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
                                 </a>
                             </li>
                         </ul>
