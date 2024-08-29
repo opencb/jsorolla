@@ -159,16 +159,22 @@ export default class StudyAdminUsers extends LitElement {
     }
 
     groupFormatter(value, row) {
-        // FIXME!!: admin/owner organization or/and admin study.
-        //  Study Admin: right now, study admin can not add/remove admins. Check with Pedro again
-        // const isOwner = OpencgaCatalogUtils.checkUserAccountView(this.field.owner, this.field.loggedUser);
+        // NOTE:
+        // - Only organization owner/admin can manage study admins
+        // - Study admins can add/remove users to the study and groups (except group admins)
+        // - Regular users (no org owner/admin, no study admin) can not access this site
         const isOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.field.opencgaSession.organization, row.id);
+        const isLoggedUserOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.field.opencgaSession.organization, this.field.loggedUser);
         const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.field.study, row.id);
-        const loggedUserIsStudyAdmin = OpencgaCatalogUtils.isAdmin(this.field.study, this.field.loggedUser);
+        const isLoggedUserStudyAdmin = OpencgaCatalogUtils.isAdmin(this.field.study, this.field.loggedUser);
         const checked = this.field.groupsMap?.get(this.field.groupId).findIndex(e => e.id === row.id) !== -1;
         if (this.field.groupId === "@admins") {
-            // return `<input type="checkbox" ${checked ? "checked" : ""} ${!isOwner ? "disabled" : ""}>`;
-            return `<input type="checkbox" ${checked ? "checked" : ""} ${isOrganizationAdmin || loggedUserIsStudyAdmin ? "disabled" : ""}>`;
+            if (isLoggedUserOrganizationAdmin) {
+                // return `<input type="checkbox" ${checked ? "checked" : ""} ${!isOwner ? "disabled" : ""}>`;
+                return `<input type="checkbox" ${checked ? "checked" : ""} ${isOrganizationAdmin ? "disabled" : ""}>`;
+            } else {
+                return `<input type="checkbox" ${checked ? "checked" : ""} disabled}>`;
+            }
         } else {
             // return `<input type="checkbox" ${checked ? "checked" : ""} ${row.id === this.field.owner ? "disabled" : ""}>`;
             return `<input type="checkbox" ${checked ? "checked" : ""} ${isStudyAdmin ? "disabled" : ""}>`;
