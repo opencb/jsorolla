@@ -104,7 +104,7 @@ export default class UserAdminPasswordReset extends LitElement {
             return html`<loading-spinner></loading-spinner>`;
         }
 
-        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+        return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
             title: `Reset Password: User <b>${this._user.id}</b> in organization ${this.opencgaSession.organization.id}`,
             message: `
                 Are you sure you want to reset ${this._user.id}'s password?
@@ -123,7 +123,9 @@ export default class UserAdminPasswordReset extends LitElement {
         });
     }
 
-    getDefaultConfig() {}
+    getDefaultConfig() {
+        return {};
+    }
 
 }
 

@@ -85,7 +85,6 @@ export default class GroupAdminGrid extends LitElement {
             if (this.groups?.length > 0) {
                 this.renderLocalTable();
             }
-            // this.requestUpdate();
         }
     }
 

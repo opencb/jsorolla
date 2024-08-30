@@ -19,8 +19,6 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import ModalUtils from "../../commons/modal/modal-utils.js";
-import "./organization-admin-add.js";
-import "./organization-admin-owner-update.js";
 import "./organization-admin-update.js";
 
 export default class OrganizationAdminDetail extends LitElement {

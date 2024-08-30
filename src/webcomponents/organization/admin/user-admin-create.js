@@ -60,7 +60,6 @@ export default class UserAdminCreate extends LitElement {
     #initOriginalObjects() {
         this._user = {};
         this._config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     #setLoading(value) {

@@ -51,7 +51,6 @@ export default class ProjectUpdate extends LitElement {
     }
 
     #init() {
-        debugger
         this.project = {};
         this.updateParams = {};
         this.isLoading = false;
@@ -77,7 +76,6 @@ export default class ProjectUpdate extends LitElement {
     }
 
     update(changedProperties) {
-        debugger
         if (changedProperties.has("projectId")) {
             this.projectIdObserver();
         }

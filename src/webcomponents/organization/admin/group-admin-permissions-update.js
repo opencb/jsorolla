@@ -128,7 +128,6 @@ export default class GroupAdminPermissionsUpdate extends LitElement {
     }
 
     #initPermissions() {
-        debugger
         // 1. Group contains params: (a) id: e.g. "@admins", (b) userIds: e.g. ["test"]
         // this.group = this._study.groups.find(group => group.id === this.groupId);
         // 2. In the update form, we need to manage as well the permissions of this group.
@@ -157,7 +156,6 @@ export default class GroupAdminPermissionsUpdate extends LitElement {
     }
 
     update(changedProperties) {
-        debugger
         if ((changedProperties.has("groupId") || (changedProperties.has("studyId")) && this.active)) {
             this.groupIdObserver();
         }
@@ -171,7 +169,6 @@ export default class GroupAdminPermissionsUpdate extends LitElement {
     }
 
     groupIdObserver() {
-        debugger
         if (this.groupId && this.studyId && this.opencgaSession) {
             const params = {
                 member: this.groupId,
