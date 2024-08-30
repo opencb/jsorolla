@@ -82,7 +82,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 searchField: "id",
                 placeholder: "project...",
                 // client: this.opencgaSession.opencgaClient.projects(),
-                fetch: filters => this.opencgaSession.opencgaClient.projects().search(filters),
+                fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.projects().search(params),
                 fields: item => ({
                     "name": item.id,
                 }),
@@ -94,7 +94,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 searchField: "id",
                 placeholder: "study...",
                 // client: this.opencgaSession.opencgaClient.studies(),
-                fetch: filters => this.opencgaSession.opencgaClient.studies().search(filters),
+                fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.studies().search(params),
                 fields: item => ({
                     "name": item.id,
                 }),
@@ -285,6 +285,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                     ...this.query || this.RESOURCES[this.resource].query,
                     ...attr,
                 };
+
                 this.RESOURCES[this.resource].fetch(filters)
                     .then(response => success(response))
                     .catch(error => failure(error));

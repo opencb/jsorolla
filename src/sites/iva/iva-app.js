@@ -77,11 +77,13 @@ import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/file/file-manager.js";
 import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
+import "../../webcomponents/organization/admin/organization-admin.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/study/admin/study-admin-iva.js";
 import "../../webcomponents/study/admin/catalog-admin.js";
 import "../../webcomponents/study/admin/variant/study-variant-admin.js";
+import "../../webcomponents/study/admin/variant/operations-admin.js";
 import "../../webcomponents/user/user-profile.js";
 import "../../webcomponents/api/rest-api.js";
 import "../../webcomponents/note/note-browser.js";
@@ -224,13 +226,15 @@ class IvaApp extends LitElement {
             "diseasePanelUpdate",
             "clinicalAnalysis",
             // Admin
+            "organization-admin",
             "study-admin",
             "study-admin-iva",
             // "catalog-admin",
+            "operations-admin",
             "study-variant-admin",
             "opencga-admin",
             "variants-admin",
-            "projects-admin",
+            // "projects-admin",
             // REST-API
             "rest-api",
             // note
@@ -1135,6 +1139,10 @@ class IvaApp extends LitElement {
     // }
 
     onSessionUpdateRequest() {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+            title: "Refresh Session: Session Update Request",
+            message: "Session updated correctly",
+        });
         this._createOpenCGASession();
     }
 
@@ -1979,13 +1987,15 @@ class IvaApp extends LitElement {
                     ` : nothing}
 
                     <!-- Admin -->
-                    ${this.config.enabledComponents["projects-admin"] ? html`
-                        <tool-header title="Projects Admin" icon="${"fas fa-rocket"}"></tool-header>
-                        <div id="projects-admin">
-                            <projects-admin
+                    ${this.config.enabledComponents["organization-admin"] ? html`
+                        <tool-header title="Organization Admin: ${this.opencgaSession?.user?.organization}" icon="${"fas fa-sitemap"}"></tool-header>
+                        <div id="organization-admin">
+                            <organization-admin
+                                .organization="${this.opencgaSession?.organization}"
                                 .opencgaSession="${this.opencgaSession}"
+                                @studyUpdateRequest="${this.onStudyUpdateRequest}"
                                 @sessionUpdateRequest="${this.onSessionUpdateRequest}">
-                            </projects-admin>
+                            </organization-admin>
                         </div>
                     ` : nothing}
 
@@ -1998,7 +2008,7 @@ class IvaApp extends LitElement {
                         </div>
                     ` : nothing}
 
-                    ${this.config.enabledComponents["opencga-admin"] ? html`
+                    ${this.config.enabledComponents["projects-admin"] ? html`
                         <tool-header title="Study Dashboard" icon="${"fas fa-rocket"}"></tool-header>
                         <div id="projects-admin">
                             <projects-admin
@@ -2011,7 +2021,6 @@ class IvaApp extends LitElement {
                     ${this.config.enabledComponents["study-admin"] ? html`
                         <div class="content" id="study-admin">
                             <study-admin
-                                .study="${this.opencgaSession.study}"
                                 .opencgaSession="${this.opencgaSession}"
                                 @studyUpdateRequest="${this.onStudyUpdateRequest}">
                             </study-admin>
@@ -2023,6 +2032,7 @@ class IvaApp extends LitElement {
                     ${this.config.enabledComponents["study-admin-iva"] ? html`
                         <div class="content row">
                             <study-admin-iva
+                                .organizationId="${this.opencgaSession?.user?.organization}"
                                 .opencgaSession="${this.opencgaSession}"
                                 .settings="${this.settings}"
                                 @studyUpdateRequest="${this.onStudyUpdateRequest}">
@@ -2030,13 +2040,14 @@ class IvaApp extends LitElement {
                         </div>
                     ` : nothing}
 
-                    ${this.config.enabledComponents["study-variant-admin"] ? html`
+                    ${this.config.enabledComponents["operations-admin"] ? html`
                         <div class="content row">
-                            <study-variant-admin
+                            <operations-admin
+                                .organizationId="${this.opencgaSession?.user?.organization}"
                                 .study="${this.opencgaSession.study}"
                                 .opencgaSession="${this.opencgaSession}"
                                 @studyUpdateRequest="${this.onStudyUpdateRequest}">
-                            </study-variant-admin>
+                            </operations-admin>
                         </div>
                     ` : nothing}
 
