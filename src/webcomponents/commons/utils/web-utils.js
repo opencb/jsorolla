@@ -51,7 +51,8 @@ export default class WebUtils {
             "CLINICAL_ANALYSIS": "CLINICAL_ANALYSIS",
             "PROJECT": "PROJECTS",
             "STUDY": "STUDIES",
-            "USER": "USERS"
+            "USER": "USERS",
+            "NOTE": "NOTE",
         };
         return (resource && mapResourcePermissionId[resource] && mode) ? `${mode.toUpperCase()}_${mapResourcePermissionId[resource]}` : "";
     }

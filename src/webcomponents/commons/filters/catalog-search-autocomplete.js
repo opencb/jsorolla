@@ -82,8 +82,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 searchField: "id",
                 placeholder: "project...",
                 // client: this.opencgaSession.opencgaClient.projects(),
-                fetch: filters => this.opencgaSession.opencgaClient.projects().search(filters),
-                excludeStudyFromQuery: true,
+                fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.projects().search(params),
                 fields: item => ({
                     "name": item.id,
                 }),
@@ -95,8 +94,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 searchField: "id",
                 placeholder: "study...",
                 // client: this.opencgaSession.opencgaClient.studies(),
-                fetch: filters => this.opencgaSession.opencgaClient.studies().search(filters),
-                excludeStudyFromQuery: true,
+                fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.studies().search(params),
                 fields: item => ({
                     "name": item.id,
                 }),
@@ -280,17 +278,13 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 const page = params?.data?.page || 1;
                 const attr = params?.data?.term ? {[this.searchField || this.RESOURCES[this.resource].searchField]: "~/" + params?.data?.term.trim() + "/i"} : null;
                 const filters = {
+                    study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: false,
                     skip: (page - 1) * this._config.limit,
                     ...this.query || this.RESOURCES[this.resource].query,
                     ...attr,
                 };
-                // Note 20240621 Vero: some of the resources do not need the key study. Consequently,
-                // A key excludeStudyFromQuery has been added to the specific resources in this.RESOURCES.
-                if (!this.RESOURCES[this.resource].excludeStudyFromQuery && !filters.study) {
-                    filters.study = this.opencgaSession.study.fqn;
-                }
 
                 this.RESOURCES[this.resource].fetch(filters)
                     .then(response => success(response))
