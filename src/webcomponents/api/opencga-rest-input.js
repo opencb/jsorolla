@@ -408,7 +408,8 @@ export default class OpencgaRestInput extends LitElement {
 
     #postEndpoint(url, isForm) {
         // Add Study
-        url += "study=" + encodeURIComponent(this.opencgaSession.study.fqn);
+        // Fixme: not all endpoints require study. E.g. POST /users/password/
+        url += "study=" + encodeURIComponent(this.opencgaSession?.study?.fqn);
 
         // Replace PATH params
         this.endpoint.parameters

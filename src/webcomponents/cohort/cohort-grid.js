@@ -346,6 +346,7 @@ export default class CohortGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
+                align: "center",
                 formatter: () => `
                     <div class="d-inline-block dropdown">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -367,7 +368,6 @@ export default class CohortGrid extends LitElement {
                         </ul>
                     </div>
                 `,
-                align: "center",
                 events: {
                     "click a": this.onActionClick.bind(this),
                 },

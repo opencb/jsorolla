@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import LitUtils from "../commons/utils/lit-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
-export default class UserPasswordReset extends LitElement {
+export default class GroupAdminDelete extends LitElement {
 
     constructor() {
         super();
@@ -32,26 +32,28 @@ export default class UserPasswordReset extends LitElement {
 
     static get properties() {
         return {
-            user: {
+            group: {
                 type: Object,
             },
+            active: {
+                type: Boolean,
+            },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             displayConfig: {
-                type: Object
+                type: Object,
             },
         };
     }
 
     #init() {
-        this._user = {};
+        this.isLoading = false;
         this.displayConfigDefault = {
             style: "margin: 10px",
             titleWidth: 3,
-            titleStyle: "color: var(--main-bg-color);margin-bottom:16px;font-weight:bold;",
             defaultLayout: "horizontal",
-            buttonOkText: "Reset password",
+            buttonOkText: "Delete",
         };
         this._config = this.getDefaultConfig();
     }
@@ -61,16 +63,11 @@ export default class UserPasswordReset extends LitElement {
         this.requestUpdate();
     }
 
-    #initOriginalObjects() {
-        this._config = this.getDefaultConfig();
-        this.requestUpdate();
-    }
-
     update(changedProperties) {
-        if (changedProperties.has("displayConfig") || changedProperties.has("user")) {
+        if (changedProperties.has("displayConfig")) {
             this.displayConfig = {
                 ...this.displayConfigDefault,
-                ...this.displayConfig
+                ...this.displayConfig,
             };
             this._config = this.getDefaultConfig();
         }
@@ -78,55 +75,51 @@ export default class UserPasswordReset extends LitElement {
     }
 
     onSubmit() {
-        // QUESTION:
-        //  - TASK-1667, includeResult
-        //  - JS client do not have argument for params, only user
-        let error;
         this.#setLoading(true);
-        //  Reset password
-        this.opencgaSession.opencgaClient.users()
-            .resetPassword(this.user.id)
+        let error;
+        return this.opencgaSession.opencgaClient.studies()
+            .updateGroups(this.group.fqn, {id: this.group.id}, {action: "REMOVE"})
             .then(() => {
-                this.#initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: `User Reset Password`,
-                    message: `User ${this.user.id} password reset correctly`,
+                    title: `Group Delete`,
+                    message: `Group ${this.group.id} in study ${this.group.fqn} deleted successfully`,
                 });
+                LitUtils.dispatchCustomEvent(this, "groupDelete", {});
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", {});
             })
             .catch(reason => {
                 error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "userUpdate", this.user.id, {}, error);
                 this.#setLoading(false);
             });
-
     }
 
     render() {
-        // TODO: check if opencgaSession has been provided
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         return html`
             <data-form
-                .data="${this.user}"
+                .data="${this.group}"
                 .config="${this._config}"
-                @submit="${() => this.onSubmit()}"
-                @clear="${() => this.onClear()}">
+                @submit="${e => this.onSubmit(e)}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
         return {
-            title: "Reset Password",
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
-                    title: `Do you really want to reset ${this.user?.id}'s password?`,
+                    // title: `Are you sure you want to remove group '${this.group?.id}'?`,
                     elements: [
                         {
                             type: "notification",
-                            text: `The user ${this.user?.id} will receive an email with a temporary password`,
+                            text: "The following users could have unexpected permissions if you remove this group",
                             display: {
                                 visible: true,
                                 icon: "fas fa-exclamation-triangle",
@@ -134,20 +127,27 @@ export default class UserPasswordReset extends LitElement {
                             },
                         },
                         {
-                            title: "User ID",
-                            field: "id",
-                            type: "input-text",
+                            // name: "UserIds",
+                            field: "users",
+                            type: "list",
                             display: {
-                                disabled: true,
-                            }
-                        },
-                        {
-                            title: "Email",
-                            field: "email",
-                            type: "input-text",
-                            display: {
-                                disabled: true,
-                            }
+                                separator: " ",
+                                contentLayout: "bullets",
+                                transform: users => users.length ?
+                                    users.map(user => ({userId: user.id})) :
+                                    [{userId: "This group does not have users"}],
+                                template: "${userId}",
+                                // FIXME: why is not working?
+                                // className: {
+                                //     "userId": "badge badge-pill badge-primary",
+                                // },
+                                // style: {
+                                //     "userId": {
+                                //         "color": "white",
+                                //         "background-color": "blue"
+                                //     },
+                                // }
+                            },
                         },
                     ],
                 },
@@ -157,4 +157,4 @@ export default class UserPasswordReset extends LitElement {
 
 }
 
-customElements.define("user-password-reset", UserPasswordReset);
+customElements.define("group-admin-delete", GroupAdminDelete);

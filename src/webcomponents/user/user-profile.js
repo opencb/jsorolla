@@ -95,6 +95,8 @@ export default class UserProfile extends LitElement {
                     render: (data, active, opencgaSession) => html`
                         <div>
                             <user-password-change
+                                .userId="${this.opencgaSession.user.id}"
+                                .organizationId="${this.opencgaSession?.user?.organization}"
                                 .opencgaSession="${opencgaSession}">
                             </user-password-change>
                         </div>
