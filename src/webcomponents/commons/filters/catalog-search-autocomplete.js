@@ -106,10 +106,11 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "SAMPLE": {
                 searchField: "id",
                 placeholder: "HG01879, HG01880, HG01881...",
-                client: this.opencgaSession.opencgaClient.samples(),
+                // client: this.opencgaSession.opencgaClient.samples(),
+                fetch: filters => this.opencgaSession.opencgaClient.samples().search(filters),
                 fields: item => ({
                     "name": item.id,
-                    "Individual ID": item?.individualId
+                    "Individual ID": item?.individualId,
                 }),
                 query: {
                     include: "id,individualId"
