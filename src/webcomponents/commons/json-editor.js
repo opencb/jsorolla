@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import {JSONEditor} from "vanilla-jsoneditor";
 import NotificationUtils from "./utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
@@ -50,8 +50,15 @@ export default class JsonEditor extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.jsonEditor = null;
         this.jsonEditorId = this._prefix + "jsoneditor";
-        this._data = "";
+        this._data = {};
         this._config = this.getDefaultConfig();
+    }
+
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("config")) {
+            console.log("init data...");
+            this._data = this._config?.initAsArray ? [] : {};
+        }
     }
 
     update(changedProperties) {
@@ -75,7 +82,6 @@ export default class JsonEditor extends LitElement {
             }
         }
     }
-
 
     initJsonEditor() {
         const content = {
@@ -126,16 +132,14 @@ export default class JsonEditor extends LitElement {
 
         return html`
             ${this._config.showDownloadButton ? html`
-                <div class="text-right" style="margin-bottom:8px;">
+                <div class="float-end">
                     <download-button
                         .json="${this.data}"
-                        .class="${"btn-sm"}">
+                        classes="${"btn btn-light my-2"}">
                     </download-button>
                 </div>
-            ` : null
-            }
-
-            <div id="${this.jsonEditorId}"></div>
+            ` : nothing}
+            <div class="pt-2" id="${this.jsonEditorId}"></div>
         `;
     }
 
@@ -144,6 +148,7 @@ export default class JsonEditor extends LitElement {
             mode: "text", // Two accepted values: text, tree.
             indentation: 4,
             readOnly: false,
+            initAsArray: false,
             showDownloadButton: true
         };
     }

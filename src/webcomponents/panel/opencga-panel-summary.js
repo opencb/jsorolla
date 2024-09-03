@@ -84,6 +84,8 @@ export default class OpencgaPanelSummary extends LitElement {
         const _this = this;
         $("#" + this._prefix + "PanelDiseasesGrid").bootstrapTable("destroy");
         $("#" + this._prefix + "PanelDiseasesGrid").bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: _this.diseasesSelected,
             columns: _this._createPhenotypes(),
             // method: 'get',
@@ -143,6 +145,8 @@ export default class OpencgaPanelSummary extends LitElement {
         const _this = this;
         $("#" + this._prefix + "PanelGenesGrid").bootstrapTable("destroy");
         $("#" + this._prefix + "PanelGenesGrid").bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: _this.genesSelected,
             columns: _this._createGenes(),
             // method: 'get',
@@ -202,6 +206,8 @@ export default class OpencgaPanelSummary extends LitElement {
         const _this = this;
         $("#" + this._prefix + "PanelMutationsGrid").bootstrapTable("destroy");
         $("#" + this._prefix + "PanelMutationsGrid").bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: _this._createMutations(),
             data: _this.mutationsSelected,
             // method: 'get',

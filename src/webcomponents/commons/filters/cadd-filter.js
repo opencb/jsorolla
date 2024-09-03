@@ -1,3 +1,4 @@
+/* eslint-disable lit/attribute-value-entities */
 /**
  * Copyright 2015-2019 OpenCB
  *
@@ -103,8 +104,8 @@ export default class CaddFilter extends LitElement {
 
     errorMessage(msg) {
         return html `
-            <div style="display:flex; flex-direction:row-reverse; color:#a94442">
-                <span>${msg}</span>
+            <div class="row" style="color:#a94442">
+                ${msg}
             </div>
         `;
     }
@@ -127,52 +128,43 @@ export default class CaddFilter extends LitElement {
 
     render() {
         return html`
-            <div style="padding-top: 10px">
-                <div class="row">
-                    <div class="col-md-5 form-group" style="padding-right: 5px">
-                        <span class="control-label">Raw</span>
-                    </div>
-                    <div class="col-md-3" style="padding: 0px 5px">
-                        <select name="caddRawOperator" id="${this._prefix}CaddRawOperator"
-                                class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px"
-                                @change="${this.caddFilterChange}">
-                            <option value="<">&lt;</option>
-                            <option value="<=">&le;</option>
-                            <option value=">" selected>&gt;</option>
-                            <option value=">=">&ge;</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4" style="padding-left: 5px">
-                        <input type="number" class="${this._prefix}FilterTextInput form-control input-sm"
-                            id="${this._prefix}CaddRawInput" name="caddRaw" @input="${e => this.filterChange(e, "raw")}">
-                    </div>
-                    <div class="col-md-12">
-                        ${this.invalidData["raw"]? this.errorMessage("0 or 1"):""}
-                    </div>
+            <div class="row g-1">
+                <div class="col-md-5">
+                    <label class="form-label">Raw</label>
                 </div>
-            </div>
+                <div class="col-md-3">
+                    <select class="${this._prefix}FilterSelect form-select"  id="${this._prefix}CaddRawOperator"
+                            name="caddRawOperator" @change="${this.caddFilterChange}">
+                        <option value="<">&lt;</option>
+                        <option value="<=">&le;</option>
+                        <option value=">" selected>&gt;</option>
+                        <option value=">=">&ge;</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" class="${this._prefix}FilterTextInput form-control"
+                        id="${this._prefix}CaddRawInput" name="caddRaw" @input="${e => this.filterChange(e, "raw")}">
+                </div>
+                ${this.invalidData["raw"]? this.errorMessage("0 or 1"):""}
 
-            <div style="padding-top: 10px">
-                <div class="row">
-                    <span class="col-md-5 control-label" style="padding-right: 5px">Scaled</span>
-                    <div class="col-md-3" style="padding: 0px 5px">
-                        <select name="caddRScaledOperator" id="${this._prefix}CaddScaledOperator"
-                                class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px"
-                                @change="${this.caddFilterChange}">
-                            <option value="<" selected>&lt;</option>
-                            <option value="<=">&le;</option>
-                            <option value=">">&gt;</option>
-                            <option value=">=">&ge;</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4" style="padding-left: 5px">
-                        <input type="number" min="0" max="99" class="${this._prefix}FilterTextInput form-control input-sm"
-                            id="${this._prefix}CaddScaledInput" name="caddScaled" @input="${e => this.filterChange(e, "scaled")}">
-                    </div>
-                    <div class="col-md-12">
-                        ${this.invalidData["scaled"]? this.errorMessage("Invalid number, must be between 0-99"):""}
-                    </div>
+
+                <div class="col-md-5">
+                    <label class="form-label">Scaled</label>
                 </div>
+                <div class="col-md-3">
+                    <select class="${this._prefix}FilterSelect form-select" id="${this._prefix}CaddScaledOperator"
+                        name="caddRScaledOperator" @change="${this.caddFilterChange}">
+                        <option value="<" selected>&lt;</option>
+                        <option value="<=">&le;</option>
+                        <option value=">">&gt;</option>
+                        <option value=">=">&ge;</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" min="0" max="99" class="${this._prefix}FilterTextInput form-control"
+                        id="${this._prefix}CaddScaledInput" name="caddScaled" @input="${e => this.filterChange(e, "scaled")}">
+                </div>
+                ${this.invalidData["scaled"]? this.errorMessage("Invalid number, must be between 0-99"):""}
             </div>
         `;
     }

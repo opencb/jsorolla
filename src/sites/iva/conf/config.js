@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 const hosts = [
     {
         id: "prod",
@@ -32,10 +31,11 @@ const hosts = [
 ];
 
 const opencga = {
-    host: hosts[1].url,
+    host: hosts[2].url,
     version: "v2",
+    organizations: [],
     cookie: {
-        prefix: "iva-" + hosts[1].id,
+        prefix: "iva-" + hosts[2].id,
         secure: true,
     },
     sso: {
@@ -140,6 +140,11 @@ const CATALOG_NAVBAR_MENU = {
             id: "cohort",
             name: "Cohort Browser",
             visibility: "public"
+        },
+        {
+            id: "note-browser",
+            name: "Note Browser",
+            visibility: "public",
         },
         {
             separator: true,
@@ -758,8 +763,17 @@ const SUITE = {
             },
             menu: [
                 {
+                    id: "organization-admin",
+                    name: "Organizations Admin",
+                    fa_icon: "fas fa-file-invoice",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    description: "",
+                    visibility: "public",
+                    featured: true,
+                },
+                {
                     id: "study-admin",
-                    name: "Study admin",
+                    name: "Study Admin",
                     fa_icon: "fas fa-file-invoice",
                     icon: "img/tools/icons/variant_browser.svg",
                     description: "",
@@ -777,7 +791,7 @@ const SUITE = {
                 // },
                 {
                     id: "study-admin-iva",
-                    name: "IVA configuration",
+                    name: "IVA Configuration",
                     fa_icon: "fas fa-file-invoice",
                     icon: "img/tools/icons/variant_browser.svg",
                     description: "",
@@ -793,24 +807,33 @@ const SUITE = {
                 //     visibility: "public",
                 //     featured: false,
                 // },
+                // {
+                //     id: "study-variant-admin",
+                //     name: "Study Variant Admin",
+                //     fa_icon: "fas fa-file-invoice",
+                //     icon: "img/tools/icons/variant_browser.svg",
+                //     description: "",
+                //     visibility: "public",
+                //     featured: true,
+                // },
                 {
-                    id: "study-variant-admin",
-                    name: "Study Variant Admin",
+                    id: "operations-admin",
+                    name: "Operations Admin",
                     fa_icon: "fas fa-file-invoice",
                     icon: "img/tools/icons/variant_browser.svg",
                     description: "",
                     visibility: "public",
                     featured: true,
                 },
-                {
-                    id: "projects-admin",
-                    name: "Project Manager",
-                    fa_icon: "fas fa-file-invoice",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    description: "",
-                    visibility: "public",
-                    featured: true,
-                },
+                // {
+                //     id: "projects-admin",
+                //     name: "Project Manager",
+                //     fa_icon: "fas fa-file-invoice",
+                //     icon: "img/tools/icons/variant_browser.svg",
+                //     description: "",
+                //     visibility: "public",
+                //     featured: true,
+                // },
             ],
             fileExplorer: {
                 visibility: "private"

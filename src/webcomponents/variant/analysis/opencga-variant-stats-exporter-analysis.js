@@ -121,7 +121,7 @@ export default class OpencgaVariantStatsExporterAnalysis extends LitElement {
                     id: "variant-stats-exporter-$DATE",
                     tags: "",
                     description: "",
-                    validation: function(params) {
+                    validation: function (params) {
                         alert("test:" + params);
                     },
                     button: "Run"
@@ -137,9 +137,13 @@ export default class OpencgaVariantStatsExporterAnalysis extends LitElement {
 
     render() {
         return html`
-           <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
+            <opencga-analysis-tool
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}" >
+            </opencga-analysis-tool>
         `;
     }
+
 }
 
 customElements.define("opencga-variant-stats-exporter-analysis", OpencgaVariantStatsExporterAnalysis);

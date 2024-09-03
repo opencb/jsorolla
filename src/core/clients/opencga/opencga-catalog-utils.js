@@ -15,7 +15,6 @@
  */
 
 import UtilsNew from "../../utils-new.js";
-import "../../../sites/iva/conf/browsers.settings.js";
 
 export default class OpencgaCatalogUtils {
 
@@ -53,50 +52,58 @@ export default class OpencgaCatalogUtils {
         return loggedUser === "opencga" || loggedUser === user;
     }
 
-    static checkProjectPermissions(project, user) {
-        return user === "opencga" || OpencgaCatalogUtils.getProjectOwner(project) === user;
-    }
-
     // Check if the user has the right the permissions in the study.
     static checkPermissions(study, user, permissions) {
         if (!study || !user || !permissions) {
             console.error(`No valid parameters, study: ${study}, user: ${user}, permissions: ${permissions}`);
             return false;
         }
-        // Check if user is the Study owner
-        const studyOwner = study.fqn.split("@")[0];
-        if (user === studyOwner) {
+        // Check if user is a Study admin, belongs to @admins group
+        const admins = study.groups.find(group => group.id === "@admins");
+        if (admins.userIds.includes(user)) {
             return true;
         } else {
-            // Check if user is a Study admin, belongs to @admins group
-            const admins = study.groups.find(group => group.id === "@admins");
-            if (admins.userIds.includes(user)) {
-                return true;
-            } else {
-                // Check if user is in acl
-                const aclUserIds = study.groups
-                    .filter(group => group.userIds.includes(user))
-                    .map(group => group.id);
-                aclUserIds.push(user);
-                for (const aclId of aclUserIds) {
-                    // Find the permissions for this user
-                    const userPermissions = study?.acl
-                        ?.find(acl => acl.member === user)?.groups
-                        ?.find(group => group.id === aclId)?.permissions || [];
-                    if (Array.isArray(permissions)) {
-                        for (const permission of permissions) {
-                            if (userPermissions?.includes(permission)) {
-                                return true;
-                            }
-                        }
-                    } else {
-                        if (userPermissions?.includes(permissions)) {
+            // Check if user is in acl
+            const aclUserIds = study.groups
+                .filter(group => group.userIds.includes(user))
+                .map(group => group.id);
+            aclUserIds.push(user);
+            for (const aclId of aclUserIds) {
+                // Find the permissions for this user
+                const userPermissions = study?.acl
+                    ?.find(acl => acl.member === user)?.groups
+                    ?.find(group => group.id === aclId)?.permissions || [];
+                if (Array.isArray(permissions)) {
+                    for (const permission of permissions) {
+                        if (userPermissions?.includes(permission)) {
                             return true;
                         }
+                    }
+                } else {
+                    if (userPermissions?.includes(permissions)) {
+                        return true;
                     }
                 }
             }
         }
+        return false;
+    }
+
+    // Check if the provided user is admin in the organization
+    static isOrganizationAdmin(organization, userId) {
+        if (!organization || !userId) {
+            return false;
+        }
+        // 1. Check if user is the organization admin
+        if (organization?.owner === userId) {
+            return true;
+        } else {
+            // Check if user is an admin of the organization
+            if (organization?.admins?.includes?.(userId)) {
+                return true;
+            }
+        }
+        // Other case, user is not admin of the organization
         return false;
     }
 
@@ -106,17 +113,25 @@ export default class OpencgaCatalogUtils {
             console.error(`No valid parameters, study: ${study}, user: ${userLogged}`);
             return false;
         }
-        // Check if user is the Study owner
-        const studyOwner = study.fqn.split("@")[0];
-        if (userLogged === studyOwner) {
+        const admins = study.groups.find(group => group.id === "@admins");
+        return !!admins.userIds.includes(userLogged);
+    }
+
+    // Check if the provided user is admin in the organization
+    static isOrganizationAdmin(organization, userId) {
+        if (!organization || !userId) {
+            return false;
+        }
+        // 1. Check if user is the organization admin
+        if (organization?.owner === userId) {
             return true;
         } else {
-            // Check if user is a Study admin, belongs to @admins group
-            const admins = study.groups.find(group => group.id === "@admins");
-            if (admins.userIds.includes(userLogged)) {
+            // Check if user is an admin of the organization
+            if (organization?.admins?.includes?.(userId)) {
                 return true;
             }
         }
+        // Other case, user is not admin of the organization
         return false;
     }
 

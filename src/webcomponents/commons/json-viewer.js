@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import {JSONEditor} from "vanilla-jsoneditor";
 import UtilsNew from "../../core/utils-new.js";
 import "../download-button.js";
@@ -23,7 +23,8 @@ export default class JsonViewer extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -44,7 +45,7 @@ export default class JsonViewer extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.active = true;
         this.jsonView = null;
@@ -91,15 +92,13 @@ export default class JsonViewer extends LitElement {
         }
 
         return html`
-            ${this._config?.showDownloadButton ? html`
-                <div class="text-right" style="margin-bottom:8px;">
-                    <download-button
-                        .json="${this.data}"
-                        .class="${"btn-sm"}">
-                    </download-button>
+            ${this.showDownloadButton ? html`
+                <div class="d-flex justify-content-end">
+                    <download-button .json="${this.data}"></download-button>
                 </div>
-            ` : null}
-            <div id="${this._prefix}JsonView"></div>
+            ` : nothing}
+
+            <div id="${this._prefix}JsonView" class="pt-2"></div>
         `;
     }
 

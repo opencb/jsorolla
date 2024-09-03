@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
-
 export default class JobDetailLog extends LitElement {
 
     constructor() {
@@ -93,7 +92,7 @@ export default class JobDetailLog extends LitElement {
 
     // setInterval makes sense only in case of Tail log
     setReloadInterval() {
-        if (this.active && this.command === "tail" && this.job.internal.status.name === "RUNNING") {
+        if (this.active && this.command === "tail" && this.job.internal.status.id === "RUNNING") {
             this.requestUpdate();
             this.interval = setInterval(() => {
                 if ($(".jobs-details-log", this).is(":visible")) {
@@ -115,7 +114,7 @@ export default class JobDetailLog extends LitElement {
     }
 
     async fetchContent(job, params = {}, append = false) {
-        const statusWithoutLogs = ["PENDING", "ABORTED", "QUEUED"];
+        const statusWithoutLogs = ["PENDING", "QUEUED"];
         if (!append) {
             this.content = "";
         }
@@ -170,29 +169,9 @@ export default class JobDetailLog extends LitElement {
     render() {
         return html`
             <style>
-                .wrapper {
-                    height: 35px;
-                    margin-top: 5px;
-                }
-
                 .log-wrapper {
                     min-height: 150px;
                 }
-
-                .wrapper fieldset.log-type {
-                    float: left;
-                    width: 200px;
-                }
-
-                .wrapper-label {
-                    color: grey;
-                    vertical-align: text-bottom;
-                }
-
-                .jobs-details-log .content-pills {
-                    margin: 10px 30px 10px 0;
-                }
-
                 .cursor {
                     width: 7px;
                     height: 16px;
@@ -203,15 +182,6 @@ export default class JobDetailLog extends LitElement {
                     -moz-animation: blink 1s infinite;
                     animation: blink 1s infinite;
                 }
-
-                .jobs-details-log .fa-sync-alt {
-                    margin-left: 10px;
-                }
-
-                .jobs-details-log .fa-sync-alt.disabled {
-                    color: #c5c5c5;
-                }
-
                 @keyframes blink {
                   0% {
                     opacity: 0;
@@ -224,31 +194,27 @@ export default class JobDetailLog extends LitElement {
                   }
                 }
             </style>
-            <div class="jobs-details-log">
-                <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                    <div class="btn-group command-buttons" role="group">
-                        <button type="button" class="btn btn-default btn-small ${this.command === "head" ? "active" : ""}" @click="${() => this.setCommand("head")}">
-                            <i class="fas fa-align-left icon-padding"></i> Head
-                        </button>
-                        <button type="button" class="btn btn-default btn-small ${this.command === "tail" ? "active" : ""}" @click="${() => this.setCommand("tail")}">
-                            <i class="fas fa-align-left icon-padding"></i>
-                            Tail
-                            <i class="fas fa-sync-alt ${this.command === "tail" && this.job.internal.status.name === "RUNNING" ? "anim-rotate" : "disabled"}"></i>
-                        </button>
-                    </div>
+            <div class="mb-3">
+                <div class="btn-group me-2">
+                    <button type="button" class="btn btn-light ${this.command === "head" ? "active" : ""}" @click="${() => this.setCommand("head")}">
+                        <i class="fas fa-align-left me-1"></i> Head
+                    </button>
+                    <button type="button" class="btn btn-light ${this.command === "tail" ? "active" : ""}" @click="${() => this.setCommand("tail")}">
+                        <i class="fas fa-align-left me-1"></i>
+                        Tail
+                        <i class="fas fa-sync-alt ${this.command === "tail" && this.job?.internal?.status?.id === "RUNNING" ? "anim-rotate" : "text-secondary"} ms-2"></i>
+                    </button>
                 </div>
-                <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                    <div class="btn-group" role="group" style="margin-left: 0px">
-                        <button type="button" class="btn btn-default btn-small ${this.type === "stderr" ? "active" : ""}" @click="${() => this.setType("stderr")}">
-                            <i class="fas fa-exclamation icon-padding"></i> Stderr
-                        </button>
-                        <button type="button" class="btn btn-default btn-small ${this.type === "stdout" ? "active" : ""}" @click="${() => this.setType("stdout")}">
-                            <i class="fas fa-info icon-padding"></i> Stdout
-                        </button>
-                    </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-light ${this.type === "stderr" ? "active" : ""}" @click="${() => this.setType("stderr")}">
+                        <i class="fas fa-exclamation me-1"></i> Stderr
+                    </button>
+                    <button type="button" class="btn btn-light ${this.type === "stdout" ? "active" : ""}" @click="${() => this.setType("stdout")}">
+                        <i class="fas fa-info me-1"></i> Stdout
+                    </button>
                 </div>
             </div>
-            <pre class="cmd log-wrapper ${this.command}">${this.content}\n${this.renderCursor()}</pre>
+            <pre class="overflow-x-scroll cmd log-wrapper ${this.command} rounded">${this.content}\n${this.renderCursor()}</pre>
         `;
     }
 

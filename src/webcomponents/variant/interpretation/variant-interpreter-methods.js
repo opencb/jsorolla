@@ -91,7 +91,7 @@ class VariantInterpreterMethods extends LitElement {
         // If no methods have been configured, we will display a warning message
         if (!this._config || this._config.items.length === 0) {
             return html`
-                <div class="col-md-6 col-md-offset-3" style="padding: 20px">
+                <div class="col-md-10 offset-md-1">
                     <div class="alert alert-warning" role="alert">
                         No automatic methods available at this time.
                     </div>
@@ -123,7 +123,7 @@ class VariantInterpreterMethods extends LitElement {
                         name: "Exomiser",
                         render: (clinicalAnalysis, active, opencgaSession) => {
                             return html`
-                                <div class="col-md-6 col-md-offset-3">
+                                <div class="col-md-6 offset-md-3">
                                     <tool-header title="Exomiser - ${probandId}" class="bg-white"></tool-header>
                                     <exomiser-analysis
                                         .toolParams="${{clinicalAnalysis: clinicalAnalysis.id}}"
@@ -146,7 +146,7 @@ class VariantInterpreterMethods extends LitElement {
                                 panels: clinicalAnalysis.panels?.map(panel => panel.id).join(","),
                             };
                             return html`
-                                <div class="col-md-6 col-md-offset-3">
+                                <div class="col-md-6 offset-md-3">
                                     <tool-header title="RD Tiering - ${probandId}" class="bg-white"></tool-header>
                                     <rd-tiering-analysis
                                         .toolParams="${toolParams}"
@@ -163,7 +163,7 @@ class VariantInterpreterMethods extends LitElement {
 
         return {
             display: {
-                align: "center"
+                classes: "justify-content-center",
             },
             items: items,
         };

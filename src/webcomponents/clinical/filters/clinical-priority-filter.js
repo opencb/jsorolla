@@ -87,17 +87,20 @@ export default class ClinicalPriorityFilter extends LitElement {
             <select-field-filter
                 .data="${this.priorities}"
                 .value=${this.priority}
-                .placeholder="${this.placeholder}"
-                .multiple="${this.multiple}"
                 .forceSelection="${this.forceSelection}"
+                .config="${{
+                    placeholder: this.placeholder,
+                    multiple: this.multiple,
+                    liveSearch: false,
+                    disabled: this.disabled,
+                }}"
                 .classes="${this.classes}"
-                .disabled="${this.disabled}"
                 @filterChange="${e => this.filterChange(e)}">
             </select-field-filter>
 
             <!-- Only show description when one single values is expected -->
             ${!this.multiple && this.priorityObject?.description ? html`
-                <span class="help-block" style="padding: 0 5px">${this.priorityObject.description}</span>` : null
+                <span class="form-text">${this.priorityObject.description}</span>` : null
             }
         `;
     }

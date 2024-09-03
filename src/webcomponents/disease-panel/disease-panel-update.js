@@ -61,7 +61,7 @@ export default class DiseasePanelUpdate extends LitElement {
             defaultLayout: "horizontal",
             buttonsVisible: true,
             buttonsWidth: 8,
-            buttonsAlign: "right",
+            buttonsAlign: "end",
         };
 
         this._config = this.getDefaultConfig();
@@ -315,8 +315,8 @@ export default class DiseasePanelUpdate extends LitElement {
                                     <div>
                                         <div>${gene?.name} (<a href="${BioinfoUtils.getGeneLink(gene?.id)}" target="_blank">${gene?.id}</a>)</div>
                                         <div style="margin: 5px 0">MoI: ${gene?.modesOfInheritance?.join(", ") || "NA"} (Confidence: ${gene.confidence || "NA"})</div>
-                                        <div class="help-block">${gene.coordinates?.[0]?.location}</div>
-                                        <div class="help-block">
+                                        <div class="d-block text-secondary">${gene.coordinates?.[0]?.location}</div>
+                                        <div class="d-block text-secondary">
                                             Location: ${gene.coordinates?.[0]?.location || "-"},
                                             Assembly: ${gene.coordinates?.[0]?.assembly || "-"},
                                         </div>
@@ -388,7 +388,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                     <div>
                                         <div>${region?.id}</div>
                                         <div style="margin: 5px 0">MoI: ${region?.modesOfInheritance?.join(", ") || "-"} (Confidence: ${region?.confidence || "NA"})</div>
-                                        <div class="help-block">
+                                        <div class="d-block text-secondary">
                                             Location: ${region.coordinates?.[0]?.location || "-"},
                                             Assembly: ${region.coordinates?.[0]?.assembly || "-"},
                                         </div>
@@ -442,7 +442,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                     <div>
                                         <div>${variant.id}</div>
                                         <div style="margin: 5px 0">MoI: ${variant?.modesOfInheritance?.join(", ") || "-"}</div>
-                                        <div class="help-block">
+                                        <div class="d-block text-secondary">
                                             Location: ${variant.coordinates?.[0]?.location || "-"},
                                             Assembly: ${variant.coordinates?.[0]?.assembly || "-"},
                                         </div>

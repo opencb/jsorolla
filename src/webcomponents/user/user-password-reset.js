@@ -1,12 +1,28 @@
+/**
+ * Copyright 2015-2024 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-
 
 export default class UserPasswordReset extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -16,81 +32,127 @@ export default class UserPasswordReset extends LitElement {
 
     static get properties() {
         return {
+            user: {
+                type: Object,
+            },
             opencgaSession: {
+                type: Object
+            },
+            displayConfig: {
                 type: Object
             },
         };
     }
 
     #init() {
-        this.hasEmptyUser = false;
+        this._user = {};
+        this.displayConfigDefault = {
+            style: "margin: 10px",
+            titleWidth: 3,
+            titleStyle: "color: var(--main-bg-color);margin-bottom:16px;font-weight:bold;",
+            defaultLayout: "horizontal",
+            buttonOkText: "Reset password",
+        };
+        this._config = this.getDefaultConfig();
     }
 
-    redirect(to) {
-        LitUtils.dispatchCustomEvent(this, "redirect", null, {hash: to});
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
-    onSubmit(e) {
-        e.preventDefault();
-        const user = (this.querySelector("#user").value || "").trim();
+    #initOriginalObjects() {
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
+    }
 
-        // Check for empty user ID
-        this.hasEmptyUser = user.length === 0;
-        if (this.hasEmptyUser) {
-            return this.requestUpdate();
+    update(changedProperties) {
+        if (changedProperties.has("displayConfig") || changedProperties.has("user")) {
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig
+            };
+            this._config = this.getDefaultConfig();
         }
+        super.update(changedProperties);
+    }
 
-        // Reset password mockup
-        // TODO: call openCGA to the correct endpoint
-        Promise.resolve().then(() => {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                "message": "We have just send you an email with the new password.",
+    onSubmit() {
+        // QUESTION:
+        //  - TASK-1667, includeResult
+        //  - JS client do not have argument for params, only user
+        let error;
+        this.#setLoading(true);
+        //  Reset password
+        this.opencgaSession.opencgaClient.users()
+            .resetPassword(this.user.id)
+            .then(() => {
+                this.#initOriginalObjects();
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: `User Reset Password`,
+                    message: `User ${this.user.id} password reset correctly`,
+                });
+            })
+            .catch(reason => {
+                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            })
+            .finally(() => {
+                LitUtils.dispatchCustomEvent(this, "userUpdate", this.user.id, {}, error);
+                this.#setLoading(false);
             });
 
-            this.querySelector("#user").value = "";
-            this.hasEmptyUser = false;
-            this.requestUpdate();
-        });
-    }
-
-    // Handle keyup event --> check for enter key to submit the form
-    onKeyUp(e) {
-        if (e.key === "Enter") {
-            return this.onSubmit(e);
-        }
     }
 
     render() {
+        // TODO: check if opencgaSession has been provided
         return html`
-            <div class="container-fluid" style="max-width:380px;">
-                <div class="panel panel-default" style="margin-top:96px;">
-                    <div class="panel-body" style="padding:32px;">
-                        <div align="center">
-                            <h3 style="font-weight:bold;margin-top:0px;">
-                                Reset your password
-                            </h3>
-                        </div>
-                        <div class="paragraph" style="margin-bottom:16px;">
-                            Please enter your user ID and we will send you an email with your password reset link.
-                        </div>
-                        <div class="form-group ${this.hasEmptyUser ? "has-error" : ""}">
-                            <div class="input-group">
-                                <span class="input-group-addon" id="username">
-                                    <i class="fa fa-user fa-lg"></i>
-                                </span>
-                                <input id="user" type="text" class="form-control" placeholder="User ID" @keyup="${e => this.onKeyUp(e)}">
-                            </div>
-                        </div>
-                        <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
-                            <strong>Reset Password</strong>
-                        </button>
-                    </div>
-                </div>
-                <div align="center">
-                    <a @click="${() => this.redirect("#login")}" style="cursor:pointer;">Go back to Login</a>
-                </div>
-            </div>
+            <data-form
+                .data="${this.user}"
+                .config="${this._config}"
+                @submit="${() => this.onSubmit()}"
+                @clear="${() => this.onClear()}">
+            </data-form>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            title: "Reset Password",
+            display: this.displayConfig || this.displayConfigDefault,
+            sections: [
+                {
+                    title: `Do you really want to reset ${this.user?.id}'s password?`,
+                    elements: [
+                        {
+                            type: "notification",
+                            text: `The user ${this.user?.id} will receive an email with a temporary password`,
+                            display: {
+                                visible: true,
+                                icon: "fas fa-exclamation-triangle",
+                                notificationType: "error",
+                            },
+                        },
+                        {
+                            title: "User ID",
+                            field: "id",
+                            type: "input-text",
+                            display: {
+                                disabled: true,
+                            }
+                        },
+                        {
+                            title: "Email",
+                            field: "email",
+                            type: "input-text",
+                            display: {
+                                disabled: true,
+                            }
+                        },
+                    ],
+                },
+            ],
+        };
     }
 
 }

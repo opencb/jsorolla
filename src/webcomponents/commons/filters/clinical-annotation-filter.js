@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import "../../commons/forms/select-field-filter.js";
 import "../../commons/forms/checkbox-field-filter.js";
 
@@ -24,7 +24,7 @@ export default class ClinicalAnnotationFilter extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,7 +48,7 @@ export default class ClinicalAnnotationFilter extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.query = {};
     }
 
@@ -98,34 +98,43 @@ export default class ClinicalAnnotationFilter extends LitElement {
 
     render() {
         return html`
-            <div style="margin: 10px 0px">
-                <span>Select Clinical Database</span>
-                <div style="padding: 2px 0px" data-cy="clinical-db">
-                    <select-field-filter multiple
-                                         .data="${this._config.clinicalDatabases}"
-                                         .value=${this.clinical}
-                                         @filterChange="${e => this.filterChange(e, "clinical")}">
+            <div class="mb-3">
+                <label class="form-label">
+                    Select Clinical Database
+                </label>
+                <div data-cy="clinical-db">
+                    <select-field-filter
+                        .data="${this._config.clinicalDatabases}"
+                        .value=${this.clinical}
+                        .config="${{multiple: true}}"
+                        @filterChange="${e => this.filterChange(e, "clinical")}">
                     </select-field-filter>
                 </div>
             </div>
 
-            <div style="margin: 15px 0px">
-                <span>Select Clinical Significance</span>
-                <div style="padding: 2px 0px" data-cy="clinical-significance">
-                    <select-field-filter multiple
-                                         .data=${CLINICAL_SIGNIFICANCE}
-                                         .value=${this.clinicalSignificance}
-                                         @filterChange="${e => this.filterChange(e, "clinicalSignificance")}">
+            <div class="mb-3">
+                <label class="form-label">
+                    Select Clinical Significance
+                </label>
+                <div data-cy="clinical-significance">
+                    <select-field-filter
+                        .data=${CLINICAL_SIGNIFICANCE}
+                        .value=${this.clinicalSignificance}
+                        .config="${{multiple: true}}"
+                        @filterChange="${e => this.filterChange(e, "clinicalSignificance")}">
                     </select-field-filter>
                 </div>
             </div>
 
-            <div style="margin: 15px 0px">
-                <span>Check Status</span>
-                <div style="padding: 2px 0px" class="clinical-status">
-                    <checkbox-field-filter .data="${["Confirmed"]}"
-                                           .value=${this.clinicalConfirmedStatus === true || this.clinicalConfirmedStatus === "true" ? "Confirmed" : null}
-                                           @filterChange="${e => this.filterChange(e, "clinicalConfirmedStatus")}">
+            <div class="mb-3">
+                <label class="form-label">
+                    Check Status
+                </label>
+                <div class="clinical-status">
+                    <checkbox-field-filter
+                        .data="${["Confirmed"]}"
+                        .value=${this.clinicalConfirmedStatus === true || this.clinicalConfirmedStatus === "true" ? "Confirmed" : null}
+                        @filterChange="${e => this.filterChange(e, "clinicalConfirmedStatus")}">
                     </checkbox-field-filter>
                 </div>
             </div>`;
