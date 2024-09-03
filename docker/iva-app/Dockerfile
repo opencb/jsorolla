@@ -1,7 +1,6 @@
 FROM httpd:2.4-bullseye
 COPY ./docker/iva-app/custom-httpd.conf /usr/local/apache2/conf/httpd.conf
 
-
 ## To run the docker use:
 ## docker build -f ./docker/iva-app/Dockerfile -t iva-httpd .
 ## docker run --name jsorolla -p 8888:8080 opencb/iva-app
@@ -34,6 +33,10 @@ RUN true
 COPY    ./build/api                 /usr/local/apache2/htdocs/api
 COPY    ./${SITE}/api/conf          /usr/local/apache2/htdocs/api/conf/
 COPY    ./${SITE}/api/img           /usr/local/apache2/htdocs/api/img/
+
+## Run Docker images as non root
+RUN opencga -m -u 1001 myuser
+USER opencga
 
 ## Genome Maps (Coming soon  :-) )
 #COPY    ./build/genome-maps                 /usr/local/apache2/htdocs/genome-maps
