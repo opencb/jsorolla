@@ -238,15 +238,16 @@ export default class UtilsNew {
         delete obj[last];
     }
 
-    static getDiskUsage(bytes, numDecimals = 2) {
+    static getDiskUsage(bytes, numDecimals = 2, useInternationalSystem = false) {
         if (bytes === 0) {
             return "0 Byte";
         }
-        const k = 1000;
+        const k = useInternationalSystem ? 1000 : 1024;
         const dm = numDecimals ? numDecimals : 2;
         const sizes = [" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB"];
+        const sizesBinary = [" Bytes", " KiB", " MiB", " GiB", " TiB", " PiB", " EiB", " ZiB", " YiB"];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
+        return (bytes / Math.pow(k, i)).toFixed(dm) + (useInternationalSystem ? sizes[i] : sizesBinary[i]);
     }
 
     static getDatetime(timestamp) {
@@ -633,9 +634,13 @@ export default class UtilsNew {
         let examples = internal.examples;
         const detail = internal.detail;
 
+        // Get default filters
+        const defaultFilter = external?.menu?.defaultFilter || {};
+
         if (external?.menu?.sections?.length) {
             sections = UtilsNew.mergeSections(sections, external.menu.sections);
         }
+
         // merge canned filters
         if (external?.menu?.examples?.length) {
             examples = UtilsNew.mergeExampleFilters(internal.examples, external.menu.examples);
@@ -648,7 +653,7 @@ export default class UtilsNew {
                 detail.items = UtilsNew.mergeArray(internal.detail.items, external.details || external.hiddenDetails, !!external.hiddenDetails);
             }
         }
-        return {...internal, sections, examples, detail};
+        return {...internal, sections, examples, detail, defaultFilter};
     }
 
     /**

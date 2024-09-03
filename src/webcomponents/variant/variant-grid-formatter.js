@@ -937,8 +937,8 @@ export default class VariantGridFormatter {
                 <thead>
                     <tr>
                         <th style='padding:0 8px 8px 0;'>Population</th>
-                        <th style='min-width:100px;padding:0 8px 8px 0;'>Allele ALT<br>(freq/count)</th>
-                        <th style='min-width:100px;padding:0 0 8px 0;'>Genotype HOM_ALT<br>(freq/count)</th>
+                        <th style='min-width:100px;padding:0 8px 8px 0;'>Allele ALT<br><span style='font-style: italic'>Freq / Count (%)</span></th>
+                        <th style='min-width:100px;padding:0 0 8px 0;'>Genotype HOM_ALT<br><span style='font-style: italic'>Freq / Count (%)</span></th>
                     </tr>
                 </thead>
                 <tbody>${tooltipRows.join("")}</tbody>
@@ -1011,13 +1011,14 @@ export default class VariantGridFormatter {
 
     static _getPopulationFrequencyColor(freq, populationFrequenciesColor) {
         let color;
-        if (freq === 0 || freq === "0") {
+        const freqFloat = Number.parseFloat(freq);
+        if (freqFloat === 0 || freqFloat === "0") {
             color = populationFrequenciesColor.unobserved;
-        } else if (freq < 0.001) {
+        } else if (freqFloat < 0.001) {
             color = populationFrequenciesColor.veryRare;
-        } else if (freq < 0.005) {
+        } else if (freqFloat < 0.005) {
             color = populationFrequenciesColor.rare;
-        } else if (freq < 0.05) {
+        } else if (freqFloat < 0.05) {
             color = populationFrequenciesColor.average;
         } else {
             color = populationFrequenciesColor.common;
@@ -1190,26 +1191,57 @@ export default class VariantGridFormatter {
                         </div>
                         <div>
                             ${
-                    hotspot.variants
-                        .map(variant => `
-                                    <span
-                                        class="help-block"
-                                        style="margin: 5px 1px">${AMINOACID_CODE[hotspot.aminoacidReference]}${hotspot.aminoacidPosition}${AMINOACID_CODE[variant.aminoacidAlternate]}: ${variant.count} sample(s)
-                                    </span>`)
-                        .join("")
-                }
+                                hotspot.variants
+                                    .map(variant => `
+                                        <span
+                                            class="help-block"
+                                            style="margin: 5px 1px">${AMINOACID_CODE[hotspot.aminoacidReference]}${hotspot.aminoacidPosition}${AMINOACID_CODE[variant.aminoacidAlternate]}: ${variant.count} sample(s)
+                                        </span>`)
+                                    .join("")
+                            }
                         </div>
                     </div>`;
             }
 
             if (cancerHotspotsHtml.size > 0) {
                 return `
-                     <a class="hotspots-tooltip" tooltip-title='Info' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                    <a class="hotspots-tooltip" tooltip-title='Info' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
                         <span style="color: green">${cancerHotspotsHtml.size} ${cancerHotspotsHtml.size === 1 ? "variant" : "variants"}</span>
                     </a>`;
             }
         }
         return "<span title='No clinical records found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
+    }
+
+    static clinicalOmimFormatter(value, row) {
+        const entries = (row?.annotation?.geneTraitAssociation || [])
+            .filter(item => (item?.id || "").startsWith("OMIM:"))
+            .map(item => item.id.replace("OMIM:", ""));
+
+        if (entries?.length > 0) {
+            const uniqueEntries = new Set(entries);
+            const entriesLinks = Array.from(uniqueEntries)
+                .map(entry => {
+                    return `
+                        <div style="">
+                            <a href="${BioinfoUtils.getOmimLink(entry)}" target="_blank">${entry}</a>
+                        </div>
+                    `;
+                });
+            const tooltipText = entriesLinks.join("");
+
+            return `
+                <a class="omim-tooltip" tooltip-title='Info' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                    <span style='color:green;'>${uniqueEntries.size}<br>${uniqueEntries.size === 1 ? "entry" : "entries"}</span>
+                </a>
+            `;
+        } else {
+            return `
+                <span title='No clinical records found for this variant'>
+                    <i class='fa fa-times' style='color: gray'></i>
+                </span>
+            `;
+        }
     }
 
     static clinicalTableDetail(value, row, index) {
@@ -1515,37 +1547,6 @@ export default class VariantGridFormatter {
             return reportedHtml;
         }
         return "-";
-    }
-
-
-    static clinicalOmimFormatter(value, row) {
-        const entries = (row?.annotation?.geneTraitAssociation || [])
-            .filter(item => (item?.id || "").startsWith("OMIM:"))
-            .map(item => item.id.replace("OMIM:", ""));
-
-        if (entries.length > 0) {
-            const uniqueEntries = new Set(entries);
-            const entriesLinks = Array.from(uniqueEntries).map(entry => {
-                return `
-                    <div style="">
-                        <a href="${BioinfoUtils.getOmimLink(entry)}" target="_blank">${entry}</a>
-                    </div>
-                `;
-            });
-            const tooltipText = entriesLinks.join("");
-
-            return `
-                <a class="hotspots-tooltip" tooltip-title='Info' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                    <span style='color:green;'>${uniqueEntries.size}<br>${uniqueEntries.size === 1 ? "entry" : "entries"}</span>
-                </a>
-            `;
-        } else {
-            return `
-                <span title='No clinical records found for this variant'>
-                    <i class='fa fa-times' style='color: gray'></i>
-                </span>
-            `;
-        }
     }
 
 }

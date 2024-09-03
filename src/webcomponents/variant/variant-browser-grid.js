@@ -26,6 +26,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
+import WebUtils from "../commons/utils/web-utils.js";
 
 
 export default class VariantBrowserGrid extends LitElement {
@@ -81,30 +82,29 @@ export default class VariantBrowserGrid extends LitElement {
 
         // TODO move to the configuration?
         this.maxNumberOfPages = 1000000;
+
+        this.gridCommons = null;
+        this._config = this.getDefaultConfig();
     }
 
-    firstUpdated() {
-        // this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.table = this.querySelector("#" + this.gridId);
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
-        };
-    }
-
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-        if (changedProperties.has("query") || changedProperties.has("variants")) {
+
+        if (changedProperties.has("query")) {
             this.queryObserver();
-            // update config to add new columns by filters as sample
-            this.configObserver();
-            this.renderVariants();
         }
+
         if (changedProperties.has("config") || changedProperties.has("toolId")) {
             this.configObserver();
-            this.requestUpdate();
+        }
+
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.size > 0) {
             this.renderVariants();
         }
     }
@@ -115,6 +115,7 @@ export default class VariantBrowserGrid extends LitElement {
             ...this.getDefaultConfig(),
             ...this.config
         };
+
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -131,7 +132,6 @@ export default class VariantBrowserGrid extends LitElement {
             }
         }
         this.samples = _samples;
-        this.requestUpdate();
     }
 
     configObserver() {
@@ -146,8 +146,6 @@ export default class VariantBrowserGrid extends LitElement {
         this.toolbarSetting = {
             ...this._config,
             showCreate: false, // Caution: Ignore a possible admin configuration change to showCreate: true.
-            // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
-            // gridColumns: this._getDefaultColumns() // original column structure
         };
 
         this.toolbarConfig = {
@@ -155,7 +153,7 @@ export default class VariantBrowserGrid extends LitElement {
             resource: "VARIANT",
             disableCreate: true,
             showInterpreterConfig: true,
-            columns: this._getDefaultColumns()
+            columns: this._getDefaultColumns(),
         };
     }
 
@@ -165,13 +163,11 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     renderVariants() {
-        this.opencgaSession;
         if (this.variants?.length > 0) {
             this.renderFromLocal();
         } else {
             this.renderRemoteVariants();
         }
-        // this.requestUpdate();
     }
 
     renderRemoteVariants() {
@@ -200,6 +196,7 @@ export default class VariantBrowserGrid extends LitElement {
                 // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
                 variantGrid: this,
                 ajax: params => {
+                    this.gridCommons.clearResponseWarningEvents();
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
@@ -239,7 +236,8 @@ export default class VariantBrowserGrid extends LitElement {
                         }
                     }
 
-                    this.opencgaSession.opencgaClient.variants().query(this.filters)
+                    this.opencgaSession.opencgaClient.variants()
+                        .query(this.filters)
                         .then(res => {
                             // FIXME A quick temporary fix -> TASK-947
                             if (this.opencgaSession?.project?.cellbase?.version === "v4" || this.opencgaSession?.project?.internal?.cellbase?.version === "v4") {
@@ -293,15 +291,19 @@ export default class VariantBrowserGrid extends LitElement {
                                     });
                                 }
                             }
-
                             params.success(res);
                         })
-                        .catch(e => params.error(e))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
+                        })
                         .finally(() => {
                             LitUtils.dispatchCustomEvent(this, "queryComplete", null);
                         });
                 },
                 responseHandler: response => {
+                    this.gridCommons.displayResponseWarningEvents(response);
+
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
 
                     // Only the first 1M pages must be shown
@@ -355,8 +357,6 @@ export default class VariantBrowserGrid extends LitElement {
             data: this.variants,
             columns: this._getDefaultColumns(),
             sidePagination: "local",
-
-            // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
@@ -569,19 +569,17 @@ export default class VariantBrowserGrid extends LitElement {
                 sampleColumns.push({
                     id: this.samples[i].id,
                     title: this.samples[i].id,
-                    // field: "samples",
-                    field: {
-                        memberIdx: i,
-                        memberName: this.samples[i].id,
-                        sampleId: this.samples[i].id,
-                        config: this._config
-                    },
                     rowspan: 1,
                     colspan: 1,
-                    formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
+                    formatter: (value, row, index) => {
+                        return VariantInterpreterGridFormatter.sampleGenotypeFormatter(value, row, index, {
+                            sampleId: this.samples[i].id,
+                            config: this._config
+                        });
+                    },
                     align: "center",
-                    // nucleotideGenotype: true,
-                    visible: this.gridCommons.isColumnVisible(this.samples[i].id, "samples"),
+                    visible: true,
+                    excludeFromSettings: true,
                 });
             }
         }
@@ -607,7 +605,8 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: this.cohortFormatter,
                     align: "center",
                     eligible: true,
-                    visible: this.gridCommons.isColumnVisible(study.id, "cohorts"),
+                    visible: true,
+                    excludeFromSettings: true,
                 });
             }
         }
@@ -666,6 +665,16 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: this.gridCommons.isColumnVisible("id")
                 },
                 {
+                    id: "type",
+                    title: "Type",
+                    field: "type",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.typeFormatter(value, row),
+                    halign: "center",
+                    visible: this.gridCommons.isColumnVisible("type")
+                },
+                {
                     id: "gene",
                     title: "Gene",
                     field: "gene",
@@ -677,14 +686,13 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: this.gridCommons.isColumnVisible("gene")
                 },
                 {
-                    id: "type",
-                    title: "Type",
-                    field: "type",
+                    id: "hgvs",
+                    title: "HGVS",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: VariantGridFormatter.typeFormatter.bind(this),
+                    formatter: (value, row) => VariantGridFormatter.hgvsFormatter(row, this._config),
                     halign: "center",
-                    visible: this.gridCommons.isColumnVisible("type")
+                    visible: this.gridCommons.isColumnVisible("hgvs"),
                 },
                 {
                     id: "consequenceType",
@@ -830,20 +838,14 @@ export default class VariantBrowserGrid extends LitElement {
                                     </li>
 
                                     <li class="dropdown-header">CellBase Links</li>
+                                    ${["v5.2", "v5.8"].map(v => `
                                     <li>
-                                        <a target="_blank" class="btn force-text-left"
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
+                                        <a target="_blank" class="btn force-text-left" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`)}">
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
-                                            CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
+                                            CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}
                                         </a>
                                     </li>
-                                    <li>
-                                        <a target="_blank" class="btn force-text-left"
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
-                                            CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
-                                        </a>
-                                    </li>
+                                    `).join("")}
                                     <li class="dropdown-header">External Genome Browsers</li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
@@ -858,6 +860,18 @@ export default class VariantBrowserGrid extends LitElement {
                                         </a>
                                     </li>
                                     <li role="separator" class="divider"></li>
+                                    <li class="dropdown-header">Copy Variant Info</li>
+                                    <li data-cy="copy-link">
+                                        <a class="btn force-text-left" data-action="copy-link">
+                                            <i class="fas fa-copy icon-padding"></i> Copy IVA Link
+                                        </a>
+                                    </li>
+                                    <li data-cy="varsome-copy">
+                                        <a href="javascript: void 0" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
+                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Copy Varsome ID
+                                        </a>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
                                     <li class="dropdown-header">Fetch Variant</li>
                                     <li>
                                         <a href="javascript: void 0" class="btn force-text-left" data-action="copy-json">
@@ -867,11 +881,6 @@ export default class VariantBrowserGrid extends LitElement {
                                     <li>
                                         <a href="javascript: void 0" class="btn force-text-left" data-action="download">
                                             <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
-                                        </a>
-                                    </li>
-                                    <li data-cy="varsome-copy">
-                                        <a href="javascript: void 0" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
-                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Copy Varsome ID
                                         </a>
                                     </li>
                                 </ul>
@@ -1019,6 +1028,16 @@ export default class VariantBrowserGrid extends LitElement {
     onActionClick(e, value, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "copy-link":
+                // 1. Generate the URL to this variant
+                const link = WebUtils.getIVALink(this.opencgaSession, this.toolId, {id: row.id});
+                // 2. Copy this link to the clipboard
+                UtilsNew.copyToClipboard(link);
+                // 3. Notify user that link has been copied to the clipboard
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `Link to variant '${row.id}' copied to clipboard.`,
+                });
+                break;
             case "copy-json":
                 navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
                 break;
@@ -1072,6 +1091,7 @@ export default class VariantBrowserGrid extends LitElement {
 
     render() {
         return html`
+            <div id="${this.gridId}WarningEvents"></div>
             ${this._config?.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.query}"

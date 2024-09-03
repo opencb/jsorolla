@@ -77,10 +77,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             this.clinicalAnalysisObserver();
         }
 
-        if (changedProperties.has("active")) {
-            this._config = this.getDefaultConfig();
-        }
-
         super.update(changedProperties);
     }
 
@@ -191,6 +187,14 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             } else {
                 this.files = this.clinicalAnalysis.files
                     .filter(file => file.format.toUpperCase() === "VCF");
+            }
+
+            // 5. Read defaultFilter from browser settings
+            if (this.settings?.menu?.defaultFilter) {
+                this.query = {
+                    ...this.query,
+                    ...this.settings.menu.defaultFilter,
+                };
             }
 
             // Create _config again since getDefaultConfig() uses this.files

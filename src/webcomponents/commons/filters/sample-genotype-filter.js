@@ -85,17 +85,23 @@ export default class SampleGenotypeFilter extends LitElement {
                     id: "0/1", name: "HET"
                 },
                 {
-                    id: "1/1", name: "HOM ALT"
+                    id: "1/1", name: "HOM_ALT"
                 },
                 {
                     separator: true
                 },
                 {
-                    id: "./.", name: "Missing"
+                    id: "1", name: "HAPLOID (1)"
                 },
                 {
-                    id: "NA", name: "NA"
-                }
+                    id: "1/2", name: "BIALLELIC (1/2)"
+                },
+                // {
+                //     id: "./.", name: "Missing"
+                // },
+                // {
+                //     id: "NA", name: "NA"
+                // }
             ]
         };
     }

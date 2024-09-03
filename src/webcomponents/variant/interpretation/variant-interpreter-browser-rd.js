@@ -135,15 +135,15 @@ class VariantInterpreterBrowserRd extends LitElement {
                 switch (this.clinicalAnalysis.type.toUpperCase()) {
                     case "SINGLE":
                     case "CANCER":
-                        this._sampleQuery = this.sample.id + ":" + ["0/1", "1/1", "1/2"].join(",");
+                        this._sampleQuery = this.sample.id + ":" + ["0/1", "1/1", "1", "1/2"].join(",");
                         break;
                     case "FAMILY":
                         // Add proband genotypes
-                        const sampleIds = [this.sample.id + ":" + ["0/1", "1/1", "1/2"].join(",")];
+                        const sampleIds = [this.sample.id + ":" + ["0/1", "1/1", "1", "1/2"].join(",")];
                         for (const member of this.clinicalAnalysis.family?.members) {
                             // Proband is already in the array in the first position, we add other family members
                             if (member.id !== this.clinicalAnalysis.proband?.id && member.samples?.length > 0) {
-                                sampleIds.push(member.samples[0].id + ":" + ["0/0", "0/1", "1/1", "1/2"].join(","));
+                                sampleIds.push(member.samples[0].id + ":" + ["0/0", "0/1", "1/1", "1", "1/2"].join(","));
                             }
                         }
                         this._sampleQuery = sampleIds.join(";");
@@ -217,14 +217,24 @@ class VariantInterpreterBrowserRd extends LitElement {
                 this.files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
             }
 
-            // 5. Read defaultFilter from study internal configuration
+            // 5.1. Read defaultFilter from study internal configuration
             if (this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.defaultFilter) {
-                this.query = {...this.query, ...this.opencgaSession.study.internal.configuration.clinical.interpretation.defaultFilter};
+                this.query = {
+                    ...this.query,
+                    ...this.opencgaSession.study.internal.configuration.clinical.interpretation.defaultFilter,
+                };
+            }
+
+            // 5.2. Read defaultFilter from browser settings
+            if (this.settings?.menu?.defaultFilter) {
+                this.query = {
+                    ...this.query,
+                    ...this.settings.menu.defaultFilter,
+                };
             }
 
             // Create _config again since getDefaultConfig() uses this.files
             this._config = this.getDefaultConfig();
-
 
             // Add filter to Active Filter's menu
             // 1. Add variant stats saved queries to the Active Filters menu
@@ -337,24 +347,24 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
-                                visible: () => this.clinicalAnalysis.type.toUpperCase() === "SINGLE",
+                                visible: () => this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "CANCER",
                                 params: {
                                     genotypes: [
                                         {
-                                            id: "0/1", name: "HET"
+                                            id: "0/1", name: "HET (0/1)"
                                         },
                                         {
-                                            id: "1/1", name: "HOM ALT"
+                                            id: "1/1", name: "HOM_ALT (1/1)"
                                         },
                                         {
                                             separator: true
                                         },
                                         {
-                                            id: "1/2", name: "BIALLELIC HET (Genotype 1/2)"
+                                            id: "1", name: "HAPLOID (1)"
                                         },
                                         {
-                                            id: "1", name: "HEMI"
-                                        }
+                                            id: "1/2", name: "BIALLELIC (1/2)"
+                                        },
                                     ]
                                 },
                                 tooltip: tooltips.sample,
@@ -378,6 +388,15 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 params: {
                                     individual: this.clinicalAnalysis?.proband
                                 }
+                            },
+                            {
+                                id: "variant-file",
+                                title: "VCF File Filter",
+                                visible: () => this.files?.length > 1,
+                                params: {
+                                    files: this.files,
+                                },
+                                tooltip: tooltips.vcfFile,
                             },
                             {
                                 id: "variant-file-sample-filter",

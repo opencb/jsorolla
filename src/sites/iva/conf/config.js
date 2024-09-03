@@ -22,7 +22,7 @@ const hosts = [
         url: "https://ws.opencb.org/opencga-prod"
     },
     {
-        id: "test1",
+        id: "demo",
         url: "https://demo.app.zettagenomics.com/opencga"
     },
     {
@@ -194,6 +194,12 @@ const SUITE = {
             {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
         ]
     },
+    jobMonitor: {
+        visibility: "private"
+    },
+    fileExplorer: {
+        visibility: "private"
+    },
     restApi: {
         visibility: "private"
     },
@@ -316,7 +322,7 @@ const SUITE = {
             },
             menu: [
                 {
-                    id: "browser",
+                    id: "variant-browser",
                     name: "Variant Browser",
                     icon: "img/tools/icons/variant_browser.svg",
                     visibility: "public",

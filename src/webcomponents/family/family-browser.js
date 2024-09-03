@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "../commons/facet-filter.js";
@@ -130,15 +130,17 @@ export default class FamilyBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .active="${true}"
                             .eventNotifyName="${params.eventNotifyName}"
-                            @selectrow="${e => params.onClickRow(e, "family")}"
-                            @familyUpdate="${e => params.onComponentUpdate(e, "family")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @familyUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </family-grid>
-                        <family-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .family="${params.detail.family}">
-                        </family-detail>
+                        ${params?.detail ? html`
+                            <family-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .familyId="${params.detail?.id}">
+                            </family-detail>
+                        ` : nothing}
                     `,
                 },
                 {

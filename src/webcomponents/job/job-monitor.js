@@ -64,7 +64,10 @@ export class JobMonitor extends LitElement {
             this.launchMonitor();
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
             this.launchMonitor();
         }
     }
@@ -160,24 +163,6 @@ export class JobMonitor extends LitElement {
         this.requestUpdate();
     }
 
-    openJob(jobId) {
-        // -> e.stopPropagation();
-        const job = this.jobs.find(job => job.id === jobId);
-        job._visited = true;
-        this.jobs = [...this.jobs];
-        this.requestUpdate();
-
-        this.dispatchEvent(new CustomEvent("route", {
-            detail: {
-                hash: "#job",
-                resource: "job",
-                query: {id: jobId}
-            },
-            bubbles: true, // this is necessary as the event is handled in iva-app
-            composed: true
-        }));
-    }
-
     forceRefresh(e) {
         e.stopPropagation();
         this.fetchLastJobs();
@@ -185,13 +170,6 @@ export class JobMonitor extends LitElement {
 
     toggleDropdown() {
         this.dropdown = !this.dropdown;
-    }
-
-    getDefaultConfig() {
-        return {
-            limit: 10,
-            interval: 30000
-        };
     }
 
     render() {
@@ -206,43 +184,46 @@ export class JobMonitor extends LitElement {
                         <span class="badge badge-pill badge-primary ${this.updatedCnt > 0 ? "" : "invisible"}">${this.updatedCnt}</span>
                     </a>
                     <ul class="dropdown-menu">
-                        <!-- <li class="info">Jobs done since your last access /*moment(this.opencgaSession.user.configs.IVA.lastAccess).format("DD-MM-YYYY HH:mm:ss") */</li> -->
                         <li class="info">
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple">ALL</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="PENDING,QUEUED,RUNNING">Running</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
-                            <button @click="${this.forceRefresh}" class="btn btn-small btn-default ripple pull-right" title="Force immediate refresh" id="#refresh-job"><i class="fas fa-sync-alt"></i></button>
-
+                            <button @click="${this.forceRefresh}" class="btn btn-small btn-default ripple pull-right" title="Force immediate refresh" id="#refresh-job">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
                         </li>
-                        ${
-                            this.filteredJobs.length ? this.filteredJobs.map(job => html`
-                                <li>
-                                    <a href="javascript: void 0"
-                                       @click=${() => this.openJob(job.id)} class="job-monitor-item ${job.updated && !job._visited ?
-                                            `updated status-${job?.internal?.status?.id || job?.internal?.status?.name}` : ""}">
-                                        <div class="media">
-                                            <div class="media-left rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
-                                                <i class="fas fa-rocket"></i>
-                                            </div>
-                                            <div class="media-body">
-                                                ${job.updated && !job._visited ? html`<span class="badge">NEW</span>` : ""}
-                                                <h4 class="media-heading">${job.id}</h4>
-                                                <small>${job.tool.id}</small> |
-                                                <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
-                                                <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</p>
-                                            </div>
+                        ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
+                            <li>
+                                <a href="#job" class="job-monitor-item">
+                                    <div class="media">
+                                        <div class="media-left rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
+                                            <i class="fas fa-rocket"></i>
                                         </div>
-                                     </a>
-                                </li>
-                            `) : html`
-                                    <li>
-                                        <a> No jobs </a>
-                                    </li>`
-                        }
+                                        <div class="media-body">
+                                            <h4 class="media-heading">${job.id}</h4>
+                                            <small>${job.tool.id}</small> |
+                                            <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
+                                            <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</p>
+                                        </div>
+                                    </div>
+                                 </a>
+                            </li>
+                        `) : html`
+                            <li>
+                                <a>No jobs</a>
+                            </li>
+                        `}
                     </ul>
                 </li>
             </ul>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            limit: 10,
+            interval: 30000
+        };
     }
 
 }

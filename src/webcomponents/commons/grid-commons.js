@@ -324,4 +324,65 @@ export default class GridCommons {
         return columns;
     }
 
+    displayResponseWarningEvents(response, maxVisibleEvents = 3) {
+        const eventsContainer = this.context.querySelector(`div#${this.gridId}WarningEvents`);
+        if (eventsContainer && (response?.events?.length > 0 || response?.responses?.[0]?.events?.length > 0)) {
+            const events = [...(response?.events || []), ...(response?.responses?.[0]?.events || [])]
+                .filter(event => event && event.type === "WARNING" && !!event.message)
+                .map(event => {
+                    return `
+                        <div class="alert alert-warning" style="margin-bottom:8px;">
+                            <i class="fas fa-exclamation-triangle icon-padding"></i>
+                            <span>${event.message}</span>
+                        </div>
+                    `;
+                });
+            if (events.length > 0) {
+                const defaultVisibleEvents = events.length > maxVisibleEvents ? events.slice(0, maxVisibleEvents) : events;
+                const defaultHiddenEvents = events.length > maxVisibleEvents ? events.slice(maxVisibleEvents) : [];
+                const eventsMessages = UtilsNew.renderHTML(`
+                    <div>
+                        ${defaultVisibleEvents.join("")}
+                        ${defaultHiddenEvents.length > 0 ? `
+                            <div data-role="hidden-events" style="display:none;">${defaultHiddenEvents.join("")}</div>
+                            <div class="text-muted">
+                                <div data-role="show-more-events" style="display:inline-block;cursor:pointer;">
+                                    <small><i class="fas fa-chevron-down" style="padding-right:6px;"></i>Show more warning events (<b>${defaultHiddenEvents.length}</b>)</small>
+                                </div>
+                                <div data-role="show-less-events" style="display:none;cursor:pointer;">
+                                    <small><i class="fas fa-chevron-up" style="padding-right:6px;"></i>Show less warning events</small>
+                                </div>
+                            </div>
+                        ` : ""}
+                    </div>
+                `).querySelector("div");
+                eventsContainer.replaceChildren(eventsMessages);
+                if (defaultHiddenEvents.length > 0) {
+                    const hiddenEventsElement = eventsMessages.querySelector(`div[data-role="hidden-events"]`);
+                    const showMoreEventsElement = eventsMessages.querySelector(`div[data-role="show-more-events"]`);
+                    const showLessEventsElement = eventsMessages.querySelector(`div[data-role="show-less-events"]`);
+                    // Show more events click
+                    showMoreEventsElement.addEventListener("click", () => {
+                        hiddenEventsElement.style.display = "block";
+                        showLessEventsElement.style.display = "inline-block";
+                        showMoreEventsElement.style.display = "none";
+                    });
+                    // Show less events click
+                    showLessEventsElement.addEventListener("click", () => {
+                        hiddenEventsElement.style.display = "none";
+                        showLessEventsElement.style.display = "none";
+                        showMoreEventsElement.style.display = "inline-block";
+                    });
+                }
+            }
+        }
+    }
+
+    clearResponseWarningEvents() {
+        const eventsContainer = this.context.querySelector(`div#${this.gridId}WarningEvents`);
+        if (eventsContainer) {
+            eventsContainer.replaceChildren();
+        }
+    }
+
 }

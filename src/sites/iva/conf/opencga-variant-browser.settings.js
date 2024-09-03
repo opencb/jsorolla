@@ -51,7 +51,11 @@ const OPENCGA_VARIANT_BROWSER_SETTINGS = {
                     disorder: "Intellectual disability"
                 }
             }
-        ]
+        ],
+        // Default filter displayed in Variant Browser
+        // defaultFilter: {
+        //     type: "SNV",
+        // },
     },
     table: {
         // merge criterium: spread operator

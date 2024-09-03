@@ -201,9 +201,20 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     .filter(file => file.format.toUpperCase() === "VCF");
             }
 
-            // 6. Read defaultFilter from study internal configuration
+            // 6.1. Read defaultFilter from study internal configuration
             if (this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.defaultFilter) {
-                this.query = {...this.query, ...this.opencgaSession.study.internal.configuration.clinical.interpretation.defaultFilter};
+                this.query = {
+                    ...this.query,
+                    ...this.opencgaSession.study.internal.configuration.clinical.interpretation.defaultFilter,
+                };
+            }
+
+            // 6.2. Read defaultFilter from browser settings
+            if (this.settings?.menu?.defaultFilter) {
+                this.query = {
+                    ...this.query,
+                    ...this.settings.menu.defaultFilter,
+                };
             }
 
             // Create _config again since getDefaultConfig() uses this.files
@@ -333,6 +344,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                         },
                                         {
                                             separator: true
+                                        },
+                                        {
+                                            id: "1", name: "HAPLOID (1)"
+                                        },
+                                        {
+                                            id: "1/2", name: "BIALLELIC (1/2)"
                                         },
                                         {
                                             id: "NA", name: "NA"

@@ -18,10 +18,13 @@ import {LitElement, html} from "lit";
 import "../interpretation/variant-interpreter-grid.js";
 import "../interpretation/variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
+import "../../commons/forms/select-field-filter.js";
 import "../../commons/simple-chart.js";
 import "../../loading-spinner.js";
 import "../../file/file-preview.js";
 import UtilsNew from "../../../core/utils-new.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 class SteinerReport extends LitElement {
 
@@ -69,6 +72,14 @@ class SteinerReport extends LitElement {
             "manta": {type: "Rearrangements", group: "germline", rank: 2},
         };
 
+        this.stockPhrases = [
+            "No pathogenic variants identified.",
+            "Results related to other genetic conditions of medical significance (additional findings).",
+            "Results that are not expected to impact participant health but may be relevant to family members or children.",
+            "The quality of the data is sufficient for mutational signature analysis and to look for potential driver mutations.",
+            "The data for this sample is below the quality required to perform WGS analysis.",
+        ];
+
         this.somaticSample = null;
         this.germlineSample = null;
 
@@ -111,6 +122,7 @@ class SteinerReport extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        this._ready = false;
         if (this.opencgaSession && this.clinicalAnalysis) {
             // We will assume that we always have a somatic and a germline sample
             // TODO: check if both samples exists
@@ -130,11 +142,6 @@ class SteinerReport extends LitElement {
                 // clinicalAnalysis: this.clinicalAnalysis,
                 ascatMetrics: [],
                 ascatPlots: [],
-                ascatInterpretation: [
-                    "Sunrise plot indicates a successful copy number analysis with estimated tumour content of and ploidy of XX.",
-                    "The copy number profile (bottom right) shows a degree of over segmentation, however, the quality is acceptable.",
-                    "The genome contains numerous copy number changes and regions of LOH (minor allele frequency of 0) suggestive of genomic instability.",
-                ].join(" "),
                 sequenceMetrics: [
                     {field: "Sequence methods", value: "WGS Illumina NovaSeq paired end"}
                 ],
@@ -149,11 +156,6 @@ class SteinerReport extends LitElement {
                 //     {field: "Indels", value: "QUAL >= 250, Repeats <10"},
                 //     {field: "Rearrangements", value: "BRASSII reconstructed"},
                 // ],
-                overallText: [
-                    "Sequence coverage is good. Duplicate read rate <10%.",
-                    "There is adequate tumour cellularity, a correct copy number result and adequate mutation data to proceed",
-                    "with an interpretation of this report.",
-                ].join(" "),
                 // TODO decide what to do here
                 // primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings.filter(item => {
                 //     return item.status.toUpperCase() === "REPORTED";
@@ -162,16 +164,21 @@ class SteinerReport extends LitElement {
                 analysts: (this.clinicalAnalysis.analysts || [])
                     .map(analyst=> analyst.name)
                     .join(", "),
-                signedBy: "",
-                discussion: "",
                 hrdetects: [],
-                selectedHrdetect: null,
-                selectedSnvSignature: null,
-                selectedSvSignature: null,
+                selectedHrdetect: this.clinicalAnalysis.attributes?.report?.selectedHrdetect || null,
+                selectedSnvSignature: this.clinicalAnalysis.attributes?.report?.selectedSnvSignature || null,
+                selectedSvSignature: this.clinicalAnalysis.attributes?.report?.selectedSvSignature || null,
                 deletionAggreationCount: 0,
                 deletionAggregationStats: null,
                 qcPlots: {},
-                results: "",
+                overallText: this.clinicalAnalysis.attributes?.report?.overall || "",
+                ascatInterpretation: this.clinicalAnalysis.attributes?.report?.ascatInterpretation || "",
+                genomePlotInterpretation: this.clinicalAnalysis.attributes?.report?.genomePlotInterpretation ?? this.somaticSample?.qualityControl?.variant?.genomePlot?.description ?? "",
+                results: this.clinicalAnalysis.attributes?.report?.results || "",
+                discussion: this.clinicalAnalysis.attributes?.report?.discussion || "",
+                status: this.clinicalAnalysis.status?.id || "",
+                signedBy: this.clinicalAnalysis.attributes?.report?.signedBy || "",
+                date: this.clinicalAnalysis.attributes?.report?.date || "",
             };
 
             const allPromises = [
@@ -302,6 +309,70 @@ class SteinerReport extends LitElement {
         this.requestUpdate();
     }
 
+    onStockPhraseSelect(phrase) {
+        const discussion = this._data.discussion || "";
+        this._data = {
+            ...this._data,
+            discussion: discussion + (discussion === "" ? "" : "\n") + phrase + "\n",
+        };
+        this.requestUpdate();
+    }
+
+    onSave() {
+        const clinicalAnalysisParams = {
+            attributes: {
+                ...(this.clinicalAnalysis.attributes || {}),
+                report: {
+                    overall: this._data.overallText || "",
+                    ascatInterpretation: this._data.ascatInterpretation || "",
+                    genomePlotInterpretation: this._data.genomePlotInterpretation || "",
+                    results: this._data.results || "",
+                    selectedSnvSignature: this._data.selectedSnvSignature || "",
+                    selectedSvSignature: this._data.selectedSvSignature || "",
+                    selectedHrdetect: this._data.selectedHrdetect || "",
+                    discussion: this._data.discussion || "",
+                    signedBy: this._data.signedBy || "",
+                    date: this._data.date || "",
+                },
+            },
+            status: {
+                id: this._data.status,
+            },
+        };
+        this.opencgaSession.opencgaClient.clinical()
+            .update(this.clinicalAnalysis.id, clinicalAnalysisParams, {
+                study: this.opencgaSession.study.fqn,
+            })
+            .then(() => {
+                // Display a confirmation message
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "The report has been saved.",
+                });
+                // Dispatch a clinicalAnalysisUpdate event
+                LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                    clinicalAnalysisParams: this.clinicalAnalysis,
+                });
+            })
+            .catch(error => {
+                console.error(error);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                    message: "Something went wrong saving report data. Please contact the administrator."
+                });
+            });
+    }
+
+    onFieldChange(event) {
+        // Josemi Note 2024-04-26: we need to force a refresh only if user selects a value from the dropdowns displayed
+        // on the Mutational Signatures section of the report
+        const param = event?.detail?.param;
+        if (param === "selectedSnvSignature" || param === "selectedSvSignature" || param === "selectedHrdetect") {
+            this._data = {
+                ...this._data,
+            };
+            this.requestUpdate();
+        }
+    }
+
     generateSignaturesDropdown(signatures, type) {
         return (signatures || [])
             .filter(signature => (signature?.type || "").toUpperCase() === type)
@@ -359,8 +430,9 @@ class SteinerReport extends LitElement {
             <data-form
                 .data="${this._data}"
                 .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
-                @submit="${this.onRun}">
+                @submit="${this.onSave}">
             </data-form>
         `;
     }
@@ -1177,13 +1249,26 @@ class SteinerReport extends LitElement {
                     elements: [
                         {
                             title: "Case Status",
-                            field: "status.id",
+                            field: "status",
                             type: "select",
-                            allowedValues: ["REVIEW", "CLOSED", "DISCARDED"],
+                            allowedValues: ["CLOSED", "REJECTED"],
                             required: true,
                         },
                         {
                             title: "Discussion",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <select-field-filter
+                                        .data="${[...this.stockPhrases]}"
+                                        .value="${""}"
+                                        @filterChange="${e => this.onStockPhraseSelect(e.detail.value)}">
+                                    </select-field-filter>
+                                `,
+                            },
+                        },
+                        {
+                            title: " ",
                             type: "input-text",
                             field: "discussion",
                             defaultValue: "",

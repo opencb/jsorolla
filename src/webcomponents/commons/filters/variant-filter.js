@@ -20,7 +20,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 
 
-export default class RegionFilter extends LitElement {
+export default class VariantFilter extends LitElement {
 
     constructor() {
         super();
@@ -35,13 +35,9 @@ export default class RegionFilter extends LitElement {
 
     static get properties() {
         return {
-            region: {
+            id: {
                 type: String
             },
-            // Note: commented as it is not used at the moment, but it could be a good idea to check region is valid.
-            // cellbaseClient: {
-            //     type: Object
-            // },
             config: {
                 type: Object
             }
@@ -63,7 +59,7 @@ export default class RegionFilter extends LitElement {
 
     filterChange(e) {
         // Process the textarea: remove newline chars, empty chars, leading/trailing commas
-        const _region = e.target.value
+        const _id = e.target.value
             .trim()
             .replace(/\r?\n/g, this.separator)
             .replace(/\s/g, "")
@@ -71,18 +67,19 @@ export default class RegionFilter extends LitElement {
             .filter(Boolean)
             .join(this.separator);
 
-        LitUtils.dispatchCustomEvent(this, "filterChange", _region);
+        LitUtils.dispatchCustomEvent(this, "filterChange", _id);
     }
 
     render() {
         return html`
-            <textarea id="${this._prefix}LocationTextarea"
-                      name="location"
-                      .value="${this.region || ""}"
-                      rows="${this._config.rows}"
-                      placeholder="${this._config.placeholder}"
-                      class="form-control clearable ${this._prefix}FilterTextInput"
-                      @input="${e => this.filterChange(e)}">
+            <textarea
+                id="${this._prefix}IdTextarea"
+                name="id"
+                .value="${this.id || ""}"
+                rows="${this._config.rows}"
+                placeholder="${this._config.placeholder}"
+                class="form-control clearable ${this._prefix}FilterTextInput"
+                @input="${e => this.filterChange(e)}">
             </textarea>
         `;
     }
@@ -90,10 +87,10 @@ export default class RegionFilter extends LitElement {
     getDefaultConfig() {
         return {
             rows: 3,
-            placeholder: "1:1-100000,3:444-55555,..."
+            placeholder: "11:66922620:T:A,11:66922678:T:C,..."
         };
     }
 
 }
 
-customElements.define("region-filter", RegionFilter);
+customElements.define("variant-filter", VariantFilter);

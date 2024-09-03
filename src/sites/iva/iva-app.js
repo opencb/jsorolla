@@ -22,10 +22,8 @@ import {html, LitElement, nothing} from "lit";
 import "./getting-started.js";
 import "./iva-settings.js";
 
-// @dev[jsorolla]
 import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
-import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
@@ -38,7 +36,6 @@ import "../../webcomponents/variant/variant-beacon.js";
 import "../../webcomponents/opencga/opencga-gene-view.js";
 import "../../webcomponents/opencga/opencga-transcript-view.js";
 import "../../webcomponents/opencga/opencga-protein-view.js";
-import "../../webcomponents/user/opencga-projects.js";
 import "../../webcomponents/sample/sample-browser.js";
 import "../../webcomponents/sample/sample-view.js";
 import "../../webcomponents/sample/sample-variant-stats-browser.js";
@@ -47,7 +44,6 @@ import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/disease-panel/disease-panel-browser.js";
 import "../../webcomponents/disease-panel/disease-panel-update.js";
 import "../../webcomponents/file/file-browser.js";
-// import "../../webcomponents/file/file-update.js";
 import "../../webcomponents/family/family-browser.js";
 import "../../webcomponents/family/family-update.js";
 import "../../webcomponents/individual/individual-browser.js";
@@ -86,9 +82,7 @@ import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/study/admin/study-admin-iva.js";
 import "../../webcomponents/study/admin/catalog-admin.js";
 import "../../webcomponents/study/admin/variant/study-variant-admin.js";
-import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/user/user-profile.js";
-// import "../../webcomponents/user/user-password-reset.js";
 import "../../webcomponents/api/rest-api.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
@@ -157,7 +151,6 @@ class IvaApp extends LitElement {
         const components = [
             "home",
             "gettingstarted",
-            "login",
             "aboutzetta",
             // "reset-password",
             "settings",
@@ -187,7 +180,7 @@ class IvaApp extends LitElement {
             "gene",
             "transcript",
             "protein",
-            "browser",
+            "variant-browser",
             "job",
             "cat-browser",
             "cat-analysis",
@@ -262,11 +255,11 @@ class IvaApp extends LitElement {
         // Initially we load the SUIte config
         this.app = this.getActiveAppConfig();
 
-        // We need to listen to hash fragment changes to update the display and breadcrumb
-        const _this = this;
-        window.onhashchange = function (e) {
+        // We need to listen to hash fragment changes to update the URL
+        window.onhashchange = e => {
             // e.preventDefault();
-            _this.hashFragmentListener(_this);
+            console.log("URL Hash changed: ", e);
+            this.hashFragmentListener();
         };
 
         // Remember the tool that was previously set
@@ -280,11 +273,6 @@ class IvaApp extends LitElement {
         // if (window.location.hash !== this.tool) {
         //     window.location.hash = this.tool;
         // }
-
-        // Other initialisations
-        // This manages the sample selected in each tool for updating the breadcrumb
-        this.samples = [];
-        this._samplesPerTool = {};
 
         // Notifications
         this.notificationManager = new NotificationManager({});
@@ -304,12 +292,12 @@ class IvaApp extends LitElement {
         // Show confirmation
         this.addEventListener(NotificationUtils.NOTIFY_CONFIRMATION, e => this.notificationManager.showConfirmation(e.detail));
 
-        // TODO remove browserSearchQuery
-        this.browserSearchQuery = {};
         // keeps track of the executedQueries transitioning from browser tool to facet tool
-        this.queries = [];
+        this.queries = {};
+
         // keeps track of status and version of the hosts (opencga and cellbase)
         this.host = {};
+
         globalThis.addEventListener("signingIn", e => {
             this.isCreatingSession = e.detail.value;
             this.requestUpdate();
@@ -332,7 +320,6 @@ class IvaApp extends LitElement {
         // Import server configuration from conf/server.json file (if exists)
         // See issue https://github.com/opencb/jsorolla/issues/425
         UtilsNew.importJSONFile("conf/server.json").then(serverConf => {
-
             // Initialize opencga configuration
             const opencgaHost = serverConf?.host || this.config.opencga.host;
             const opencgaVersion = serverConf?.version || this.config.opencga.version;
@@ -375,7 +362,6 @@ class IvaApp extends LitElement {
             }
 
             // Initialise clients and create the session
-            // this.opencgaClientConfig.serverVersion = this.config.opencga.serverVersion;
             const sid = Cookies.get(opencgaCookiePrefix + "_sid");
             const userId = Cookies.get(opencgaCookiePrefix + "_userId");
 
@@ -395,8 +381,6 @@ class IvaApp extends LitElement {
                 },
             });
 
-            this.reactomeClient = new ReactomeClient();
-
             if (sid) {
                 this.checkSessionActive();
                 this.intervalCheckSession = setInterval(this.checkSessionActive.bind(this), this.config.session.checkTime);
@@ -407,16 +391,18 @@ class IvaApp extends LitElement {
         });
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+        super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
-        this.renderHashFragments();
-        this.queries = {};
-        this.requestUpdate();
+        // this.renderHashFragments();
+        this.hashFragmentListener();
+        // this.queries = {};
+        // this.requestUpdate();
     }
 
     #initStudiesSettings() {
@@ -489,17 +475,14 @@ class IvaApp extends LitElement {
             return;
         }
         this.isCreatingSession = true;
-        console.log("Init creating opencgasession");
+        console.log("Init creating opencgaSession ...");
         this.requestUpdate();
         await this.updateComplete;
         this.opencgaClient.createSession()
             .then(response => {
-                const _response = response;
-                console.log("_createOpenCGASession", response);
-
+                // 1. Check if project array has been defined in the config.js
                 // This is only valid when public IVA/OpenCGA installations
-                // Check if project array has been defined in the config.js
-                if (UtilsNew.isNotEmptyArray(this.config.opencga.projects)) {
+                if (this.config.opencga.projects?.length > 0) {
                     // We store the project and study ids the user needs to visualise (defined in the config.js)
                     const configProjects = {};
                     for (let i = 0; i < this.config.opencga.projects.length; i++) {
@@ -532,16 +515,58 @@ class IvaApp extends LitElement {
                     }
 
                     // TODO we must query projects/info URL to get the whole object
-                    _response.projects = activeProjects || [];
+                    response.projects = activeProjects || [];
                     if (UtilsNew.isNotEmptyArray(response.projects[0].studies)) {
-                        _response.project = response.projects[0];
-                        _response.study = response.projects[0].studies[0];
+                        response.project = response.projects[0];
+                        response.study = response.projects[0].studies[0];
                     }
                 }
-                // this forces the observer to be executed.
-                if (UtilsNew.isNotEmptyArray(response.projects) && response.projects.some(p => UtilsNew.isNotEmptyArray(p.studies))) {
+
+                // 2. Set the default active project and study.
+                // 2.1 Check if the user has set a project/study in the URL
+                const [hashTool, hashProject, hashStudy, hashQuery] = window.location.hash.split("/");
+                if (hashProject && hashStudy) {
+                    const project = response.projects.find(p => p.id === hashProject);
+                    const study = project.studies.find(s => s.id === hashStudy);
+                    if (project && study) {
+                        console.log("Setting active project and study from hash");
+                        response.project = project;
+                        response.study = study;
+                    } else {
+                        console.error(`Project '${hashProject}' and Study '${hashStudy}' not found`);
+                    }
+                } else {
+                    // 2.2 Check if lastStudy form User Configuration matches
+                    for (const project of response.projects) {
+                        if (project.studies?.length > 0) {
+                            for (const study of project.studies) {
+                                if (response.user?.configs?.IVA?.lastStudy === study.fqn) {
+                                    response.project = project;
+                                    response.study = study;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // 2.3 if not 'lastStudy' found then set the first project and study.
+                    // If the user doesn't have his own default study then we select the first project and study as default
+                    if (!response.project && !response.study) {
+                        for (const project of response.projects) {
+                            if (project.studies?.length > 0) {
+                                response.project = project;
+                                response.study = project.studies[0];
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // 3. Update data structures and refresh.
+                // This forces the observer to be executed.
+                if (response.projects?.length > 0 && response.projects.some(p => UtilsNew.isNotEmptyArray(p.studies))) {
                     this.opencgaSession = {
-                        ..._response,
+                        ...response,
                         ivaDefaultSettings: {
                             version: this.version,
                             settings: UtilsNew.objectClone(this.DEFAULT_TOOL_SETTINGS),
@@ -556,11 +581,10 @@ class IvaApp extends LitElement {
                     this.config = {...this.config};
                 } else {
                     this.opencgaSession = {
-                        ..._response,
+                        ...response,
                     };
                     this.config = {...this.config};
                 }
-
             })
             .catch(e => {
                 console.error(e);
@@ -626,8 +650,6 @@ class IvaApp extends LitElement {
 
     onLogin(credentials) {
         // This creates a new authenticated opencga-session object
-
-        // console.log("iva-app: roger I'm in", credentials);
         this.opencgaClient._config.token = credentials.detail.token;
         this._createOpenCGASession();
 
@@ -761,7 +783,9 @@ class IvaApp extends LitElement {
     }
 
     changeTool(e) {
-        e.preventDefault();
+        // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+        // e.preventDefault();
+
         const target = e.currentTarget;
         $(".navbar-inverse ul > li", this).removeClass("active");
         $(target).parent("li").addClass("active");
@@ -769,103 +793,86 @@ class IvaApp extends LitElement {
             $(target).closest("ul").closest("li").addClass("active");
         }
 
-        if (UtilsNew.isNotUndefined(e)) {
-            e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-        }
+        // if (target?.attributes?.href) {
+        //     this.tool = target.attributes.href.value;
+        // } else {
+        //     this.tool = "#home";
+        // }
 
-        if (UtilsNew.isNotUndefined(target) && UtilsNew.isNotUndefined(target.attributes.href)) {
-            //                    $(e.target.attributes.href.value).show(); // get the href and use it find which div to show
-            this.tool = target.attributes.href.value;
-            if (UtilsNew.isNotUndefinedOrNull(this._samplesPerTool)) {
-                if (this._samplesPerTool.hasOwnProperty(this.tool.replace("#", ""))) {
-                    this.samples = this._samplesPerTool[this.tool.replace("#", "")];
-                } else {
-                    this.samples = [];
-                }
-            }
-            // this.renderBreadcrumb()
-        } else {
-            this.tool = "#home";
-        }
-
-        this.renderHashFragments();
+        // // this.renderHashFragments();
+        // this.hashFragmentListener();
     }
 
-    renderHashFragments() {
-        console.log("renderHashFragments - DEBUG", this.tool);
-        let hashFrag = this.tool;
-        if (this.opencgaSession?.project?.alias) {
+    hashFragmentListener() {
+        console.log("hashFragmentListener - Hide all enabled elements");
 
-            hashFrag += "/" + this.opencgaSession.project.id;
-            if (UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
-                hashFrag += "/" + this.opencgaSession.study.id;
-            }
-        }
-
-        if (window.location.hash === hashFrag || hashFrag === "#interpreter") {
-            this.hashFragmentListener(this);
-        } else {
-            window.location.hash = hashFrag;
-        }
-    }
-
-    route(e) {
-        this.tool = e.detail.hash;
-        if (e.detail?.resource) {
-            this.queries = {...this.queries, [e.detail.resource]: e.detail?.query};
-        }
-        this.renderHashFragments();
-    }
-
-    hashFragmentListener(ctx) {
-        console.log("hashFragmentListener - DEBUG", this.tool);
-        // Hide all elements
-        console.log("Hide all enabled elements");
+        // 1. Hide all elements
         for (const element in this.config.enabledComponents) {
-            if (UtilsNew.isNotUndefined(this.config.enabledComponents[element])) {
+            if (this.config.enabledComponents[element]) {
                 this.config.enabledComponents[element] = false;
             }
         }
-        console.log("All enabled elements hidden");
 
-        let arr = window.location.hash.split("/");
+        // 2. Parse hash fragment URL
+        const [hashTool, hashProject, hashStudy, hashQuery] = window.location.hash.split("/");
 
-        // TODO evaluate refactor
-        const [hashTool, hashProject, hashStudy, feature] = arr;
+        // 3. Processing the actions
+        // NOTE: remove this check: hashTool === "#interpreter" ||
+        if (hashTool !== this.tool) {
+            this.tool = hashTool;
+        }
 
-        // Stopping the recursive call
-        if (hashTool === "#interpreter" || hashTool !== this.tool || hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
-            if (arr.length > 1) {
-                // Field 'project' is being observed, just in case Polymer triggers
-                // an unnecessary event we can check they are really different
-                if (ctx.opencgaSession?.project?.id !== hashProject) {
-                    // eslint-disable-next-line no-param-reassign
-                    ctx.opencgaSession.project = ctx.opencgaSession.projects?.find(project => project.id === hashProject);
-                }
-                if (ctx.opencgaSession?.study && arr.length > 2 && ctx.opencgaSession.study !== hashStudy) {
-                    for (let i = 0; i < ctx.opencgaSession.projects.length; i++) {
-                        if (ctx.opencgaSession.projects[i].name === ctx.opencgaSession.project.name ||
-                            ctx.opencgaSession.projects[i].id === ctx.opencgaSession.project.id) {
-                            for (let j = 0; j < ctx.opencgaSession.projects[i].studies.length; j++) {
-                                if (ctx.opencgaSession.projects[i].studies[j].name === hashStudy || ctx.opencgaSession.projects[i].studies[j].id === hashStudy) {
-                                    ctx.opencgaSession.study = ctx.opencgaSession.projects[i].studies[j];
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
+        // 4. Parse project and study
+        if (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
+            if (hashProject && hashStudy) {
+                this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
+            }
+        }
+
+        // 5. Update location.hash (only if project.id and study.id are defined)
+        if (this.opencgaSession?.project?.id && this.opencgaSession?.study?.id) {
+            // Josemi NOTE 2024-04-25 Added additional check to prevent removing the query section of the url if the tool is interpreter
+            // as we need it tell IVA which clinical analysis should open if user reloads the browser tab.
+            if (hashTool !== "#interpreter") {
+                window.location.hash = `${hashTool || "home"}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+            }
+        }
+
+        // 6. Parse query fragment in 'featureId'
+        if (hashTool && hashQuery) {
+            const componentId = hashTool.replace("#", "");
+
+            let query = {};
+            // Check if key=value list exist
+            if (hashQuery.includes("=")) {
+                Array.from(new URLSearchParams(hashQuery).entries()).forEach(entry => {
+                    query[entry[0]] = entry[1];
+                });
+            } else {
+                // Default query filter is 'id'
+                query = {id: hashQuery};
             }
 
             switch (hashTool) {
-                case "#browser":
-                    this.browserSearchQuery = Object.assign({}, this.browserSearchQuery);
+                case "#variant-browser":
+                case "#sample":
+                    this.queries[componentId] = query;
+                    break;
+                case "#gene":
+                    this.gene = hashQuery || null;
+                    break;
+                case "#transcript":
+                    if (hashQuery.startsWith("ENST")) {
+                        this.transcript = hashQuery;
+                    } else {
+                        this.gene = hashQuery;
+                    }
                     break;
                 case "#protein":
+                    this.protein = hashQuery || null;
                     break;
                 case "#interpreter":
-                    this.clinicalAnalysisId = feature;
+                    this.clinicalAnalysisId = hashQuery;
                     if (!this.clinicalAnalysisId) {
                         // Redirect to Case Portal when trying to access the interpreter without a valid Clinical Analysis ID
                         window.location.hash = `#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
@@ -874,59 +881,40 @@ class IvaApp extends LitElement {
                 case "#sampleVariantStatsBrowser":
                 case "#sampleCancerVariantStatsBrowser":
                 case "#sampleUpdate":
-                    this.sampleId = feature;
+                    this.sampleId = hashQuery;
                     break;
                 case "#fileUpdate":
-                    this.fileId = feature;
+                    this.fileId = hashQuery;
                     break;
                 case "#individualUpdate":
-                    this.individualId = feature;
+                    this.individualId = hashQuery;
                     break;
                 case "#familyUpdate":
-                    this.familyId = feature;
+                    this.familyId = hashQuery;
                     break;
                 case "#study-admin":
                     // this.studyAdminFqn = arr[1];
+                    const arr = window.location.hash.split("/");
                     this.changeActiveStudy(arr[1]);
                     break;
                 case "#diseasePanelUpdate":
-                    this.diseasePanelId = feature;
+                    this.diseasePanelId = hashQuery;
                     break;
             }
-
-            if (UtilsNew.isNotEmpty(feature)) {
-                if (hashTool === "#protein") {
-                    ctx.protein = feature;
-                } else if (feature.startsWith("ENST")) {
-                    ctx.transcript = feature;
-                } else {
-                    ctx.gene = feature;
-                }
-            }
-            ctx.tool = hashTool;
+            // this.requestUpdate();
         }
 
-        const searchArr = window.location.hash.split("?");
-        if (searchArr.length > 1) {
-            const search = searchArr[1];
-            arr = search.split("&");
-            const query = {};
-            for (let i = 0; i < arr.length; i++) {
-                const split = arr[i].split("=");
-                query[split[0]] = split[1];
-            }
-            this.query = query;
-        }
-
+        // 7. Enable component
+        console.log("hashFragmentListener - Show enabled element " + this.tool);
         const componentName = this.tool.replace("#", "");
-        if (UtilsNew.isNotUndefined(this.config.enabledComponents[componentName])) {
+        if (this.config.enabledComponents.hasOwnProperty(componentName)) {
             this.config.enabledComponents[componentName] = true;
         } else {
             // If the component does not exist, mark as custom page
             this.config.enabledComponents["customPage"] = true;
         }
-        console.log("Force update in hasFragmentListener");
-        this.config = {...this.config};
+
+        this.requestUpdate();
 
         // TODO quickfix to avoid hash browser scroll
         $("body,html").animate({
@@ -934,20 +922,23 @@ class IvaApp extends LitElement {
         }, 1);
     }
 
-    onStudySelect(e, study, project) {
-        e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+    onStudySelect(e, study) {
+        // Prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+        e.preventDefault();
+
+        // Change study
         this.changeActiveStudy(study.fqn);
     }
 
     changeActiveStudy(studyFqn) {
-        if (this.opencgaSession.study.fqn === studyFqn) {
+        if (this.opencgaSession?.study?.fqn === studyFqn) {
             console.log("New selected study is already the current active study!");
             return;
         }
 
         // Change active study
         let studyFound = false;
-        for (const project of this.opencgaSession.projects) {
+        for (const project of (this.opencgaSession?.projects || [])) {
             const studyIndex = project.studies.findIndex(s => s.fqn === studyFqn);
             if (studyIndex >= 0) {
                 this.opencgaSession.project = project;
@@ -958,90 +949,96 @@ class IvaApp extends LitElement {
         }
 
         if (studyFound) {
-            // Update the lastStudy in config iff has changed
-            this.opencgaClient.updateUserConfig("IVA", {...this.opencgaSession.user.configs["IVA"], lastStudy: studyFqn});
+            // 1. Update the lastStudy in config iff has changed
+            this.opencgaClient.updateUserConfig("IVA", {
+                ...this.opencgaSession.user.configs["IVA"],
+                lastStudy: studyFqn
+            });
 
-            // This is a terrible hack to exit interpreter when we change the current study
-            if (this.tool === "#interpreter") {
-                window.location.hash = "#clinicalAnalysisPortal";
+            // 2. Set the new Hash URL
+            let newHashFragmentUrl = this.tool !== "#interpreter" ? this.tool : "#clinicalAnalysisPortal";
+            if (this.opencgaSession?.project) {
+                newHashFragmentUrl += "/" + this.opencgaSession.project.id;
+                if (this.opencgaSession.study) {
+                    newHashFragmentUrl += "/" + this.opencgaSession.study.id;
+                }
             }
+            window.location.hash = newHashFragmentUrl;
 
-            // Refresh the session and update cellbase
-            this.opencgaSession = {...this.opencgaSession};
-            this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[SETTINGS_NAME].settings);
+            // 3. Reset queries from old studies
+            this.queries = {};
+
+            // Update CellBase and refresh the session.
             this.updateCellBaseClient();
+            this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[SETTINGS_NAME].settings);
+            this.opencgaSession = {...this.opencgaSession};
         } else {
             // TODO Convert this into a user notification
-            console.error("Study not found!");
+            console.error(`Study '${studyFqn}' not found!`);
         }
     }
 
+    // This method updates 'cellbaseClient' object but DO NOT refresh opencgaSession.
     updateCellBaseClient() {
-        this.cellbaseClient = null; // Reset cellbase client
+        // 1. Reset CellBase client
+        this.cellbaseClient = null;
 
-        if (this.opencgaSession?.project && this.opencgaSession?.project?.cellbase?.url) {
+        // 2. Build new CellBase client using 'project' info.
+        if (this.opencgaSession?.project?.cellbase?.url) {
             this.cellbaseClient = new CellBaseClient({
                 host: this.opencgaSession.project.cellbase.url.replace(/\/$/, ""),
                 version: this.opencgaSession.project.cellbase.version,
                 species: this.opencgaSession.project.organism.scientificName,
             });
-        } else {
-            // Josemi 20220216 NOTE: we keep this old way to be backward compatible with OpenCGA 2.1
-            // But this should be removed in future releases
-            this.config.cellbase = null;
-            this.cellbaseClient = new CellBaseClient({
-                host: this.config.cellbase?.host,
-                version: this.config.cellbase?.version,
-                species: "hsapiens",
-            });
+
+            // 2.1 This simplifies passing 'cellbaseClient' to all components
+            this.opencgaSession.cellbaseClient = this.cellbaseClient;
         }
-        // This simplifies passing cellbaseCLient to all components
-        this.opencgaSession.cellbaseClient = this.cellbaseClient;
     }
 
-    updateProject(e) {
-        this.project = this.projects.find(project => project.name === e.detail.project.name);
-        this.tool = "#project";
-        this.renderHashFragments();
-        // this.renderBreadcrumb();
-    }
+    // updateProject(e) {
+    //     this.project = this.projects.find(project => project.name === e.detail.project.name);
+    //     // this.tool = "#project";
+    //     this.renderHashFragments("project");
+    //     // this.renderBreadcrumb();
+    // }
 
-    updateStudy(e) {
-        if (UtilsNew.isNotUndefined(e.detail.project) && UtilsNew.isNotEmpty(e.detail.project.name)) {
-            this.project = e.detail.project;
-        }
-        this.study = this.project.studies.find(study => study.name === e.detail.study.name || study.alias === e.detail.study.alias);
-
-        //                TODO: Opencga study will be shown later. For now variant browser is shown when the study changes
-        //                this.tool = "studyInformation";
-        this.tool = "#browser";
-        this.renderHashFragments();
-        // this.renderBreadcrumb();
-    }
+    // updateStudy(e) {
+    //     if (e.detail.project?.name) {
+    //         this.project = e.detail.project;
+    //     }
+    //     this.study = this.project.studies.find(study => study.name === e.detail.study.name);
+    //
+    //     //                TODO: Opencga study will be shown later. For now variant browser is shown when the study changes
+    //     //                this.tool = "studyInformation";
+    //     // this.tool = "#variant-browser";
+    //     this.renderHashFragments("variant-browser");
+    //     // this.renderBreadcrumb();
+    // }
 
     onSampleChange(e) {
-        if (UtilsNew.isNotUndefinedOrNull(this.samples) && UtilsNew.isNotUndefinedOrNull(e.detail)) {
-            this.samples = e.detail.samples;
-            this._samplesPerTool[this.tool.replace("#", "")] = this.samples;
-            // this.renderBreadcrumb();
-        }
+        // if (UtilsNew.isNotUndefinedOrNull(this.samples) && UtilsNew.isNotUndefinedOrNull(e.detail)) {
+        // this.samples = e.detail.samples;
+        // this._samplesPerTool[this.tool.replace("#", "")] = this.samples;
+        // this.renderBreadcrumb();
+        // }
     }
 
-    quickSearch(e) {
-        this.tool = "#browser";
-        window.location.hash = "browser/" + this.opencgaSession.project.id + "/" + this.opencgaSession.study.id;
-        // this.browserQuery = {xref: e.detail.value};
+    // quickSearch(e) {
+    //     this.tool = "#variant-browser";
+    //     window.location.hash = "variant-browser/" + this.opencgaSession.project.id + "/" + this.opencgaSession.study.id;
+    //     // this.browserQuery = {xref: e.detail.value};
+    //
+    //     this.browserSearchQuery = e.detail;
+    // }
 
-        this.browserSearchQuery = e.detail;
-    }
-
-    quickFacetSearch(e) {
-        console.log("IVA-APP quickfacetsearch");
-        this.tool = "#facet";
-        window.location.hash = "facet/" + this.opencgaSession.project.id + "/" + this.opencgaSession.study.id;
-        // this.browserQuery = {xref: e.detail.value};
-        this.browserSearchQuery = e.detail;
-    }
+    // quickFacetSearch(e) {
+    //     console.log("IVA-APP quickfacetsearch");
+    //     this.tool = "#facet";
+    //     window.location.hash = "facet/" + this.opencgaSession.project.id + "/" + this.opencgaSession.study.id;
+    //     // this.browserQuery = {xref: e.detail.value};
+    //     this.browserSearchQuery = e.detail;
+    // }
 
     onJobSelected(e) {
         this.jobSelected = e.detail.jobId;
@@ -1055,8 +1052,9 @@ class IvaApp extends LitElement {
 
     // TODO this should keep in sync the query object between variant-browser and variant-facet
     onQueryChange(e) {
-        console.log("onQueryChange", e);
+        console.warn("onQueryChange", e);
         this.browserSearchQuery = {...e.detail.query};
+        // this.browserSearchQuery = {};
     }
 
 
@@ -1065,28 +1063,16 @@ class IvaApp extends LitElement {
         // TODO fix active-filters
         const q = e.detail.query ? {...e.detail.query} : {...e.detail};
         this.queries[source] = {...q};
-        this.queries = {...this.queries};
-        // console.log("this.queries",this.queries);
-        this.requestUpdate();
+        // this.queries = {...this.queries};
+        // this.requestUpdate();
     }
 
     onSelectClinicalAnalysis(e) {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
     }
 
-    /* Set the width of the side navigation to 250px */
-    openNav() {
-        this.querySelector("#side-nav").style.width = "250px";
-        console.log("open");
-    }
-
-    /* Set the width of the side navigation to 0 */
-    closeNav() {
-        this.querySelector("#side-nav").style.width = "0";
-    }
-
-    toggleSideBar(e) {
-        e.preventDefault();
+    toggleSideBar() {
+        // e.preventDefault();
         // const sidenav = this.querySelector("#side-nav");
         $("#side-nav").toggleClass("active");
         $("#overlay").toggleClass("active");
@@ -1102,11 +1088,10 @@ class IvaApp extends LitElement {
 
         // We only want to toggle when clicked in the sidenav
         if (toggle) {
-            this.toggleSideBar(e);
+            this.toggleSideBar();
         }
 
         this.changeTool(e);
-        this.requestUpdate();
     }
 
     getActiveAppConfig() {
@@ -1132,17 +1117,17 @@ class IvaApp extends LitElement {
         return !!this?.opencgaSession?.token;
     }
 
-    createAboutLink(link, button) {
-        const url = link.url ? `${link.url}` : `#${link.id}`;
-        const iconHtml = link.icon ? html`<i class="${link.icon} icon-padding" aria-hidden="true"></i>` : null;
-        if (link.url) {
-            return html`
-                <a href="${url}" role="${button ? "button" : "link"}" target="_blank">${iconHtml} ${link.name}</a>`;
-        } else {
-            return html`
-                <a href="${url}" role="${button ? "button" : "link"}">${iconHtml} ${link.name}</a>`;
-        }
-    }
+    // createAboutLink(link, button) {
+    //     const url = link.url ? `${link.url}` : `#${link.id}`;
+    //     const iconHtml = link.icon ? html`<i class="${link.icon} icon-padding" aria-hidden="true"></i>` : null;
+    //     if (link.url) {
+    //         return html`
+    //             <a href="${url}" role="${button ? "button" : "link"}" target="_blank">${iconHtml} ${link.name}</a>`;
+    //     } else {
+    //         return html`
+    //             <a href="${url}" role="${button ? "button" : "link"}">${iconHtml} ${link.name}</a>`;
+    //     }
+    // }
 
     onSessionUpdateRequest() {
         this._createOpenCGASession();
@@ -1214,7 +1199,7 @@ class IvaApp extends LitElement {
         }
 
         // No page found --> Render a not found error page (TODO)
-        return html`Not found :(`;
+        return html`Not found :-(`;
     }
 
     render() {
@@ -1223,8 +1208,7 @@ class IvaApp extends LitElement {
                 <custom-landing
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.config}"
-                    @login="${this.onLogin}"
-                    @redirect="${this.route}">
+                    @login="${this.onLogin}">
                 </custom-landing>
             `;
         }
@@ -1278,16 +1262,15 @@ class IvaApp extends LitElement {
                 @changeTool="${e => this.changeTool(e.detail.value)}"
                 @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
                 @studySelect="${ e => this.onStudySelect(e.detail.event, e.detail.study)}"
-                @jobSelected="${e => this.onJobSelected(e)}"
-                @route="${this.route}">
+                @jobSelected="${e => this.onJobSelected(e)}">
             </custom-navbar>
 
             ${ this.isCreatingSession ? html `
-            <div class="login-overlay">
-                <loading-spinner
+                <div class="login-overlay">
+                    <loading-spinner
                         .description="${"Creating session..."}">
-                </loading-spinner>
-            </div>
+                    </loading-spinner>
+                </div>
             ` : nothing
             }
 
@@ -1341,86 +1324,76 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents.login ? html`
-                    <div class="content" id="login">
-                        <user-login
+                ${this.config.enabledComponents["variant-browser"] ? html`
+                    <div class="content" id="variant-browser">
+                        <variant-browser
                             .opencgaSession="${this.opencgaSession}"
-                            @login="${this.onLogin}"
-                            @redirect="${this.route}">
-                        </user-login>
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .reactomeClient="${this.reactomeClient}"
+                            .query="${this.queries["variant-browser"]}"
+                            .settings="${this.settings.VARIANT_BROWSER}"
+                            .consequenceTypes="${this.config.consequenceTypes}"
+                            .populationFrequencies="${this.config.populationFrequencies}"
+                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                            @onGene="${this.geneSelected}"
+                            @onSamplechange="${this.onSampleChange}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "variant-browser")}"
+                            onqueryChange="${e => this.onQueryChange(e, "variant")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "variant-browser")}">
+                        </variant-browser>
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents.browser ? html`
-            <div class="content" id="browser">
-                <variant-browser
-                    .opencgaSession="${this.opencgaSession}"
-                    .cellbaseClient="${this.cellbaseClient}"
-                    .reactomeClient="${this.reactomeClient}"
-                    .query="${this.queries.variant}"
-                    .settings="${this.settings.VARIANT_BROWSER}"
-                    .consequenceTypes="${this.config.consequenceTypes}"
-                    .populationFrequencies="${this.config.populationFrequencies}"
-                    .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                    @onGene="${this.geneSelected}"
-                    @onSamplechange="${this.onSampleChange}"
-                    @querySearch="${e => this.onQueryFilterSearch(e, "variant")}"
-                    @activeFilterChange="${e => this.onQueryFilterSearch(e, "variant")}"
-                    @facetSearch="${this.quickFacetSearch}">
-                </variant-browser>
-            </div>
-        ` : null}
-
                 ${this.config.enabledComponents["clinicalAnalysisPortal"] ? html`
-            <div class="content" id="clinicalAnalysisPortal">
-                <clinical-analysis-portal
-                    .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.settings.CLINICAL_ANALYSIS_PORTAL_BROWSER}"
-                    @sessionPanelUpdate="${this.onSessionPanelUpdate}">
-                </clinical-analysis-portal>
-            </div>
-        ` : null}
+                    <div class="content" id="clinicalAnalysisPortal">
+                        <clinical-analysis-portal
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${this.settings.CLINICAL_ANALYSIS_PORTAL_BROWSER}"
+                            @sessionPanelUpdate="${this.onSessionPanelUpdate}">
+                        </clinical-analysis-portal>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["rga"] ? html`
-            <div class="content" id="rga">
-                <rga-browser
-                    .opencgaSession="${this.opencgaSession}"
-                    .cellbaseClient="${this.cellbaseClient}"
-                    .settings="${this.settings.RGA_BROWSER}">
-                </rga-browser>
-            </div>
-        ` : null}
+                    <div class="content" id="rga">
+                        <rga-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .settings="${this.settings.RGA_BROWSER}">
+                        </rga-browser>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["rd-interpreter"] ? html`
-            <div class="content" id="rd-interpreter">
-                <variant-rd-interpreter .opencgaSession="${this.opencgaSession}"
-                                        .cellbaseClient="${this.cellbaseClient}"
-                                        .clinicalAnalysisId="${this.clinicalAnalysisId}"
-                                        .query="${this.interpretationSearchQuery}"
-                                        .consequenceTypes="${this.config.consequenceTypes}"
-                                        .populationFrequencies="${this.config.populationFrequencies}"
-                                        .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                        .config="${true}"
-                                        @gene="${this.geneSelected}"
-                                        @samplechange="${this.onSampleChange}">
-                </variant-rd-interpreter>
-            </div>
-        ` : null}
+                    <div class="content" id="rd-interpreter">
+                        <variant-rd-interpreter .opencgaSession="${this.opencgaSession}"
+                                                .cellbaseClient="${this.cellbaseClient}"
+                                                .clinicalAnalysisId="${this.clinicalAnalysisId}"
+                                                .query="${this.interpretationSearchQuery}"
+                                                .consequenceTypes="${this.config.consequenceTypes}"
+                                                .populationFrequencies="${this.config.populationFrequencies}"
+                                                .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                                                .config="${true}"
+                                                @gene="${this.geneSelected}"
+                                                @samplechange="${this.onSampleChange}">
+                        </variant-rd-interpreter>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["cancer-interpreter"] ? html`
-            <div class="content" id="cancer-interpreter">
-                <variant-cancer-interpreter .opencgaSession="${this.opencgaSession}"
-                                            .cellbaseClient="${this.cellbaseClient}"
-                                            .clinicalAnalysisId="${this.clinicalAnalysisId}"
-                                            .query="${this.interpretationSearchQuery}"
-                                            .consequenceTypes="${this.config.consequenceTypes}"
-                                            .populationFrequencies="${this.config.populationFrequencies}"
-                                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                            @gene="${this.geneSelected}"
-                                            @samplechange="${this.onSampleChange}">
-                </variant-cancer-interpreter>
-            </div>
-        ` : null}
+                    <div class="content" id="cancer-interpreter">
+                        <variant-cancer-interpreter .opencgaSession="${this.opencgaSession}"
+                                                    .cellbaseClient="${this.cellbaseClient}"
+                                                    .clinicalAnalysisId="${this.clinicalAnalysisId}"
+                                                    .query="${this.interpretationSearchQuery}"
+                                                    .consequenceTypes="${this.config.consequenceTypes}"
+                                                    .populationFrequencies="${this.config.populationFrequencies}"
+                                                    .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                                                    @gene="${this.geneSelected}"
+                                                    @samplechange="${this.onSampleChange}">
+                        </variant-cancer-interpreter>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.beacon ? html`
                     <div class="content" id="beacon">
@@ -1435,27 +1408,17 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents.projects ? html`
-                    <div class="content" id="projects">
-                        <opencga-projects
+                ${this.config.enabledComponents.sample ? html`
+                    <div class="content" id="sample">
+                        <sample-browser
                             .opencgaSession="${this.opencgaSession}"
-                            @project="${this.updateProject}"
-                            @study="${this.updateStudy}">
-                        </opencga-projects>
+                            .query="${this.queries.sample}"
+                            .settings="${this.settings.SAMPLE_BROWSER}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "sample")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "sample")}">
+                        </sample-browser>
                     </div>
                 ` : null}
-
-                ${this.config.enabledComponents.sample ? html`
-            <div class="content" id="sample">
-                <sample-browser
-                    .opencgaSession="${this.opencgaSession}"
-                    .query="${this.queries.sample}"
-                    .settings="${this.settings.SAMPLE_BROWSER}"
-                    @querySearch="${e => this.onQueryFilterSearch(e, "sample")}"
-                    @activeFilterChange="${e => this.onQueryFilterSearch(e, "sample")}">
-                </sample-browser>
-            </div>
-        ` : null}
 
 
                 ${this.config.enabledComponents.panel ? html`
@@ -1471,29 +1434,29 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents.file ? html`
-            <div class="content" id="file">
-                <file-browser
-                    .opencgaSession="${this.opencgaSession}"
-                    .query="${this.queries.file}"
-                    .settings="${this.settings.FILE_BROWSER}"
-                    @querySearch="${e => this.onQueryFilterSearch(e, "file")}"
-                    @activeFilterChange="${e => this.onQueryFilterSearch(e, "file")}">
-                </file-browser>
-            </div>
-        ` : null}
+                    <div class="content" id="file">
+                        <file-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.file}"
+                            .settings="${this.settings.FILE_BROWSER}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "file")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "file")}">
+                        </file-browser>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["disease-panel"] ? html`
-            <div class="content" id="disease-panel">
-                <disease-panel-browser
-                    .opencgaSession="${this.opencgaSession}"
-                    .cellbaseClient="${this.cellbaseClient}"
-                    .query="${this.queries["disease-panel"]}"
-                    .settings="${this.settings.DISEASE_PANEL_BROWSER}"
-                    @querySearch="${e => this.onQueryFilterSearch(e, "disease-panel")}"
-                    @activeFilterChange="${e => this.onQueryFilterSearch(e, "disease-panel")}">
-                </disease-panel-browser>
-            </div>
-        ` : null}
+                    <div class="content" id="disease-panel">
+                        <disease-panel-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .query="${this.queries["disease-panel"]}"
+                            .settings="${this.settings.DISEASE_PANEL_BROWSER}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "disease-panel")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "disease-panel")}">
+                        </disease-panel-browser>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["diseasePanelUpdate"] ? html`
                     <div class="content" id="disease-panel">
@@ -1520,22 +1483,6 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 <!--todo check-->
-                ${this.config.enabledComponents.gene ? html`
-                    <div class="content" id="gene">
-                        <opencga-gene-view
-                            .opencgaSession="${this.opencgaSession}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .geneId="${this.gene}"
-                            .populationFrequencies="${this.config.populationFrequencies}"
-                            .consequenceTypes="${this.config.consequenceTypes}"
-                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}"
-                            .summary="${this.config.opencga.summary}"
-                            @querySearch="${e => this.onQueryFilterSearch(e, "variant")}">
-                        </opencga-gene-view>
-                    </div>
-                ` : null}
-
                 ${this.config.enabledComponents["sample-view"] ? html`
                     <div class="content" id="sample-view">
                         <opencga-sample-view
@@ -1641,6 +1588,22 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
+                ${this.config.enabledComponents.gene ? html`
+                    <div class="content" id="gene">
+                        <opencga-gene-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .geneId="${this.gene}"
+                            .populationFrequencies="${this.config.populationFrequencies}"
+                            .consequenceTypes="${this.config.consequenceTypes}"
+                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}"
+                            .summary="${this.config.opencga.summary}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "variant")}">
+                        </opencga-gene-view>
+                    </div>
+                ` : null}
+
                 ${this.config.enabledComponents.transcript ? html`
                     <div class="content feature-view" id="transcript">
                         <opencga-transcript-view
@@ -1675,69 +1638,69 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents.individual ? html`
-            <div class="content" id="individual">
-                <individual-browser
-                    .opencgaSession="${this.opencgaSession}"
-                    .query="${this.queries.individual}"
-                    .settings="${this.settings.INDIVIDUAL_BROWSER}"
-                    @querySearch="${e => this.onQueryFilterSearch(e, "individual")}"
-                    @activeFilterChange="${e => this.onQueryFilterSearch(e, "individual")}">
-                </individual-browser>
-            </div>
-        ` : null}
+                    <div class="content" id="individual">
+                        <individual-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.individual}"
+                            .settings="${this.settings.INDIVIDUAL_BROWSER}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "individual")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "individual")}">
+                        </individual-browser>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.family ? html`
-            <div class="content" id="family">
-                <family-browser
-                    .opencgaSession="${this.opencgaSession}"
-                    .query="${this.queries.family}"
-                    .settings="${this.settings.FAMILY_BROWSER}"
-                    @querySearch="${e => this.onQueryFilterSearch(e, "family")}"
-                    @activeFilterChange="${e => this.onQueryFilterSearch(e, "family")}">
-                </family-browser>
-            </div>
-        ` : null}
+                    <div class="content" id="family">
+                        <family-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.family}"
+                            .settings="${this.settings.FAMILY_BROWSER}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "family")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "family")}">
+                        </family-browser>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.cohort ? html`
-            <div class="content" id="cohort">
-                <cohort-browser
-                    .opencgaSession="${this.opencgaSession}"
-                    .query="${this.queries.cohort}"
-                    .settings="${this.settings.COHORT_BROWSER}"
-                    @querySearch="${e => this.onQueryFilterSearch(e, "cohort")}"
-                    @activeFilterChange="${e => this.onQueryFilterSearch(e, "cohort")}">
-                </cohort-browser>
-            </div>
-        ` : null}
+                    <div class="content" id="cohort">
+                        <cohort-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.cohort}"
+                            .settings="${this.settings.COHORT_BROWSER}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "cohort")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "cohort")}">
+                        </cohort-browser>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.clinicalAnalysis ? html`
-            <div class="content" id="clinicalAnalysis">
-                <clinical-analysis-browser
-                    .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.settings.CLINICAL_ANALYSIS_BROWSER}"
-                    .config="${{componentId: "clinicalAnalysisBrowserCatalog"}}"
-                    .query="${this.queries["clinical-analysis"]}"
-                    @querySearch="${e => this.onQueryFilterSearch(e, "clinical-analysis")}"
-                    @activeFilterChange="${e => this.onQueryFilterSearch(e, "clinical-analysis")}">
-                </clinical-analysis-browser>
-            </div>
-        ` : null}
+                    <div class="content" id="clinicalAnalysis">
+                        <clinical-analysis-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${this.settings.CLINICAL_ANALYSIS_BROWSER}"
+                            .config="${{componentId: "clinicalAnalysisBrowserCatalog"}}"
+                            .query="${this.queries["clinical-analysis"]}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "clinical-analysis")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "clinical-analysis")}">
+                        </clinical-analysis-browser>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.job ? html`
-            <div class="content" id="job">
-                <job-browser
-                    .opencgaSession="${this.opencgaSession}"
-                    .settings= ${this.settings.JOB_BROWSER}
-                    .query="${this.queries.job}"
-                    @querySearch="${e => this.onQueryFilterSearch(e, "job")}"
-                    @activeFilterChange="${e => this.onQueryFilterSearch(e, "job")}">
-                </job-browser>
-            </div>
-        ` : null}
+                    <div class="content" id="job">
+                        <job-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings= ${this.settings.JOB_BROWSER}
+                            .query="${this.queries.job}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "job")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "job")}">
+                        </job-browser>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["cat-browser"] ? html`
                     <div class="content" id="cat-browser">
-                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "browser")}">
+                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "variant-browser")}">
                         </category-page>
                     </div>
                 ` : null}
@@ -1943,13 +1906,13 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents.account ? html`
-            <div class="content" id="account">
-                <user-profile
-                    .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.settings.USER_PROFILE_SETTINGS}">
-                </user-profile>
-            </div>
-        ` : null}
+                    <div class="content" id="account">
+                        <user-profile
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${this.settings.USER_PROFILE_SETTINGS}">
+                        </user-profile>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["file-manager"] ? html`
                     <div class="content" id="file-manager">
@@ -1965,16 +1928,16 @@ class IvaApp extends LitElement {
 
 
                 ${this.config.enabledComponents["interpreter"] ? html`
-            <div class="content" id="interpreter">
-                <variant-interpreter
-                    .opencgaSession="${this.opencgaSession}"
-                    .cellbaseClient="${this.cellbaseClient}"
-                    .clinicalAnalysisId="${this.clinicalAnalysisId}"
-                    .settings="${this.settings.VARIANT_INTERPRETER_SETTINGS}"
-                    @selectClinicalAnalysis="${this.onSelectClinicalAnalysis}">
-                </variant-interpreter>
-            </div>
-        ` : null}
+                    <div class="content" id="interpreter">
+                        <variant-interpreter
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .clinicalAnalysisId="${this.clinicalAnalysisId}"
+                            .settings="${this.settings.VARIANT_INTERPRETER_SETTINGS}"
+                            @selectClinicalAnalysis="${this.onSelectClinicalAnalysis}">
+                        </variant-interpreter>
+                    </div>
+                ` : null}
 
                 <!-- Alignment Analysis-->
                 ${this.config.enabledComponents["alignment-index"] ? html`
@@ -2019,56 +1982,56 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["catalog-admin"] ? html`
-            <div class="content row" id="catalog-admin">
-                <catalog-admin
-                    .opencgaSession="${this.opencgaSession}"
-                    @sessionUpdateRequest="${this.onSessionUpdateRequest}">
-                </catalog-admin>
-            </div>
-        ` : null}
+                    <div class="content row" id="catalog-admin">
+                        <catalog-admin
+                            .opencgaSession="${this.opencgaSession}"
+                            @sessionUpdateRequest="${this.onSessionUpdateRequest}">
+                        </catalog-admin>
+                    </div>
+                ` : null}
 
 
                 ${this.config.enabledComponents["opencga-admin"] ? html`
-            <tool-header title="Study Dashboard" icon="${"fas fa-rocket"}"></tool-header>
-            <div id="projects-admin" class="content row col-md-10 col-md-offset-1">
-                <projects-admin
-                    .opencgaSession="${this.opencgaSession}"
-                    @sessionUpdateRequest="${this.onSessionUpdateRequest}">
-                </projects-admin>
-            </div>
-        ` : null}
+                    <tool-header title="Study Dashboard" icon="${"fas fa-rocket"}"></tool-header>
+                    <div id="projects-admin" class="content row col-md-10 col-md-offset-1">
+                        <projects-admin
+                            .opencgaSession="${this.opencgaSession}"
+                            @sessionUpdateRequest="${this.onSessionUpdateRequest}">
+                        </projects-admin>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["study-admin"] ? html`
-            <div class="content row" id="study-admin">
-                <study-admin
-                    .study="${this.opencgaSession.study}"
-                    .opencgaSession="${this.opencgaSession}"
-                    @studyUpdateRequest="${this.onStudyUpdateRequest}">
-                </study-admin>
-            </div>
-        ` : null}
+                    <div class="content row" id="study-admin">
+                        <study-admin
+                            .study="${this.opencgaSession.study}"
+                            .opencgaSession="${this.opencgaSession}"
+                            @studyUpdateRequest="${this.onStudyUpdateRequest}">
+                        </study-admin>
+                    </div>
+                ` : null}
 
-            <!-- NOTE Vero: "row" class to avoid tricky css for undoing the margin bootstrap of container-fluid -->
-            <!-- Remove this from the parameters: .study="$ {this.opencgaSession.study}" -->
+                <!-- NOTE Vero: "row" class to avoid tricky css for undoing the margin bootstrap of container-fluid -->
+                <!-- Remove this from the parameters: .study="$ {this.opencgaSession.study}" -->
                 ${this.config.enabledComponents["study-admin-iva"] ? html`
-            <div class="content row">
-                <study-admin-iva
-                    .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.settings}"
-                    @studyUpdateRequest="${this.onStudyUpdateRequest}">
-                </study-admin-iva>
-            </div>
-        ` : null}
+                    <div class="content row">
+                        <study-admin-iva
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${this.settings}"
+                            @studyUpdateRequest="${this.onStudyUpdateRequest}">
+                        </study-admin-iva>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["study-variant-admin"] ? html`
-            <div class="content row">
-                <study-variant-admin
-                    .study="${this.opencgaSession.study}"
-                    .opencgaSession="${this.opencgaSession}"
-                    @studyUpdateRequest="${this.onStudyUpdateRequest}">
-                </study-variant-admin>
-            </div>
-        ` : null}
+                    <div class="content row">
+                        <study-variant-admin
+                            .study="${this.opencgaSession.study}"
+                            .opencgaSession="${this.opencgaSession}"
+                            @studyUpdateRequest="${this.onStudyUpdateRequest}">
+                        </study-variant-admin>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["rest-api"] ? html`
                     <tool-header title="REST API" icon="${"fas fa-rocket"}"></tool-header>
