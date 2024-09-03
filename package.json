@@ -1,6 +1,6 @@
 {
   "name": "jsorolla",
-  "version": "2.12.7-dev",
+  "version": "2.12.7",
   "description": "JSorolla is a JavaScript bioinformatic library for data analysis and genomic visualization",
   "repository": {
     "type": "git",
