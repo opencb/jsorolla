@@ -35,7 +35,7 @@ COPY    ./${SITE}/api/conf          /usr/local/apache2/htdocs/api/conf/
 COPY    ./${SITE}/api/img           /usr/local/apache2/htdocs/api/img/
 
 ## Run Docker images as non root
-RUN opencga -m -u 1001 myuser
+RUN useradd -m -u 1001 opencga
 USER opencga
 
 ## Genome Maps (Coming soon  :-) )
