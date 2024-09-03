@@ -1,8 +1,10 @@
 FROM httpd:2.4-bullseye
+COPY ./docker/Dockerfile/custom-httpd.conf /usr/local/apache2/conf/httpd.conf
+
 
 ## To run the docker use:
 ## docker build -f ./docker/iva-app/Dockerfile -t iva-httpd .
-## docker run --name jsorolla -p 8888:80 opencb/iva-app
+## docker run --name jsorolla -p 8888:8080 opencb/iva-app
 ## Then open:  http://localhost:8888/iva o http://localhost:8888/api
 
 LABEL org.label-schema.vendor="OpenCB" \
