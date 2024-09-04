@@ -18,9 +18,6 @@ RUN apt-get update && apt-get -y upgrade && \
     apt-get install -y vim jq && \
     rm -rf /var/lib/apt/lists/*
 
-## Run Docker images as non root
-USER www-data
-
 ## Allow to build different images by passing the path to the SITE
 ARG     SITE=src/sites
 
@@ -37,6 +34,10 @@ COPY    ./build/api                 /usr/local/apache2/htdocs/api
 COPY    ./${SITE}/api/conf          /usr/local/apache2/htdocs/api/conf/
 COPY    ./${SITE}/api/img           /usr/local/apache2/htdocs/api/img/
 
+## Change owner
+RUN chown -R www-date /usr/local/apache2/htdocs/
+## Run Docker images as non root
+USER www-data
 
 ## Genome Maps (Coming soon  :-) )
 #COPY    ./build/genome-maps                 /usr/local/apache2/htdocs/genome-maps
