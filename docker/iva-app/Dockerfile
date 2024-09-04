@@ -36,6 +36,7 @@ COPY    ./${SITE}/api/img           /usr/local/apache2/htdocs/api/img/
 
 ## Change owner
 RUN chown -R www-data /usr/local/apache2/htdocs/
+RUN chown -R www-data /usr/local/apache2/logs/
 ## Run Docker images as non root
 USER www-data
 
