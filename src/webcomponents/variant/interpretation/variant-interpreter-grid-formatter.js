@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-import {html} from "lit-html";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
-
 
 export default class VariantInterpreterGridFormatter {
 
@@ -91,7 +89,7 @@ export default class VariantInterpreterGridFormatter {
         }
     }
 
-    static clinicalPopulationFrequenciesFormatter(value, row) {
+    static clinicalPopulationFrequenciesFormatter(value, row, config) {
         const popFreqMap = new Map();
         // If variant population freqs exist read values
         if (row?.annotation?.populationFrequencies?.length > 0) {
@@ -100,10 +98,10 @@ export default class VariantInterpreterGridFormatter {
             });
         }
         return VariantGridFormatter.renderPopulationFrequencies(
-            this._config.populationFrequencies,
+            config.populationFrequencies,
             popFreqMap,
             POPULATION_FREQUENCIES.style,
-            this._config.populationFrequenciesConfig,
+            config.populationFrequenciesConfig,
         );
     }
 
@@ -122,27 +120,24 @@ export default class VariantInterpreterGridFormatter {
                 const clinicalSignificance = CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id;
                 clinicalSignificanceHtml = `
                     <div style="margin: 5px 0px; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">${clinicalSignificance}</div>
-                    <div class="help-block">${re.classification.acmg.map(acmg => acmg.classification).join(", ")}</div>
+                    <div class="text-body-secondary">${re.classification.acmg.map(acmg => acmg.classification).join(", ")}</div>
                 `;
-                clinicalSignificanceTooltipText = `<div class='col-md-12 predictionTooltip-inner' style='padding: 0px'>
-                                                        <form class='form-horizontal'>
-                                                            <div class='form-group' style='margin: 0px 2px'>
-                                                                <label class='col-md-5'>ACMG</label>
-                                                                <div class='col-md-7'>${re.classification.acmg.join(", ")}</div>
-                                                            </div>
-                                                            <div class='form-group' style='margin: 0px 2px'>
-                                                                <label class='col-md-5'>ACMG Tier</label>
-                                                                <div class='col-md-7'>${re.classification.tier}</div>
-                                                            </div>
-                                                        </form>
-                                                   </div>`;
+                clinicalSignificanceTooltipText = `<div class='p-1' style='width: 250px;'>
+                                                        <div class='row mb-2'>
+                                                            <div class='col-6'>ACMG</div>
+                                                            <div class='col-6'>${re.classification?.acmg?.join(", ")}</div>
+                                                        </div>
+                                                        <div class='row mb-2'>
+                                                            <div class='col-6'>ACMG Tier</div>
+                                                            <div class='col-6'>${re.classification.tier}</div>
+                                                        </div>
+                                                    </div>`;
             }
         }
-        return `<a class='predictionTooltip' tooltip-title="Classification" tooltip-text="${clinicalSignificanceTooltipText}">
+        return `<a class='predictionTooltip text-decoration-none' tooltip-title="Classification" tooltip-text="${clinicalSignificanceTooltipText}">
                     ${clinicalSignificanceHtml}
                 </a>`;
     }
-
 
     /*
     * File attributes formatters
@@ -174,17 +169,17 @@ export default class VariantInterpreterGridFormatter {
             let message = "";
             if (config) {
                 // Create two different divs to 'show all' or 'apply filter' title
-                message = `<div class="${variantGrid._prefix}${row.id}EvidenceFiltered">Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of
-                                <span style="font-weight: bold; color: red">${newEvidences.length}</span> clinical evidences
+                message = `<div class="${variantGrid._prefix}${row.id}EvidenceFiltered">Showing <span class='fw-bold' style="color: red">${showArrayIndexes.length}</span> of
+                                <span class='fw-bold' style=" color: red">${newEvidences.length}</span> clinical evidences
                                 ${showArrayIndexes.length !== newEvidences.length ?
-                    `, <a id="${variantGrid._prefix}${row.id}ShowEvidence" data-id="${row.id}" style="cursor: pointer">show all...</a>` :
+                    `, <a class="link-primary" id="${variantGrid._prefix}${row.id}ShowEvidence" data-id="${row.id}" style="cursor: pointer">show all...</a>` :
                     ""
                 }
                             </div>
-                            <div class="${variantGrid._prefix}${row.id}EvidenceFiltered" style="display: none">Showing <span style="font-weight: bold; color: red">${newEvidences.length}</span> of
-                                <span style="font-weight: bold; color: red">${newEvidences.length}</span> clinical evidences,
+                            <div class="${variantGrid._prefix}${row.id}EvidenceFiltered" style="display: none">Showing <span class='fw-bold' style="color: red">${newEvidences.length}</span> of
+                                <span class='fw-bold' style="color: red">${newEvidences.length}</span> clinical evidences,
                                 ${showArrayIndexes.length !== newEvidences.length ?
-                    `, <a id="${variantGrid._prefix}${row.id}HideEvidence" data-id="${row.id}" style="cursor: pointer">apply filters...</a>` :
+                    `, <a class="link-primary" id="${variantGrid._prefix}${row.id}HideEvidence" data-id="${row.id}" style="cursor: pointer">apply filters...</a>` :
                     ""
                 }
                            </div>
@@ -196,7 +191,7 @@ export default class VariantInterpreterGridFormatter {
             `;
 
             if (variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
-                ctHtml += `<thead>
+                ctHtml += `<thead class="table-light">
                                <tr>
                                    <th rowspan="2" style="padding: 2px 5px">Gene</th>
                                    <th rowspan="2" style="padding: 2px 5px">Transcript</th>
@@ -215,7 +210,7 @@ export default class VariantInterpreterGridFormatter {
                            </thead>
                            <tbody>`;
             } else {
-                ctHtml += `<thead>
+                ctHtml += `<thead class="table-light">
                                <tr>
                                    <th rowspan="2" style="padding: 2px 5px">Gene</th>
                                    <th rowspan="2" style="padding: 2px 5px">Transcript</th>
@@ -244,12 +239,12 @@ export default class VariantInterpreterGridFormatter {
                 if (re.genomicFeature.geneName) {
                     geneHtml = `
                         <div>
-                            <a href="${BioinfoUtils.getGeneNameLink(re.genomicFeature.geneName)}" target="_blank">
+                            <a class="text-decoration-none" href="${BioinfoUtils.getGeneNameLink(re.genomicFeature.geneName)}" target="_blank">
                                 ${re.genomicFeature.geneName}
                             </a>
                         </div>
                         <div style="margin: 5px 0px">
-                            <a href="${BioinfoUtils.getGeneLink(re.genomicFeature.id)}" target="_blank">
+                            <a class="text-decoration-none" href="${BioinfoUtils.getGeneLink(re.genomicFeature.id)}" target="_blank">
                                 ${re.genomicFeature.id || ""}
                             </a>
                         </div>`;
@@ -319,7 +314,7 @@ export default class VariantInterpreterGridFormatter {
                         }
                             </div>
                             ${gene.modesOfInheritance ? `
-                                <div class="help-block" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modesOfInheritance.join(", ")}</div>
+                                <div class="text-body-secondary" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modesOfInheritance.join(", ")}</div>
                                 ` : ""
                         }
                             ${gene.confidence ? `
@@ -349,7 +344,7 @@ export default class VariantInterpreterGridFormatter {
                             </div>
                         ` : ""
                     }
-                        <div class="help-block">${re.classification.acmg?.map(acmg => acmg.classification || acmg)?.join(", ")}</div>
+                        <div class="text-body-secondary">${re.classification.acmg?.map(acmg => acmg.classification || acmg)?.join(", ")}</div>
                     `;
                 }
 
@@ -363,7 +358,7 @@ export default class VariantInterpreterGridFormatter {
                             </div>
                         ` : ""
                     }
-                        <div class="help-block">${re.review.acmg?.map(acmg => acmg.classification)?.join(", ")}</div>
+                        <div class="text-body-secondary">${re.review.acmg?.map(acmg => acmg.classification)?.join(", ")}</div>
                     `;
                 }
 
@@ -514,9 +509,10 @@ export default class VariantInterpreterGridFormatter {
                 // Get tooltip text
                 const tooltipText = VariantInterpreterGridFormatter._getSampleGenotypeTooltipText(row, sampleEntry, file);
                 resultHtml += `
-                    <a class="zygositySampleTooltip" tooltip-title="Variant Call Information" tooltip-text='${tooltipText}'>
+                    <a class="zygositySampleTooltip text-decoration-none" tooltip-title="Variant Call Information" tooltip-text='${tooltipText}'>
                         ${content}
-                    </a><br>
+                    </a>
+                    <br>
                 `;
             }
         }
@@ -854,21 +850,16 @@ export default class VariantInterpreterGridFormatter {
         const sampleFormat = sampleEntry.data;
 
         // 1. Get INFO fields
-        const infoFields = [];
-        if (file && file.data) {
-            for (const key of Object.keys(file.data)) {
-                if (key !== "FILTER" && key !== "QUAL") {
-                    const html = `<div class="form-group" style="margin: 2px 2px">
-                                            <label class="col-md-5">${key}</label>
-                                            <div class="col-md-7">${file.data[key]}</div>
-                                          </div>`;
-                    infoFields.push(html);
-                }
-            }
-        } else {
-            // This can happen when no ref/ref calls are loaded
-            console.warn("file is undefined");
-        }
+        const infoFields = Object.keys(file?.data || {})
+            .filter(key => key !== "FILTER" && key !== "QUAL")
+            .map(key => {
+                return `
+                    <div class="row mb-1">
+                        <div class="col-4 fw-bold">${key}</div>
+                        <div class="col-8">${file.data[key]}</div>
+                    </div>
+                `;
+            });
 
         // 2. Get FORMAT fields
         const formatFields = (variant?.studies?.[0]?.sampleDataKeys || [])
@@ -877,9 +868,9 @@ export default class VariantInterpreterGridFormatter {
                 const key = fieldKey !== "GT" ? fieldKey : `${fieldKey} (${variant.reference || "-"}/${variant.alternate || "-"})`;
                 const value = sampleFormat[fieldIndex] ? sampleFormat[fieldIndex] : "-";
                 return `
-                    <div class="form-group" style="margin: 2px 2px">
-                        <label class="col-md-5">${key}</label>
-                        <div class="col-md-7">${value}</div>
+                    <div class="row mb-1">
+                        <div class="col-4 fw-bold">${key}</div>
+                        <div class="col-8">${value}</div>
                     </div>
                 `;
             });
@@ -887,59 +878,57 @@ export default class VariantInterpreterGridFormatter {
         // 3. Get SECONDARY ALTERNATES fields
         const secondaryAlternates = [];
         for (const v of variant.studies[0].secondaryAlternates) {
-            const html = `<div class="form-group" style="margin: 2px 2px">
-                                    <label class="col-md-5">${v.chromosome}:${v.start}-${v.end}</label>
-                                    <div class="col-md-7">${v.reference}/${v.alternate} ${v.type}</div>
-                                  </div>`;
+            const html = `
+                <div class="row mb-1">
+                    <div class="col-4 fw-bold">${v.chromosome}:${v.start}-${v.end}</div>
+                    <div class="col-8">${v.reference}/${v.alternate} ${v.type}</div>
+                </div>
+            `;
             secondaryAlternates.push(html);
         }
 
         // 4. Build the Tooltip text
-        const tooltipText = `<div class="zygosity-formatter">
-                                <form class="form-horizontal">
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SUMMARY</label>
-                                    </div>
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-4">Sample ID</label>
-                                        <div class="col-md-8">${sampleEntry?.sampleId ? sampleEntry.sampleId : "-"}</div>
-                                    </div>
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-4">File Name</label>
-                                        <div class="col-md-8">${file?.fileId ? file.fileId : "-"}</div>
-                                    </div>
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-4">File FILTER</label>
-                                        <div class="col-md-8">${file?.data.FILTER}</div>
-                                    </div>
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-4">File QUAL</label>
-                                        <div class="col-md-8">${Number(file?.data.QUAL).toFixed(2)}</div>
-                                    </div>
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-4">File VCF call</label>
-                                        <div class="col-md-8">${file?.call?.variantId ? file.call.variantId :
-            `${variant.chromosome}:${variant.start}:${variant.reference}:${variant.alternate}`}
-                                        </div>
-                                    </div>
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SAMPLE DATA</label>
-                                    </div>
-                                    ${formatFields.join("")}
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">FILE INFO</label>
-                                    </div>
-                                    ${infoFields.join("")}
-                                    <div class="form-group" style="margin: 2px 2px">
-                                        <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SECONDARY ALTERNATES</label>
-                                    </div>
-                                    ${secondaryAlternates?.length > 0 ? secondaryAlternates.join("") :
-            `<div class="form-group" style="margin: 2px 2px">
-                                                <label class="col-md-12">-</label>
-                                           </div>`
-        }
-                                </form>
-                             </div>`;
+        const tooltipText = `
+            <div class="zygosity-formatter">
+                <div class="fw-bold text-secondary mb-2">SUMMARY</div>
+                <div class="ms-2 mb-3">
+                    <div class="row mb-1">
+                        <div class="col-4 fw-bold">Sample ID</div>
+                        <div class="col-8">${sampleEntry?.sampleId ? sampleEntry.sampleId : "-"}</div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-4 fw-bold">File Name</div>
+                        <div class="col-8">${file?.fileId ? file.fileId : "-"}</div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-4 fw-bold">File FILTER</div>
+                        <div class="col-8">${file?.data.FILTER}</div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-4 fw-bold">File QUAL</div>
+                        <div class="col-8">${Number(file?.data.QUAL).toFixed(2)}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4 fw-bold">File VCF call</div>
+                        <div class="col-8">
+                            ${file?.call?.variantId ? file.call.variantId : `${variant.chromosome}:${variant.start}:${variant.reference}:${variant.alternate}`}
+                        </div>
+                    </div>
+                </div>
+                <div class="fw-bold text-secondary mb-2">SAMPLE DATA</div>
+                <div class="ms-2 mb-3">
+                    ${formatFields?.length > 0 ? formatFields.join("") : "-"}
+                </div>
+                <div class="fw-bold text-secondary mb-2">FILE INFO</div>
+                <div class="ms-2 mb-3">
+                    ${infoFields.length > 0 ? infoFields.join("") : "-"}
+                </div>
+                <div class="fw-bold text-secondary mb-2">SECONDARY ALTERNATES</div>
+                <div class="ms-2">
+                    ${secondaryAlternates?.length > 0 ? secondaryAlternates.join("") : "-"}
+                </div>
+            </div>
+        `;
         return tooltipText;
     }
 
@@ -1008,12 +997,12 @@ export default class VariantInterpreterGridFormatter {
         return `
             <div>
                 ${config?.showEditReview ? `
-                    <button id="${prefix}${row.id}VariantReviewButton" class="btn btn-link" data-index="${index}" data-variant-id="${row.id}" ${disabled}>
-                        <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
+                    <button id="${prefix}${row.id}VariantReviewButton" class="btn btn-link text-decoration-none" style="width:80px" data-index="${index}" data-variant-id="${row.id}" ${disabled}>
+                        <i class="fa fa-edit icon-padding" aria-hidden="true"></i>Edit ...
                     </button>
                 `: ""}
                 ${checked && row?.status ? `
-                    <div class="help-block" style="margin: 5px 0">${row.status}</div>
+                    <div class="text-body-secondary" style="margin: 5px 0">${row.status}</div>
                 ` : ""}
                 ${checked && (row.comments?.length > 0 || row.discussion?.text) ? `
                     <div style="">

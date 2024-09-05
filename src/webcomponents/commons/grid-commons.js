@@ -33,12 +33,17 @@ export default class GridCommons {
         detailClose: "fa-minus"
     }
 
+    static loadingFormatter() {
+        return `<div><loading-spinner></loading-spinner></div>`;
+    }
+
     constructor(gridId, context, config) {
         this.gridId = gridId;
         this.context = context;
         this.config = config;
         this.checkedRows = new Map();
         this.selectedRow;
+        this.extensionsData = {}; // To store extra data for extensions
     }
 
     responseHandler(response, bootstrapTableConfig) {
@@ -81,8 +86,8 @@ export default class GridCommons {
     }
 
     onClickRow(rowId, row, selectedElement) {
-        $("#" + this.gridId + " tr").removeClass("success");
-        $(selectedElement).addClass("success");
+        $("#" + this.gridId + " tr").removeClass("table-success");
+        $(selectedElement).addClass("table-success");
         this.selectedRow = selectedElement;
         // $("#" + this.gridId + " tr td").removeClass("success");
         // $("td", selectedElement).addClass("success");
@@ -168,9 +173,9 @@ export default class GridCommons {
                 const selectedDataId = this.selectedRow?.[0]?.attributes["data-uniqueid"]?.["nodeValue"];
                 const selectedData = selectedDataId ? data.rows.find(row => row?.id === selectedDataId) : null;
                 if (selectedData) {
-                    table.find(`tr[data-uniqueid="${selectedDataId}"]`).addClass("success");
+                    table.find(`tr[data-uniqueid="${selectedDataId}"]`).addClass("table-success");
                 } else {
-                    table.find("tr[data-index=0]").addClass("success");
+                    table.find("tr[data-index=0]").addClass("table-success");
                 }
                 this.context.dispatchEvent(new CustomEvent("selectrow", {
                     detail: {
@@ -315,10 +320,20 @@ export default class GridCommons {
         return columns;
     }
 
+    async prepareDataForExtensions(componentId, opencgaSession, query, rows) {
+        this.extensionsData = {};
+        if (!this.context?._config?.skipExtensions) {
+            const id = componentId || this.context?.COMPONENT_ID;
+            this.extensionsData = await ExtensionsManager.prepareDataForColumns(id, opencgaSession, query, rows);
+        }
+    }
+
     addColumnsFromExtensions(columns, componentId) {
         if (!this.context?._config?.skipExtensions) {
             const id = componentId || this.context?.COMPONENT_ID;
-            return ExtensionsManager.injectColumns(columns, id, columnId => this.isColumnVisible(columnId));
+            const isVisible = columnId => this.isColumnVisible(columnId);
+            const getData = () => this.extensionsData || {};
+            return ExtensionsManager.injectColumns(columns, id, isVisible, getData);
         }
         // No extensions to inject, just return the original columns list
         return columns;
@@ -331,8 +346,8 @@ export default class GridCommons {
                 .filter(event => event && event.type === "WARNING" && !!event.message)
                 .map(event => {
                     return `
-                        <div class="alert alert-warning" style="margin-bottom:8px;">
-                            <i class="fas fa-exclamation-triangle icon-padding"></i>
+                        <div class="alert alert-warning mb-2">
+                            <i class="fas fa-exclamation-triangle pe-1"></i>
                             <span>${event.message}</span>
                         </div>
                     `;

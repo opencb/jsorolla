@@ -118,7 +118,8 @@ export default class HpoAccessionsFilter extends LitElement {
     }
 
     openModal() {
-        $("#HP_ontologyModal").modal("show");
+        const ontologyModal = new bootstrap.Modal(`#HP_ontologyModal`);
+        ontologyModal.show();
     }
 
     getDefaultConfig() {
@@ -139,27 +140,33 @@ export default class HpoAccessionsFilter extends LitElement {
                 @filterChange="${this.onFilterChange}">
             </ontology-autocomplete-filter>
 
-            <button class="btn btn-primary ripple full-width" id="${this._prefix}buttonOpenHpoAccesions" @click="${this.openModal}">
-                <i class="fa fa-search searchingButton" aria-hidden="true"></i>
-                Browse HPO Terms
-            </button>
+            <div class="d-grid mb-2">
+                <button class="btn btn-primary full-width" id="${this._prefix}buttonOpenHpoAccesions" @click="${this.openModal}">
+                    <i class="fa fa-search searchingButton" aria-hidden="true"></i>
+                    Browse HPO Terms
+                </button>
+            </div>
 
-            <fieldset class="switch-toggle-wrapper">
-                    <label style="font-weight: normal;">Logical Operator</label>
-                    <div class="switch-toggle text-white alert alert-light">
+            <div class="mb-2">
+                <label style="form-label">Logical Operator</label>
+                <fieldset ?disabled="${this._selectedTermsArr.length < 2}">
+                    <div class="form-check">
                         <input id="${this._prefix}hpoOrRadio" name="hpoRadio" type="radio" value="or" data-value=","
-                                class="radio-or" ?checked="${this.operator === ","}" ?disabled="${this._selectedTermsArr.length < 2}"
+                                class="form-check-input" ?checked="${this.operator === ","}"
                                 @change="${this.changeOperator}">
-                            <label for="${this._prefix}hpoOrRadio"
-                                class="rating-label rating-label-or">OR</label>
-                        <input id="${this._prefix}hpoAndRadio" name="hpoRadio" type="radio" value="and" data-value=";"
-                                class="radio-and" ?checked="${this.operator === ";"}" ?disabled="${this._selectedTermsArr.length < 2}" @change="${this.changeOperator}">
-                            <label for="${this._prefix}hpoAndRadio"
-                                class="rating-label rating-label-and">AND</label>
-                        <a class="btn btn-primary ripple btn-small"></a>
+                        <label for="${this._prefix}hpoOrRadio"
+                            class="form-check-label">OR
+                        </label>
                     </div>
-            </fieldset>
-
+                    <div class="form-check">
+                        <input id="${this._prefix}hpoAndRadio" name="hpoRadio" type="radio" value="and" data-value=";"
+                            class="form-check-input" ?checked="${this.operator === ";"}" @change="${this.changeOperator}">
+                        <label for="${this._prefix}hpoAndRadio"
+                            class="form-check-label">AND
+                        </label>
+                    </div>
+                </fieldset>
+            </div>
             <variant-modal-ontology
                 .config="${this._config}"
                 .cellbaseClient="${this.cellbaseClient}"

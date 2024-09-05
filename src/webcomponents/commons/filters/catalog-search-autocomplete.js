@@ -65,9 +65,14 @@ export default class CatalogSearchAutocomplete extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
+
         super.update(changedProperties);
     }
 
@@ -76,7 +81,8 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "PROJECT": {
                 searchField: "id",
                 placeholder: "project...",
-                client: this.opencgaSession.opencgaClient.projects(),
+                // client: this.opencgaSession.opencgaClient.projects(),
+                fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.projects().search(params),
                 fields: item => ({
                     "name": item.id,
                 }),
@@ -87,7 +93,8 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "STUDY": {
                 searchField: "id",
                 placeholder: "study...",
-                client: this.opencgaSession.opencgaClient.studies(),
+                // client: this.opencgaSession.opencgaClient.studies(),
+                fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.studies().search(params),
                 fields: item => ({
                     "name": item.id,
                 }),
@@ -99,10 +106,11 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "SAMPLE": {
                 searchField: "id",
                 placeholder: "HG01879, HG01880, HG01881...",
-                client: this.opencgaSession.opencgaClient.samples(),
+                // client: this.opencgaSession.opencgaClient.samples(),
+                fetch: filters => this.opencgaSession.opencgaClient.samples().search(filters),
                 fields: item => ({
                     "name": item.id,
-                    "Individual ID": item?.individualId
+                    "Individual ID": item?.individualId,
                 }),
                 query: {
                     include: "id,individualId"
@@ -111,7 +119,8 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "INDIVIDUAL": {
                 searchField: "id",
                 placeholder: "Start typing",
-                client: this.opencgaSession.opencgaClient.individuals(),
+                // client: this.opencgaSession.opencgaClient.individuals(),
+                fetch: filters => this.opencgaSession.opencgaClient.individuals().search(filters),
                 fields: item => ({
                     "name": item.id
                 }),
@@ -122,7 +131,8 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "FAMILY": {
                 searchField: "id",
                 placeholder: "Start typing",
-                client: this.opencgaSession.opencgaClient.families(),
+                // client: this.opencgaSession.opencgaClient.families(),
+                fetch: filters => this.opencgaSession.opencgaClient.families().search(filters),
                 fields: item => ({
                     "name": item.id
                 }),
@@ -134,7 +144,8 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "CLINICAL_ANALYSIS": {
                 searchField: "id",
                 placeholder: "Start typing",
-                client: this.opencgaSession.opencgaClient.clinical(),
+                // client: this.opencgaSession.opencgaClient.clinical(),
+                fetch: filters => this.opencgaSession.opencgaClient.clinical().search(filters),
                 fields: item => ({
                     "name": item.id,
                     "Proband Id": item?.proband?.id
@@ -146,7 +157,8 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "DISEASE_PANEL": {
                 searchField: "id",
                 placeholder: "Start typing",
-                client: this.opencgaSession.opencgaClient.panels(),
+                // client: this.opencgaSession.opencgaClient.panels(),
+                fetch: filters => this.opencgaSession.opencgaClient.panels().search(filters),
                 fields: item => ({
                     "name": item.id,
                 }),
@@ -157,7 +169,8 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "JOB": {
                 searchField: "id",
                 placeholder: "Start typing",
-                client: this.opencgaSession.opencgaClient.jobs(),
+                // client: this.opencgaSession.opencgaClient.jobs(),
+                fetch: filters => this.opencgaSession.opencgaClient.jobs().search(filters),
                 fields: item => ({
                     "name": item.id,
                 }),
@@ -168,7 +181,8 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "COHORT": {
                 searchField: "id",
                 placeholder: "Start typing",
-                client: this.opencgaSession.opencgaClient.cohorts(),
+                // client: this.opencgaSession.opencgaClient.cohorts(),
+                fetch: filters => this.opencgaSession.opencgaClient.cohorts().search(filters),
                 fields: item => ({
                     "name": item.id
                 }),
@@ -179,7 +193,8 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "FILE": {
                 searchField: "name",
                 placeholder: "eg. samples.tsv, phenotypes.vcf...",
-                client: this.opencgaSession.opencgaClient.files(),
+                // client: this.opencgaSession.opencgaClient.files(),
+                fetch: filters => this.opencgaSession.opencgaClient.files().search(filters),
                 fields: item => ({
                     name: item.name,
                     Format: item.format ?? "N/A",
@@ -193,7 +208,8 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "DIRECTORY": {
                 searchField: "path",
                 placeholder: "eg. /data/platinum-grch38...",
-                client: this.opencgaSession.opencgaClient.files(),
+                // client: this.opencgaSession.opencgaClient.files(),
+                fetch: filters => this.opencgaSession.opencgaClient.files().search(filters),
                 fields: item => ({
                     name: item.name,
                     path: `/${item.path.replace(`/${item.name}`, "")}`
@@ -202,7 +218,31 @@ export default class CatalogSearchAutocomplete extends LitElement {
                     type: "DIRECTORY",
                     include: "id,path",
                 }
-            }
+            },
+            "NOTE_ORGANIZATION": {
+                searchField: "id",
+                placeholder: "Start typing",
+                // eslint-disable-next-line no-unused-vars
+                fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.organization().searchNotes(params),
+                fields: item => ({
+                    "name": item.id,
+                }),
+                query: {
+                    include: "id",
+                    scope: "ORGANIZATION",
+                },
+            },
+            "NOTE_STUDY": {
+                searchField: "id",
+                placeholder: "Start typing",
+                fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.studies().searchNotes(study, params),
+                fields: item => ({
+                    "name": item.id,
+                }),
+                query: {
+                    include: "id",
+                },
+            },
         };
         this._config = this.getDefaultConfig();
     }
@@ -247,7 +287,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                     ...attr,
                 };
 
-                this.RESOURCES[this.resource].client.search(filters)
+                this.RESOURCES[this.resource].fetch(filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
             },

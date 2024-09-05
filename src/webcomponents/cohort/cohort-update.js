@@ -114,17 +114,13 @@ export default class CohortUpdate extends LitElement {
                                     const sampleIds = Array.isArray(samples) ?
                                         samples?.map(sample => sample.id).join(",") :
                                         samples;
-
                                     const handleSamplesFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
-                                        // eslint-disable-next-line no-param-reassign
-                                        const sampleList = e.detail.value
-                                            ?.split(",")
+                                        const sampleList = (e.detail?.value?.split(",") || [])
                                             .filter(sampleId => sampleId)
                                             .map(sampleId => ({id: sampleId}));
                                         dataFormFilterChange(sampleList);
                                     };
-
                                     return html `
                                         <catalog-search-autocomplete
                                             .value="${sampleIds}"
@@ -158,14 +154,6 @@ export default class CohortUpdate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         placeholder: "Add an ID",
-                                    }
-                                },
-                                {
-                                    title: "Name",
-                                    field: "status.name",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add source name"
                                     }
                                 },
                                 {

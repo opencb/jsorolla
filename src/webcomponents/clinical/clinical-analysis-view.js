@@ -22,7 +22,6 @@ import "../commons/forms/data-form.js";
 import "../commons/image-viewer.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 
-
 export default class ClinicalAnalysisView extends LitElement {
 
     constructor() {
@@ -67,7 +66,7 @@ export default class ClinicalAnalysisView extends LitElement {
             collapsable: true,
             titleVisible: false,
             defaultValue: "-",
-            defaultLayout: "horizontal",
+            // defaultLayout: "horizontal",
             buttonsVisible: false,
             layout: [
                 {
@@ -76,7 +75,7 @@ export default class ClinicalAnalysisView extends LitElement {
                 },
                 {
                     id: "",
-                    className: "row",
+                    className: "row mb-5",
                     sections: [
                         {
                             id: "detail",
@@ -100,22 +99,6 @@ export default class ClinicalAnalysisView extends LitElement {
             pdf: false,
         };
         this._config = this.getDefaultConfig();
-    }
-
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-
-    #priorityFormatter(id, data) {
-        switch (data.priority.rank) {
-            case 1: return "label label-warning";
-            case 2: return "label label-primary";
-            case 3: return "label label-info";
-            case 4: return "label label-success";
-            case 5: return "label label-default";
-            default: return "label";
-        }
     }
 
     update(changedProperties) {
@@ -174,6 +157,28 @@ export default class ClinicalAnalysisView extends LitElement {
         }
     }
 
+    #priorityFormatter(id, data) {
+        const priorityRankToColor = [
+            "text-bg-danger",
+            "text-bg-warning",
+            "text-bg-primary",
+            "text-bg-info",
+            "text-bg-success",
+            "text-bg-light"
+        ];
+
+        if (typeof data?.priority?.rank === "number") {
+            return priorityRankToColor[data?.priority?.rank - 1] || "";
+        } else {
+            return "";
+        }
+    }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
+
     onFilterChange(e) {
         this.clinicalAnalysisId = e.detail.value;
     }
@@ -186,7 +191,7 @@ export default class ClinicalAnalysisView extends LitElement {
         if (!this.clinicalAnalysis?.id && this.search === false) {
             return html`
                 <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    <i class="fas fa-3x fa-info-circle align-middle pe-2"></i>
                     No clinical Analysis ID found.
                 </div>
             `;
@@ -277,7 +282,7 @@ export default class ClinicalAnalysisView extends LitElement {
                                 contentLayout: "horizontal",
                                 template: "${id}",
                                 className: {
-                                    "id": "badge badge-secondary",
+                                    "id": "badge text-bg-secondary",
                                 },
                             }
                         },
@@ -291,7 +296,7 @@ export default class ClinicalAnalysisView extends LitElement {
                             display: {
                                 template: "${priority.id}",
                                 className: {
-                                    "priority.id": (id, data) => this.#priorityFormatter(id, data),
+                                    "priority.id": (id, data) => `badge ${this.#priorityFormatter(id, data)}`,
                                 },
                             }
                         },
@@ -367,7 +372,7 @@ export default class ClinicalAnalysisView extends LitElement {
                                 template: "${disorder.name} (${disorder.id})",
                                 link: {
                                     "disorder.id": id => id.startsWith("OMIM:") ?
-                                        BioinfoUtils.getOmimLink(id) :
+                                        BioinfoUtils.getOmimOntologyLink(id) :
                                         "",
                                 },
                             },
@@ -386,22 +391,6 @@ export default class ClinicalAnalysisView extends LitElement {
                                 link: {
                                     "phenotype.id": id => id.startsWith("HP:") ? BioinfoUtils.getHpoLink(id) : id,
                                 }
-                                // render: phenotypes => {
-                                //     return (phenotypes || [])
-                                //         .sort(item => item?.status === "OBSERVED" ? -1 : 1)
-                                //         .map(phenotype => {
-                                //             if (phenotype?.source && phenotype?.source?.toUpperCase() === "HPO") {
-                                //                 const url = `https://hpo.jax.org/app/browse/term/${phenotype.id}`;
-                                //                 return html`
-                                //                     <li>${phenotype.name} (<a target="_blank" href="${url}">${phenotype.id}</a>) - ${phenotype.status}</li>
-                                //                 `;
-                                //             } else {
-                                //                 return html`
-                                //                     <li>${phenotype.id} - ${phenotype.status}</li>
-                                //                 `;
-                                //             }
-                                //         });
-                                // },
                             },
                         },
                         {
@@ -445,7 +434,7 @@ export default class ClinicalAnalysisView extends LitElement {
                                                 "somatic": (somatic, sample) => sample.somatic ? "Somatic" : "Germline",
                                             },
                                             className: {
-                                                "somatic": "help-block"
+                                                "somatic": "form-text"
                                             },
                                             style: {
                                                 "id": {
@@ -489,7 +478,7 @@ export default class ClinicalAnalysisView extends LitElement {
                                     },
                                     {
                                         title: "Status",
-                                        field: "status.name",
+                                        field: "status.id",
                                         display: {
                                             defaultValue: "-",
                                         },

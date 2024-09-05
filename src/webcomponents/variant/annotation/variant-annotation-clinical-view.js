@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
 export default class VariantAnnotationClinicalView extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -30,82 +31,71 @@ export default class VariantAnnotationClinicalView extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
-            cellbaseClient: {
-                type: Object
-            },
             variantId: {
                 type: String
             },
             traitAssociation: {
                 type: Array
             },
-            geneTraitAssociation: {
-                type: Array
-            }
+            cellbaseClient: {
+                type: Object
+            },
+            assembly: {
+                type: String
+            },
+            groupedBySource: {
+                type: Object,
+                state: true
+            },
+            opencgaSession: {
+                type: Object
+            },
         };
     }
 
-    _init() {
-        this._prefix = "vacv" + UtilsNew.randomString(6);
+    #init() {
+        this._prefix = UtilsNew.randomString(8);
+        this.traitAssociation = [];
+        this.groupedBySource = {};
     }
 
-    firstUpdated(_changedProperties) {
-        // super.firstUpdated(_changedProperties);
-        this.renderVariantTraitTable();
-    }
-
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("variantId")) {
             this.variantIdObserver();
         }
+        if (changedProperties.has("traitAssociation")) {
+            this.traitAssociationObserver();
+        }
+        super.update(changedProperties);
+    }
 
+    updated(changedProperties) {
         if (changedProperties.has("traitAssociation")) {
             this.renderVariantTraitTable();
-        }
-
-        if (changedProperties.has("geneTraitAssociation")) {
-            this.renderGeneTraitTable();
         }
     }
 
     variantIdObserver() {
-        // console.log("variantIdObserver", this.variantId, this.cellbaseClient);
         if (this.cellbaseClient) {
             if (this.variantId) {
-                this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
+                this.cellbaseClient
+                    .get("genomic", "variant", this.variantId, "annotation", {assembly: this.assembly || this.opencgaSession.project.organism.assembly}, {})
                     .then(restResponse => {
-                        this.populationFrequencies = restResponse.getResult(0).populationFrequencies;
-                        // this.variant = {id: this.variantId, annotation: response.responses[0].results[0]};
                         this.variantAnnotation = restResponse.getResult(0);
-                        this.numberConsequenceTypes = 0;
-                        this.numberPopulationFrequencies = 0;
-                        this.numberVTA = 0;
-                        this.numberGTA = 0;
-
-                        // TODO review
-                        if (this.variantAnnotation.geneTraitAssociation != null) {
-
-                            this.geneTraitAssociation = this.variantAnnotation.geneTraitAssociation;
-                            this.traitAssociation = this.variantAnnotation.traitAssociation;
-
-                            this.numberConsequenceTypes = this.variantAnnotation.consequenceTypes.length;
-                            this.numberPopulationFrequencies = UtilsNew.isNotEmptyArray(this.variantAnnotation.populationFrequencies) ? this.variantAnnotation.populationFrequencies.length : 0;
-                            this.numberVTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.traitAssociation) ? this.variantAnnotation.traitAssociation.length : 0;
-                            this.numberGTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.geneTraitAssociation) ? this.variantAnnotation.geneTraitAssociation.length : 0;
-                        }
-                        // this.requestUpdate();
-
+                        this.traitAssociation = this.variantAnnotation.traitAssociation;
                     });
-            } else {
-
             }
         }
     }
 
-    idFormatter(value, row, index) {
+    traitAssociationObserver() {
+        this.groupedBySource = {};
+        if (this.traitAssociation?.length > 0) {
+            this.groupedBySource = UtilsNew.groupBy(this.traitAssociation, "source.name");
+        }
+    }
+
+    idFormatter(value, row) {
         let html = "-";
         if (row) {
             switch (row.source.name.toLowerCase()) {
@@ -113,109 +103,129 @@ export default class VariantAnnotationClinicalView extends LitElement {
                     if (row.id.startsWith("RCV")) {
                         html = `<a href="https://www.ncbi.nlm.nih.gov/clinvar/${row.id}" target="_blank">${row.id}</a>`;
                     } else {
-                        html = `<a href="https://www.ncbi.nlm.nih.gov/clinvar/variation/${row.id}" target="_blank">${row.id}</a>`;
+                        html = `<a href="${BioinfoUtils.getClinvarVariationLink(row.id)}" target="_blank">${row.id}</a>`;
                     }
                     break;
                 case "cosmic":
-                    html = `<a href="https://cancer.sanger.ac.uk/cosmic/search?q=${row.id}" target="_blank">${row.id}</a>`;
+                    html = `<a href="${BioinfoUtils.getCosmicVariantLink(row.id)}" target="_blank">${row.id}</a>`;
+                    break;
+                case "hgmd":
+                    html = `${row.id}`;
                     break;
             }
         }
         return html;
     }
 
-    sourceFormatter(value, row, index) {
-        let name = "-";
+    sourceFormatter(value) {
         if (value) {
-            switch (value.name) {
+            switch (value.name?.toLowerCase()) {
                 case "clinvar":
-                    name = "ClinVar";
-                    break;
+                    return `ClinVar (${value.version})`;
                 case "cosmic":
-                    name = "COSMIC";
-                    break;
+                    return `COSMIC (${value.version})`;
+                case "hgmd":
+                    return `HGMD (${value.version})`;
+                default:
+                    console.error("Source not valid: " + value.name);
+                    return "-";
             }
         }
-        return name;
     }
 
-    geneFormatter(value, row, index) {
-        const genes = [];
+    geneFormatter(value) {
         if (value) {
-            for (const geneIndex in value) {
-                if (value[geneIndex].featureType === "gene") {
-                    genes.push(value[geneIndex].xrefs.symbol);
-                }
-            }
+            const genes = value
+                .filter(v => v.featureType === "gene")
+                .map(v => v.xrefs.symbol);
+            return genes?.length > 0 ? genes.join(", ") : "-";
         }
-        if (genes.length === 0) {
-            return "-";
-        } else {
-            return genes.join(", ");
-        }
+        return "-";
     }
 
-    heritableTraitsFormatter(value, row, index) {
+    heritableTraitsFormatter(value) {
         const traits = [];
         if (value) {
-            for (const traitIndex in value) {
-                if (value[traitIndex].trait !== "not specified" && value[traitIndex].trait !== "not provided") {
-                    traits.push(value[traitIndex].trait);
+            for (const heritableTrait of value) {
+                if (heritableTrait.trait !== "not specified" && heritableTrait.trait !== "not provided") {
+                    traits.push(`<div style="margin: 5px 0">${heritableTrait.trait}</div>`);
                 }
             }
         }
-        if (traits.length === 0) {
+        if (traits.length > 0) {
+            return traits.join("");
+        } else {
             return "-";
-        } else {
-            return traits.join("<br>");
         }
     }
 
-    clinicalSignificanceFormatter(value, row, index) {
-        // clinvar - ClinicalSignificance_in_source_file
-        // cosmic - FATHMM_PREDICTION
-        let result = "-";
-        if (value && value.clinicalSignificance) {
-            result = value.clinicalSignificance;
-        } else {
-            const name = row?.source?.name;
-            let data;
-            switch (name) {
-                case "cosmic":
-                    data = row?.additionalProperties?.filter(item => item.id === "FATHMM_PREDICTION");
-                    result = UtilsNew.isNotEmptyArray(data) ? data[0].value : "-";
-                    break;
-                case "clinvar":
-                    data = row?.additionalProperties?.filter(item => item.id === "ClinicalSignificance_in_source_file");
-                    result = UtilsNew.isNotEmptyArray(data) ? data[0].value : "-";
-                    break;
-                default:
-                    result = "-";
-                    break;
-            }
-        }
-        return result;
-    }
-
-    inheritanceModeFormatter(value, row, index) {
-        let result = "-";
+    inheritanceModeFormatter(value) {
         if (value) {
-            for (const moi of value) {
-                if (moi.inheritanceMode) {
-                    result += moi.inheritanceMode + "<br>";
+            const inheritanceModes = value
+                .filter(v => v.inheritanceMode)
+                .map(v => `<div style="margin: 5px 0">${v.inheritanceMode}</div>`);
+            return inheritanceModes.join("") || "-";
+        }
+        return "-";
+    }
+
+    clinicalSignificanceFormatter(value, row) {
+        const germlineStarRating = {
+            "practice guideline": 4,
+            "reviewed by expert panel": 3,
+            "criteria provided, multiple submitters, no conflicts": 2,
+            "criteria provided, conflicting classifications": 1,
+            "criteria provided, single submitter": 1,
+            "CRITERIA_PROVIDED_SINGLE_SUBMITTER": 1,
+        };
+
+        let result, data;
+        const name = row?.source?.name;
+        switch (name.toLowerCase()) {
+            case "clinvar":
+                data = row?.additionalProperties?.filter(item => item.name === "ClinicalSignificance_in_source_file");
+                // Prepare star rating HTML
+                const starRating = row?.additionalProperties?.filter(item => item.name === "ReviewStatus_in_source_file");
+                const starRatingHtml = [];
+                for (let i = 0; i < 4; i++) {
+                    if (i < germlineStarRating[starRating?.[0]?.value]) {
+                        starRatingHtml.push(`<i class="fas fa-star" style="color: darkgoldenrod"></i>`);
+                    } else {
+                        starRatingHtml.push(`<i class="far fa-star" style="color: darkgoldenrod"></i>`);
+                    }
                 }
-            }
+                result = `
+                    <div>
+                        ${data?.[0]?.value || "-"}
+                    </div>
+                    <div title="${starRating?.[0]?.value || ""}">
+                        ${starRatingHtml?.length > 0 ? starRatingHtml.join("") : ""}
+                    </div>
+                `;
+                break;
+            case "cosmic":
+                data = row?.additionalProperties?.filter(item => item.id === "FATHMM_PREDICTION");
+                result = `
+                    <div>
+                        <label>FATHMM Prediction:</label><span style="padding-left: 5px">${Number.parseFloat(data?.[0]?.value) || "NA"}</span>
+                    </div>
+                `;
+                break;
+            default:
+                result = "-";
+                break;
         }
         return result;
     }
 
-    alleleOriginFormatter(value, row, index) {
+    alleleOriginFormatter(value) {
         if (value) {
             return value.join("<br>");
         }
+        return "-";
     }
 
-    tumourSiteFormatter(value, row, index) {
+    tumourSiteFormatter(value) {
         let result = "-";
         if (value) {
             const primary = value.primarySite ? value.primarySite : "";
@@ -230,7 +240,7 @@ export default class VariantAnnotationClinicalView extends LitElement {
         return result;
     }
 
-    tumourHistologyFormatter(value, row, index) {
+    tumourHistologyFormatter(value) {
         let result = "-";
         if (value) {
             const primary = value.primaryHistology ? value.primaryHistology : "";
@@ -245,15 +255,77 @@ export default class VariantAnnotationClinicalView extends LitElement {
         return result;
     }
 
-
     renderVariantTraitTable() {
-        if (!this.traitAssociation) {
-            this.traitAssociation = [];
-        }
+        $("#" + this._prefix + "ClinvarTraitAssociation").bootstrapTable("destroy");
+        $("#" + this._prefix + "ClinvarTraitAssociation").bootstrapTable({
+            data: this.groupedBySource.clinvar,
+            theadClasses: "table-light",
+            buttonsClass: "light",
+            pagination: false,
+            columns: [
+                {
+                    title: "ID",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.idFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Source",
+                    field: "source",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.sourceFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Gene",
+                    field: "genomicFeatures",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.geneFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Heritable Traits",
+                    field: "heritableTraits",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.heritableTraitsFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Mode of Inheritance",
+                    field: "heritableTraits",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.inheritanceModeFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Clinical Significance",
+                    field: "variantClassification",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.clinicalSignificanceFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Origin Type",
+                    field: "alleleOrigin",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.alleleOriginFormatter,
+                    halign: "center"
+                },
+            ]
+        });
 
-        $("#" + this._prefix + "ConsequenceTypeTable").bootstrapTable("destroy");
-        $("#" + this._prefix + "ConsequenceTypeTable").bootstrapTable({
-            data: this.traitAssociation,
+        $("#" + this._prefix + "CosmicTraitAssociation").bootstrapTable("destroy");
+        $("#" + this._prefix + "CosmicTraitAssociation").bootstrapTable({
+            data: this.groupedBySource.cosmic,
+            theadClasses: "table-light",
+            buttonsClass: "light",
             pagination: false,
             columns: [
                 [
@@ -281,22 +353,6 @@ export default class VariantAnnotationClinicalView extends LitElement {
                         halign: "center"
                     },
                     {
-                        title: "Heritable Traits",
-                        field: "heritableTraits",
-                        rowspan: 2,
-                        colspan: 1,
-                        formatter: this.heritableTraitsFormatter,
-                        halign: "center"
-                    },
-                    {
-                        title: "Mode of Inheritance",
-                        field: "heritableTraits",
-                        rowspan: 2,
-                        colspan: 1,
-                        formatter: this.inheritanceModeFormatter,
-                        halign: "center"
-                    },
-                    {
                         title: "Clinical Significance",
                         field: "variantClassification",
                         rowspan: 2,
@@ -305,19 +361,25 @@ export default class VariantAnnotationClinicalView extends LitElement {
                         halign: "center"
                     },
                     {
-                        title: "Origin Type",
-                        field: "alleleOrigin",
-                        rowspan: 2,
-                        colspan: 1,
-                        formatter: this.alleleOriginFormatter,
+                        title: "Somatic Information",
+                        rowspan: 1,
+                        colspan: 4,
                         halign: "center"
                     },
                     {
-                        title: "Cancer",
-                        rowspan: 1,
-                        colspan: 3,
+                        title: "Bibliography",
+                        field: "bibliography",
+                        rowspan: 2,
+                        colspan: 1,
+                        formatter: value => {
+                            if (value?.length > 0) {
+                                return value
+                                    .map(v => `<a target=_blank href="${BioinfoUtils.getPubmedLink(v)}">${v}</a>`)
+                                    .join("<br>");
+                            }
+                        },
                         halign: "center"
-                    }
+                    },
                 ], [
                     {
                         title: "Tumour Site",
@@ -341,20 +403,116 @@ export default class VariantAnnotationClinicalView extends LitElement {
                         rowspan: 1,
                         colspan: 1,
                         halign: "center"
-                    }
+                    },
+                    {
+                        title: "Mutation Zygosity",
+                        field: "additionalProperties",
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: value => {
+                            const data = value?.find(item => item.name === "MUTATION_ZYGOSITY");
+                            return data?.value || "-";
+                        },
+                        halign: "center"
+                    },
                 ]
+            ]
+        });
+
+        $("#" + this._prefix + "HgmdTraitAssociation").bootstrapTable("destroy");
+        $("#" + this._prefix + "HgmdTraitAssociation").bootstrapTable({
+            data: this.groupedBySource.hgmd,
+            theadClasses: "table-light",
+            buttonsClass: "light",
+            pagination: false,
+            columns: [
+                {
+                    title: "ID",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.idFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Source",
+                    field: "source",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.sourceFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Gene",
+                    field: "genomicFeatures",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.geneFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Heritable Traits",
+                    field: "heritableTraits",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.heritableTraitsFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Mode of Inheritance",
+                    field: "heritableTraits",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.inheritanceModeFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Clinical Significance",
+                    field: "variantClassification",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.clinicalSignificanceFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Origin Type",
+                    field: "alleleOrigin",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.alleleOriginFormatter,
+                    halign: "center"
+                },
             ]
         });
     }
 
-    renderGeneTraitTable() {
-
-    }
-
     render() {
         return html`
-            <div style="padding: 20px">
-                <table id="${this._prefix}ConsequenceTypeTable"></table>
+            <h3>Variant Trait Association</h3>
+            <div style="padding: 10px">
+                <h4>ClinVar</h4>
+                <div style="padding: 10px">
+                    ${this.groupedBySource?.clinvar?.length > 0 ? html`
+                        <table id="${this._prefix}ClinvarTraitAssociation"></table>
+                    ` : html`
+                        <p>No data available</p>
+                    `}
+                </div>
+                <h4>Cosmic</h4>
+                <div style="padding: 10px">
+                    ${this.groupedBySource?.cosmic?.length > 0 ? html`
+                        <table id="${this._prefix}CosmicTraitAssociation"></table>
+                    ` : html`
+                        <p>No data available</p>
+                    `}
+                </div>
+                <h4>HGMD</h4>
+                <div style="padding: 10px">
+                    ${this.groupedBySource?.hgmd?.length > 0 ? html`
+                        <table id="${this._prefix}HgmdTraitAssociation"></table>
+                    ` : html`
+                        <p>No data available</p>
+                    `}
+                </div>
             </div>
         `;
     }

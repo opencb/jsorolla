@@ -85,7 +85,6 @@ export default class OpencgaGenomeBrowser extends LitElement {
         this.active = false;
     }
 
-
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.onStudyUpdate();
@@ -103,7 +102,6 @@ export default class OpencgaGenomeBrowser extends LitElement {
             this.configObserver();
         }
     }
-
 
     configObserver() {
         this._config = Object.assign(this.getDefaultConfig(), this.config);
@@ -129,7 +127,9 @@ export default class OpencgaGenomeBrowser extends LitElement {
         e.preventDefault();
 
         this.sampleBrowserModal = UtilsNew.isUndefined(this.sampleBrowserModal) ? true : !this.sampleBrowserModal;
-        $("#" + this._prefix + "SampleBrowser").modal("show");
+        // $("#" + this._prefix + "SampleBrowser").modal("show");
+        const sampleModal = new bootstrap.Modal("#" + this._prefix + "SampleBrowser");
+        sampleModal.show();
     }
 
     samplesObserver() {
@@ -269,17 +269,19 @@ export default class OpencgaGenomeBrowser extends LitElement {
         };
     }
 
-
     render() {
         return html`
         ${this._config.showTitle ? html`
-            <tool-header title="${this._config.title}" icon="fa fa-list"></tool-header>
+            <tool-header
+                title="${this._config.title}"
+                icon="fa fa-list">
+            </tool-header>
         ` : null}
 
         <div style="margin: 20px">
             <div class="col-md-12">
                 <div style="display: block; cursor:pointer;" @click="${this.toggleCollapsedFilter}"
-                     data-toggle="collapse" href="#${this._prefix}collapsibleFilter">
+                    data-bs-toggle="collapse" href="#${this._prefix}collapsibleFilter">
                     <h4>
                         ${this._filtersCollapsed ? html`
                             <i class="fa fa-caret-right" aria-hidden="true"></i>
@@ -307,7 +309,7 @@ export default class OpencgaGenomeBrowser extends LitElement {
                         </div>
                         <div class="col-md-2">
                             <input id="${this._prefix}AutocompleteSearchInput" type="text" class="form-control form-control-sm" placeholder="HG01879..."
-                                   list="${this._prefix}AutocompleteSearchDataList" @input="${this._autocompleteSampleSearch}">
+                                list="${this._prefix}AutocompleteSearchDataList" @input="${this._autocompleteSampleSearch}">
                             <datalist id="${this._prefix}AutocompleteSearchDataList"></datalist>
                         </div>
                         <div class="col-md-2">
@@ -323,7 +325,7 @@ export default class OpencgaGenomeBrowser extends LitElement {
                         </div>
                         <div class="col-md-2">
                             <button type="button" class="btn btn-primary btn-sm"
-                                    @click="${this.showSampleBrowser}" data-toggle="modal">
+                                    @click="${this.showSampleBrowser}" data-bs-toggle="modal">
                                 Sample Browser...
                             </button>
                         </div>
@@ -355,14 +357,12 @@ export default class OpencgaGenomeBrowser extends LitElement {
                             </div>
                         </div>
                     </div>
-
                 </div>
-
             </div>
 
             <div class="col-md-6" style="margin-top: 15px;">
-                <button id="${this._prefix}RunGenomeBrowser" type="button" class="btn btn-primary"
-                        @click="${this.showSelectionInGenomeBrowser}" style="float: right">
+                <button id="${this._prefix}RunGenomeBrowser" type="button" class="btn btn-primary float-end"
+                        @click="${this.showSelectionInGenomeBrowser}">
                     Show Genome Browser
                 </button>
             </div>
@@ -379,8 +379,14 @@ export default class OpencgaGenomeBrowser extends LitElement {
                 </div>
 
                 <div style="padding: 20px 5px">
-                    <genome-browser id="${this._prefix}gb" .active="${this.genomeBrowserActive}" .opencgaSession=${this.opencgaSession} .cellbaseClient="${this.cellbaseClient}"
-                                    .opencgaClient="${this.opencgaClient}" .region="${this.genomeBrowserRegion}" .tracks="${this.tracks}">
+                    <genome-browser
+                        id="${this._prefix}gb"
+                        .active="${this.genomeBrowserActive}"
+                        .opencgaSession=${this.opencgaSession}
+                        .cellbaseClient="${this.cellbaseClient}"
+                        .opencgaClient="${this.opencgaClient}"
+                        .region="${this.genomeBrowserRegion}"
+                        .tracks="${this.tracks}">
                     </genome-browser>
                 </div>
             </div>
@@ -390,14 +396,18 @@ export default class OpencgaGenomeBrowser extends LitElement {
             <div class="modal-dialog modal-lg" role="document" style="width: 80%;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="${this._prefix}SampleBrowserLabel">Sample Browser</h4>
                     </div>
                     <div class="modal-body" style="height: 780px">
-                        <sample-browser .opencgaClient="${this.opencgaClient}" .opencgaSession="${this.opencgaSession}" .config="${this.sampleBrowserConfig}"></sample-browser>
+                        <sample-browser
+                            .opencgaClient="${this.opencgaClient}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.sampleBrowserConfig}">
+                        </sample-browser>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.onAnalysisSelected}">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${this.onAnalysisSelected}">
                             OK
                         </button>
                     </div>

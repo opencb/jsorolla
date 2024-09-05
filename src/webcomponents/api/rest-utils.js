@@ -1,7 +1,8 @@
 // ********************************************************************
 // 0. Functions for checking if the param is: enum | primitive | object
 // ********************************************************************
-import UtilsNew from "../../core/utils-new";
+import UtilsNew from "../../core/utils-new.js";
+import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 
 export default {
 
@@ -39,7 +40,7 @@ export default {
     },
 
     isAdministrator(opencgaSession) {
-        return opencgaSession?.user?.account?.type === "ADMINISTRATOR" || opencgaSession?.user.id === "OPENCGA";
+        return opencgaSession?.user?.id?.toUpperCase() === "OPENCGA" || CatalogUtils.isOrganizationAdmin(opencgaSession?.organization, opencgaSession?.user?.id);
     },
 
     sortArray(elements) {

@@ -132,7 +132,8 @@ class InterpretationHistory extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             gridContext: this,
-            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPageChange: (page, size) => {
                 const result = this.gridCommons.onPageChange(page, size);
@@ -182,12 +183,12 @@ class InterpretationHistory extends LitElement {
                 title: "Actions",
                 formatter: (value, row) => `
                     <div class="dropdown">
-                        <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
+                        <button class="btn btn-light btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="restore">
+                                <a href="javascript: void 0" class="dropdown-item" data-action="restore">
                                     <i class="fas fa-file-upload icon-padding" aria-hidden="true"></i> Restore
                                 </a>
                             </li>

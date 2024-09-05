@@ -108,6 +108,8 @@ export default class RgaGeneView extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._columns,
             method: "get",
             sidePagination: "server",
@@ -122,7 +124,7 @@ export default class RgaGeneView extends LitElement {
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             ajax: async params => {
                 const _filters = {
                     study: this.opencgaSession.study.fqn,

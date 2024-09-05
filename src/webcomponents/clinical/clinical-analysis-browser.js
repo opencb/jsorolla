@@ -247,6 +247,10 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                 detail: {
                     title: "Clinical Analysis",
                     showTitle: true,
+                    display: {
+                        titleClass: "mt-4",
+                        contentClass: "p-3"
+                    },
                     items: [
                         {
                             id: "clinical-analysis-view",

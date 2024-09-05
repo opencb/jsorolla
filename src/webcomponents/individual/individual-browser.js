@@ -262,6 +262,10 @@ export default class IndividualBrowser extends LitElement {
                 detail: {
                     title: "Individual",
                     showTitle: true,
+                    display: {
+                        titleClass: "mt-4",
+                        contentClass: "p-3"
+                    },
                     items: [
                         {
                             id: "individual-view",

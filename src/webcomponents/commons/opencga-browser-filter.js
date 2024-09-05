@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
 import "./filters/catalog-search-autocomplete.js";
 import "./filters/catalog-distinct-autocomplete.js";
 import "./forms/date-filter.js";
+import "./forms/date-picker.js";
 import "./opencga-facet-view.js";
 import "./forms/text-field-filter.js";
 import "./filters/somatic-filter.js";
 import "./forms/section-filter.js";
+import "./forms/select-field-filter.js";
 import "./forms/select-token-filter-static.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 
@@ -187,7 +189,7 @@ export default class OpencgaBrowserFilter extends LitElement {
         let content = "";
 
         if (subsection.render) {
-            content = subsection.render(this.onFilterChange, this.preparedQuery, this.opencgaSession);
+            content = subsection.render((key, value) => this.onFilterChange(key, value), this.preparedQuery, this.opencgaSession);
         } else {
             const id = subsection.id === "priority" ? `${this.resource.toLowerCase()}_${subsection.id}`: subsection.id;
             switch (id) {
@@ -258,11 +260,14 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "internalStatus":
                 case "visited":
                 case "job_priority":
+                case "visibility":
                     content = html`
                         <select-field-filter
                             .value="${this.preparedQuery[subsection.id]}"
                             .data="${subsection.allowedValues}"
-                            ?multiple="${subsection?.multiple}"
+                            .config="${{
+                                multiple: subsection?.multiple
+                            }}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                         </select-field-filter>
                     `;
@@ -270,8 +275,10 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "path":
                     content = html`
                         <text-field-filter
-                            placeholder="${subsection.placeholder}"
                             .value="${this.preparedQuery[subsection.id]}"
+                            .config="${{
+                                placeholder: subsection?.placeholder
+                            }}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                         </text-field-filter>
                     `;
@@ -309,7 +316,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                     content = html`
                         <clinical-status-filter
                             .status="${this.preparedQuery[subsection.id]}"
-                            .statuses="${Object.values(this.opencgaSession.study.internal?.configuration?.clinical?.status)?.flat()}"
+                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status || []}"
                             .multiple="${true}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                         </clinical-status-filter>
@@ -327,18 +334,18 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "date":
                 case "creationDate":
                     content = html`
-                        <date-filter
+                        <date-picker
                             .filterDate="${this.preparedQuery.creationDate}"
                             @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
-                        </date-filter>
+                        </date-picker>
                     `;
                     break;
                 case "dueDate":
                     content = html`
-                    <date-filter
-                        .filterDate="${this.preparedQuery.dueDate}"
-                        @filterChange="${e => this.onFilterChange("dueDate", e.detail.value)}">
-                    </date-filter>
+                        <date-picker
+                            .filterDate="${this.preparedQuery.dueDate}"
+                            @filterChange="${e => this.onFilterChange("dueDate", e.detail.value)}">
+                        </date-picker>
                     `;
                     break;
                 default:
@@ -348,17 +355,13 @@ export default class OpencgaBrowserFilter extends LitElement {
 
         if (content) {
             return html`
-                <div class="form-group">
-                    <div class="browser-subsection" id="${subsection.id}">
-                        ${subsection.name}
+                <div class="mb-3">
+                    <label class="form-label fw-bold" id="${subsection.id}">${subsection.name}</label>
                         ${subsection.description ? html`
-                            <div class="tooltip-div pull-right">
-                                <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}">
-                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                </a>
-                            </div>
+                            <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            </a>
                         ` : null}
-                    </div>
                     <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                         ${content}
                     </div>
@@ -372,8 +375,8 @@ export default class OpencgaBrowserFilter extends LitElement {
     render() {
         return html`
             ${this.config?.searchButton ? html`
-                <div class="search-button-wrapper">
-                    <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
+                    <button type="button" class="btn btn-primary" @click="${this.onSearch}">
                         <i class="fa fa-search" aria-hidden="true"></i> Search
                     </button>
                 </div>

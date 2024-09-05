@@ -83,11 +83,14 @@ export default class BiotypeFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter    ?multiple="${this._config.multiple}"
-                                    ?liveSearch=${this._config.liveSearch}
-                                    .data="${this._config.biotypes}"
-                                    .value=${this.biotype}
-                                    @filterChange="${this.filterChange}">
+            <select-field-filter
+                .data="${this._config.biotypes}"
+                .value=${this.biotype}
+                .config="${{
+                    multiple: this._config.multiple,
+                    liveSearch: this._config.liveSearch
+                }}"
+                @filterChange="${this.filterChange}">
             </select-field-filter>
         `;
     }

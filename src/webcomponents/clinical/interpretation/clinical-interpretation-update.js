@@ -71,7 +71,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
             defaultLayout: "horizontal",
             buttonsVisible: true,
             buttonsWidth: 8,
-            buttonsAlign: "right",
+            buttonsAlign: "end",
         };
         this.config = this.getDefaultConfig();
     }
@@ -150,6 +150,11 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                             },
                         },
                         {
+                            title: "Interpretation Name",
+                            field: "name",
+                            type: "input-text",
+                        },
+                        {
                             title: "Assigned To",
                             field: "analyst.id",
                             type: "select",
@@ -166,7 +171,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                                     return html`
                                         <clinical-status-filter
                                             .status="${statusId}"
-                                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.status[this.clinicalAnalysis?.type?.toUpperCase()]}"
+                                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.status || []}"
                                             .multiple=${false}
                                             .classes="${updatedFields?.["status.id"] ? "selection-updated" : ""}"
                                             .disabled="${updatedFields?.locked?.after ?? !! this.clinicalAnalysis?.locked}"
@@ -177,17 +182,21 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                             }
                         },
                         {
+                            title: "Lock",
+                            type: "toggle-switch",
+                            field: "locked",
+                        },
+                        {
                             title: "Disease Panels",
                             field: "panels",
                             type: "custom",
                             display: {
                                 render: (panels, dataFormFilterChange, updateParams) => {
                                     // CAUTION: check if the panelLock condition is the same as clinical-analysis-update.js
-                                    const panelLock = !!this.clinicalAnalysis?.panelLock;
+                                    const panelLock = !!this.clinicalAnalysis?.panelLocked;
                                     const panelList = panelLock ? this.clinicalAnalysis?.panels : this.opencgaSession.study?.panels;
                                     const handlePanelsFilterChange = e => {
-                                        const panelList = e.detail.value
-                                            ?.split(",")
+                                        const panelList = (e.detail?.value?.split(",") || [])
                                             .filter(panelId => panelId)
                                             .map(panelId => ({id: panelId}));
                                         dataFormFilterChange(panelList);
@@ -198,7 +207,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                                             .diseasePanels="${panelList}"
                                             .panel="${panels?.map(panel => panel.id).join(",")}"
                                             .showExtendedFilters="${false}"
-                                            .showSelectedPanels="${false}"
+                                            .showSelectedPanels="${true}"
                                             .classes="${updateParams.panels ? "selection-updated" : ""}"
                                             .disabled="${panelLock}"
                                             @filterChange="${e => handlePanelsFilterChange(e)}">

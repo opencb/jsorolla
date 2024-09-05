@@ -15,7 +15,6 @@
  */
 
 import UtilsNew from "../../utils-new.js";
-import "../../../sites/iva/conf/browsers.settings.js";
 
 export default class OpencgaCatalogUtils {
 
@@ -53,19 +52,15 @@ export default class OpencgaCatalogUtils {
         return loggedUser === "opencga" || loggedUser === user;
     }
 
-    static checkProjectPermissions(project, user) {
-        return user === "opencga" || OpencgaCatalogUtils.getProjectOwner(project) === user;
-    }
-
     // Check if the user has the right the permissions in the study.
     static checkPermissions(study, user, permissions) {
         if (!study || !user || !permissions) {
             console.error(`No valid parameters, study: ${study}, user: ${user}, permissions: ${permissions}`);
             return false;
         }
-        // Check if user is the Study owner
-        const studyOwner = study.fqn.split("@")[0];
-        if (user === studyOwner) {
+        // Check if user is a Study admin, belongs to @admins group
+        const admins = study.groups.find(group => group.id === "@admins");
+        if (admins.userIds.includes(user)) {
             return true;
         } else {
             // Check if user is a Study admin, belongs to @admins group
@@ -111,17 +106,25 @@ export default class OpencgaCatalogUtils {
             console.error(`No valid parameters, study: ${study}, user: ${userLogged}`);
             return false;
         }
-        // Check if user is the Study owner
-        const studyOwner = study.fqn.split("@")[0];
-        if (userLogged === studyOwner) {
+        const admins = study.groups.find(group => group.id === "@admins");
+        return !!admins.userIds.includes(userLogged);
+    }
+
+    // Check if the provided user is admin in the organization
+    static isOrganizationAdmin(organization, userId) {
+        if (!organization || !userId) {
+            return false;
+        }
+        // 1. Check if user is the organization admin
+        if (organization?.owner === userId) {
             return true;
         } else {
-            // Check if user is a Study admin, belongs to @admins group
-            const admins = study.groups.find(group => group.id === "@admins");
-            if (admins.userIds.includes(userLogged)) {
+            // Check if user is an admin of the organization
+            if (organization?.admins?.includes?.(userId)) {
                 return true;
             }
         }
+        // Other case, user is not admin of the organization
         return false;
     }
 

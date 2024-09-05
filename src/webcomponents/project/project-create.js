@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2021 OpenCB
+ * Copyright 2015-2023 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
-import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
-import Types from "../commons/types.js";
 
 export default class ProjectCreate extends LitElement {
 
@@ -53,7 +51,6 @@ export default class ProjectCreate extends LitElement {
             defaultLayout: "horizontal",
             buttonOkText: "Create"
         };
-        this._config = this.getDefaultConfig();
     }
 
     #initOriginalObject() {
@@ -64,7 +61,7 @@ export default class ProjectCreate extends LitElement {
             },
             cellbase: {
                 url: "https://ws.zettagenomics.com/cellbase",
-                version: "v5.1"
+                version: "v5.8"
             }
         };
         this._project = UtilsNew.objectClone(this.project);
@@ -86,72 +83,45 @@ export default class ProjectCreate extends LitElement {
         super.update(changedProperties);
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        switch (param) {
-            case "id":
-            case "name":
-            case "description":
-            case "organism.scientificName":
-            case "organism.assembly":
-            case "cellbase":
-                this.project = {
-                    ...FormUtils.createObject(
-                        this.project,
-                        param,
-                        e.detail.value
-                    )
-                };
-        }
+    onFieldChange(e) {
+        this._project = {...e.detail.data}; // force to refresh the object-list
         this.requestUpdate();
     }
 
     onClear() {
-        const resetForm = () => {
-            this.#initOriginalObject();
-            this._config = this.getDefaultConfig();
-            this.requestUpdate();
-        };
-        if (!this.displayConfig?.modal) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-                title: "Clear project",
-                message: "Are you sure to clear?",
-                ok: () => {
-                    resetForm();
-                },
-            });
-        } else {
-            LitUtils.dispatchCustomEvent(this, "clearProject");
-            resetForm();
-        }
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Clear project",
+            message: "Are you sure to clear?",
+            ok: () => {
+                this.#initOriginalObject();
+                this._config = this.getDefaultConfig();
+                this.requestUpdate();
+            },
+        });
     }
 
     onSubmit() {
         const params = {
-            includeResult: true
+            includeResult: true,
         };
-        let project, error;
+        let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.projects()
-            .create(this.project, params)
-            .then(response => {
+            .create(this._project, params)
+            .then(() => {
                 this.#initOriginalObject();
-                this._config = this.getDefaultConfig();
-
-                project = response.responses[0].results[0];
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Project Create",
                     message: "New project created correctly"
                 });
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
+                LitUtils.dispatchCustomEvent(this, "projectCreate", {}, {});
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", {}, {});
             })
             .catch(reason => {
-                project = this.project;
                 error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "projectCreate", project, {}, error);
                 this.#setLoading(false);
             });
     }
@@ -163,7 +133,7 @@ export default class ProjectCreate extends LitElement {
 
         return html`
             <data-form
-                .data="${this.project}"
+                .data="${this._project}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
@@ -172,20 +142,11 @@ export default class ProjectCreate extends LitElement {
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
-            type: "form",
-            display: this.displayConfig || this.displayConfigDefault,
+        return {
+            display: this.displayConfig,
             sections: [
                 {
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.objectCompare(this.project, this._project),
-                                notificationType: "warning",
-                            },
-                        },
                         {
                             name: "Project ID",
                             field: "id",
@@ -239,8 +200,12 @@ export default class ProjectCreate extends LitElement {
                                     title: "Version",
                                     field: "cellbase.version",
                                     type: "select",
-                                    allowedValues: ["v5.0", "v5.1"],
-                                    defaultValue: "v5.1",
+                                    // FIXME Vero 20240712: Waiting for Nacho's advise
+                                    //  Can they be queried? In cellbase more versions are responding:
+                                    //  5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.8
+                                    //  https://ws.zettagenomics.com/cellbase/webservices/#!/Gene/getInfo_1
+                                    allowedValues: ["v5.0", "v5.1", "v5.2", "v5.8"],
+                                    defaultValue: "v5.8",
                                     display: {
                                         // placeholder: "Add version"
                                     }
@@ -259,7 +224,7 @@ export default class ProjectCreate extends LitElement {
                     ]
                 }
             ]
-        });
+        };
     }
 
 }
