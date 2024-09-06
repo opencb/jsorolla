@@ -61,6 +61,15 @@ export default class VariantRenderer extends Renderer {
         }
 
         (features || []).forEach((feature, featureIndex) => {
+            // Check if this variant has been previously rendered
+            if (options?.renderedFeatures && feature?.id) {
+                if (options.renderedFeatures.has(feature.id)) {
+                    return;
+                }
+                // Prevent rendering this variant in next calls of this renderer
+                options.renderedFeatures.add(feature.id);
+            }
+
             const group = SVG.addChild(options.svgCanvasFeatures, "g", {
                 "data-cy": "gb-variant",
                 "data-id": feature.id || "-",
