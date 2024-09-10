@@ -564,21 +564,25 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 {
                     type: "opencga-variant",
                     config: {
-                        title: "Variants (Small Variants)",
+                        title: "Small Variants (SNV & INDEL)",
                         query: {
                             sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
                             type: "SNV,INDEL",
                         },
+                        headerHeight: 0,
                     },
                 },
                 {
                     type: "opencga-variant",
                     config: {
-                        title: "Variants (SV)",
+                        title: "Large Variants (CNV & SV)",
                         query: {
                             sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
                             type: "COPY_NUMBER,BREAKEND,INSERTION,DELETION,DUPLICATION",
                         },
+                        lollipopVisible: false,
+                        highlightVisible: false,
+                        headerHeight: 0,
                     },
                 },
                 ...(this.clinicalAnalysis.proband?.samples || []).map(sample => ({
