@@ -46,6 +46,7 @@ export default class VariantRenderer extends Renderer {
         const lollipopStickHeight = this.config.lollipopHeight - this.config.lollipopFocusWidth - this.config.lollipopMaxWidth / 2;
         let lollipopStickStart = this.config.lollipopFocusWidth + this.config.lollipopMaxWidth / 2;
         let lollipopPositions = [];
+        let lollipopIndex = 0;
         let topPosition = this.config.lollipopVisible ? this.config.lollipopHeight : this.config.headerHeight;
 
         if (this.config.lollipopVisible) {
@@ -53,6 +54,7 @@ export default class VariantRenderer extends Renderer {
             lollipopPositions = LollipopLayout.fromFeaturesList(featuresForLollipops, options.requestedRegion, lollipopRegionWidth, {
                 minSeparation: this.config.lollipopMaxWidth,
             });
+            console.log(lollipopPositions);
         }
 
         // Check if highlights are visible
@@ -98,7 +100,7 @@ export default class VariantRenderer extends Renderer {
 
             // Check if lollipops are visible and the feature type is one of the allowed types for lollipops
             if (this.config.lollipopVisible && this.config.lollipopVariantTypes?.includes?.(feature?.type)) {
-                const lollipopX = lollipopStartX + lollipopPositions[featureIndex];
+                const lollipopX = lollipopStartX + lollipopPositions[lollipopIndex];
                 const lollipopWidth = Math.min(1, Math.max(0, this.getValueFromConfig("lollipopWidth", [feature])));
                 const lollipopPath = [
                     `M ${lollipopX},${lollipopStickStart}`,
@@ -140,6 +142,8 @@ export default class VariantRenderer extends Renderer {
                         variantElement.setAttribute("stroke-width", 0);
                     });
                 }
+                // increment lollipop index
+                lollipopIndex = lollipopIndex + 1;
             } else {
                 variantElement = SVG.addChild(group, "rect", {
                     "data-cy": "gb-variant-lollipop-shape",
