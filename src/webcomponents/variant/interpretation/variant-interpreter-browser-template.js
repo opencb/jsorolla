@@ -575,13 +575,24 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 {
                     type: "opencga-variant",
                     config: {
-                        title: "Large Variants (CNV & SV)",
+                        title: "Large Variants (CNV)",
                         query: {
                             sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
-                            type: "COPY_NUMBER,BREAKEND,INSERTION,DELETION,DUPLICATION",
+                            type: "COPY_NUMBER,INSERTION,DELETION,DUPLICATION",
                         },
                         lollipopVisible: false,
                         highlightVisible: false,
+                        headerHeight: 0,
+                    },
+                },
+                {
+                    type: "opencga-variant",
+                    config: {
+                        title: "Large Variants (SV)",
+                        query: {
+                            sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                            type: "BREAKEND",
+                        },
                         headerHeight: 0,
                     },
                 },
