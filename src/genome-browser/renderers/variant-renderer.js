@@ -49,12 +49,20 @@ export default class VariantRenderer extends Renderer {
         let lollipopIndex = 0;
         let topPosition = this.config.lollipopVisible ? this.config.lollipopHeight : this.config.headerHeight;
 
+        // We have to filter features and consider only the ones that are in the current region
+        // this is important because when we request for breakends to OpenCGA it returns both variants of the breakend
+        const region = options.requestedRegion;
+        const featuresToDisplay = (features || []).filter(feature => {
+            return feature.chromosome === region.chromosome && feature.start <= region.end && region.start <= feature.end;
+        });
+
         if (this.config.lollipopVisible) {
-            const featuresForLollipops = (features || []).filter(feature => this.config.lollipopVariantTypes.includes(feature.type));
+            const featuresForLollipops = featuresToDisplay.filter(feature => {
+                return this.config.lollipopVariantTypes.includes(feature.type);
+            });
             lollipopPositions = LollipopLayout.fromFeaturesList(featuresForLollipops, options.requestedRegion, lollipopRegionWidth, {
                 minSeparation: this.config.lollipopMaxWidth,
             });
-            console.log(lollipopPositions);
         }
 
         // Check if highlights are visible
@@ -63,7 +71,7 @@ export default class VariantRenderer extends Renderer {
             lollipopStickStart = lollipopStickStart + this.config.highlightHeight;
         }
 
-        (features || []).forEach((feature, featureIndex) => {
+        featuresToDisplay.forEach((feature, featureIndex) => {
             // Check if this variant has been previously rendered
             if (options?.renderedFeatures && feature?.id) {
                 if (options.renderedFeatures.has(feature.id)) {
