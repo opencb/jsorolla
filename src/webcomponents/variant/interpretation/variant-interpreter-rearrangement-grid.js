@@ -376,7 +376,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.table.bootstrapTable({
             theadClasses: "table-light",
             buttonsClass: "light",
-            data: variants,
             columns: this._getDefaultColumns(),
             sidePagination: "server",
             // Josemi Note 2024-01-31: we have added the ajax function for local variants for getting genes info
