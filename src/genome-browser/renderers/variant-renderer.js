@@ -310,7 +310,7 @@ export default class VariantRenderer extends Renderer {
             lollipopMaxWidth: 15,
             lollipopShape: GenomeBrowserUtils.lollipopShapeFormatter,
             lollipopWidth: GenomeBrowserUtils.lollipopWidthFormatter,
-            lollipopVariantTypes: ["SNP", "INDEL", "BREAKEND"],
+            lollipopVariantTypes: ["SNV", "INDEL", "BREAKEND"],
             // Lollipop focus
             lollipopFocusEnabled: true,
             lollipopFocusWidth: 2,
