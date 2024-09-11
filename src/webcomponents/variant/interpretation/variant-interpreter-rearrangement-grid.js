@@ -685,6 +685,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     events: {
                         "click a": this.onActionClick.bind(this)
                     },
+                    visible: this._config?.showActions,
                     excludeFromExport: true,
                     excludeFromSettings: true,
                 }
@@ -1115,7 +1116,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             showReview: true,
             showEditReview: true,
             showSelectCheckbox: false,
-            showActions: false,
+            showActions: true,
             multiSelection: false,
             nucleotideGenotype: true,
             hideVcfFileData: false,
