@@ -49,7 +49,8 @@ export default class VariantRenderer extends Renderer {
         let topPosition = this.config.lollipopVisible ? this.config.lollipopHeight : this.config.headerHeight;
 
         if (this.config.lollipopVisible) {
-            lollipopPositions = LollipopLayout.fromFeaturesList(features || [], options.requestedRegion, lollipopRegionWidth, {
+            const featuresForLollipops = (features || []).filter(feature => this.config.lollipopVariantTypes.includes(feature.type));
+            lollipopPositions = LollipopLayout.fromFeaturesList(featuresForLollipops, options.requestedRegion, lollipopRegionWidth, {
                 minSeparation: this.config.lollipopMaxWidth,
             });
         }
@@ -95,8 +96,8 @@ export default class VariantRenderer extends Renderer {
 
             let variantElement = null;
 
-            // Check if lollipops are visible
-            if (this.config.lollipopVisible) {
+            // Check if lollipops are visible and the feature type is one of the allowed types for lollipops
+            if (this.config.lollipopVisible && this.config.lollipopVariantTypes?.includes?.(feature?.type)) {
                 const lollipopX = lollipopStartX + lollipopPositions[featureIndex];
                 const lollipopWidth = Math.min(1, Math.max(0, this.getValueFromConfig("lollipopWidth", [feature])));
                 const lollipopPath = [
@@ -305,6 +306,7 @@ export default class VariantRenderer extends Renderer {
             lollipopMaxWidth: 15,
             lollipopShape: GenomeBrowserUtils.lollipopShapeFormatter,
             lollipopWidth: GenomeBrowserUtils.lollipopWidthFormatter,
+            lollipopVariantTypes: ["SNP", "INDEL", "BREAKEND"],
             // Lollipop focus
             lollipopFocusEnabled: true,
             lollipopFocusWidth: 2,
