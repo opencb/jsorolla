@@ -127,7 +127,7 @@ export default class OpencbGridToolbar extends LitElement {
             isCreateDisabledTooltip = this._config?.create?.display?.disabledTooltip;
         } else {
             const hasPermissions = OpencgaCatalogUtils
-                .checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, this.permissionID);
+                .checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, this.permissionID, simplifyPermissions);
             if (!hasPermissions) {
                 isCreateDisabled = true;
                 isCreateDisabledTooltip = "Creating a new instance requires write permissions on the study. Please, contact your administrator if you need different access rights.";
