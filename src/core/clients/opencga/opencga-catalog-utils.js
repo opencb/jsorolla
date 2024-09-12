@@ -53,51 +53,98 @@ export default class OpencgaCatalogUtils {
     }
 
     // Check if the user has the right the permissions in the study.
-    static checkPermissions(study, user, permissions) {
-        if (!study || !user || !permissions) {
-            console.error(`No valid parameters, study: ${study}, user: ${user}, permissions: ${permissions}`);
+    // FIXME: parameter simplifyPermissions
+    static checkPermissions(study, userId, permissions, simplifyPermissions = false) {
+        // VALIDATION
+        if (!study || !userId || !permissions) {
+            console.error(`No valid parameters, study: ${study}, user: ${userId}, permissions: ${permissions}`);
             return false;
         }
-        // Check if user is a Study admin, belongs to @admins group
-        const admins = study.groups.find(group => group.id === "@admins");
-        if (admins.userIds.includes(user)) {
+        // FIXME: Composed permissions like CLINICAL_ANALYSIS
+        const catalogEntity = permissions.split("_").pop();
+        const permissionLevel = {};
+        permissionLevel[`VIEW_` + catalogEntity] = 1;
+        permissionLevel[`WRITE_` + catalogEntity] = 2;
+        permissionLevel[`DELETE_` + catalogEntity] = 3;
+
+debugger
+        const getPermissionLevel = permissionList => {
+            debugger
+            const levels = permissionList
+                .map(p => permissionLevel[p])
+                .filter(p => typeof p === "number");
+            return levels.length > 0 ? Math.min(levels) : 0;
+        };
+
+        const getEffectivePermission = (userPermission, groupPermissions) =>
+            // First, check permission at user level
+            getPermissionLevel(userPermission) ||
+            // Second, check permission at groups level. No hierarchy defined here. Example:
+            // If a user belongs to two groups:
+            //  - groupA - Has permission VIEW_SAMPLES
+            //  - groupB - Has permission WRITE_SAMPLES
+            // The dominant permission will be the highest, i.e. WRITE_SAMPLES
+            Math.max(0, ...groupPermissions.map(g => getPermissionLevel(g)));
+
+        // ALGORITHM
+        // 1. If userId is the installation admin grant permission
+        if (userId === "opencga") {
             return true;
-        } else {
-            // Check if user is a Study admin, belongs to @admins group
-            const admins = study.groups.find(group => group.id === "@admins");
-            if (admins.userIds.includes(user)) {
-                return true;
+        }
+        // 2. If userId is a Study admin, belongs to @admins group. Grant permission
+        const admins = study.groups.find(group => group.id === "@admins");
+        if (admins.userIds.includes(userId)) {
+            return true;
+        }
+        // 3. Permissions for member
+        const userPermissionsStudy = study?.acl
+            ?.find(acl => acl.member === userId)
+            ?.permissions || [];
+
+        // 4. Permissions for groups where the member belongs to
+        const aclUserIds = study.groups
+            .filter(group => group.userIds.includes(userId))
+            .map(group => group.id);
+        aclUserIds.push(userId);
+
+        const groupPermissions = aclUserIds.map(aclId => study?.acl
+            ?.find(acl => acl.member === userId)?.groups
+            ?.find(group => group.id === aclId)?.permissions || []);
+
+        // If the effective permission retrieved is greater or equal than the permission level requested, grant permission.
+        // If not, deny permission
+        return getEffectivePermission(userPermissionsStudy, groupPermissions) >= permissionLevel[permissions];
+
+        /*
+            const permissionArray = Array.isArray(permissions) ? permissions : [permissions];
+            if (simplifyPermissions) {
+                // 3.3 Optimization simplifyPermissions enabled
+                // 3.3.1. Joint permissions
+                const allUserPermissions = [
+                    ...userPermissionsStudy,
+                    ...userPermissionsGroup
+                ];
+                // 3.3.2. Joint check
+                if (permissionArray.some(permission => allUserPermissions.includes(permission))) {
+                    return true;
+                }
             } else {
-                // Check if user no owner/admin has the permission in acl
-                const aclUserIds = study.groups
-                    .filter(group => group.userIds.includes(user))
-                    .map(group => group.id);
-                aclUserIds.push(user);
-                for (const aclId of aclUserIds) {
-                    // 1. Acl permissions at study level for the member
-                    const userPermissionsStudy = study?.acl
-                        ?.find(acl => acl.member === user)
-                        ?.permissions || [];
-
-                    // 2. Acl permissions at study group level for member
-                    const userPermissionsGroup = study?.acl
-                        ?.find(acl => acl.member === user)?.groups
-                        ?.find(group => group.id === aclId)?.permissions || [];
-
-                    // 3. Joint permissions
-                    const allUserPermissions = [
-                        ...userPermissionsStudy,
-                        ...userPermissionsGroup
-                    ];
-
-                    const permissionArray = Array.isArray(permissions) ? permissions : [permissions];
-                    if (permissionArray.some(permission => allUserPermissions.includes(permission))) {
-                        return true;
-                    }
+                // 3.4 Optimization simplifyPermissions disabled. Hierarchy:
+                // 3.4.1 Permission at user level
+                // Todo: Negative case: the permission is WRITE but the user has VIEW -> DENY access
+                // Positive case: the permission is part of the array of userPermissions
+                if (permissionArray.some(permission => userPermissionsStudy.includes(permission))) {
+                    return true;
+                }
+                // Todo: Negative case: the permission is WRITE but the user has VIEW -> DENY access
+                // 3.4.1 Permission at group level
+                if (permissionArray.some(permission => userPermissionsGroup.includes(permission))) {
+                    return true;
                 }
             }
         }
         return false;
+        */
     }
 
     // Check if the user has the right the permissions in the study.
