@@ -788,7 +788,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         UtilsNew.objectClone(this.checkedVariants.get(row[1].id)),
                     ];
                     this.requestUpdate();
-                    // $("#" + this._prefix + "ReviewSampleModal").modal("show");
+                    // eslint-disable-next-line no-undef
                     const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
                     reviewSampleModal.show();
                 }
@@ -973,7 +973,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             ];
             this.requestUpdate();
 
-            // $("#" + this._prefix + "ReviewSampleModal").modal("show");
             // eslint-disable-next-line no-undef
             const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
             reviewSampleModal.show();
@@ -981,7 +980,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     onConfigClick(e) {
-        // $("#" + this._prefix + "ConfigModal").modal("show");
+        // eslint-disable-next-line no-undef
         const configModal = new bootstrap.Modal("#" + this._prefix + "ConfigModal");
         configModal.show();
     }
