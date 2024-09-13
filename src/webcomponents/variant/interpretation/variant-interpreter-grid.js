@@ -1382,9 +1382,9 @@ export default class VariantInterpreterGrid extends LitElement {
         const reviewActionButton = document.getElementById(`${this._prefix}${variantId}VariantReviewActionButton`);
         if (reviewActionButton) {
             if (e.currentTarget.checked) {
-                reviewActionButton.removeAttribute("disabled");
+                reviewActionButton.classList.remove("disabled");
             } else {
-                reviewActionButton.setAttribute("disabled", "true");
+                reviewActionButton.classList.add("disabled");
             }
         }
 
