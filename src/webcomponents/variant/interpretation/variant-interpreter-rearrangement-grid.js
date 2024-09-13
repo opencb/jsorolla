@@ -905,9 +905,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         const reviewActionButton = document.getElementById(`${this._prefix}${this._rows[index][0].id}VariantReviewActionButton`);
         if (reviewActionButton) {
             if (event.currentTarget.checked) {
-                reviewActionButton.removeAttribute("disabled");
+                reviewActionButton.classList.remove("disabled");
             } else {
-                reviewActionButton.setAttribute("disabled", "true");
+                reviewActionButton.classList.add("disabled");
             }
         }
 
