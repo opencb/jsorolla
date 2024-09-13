@@ -1058,8 +1058,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                  role="dialog" aria-hidden="true" style="overflow-y: visible">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
+                        <div class="modal-header">
                             <h3>Review Variant</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         ${this.variantsReview ? html`
                             <clinical-interpretation-variant-review
@@ -1070,7 +1071,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                             </clinical-interpretation-variant-review>
                         ` : null}
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${() => this.onCancelVariant()}">Cancel</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal" @click="${() => this.onCancelVariant()}">Cancel</button>
                             <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${e => this.onSaveVariant(e)}">OK</button>
                         </div>
                     </div>
@@ -1082,8 +1083,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
-                        <h3>Settings</h3>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <h3>Settings</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
@@ -1096,7 +1097,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
                             <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${e => this.onGridConfigSave(e)}">OK</button>
                         </div>
                     </div>
