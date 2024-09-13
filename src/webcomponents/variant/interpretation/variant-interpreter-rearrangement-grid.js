@@ -644,7 +644,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <a id="${reviewId}" href="javascript:void 0;" class="dropdown-item reviewButton" data-action="edit" ${reviewDisabled}>
+                                        <a id="${reviewId}" href="javascript:void 0;" class="dropdown-item reviewButton ${reviewDisabled}" data-action="edit">
                                             <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
