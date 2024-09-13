@@ -53,38 +53,47 @@ export default class OpencgaCatalogUtils {
     }
 
     // Check if the user has the right the permissions in the study.
-    // FIXME: parameter simplifyPermissions
     static checkPermissions(study, userId, permissions, simplifyPermissions = false) {
+
+        let [operation, ...resource] = permissions.split("_");
+        resource = resource.join("_");
+
         // VALIDATION
-        if (!study || !userId || !permissions) {
-            console.error(`No valid parameters, study: ${study}, user: ${userId}, permissions: ${permissions}`);
+        if (!study || !userId || !permissions || !resource) {
+            console.error(`No valid parameters, study: ${study}, user: ${userId}, permissions: ${permissions}, catalogEntity: ${resource}`);
             return false;
         }
-        // FIXME: Composed permissions like CLINICAL_ANALYSIS
-        const catalogEntity = permissions.split("_").pop();
         const permissionLevel = {};
-        permissionLevel[`VIEW_` + catalogEntity] = 1;
-        permissionLevel[`WRITE_` + catalogEntity] = 2;
-        permissionLevel[`DELETE_` + catalogEntity] = 3;
+        permissionLevel[`VIEW_${resource}`] = 1;
+        permissionLevel[`WRITE_${resource}`] = 2;
+        permissionLevel[`DELETE_${resource}`] = 3;
 
-debugger
         const getPermissionLevel = permissionList => {
-            debugger
             const levels = permissionList
                 .map(p => permissionLevel[p])
                 .filter(p => typeof p === "number");
-            return levels.length > 0 ? Math.min(levels) : 0;
+            return levels.length > 0 ? Math.max(...levels) : 0;
         };
 
-        const getEffectivePermission = (userPermission, groupPermissions) =>
-            // First, check permission at user level
-            getPermissionLevel(userPermission) ||
-            // Second, check permission at groups level. No hierarchy defined here. Example:
-            // If a user belongs to two groups:
-            //  - groupA - Has permission VIEW_SAMPLES
-            //  - groupB - Has permission WRITE_SAMPLES
-            // The dominant permission will be the highest, i.e. WRITE_SAMPLES
-            Math.max(0, ...groupPermissions.map(g => getPermissionLevel(g)));
+        const getEffectivePermission = (userPermission, groupPermissions) => {
+            // It is possible to simplify permissions.
+            if (!simplifyPermissions) {
+                // First, find permission level at user level
+                return getPermissionLevel(userPermission) ||
+                // Second, check permission level at groups level. No hierarchy defined here. Example:
+                // If a user belongs to two groups:
+                //  - groupA - Has permission VIEW_SAMPLES
+                //  - groupB - Has permission WRITE_SAMPLES
+                // The dominant permission will be the highest, i.e. WRITE_SAMPLES
+                Math.max(0, ...groupPermissions.map(g => getPermissionLevel(g)));
+            } else {
+                // If "simplifyPermissions = true" permissions become more flexible.
+                // As long as the user has the necessary permission at the user or group level it'll be able to perform the action.
+                // I.e., there's no hierarchy where user-level permissions override group-level ones
+                groupPermissions.push(userPermission);
+                return Math.max(0, ...groupPermissions.map(g => getPermissionLevel(g)));
+            }
+        };
 
         // ALGORITHM
         // 1. If userId is the installation admin grant permission
@@ -114,37 +123,6 @@ debugger
         // If the effective permission retrieved is greater or equal than the permission level requested, grant permission.
         // If not, deny permission
         return getEffectivePermission(userPermissionsStudy, groupPermissions) >= permissionLevel[permissions];
-
-        /*
-            const permissionArray = Array.isArray(permissions) ? permissions : [permissions];
-            if (simplifyPermissions) {
-                // 3.3 Optimization simplifyPermissions enabled
-                // 3.3.1. Joint permissions
-                const allUserPermissions = [
-                    ...userPermissionsStudy,
-                    ...userPermissionsGroup
-                ];
-                // 3.3.2. Joint check
-                if (permissionArray.some(permission => allUserPermissions.includes(permission))) {
-                    return true;
-                }
-            } else {
-                // 3.4 Optimization simplifyPermissions disabled. Hierarchy:
-                // 3.4.1 Permission at user level
-                // Todo: Negative case: the permission is WRITE but the user has VIEW -> DENY access
-                // Positive case: the permission is part of the array of userPermissions
-                if (permissionArray.some(permission => userPermissionsStudy.includes(permission))) {
-                    return true;
-                }
-                // Todo: Negative case: the permission is WRITE but the user has VIEW -> DENY access
-                // 3.4.1 Permission at group level
-                if (permissionArray.some(permission => userPermissionsGroup.includes(permission))) {
-                    return true;
-                }
-            }
-        }
-        return false;
-        */
     }
 
     // Check if the user has the right the permissions in the study.
