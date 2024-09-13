@@ -789,8 +789,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     ];
                     this.requestUpdate();
                     // $("#" + this._prefix + "ReviewSampleModal").modal("show");
-                    // const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
-                    this.reviewSampleModal.show();
+                    const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
+                    reviewSampleModal.show();
                 }
                 break;
             case "download":
@@ -974,8 +974,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             this.requestUpdate();
 
             // $("#" + this._prefix + "ReviewSampleModal").modal("show");
-            // const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
-            this.reviewSampleModal.show();
+            // eslint-disable-next-line no-undef
+            const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
+            reviewSampleModal.show();
         }
     }
 
