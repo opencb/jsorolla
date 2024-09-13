@@ -625,7 +625,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         </a>`,
                     field: "interpretation",
                     rowspan: 1,
-                    colspan: 4,
+                    colspan: 2,
                     halign: "center"
                 },
                 {
