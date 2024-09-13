@@ -718,25 +718,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 ...vcfDataColumns.vcf1,
                 ...vcfDataColumns.vcf2,
                 {
-                    id: "cohorts",
-                    title: "Cohorts",
-                    field: "cohort",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
-                    visible: (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY") && this.gridCommons.isColumnVisible("cohorts",)
-                },
-                {
-                    id: "prediction",
-                    title: `${this.clinicalAnalysis.type !== "CANCER" ? "ACMG <br> Prediction" : "Prediction"}`,
-                    field: "prediction",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: VariantInterpreterGridFormatter.predictionFormatter,
-                    halign: "center",
-                    visible: (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY") && this.gridCommons.isColumnVisible("prediction"),
-                },
-                {
                     title: "Select",
                     rowspan: 1,
                     colspan: 1,
