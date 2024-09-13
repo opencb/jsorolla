@@ -126,6 +126,7 @@ export default class OpencbGridToolbar extends LitElement {
             isCreateDisabled = true;
             isCreateDisabledTooltip = this._config?.create?.display?.disabledTooltip;
         } else {
+            const simplifyPermissions = this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions;
             const hasPermissions = OpencgaCatalogUtils
                 .checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, this.permissionID, simplifyPermissions);
             if (!hasPermissions) {
