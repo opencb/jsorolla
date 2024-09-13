@@ -430,7 +430,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     /*
      *  GRID FORMATTERS
      */
-    detailFormatter(value, row, a) {
+    detailFormatter(value, row) {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
         if (row && row.annotation) {
@@ -487,29 +487,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             console.error("This should never happen: row.studies[] is not valid");
         }
         return "-";
-    }
-
-    // DEPRECATED
-    pathogeniticyFormatter(value, row, index) {
-        // TODO we must call to PathDB to get the frequency of each variant, next code is just an example
-        return `
-            <div class="col-md-12" style="padding: 0px">
-                <form class="form-horizontal">
-                    <div class="col-md-12" style="padding: 0px">
-                        <form class="form-horizontal">
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
-                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
-                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
-                            </div>
-                        </form>
-                    </div>
-                </form>
-            </div>
-        `;
     }
 
     _getDefaultColumns() {
@@ -991,10 +968,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.requestUpdate();
     }
 
-    onCancelVariant(e) {
+    onCancelVariant() {
         this.variantsReview = null;
         this.requestUpdate();
-        // this._variantChanged = null;
     }
 
     render() {
