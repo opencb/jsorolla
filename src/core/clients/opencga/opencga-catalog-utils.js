@@ -53,20 +53,26 @@ export default class OpencgaCatalogUtils {
     }
 
     // Check if the user has the right the permissions in the study.
-    static checkPermissions(study, userId, permissions, simplifyPermissions = false) {
+    static checkPermissions(study, userId, permission, simplifyPermissions = false) {
+        // ToDo: change method name => checkStudyEffectivePermission
+        // ToDo: add simplifyPermissions
+        // CAUTION: *_ANNOTATIONS_, etc. not considered
 
-        let [operation, ...resource] = permissions.split("_");
-        resource = resource.join("_");
+        // Retrieve the resource from the provided permission, that has the structure '{OPERATION}_{RESOURCE}'. E.g:
+        // "WRITE_SAMPLES" --> "SAMPLES"
+        // "VIEW_CLINICAL_ANALYSIS" --> "CLINICAL_ANALYSIS"
+        const resource = permission.split("_").slice(1).join("_");
 
         // VALIDATION
-        if (!study || !userId || !permissions || !resource) {
-            console.error(`No valid parameters, study: ${study}, user: ${userId}, permissions: ${permissions}, catalogEntity: ${resource}`);
+        if (!study || !userId || !permission || !resource) {
+            console.error(`No valid parameters, study: ${study}, user: ${userId}, permission: ${permission}, catalogEntity: ${resource}`);
             return false;
         }
         const permissionLevel = {};
-        permissionLevel[`VIEW_${resource}`] = 1;
-        permissionLevel[`WRITE_${resource}`] = 2;
-        permissionLevel[`DELETE_${resource}`] = 3;
+        permissionLevel["NONE"] = 1;
+        permissionLevel[`VIEW_${resource}`] = 2;
+        permissionLevel[`WRITE_${resource}`] = 3;
+        permissionLevel[`DELETE_${resource}`] = 4;
 
         const getPermissionLevel = permissionList => {
             const levels = permissionList
@@ -111,9 +117,11 @@ export default class OpencgaCatalogUtils {
             ?.permissions || [];
 
         // 4. Permissions for groups where the member belongs to
+        // ToDo: change name to groupIds
         const aclUserIds = study.groups
             .filter(group => group.userIds.includes(userId))
             .map(group => group.id);
+        // Fixme: Needed?
         aclUserIds.push(userId);
 
         const groupPermissions = aclUserIds.map(aclId => study?.acl
@@ -122,7 +130,7 @@ export default class OpencgaCatalogUtils {
 
         // If the effective permission retrieved is greater or equal than the permission level requested, grant permission.
         // If not, deny permission
-        return getEffectivePermission(userPermissionsStudy, groupPermissions) >= permissionLevel[permissions];
+        return getEffectivePermission(userPermissionsStudy, groupPermissions) >= permissionLevel[permission];
     }
 
     // Check if the user has the right the permissions in the study.
