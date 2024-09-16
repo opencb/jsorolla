@@ -320,9 +320,12 @@ export default class ClinicalAnalysisGrid extends LitElement {
             "text-bg-light"
         ];
 
-        const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
+        const hasWriteAccess = OpencgaCatalogUtils.getStudyEffectivePermission(
+            this.opencgaSession.study,
+            this.opencgaSession.user.id,
+            "WRITE_CLINICAL_ANALYSIS",
+            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
         const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // priority is editable
-
         // Dropdown button styles and classes
         const btnClassName = "btn btn-light btn-block dropdown-toggle";
         const btnStyle = "display:inline-flex;align-items:center;";
@@ -333,7 +336,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         return `
             <div class="dropdown">
-                <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" style="${btnStyle}" ${!isEditable ? "disabled=\"disabled\"" : ""}>
+                <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" style="${btnStyle}" ${isEditable ? "" : "disabled"}>
                     <span class="badge ${currentPriorityLabel} me-auto top-0">
                         ${currentPriorityText}
                     </span>
@@ -363,7 +366,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     statusFormatter(value, row) {
         const status = this.opencgaSession.study?.internal?.configuration?.clinical?.status || [];
-        const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
+        const hasWriteAccess = OpencgaCatalogUtils.getStudyEffectivePermission(
+            this.opencgaSession.study,
+            this.opencgaSession.user.id,
+            "WRITE_CLINICAL_ANALYSIS",
+            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
         const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // status is editable
 
         const currentStatus = value.id || value.name || "-"; // Get current status
@@ -372,10 +379,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
         // const btnClassName = "d-inline-flex align-items-center btn btn-light dropdown-toggle";
         const btnClassName = "d-flex justify-content-between align-items-center btn btn-light dropdown-toggle w-100";
         // const btnStyle = "display:inline-flex;align-items:center;";
-debugger
+
         return `
             <div class="dropdown">
-                <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" ${!isEditable ? "disabled=\"disabled\"" : ""}>
+                <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" ${isEditable ? "" : "disabled"}>
                     <span class='me-auto'">${currentStatus}</span>
                 </button>
                 ${isEditable ? `
@@ -650,7 +657,11 @@ debugger
                 formatter: (value, row) => {
                     const session = this.opencgaSession;
                     const url = `#interpreter/${session.project.id}/${session.study.id}/${row.id}`;
-                    const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(session.study, session.user.id, "WRITE_CLINICAL_ANALYSIS");
+                    const hasWriteAccess = OpencgaCatalogUtils.getStudyEffectivePermission(
+                        session.study,
+                        session.user.id,
+                        "WRITE_CLINICAL_ANALYSIS",
+                        session?.organization?.configuration?.optimizations?.simplifyPermissions);
                     const hasAdminAccess = hasWriteAccess ? "" : "disabled";
                     const lockActionIcon = row.locked ? "fa-unlock" : "fa-lock";
                     const lockActionText = row.locked ? "Unlock" : "Lock";
@@ -665,14 +676,14 @@ debugger
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <!-- Open the case in the case interpreter -->
                                 <li>
-                                    <a class="dropdown-item" data-action="interpreter" href="${url}">
-                                        <i class="fas fa-user-md me-1" aria-hidden="true"></i> Case Interpreter
+                                    <a data-action="interpreter" class="dropdown-item" href="${url}">
+                                       <i class="fas fa-user-md me-1" aria-hidden="true"></i> Case Interpreter
                                     </a>
                                 </li>
                                 <!-- Download the case -->
                                 <li>
-                                    <a href="javascript: void 0" class="dropdown-item" data-action="download">
-                                        <i class="fas fa-download me-1" aria-hidden="true"></i> Download
+                                    <a data-action="download" class="dropdown-item" href="javascript: void 0">
+                                       <i class="fas fa-download me-1" aria-hidden="true"></i> Download
                                     </a>
                                 </li>
                                 <!-- Perfom write operations to the case -->
@@ -680,19 +691,19 @@ debugger
                                     <li><hr class="dropdown-divider"></li>
                                     <!-- Lock or unlock the case -->
                                     <li>
-                                        <a class="dropdown-item" data-action="lock">
+                                        <a data-action="lock" class="dropdown-item">
                                             <i class="fas ${lockActionIcon} me-1" aria-hidden="true"></i> ${lockActionText}
                                         </a>
                                     </li>
                                     <!-- Edit the case -->
                                     <li>
-                                        <a data-action="edit" class="btn force-text-left ${hasAdminAccess}">
+                                        <a data-action="edit" class="btn force-text-left ${hasAdminAccess}" href="javascript: void 0">
                                             <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
                                     <!-- Delete the case -->
                                     <li>
-                                        <a href="javascript: void 0" class="${isOwnOrIsLocked} dropdown-item" data-action="delete">
+                                        <a data-action="delete" class="dropdown-item ${isOwnOrIsLocked}" href="javascript: void 0">
                                             <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
                                         </a>
                                     </li>

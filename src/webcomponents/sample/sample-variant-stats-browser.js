@@ -407,7 +407,11 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 modalTitle: "Save Variant Stats",
                 modalButtonIcon: "fas fa-save",
                 modalButtonClassName: "btn btn-primary",
-                modalDisabled: !OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS"),
+                modalDisabled: !OpencgaCatalogUtils.getStudyEffectivePermission(
+                    this.opencgaSession.study,
+                    this.opencgaSession.user.id,
+                    "WRITE_CLINICAL_ANALYSIS",
+                    this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions),
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultValue: "",

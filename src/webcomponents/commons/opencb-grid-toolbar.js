@@ -122,13 +122,16 @@ export default class OpencbGridToolbar extends LitElement {
         // Check 'Create' permissions
         let isCreateDisabled = false;
         let isCreateDisabledTooltip = "";
+        const hasPermissions = OpencgaCatalogUtils.getStudyEffectivePermission(
+            this.opencgaSession?.study,
+            this.opencgaSession?.user?.id,
+            this.permissionID,
+            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+
         if (this._config?.create?.display?.disabled) {
             isCreateDisabled = true;
             isCreateDisabledTooltip = this._config?.create?.display?.disabledTooltip;
         } else {
-            const simplifyPermissions = this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions;
-            const hasPermissions = OpencgaCatalogUtils
-                .checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, this.permissionID, simplifyPermissions);
             if (!hasPermissions) {
                 isCreateDisabled = true;
                 isCreateDisabledTooltip = "Creating a new instance requires write permissions on the study. Please, contact your administrator if you need different access rights.";
@@ -195,9 +198,7 @@ export default class OpencbGridToolbar extends LitElement {
             </div>
 
             <!-- Add modals-->
-            ${(this._config?.create &&
-            (this._settings.showCreate || this._settings.showNew) &&
-            OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, this.permissionID)) ?
+            ${(this._config?.create && (this._settings.showCreate || this._settings.showNew) && hasPermissions) ?
             ModalUtils.create(this, this._config.create?.modalId || `${this._prefix}CreateModal`, this._config.create) :
             nothing}
 
