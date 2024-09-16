@@ -590,7 +590,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                         title: "CNV",
                         query: {
                             sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
-                            type: "COPY_NUMBER,INSERTION,DELETION,DUPLICATION",
+                            type: "COPY_NUMBER",
                         },
                         lollipopVisible: false,
                         highlightVisible: false,
@@ -604,7 +604,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                         title: "Structural Variants (BREAKEND, DUPLICATION, INSERTION & DELETION)",
                         query: {
                             sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
-                            type: "BREAKEND",
+                            type: "BREAKEND,INSERTION,DELETION,DUPLICATION",
                         },
                         headerHeight: 0,
                     },
