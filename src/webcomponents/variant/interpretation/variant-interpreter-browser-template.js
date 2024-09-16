@@ -435,7 +435,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
                 <div class="flex-grow-1">
                     <!-- View toolbar -->
-                    <div class="content-pills mb-3" role="toolbar" aria-label="toolbar">
+                    <div class="d-flex gap-1 mb-3" role="toolbar" aria-label="toolbar">
                         ${this.renderViewButton("table", "Table Result", "table")}
                         ${!this.settings?.hideGenomeBrowser ? this.renderViewButton("genome-browser", "Genome Browser", "dna") : nothing}
                     </div>
