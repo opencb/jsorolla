@@ -563,6 +563,16 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 },
                 {
                     type: "opencga-variant",
+                    visible: ["SINGLE", "FAMILY"].includes(this.clinicalAnalysis?.type),
+                    config: {
+                        title: "Variants",
+                        query: {
+                            sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                        },
+                    },
+                },
+                {
+                    type: "opencga-variant",
                     config: {
                         title: "Small Variants (SNV & INDEL)",
                         query: {
