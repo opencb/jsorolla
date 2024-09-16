@@ -575,7 +575,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     type: "opencga-variant",
                     visible: this.clinicalAnalysis?.type === "CANCER",
                     config: {
-                        title: "Small Variants (SNV & INDEL)",
+                        title: "Small Variants",
                         query: {
                             sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
                             type: "SNV,INDEL",
@@ -587,7 +587,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     type: "opencga-variant",
                     visible: this.clinicalAnalysis?.type === "CANCER",
                     config: {
-                        title: "CNV",
+                        title: "Copy Number Variants",
                         query: {
                             sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
                             type: "COPY_NUMBER",
@@ -601,7 +601,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     type: "opencga-variant",
                     visible: this.clinicalAnalysis?.type === "CANCER",
                     config: {
-                        title: "Structural Variants (BREAKEND, DUPLICATION, INSERTION & DELETION)",
+                        title: "Structural Variants",
                         query: {
                             sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
                             type: "BREAKEND,INSERTION,DELETION,DUPLICATION",
