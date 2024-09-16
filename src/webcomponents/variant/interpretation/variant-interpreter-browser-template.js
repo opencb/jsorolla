@@ -387,7 +387,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             <button class="${`btn btn-success ${this.activeView === id ? "active" : ""}`}" @click="${() => this.onChangeView(id)}">
                 <i class="${`fa fa-${icon} icon-padding`}" aria-hidden="true"></i>
                 <strong>${title}</strong>
-            </button>`;
+            </button>
+        `;
     }
 
     render() {
