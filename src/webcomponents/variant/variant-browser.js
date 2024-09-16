@@ -346,7 +346,7 @@ export default class VariantBrowser extends LitElement {
 
                 <div class="col-md-10">
                     <!-- TAB buttons -->
-                    <div class="content-pills mb-3" role="toolbar" aria-label="toolbar">
+                    <div class="d-flex gap-1 mb-3" role="toolbar" aria-label="toolbar">
                         <button
                             type="button"
                             class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""} content-pills`}"
