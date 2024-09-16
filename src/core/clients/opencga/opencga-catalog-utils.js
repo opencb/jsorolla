@@ -53,12 +53,15 @@ export default class OpencgaCatalogUtils {
     }
 
     // Check if the user has the right the permissions in the study.
-    static checkPermissions(study, userId, permission, simplifyPermissions = false) {
-        // ToDo: change method name => checkStudyEffectivePermission
-        // ToDo: add simplifyPermissions
-        // CAUTION: *_ANNOTATIONS_, etc. not considered
+    static getStudyEffectivePermission(study, userId, permission, simplifyPermissions = false) {
+        // Caution 1 20240916 Vero:
+        //  As discussed and agreed, this method is considering the VIEW, WRITE, DELETE permissions of all catalog entities in addition to the EXECUTE_JOBS.
+        //  The rest of permissions described in the following link are not currently needed in IVA for now:
+        //  https://github.com/opencb/opencga/blob/develop/docs/manual/data-management/sharing-and-permissions/permissions.md
+        // Caution w 20240916 Vero:
+        //  As discussed and agreed, the optimization parameter simplifyPermissions is set as false by default according to the default value in OpenCGA.
 
-        // Retrieve the resource from the provided permission, that has the structure '{OPERATION}_{RESOURCE}'. E.g:
+        // Get the resource from the provided permission, that has the structure '{OPERATION}_{RESOURCE}'. E.g:
         // "WRITE_SAMPLES" --> "SAMPLES"
         // "VIEW_CLINICAL_ANALYSIS" --> "CLINICAL_ANALYSIS"
         const resource = permission.split("_").slice(1).join("_");
@@ -70,9 +73,13 @@ export default class OpencgaCatalogUtils {
         }
         const permissionLevel = {};
         permissionLevel["NONE"] = 1;
-        permissionLevel[`VIEW_${resource}`] = 2;
-        permissionLevel[`WRITE_${resource}`] = 3;
-        permissionLevel[`DELETE_${resource}`] = 4;
+        if (permission !== "EXECUTE_JOBS") {
+            permissionLevel[`VIEW_${resource}`] = 2;
+            permissionLevel[`WRITE_${resource}`] = 3;
+            permissionLevel[`DELETE_${resource}`] = 4;
+        } else {
+            permissionLevel[permission] = 2;
+        }
 
         const getPermissionLevel = permissionList => {
             const levels = permissionList
@@ -85,13 +92,18 @@ export default class OpencgaCatalogUtils {
             // It is possible to simplify permissions.
             if (!simplifyPermissions) {
                 // First, find permission level at user level
-                return getPermissionLevel(userPermission) ||
-                // Second, check permission level at groups level. No hierarchy defined here. Example:
-                // If a user belongs to two groups:
-                //  - groupA - Has permission VIEW_SAMPLES
-                //  - groupB - Has permission WRITE_SAMPLES
-                // The dominant permission will be the highest, i.e. WRITE_SAMPLES
-                Math.max(0, ...groupPermissions.map(g => getPermissionLevel(g)));
+                const userPermissionLevel = getPermissionLevel(userPermission);
+                if (userPermissionLevel) {
+                    // If the permission level at user level is greater than 0, return this permission level because it has priority over groups.
+                    return userPermissionLevel;
+                } else {
+                    // Check permission level at groups level. No hierarchy defined here. Example:
+                    // If a user belongs to two groups:
+                    //  - groupA - Has permission VIEW_SAMPLES
+                    //  - groupB - Has permission WRITE_SAMPLES
+                    // The dominant permission will be the highest, i.e. WRITE_SAMPLES
+                    return Math.max(0, ...groupPermissions.map(g => getPermissionLevel(g)));
+                }
             } else {
                 // If "simplifyPermissions = true" permissions become more flexible.
                 // As long as the user has the necessary permission at the user or group level it'll be able to perform the action.
@@ -117,16 +129,13 @@ export default class OpencgaCatalogUtils {
             ?.permissions || [];
 
         // 4. Permissions for groups where the member belongs to
-        // ToDo: change name to groupIds
-        const aclUserIds = study.groups
+        const groupIds = study.groups
             .filter(group => group.userIds.includes(userId))
             .map(group => group.id);
-        // Fixme: Needed?
-        aclUserIds.push(userId);
 
-        const groupPermissions = aclUserIds.map(aclId => study?.acl
+        const groupPermissions = groupIds.map(groupId => study?.acl
             ?.find(acl => acl.member === userId)?.groups
-            ?.find(group => group.id === aclId)?.permissions || []);
+            ?.find(group => group.id === groupId)?.permissions || []);
 
         // If the effective permission retrieved is greater or equal than the permission level requested, grant permission.
         // If not, deny permission
