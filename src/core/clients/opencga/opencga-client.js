@@ -32,9 +32,9 @@ import Study from "./api/Study.js";
 import User from "./api/User.js";
 import Variant from "./api/Variant.js";
 import VariantOperation from "./api/VariantOperation.js";
+import Workflow from "./api/Workflow.js";
 import {CellBaseClient} from "../cellbase/cellbase-client.js";
 import UtilsNew from "../../utils-new.js";
-
 
 export class OpenCGAClient {
 
@@ -202,6 +202,13 @@ export class OpenCGAClient {
         return this.clients.get("variantOperations");
     }
 
+    workflows() {
+        if (!this.clients.has("workflows")) {
+            this.clients.set("workflows", new Workflow(this._config));
+        }
+        return this.clients.get("workflows");
+    }
+
     ga4gh() {
         if (!this.clients.has("ga4gh")) {
             this.clients.set("ga4gh", new GA4GH(this._config));
@@ -258,6 +265,8 @@ export class OpenCGAClient {
             case "CLINICAL":
             case "CLINICAL_ANALYSIS":
                 return this.clinical();
+            case "WORKFLOW":
+                return this.workflows();
             case "META":
                 return this.meta();
             case "ADMIN":

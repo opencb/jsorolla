@@ -1,4 +1,3 @@
-
 /**
  * Copyright 2015-2019 OpenCB
  *
@@ -15,20 +14,20 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import PolymerUtils from "../PolymerUtils.js";
-import "../commons/opencb-grid-toolbar.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import ModalUtils from "../commons/modal/modal-utils";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
+import ModalUtils from "../commons/modal/modal-utils";
+import "../commons/opencb-grid-toolbar.js";
 
-export default class CohortGrid extends LitElement {
+export default class WorkflowGrid extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -47,7 +46,7 @@ export default class CohortGrid extends LitElement {
             query: {
                 type: Object
             },
-            cohorts: {
+            workflows: {
                 type: Array
             },
             active: {
@@ -55,12 +54,12 @@ export default class CohortGrid extends LitElement {
             },
             config: {
                 type: Object
-            },
+            }
         };
     }
 
     #init() {
-        this.COMPONENT_ID = "cohort-grid";
+        this.COMPONENT_ID = "workflow-grid";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
@@ -78,7 +77,6 @@ export default class CohortGrid extends LitElement {
         super.update(changedProperties);
     }
 
-
     updated(changedProperties) {
         if (changedProperties.size > 0 && this.active) {
             this.renderTable();
@@ -86,14 +84,14 @@ export default class CohortGrid extends LitElement {
     }
 
     propertyObserver() {
-        // With each property change we must update config and create the columns again. No extra checks are needed.
+        // With each property change we must be updated config and create the columns again. No extra checks are needed.
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,
         };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
-        // Settings for the grid toolbar
+        // settings for the grid toolbar
         this.toolbarSetting = {
             // buttons: ["columns", "download"],
             ...this._config,
@@ -102,26 +100,26 @@ export default class CohortGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarConfig = {
             toolId: this.toolId,
-            resource: "COHORT",
+            resource: "WORKFLOW",
             columns: this._getDefaultColumns(),
             create: {
                 display: {
-                    modalTitle: "Cohort Create",
+                    modalTitle: "Workflow Create",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"
                 },
                 render: () => html `
-                    <cohort-create
+                    <workflow-create
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                         .opencgaSession="${this.opencgaSession}">
-                    </cohort-create>
+                    </workflow-create>
                 `
             },
             // Uncomment in case we need to change defaults
             // export: {
             //     display: {
-            //         modalTitle: "Cohort Export",
+            //         modalTitle: "Workflow Export",
             //     },
             //     render: () => html`
             //         <opencga-export
@@ -134,7 +132,7 @@ export default class CohortGrid extends LitElement {
             // },
             // settings: {
             //     display: {
-            //         modalTitle: "Cohort Settings",
+            //         modalTitle: "Workflow Settings",
             //     },
             //     render: () => html `
             //         <catalog-browser-grid-config
@@ -148,61 +146,20 @@ export default class CohortGrid extends LitElement {
     }
 
     renderTable() {
-        if (this.cohorts?.length > 0) {
+        if (this.workflows?.length > 0) {
             this.renderLocalTable();
         } else {
             this.renderRemoteTable();
         }
     }
 
-    renderLocalTable() {
-        this.table = $("#" + this.gridId);
-        this.table.bootstrapTable("destroy");
-        this.table.bootstrapTable({
-            columns: this._getDefaultColumns(),
-            // data: this.cohorts,
-            sidePagination: "server",
-            // Josemi Note 2024-01-18: we have added the ajax function for local cohorts also to support executing async calls
-            // when getting additional data from columns extensions.
-            ajax: params => {
-                const tableOptions = $(this.table).bootstrapTable("getOptions");
-                const limit = params.data.limit || tableOptions.pageSize;
-                const skip = params.data.offset || 0;
-                const rows = this.cohorts.slice(skip, skip + limit);
-
-                // Get data for extensions
-                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
-                    .then(() => params.success(rows))
-                    .catch(error => params.error(error));
-            },
-            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
-            responseHandler: response => {
-                return {
-                    total: this.cohorts.length,
-                    rows: response,
-                };
-            },
-            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
-            icons: GridCommons.GRID_ICONS,
-            uniqueId: "id",
-            pagination: this._config.pagination,
-            pageSize: this._config.pageSize,
-            pageList: this._config.pageList,
-            showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            gridContext: this,
-            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            loadingTemplate: () => GridCommons.loadingFormatter(),
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPostBody: data => {
-                // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            }
-        });
-    }
-
     renderRemoteTable() {
         if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
+            if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
+                // Abort destroying and creating again the grid. The filters have not changed
+                return;
+            }
+
             this._columns = this._getDefaultColumns();
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
@@ -215,6 +172,7 @@ export default class CohortGrid extends LitElement {
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
+                silentSort: false,
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
@@ -222,29 +180,30 @@ export default class CohortGrid extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
+                detailFormatter: this.detailFormatter,
+                gridContext: this,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
-                    let cohorstResponse = null;
+                    let workflowResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        include: "id,creationDate,status,type,numSamples,annotationSets",
                         ...this.query
                     };
 
                     // Store the current filters
                     this.lastFilters = {...this.filters};
-                    this.opencgaSession.opencgaClient.cohorts()
+                    this.opencgaSession.opencgaClient.workflows()
                         .search(this.filters)
                         .then(response => {
-                            cohorstResponse = response;
+                            workflowResponse = response;
                             // Prepare data for columns extensions
-                            const rows = cohorstResponse.responses?.[0]?.results || [];
+                            const rows = workflowResponse.responses?.[0]?.results || [];
                             return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
                         })
-                        .then(() => params.success(cohorstResponse))
+                        .then(() => params.success(workflowResponse))
                         .catch(e => {
                             console.error(e);
                             params.error(e);
@@ -260,9 +219,9 @@ export default class CohortGrid extends LitElement {
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
                         if (element[0].innerHTML.includes("fa-plus")) {
-                            $(PolymerUtils.getElementById(this._prefix + "CohortBrowserGrid")).bootstrapTable("expandRow", element[0].dataset.index);
+                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
-                            $(PolymerUtils.getElementById(this._prefix + "CohortBrowserGrid")).bootstrapTable("collapseRow", element[0].dataset.index);
+                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
                         }
                     }
                 },
@@ -281,20 +240,90 @@ export default class CohortGrid extends LitElement {
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
-                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
+                onLoadError: (e, restResponse) => {
+                    this.gridCommons.onLoadError(e, restResponse);
+                },
             });
         }
+    }
+
+    renderLocalTable() {
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
+            columns: this._getDefaultColumns(),
+            // data: this.workflows,
+            sidePagination: "server",
+            // Josemi Note 2024-01-18: we have added the ajax function for local workflows also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.workflows.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.workflows.length,
+                    rows: response,
+                };
+            },
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
+            uniqueId: "id",
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: this.detailFormatter,
+            gridContext: this,
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onPostBody: data => {
+                // We call onLoadSuccess to select first row
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+            }
+        });
     }
 
     onColumnChange(e) {
         this.gridCommons.onColumnChange(e);
     }
 
+    detailFormatter(value, row) {
+        let result = `
+            <div class='row' style="padding: 5px 10px 20px 10px">
+                <div class='col-md-12'>
+                    <h5 style="font-weight: bold">Steps</h5>
+        `;
+
+        result += "</div></div>";
+        return result;
+    }
+
     async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
         switch (action) {
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
+            case "execute":
+                break;
             case "edit":
-                this.cohortUpdateId = row.id;
+                this.workflowUpdateId = row.id;
                 this.requestUpdate();
                 await this.updateComplete;
                 ModalUtils.show(`${this._prefix}UpdateModal`);
@@ -306,24 +335,69 @@ export default class CohortGrid extends LitElement {
         this._columns = [
             {
                 id: "id",
-                title: "Cohort ID",
+                title: "Workflow ID",
                 field: "id",
-                formatter: (cohortId, cohort) => {
+                formatter: (workflowId, workflow) => {
                     return `
-                        <div>
-                            <span style="font-weight: bold; margin: 5px 0">${cohortId}</span>
-                            ${cohort.name ? `<span class="d-block text-secondary" style="margin: 5px 0">${cohort.name}</span>` : ""}
+                        <div class="mt-1 mb-1">
+                            <span style="font-weight: bold; margin: 5px 0">${workflowId}</span>
+                            <span class="d-block text-secondary" style="margin: 5px 0">Version ${workflow.version}</span>
                         </div>`;
                 },
                 halign: "center",
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
-                id: "numSamples",
-                title: "Number of Samples",
-                field: "numSamples",
+                id: "name",
+                title: "Name",
+                field: "name",
+                formatter: (name, workflow) => {
+                    return `
+                        <div>
+                            <span style="font-weight: bold; margin: 5px 0">${name}</span>
+                            <span class="d-block text-secondary" style="margin: 5px 0">${workflow.description}</span>
+                        </div>`;
+                },
                 halign: "center",
-                visible: this.gridCommons.isColumnVisible("numSamples")
+                visible: this.gridCommons.isColumnVisible("name")
+            },
+            {
+                id: "type",
+                title: "Type",
+                field: "type",
+                formatter: type => type || "-",
+                halign: "center",
+                visible: this.gridCommons.isColumnVisible("type")
+            },
+            {
+                id: "scripts",
+                title: "Scripts",
+                field: "scripts",
+                formatter: scripts => {
+                    return `
+                        <div>
+                            ${scripts?.map(script => `<span class="">${script.filename}</span>`).join("<br>")}
+                        </div>
+                    `;
+                },
+                halign: "center",
+                visible: this.gridCommons.isColumnVisible("tags")
+            },
+            {
+                id: "tags",
+                title: "Tags",
+                field: "tags",
+                formatter: tags => tags?.join(",") || "-",
+                halign: "center",
+                visible: this.gridCommons.isColumnVisible("tags")
+            },
+            {
+                id: "ownerId",
+                title: "Owner ID",
+                field: "internal.registrationUserId",
+                formatter: ownerId => ownerId || "-",
+                halign: "center",
+                visible: this.gridCommons.isColumnVisible("ownerId")
             },
             {
                 id: "creationDate",
@@ -335,6 +409,20 @@ export default class CohortGrid extends LitElement {
             },
         ];
 
+        // Example of custom annotation configuration:
+        // this._config.annotations = [
+        //     {
+        //         title: "Cardiology Tests",
+        //         position: 6,
+        //         variableSetId: "cardiology_tests_checklist",
+        //         variables: ["ecg_test", "echo_test"]
+        //     },
+        //     {
+        //         title: "Risk Assessment",
+        //         position: 7,
+        //         variableSetId: "risk_assessment",
+        //     }
+        // ];
         if (this._config.annotations?.length > 0) {
             this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
@@ -344,7 +432,8 @@ export default class CohortGrid extends LitElement {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
-                formatter: () => `
+                align: "center",
+                formatter: (value, row) => `
                     <div class="d-inline-block dropdown">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
@@ -352,19 +441,35 @@ export default class CohortGrid extends LitElement {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a data-action="edit" class="dropdown-item btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
+                                <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
+                                    <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
                                 </a>
                             </li>
                             <li>
-                                <a data-action="delete" href="javascript: void 0" class="dropdown-item btn force-text-left disabled">
-                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
+                                    <i class="fas fa-download" aria-hidden="true"></i> Download JSON
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a data-action="execute" class="dropdown-item disabled" href="#">
+                                    <i class="fas fa-user-md" aria-hidden="true"></i> Execute
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                    <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="delete" href="javascript: void 0" class="dropdown-item disabled">
+                                    <i class="fas fa-trash" aria-hidden="true"></i> Delete
                                 </a>
                             </li>
                         </ul>
                     </div>
                 `,
-                align: "center",
                 events: {
                     "click a": this.onActionClick.bind(this),
                 },
@@ -372,85 +477,69 @@ export default class CohortGrid extends LitElement {
             });
         }
 
-        if (this._config.multiSelection) {
-            this._columns.unshift({
-                field: "state",
-                checkbox: true,
-                class: "cursor-pointer",
-                eligible: false
-            });
-        }
-
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
     }
 
     async onDownload(e) {
-        this.toolbarConfig = {
-            ...this.toolbarConfig,
-            downloading: true
-        };
+        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         this.requestUpdate();
         await this.updateComplete;
+
         const filters = {
-            ...this.query,
-            study: this.opencgaSession.study.fqn,
-            limit: e.detail?.exportLimit ?? 1000,
-            includeIndividual: true,
-            // skipCount: true,
-            include: "id,creationDate,status,type,samples"
+            ...this.filters,
+            skip: 0,
+            limit: 1000,
+            count: false
         };
-        this.opencgaSession.opencgaClient.cohorts()
+        this.opencgaSession.opencgaClient.workflows()
             .search(filters)
-            .then(response => {
-                const results = response.getResults();
+            .then(restResponse => {
+                const results = restResponse.getResults();
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toUpperCase() === "TAB") {
-                        const dataString = [
-                            ["Cohort", "#Samples", "Date", "Status", "Type"].join("\t"),
-                            ...results.map(_ => [
-                                _.id,
-                                _.samples ? _.samples.map(_ => `${_.id}`).join(",") : "",
-                                _.creationDate ? CatalogGridFormatter.dateFormatter(_.creationDate) : "-",
-                                _.status.name,
-                                _.type
-                            ].join("\t"))];
-                        UtilsNew.downloadData(dataString, "cohort_" + this.opencgaSession.study.id + ".tsv", "text/plain");
+                        const fields = ["id", "type", "creationDate"];
+                        const data = UtilsNew.toTableString(results, fields, {
+                            "sex.id": CatalogGridFormatter.sexFormatter,
+                        });
+                        UtilsNew.downloadData(data, "workflows_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
-                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "cohort_" + this.opencgaSession.study.id + ".json", "application/json");
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "workflows_" + this.opencgaSession.study.id + ".json", "application/json");
                     }
                 } else {
                     console.error("Error in result format");
                 }
             })
             .catch(response => {
+                // console.log(response);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
-                this.toolbarConfig = {
-                    ...this.toolbarConfig,
-                    downloading: false
-                };
+                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
                 this.requestUpdate();
             });
+    }
+
+    getRightToolbar() {
+        return [];
     }
 
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
-                modalTitle: `Cohort Update: ${this.cohortUpdateId}`,
+                modalTitle: `Workflow Update: ${this.workflowUpdateId}`,
                 modalDraggable: true,
-                modalSize: "modal-lg",
+                modalCyDataName: "modal-update",
+                modalSize: "modal-lg"
             },
             render: active => html`
-                <cohort-update
-                    .cohortId="${this.cohortUpdateId}"
+                <workflow-update
+                    .workflowId="${this.workflowUpdateId}"
                     .active="${active}"
                     .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                     .opencgaSession="${this.opencgaSession}">
-                </cohort-update>
+                </workflow-update>
             `,
         });
     }
@@ -460,6 +549,7 @@ export default class CohortGrid extends LitElement {
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.filters}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
@@ -467,11 +557,11 @@ export default class CohortGrid extends LitElement {
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
                     @actionClick="${e => this.onActionClick(e)}"
-                    @cohortCreate="${this.renderTable}">
+                    @individualCreate="${this.renderTable}">
                 </opencb-grid-toolbar>
             ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="ib-grid">
                 <table id="${this.gridId}"></table>
             </div>
 
@@ -486,8 +576,7 @@ export default class CohortGrid extends LitElement {
             pageList: [5, 10, 25],
             multiSelection: false,
             showSelectCheckbox: false,
-            detailView: false,
-
+            detailView: true,
             showToolbar: true,
             showActions: true,
 
@@ -500,4 +589,4 @@ export default class CohortGrid extends LitElement {
 
 }
 
-customElements.define("cohort-grid", CohortGrid);
+customElements.define("workflow-grid", WorkflowGrid);

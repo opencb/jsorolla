@@ -26,7 +26,7 @@ const hosts = [
     },
     {
         id: "reference",
-        url: "https://test.app.zettagenomics.com/reference/opencga"
+        url: "https://test.app.zettagenomics.com/TASK-6445/opencga"
     },
 ];
 
@@ -162,6 +162,11 @@ const CATALOG_NAVBAR_MENU = {
         {
             id: "job",
             name: "Job Browser",
+            visibility: "public"
+        },
+        {
+            id: "workflow",
+            name: "Workflow Browser",
             visibility: "public"
         },
     ]

@@ -55,6 +55,7 @@ import "../../webcomponents/individual/individual-update.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/job-view.js";
+import "../../webcomponents/workflow/workflow-browser.js";
 import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
 import "../../webcomponents/variant/analysis/gwas-analysis.js";
 import "../../webcomponents/variant/analysis/sample-variant-stats-analysis.js";
@@ -190,6 +191,7 @@ class IvaApp extends LitElement {
             "protein",
             "variant-browser",
             "job",
+            "workflow",
             "cat-browser",
             "cat-analysis",
             "cat-clinical",
@@ -1736,6 +1738,18 @@ class IvaApp extends LitElement {
                             @querySearch="${e => this.onQueryFilterSearch(e, "job")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "job")}">
                         </job-browser>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents.workflow ? html`
+                    <div class="content" id="workflow">
+                        <workflow-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.workflow}"
+                            .settings="${this.settings.WORKFLOW_BROWSER}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "workflow")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "workflow")}">
+                        </workflow-browser>
                     </div>
                 ` : nothing}
 
