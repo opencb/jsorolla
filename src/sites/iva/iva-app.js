@@ -55,7 +55,7 @@ import "../../webcomponents/individual/individual-update.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/job-view.js";
-import "../../webcomponents/job/analysis/custom-tool-analysis.js";
+import "../../webcomponents/job/analysis/tool-analysis.js";
 import "../../webcomponents/workflow/workflow-browser.js";
 import "../../webcomponents/workflow/analysis/workflow-analysis.js";
 import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
@@ -229,7 +229,7 @@ class IvaApp extends LitElement {
             "alignment-stats",
             "coverage-index",
             "job-view",
-            "custom-tool-analysis",
+            "tool-analysis",
             "rga",
             "disease-panel",
             "diseasePanelUpdate",
@@ -958,6 +958,9 @@ class IvaApp extends LitElement {
                     break;
                 case "#diseasePanelUpdate":
                     this.diseasePanelId = hashQuery;
+                    break;
+                case "#workflow-analysis":
+                    this.workflowId = hashQuery;
                     break;
             }
             // this.requestUpdate();
@@ -2042,12 +2045,12 @@ class IvaApp extends LitElement {
                     </div>
                 ` : nothing}
 
-                ${this.config.enabledComponents["custom-tool-analysis"] ? html`
+                ${this.config.enabledComponents["tool-analysis"] ? html`
                     <tool-header title="Tool Analysis Executor" icon="fas fa-stream"></tool-header>
-                    <div class="container py-3" id="custom-tool-analysis">
-                        <custom-tool-analysis
+                    <div class="container py-3" id="tool-analysis">
+                        <tool-analysis
                             .opencgaSession="${this.opencgaSession}">
-                        </custom-tool-analysis>
+                        </tool-analysis>
                     </div>
                 ` : nothing}
 
@@ -2055,6 +2058,7 @@ class IvaApp extends LitElement {
                     <tool-header title="Workflow Analysis Executor" icon="fas fa-stream"></tool-header>
                     <div class="container py-3" id="workflow-analysis">
                         <workflow-analysis
+                            .toolParams="${{id: this.workflowId}}"
                             .opencgaSession="${this.opencgaSession}">
                         </workflow-analysis>
                     </div>

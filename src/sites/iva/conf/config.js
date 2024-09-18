@@ -370,7 +370,7 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            id: "custom-tool-analysis",
+                            id: "tool-analysis",
                             name: "Tool Executor",
                             description: "",
                             icon: "",

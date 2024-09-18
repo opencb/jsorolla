@@ -361,7 +361,7 @@ export default class CustomNavBar extends LitElement {
 
                             ${UtilsNew.isAppVisible(this.config?.customToolAnalysisExecutor, this.opencgaSession) ? html`
                                 <li id="fileButton">
-                                    <a href="#custom-tool-analysis" class="dropdown-button-wrapper"
+                                    <a href="#tool-analysis" class="dropdown-button-wrapper"
                                        title="Tool Executor" role="button" @click="${this.onChangeTool}">
                                         <div class="dropdown-button-icon"><i class="fas fa-user-cog"></i></div>
                                     </a>
@@ -370,7 +370,7 @@ export default class CustomNavBar extends LitElement {
 
                             ${UtilsNew.isAppVisible(this.config?.customToolAnalysisExecutor, this.opencgaSession) ? html`
                                 <li id="fileButton">
-                                    <a href="#custom-tool-analysis" class="dropdown-button-wrapper"
+                                    <a href="#tool-analysis" class="dropdown-button-wrapper"
                                        title="Jupyter Notebook (Beta)" role="button" @click="${this.onChangeTool}">
                                         <div class="dropdown-button-icon"><i class="fas fa-book"></i></div>
                                     </a>

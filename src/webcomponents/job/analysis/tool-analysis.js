@@ -20,7 +20,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 
 
-export default class CustomToolAnalysis extends LitElement {
+export default class ToolAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -47,9 +47,9 @@ export default class CustomToolAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "custom-tool";
-        this.ANALYSIS_TITLE = "Custom Tool Analysis";
-        this.ANALYSIS_DESCRIPTION = "Executes a custom tool analysis job";
+        this.ANALYSIS_TOOL = "tool";
+        this.ANALYSIS_TITLE = "Tool Analysis";
+        this.ANALYSIS_DESCRIPTION = "Executes a Docker-based tool analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -205,4 +205,4 @@ export default class CustomToolAnalysis extends LitElement {
 
 }
 
-customElements.define("custom-tool-analysis", CustomToolAnalysis);
+customElements.define("tool-analysis", ToolAnalysis);

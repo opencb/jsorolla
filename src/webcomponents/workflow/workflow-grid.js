@@ -452,8 +452,9 @@ export default class WorkflowGrid extends LitElement {
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="execute" class="dropdown-item disabled" href="#">
-                                    <i class="fas fa-user-md" aria-hidden="true"></i> Execute
+                                <a data-action="execute" class="dropdown-item"
+                                        href="#workflow-analysis/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+                                    <i class="fas fa-stream" aria-hidden="true"></i> Execute
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
