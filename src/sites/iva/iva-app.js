@@ -1824,6 +1824,7 @@ class IvaApp extends LitElement {
                 ` : nothing}
 
                 ${this.config.enabledComponents["sample-variant-stats"] ? html`
+                    <tool-header title="Sample Variant Stats Analysis" icon="fas fa-stream"></tool-header>
                     <div class="container py-3" id="sample-variant-stats-analysis">
                         <sample-variant-stats-analysis
                             .opencgaSession="${this.opencgaSession}">
@@ -1832,8 +1833,11 @@ class IvaApp extends LitElement {
                 ` : nothing}
 
                 ${this.config.enabledComponents["cohort-variant-stats"] ? html`
+                    <tool-header title="Cohort Variant Stats Analysis" icon="fas fa-stream"></tool-header>
                     <div class="container py-3" id="cohort-variant-stats-analysis">
-                        <cohort-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></cohort-variant-stats-analysis>
+                        <cohort-variant-stats-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </cohort-variant-stats-analysis>
                     </div>
                 ` : nothing}
 
@@ -1884,6 +1888,7 @@ class IvaApp extends LitElement {
                 ` : nothing}
 
                 ${this.config.enabledComponents["sample-qc"] ? html`
+                    <tool-header title="Sample QC Analysis" icon="fas fa-stream"></tool-header>
                     <div class="container py-3" id="sample-qc-analysis">
                         <sample-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
@@ -1893,6 +1898,7 @@ class IvaApp extends LitElement {
                 ` : nothing}
 
                 ${this.config.enabledComponents["individual-qc"] ? html`
+                    <tool-header title="Individual QC Analysis" icon="fas fa-stream"></tool-header>
                     <div class="container py-3" id="individual-qc-analysis">
                         <individual-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
@@ -1902,6 +1908,7 @@ class IvaApp extends LitElement {
                 ` : nothing}
 
                 ${this.config.enabledComponents["family-qc"] ? html`
+                    <tool-header title="Family QC Analysis" icon="fas fa-stream"></tool-header>
                     <div class="container py-3" id="family-qc-analysis">
                         <family-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
@@ -1945,6 +1952,7 @@ class IvaApp extends LitElement {
                 ` : nothing}
 
                 ${this.config.enabledComponents["gwas"] ? html`
+                    <tool-header title="GWAS Analysis" icon="fas fa-stream"></tool-header>
                     <div class="container py-3" id="gwas-analysis">
                         <gwas-analysis
                             .opencgaSession="${this.opencgaSession}">
@@ -2035,6 +2043,7 @@ class IvaApp extends LitElement {
                 ` : nothing}
 
                 ${this.config.enabledComponents["custom-tool-analysis"] ? html`
+                    <tool-header title="Tool Analysis Executor" icon="fas fa-stream"></tool-header>
                     <div class="container py-3" id="custom-tool-analysis">
                         <custom-tool-analysis
                             .opencgaSession="${this.opencgaSession}">
@@ -2043,6 +2052,7 @@ class IvaApp extends LitElement {
                 ` : nothing}
 
                 ${this.config.enabledComponents["workflow-analysis"] ? html`
+                    <tool-header title="Workflow Analysis Executor" icon="fas fa-stream"></tool-header>
                     <div class="container py-3" id="workflow-analysis">
                         <workflow-analysis
                             .opencgaSession="${this.opencgaSession}">

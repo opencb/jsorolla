@@ -264,24 +264,24 @@ export default class CustomNavBar extends LitElement {
                                     <!-- If there is a submenu we create a dropdown menu item -->
                                     <li class="nav-item dropdown">
                                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button"
-                                        aria-haspopup="true" aria-expanded="false">
+                                           aria-haspopup="true" aria-expanded="false">
                                             ${item.name}
                                         </a>
                                         <ul class="dropdown-menu">
                                             ${item.submenu.filter(subItem => UtilsNew.isAppVisible(subItem, this.opencgaSession)).map(subItem => subItem.category ? html`
-                                                        <li>
-                                                            <a class="dropdown-item">
-                                                                <strong>${subItem.name}</strong>
-                                                            </a>
-                                                        </li>
-                                                ` : subItem.separator ? html`
-                                                    <li><hr class="dropdown-divider"></li>
-                                                ` : html`
-                                                    <li>
-                                                        <a class="dropdown-item" href="#${subItem.id}" @click="${this.onChangeTool}"
-                                                        data-id="${subItem.id}">${subItem.name}</a>
-                                                    </li>
-                                                `)
+                                                <li>
+                                                    <a class="dropdown-item">
+                                                        <strong>${subItem.name}</strong>
+                                                    </a>
+                                                </li>
+                                            ` : subItem.separator ? html`
+                                                <li><hr class="dropdown-divider"></li>
+                                            ` : html`
+                                                <li>
+                                                    <a class="dropdown-item" href="#${subItem.id}" @click="${this.onChangeTool}"
+                                                       data-id="${subItem.id}">${subItem.name}</a>
+                                                </li>
+                                            `)
                                             }
                                         </ul>
                                     </li>
@@ -294,17 +294,18 @@ export default class CustomNavBar extends LitElement {
                                 }
                             `)}
                         </ul>
+
                         <!-- Controls aligned to the RIGHT: settings and about-->
                         <ul class="navbar-nav justify-content-end">
                             <!-- Studies dropdown -->
                             ${this.opencgaSession?.projects?.length ? html`
                                 <li class="nav-item dropdown"  title="Projects and Studies">
                                     <a id="projects-button" href="#"
-                                        class="nav-link dropdown-toggle study-switcher dropdown-button-wrapper"
-                                        data-bs-toggle="dropdown"
-                                        role="button"
-                                        aria-haspopup="true" aria-expanded="false"
-                                        data-cy="active-study">
+                                       class="nav-link dropdown-toggle study-switcher dropdown-button-wrapper"
+                                       data-bs-toggle="dropdown"
+                                       role="button"
+                                       aria-haspopup="true" aria-expanded="false"
+                                       data-cy="active-study">
                                         <!-- <div class="dropdown-button-icon"><i class="fa fa-database fa-lg"></i></div>-->
                                         <div class="dropdown-button-text" id="study-wrapper">
                                             <div class="project-name">${this.opencgaSession.project?.name}:</div>
@@ -336,8 +337,47 @@ export default class CustomNavBar extends LitElement {
                                         `)}
                                     </ul>
                                 </li>
-                                <li class="border-end mx-1 my-1 ms-0" style="--bs-border-color: rgba(255, 255, 255, 0.3);"></li>
                             ` : nothing}
+
+                            <li class="border-2 border-end mx-1 my-1" style="--bs-border-color: rgba(255, 255, 255, 0.3);"></li>;
+
+                            ${UtilsNew.isAppVisible(this.config?.fileExplorer, this.opencgaSession) || UtilsNew.isAppVisible(this.app?.fileExplorer, this.opencgaSession) ? html`
+                                <li id="fileButton">
+                                    <a href="#file-manager" class="dropdown-button-wrapper"
+                                       title="Data File Manager" role="button" @click="${this.onChangeTool}">
+                                        <div class="dropdown-button-icon"><i class="fas fa-folder-open"></i></div>
+                                    </a>
+                                </li>
+                            ` : nothing}
+
+                            ${UtilsNew.isAppVisible(this.config?.workflowAnalysisExecutor, this.opencgaSession) ? html`
+                                <li id="fileButton">
+                                    <a href="#workflow-analysis" class="dropdown-button-wrapper"
+                                       title="Workflow Executor" role="button" @click="${this.onChangeTool}">
+                                        <div class="dropdown-button-icon"><i class="fas fa-project-diagram"></i></div>
+                                    </a>
+                                </li>
+                            ` : nothing}
+
+                            ${UtilsNew.isAppVisible(this.config?.customToolAnalysisExecutor, this.opencgaSession) ? html`
+                                <li id="fileButton">
+                                    <a href="#custom-tool-analysis" class="dropdown-button-wrapper"
+                                       title="Tool Executor" role="button" @click="${this.onChangeTool}">
+                                        <div class="dropdown-button-icon"><i class="fas fa-user-cog"></i></div>
+                                    </a>
+                                </li>
+                            ` : nothing}
+
+                            ${UtilsNew.isAppVisible(this.config?.customToolAnalysisExecutor, this.opencgaSession) ? html`
+                                <li id="fileButton">
+                                    <a href="#custom-tool-analysis" class="dropdown-button-wrapper"
+                                       title="Jupyter Notebook (Beta)" role="button" @click="${this.onChangeTool}">
+                                        <div class="dropdown-button-icon"><i class="fas fa-book"></i></div>
+                                    </a>
+                                </li>
+                            ` : nothing}
+
+                            <li class="border-2 border-end mx-1 my-1" style="--bs-border-color: rgba(255, 255, 255, 0.3);"></li>;
 
                             <!-- Jobs -->
                             ${UtilsNew.isAppVisible(this.config?.jobMonitor, this.opencgaSession) || UtilsNew.isAppVisible(this.app?.jobMonitor, this.opencgaSession) ? html`
@@ -346,31 +386,23 @@ export default class CustomNavBar extends LitElement {
                                 </job-monitor>
                             ` : nothing}
 
-                            ${UtilsNew.isAppVisible(this.config?.fileExplorer, this.opencgaSession) || UtilsNew.isAppVisible(this.app?.fileExplorer, this.opencgaSession) ? html`
-                                <li id="fileButton" >
-                                    <a href="#file-manager" class="dropdown-button-wrapper"
-                                        title="File Manager" role="button" @click="${this.onChangeTool}">
-                                        <div class="dropdown-button-icon"><i class="fas fa-folder-open"></i></div>
+                            ${UtilsNew.isAppVisible(this.config?.restApi, this.opencgaSession) || UtilsNew.isAppVisible(this.app?.restApi, this.opencgaSession) ? html`
+                                <li id="restButton">
+                                    <a href="#rest-api" class="dropdown-button-wrapper"
+                                       title="RESTful API tool" role="button" @click="${this.onChangeTool}">
+                                        <div class="dropdown-button-icon"><i class="fas fa-code"></i></div>
                                     </a>
                                 </li>
                             ` : nothing}
 
-                            ${UtilsNew.isAppVisible(this.config?.restApi, this.opencgaSession) || UtilsNew.isAppVisible(this.app?.restApi, this.opencgaSession) ? html`
-                                <li id="restButton">
-                                    <a href="#rest-api" class="dropdown-button-wrapper"
-                                        title="RESTful API tool" role="button" @click="${this.onChangeTool}">
-                                        <div class="dropdown-button-icon"><i class="fas fa-code"></i></div>
-                                    </a>
-                                </li>
-                                <li class="border-end mx-1 my-1 ms-0" style="--bs-border-color: rgba(255, 255, 255, 0.3);"></li>
-                            ` : nothing}
+                            <li class="border-2 border-end mx-1 my-1" style="--bs-border-color: rgba(255, 255, 255, 0.3);"></li>;
 
                             <!-- About dropdown menu-->
                             ${this.config?.about.dropdown ? html`
                                 <li class="nav-item dropdown">
                                     <a id="aboutButton" href="#" class="nav-link dropdown-toggle dropdown-button-wrapper gap-1"
-                                        data-bs-toggle="dropdown"
-                                        role="button" aria-haspopup="true" aria-expanded="false">
+                                       data-bs-toggle="dropdown"
+                                       role="button" aria-haspopup="true" aria-expanded="false">
                                         <div class="dropdown-button-icon">
                                             <i class="fas fa-question-circle"></i>
                                         </div>
@@ -384,7 +416,7 @@ export default class CustomNavBar extends LitElement {
                                             <li><hr class="dropdown-divider"></li>
                                             <li>
                                                 <a id="about-zetta" class="dropdown-item gap-1" href="#aboutzetta"
-                                                    data-cy="about-zetta" role="button" >
+                                                   data-cy="about-zetta" role="button" >
                                                     <img height="16px" src="${this.config.aboutPage.favicon}">
                                                     <span>
                                                         ${this.config.aboutPage.linkTitle || html `About Zetta Genomics`}
@@ -402,8 +434,8 @@ export default class CustomNavBar extends LitElement {
                             ${this.loggedIn ? html`
                                 <li class="nav-item dropdown" data-cy="user-menu">
                                     <a id="userButton" class="nav-link dropdown-toggle dropdown-button-wrapper gap-1"
-                                        href="#" data-bs-toggle="dropdown"
-                                        role="button" aria-haspopup="true" aria-expanded="false">
+                                       href="#" data-bs-toggle="dropdown"
+                                       role="button" aria-haspopup="true" aria-expanded="false">
                                         <div class="dropdown-button-icon">
                                             <i class="fas fa-user-circle"></i>
                                         </div>

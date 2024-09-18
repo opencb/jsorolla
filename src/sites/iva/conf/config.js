@@ -100,9 +100,8 @@ const CATALOG_NAVBAR_MENU = {
         //     name: "Projects",
         //     visibility: "public"
         // },
-
         {
-            name: "Browsers",
+            name: "Metadata",
             category: true,
             id: "cat-catalog",
             visibility: "public"
@@ -146,8 +145,9 @@ const CATALOG_NAVBAR_MENU = {
             visibility: "public"
         },
         {
-            id: "clinicalAnalysis",
-            name: "Clinical Analysis Browser",
+            name: "Clinical",
+            category: true,
+            id: "cat-clinical",
             visibility: "public"
         },
         {
@@ -156,17 +156,28 @@ const CATALOG_NAVBAR_MENU = {
             visibility: "public"
         },
         {
+            id: "clinicalAnalysis",
+            name: "Clinical Analysis Browser",
+            visibility: "public"
+        },
+        {
             separator: true,
             visibility: "public"
         },
         {
-            id: "job",
-            name: "Job Browser",
+            name: "Analysis",
+            category: true,
+            id: "cat-analysis",
             visibility: "public"
         },
         {
             id: "workflow",
             name: "Workflow Browser",
+            visibility: "public"
+        },
+        {
+            id: "job",
+            name: "Job Browser",
             visibility: "public"
         },
     ]
@@ -199,10 +210,16 @@ const SUITE = {
             {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
         ]
     },
-    jobMonitor: {
+    fileExplorer: {
         visibility: "private"
     },
-    fileExplorer: {
+    workflowAnalysisExecutor: {
+        visibility: "private"
+    },
+    customToolAnalysisExecutor: {
+        visibility: "private"
+    },
+    jobMonitor: {
         visibility: "private"
     },
     restApi: {
@@ -348,22 +365,20 @@ const SUITE = {
                     visibility: "public",
                     submenu: [
                         {
-                            name: "Custom Analysis Execution",
+                            name: "Analysis Execution",
                             category: true,
                             visibility: "public"
                         },
                         {
                             id: "custom-tool-analysis",
-                            name: "Custom Tool Analysis",
-                            // acronym: "SVS",
+                            name: "Tool Executor",
                             description: "",
                             icon: "",
                             visibility: "public"
                         },
                         {
                             id: "workflow-analysis",
-                            name: "Workflow Analysis",
-                            // acronym: "SVS",
+                            name: "Workflow Executor",
                             description: "",
                             icon: "",
                             visibility: "public"
