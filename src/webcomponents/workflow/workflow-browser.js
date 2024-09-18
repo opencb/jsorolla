@@ -19,6 +19,7 @@ import UtilsNew from "../../core/utils-new.js";
 import "./workflow-view.js";
 import "./workflow-grid.js";
 import "./workflow-detail.js";
+import "./workflow-scripts-view.js";
 import "../clinical/clinical-analysis-grid.js";
 import "../commons/opencga-browser.js";
 import "../commons/json-viewer.js";
@@ -143,19 +144,19 @@ export default class WorkflowBrowser extends LitElement {
                             .config="${params.config.filter.detail}">
                         </workflow-detail>`
                 },
-                {
-                    id: "facet-tab",
-                    name: "Aggregation stats",
-                    icon: "fas fa-chart-bar",
-                    render: params => html`
-                        <opencb-facet-results
-                            resource="${params.resource}"
-                            .opencgaSession="${params.opencgaSession}"
-                            .active="${params.active}"
-                            .query="${params.facetQuery}"
-                            .data="${params.facetResults}">
-                        </opencb-facet-results>`
-                }
+                // {
+                //     id: "facet-tab",
+                //     name: "Aggregation stats",
+                //     icon: "fas fa-chart-bar",
+                //     render: params => html`
+                //         <opencb-facet-results
+                //             resource="${params.resource}"
+                //             .opencgaSession="${params.opencgaSession}"
+                //             .active="${params.active}"
+                //             .query="${params.facetQuery}"
+                //             .data="${params.facetResults}">
+                //         </opencb-facet-results>`
+                // }
             ],
             filter: {
                 searchButton: false,
@@ -185,46 +186,13 @@ export default class WorkflowBrowser extends LitElement {
                                 placeholder: "LP-1234,LP-2345...",
                                 description: ""
                             },
-                            // {
-                            //     id: "mother",
-                            //     name: "Mother ID",
-                            //     type: "string",
-                            //     placeholder: "LP-1234,LP-2345...",
-                            //     description: ""
-                            // },
-                            // {
-                            //     id: "disorders",
-                            //     name: "Disorder",
-                            //     placeholder: "Intellectual disability,Arthrogryposis...",
-                            //     multiple: true,
-                            //     description: ""
-                            // },
-                            // {
-                            //     id: "phenotypes",
-                            //     name: "Phenotype",
-                            //     placeholder: "Full-text search, e.g. *melanoma*",
-                            //     multiple: true,
-                            //     description: ""
-                            // },
-                            // {
-                            //     id: "sex",
-                            //     name: "Sex",
-                            //     multiple: true,
-                            //     description: ""
-                            // },
-                            // {
-                            //     id: "karyotypicSex",
-                            //     name: "Karyotypic Sex",
-                            //     multiple: true,
-                            //     description: ""
-                            // },
-                            // {
-                            //     id: "ethnicity",
-                            //     name: "Ethnicity",
-                            //     type: "string",
-                            //     placeholder: "White caucasian,asiatic...",
-                            //     description: ""
-                            // },
+                            {
+                                id: "tags",
+                                name: "Tags",
+                                placeholder: "Tags",
+                                allowedValues: "",
+                                description: "",
+                            },
                             {
                                 id: "date",
                                 name: "Date",
@@ -265,6 +233,15 @@ export default class WorkflowBrowser extends LitElement {
                                     .workflow="${workflow}"
                                     .opencgaSession="${opencgaSession}">
                                 </workflow-view>
+                            `,
+                        },
+                        {
+                            id: "workflow-scripts",
+                            name: "Scripts",
+                            render: workflow => html`
+                                <workflow-scripts-view
+                                    .workflow="${workflow}">
+                                </workflow-scripts-view>
                             `,
                         },
                         {

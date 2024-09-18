@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
@@ -182,30 +181,6 @@ export default class WorkflowView extends LitElement {
                     collapsed: false,
                     display: {
                         visible: workflow => workflow?.id,
-                        // layout: [
-                        //     {
-                        //         id: "name",
-                        //         className: ""
-                        //     },
-                        //     {
-                        //         id: "",
-                        //         className: "row",
-                        //         elements: [
-                        //             {
-                        //                 id: "father",
-                        //                 className: "col-md-6"
-                        //             },
-                        //             {
-                        //                 id: "mother",
-                        //                 className: "col-md-6"
-                        //             }
-                        //         ]
-                        //     },
-                        //     {
-                        //         id: "sex",
-                        //         className: ""
-                        //     },
-                        // ]
                     },
                     elements: [
                         {
@@ -231,98 +206,6 @@ export default class WorkflowView extends LitElement {
                             id: "name",
                             title: "Name",
                             field: "name",
-                        },
-                        {
-                            id: "father",
-                            title: "Father ID",
-                            field: "father.id",
-                            // type: "basic",
-                        },
-                        {
-                            id: "mother",
-                            title: "Mother ID",
-                            field: "mother.id",
-                            // type: "basic",
-                        },
-                        {
-                            id: "sex",
-                            title: "Reported Sex (Karyotypic)",
-                            // type: "custom",
-                            type: "complex",
-                            display: {
-                                // render: workflow => `
-                                //     ${workflow.sex?.id ?? "Not specified"} (${workflow.karyotypicSex ?? "Not specified"})
-                                // `,
-                                defaultValue: "Not specified",
-                                template: "${sex.id} (${karyotypicSex})"
-                            },
-                        },
-                        {
-                            title: "Inferred Karyotypic Sex",
-                            // type: "custom",
-                            field: "qualityControl",
-                            display: {
-                                // render: data => {
-                                //     if (data?.qualityControl?.inferredSexReports?.length > 0) {
-                                //         return data.qualityControl.inferredSexReports[0].inferredKaryotypicSex;
-                                //     } else {
-                                //         return "-";
-                                //     }
-                                // },
-                                format: qualityControl => qualityControl?.inferredSexReports?.length > 0 ? qualityControl.inferredSexReports[0].inferredKaryotypicSex : "-"
-                            },
-                        },
-                        {
-                            title: "Ethnicity",
-                            field: "ethnicity.id",
-                        },
-                        {
-                            title: "Disorders",
-                            field: "disorders",
-                            type: "list",
-                            display: {
-                                contentLayout: "vertical",
-                                // render: disorder => CatalogGridFormatter.disorderFormatter(disorder),
-                                format: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
-                                defaultValue: "N/A",
-                            },
-                        },
-                        {
-                            title: "Phenotypes",
-                            field: "phenotypes",
-                            type: "list",
-                            display: {
-                                contentLayout: "vertical",
-                                // filter: phenotypes => [phenotypes[0]],
-                                // transform: phenotypes => phenotypes.map(phenotype => {
-                                //     phenotype.id = phenotype.id.toLowerCase();
-                                //     return phenotype;
-                                // }),
-                                // render: phenotype => {
-                                //     let id = phenotype.id;
-                                //     if (phenotype.id.startsWith("HP:")) {
-                                //         id = html`
-                                //             <a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">
-                                //                 ${phenotype.id}
-                                //             </a>
-                                //         `;
-                                //     }
-                                //     return html`${phenotype.name} (${id})`;
-                                // },
-                                format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
-                                defaultValue: "N/A",
-                            },
-                        },
-                        {
-                            title: "Date of Birth",
-                            field: "dateOfBirth",
-                            display: {
-                                format: date => UtilsNew.dateFormatter(date)
-                            },
-                        },
-                        {
-                            title: "Life Status",
-                            field: "lifeStatus",
                         },
                         {
                             title: "Version",
@@ -358,73 +241,6 @@ export default class WorkflowView extends LitElement {
                         {
                             title: "Description",
                             field: "description",
-                        },
-                        /*
-                        // Fixme: fix export to pdf
-                        {
-                            title: "Annotation sets",
-                            field: "annotationSets",
-                            type: "custom",
-                            display: {
-                                showPDF: false,
-                                render: field => html`
-                                    <annotation-set-view
-                                        .annotationSets="${field}">
-                                    </annotation-set-view>
-                                `,
-                                defaultValue: "N/A",
-                            },
-                        },
-                        */
-                    ],
-                },
-                {
-                    title: "Samples",
-                    display: {
-                        visible: workflow => workflow?.id,
-                    },
-                    elements: [
-                        {
-                            title: "List of samples",
-                            field: "samples",
-                            type: "table",
-                            display: {
-                                className: "",
-                                style: "",
-                                headerClassName: "",
-                                headerStyle: "",
-                                headerVisible: true,
-                                // filter: array => array.filter(item => item.somatic),
-                                // transform: array => array.map(item => {
-                                //     item.somatic = true;
-                                //     return item;
-                                // }),
-                                defaultValue: "No phenotypes found",
-                                columns: [
-                                    {
-                                        title: "Samples ID",
-                                        field: "id",
-                                        display: {
-                                            style: {
-                                                "font-weight": "bold"
-                                            }
-                                        }
-                                    },
-                                    {
-                                        title: "Somatic",
-                                        field: "somatic",
-                                    },
-                                    {
-                                        title: "Phenotypes",
-                                        field: "phenotypes",
-                                        type: "list",
-                                        display: {
-                                            contentLayout: "bullets",
-                                            format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
-                                        },
-                                    },
-                                ],
-                            },
                         },
                     ],
                 },
