@@ -930,7 +930,7 @@ export default class DataForm extends LitElement {
 
         const content = html`
             <div class="form-check">
-                <label class="form-check label">
+                <label class="form-check-label">
                     <input
                         id="${this._prefix}${element.field}"
                         type="checkbox"
