@@ -55,7 +55,9 @@ import "../../webcomponents/individual/individual-update.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/job-view.js";
+import "../../webcomponents/job/analysis/custom-tool-analysis.js";
 import "../../webcomponents/workflow/workflow-browser.js";
+import "../../webcomponents/workflow/analysis/workflow-analysis.js";
 import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
 import "../../webcomponents/variant/analysis/gwas-analysis.js";
 import "../../webcomponents/variant/analysis/sample-variant-stats-analysis.js";
@@ -192,6 +194,7 @@ class IvaApp extends LitElement {
             "variant-browser",
             "job",
             "workflow",
+            "workflow-analysis",
             "cat-browser",
             "cat-analysis",
             "cat-clinical",
@@ -226,6 +229,7 @@ class IvaApp extends LitElement {
             "alignment-stats",
             "coverage-index",
             "job-view",
+            "custom-tool-analysis",
             "rga",
             "disease-panel",
             "diseasePanelUpdate",
@@ -2027,6 +2031,22 @@ class IvaApp extends LitElement {
                             .jobId="${this.jobSelected}"
                             .opencgaSession="${this.opencgaSession}">
                         </job-view>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["custom-tool-analysis"] ? html`
+                    <div class="container py-3" id="custom-tool-analysis">
+                        <custom-tool-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </custom-tool-analysis>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["workflow-analysis"] ? html`
+                    <div class="container py-3" id="workflow-analysis">
+                        <workflow-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </workflow-analysis>
                     </div>
                 ` : nothing}
 

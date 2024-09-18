@@ -348,6 +348,31 @@ const SUITE = {
                     visibility: "public",
                     submenu: [
                         {
+                            name: "Custom Analysis Execution",
+                            category: true,
+                            visibility: "public"
+                        },
+                        {
+                            id: "custom-tool-analysis",
+                            name: "Custom Tool Analysis",
+                            // acronym: "SVS",
+                            description: "",
+                            icon: "",
+                            visibility: "public"
+                        },
+                        {
+                            id: "workflow-analysis",
+                            name: "Workflow Analysis",
+                            // acronym: "SVS",
+                            description: "",
+                            icon: "",
+                            visibility: "public"
+                        },
+                        {
+                            separator: true,
+                            visibility: "public"
+                        },
+                        {
                             name: "Summary Stats",
                             category: true,
                             visibility: "public"
