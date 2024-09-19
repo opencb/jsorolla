@@ -1264,7 +1264,7 @@ class SteinerReport extends LitElement {
                             title: "Case Status",
                             field: "status",
                             type: "select",
-                            allowedValues: ["CLOSED", "REJECTED"],
+                            allowedValues: this.getGroupedClinicalAnalsysisStatus(),
                             required: true,
                         },
                         {
