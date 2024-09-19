@@ -377,7 +377,7 @@ export default class WorkflowGrid extends LitElement {
                 formatter: scripts => {
                     return `
                         <div>
-                            ${scripts?.map(script => `<span class="">${script.filename}</span>`).join("<br>")}
+                            ${scripts?.map(script => `<span class="">${script.fileName}</span>`).join("<br>")}
                         </div>
                     `;
                 },

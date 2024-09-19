@@ -219,7 +219,7 @@ export default class WorkflowCreate extends LitElement {
                             elements: [
                                 {
                                     title: "File Name",
-                                    field: "scripts[].filename",
+                                    field: "scripts[].fileName",
                                     type: "input-text",
                                     display: {
                                         placeholder: "Add workflow file name...",

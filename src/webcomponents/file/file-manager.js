@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "./file-view.js";
 import "../loading-spinner.js";
+import ModalUtils from "../commons/modal/modal-utils";
 
 export default class FileManager extends LitElement {
 
@@ -78,7 +79,8 @@ export default class FileManager extends LitElement {
                 maxDepth: 1,
                 include: "id,name,path,size,format",
             };
-            this.opencgaSession.opencgaClient.files().tree(this.currentRootId, query)
+            this.opencgaSession.opencgaClient.files()
+                .tree(this.currentRootId, query)
                 .then(restResponse => {
                     this.errorState = false;
                     this.tree = restResponse.getResult(0);
@@ -105,7 +107,8 @@ export default class FileManager extends LitElement {
     async fetchFolder(node) {
         try {
             if (!node.visited) {
-                const restResponse = await this.opencgaSession.opencgaClient.files().tree(node.file.id, { study: this.opencgaSession.study.fqn, maxDepth: 1, include: "id,name,path,size,format" });
+                const restResponse = await this.opencgaSession.opencgaClient.files()
+                    .tree(node.file.id, {study: this.opencgaSession.study.fqn, maxDepth: 1, include: "id,name,path,size,format"});
                 const result = restResponse.getResult(0);
                 node.children = result.children;
                 node.visited = true;
@@ -120,7 +123,6 @@ export default class FileManager extends LitElement {
             }
             console.error(restResponse);
         }
-
     }
 
     searchNode(nodeId, baseNode) {
@@ -141,7 +143,7 @@ export default class FileManager extends LitElement {
     renderStyles() {
         return html`
             <style>
-               /****** file manager ********/
+                /****** file manager ********/
                 .file-manager {
                     padding: 0;
                 }
@@ -329,14 +331,14 @@ export default class FileManager extends LitElement {
             <div class="file-manager text-center p-2">
                 <div class="row row-cols-5 gap-1">
                     ${children.map(node => {
-            if (node.file.type.toUpperCase() === "DIRECTORY") {
-                return html`${this.folder(node)}`;
-            } else if (["FILE", "VIRTUAL"].includes(node.file.type.toUpperCase())) {
-                return html`${this.file(node)}`;
-            } else {
-                throw new Error("Type not recognized " + node.file.type);
-            }
-        })}
+                        if (node.file.type.toUpperCase() === "DIRECTORY") {
+                            return html`${this.folder(node)}`;
+                        } else if (["FILE", "VIRTUAL"].includes(node.file.type.toUpperCase())) {
+                            return html`${this.file(node)}`;
+                        } else {
+                            throw new Error("Type not recognized " + node.file.type);
+                        }
+                    })}
                 </div>
             </div>
         `;
@@ -347,28 +349,28 @@ export default class FileManager extends LitElement {
         const domId = `tree-${root.file.id.replace(/:/g, "")}`;
         return html`
             ${root.file.name !== "." ? html`
-                    <i @click="${() => this.toggleFolder(domId, root)}" class="fas fa-angle-${root.exploded ? "down" : "right"}"></i>
-                    <a class="text-decoration-none folder-name ${domId} ${root.exploded ? "exploded" : ""}" @click="${() => this.toggleFolder(domId, root)}"> ${root.file.name} </a>
-                ` : html`
-                    <i class="fas fa-home"></i> <a class="text-decoration-none home" @click="${this.reset}"> Home</a>`}
+                <i @click="${() => this.toggleFolder(domId, root)}" class="fas fa-angle-${root.exploded ? "down" : "right"}"></i>
+                <a class="text-decoration-none folder-name ${domId} ${root.exploded ? "exploded" : ""}" @click="${() => this.toggleFolder(domId, root)}"> ${root.file.name} </a>
+            ` : html`
+                <i class="fas fa-home"></i> <a class="text-decoration-none home" @click="${this.reset}"> Home</a>`}
 
             <ul>
                 ${children.map(node => {
-            if (node.file.type === "DIRECTORY") {
-                return html`
-                    <li class="folder">
-                        <!-- <span class="badge">\${node.children.length}</span>-->
-                        ${this.renderTree(node)}
-                    </li>`;
-            } else if (["FILE", "VIRTUAL"].includes(node.file.type.toUpperCase())) {
-                return html`
-                    <p class="file ${this.fileId === node.file.id ? "active" : ""}" @click="${() => this.onClickFile(node.file.id)}">
-                        ${this.icon(node.file.format)} ${node.file.name}
-                    </p>`;
-            } else {
-                throw new Error("Type not recognized " + node.file.type);
-            }
-        })}
+                    if (node.file.type === "DIRECTORY") {
+                        return html`
+                            <li class="folder">
+                                <!-- <span class="badge">\${node.children.length}</span>-->
+                                ${this.renderTree(node)}
+                            </li>`;
+                    } else if (["FILE", "VIRTUAL"].includes(node.file.type.toUpperCase())) {
+                        return html`
+                            <p class="file ${this.fileId === node.file.id ? "active" : ""}" @click="${() => this.onClickFile(node.file.id)}">
+                                ${this.icon(node.file.format)} ${node.file.name}
+                            </p>`;
+                    } else {
+                        throw new Error("Type not recognized " + node.file.type);
+                    }
+                })}
             </ul>
         `;
     }
@@ -483,13 +485,31 @@ export default class FileManager extends LitElement {
         this.requestUpdate();
     }
 
+    newFolder() {
+        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+            display: {
+                modalTitle: "Job Update",
+                modalDraggable: true,
+                modalSize: "modal-lg",
+            },
+            render: active => html`
+                <job-update
+                    .jobId="${this.jobUpdateId}"
+                    .active="${active}"
+                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                    .opencgaSession="${this.opencgaSession}">
+                </job-update>
+            `,
+        });
+    }
+
     render() {
         if (!this.opencgaSession || !this.currentRoot) {
             return null;
         }
 
         return html`
-        ${this.renderStyles()}
+            ${this.renderStyles()}
             <div class="opencga-file-manager">
                 <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
 
@@ -499,20 +519,28 @@ export default class FileManager extends LitElement {
                     </div>
 
                     <div class="file-manager-grid col-md-9">
-                    ${this.errorState ? html`
-                        <div id="error" class="alert alert-danger" role="alert">
-                            ${this.errorState}
+                        ${this.errorState ? html`
+                            <div id="error" class="alert alert-danger" role="alert">
+                                ${this.errorState}
+                            </div>
+                        ` : null}
+                        ${this.loading ? html`
+                            <div id="loading">
+                                <loading-spinner></loading-spinner>
+                            </div>
+                        ` : null}
+
+
+                        <div class="row">
+                            <div class="col-9">
+                                <button type="button" class="btn btn-primary float-end" @click="${this.newFolder}">New Folder ...</button>
+                            </div>
                         </div>
-                    ` : null}
-                    ${this.loading ? html`
-                        <div id="loading">
-                            <loading-spinner></loading-spinner>
-                        </div>
-                    ` : null}
-                    ${this.currentRoot ? html`
-                        <div>
-                            ${this.renderFileManager(this.currentRoot)}
-                        </div>
+
+                        ${this.currentRoot ? html`
+                            <div>
+                                ${this.renderFileManager(this.currentRoot)}
+                            </div>
                             ${this.fileId ? html`
                                 <div class="opencga-file-view">
                                     <file-view
