@@ -299,6 +299,19 @@ class SteinerReport extends LitElement {
         }
     }
 
+    getGroupedClinicalAnalsysisStatus() {
+        const statusList = this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.status || [];
+        const groupedStatus = UtilsNew.groupBy(statusList, "type");
+        return Object.keys(groupedStatus)
+            .filter(type => ["ACTIVE", "DONE", "CLOSED"].includes(type))
+            .map(type => {
+                return {
+                    id: type,
+                    fields: groupedStatus[type],
+                };
+            });
+    }
+
     onSignatureChange(event, type) {
         this.selectedSignatures[type] = event.detail.value;
         this._config = {
