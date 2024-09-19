@@ -99,7 +99,7 @@ class SteinerReport extends LitElement {
             this.clinicalAnalysisObserver();
         }
 
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
