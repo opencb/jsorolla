@@ -15,6 +15,7 @@
  */
 
 import {html, LitElement, nothing} from "lit";
+import "./workflow-create.js";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
