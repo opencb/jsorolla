@@ -169,6 +169,15 @@ class HRDetectView extends LitElement {
                             },
                         },
                         {
+                            name: "Probability",
+                            field: "scores",
+                            display: {
+                                format: scores => {
+                                    return scores.find(row => row.key?.toLowerCase?.() === "probability")?.value?.toFixed?.(2) || "-";
+                                },
+                            },
+                        },
+                        {
                             name: "Scores",
                             field: "scores",
                             type: "table",
