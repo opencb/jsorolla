@@ -178,7 +178,7 @@ class HRDetectView extends LitElement {
                             },
                         },
                         {
-                            name: "Scores",
+                            name: "Contributions",
                             field: "scores",
                             type: "table",
                             display: {
