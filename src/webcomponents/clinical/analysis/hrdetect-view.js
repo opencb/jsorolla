@@ -183,9 +183,9 @@ class HRDetectView extends LitElement {
                             type: "table",
                             display: {
                                 showHeader: false,
-                                filter: data => {
-                                    return (data || []).filter(row => !["intercept", "probability"].includes(row?.key?.toLowerCase?.()));
-                                },
+                                filter: data => (data || []).filter(row => {
+                                    return !["intercept", "probability"].includes(row?.key?.toLowerCase?.());
+                                })},
                                 columns: [
                                     {
                                         title: "key",
