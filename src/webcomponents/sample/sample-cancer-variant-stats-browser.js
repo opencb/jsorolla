@@ -496,6 +496,12 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             return;
         }
 
+        const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
+            this.opencgaSession.study,
+            this.opencgaSession.user.id,
+            "WRITE_CLINICAL_ANALYSIS",
+            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+
         return html`
             ${this.sample && this._config.showTitle ? html`
                 <tool-header
@@ -526,33 +532,28 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 </div>
 
                 <div class="col-md-10">
-                    ${
-                        OpencgaCatalogUtils.getStudyEffectivePermission(
-                            this.opencgaSession.study,
-                            this.opencgaSession.user.id,
-                            "WRITE_CLINICAL_ANALYSIS",
-                            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions) ? html`
-                                <div>
-                                    <div class="d-flex justify-content-end mt-0 ms-1 mb-3 me-0" role="toolbar" aria-label="toolbar">
-                                        <div class="btn-group me-1">
-                                            <data-form
-                                                .data=${this.settings}
-                                                .config="${this.getSettingsConfig()}"
-                                                @fieldChange="${e => this.onSettingsFieldChange(e)}"
-                                                @submit="${this.onSettingsOk}">
-                                            </data-form>
-                                        </div>
-                                        <div class="btn-group">
-                                            <data-form
-                                                .data=${this.save}
-                                                .config="${this.getSaveConfig()}"
-                                                @fieldChange="${e => this.onSaveFieldChange(e)}"
-                                                @submit="${this.onSave}">
-                                            </data-form>
-                                        </div>
-                                    </div>
+                    ${hasWritePermission ? html`
+                        <div>
+                            <div class="d-flex justify-content-end mt-0 ms-1 mb-3 me-0" role="toolbar" aria-label="toolbar">
+                                <div class="btn-group me-1">
+                                    <data-form
+                                        .data=${this.settings}
+                                        .config="${this.getSettingsConfig()}"
+                                        @fieldChange="${e => this.onSettingsFieldChange(e)}"
+                                        @submit="${this.onSettingsOk}">
+                                    </data-form>
                                 </div>
-                            ` : null
+                                <div class="btn-group">
+                                    <data-form
+                                        .data=${this.save}
+                                        .config="${this.getSaveConfig()}"
+                                        @fieldChange="${e => this.onSaveFieldChange(e)}"
+                                        @submit="${this.onSave}">
+                                    </data-form>
+                                </div>
+                            </div>
+                        </div>
+                    ` : null
                     }
                     <div id="${this._prefix}MainContent">
                         <div id="${this._prefix}ActiveFilters">
