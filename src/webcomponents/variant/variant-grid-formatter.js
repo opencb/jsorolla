@@ -1193,7 +1193,8 @@ export default class VariantGridFormatter {
                     return `
                         <a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
                             <span style="color: green">${cosmicMap.size} ${cosmicMap.size > 1 ? "entries" : "entry"} (${traits.length})</span>
-                        </a>`;
+                        </a>
+                    `;
                 case "HGMD":
                     // Prepare the tooltip links
                     const hgmdMap = new Map();
