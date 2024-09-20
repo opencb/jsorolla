@@ -173,7 +173,6 @@ class HRDetectView extends LitElement {
                             field: "scores",
                             type: "table",
                             display: {
-                                // style: "width:auto",
                                 showHeader: false,
                                 columns: [
                                     {
