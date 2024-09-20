@@ -158,20 +158,15 @@ export default class ClinicalAnalysisView extends LitElement {
     }
 
     #priorityFormatter(id, data) {
-        const priorityRankToColor = [
-            "text-bg-danger",
-            "text-bg-warning",
-            "text-bg-primary",
-            "text-bg-info",
-            "text-bg-success",
-            "text-bg-light"
-        ];
+        const priorityRankToColor = {
+            1: "bg-danger", // URGENT
+            2: "bg-warning", // HIGH
+            3: "bg-primary", // NORMAL
+            4: "bg-info", // LOW
+            5: "bg-light text-dark", // UNKNOWN
+        };
 
-        if (typeof data?.priority?.rank === "number") {
-            return priorityRankToColor[data?.priority?.rank - 1] || "";
-        } else {
-            return "";
-        }
+        return priorityRankToColor[data?.priority?.rank] ?? "";
     }
 
     #setLoading(value) {

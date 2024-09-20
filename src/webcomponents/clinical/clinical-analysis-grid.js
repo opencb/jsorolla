@@ -306,19 +306,19 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         // Priorities classes
         const priorityMap = {
-            URGENT: "text-bg-danger",
-            HIGH: "text-bg-warning",
-            MEDIUM: "text-bg-primary",
-            LOW: "text-bg-info"
+            URGENT: "bg-danger",
+            HIGH: "bg-warning",
+            MEDIUM: "bg-primary",
+            LOW: "bg-info",
+            UNKNOWN: "text-bg-light",
         };
-        const priorityRankToColor = [
-            "text-bg-danger",
-            "text-bg-warning",
-            "text-bg-primary",
-            "text-bg-info",
-            "text-bg-success",
-            "text-bg-light"
-        ];
+        const priorityRankToColor = {
+            1: "bg-danger", // URGENT
+            2: "bg-warning", // HIGH
+            3: "bg-primary", // NORMAL
+            4: "bg-info", // LOW
+            5: "bg-light text-dark", // UNKNOWN
+        };
 
         const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
         const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // priority is editable
@@ -329,12 +329,12 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         // Current priority
         const currentPriorityText = value?.id ?? value ?? "-";
-        const currentPriorityLabel = priorityRankToColor[value?.rank ?? ""] ?? priorityMap[value ?? ""] ?? "";
+        const currentPriorityColor = priorityRankToColor[value?.rank] ?? priorityMap[value ?? ""] ?? "";
 
         return `
             <div class="dropdown">
                 <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" style="${btnStyle}" ${!isEditable ? "disabled=\"disabled\"" : ""}>
-                    <span class="badge ${currentPriorityLabel} me-auto top-0">
+                    <span class="badge ${currentPriorityColor} me-2 top-0">
                         ${currentPriorityText}
                     </span>
                 </button>
@@ -344,8 +344,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                             <li>
                                 <a class="d-flex dropdown-item py-2" data-action="priorityChange" data-priority="${priority.id}" style="cursor:pointer;">
                                     <div class="flex-grow-1">
-                                        <div class="">
-                                            <span class="badge ${priorityRankToColor[priority?.rank ?? ""] ?? ""}">
+                                        <div>
+                                            <span class="badge ${priorityRankToColor[priority?.rank] ?? ""}">
                                                 ${priority.id}
                                             </span>
                                         </div>
