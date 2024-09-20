@@ -182,7 +182,10 @@ class HRDetectView extends LitElement {
                                     },
                                     {
                                         title: "value",
-                                        field: "value"
+                                        field: "value",
+                                        display: {
+                                            format: value => value.toFixed(2),
+                                        },
                                     },
                                 ],
                             },
