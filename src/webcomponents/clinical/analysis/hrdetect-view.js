@@ -186,6 +186,7 @@ class HRDetectView extends LitElement {
                                 filter: data => (data || []).filter(row => {
                                     return !["intercept", "probability"].includes(row?.key?.toLowerCase?.());
                                 }),
+                                transform: data => data.toSorted((a, b) => b.value - a.value),
                                 columns: [
                                     {
                                         title: "key",
