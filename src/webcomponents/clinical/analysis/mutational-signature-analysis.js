@@ -163,7 +163,6 @@ export default class MutationalSignatureAnalysis extends LitElement {
                 fitNBoot: this.toolParams.fitNBoot,
                 fitThresholdPerc: this.toolParams.fitThresholdPerc,
                 fitThresholdPval: this.toolParams.fitThresholdPval,
-                fitRareSignaturesFile: this.toolParams.fitRareSignaturesFile,
             };
 
             // Check if we have provided an existing signature list
@@ -409,24 +408,6 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         title: "nboot",
                         field: "fitNBoot",
                         type: "input-text",
-                    },
-                    {
-                        title: "Fit Rare Signatures File",
-                        field: "fitRareSignaturesFile",
-                        type: "custom",
-                        display: {
-                            render: (fitRareSignaturesFile, dataFormFilterChange) => html`
-                                <catalog-search-autocomplete
-                                    .value="${fitRareSignaturesFile}"
-                                    .resource="${"FILE"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false}}"
-                                    .searchField="${"id"}"
-                                    .query="${fileQuery}"
-                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                </catalog-search-autocomplete>
-                            `,
-                        },
                     },
                 ]
             }
