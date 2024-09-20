@@ -174,6 +174,7 @@ class HRDetectView extends LitElement {
                             type: "table",
                             display: {
                                 showHeader: false,
+                                filter: data => (data || []).filter(row => row.key !== "intercept"),
                                 columns: [
                                     {
                                         title: "key",
