@@ -286,7 +286,7 @@ export default class HRDetectAnalysis extends LitElement {
                 ],
             },
             {
-                title: "Advanced Parameters",
+                title: "HRDetect Parameters",
                 elements: [
                     {
                         title: "Bootstrap",
