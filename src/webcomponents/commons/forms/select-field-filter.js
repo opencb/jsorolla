@@ -85,7 +85,6 @@ export default class SelectFieldFilter extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("data") || changedProperties.has("config")) {
-            debugger
             this.loadData();
         }
 
