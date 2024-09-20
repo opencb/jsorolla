@@ -115,10 +115,6 @@ export default class HRDetectAnalysis extends LitElement {
                 sampleId: this.toolParams.query?.sample,
                 snvFittingId: this.toolParams.snvFittingId,
                 svFittingId: this.toolParams.svFittingId,
-                snv3CustomName: this.toolParams.snv3CustomName || "",
-                snv8CustomName: this.toolParams.snv8CustomName || "",
-                sv3CustomName: this.toolParams.sv3CustomName || "",
-                sv8CustomName: this.toolParams.sv8CustomName || "",
                 bootstrap: !!this.toolParams.bootstrap,
             };
 
@@ -292,46 +288,6 @@ export default class HRDetectAnalysis extends LitElement {
             {
                 title: "Advanced Parameters",
                 elements: [
-                    {
-                        title: "SNV3 Custom Name",
-                        field: "snv3CustomName",
-                        type: "input-text",
-                        display: {
-                            help: {
-                                text: "Custom signature name that will be considered as SNV3 input for HRDetect.",
-                            },
-                        },
-                    },
-                    {
-                        title: "SNV8 Custom Name",
-                        field: "snv8CustomName",
-                        type: "input-text",
-                        display: {
-                            help: {
-                                text: "Custom signature name that will be considered as SNV8 input for HRDetect.",
-                            },
-                        },
-                    },
-                    {
-                        title: "SV3 Custom Name",
-                        field: "sv3CustomName",
-                        type: "input-text",
-                        display: {
-                            help: {
-                                text: "Custom signature name that will be considered as SV3 input for HRDetect.",
-                            },
-                        },
-                    },
-                    {
-                        title: "SV8 Custom Name",
-                        field: "sv8CustomName",
-                        type: "input-text",
-                        display: {
-                            help: {
-                                text: "Custom signature name that will be considered as SV8 input for HRDetect.",
-                            },
-                        },
-                    },
                     {
                         title: "Bootstrap",
                         field: "bootstrap",
