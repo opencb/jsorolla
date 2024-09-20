@@ -553,8 +553,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                 </div>
                             </div>
                         </div>
-                    ` : null
-                    }
+                    ` : null}
                     <div id="${this._prefix}MainContent">
                         <div id="${this._prefix}ActiveFilters">
                             <opencga-active-filters
