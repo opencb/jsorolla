@@ -14,7 +14,8 @@ export default class AlignmentRenderer extends Renderer {
         // Define the height of the coverage track
         const regionSize = options.requestedRegion.end - options.requestedRegion.start + 1;
         const parentHeight = options.svgCanvasFeatures.parentElement.clientHeight;
-        const coverageHeight = regionSize < this.config.alignmentsMaxRegionSize ? 50 : parentHeight;
+        // const coverageHeight = regionSize < this.config.alignmentsMaxRegionSize ? 50 : parentHeight;
+        const coverageHeight = 75;
 
         const coverageParent = SVG.addChild(options.svgCanvasFeatures, "g", {
             "data-cy": "gb-coverage",
@@ -201,7 +202,7 @@ export default class AlignmentRenderer extends Renderer {
         points.push(`${startPoint},${height}`);
 
         if (maximumValue > 0) {
-            const maxValueRatio = height / maximumValue;
+            const maxValueRatio = (height - 25) / maximumValue;
             let prevCoverage = -1;
             let prevPosition = -1;
 
@@ -235,6 +236,50 @@ export default class AlignmentRenderer extends Renderer {
             width: pixelWidth,
             height: height,
             cursor: "pointer",
+            style: "opacity:0.6;",
+        });
+
+        const coverageValueRect = SVG.addChild(group, "path", {
+            d: "M0 0L15 0C20 0 20 5 20 5L20 15C20 15 20 20 15 20L5 20L0 25L-5 20L-15 20C-20 20-20 15-20 15L-20 5C-20 5-20 0-15 0L0 0Z",
+            fill: "#000",
+            style: "display:none;transform:translateX(0px);",
+        });
+        const coverageValueText = SVG.addChild(group, "text", {
+            "x": 0,
+            "y": 10,
+            "fill": "#fff",
+            "dominant-baseline": "middle",
+            "text-anchor": "middle",
+            "style": "font-size:10px;font-weight:bold;",
+        });
+        const coverageMask = SVG.addChild(group, "rect", {
+            x: startPoint,
+            y: 0,
+            width: Math.abs(endPoint - startPoint),
+            height: height,
+            fill: "transparent",
+            stroke: "none",
+        });
+
+        const visibleStart = parseInt(GenomeBrowserUtils.getFeatureX(options.region.start, options) - (options.pixelBase / 2));
+        const initialCanvasStart = parseInt(options.svgCanvasFeatures.getAttribute("x"));
+
+        coverageMask.addEventListener("mousemove", e => {
+            const deltaCanvas = initialCanvasStart - parseInt(options.svgCanvasFeatures.getAttribute("x"));
+            const position = visibleStart + deltaCanvas + e.offsetX;
+            const index = Math.floor(((position - startPoint) / options.pixelBase) / coverage.windowSize);
+
+            coverageValueRect.style.transform = `translateX(${position}px)`;
+            coverageValueText.setAttribute("x", position + "px");
+            coverageValueText.textContent = Math.ceil(coverage.values[index] || 0);
+        });
+        coverageMask.addEventListener("mouseleave", () => {
+            coverageValueRect.style.display = "none";
+            coverageValueText.style.display = "none";
+        });
+        coverageMask.addEventListener("mouseenter", () => {
+            coverageValueRect.style.display = "";
+            coverageValueText.style.display = "";
         });
     }
 
