@@ -376,7 +376,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.table.bootstrapTable({
             theadClasses: "table-light",
             buttonsClass: "light",
-            data: variants,
             columns: this._getDefaultColumns(),
             sidePagination: "server",
             // Josemi Note 2024-01-31: we have added the ajax function for local variants for getting genes info
@@ -663,6 +662,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     events: {
                         "click a": this.onActionClick.bind(this)
                     },
+                    visible: this._config?.showActions,
                     excludeFromExport: true,
                     excludeFromSettings: true,
                 }
@@ -1042,7 +1042,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             showReview: true,
             showEditReview: true,
             showSelectCheckbox: false,
-            showActions: false,
+            showActions: true,
             multiSelection: false,
             nucleotideGenotype: true,
             hideVcfFileData: false,
