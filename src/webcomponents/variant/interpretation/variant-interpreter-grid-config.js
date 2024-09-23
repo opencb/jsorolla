@@ -213,6 +213,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     }
                     return true;
                 },
+                message: "You must select at least one Gene Set (Ensembl or RefSeq) in Transcript Filter.",
             },
             display: {
                 width: 12,
