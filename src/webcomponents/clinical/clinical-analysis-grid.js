@@ -23,6 +23,7 @@ import "../commons/opencb-grid-toolbar.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
+import WebUtils from "../commons/utils/web-utils";
 
 export default class ClinicalAnalysisGrid extends LitElement {
 
@@ -304,22 +305,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
         // TODO remove this code as soon as new OpenCGA configuration is in place
         const _priorities = this.opencgaSession?.study?.internal?.configuration?.clinical?.priorities || [];
 
-        // Priorities classes
-        const priorityMap = {
-            URGENT: "bg-danger",
-            HIGH: "bg-warning",
-            MEDIUM: "bg-primary",
-            LOW: "bg-info",
-            UNKNOWN: "text-bg-light",
-        };
-        const priorityRankToColor = {
-            1: "bg-danger", // URGENT
-            2: "bg-warning", // HIGH
-            3: "bg-primary", // NORMAL
-            4: "bg-info", // LOW
-            5: "bg-light text-dark", // UNKNOWN
-        };
-
         const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
         const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // priority is editable
 
@@ -329,7 +314,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         // Current priority
         const currentPriorityText = value?.id ?? value ?? "-";
-        const currentPriorityColor = priorityRankToColor[value?.rank] ?? priorityMap[value ?? ""] ?? "";
+        const currentPriorityColor = WebUtils.getClinicalAnalysisPriorityColour(value?.rank);
 
         return `
             <div class="dropdown">
@@ -345,7 +330,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                                 <a class="d-flex dropdown-item py-2" data-action="priorityChange" data-priority="${priority.id}" style="cursor:pointer;">
                                     <div class="flex-grow-1">
                                         <div>
-                                            <span class="badge ${priorityRankToColor[priority?.rank] ?? ""}">
+                                            <span class="badge ${WebUtils.getClinicalAnalysisPriorityColour(priority?.rank)}">
                                                 ${priority.id}
                                             </span>
                                         </div>
@@ -372,7 +357,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         // const btnClassName = "d-inline-flex align-items-center btn btn-light dropdown-toggle";
         const btnClassName = "d-flex justify-content-between align-items-center btn btn-light dropdown-toggle w-100";
         // const btnStyle = "display:inline-flex;align-items:center;";
-debugger
+
         return `
             <div class="dropdown">
                 <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" ${!isEditable ? "disabled=\"disabled\"" : ""}>

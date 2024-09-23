@@ -96,4 +96,16 @@ export default class WebUtils {
         return "-";
     }
 
+    static getClinicalAnalysisPriorityColour(rank) {
+        const priorityRankToColor = {
+            1: "bg-danger", // URGENT
+            2: "bg-warning", // HIGH
+            3: "bg-primary", // NORMAL
+            4: "bg-info", // LOW
+            5: "bg-light text-dark", // UNKNOWN
+        };
+
+        return priorityRankToColor[rank] ?? "";
+    }
+
 }
