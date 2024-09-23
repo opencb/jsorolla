@@ -121,7 +121,7 @@ export default class WorkflowAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.jobs()
+            this.opencgaSession.opencgaClient.workflows()
                 .run(toolParams, params),
             this,
         );

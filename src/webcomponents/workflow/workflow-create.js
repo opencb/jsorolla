@@ -71,7 +71,17 @@ export default class WorkflowCreate extends LitElement {
     }
 
     onFieldChange(e) {
-        this.workflow = {...e.detail.data}; // force to refresh the object-list
+        let tags = [];
+        if (e.detail.data?.tags) {
+            // e.detail.data.tags = e.detail.data?.tags?.split(",") || [];
+            if (typeof e.detail.data?.tags === "string") {
+                tags = e.detail.data?.tags?.split(",") || [];
+            } else {
+                tags = e.detail.data?.tags || [];
+            }
+        }
+
+        this.workflow = {...e.detail.data, tags: tags};
         this.requestUpdate();
     }
 
@@ -161,24 +171,46 @@ export default class WorkflowCreate extends LitElement {
                             title: "Type",
                             field: "type",
                             type: "select",
-                            allowedValues: ["CLINICAL_INTERPRETATION", "SECONDARY_ANALYSIS", "RESEARCH", "OTHER"],
+                            allowedValues: ["SECONDARY_ANALYSIS", "RESEARCH_ANALYSIS", "CLINICAL_INTERPRETATION_ANALYSIS", "OTHER"],
                             display: {
                                 placeholder: "Select the type...",
                             },
                         },
-                        // {
-                        //     title: "Tags",
-                        //     field: "tags",
-                        //     type: "input-text",
-                        //     display: {
-                        //         placeholder: "Add tags...",
-                        //     },
-                        // },
                         {
-                            title: "Is a draft?",
+                            title: "Tags",
+                            field: "tags",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add tags...",
+                                help: {
+                                    text: "Comma-separated tags",
+                                },
+                            },
+                        },
+                        {
+                            title: "Draft",
                             field: "draft",
                             type: "checkbox",
                             display: {},
+                        },
+                        {
+                            title: "Minimum Requirements",
+                            field: "minimumRequirements",
+                            type: "object",
+                            elements: [
+                                {
+                                    title: "Min CPU cores",
+                                    field: "minimumRequirements.cpu",
+                                    type: "input-num",
+                                    display: {},
+                                },
+                                {
+                                    title: "Min memory",
+                                    field: "minimumRequirements.memory",
+                                    type: "input-num",
+                                    display: {},
+                                },
+                            ]
                         },
                         {
                             title: "Description",
@@ -187,6 +219,66 @@ export default class WorkflowCreate extends LitElement {
                             display: {
                                 placeholder: "Add the workflow description...",
                             },
+                        },
+                    ],
+                },
+                {
+                    title: "Input Variables",
+                    text: "Optional variables that can be used in the workflow, these are NOT necessary for the workflow to run. " +
+                        "The variables will be ONLY used to create automatic forms.",
+                    elements: [
+                        {
+                            title: "Variables",
+                            field: "variables",
+                            type: "object-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                // CAUTION 20231024 Vero: "collapsedUpdate" not considered in data-form.js. Perhaps "collapsed" (L1324 in data-form.js) ?
+                                // collapsedUpdate: true,
+                                view: variable => html`
+                                    <div>${variable.id}</div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "ID",
+                                    field: "variables[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add workflow file name...",
+                                    }
+                                },
+                                {
+                                    title: "Name",
+                                    field: "variables[].name",
+                                    type: "input-text",
+                                    display: {}
+                                },
+                                {
+                                    title: "Required",
+                                    field: "variables[].required",
+                                    type: "checkbox",
+                                    display: {
+                                        rows: 50,
+                                        placeholder: "Add a content...",
+                                    },
+                                },
+                                {
+                                    title: "Default Value",
+                                    field: "variables[].defaultValue",
+                                    type: "input-text",
+                                    display: {}
+                                },
+                                {
+                                    title: "Description",
+                                    field: "variables[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 3,
+                                        placeholder: "Add a content...",
+                                    },
+                                },
+                            ],
                         },
                     ],
                 },
@@ -202,19 +294,8 @@ export default class WorkflowCreate extends LitElement {
                                 // CAUTION 20231024 Vero: "collapsedUpdate" not considered in data-form.js. Perhaps "collapsed" (L1324 in data-form.js) ?
                                 // collapsedUpdate: true,
                                 view: workflow => html`
-                                    <div>${workflow.filename}</div>
+                                    <div>${workflow.fileName}</div>
                                 `,
-                                // search: {
-                                //     title: "Autocomplete",
-                                //     button: false,
-                                //     render: (currentData, dataFormFilterChange) => html`
-                                //         <cellbase-search-autocomplete
-                                //             .resource="${"workflow"}"
-                                //             .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                //             @filterChange="${e => dataFormFilterChange(e.detail.data)}">
-                                //         </cellbase-search-autocomplete>
-                                //     `,
-                                // },
                             },
                             elements: [
                                 {

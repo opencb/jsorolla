@@ -377,6 +377,13 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
+                            id: "custom-tool-builder",
+                            name: "Custom Tool Builder",
+                            description: "",
+                            icon: "",
+                            visibility: "public"
+                        },
+                        {
                             id: "workflow-analysis",
                             name: "Workflow Executor",
                             description: "",

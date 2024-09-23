@@ -20,7 +20,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 
 
-export default class ToolAnalysis extends LitElement {
+export default class CustomToolBuilder extends LitElement {
 
     constructor() {
         super();
@@ -47,9 +47,9 @@ export default class ToolAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "tool";
-        this.ANALYSIS_TITLE = "Tool Analysis";
-        this.ANALYSIS_DESCRIPTION = "Executes a Docker-based tool analysis job";
+        this.ANALYSIS_TOOL = "tool-builder";
+        this.ANALYSIS_TITLE = "Custom Tool Builder";
+        this.ANALYSIS_DESCRIPTION = "Builds a Docker-based tool";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -99,11 +99,15 @@ export default class ToolAnalysis extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            commandLine: this.toolParams.commandLine,
+            gitRepository: this.toolParams.gitRepository,
+            aptGet: this.toolParams.aptGet || "",
+            installR: this.toolParams.installR || false,
             docker: {
-                id: this.toolParams.docker?.id || "",
+                organisation: this.toolParams.docker?.organisation || "",
+                name: this.toolParams.docker?.name || "",
                 tag: this.toolParams.docker?.tag || "",
-                token: this.toolParams.docker?.token || "",
+                user: this.toolParams.docker?.user || "",
+                password: this.toolParams.docker?.password || "",
             }
         };
         const params = {
@@ -113,7 +117,7 @@ export default class ToolAnalysis extends LitElement {
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient.jobs()
-                .runTool(toolParams, params),
+                .buildTool(toolParams, params),
             this,
         );
     }
@@ -143,29 +147,63 @@ export default class ToolAnalysis extends LitElement {
                 title: "Command Line",
                 elements: [
                     {
-                        title: "Command Line",
-                        field: "commandLine",
+                        title: "GitHub Repository",
+                        field: "gitRepository",
                         type: "input-text",
                         required: true,
                         display: {
                             help: {
-                                text: "Command line to be executed in the Docker container. To use file you must use the prefix 'opencga://' before the path or name, for example: 'input_file=opencga://file.vcf'",
+                                text: "GitHub repository to be build the tool from",
+                            }
+                        }
+                    },
+                    {
+                        title: "Ubuntu apt-get dependencies",
+                        field: "aptGet",
+                        type: "input-text",
+                        required: false,
+                        display: {
+                            help: {
+                                text: "List of Ubuntu apt-get dependencies to be installed",
+                            }
+                        }
+                    },
+                    {
+                        title: "Ubuntu apt-get dependencies",
+                        field: "installR",
+                        type: "checkbox",
+                        required: false,
+                        display: {
+                            help: {
+                                text: "Whether to install R or not",
                             }
                         }
                     }
                 ]
             },
             {
-                title: "Docker Configuration",
+                title: "Docker Build Configuration",
                 elements: [
                     {
-                        title: "Docker Image",
-                        field: "docker.id",
+                        title: "Docker Organisation",
+                        field: "docker.organisation",
                         type: "input-text",
+                        required: true,
                         display: {
                             placeholder: "eg. ubuntu:latest",
                             help: {
-                                text: "Docker image to be used in the analysis. If empty then opencga-ext-tool is used",
+                                text: "Docker organisation to push the Docker image",
+                            }
+                        }
+                    },
+                    {
+                        title: "Docker Name",
+                        field: "docker.name",
+                        type: "input-text",
+                        required: true,
+                        display: {
+                            help: {
+                                text: "Docker name to be pushed",
                             }
                         }
                     },
@@ -173,19 +211,32 @@ export default class ToolAnalysis extends LitElement {
                         title: "Docker Tag",
                         field: "docker.tag",
                         type: "input-text",
+                        required: true,
                         display: {
                             help: {
-                                text: "Docker tag to be used in the analysis",
+                                text: "Docker tag to be used",
                             }
                         }
                     },
                     {
-                        title: "Docker Token",
-                        field: "docker.token",
+                        title: "Docker User Name",
+                        field: "docker.user",
                         type: "input-text",
+                        required: true,
                         display: {
                             help: {
-                                text: "A read-only token to access the Docker image",
+                                text: "Docker user name to push the Docker image",
+                            }
+                        }
+                    },
+                    {
+                        title: "Docker Password",
+                        field: "docker.password",
+                        type: "input-password",
+                        required: true,
+                        display: {
+                            help: {
+                                text: "Docker password to push the Docker image",
                             }
                         }
                     },
@@ -205,4 +256,4 @@ export default class ToolAnalysis extends LitElement {
 
 }
 
-customElements.define("tool-analysis", ToolAnalysis);
+customElements.define("custom-tool-builder", CustomToolBuilder);

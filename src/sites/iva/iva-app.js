@@ -56,6 +56,7 @@ import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/job-view.js";
 import "../../webcomponents/job/analysis/tool-analysis.js";
+import "../../webcomponents/job/analysis/custom-tool-builder.js";
 import "../../webcomponents/workflow/workflow-browser.js";
 import "../../webcomponents/workflow/analysis/workflow-analysis.js";
 import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
@@ -230,6 +231,7 @@ class IvaApp extends LitElement {
             "coverage-index",
             "job-view",
             "tool-analysis",
+            "custom-tool-builder",
             "rga",
             "disease-panel",
             "diseasePanelUpdate",
@@ -2051,6 +2053,15 @@ class IvaApp extends LitElement {
                         <tool-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </tool-analysis>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["custom-tool-builder"] ? html`
+                    <tool-header title="Custom Tool Builder" icon="fas fa-stream"></tool-header>
+                    <div class="container py-3" id="custom-tool-builder">
+                        <custom-tool-builder
+                            .opencgaSession="${this.opencgaSession}">
+                        </custom-tool-builder>
                     </div>
                 ` : nothing}
 
