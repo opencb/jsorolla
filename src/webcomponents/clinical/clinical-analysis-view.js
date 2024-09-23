@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/image-viewer.js";
