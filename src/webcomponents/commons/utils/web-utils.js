@@ -49,6 +49,7 @@ export default class WebUtils {
             "JOB": "JOBS",
             "FILE": "FILES",
             "CLINICAL_ANALYSIS": "CLINICAL_ANALYSIS",
+            "CLINICAL_VARIANT": "CLINICAL_VARIANT",
             "PROJECT": "PROJECTS",
             "STUDY": "STUDIES",
             "USER": "USERS",
@@ -94,6 +95,18 @@ export default class WebUtils {
                 return `<span class="text-primary"><i class="fas fa-trash-alt me-1"></i> ${statusId}${description}</span>`;
         }
         return "-";
+    }
+
+    static getClinicalAnalysisPriorityColour(rank) {
+        const priorityRankToColor = {
+            1: "bg-danger", // URGENT
+            2: "bg-warning", // HIGH
+            3: "bg-primary", // NORMAL
+            4: "bg-info", // LOW
+            5: "bg-light text-dark", // UNKNOWN
+        };
+
+        return priorityRankToColor[rank] ?? "";
     }
 
 }
