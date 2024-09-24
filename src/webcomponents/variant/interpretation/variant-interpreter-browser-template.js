@@ -564,11 +564,50 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 },
                 {
                     type: "opencga-variant",
+                    visible: ["SINGLE", "FAMILY"].includes(this.clinicalAnalysis?.type),
                     config: {
                         title: "Variants",
                         query: {
                             sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
                         },
+                    },
+                },
+                {
+                    type: "opencga-variant",
+                    visible: this.clinicalAnalysis?.type === "CANCER",
+                    config: {
+                        title: "Small Variants",
+                        query: {
+                            sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                            type: "SNV,INDEL",
+                        },
+                        headerHeight: 0,
+                    },
+                },
+                {
+                    type: "opencga-variant",
+                    visible: this.clinicalAnalysis?.type === "CANCER",
+                    config: {
+                        title: "Copy Number Variants",
+                        query: {
+                            sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                            type: "COPY_NUMBER",
+                        },
+                        lollipopVisible: false,
+                        highlightVisible: false,
+                        headerHeight: 0,
+                    },
+                },
+                {
+                    type: "opencga-variant",
+                    visible: this.clinicalAnalysis?.type === "CANCER",
+                    config: {
+                        title: "Structural Variants",
+                        query: {
+                            sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                            type: "BREAKEND,INSERTION,DELETION,DUPLICATION",
+                        },
+                        headerHeight: 0,
                     },
                 },
                 ...(this.clinicalAnalysis.proband?.samples || []).map(sample => ({
