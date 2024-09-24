@@ -930,14 +930,16 @@ export default class DataForm extends LitElement {
 
         const content = html`
             <div class="form-check">
-                <input
-                    id="${this._prefix}FilterCheckbox"
-                    type="checkbox"
-                    class="${this._prefix}FilterCheckbox form-check-input"
-                    .checked="${value}"
-                    ?disabled="${disabled}"
-                    @click="${e => this.onFilterChange(element, e.currentTarget.checked)}">
-                <label class="form-check-label" for="${this._prefix}FilterCheckbox">${element.text}</label>
+                <label class="form-check-label">
+                    <input
+                        id="${this._prefix}${element.field}"
+                        type="checkbox"
+                        class="form-check-input"
+                        .checked="${value}"
+                        ?disabled="${disabled}"
+                        @click="${e => this.onFilterChange(element, e.currentTarget.checked)}">
+                        ${element.text}
+                </label>
             </div>
         `;
 
