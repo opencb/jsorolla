@@ -240,9 +240,10 @@ export default class AlignmentRenderer extends Renderer {
         });
 
         const coverageValueRect = SVG.addChild(group, "path", {
-            d: "M0 0L15 0C20 0 20 5 20 5L20 15C20 15 20 20 15 20L5 20L0 25L-5 20L-15 20C-20 20-20 15-20 15L-20 5C-20 5-20 0-15 0L0 0Z",
-            fill: "#000",
-            style: "display:none;transform:translateX(0px);",
+            "d": "M0 0L15 0C20 0 20 5 20 5L20 15C20 15 20 20 15 20L5 20L0 25L-5 20L-15 20C-20 20-20 15-20 15L-20 5C-20 5-20 0-15 0L0 0Z",
+            "fill": "#000",
+            "style": "display:none;transform:translateX(0px);",
+            "data-cy": "gb-coverage-tooltip-tip",
         });
         const coverageValueText = SVG.addChild(group, "text", {
             "x": 0,
@@ -251,14 +252,16 @@ export default class AlignmentRenderer extends Renderer {
             "dominant-baseline": "middle",
             "text-anchor": "middle",
             "style": "font-size:10px;font-weight:bold;",
+            "data-cy": "gb-coverage-tooltip-text",
         });
         const coverageMask = SVG.addChild(group, "rect", {
-            x: startPoint,
-            y: 0,
-            width: Math.abs(endPoint - startPoint),
-            height: height,
-            fill: "transparent",
-            stroke: "none",
+            "x": startPoint,
+            "y": 0,
+            "width": Math.abs(endPoint - startPoint),
+            "height": height,
+            "fill": "transparent",
+            "stroke": "none",
+            "data-cy": "gb-coverage-tooltip-mask",
         });
 
         const visibleStart = parseInt(GenomeBrowserUtils.getFeatureX(options.region.start, options) - (options.pixelBase / 2));
