@@ -387,7 +387,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             <button class="${`btn btn-success ${this.activeView === id ? "active" : ""}`}" @click="${() => this.onChangeView(id)}">
                 <i class="${`fa fa-${icon} icon-padding`}" aria-hidden="true"></i>
                 <strong>${title}</strong>
-            </button>`;
+            </button>
+        `;
     }
 
     render() {
@@ -435,7 +436,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
                 <div class="flex-grow-1">
                     <!-- View toolbar -->
-                    <div class="content-pills mb-3" role="toolbar" aria-label="toolbar">
+                    <div class="d-flex gap-1 mb-3" role="toolbar" aria-label="toolbar">
                         ${this.renderViewButton("table", "Table Result", "table")}
                         ${!this.settings?.hideGenomeBrowser ? this.renderViewButton("genome-browser", "Genome Browser", "dna") : nothing}
                     </div>

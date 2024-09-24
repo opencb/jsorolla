@@ -372,7 +372,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         // const btnClassName = "d-inline-flex align-items-center btn btn-light dropdown-toggle";
         const btnClassName = "d-flex justify-content-between align-items-center btn btn-light dropdown-toggle w-100";
         // const btnStyle = "display:inline-flex;align-items:center;";
-debugger
+
         return `
             <div class="dropdown">
                 <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" ${!isEditable ? "disabled=\"disabled\"" : ""}>
