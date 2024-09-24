@@ -22,7 +22,6 @@ import GridCommons from "../commons/grid-commons.js";
 import "../commons/opencb-grid-toolbar.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
-
 export default class VariantSamples extends LitElement {
 
     constructor() {
@@ -160,15 +159,33 @@ export default class VariantSamples extends LitElement {
 
     async fetchData(query, batchSize) {
         try {
-            const variantResponse = await this.opencgaSession.opencgaClient.variants()
-                .querySample(query);
+            let variantResponse = null;
+
+            if (query.variant?.length > 5000) {
+                // this is a workaround to prevent an error when the variant ID is too long (as GET requests may be blocked by the browser)
+                // we are using a deprecated POST endpoint of variant/query
+                const bodyParams = {
+                    study: query.study,
+                    id: query.variant,
+                    includeSample: "all",
+                    includeSampleId: true,
+                };
+                variantResponse = await this.opencgaSession.opencgaClient.variants()
+                    ._post("analysis", null, "variant", null, "query", bodyParams, {
+                        exclude: "annotation",
+                    });
+            } else {
+                variantResponse = await this.opencgaSession.opencgaClient.variants()
+                    .querySample(query);
+            }
+
             const variantSamplesResult = variantResponse.getResult(0);
 
             // const stats = variantSamplesResult.studies[0].stats;
             // const stats = variantSamplesResult.studies[0].stats;
 
             this.numUserTotalSamples = 0;
-            this.numSamples = variantResponse.responses[0]?.attributes?.numSamplesRegardlessPermissions;
+            this.numSamples = variantResponse.responses[0]?.attributes?.numSamplesRegardlessPermissions ?? variantResponse.responses[0]?.attributes?.numSamples;
 
             // Get the total number of samples from stats if OpenCGA does not return them
             // if (typeof this.numSamples !== "number" || isNaN(this.numSamples)) {
