@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
+import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/image-viewer.js";
-import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 
 export default class ClinicalAnalysisView extends LitElement {
 
@@ -157,23 +158,6 @@ export default class ClinicalAnalysisView extends LitElement {
         }
     }
 
-    #priorityFormatter(id, data) {
-        const priorityRankToColor = [
-            "text-bg-danger",
-            "text-bg-warning",
-            "text-bg-primary",
-            "text-bg-info",
-            "text-bg-success",
-            "text-bg-light"
-        ];
-
-        if (typeof data?.priority?.rank === "number") {
-            return priorityRankToColor[data?.priority?.rank - 1] || "";
-        } else {
-            return "";
-        }
-    }
-
     #setLoading(value) {
         this.isLoading = value;
         this.requestUpdate();
@@ -296,7 +280,7 @@ export default class ClinicalAnalysisView extends LitElement {
                             display: {
                                 template: "${priority.id}",
                                 className: {
-                                    "priority.id": (id, data) => `badge ${this.#priorityFormatter(id, data)}`,
+                                    "priority.id": (id, data) => `badge ${WebUtils.getClinicalAnalysisPriorityColour(data?.priority?.rank)}`,
                                 },
                             }
                         },
