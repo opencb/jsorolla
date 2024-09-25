@@ -805,7 +805,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <a id="${reviewId}" href="javascript: void 0" class="dropdown-item reviewButton" data-action="edit" ${reviewDisabled}>
+                                        <a id="${reviewId}" href="javascript: void 0" class="dropdown-item reviewButton ${reviewDisabled}" data-action="edit">
                                             <i class="fas fa-edit me-1 reviewButton" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
@@ -1382,9 +1382,9 @@ export default class VariantInterpreterGrid extends LitElement {
         const reviewActionButton = document.getElementById(`${this._prefix}${variantId}VariantReviewActionButton`);
         if (reviewActionButton) {
             if (e.currentTarget.checked) {
-                reviewActionButton.removeAttribute("disabled");
+                reviewActionButton.classList.remove("disabled");
             } else {
-                reviewActionButton.setAttribute("disabled", "true");
+                reviewActionButton.classList.add("disabled");
             }
         }
 
@@ -1598,6 +1598,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     <div class="modal-content">
                         <div class="modal-header">
                             <h3>Review Variant Evidence</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         ${this.evidenceReview ? html`
                             <clinical-interpretation-variant-evidence-review
