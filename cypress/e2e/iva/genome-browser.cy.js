@@ -97,7 +97,7 @@ context("GenomeBrowser", () => {
 
             cy.get("@karyotype")
                 .find(`div[data-cy="gb-karyotype-toggle"]`)
-                .trigger("click");
+                .trigger("click", {force: true});
 
             cy.get("@karyotypeContent")
                 .invoke("css", "display")
