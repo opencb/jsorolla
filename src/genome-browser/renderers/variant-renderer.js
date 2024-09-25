@@ -46,10 +46,21 @@ export default class VariantRenderer extends Renderer {
         const lollipopStickHeight = this.config.lollipopHeight - this.config.lollipopFocusWidth - this.config.lollipopMaxWidth / 2;
         let lollipopStickStart = this.config.lollipopFocusWidth + this.config.lollipopMaxWidth / 2;
         let lollipopPositions = [];
+        let lollipopIndex = 0;
         let topPosition = this.config.lollipopVisible ? this.config.lollipopHeight : this.config.headerHeight;
 
+        // We have to filter features and consider only the ones that are in the current region
+        // this is important because when we request for breakends to OpenCGA it returns both variants of the breakend
+        const region = options.requestedRegion;
+        const featuresToDisplay = (features || []).filter(feature => {
+            return feature.chromosome === region.chromosome && feature.start <= region.end && region.start <= feature.end;
+        });
+
         if (this.config.lollipopVisible) {
-            lollipopPositions = LollipopLayout.fromFeaturesList(features || [], options.requestedRegion, lollipopRegionWidth, {
+            const featuresForLollipops = featuresToDisplay.filter(feature => {
+                return this.config.lollipopVariantTypes.includes(feature.type);
+            });
+            lollipopPositions = LollipopLayout.fromFeaturesList(featuresForLollipops, options.requestedRegion, lollipopRegionWidth, {
                 minSeparation: this.config.lollipopMaxWidth,
             });
         }
@@ -60,7 +71,16 @@ export default class VariantRenderer extends Renderer {
             lollipopStickStart = lollipopStickStart + this.config.highlightHeight;
         }
 
-        (features || []).forEach((feature, featureIndex) => {
+        featuresToDisplay.forEach((feature, featureIndex) => {
+            // Check if this variant has been previously rendered
+            if (options?.renderedFeatures && feature?.id) {
+                if (options.renderedFeatures.has(feature.id)) {
+                    return;
+                }
+                // Prevent rendering this variant in next calls of this renderer
+                options.renderedFeatures.add(feature.id);
+            }
+
             const group = SVG.addChild(options.svgCanvasFeatures, "g", {
                 "data-cy": "gb-variant",
                 "data-id": feature.id || "-",
@@ -86,9 +106,9 @@ export default class VariantRenderer extends Renderer {
 
             let variantElement = null;
 
-            // Check if lollipops are visible
-            if (this.config.lollipopVisible) {
-                const lollipopX = lollipopStartX + lollipopPositions[featureIndex];
+            // Check if lollipops are visible and the feature type is one of the allowed types for lollipops
+            if (this.config.lollipopVisible && this.config.lollipopVariantTypes?.includes?.(feature?.type)) {
+                const lollipopX = lollipopStartX + lollipopPositions[lollipopIndex];
                 const lollipopWidth = Math.min(1, Math.max(0, this.getValueFromConfig("lollipopWidth", [feature])));
                 const lollipopPath = [
                     `M ${lollipopX},${lollipopStickStart}`,
@@ -130,6 +150,8 @@ export default class VariantRenderer extends Renderer {
                         variantElement.setAttribute("stroke-width", 0);
                     });
                 }
+                // increment lollipop index
+                lollipopIndex = lollipopIndex + 1;
             } else {
                 variantElement = SVG.addChild(group, "rect", {
                     "data-cy": "gb-variant-lollipop-shape",
@@ -296,6 +318,7 @@ export default class VariantRenderer extends Renderer {
             lollipopMaxWidth: 15,
             lollipopShape: GenomeBrowserUtils.lollipopShapeFormatter,
             lollipopWidth: GenomeBrowserUtils.lollipopWidthFormatter,
+            lollipopVariantTypes: ["SNV", "INDEL", "BREAKEND"],
             // Lollipop focus
             lollipopFocusEnabled: true,
             lollipopFocusWidth: 2,

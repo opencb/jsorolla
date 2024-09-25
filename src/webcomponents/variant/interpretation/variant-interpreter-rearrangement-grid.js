@@ -376,7 +376,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.table.bootstrapTable({
             theadClasses: "table-light",
             buttonsClass: "light",
-            data: variants,
             columns: this._getDefaultColumns(),
             sidePagination: "server",
             // Josemi Note 2024-01-31: we have added the ajax function for local variants for getting genes info
@@ -430,7 +429,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     /*
      *  GRID FORMATTERS
      */
-    detailFormatter(value, row, a) {
+    detailFormatter(value, row) {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
         if (row && row.annotation) {
@@ -487,29 +486,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             console.error("This should never happen: row.studies[] is not valid");
         }
         return "-";
-    }
-
-    // DEPRECATED
-    pathogeniticyFormatter(value, row, index) {
-        // TODO we must call to PathDB to get the frequency of each variant, next code is just an example
-        return `
-            <div class="col-md-12" style="padding: 0px">
-                <form class="form-horizontal">
-                    <div class="col-md-12" style="padding: 0px">
-                        <form class="form-horizontal">
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
-                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
-                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
-                            </div>
-                        </form>
-                    </div>
-                </form>
-            </div>
-        `;
     }
 
     _getDefaultColumns() {
@@ -648,7 +624,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         </a>`,
                     field: "interpretation",
                     rowspan: 1,
-                    colspan: 4,
+                    colspan: 2,
                     halign: "center"
                 },
                 {
@@ -667,7 +643,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <a id="${reviewId}" href="javascript:void 0;" class="dropdown-item reviewButton" data-action="edit" ${reviewDisabled}>
+                                        <a id="${reviewId}" href="javascript:void 0;" class="dropdown-item reviewButton ${reviewDisabled}" data-action="edit">
                                             <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
@@ -686,6 +662,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     events: {
                         "click a": this.onActionClick.bind(this)
                     },
+                    visible: this._config?.showActions,
                     excludeFromExport: true,
                     excludeFromSettings: true,
                 }
@@ -717,25 +694,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 },
                 ...vcfDataColumns.vcf1,
                 ...vcfDataColumns.vcf2,
-                {
-                    id: "cohorts",
-                    title: "Cohorts",
-                    field: "cohort",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
-                    visible: (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY") && this.gridCommons.isColumnVisible("cohorts",)
-                },
-                {
-                    id: "prediction",
-                    title: `${this.clinicalAnalysis.type !== "CANCER" ? "ACMG <br> Prediction" : "Prediction"}`,
-                    field: "prediction",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: VariantInterpreterGridFormatter.predictionFormatter,
-                    halign: "center",
-                    visible: (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY") && this.gridCommons.isColumnVisible("prediction"),
-                },
                 {
                     title: "Select",
                     rowspan: 1,
@@ -788,9 +746,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         UtilsNew.objectClone(this.checkedVariants.get(row[1].id)),
                     ];
                     this.requestUpdate();
-                    // $("#" + this._prefix + "ReviewSampleModal").modal("show");
-                    // const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
-                    this.reviewSampleModal.show();
+                    // eslint-disable-next-line no-undef
+                    const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
+                    reviewSampleModal.show();
                 }
                 break;
             case "download":
@@ -947,9 +905,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         const reviewActionButton = document.getElementById(`${this._prefix}${this._rows[index][0].id}VariantReviewActionButton`);
         if (reviewActionButton) {
             if (event.currentTarget.checked) {
-                reviewActionButton.removeAttribute("disabled");
+                reviewActionButton.classList.remove("disabled");
             } else {
-                reviewActionButton.setAttribute("disabled", "true");
+                reviewActionButton.classList.add("disabled");
             }
         }
 
@@ -973,16 +931,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             ];
             this.requestUpdate();
 
-            // $("#" + this._prefix + "ReviewSampleModal").modal("show");
-            // const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
-            this.reviewSampleModal.show();
+            // eslint-disable-next-line no-undef
+            const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
+            reviewSampleModal.show();
         }
-    }
-
-    onConfigClick(e) {
-        // $("#" + this._prefix + "ConfigModal").modal("show");
-        const configModal = new bootstrap.Modal("#" + this._prefix + "ConfigModal");
-        configModal.show();
     }
 
     onVariantChange(e) {
@@ -1016,10 +968,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.requestUpdate();
     }
 
-    onCancelVariant(e) {
+    onCancelVariant() {
         this.variantsReview = null;
         this.requestUpdate();
-        // this._variantChanged = null;
     }
 
     render() {
@@ -1058,8 +1009,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                  role="dialog" aria-hidden="true" style="overflow-y: visible">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
+                        <div class="modal-header">
                             <h3>Review Variant</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         ${this.variantsReview ? html`
                             <clinical-interpretation-variant-review
@@ -1070,34 +1022,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                             </clinical-interpretation-variant-review>
                         ` : null}
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${() => this.onCancelVariant()}">Cancel</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal" @click="${() => this.onCancelVariant()}">Cancel</button>
                             <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${e => this.onSaveVariant(e)}">OK</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal fade pt-0" id="${this._prefix}ConfigModal" tabindex="-1"
-                role="dialog" aria-hidden="true" style="overflow-y: visible">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
-                        <h3>Settings</h3>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="container-fluid">
-                                <variant-interpreter-grid-config
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${this._config}"
-                                    .gridColumns="${this._columns}"
-                                    @configChange="${this.onGridConfigChange}">
-                                </variant-interpreter-grid-config>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${e => this.onGridConfigSave(e)}">OK</button>
                         </div>
                     </div>
                 </div>
@@ -1116,7 +1042,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             showReview: true,
             showEditReview: true,
             showSelectCheckbox: false,
-            showActions: false,
+            showActions: true,
             multiSelection: false,
             nucleotideGenotype: true,
             hideVcfFileData: false,
