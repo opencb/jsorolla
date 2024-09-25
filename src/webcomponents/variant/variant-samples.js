@@ -162,6 +162,9 @@ export default class VariantSamples extends LitElement {
             let variantResponse = null;
 
             if (query.variant?.length > 5000) {
+                variantResponse = await this.opencgaSession.opencgaClient.variants()
+                    .querySample(query);
+            } else {
                 // this is a workaround to prevent an error when the variant ID is too long (as GET requests may be blocked by the browser)
                 // we are using a deprecated POST endpoint of variant/query
                 const bodyParams = {
@@ -174,9 +177,6 @@ export default class VariantSamples extends LitElement {
                     ._post("analysis", null, "variant", null, "query", bodyParams, {
                         exclude: "annotation",
                     });
-            } else {
-                variantResponse = await this.opencgaSession.opencgaClient.variants()
-                    .querySample(query);
             }
 
             const variantSamplesResult = variantResponse.getResult(0);
