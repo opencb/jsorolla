@@ -541,15 +541,6 @@ export default class ClinicalAnalysisView extends LitElement {
                         visible: clinicalAnalysis => clinicalAnalysis?.id,
                     },
                     elements: [
-                        // {
-                        //     title: "File",
-                        //     field: "files",
-                        //     type: "list",
-                        //     display: {
-                        //         contentLayout: "bullets",
-                        //         template: "${name}",
-                        //     },
-                        // },
                         {
                             type: "table",
                             field: "files",
