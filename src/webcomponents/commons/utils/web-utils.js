@@ -50,6 +50,7 @@ export default class WebUtils {
             "FILE": "FILES",
             "CLINICAL_ANALYSIS": "CLINICAL_ANALYSIS",
             "CLINICAL_VARIANT": "CLINICAL_VARIANT",
+            "VARIANT": "VARIANT",
             "PROJECT": "PROJECTS",
             "STUDY": "STUDIES",
             "USER": "USERS",
