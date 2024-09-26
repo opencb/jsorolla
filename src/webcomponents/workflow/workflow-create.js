@@ -37,6 +37,9 @@ export default class WorkflowCreate extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            mode: {
+                type: String
+            },
             displayConfig: {
                 type: Object
             }
@@ -45,6 +48,8 @@ export default class WorkflowCreate extends LitElement {
 
     #init() {
         this.workflow = {};
+        this.updatedFields = {};
+        this.mode = "";
         this.displayConfigDefault = {
             buttonsVisible: true,
             buttonOkText: "Create",
@@ -53,7 +58,6 @@ export default class WorkflowCreate extends LitElement {
             defaultValue: "",
             defaultLayout: "horizontal"
         };
-        this.updatedFields = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -142,6 +146,7 @@ export default class WorkflowCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
+            mode: this.mode,
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {

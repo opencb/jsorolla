@@ -20,7 +20,6 @@ import UtilsNew from "../../core/utils-new.js";
 import "../commons/tool-header.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
-
 export default class WorkflowUpdate extends LitElement {
 
     constructor() {
@@ -35,7 +34,7 @@ export default class WorkflowUpdate extends LitElement {
 
     static get properties() {
         return {
-            individualId: {
+            workflowId: {
                 type: String
             },
             active: {
@@ -44,6 +43,9 @@ export default class WorkflowUpdate extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            mode: {
+                type: String
+            },
             displayConfig: {
                 type: Object
             }
@@ -51,9 +53,19 @@ export default class WorkflowUpdate extends LitElement {
     }
 
     #init() {
-        this._individual = {};
-        this.individualId = "";
-        this.displayConfig = {};
+        this._workflow = {};
+        this.workflowId = "";
+        this.mode = "";
+        this.displayConfig = {
+            titleWidth: 3,
+            modalButtonClassName: "btn-primary btn-sm",
+            titleVisible: false,
+            titleAlign: "left",
+            defaultLayout: "horizontal",
+            buttonsVisible: true,
+            buttonsWidth: 8,
+            buttonsAlign: "end",
+        };
 
         this._config = this.getDefaultConfig();
     }
@@ -66,8 +78,8 @@ export default class WorkflowUpdate extends LitElement {
         super.update(changedProperties);
     }
 
-    onComponentIdObserver(e) {
-        this._individual = UtilsNew.objectClone(e.detail.value);
+    onWorkflowIdObserver(e) {
+        this._workflow = UtilsNew.objectClone(e.detail.value);
         this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
@@ -75,33 +87,33 @@ export default class WorkflowUpdate extends LitElement {
     render() {
         return html`
             <opencga-update
-                .resource="${"INDIVIDUAL"}"
-                .componentId="${this.individualId}"
+                .resource="${"WORKFLOW"}"
+                .componentId="${this.workflowId}"
                 .opencgaSession="${this.opencgaSession}"
-                .active="${this.active}"
+                .active="${this.active || true}"
                 .config="${this._config}"
-                @componentIdObserver="${e => this.onComponentIdObserver(e)}">
+                @componentIdObserver="${e => this.onWorkflowIdObserver(e)}">
             </opencga-update>
         `;
     }
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            display: this.displayConfig,
+            mode: this.mode,
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
                     elements: [
                         {
-                            title: "Individual ID",
+                            title: "Workflow ID",
                             field: "id",
                             type: "input-text",
+                            required: true,
                             display: {
-                                disabled: true,
-                                placeholder: "Add a short ID...",
-                                helpMessage: this._individual.creationDate ? `Created on ${UtilsNew.dateFormatter(this._individual.creationDate)}` : "No creation date",
+                                placeholder: "Add an ID...",
                                 help: {
-                                    text: "Short individual ID for..."
+                                    text: "Add an ID",
                                 },
                             },
                         },
@@ -110,327 +122,118 @@ export default class WorkflowUpdate extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Add an individual name..."
+                                placeholder: "Add the workflow name...",
                             },
                         },
                         {
-                            title: "Father ID",
-                            field: "father.id",
-                            type: "custom",
+                            title: "Type",
+                            field: "type",
+                            type: "select",
+                            allowedValues: ["SECONDARY_ANALYSIS", "RESEARCH_ANALYSIS", "CLINICAL_INTERPRETATION_ANALYSIS", "OTHER"],
                             display: {
-                                placeholder: "Select the father ID ...",
-                                render: (fatherId, dataFormFilterChange, updateParams) => {
-                                    return html`
-                                    <catalog-search-autocomplete
-                                        .value="${fatherId}"
-                                        .resource="${"INDIVIDUAL"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .classes="${updateParams["father.id"] ? "selection-updated" : ""}"
-                                        .config="${{multiple: false}}"
-                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                    </catalog-search-autocomplete>
-                                `;
-                                }
+                                placeholder: "Select the type...",
                             },
                         },
                         {
-                            title: "Mother ID",
-                            field: "mother.id",
-                            type: "custom",
+                            title: "Tags",
+                            field: "tags",
+                            type: "input-text",
                             display: {
-                                placeholder: "Select the mother ID ...",
-                                render: (motherId, dataFormFilterChange, updateParams) => {
-                                    return html`
-                                    <catalog-search-autocomplete
-                                        .value="${motherId}"
-                                        .resource="${"INDIVIDUAL"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .classes="${updateParams["mother.id"] ? "selection-updated" : ""}"
-                                        .config="${{multiple: false}}"
-                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                    </catalog-search-autocomplete>
-                                `;
-                                }
-                            },
-                        },
-                        {
-                            title: "Sample ID(s)",
-                            field: "samples",
-                            type: "custom",
-                            display: {
-                                placeholder: "Select the sample IDs ...",
-                                render: (samples, dataFormFilterChange, updateParams) => {
-                                    const handleSamplesFilterChange = e => {
-                                        // We need to convert value from a string wth commas to an array of IDs
-                                        const sampleList = (e.detail.value?.split(",") || [])
-                                            .filter(sampleId => sampleId)
-                                            .map(sampleId => ({id: sampleId}));
-                                        dataFormFilterChange(sampleList);
-                                    };
-                                    return html`
-                                        <catalog-search-autocomplete
-                                            .value="${samples?.map(s => s.id).join(",")}"
-                                            .resource="${"SAMPLE"}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .classes="${updateParams.samples ? "selection-updated" : ""}"
-                                            .config="${{multiple: true}}"
-                                            @filterChange="${e => handleSamplesFilterChange(e)}">
-                                        </catalog-search-autocomplete>
-                                    `;
+                                placeholder: "Add tags...",
+                                help: {
+                                    text: "Comma-separated tags",
                                 },
                             },
                         },
                         {
-                            title: "Date of Birth",
-                            field: "dateOfBirth",
-                            type: "input-date",
-                            display: {
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
-                            },
-                        },
-                        {
-                            title: "Sex",
-                            field: "sex",
-                            type: "object",
-                            display: {},
-                            elements: [
-                                {
-                                    title: "ID",
-                                    field: "sex.id",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add phenotype ID...",
-                                    },
-                                },
-                                {
-                                    title: "Name",
-                                    field: "sex.name",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add a name...",
-                                    },
-                                },
-                                {
-                                    title: "Source",
-                                    field: "sex.source",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add an ontology source...",
-                                    },
-                                },
-                                {
-                                    title: "Description",
-                                    field: "sex.description",
-                                    type: "input-text",
-                                    display: {
-                                        rows: 2,
-                                        placeholder: "Add a description..."
-                                    },
-                                },
-                            ]
-                        },
-                        {
-                            title: "Ethnicity",
-                            field: "ethnicity",
-                            type: "object",
-                            display: {},
-                            elements: [
-                                {
-                                    title: "ID",
-                                    field: "ethnicity.id",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add phenotype ID...",
-                                    },
-                                },
-                                {
-                                    title: "Name",
-                                    field: "ethnicity.name",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add a name...",
-                                    },
-                                },
-                                {
-                                    title: "Source",
-                                    field: "ethnicity.source",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add an ontology source...",
-                                    },
-                                },
-                                {
-                                    title: "Description",
-                                    field: "ethnicity.description",
-                                    type: "input-text",
-                                    display: {
-                                        rows: 2,
-                                        placeholder: "Add a description..."
-                                    },
-                                },
-                            ]
-                        },
-                        {
-                            title: "Parental Consanguinity",
-                            field: "parentalConsanguinity",
+                            title: "Draft",
+                            field: "draft",
                             type: "checkbox",
                             display: {},
                         },
                         {
-                            title: "Karyotypic Sex",
-                            field: "karyotypicSex",
-                            type: "select",
-                            allowedValues: ["UNKNOWN", "XX", "XY", "XO", "XXY", "XXX", "XXYY", "XXXY", "XXXX", "XYY", "OTHER"],
-                            display: {},
-                        },
-                        {
-                            title: "Life Status",
-                            field: "lifeStatus",
-                            type: "select",
-                            allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
-                            display: {},
-                        },
-                        {
-                            title: "Location",
-                            field: "location",
+                            title: "Minimum Requirements",
+                            field: "minimumRequirements",
                             type: "object",
-                            display: {},
                             elements: [
                                 {
-                                    title: "Address",
-                                    field: "location.address",
-                                    type: "input-text",
+                                    title: "Min CPU cores",
+                                    field: "minimumRequirements.cpu",
+                                    type: "input-num",
                                     display: {},
                                 },
                                 {
-                                    title: "Postal Code",
-                                    field: "location.postalCode",
-                                    type: "input-text",
-                                    display: {},
-                                },
-                                {
-                                    title: "City",
-                                    field: "location.city",
-                                    type: "input-text",
-                                    display: {},
-                                },
-                                {
-                                    title: "State",
-                                    field: "location.state",
-                                    type: "input-text",
-                                    display: {},
-                                },
-                                {
-                                    title: "Country",
-                                    field: "location.country",
-                                    type: "input-text",
+                                    title: "Min memory",
+                                    field: "minimumRequirements.memory",
+                                    type: "input-num",
                                     display: {},
                                 },
                             ]
                         },
                         {
-                            title: "Population Info",
-                            field: "population",
-                            type: "object",
-                            display: {},
-                            elements: [
-                                {
-                                    title: "Population Name",
-                                    field: "population.name",
-                                    type: "input-text",
-                                    display: {},
-                                },
-                                {
-                                    title: "Subpopulation",
-                                    field: "population.subpopulation",
-                                    type: "input-text",
-                                    display: {},
-                                },
-                                {
-                                    title: "Population Description",
-                                    field: "population.description",
-                                    type: "input-text",
-                                    display: {
-                                        rows: 2,
-                                        placeholder: "Add a description...",
-                                    },
-                                },
-                            ]
+                            title: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add the workflow description...",
+                            },
                         },
                     ],
                 },
                 {
-                    title: "Phenotypes",
+                    title: "Input Variables",
+                    text: "Optional variables that can be used in the workflow, these are NOT necessary for the workflow to run. " +
+                        "The variables will be ONLY used to create automatic forms.",
                     elements: [
                         {
-                            title: "Phenotypes",
-                            field: "phenotypes",
+                            title: "Variables",
+                            field: "variables",
                             type: "object-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                collapsedUpdate: true,
-                                view: pheno => html`<div>${pheno.id} - ${pheno?.name}</div>`,
-                                search: {
-                                    title: "Autocomplete",
-                                    button: false,
-                                    render: (currentData, dataFormFilterChange) => html`
-                                        <cellbase-search-autocomplete
-                                            .resource="${"PHENOTYPE"}"
-                                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                            @filterChange="${e => dataFormFilterChange(e.detail.data)}">
-                                        </cellbase-search-autocomplete>
-                                    `,
-                                },
+                                // CAUTION 20231024 Vero: "collapsedUpdate" not considered in data-form.js. Perhaps "collapsed" (L1324 in data-form.js) ?
+                                // collapsedUpdate: true,
+                                view: variable => html`
+                                    <div>${variable.id}</div>
+                                `,
                             },
                             elements: [
                                 {
-                                    title: "Phenotype ID",
-                                    field: "phenotypes[].id",
+                                    title: "ID",
+                                    field: "variables[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add phenotype ID...",
-                                    },
+                                        placeholder: "Add workflow file name...",
+                                    }
                                 },
                                 {
                                     title: "Name",
-                                    field: "phenotypes[].name",
+                                    field: "variables[].name",
                                     type: "input-text",
+                                    display: {}
+                                },
+                                {
+                                    title: "Required",
+                                    field: "variables[].required",
+                                    type: "checkbox",
                                     display: {
-                                        placeholder: "Add a name...",
+                                        rows: 50,
+                                        placeholder: "Add a content...",
                                     },
                                 },
                                 {
-                                    title: "Source",
-                                    field: "phenotypes[].source",
+                                    title: "Default Value",
+                                    field: "variables[].defaultValue",
                                     type: "input-text",
-                                    display: {
-                                        placeholder: "Add a source...",
-                                    },
-                                },
-                                {
-                                    title: "Age of onset",
-                                    field: "phenotypes[].ageOfOnset",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add an age of onset..."
-                                    },
-                                },
-                                {
-                                    title: "Status",
-                                    field: "phenotypes[].status",
-                                    type: "select",
-                                    allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
-                                    display: {
-                                        placeholder: "Select a status..."
-                                    },
+                                    display: {}
                                 },
                                 {
                                     title: "Description",
-                                    field: "phenotypes[].description",
+                                    field: "variables[].description",
                                     type: "input-text",
                                     display: {
-                                        rows: 2,
-                                        placeholder: "Add a description..."
+                                        rows: 3,
+                                        placeholder: "Add a content...",
                                     },
                                 },
                             ],
@@ -438,67 +241,49 @@ export default class WorkflowUpdate extends LitElement {
                     ],
                 },
                 {
-                    title: "Disorders",
+                    title: "Scripts",
                     elements: [
                         {
-                            title: "Disorders",
-                            field: "disorders",
+                            title: "Scripts",
+                            field: "scripts",
                             type: "object-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                collapsedUpdate: true,
-                                view: disorder => html`<div>${disorder.id} - ${disorder?.name}</div>`,
-                                search: {
-                                    title: "Autocomplete",
-                                    button: false,
-                                    render: (currentData, dataFormFilterChange) => html`
-                                        <cellbase-search-autocomplete
-                                            .resource="${"DISORDER"}"
-                                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                            @filterChange="${e => dataFormFilterChange(e.detail.data)}">
-                                        </cellbase-search-autocomplete>
-                                    `,
-                                },
+                                // CAUTION 20231024 Vero: "collapsedUpdate" not considered in data-form.js. Perhaps "collapsed" (L1324 in data-form.js) ?
+                                // collapsedUpdate: true,
+                                view: workflow => html`
+                                    <div>${workflow.fileName}</div>
+                                `,
                             },
                             elements: [
                                 {
-                                    title: "Disorder ID",
-                                    field: "disorders[].id",
+                                    title: "File Name",
+                                    field: "scripts[].fileName",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add disorder ID...",
+                                        placeholder: "Add workflow file name...",
                                     }
                                 },
                                 {
-                                    title: "Name",
-                                    field: "disorders[].name",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add a name...",
-                                    }
+                                    title: "is main script?",
+                                    field: "scripts[].main",
+                                    type: "checkbox",
+                                    display: {}
                                 },
                                 {
-                                    title: "Source",
-                                    field: "disorders[].source",
+                                    title: "Content",
+                                    field: "scripts[].content",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add a source...",
-                                    }
+                                        rows: 50,
+                                        placeholder: "Add a content...",
+                                    },
                                 },
-                                {
-                                    title: "Description",
-                                    field: "disorders[].description",
-                                    type: "input-text",
-                                    display: {
-                                        rows: 2,
-                                        placeholder: "Add a description..."
-                                    }
-                                },
-                            ]
+                            ],
                         },
                     ],
                 },
-            ],
+            ]
         });
     }
 

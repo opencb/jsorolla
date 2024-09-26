@@ -213,7 +213,7 @@ const SUITE = {
     fileExplorer: {
         visibility: "private"
     },
-    workflowAnalysisExecutor: {
+    workflowManager: {
         visibility: "private"
     },
     customToolAnalysisExecutor: {

@@ -350,10 +350,10 @@ export default class CustomNavBar extends LitElement {
                                 </li>
                             ` : nothing}
 
-                            ${UtilsNew.isAppVisible(this.config?.workflowAnalysisExecutor, this.opencgaSession) ? html`
+                            ${UtilsNew.isAppVisible(this.config?.workflowManager, this.opencgaSession) ? html`
                                 <li id="fileButton">
-                                    <a href="#workflow-analysis" class="dropdown-button-wrapper"
-                                       title="Workflow Executor" role="button" @click="${this.onChangeTool}">
+                                    <a href="#workflow-manager" class="dropdown-button-wrapper"
+                                       title="Workflow Manager" role="button" @click="${this.onChangeTool}">
                                         <div class="dropdown-button-icon"><i class="fas fa-project-diagram"></i></div>
                                     </a>
                                 </li>

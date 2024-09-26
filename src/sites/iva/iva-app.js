@@ -58,6 +58,7 @@ import "../../webcomponents/job/job-view.js";
 import "../../webcomponents/job/analysis/tool-analysis.js";
 import "../../webcomponents/job/analysis/custom-tool-builder.js";
 import "../../webcomponents/workflow/workflow-browser.js";
+import "../../webcomponents/workflow/workflow-manager.js";
 import "../../webcomponents/workflow/analysis/workflow-analysis.js";
 import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
 import "../../webcomponents/variant/analysis/gwas-analysis.js";
@@ -195,6 +196,7 @@ class IvaApp extends LitElement {
             "variant-browser",
             "job",
             "workflow",
+            "workflow-manager",
             "workflow-analysis",
             "cat-browser",
             "cat-analysis",
@@ -1762,6 +1764,25 @@ class IvaApp extends LitElement {
                     </div>
                 ` : nothing}
 
+                ${this.config.enabledComponents["workflow-manager"] ? html`
+                    <tool-header title="Workflow Manager" icon="fas fa-stream"></tool-header>
+                    <div class="container py-3" id="workflow-manager">
+                        <workflow-manager
+                            .opencgaSession="${this.opencgaSession}">
+                        </workflow-manager>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["workflow-analysis"] ? html`
+                    <tool-header title="Workflow Analysis Executor" icon="fas fa-stream"></tool-header>
+                    <div class="container py-3" id="workflow-analysis">
+                        <workflow-analysis
+                            .toolParams="${{id: this.workflowId}}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </workflow-analysis>
+                    </div>
+                ` : nothing}
+
                 ${this.config.enabledComponents["cat-browser"] ? html`
                     <div class="content" id="cat-browser">
                         <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "variant-browser")}">
@@ -2062,16 +2083,6 @@ class IvaApp extends LitElement {
                         <custom-tool-builder
                             .opencgaSession="${this.opencgaSession}">
                         </custom-tool-builder>
-                    </div>
-                ` : nothing}
-
-                ${this.config.enabledComponents["workflow-analysis"] ? html`
-                    <tool-header title="Workflow Analysis Executor" icon="fas fa-stream"></tool-header>
-                    <div class="container py-3" id="workflow-analysis">
-                        <workflow-analysis
-                            .toolParams="${{id: this.workflowId}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </workflow-analysis>
                     </div>
                 ` : nothing}
 
