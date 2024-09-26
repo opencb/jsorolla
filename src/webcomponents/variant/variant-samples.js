@@ -163,7 +163,7 @@ export default class VariantSamples extends LitElement {
             this.numUserTotalSamples = 0;
             this.numSamples = 0;
 
-            if (query.variant?.length > 5000) {
+            if (query.variant?.length >= 5000) {
                 variantResponse = await this.opencgaSession.opencgaClient.variants()
                     .querySample(query);
                 this.numSamples = variantResponse.responses[0]?.attributes?.numSamplesRegardlessPermissions;
