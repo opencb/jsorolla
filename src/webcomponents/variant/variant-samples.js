@@ -176,6 +176,10 @@ export default class VariantSamples extends LitElement {
                     includeSample: "all",
                     includeSampleId: true,
                 };
+                // check if we have to filter by genotype
+                if (query.genotype) {
+                    bodyParams.sampleData = `GT=${query.genotype}`;
+                }
                 variantResponse = await this.opencgaSession.opencgaClient.variants()
                     ._post("analysis", null, "variant", null, "query", bodyParams, {
                         exclude: "annotation",
