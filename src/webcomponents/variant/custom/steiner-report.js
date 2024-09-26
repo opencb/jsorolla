@@ -58,9 +58,9 @@ class SteinerReport extends LitElement {
 
     #init() {
         this.gridTypes = {
-            snv: "variantInterpreterCancerSNV",
-            cnv: "variantInterpreterCancerCNV",
-            rearrangements: "variantInterpreterRearrangement",
+            snv: "variant-interpreter-cancer-snv",
+            cnv: "variant-interpreter-cancer-cnv",
+            rearrangements: "variant-interpreter-rearrangement",
         };
 
         this.callersInfo = {
