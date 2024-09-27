@@ -475,6 +475,7 @@ export default class FeatureTrack {
             renderedArea: this.renderedArea,
             renderedFeatures: this.renderedFeatures,
             pixelBase: this.pixelBase,
+            region: this.region,
             position: this.region.center(),
             regionSize: this.region.length(),
             labelMaxRegionSize: this.config.labelMaxRegionSize,
