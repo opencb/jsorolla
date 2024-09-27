@@ -542,12 +542,40 @@ export default class ClinicalAnalysisView extends LitElement {
                     },
                     elements: [
                         {
-                            title: "File",
+                            type: "table",
                             field: "files",
-                            type: "list",
                             display: {
-                                contentLayout: "bullets",
-                                template: "${name}",
+                                columns: [
+                                    {
+                                        title: "Name",
+                                        field: "name",
+                                    },
+                                    {
+                                        title: "Size",
+                                        field: "size",
+                                        display: {
+                                            format: size => UtilsNew.getDiskUsage(size),
+                                        },
+                                    },
+                                    {
+                                        title: "Format",
+                                        field: "format",
+                                    },
+                                    {
+                                        title: "Software",
+                                        field: "software",
+                                        display: {
+                                            format: software => software?.name ? `${software.name} (${software.version || "-"})` : "-",
+                                        },
+                                    },
+                                    {
+                                        title: "Creation Date",
+                                        field: "creationDate",
+                                        display: {
+                                            format: creationDate => UtilsNew.dateFormatter(creationDate, "D MMM YYYY, h:mm:ss a"),
+                                        }
+                                    },
+                                ],
                             },
                         }
                     ]
