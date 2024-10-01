@@ -260,7 +260,7 @@ class VariantInterpreterBrowserRd extends LitElement {
             });
 
             // Add 'file' filter if 'fileData' exists
-            if (this.files) {
+            if (this.files?.length > 1) {
                 const fileNames = this.files.map(f => f.name).join(",");
                 for (const filter of _activeFilterFilters) {
                     if (filter.query?.fileData && !filter.query?.file) {
@@ -307,9 +307,9 @@ class VariantInterpreterBrowserRd extends LitElement {
     getDefaultConfig() {
         const lockedFields = [
             {id: "sample"},
-            {id: "sampleData"},
-            {id: "file"},
-            {id: "fileData"},
+            // {id: "sampleData"},
+            // {id: "file"},
+            // {id: "fileData"},
         ];
 
         // Add panels to locked fields
