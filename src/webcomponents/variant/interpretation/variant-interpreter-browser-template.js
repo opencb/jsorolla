@@ -463,7 +463,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                 .state="${this.clinicalAnalysisManager.state}"
                                 .variantInclusionState="${this.variantInclusionState}"
-                                .write="${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")}"
+                                .write="${OpencgaCatalogUtils.getStudyEffectivePermission(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS", this.opencgaSession.organization?.configuration?.optimizations?.simplifyPermissions)}"
                                 @filterVariants="${this.onFilterVariants}"
                                 @resetVariants="${this.onResetVariants}"
                                 @saveInterpretation="${this.onSaveVariants}">
