@@ -763,6 +763,17 @@ context("GenomeBrowser", () => {
                         .find("polyline")
                         .should("exist");
                 });
+
+                it("should display a tooltip when hovering the coverage", () => {
+                    // eslint-disable-next-line cypress/no-force
+                    cy.get("@coverage")
+                        .find(`rect[data-cy="gb-coverage-tooltip-mask"]`)
+                        .trigger("mouseenter", {force: true});
+
+                    cy.get("@coverage")
+                        .find(`text[data-cy="gb-coverage-tooltip-text"]`)
+                        .should("not.have.css", "display", "none");
+                });
             });
 
             context("alignments", () => {
