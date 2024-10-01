@@ -387,7 +387,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             <button class="${`btn btn-success ${this.activeView === id ? "active" : ""}`}" @click="${() => this.onChangeView(id)}">
                 <i class="${`fa fa-${icon} icon-padding`}" aria-hidden="true"></i>
                 <strong>${title}</strong>
-            </button>`;
+            </button>
+        `;
     }
 
     render() {
@@ -435,7 +436,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
                 <div class="flex-grow-1">
                     <!-- View toolbar -->
-                    <div class="content-pills mb-3" role="toolbar" aria-label="toolbar">
+                    <div class="d-flex gap-1 mb-3" role="toolbar" aria-label="toolbar">
                         ${this.renderViewButton("table", "Table Result", "table")}
                         ${!this.settings?.hideGenomeBrowser ? this.renderViewButton("genome-browser", "Genome Browser", "dna") : nothing}
                     </div>
@@ -563,11 +564,50 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 },
                 {
                     type: "opencga-variant",
+                    visible: ["SINGLE", "FAMILY"].includes(this.clinicalAnalysis?.type),
                     config: {
                         title: "Variants",
                         query: {
                             sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
                         },
+                    },
+                },
+                {
+                    type: "opencga-variant",
+                    visible: this.clinicalAnalysis?.type === "CANCER",
+                    config: {
+                        title: "Small Variants",
+                        query: {
+                            sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                            type: "SNV,INDEL",
+                        },
+                        headerHeight: 0,
+                    },
+                },
+                {
+                    type: "opencga-variant",
+                    visible: this.clinicalAnalysis?.type === "CANCER",
+                    config: {
+                        title: "Copy Number Variants",
+                        query: {
+                            sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                            type: "COPY_NUMBER",
+                        },
+                        lollipopVisible: false,
+                        highlightVisible: false,
+                        headerHeight: 0,
+                    },
+                },
+                {
+                    type: "opencga-variant",
+                    visible: this.clinicalAnalysis?.type === "CANCER",
+                    config: {
+                        title: "Structural Variants",
+                        query: {
+                            sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                            type: "BREAKEND,INSERTION,DELETION,DUPLICATION",
+                        },
+                        headerHeight: 0,
                     },
                 },
                 ...(this.clinicalAnalysis.proband?.samples || []).map(sample => ({
