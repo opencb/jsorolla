@@ -22,7 +22,6 @@ import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 import "../../commons/filters/consequence-type-select-filter.js";
 
-
 export default class VariantSecondarySampleIndexConfigureOperation extends LitElement {
 
     constructor() {
@@ -65,7 +64,6 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
-            // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
             this.study = this.toolParams.study || "";
         }
     }
