@@ -149,11 +149,11 @@ export default class SampleGrid extends LitElement {
         this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
-    fetchClinicalAnalysis(rows, casesLimit) {
+    fetchClinicalAnalysis(rows, individuals, casesLimit) {
         if (rows && rows.length > 0) {
             return this.opencgaSession.opencgaClient.clinical()
                 .search({
-                    individual: rows.map(sample => sample.individualId).join(","),
+                    individual: individuals,
                     study: this.opencgaSession.study.fqn,
                     include: "id,proband.id,family.members",
                     limit: casesLimit * 10,
@@ -233,7 +233,14 @@ export default class SampleGrid extends LitElement {
                         .then(response => {
                             sampleResponse = response;
                             // Fetch clinical analysis to display the Case ID
-                            return this.fetchClinicalAnalysis(sampleResponse?.responses?.[0]?.results || [], casesLimit);
+                            const samples = sampleResponse?.responses?.[0]?.results;
+                            const individuals = (samples || [])
+                                .map(sample => sample.individualId)
+                                .filter(individualId => !!individualId)
+                                .join(",");
+                            if (individuals) {
+                                return this.fetchClinicalAnalysis(samples || [], individuals, casesLimit);
+                            }
                         })
                         .then(() => {
                             // Prepare data for columns extensions
