@@ -63,10 +63,6 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     update(changedProperties) {
-        // if (changedProperties.has("opencgaSession")) {
-        //     this.writeMode = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
-        // }
-
         if (changedProperties.has("config")) {
             this._config.items = UtilsNew.mergeArray(this._config.items, this.config.tabs, false, true);
         }
@@ -98,16 +94,6 @@ class VariantInterpreterLanding extends LitElement {
                 </div>
             `;
         }
-
-        // Check if we have permissions to edit a clinical analysis
-        /* if (!OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>You do not have permissions to edit this case.</h3>
-                </div>
-            `;
-        } */
 
         return html`
             <detail-tabs
