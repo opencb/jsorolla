@@ -69,6 +69,7 @@ export default class VariantSamples extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this.config);
 
         // Nacho: to be more consistent with the rest of the application we are NOT selecting all genotypes by default
+        this.genotypeFilter = "";
         this.selectedGenotypes = "";
         // const selectedGenotypesArray = [];
         // for (const genotype of this.config.genotypes) {
@@ -396,12 +397,15 @@ export default class VariantSamples extends LitElement {
     }
 
     onSelectFilterChange(e) {
-        this._genotypeFilter = e.detail?.value;
+        this.selectedGenotypes = e.detail?.value;
+        this.requestUpdate();
     }
 
     onSearch() {
-        this.genotypeFilter = this._genotypeFilter;
-        this.renderTable();
+        if (this.selectedGenotypes !== this.genotypeFilter) {
+            this.genotypeFilter = this.selectedGenotypes;
+            this.renderTable();
+        }
     }
 
     render() {
