@@ -411,7 +411,7 @@ export default class VariantSamples extends LitElement {
             <div>
                 ${this.numSamples !== this.numUserTotalSamples ? html`
                     <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-circle"></i>
+                        <i class="fas fa-exclamation-circle me-1"></i>
                         Number of samples found is <span style="font-weight: bold">${this.numSamples}</span>
                         ${this.approximateCount === true ? html` (<i>please note this is an estimated number</i>)` : ""}, and
                         your user account has permission to view <span style="font-weight: bold">${this.numUserTotalSamples} samples</span>.
