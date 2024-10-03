@@ -71,13 +71,6 @@ export default class VariantSamples extends LitElement {
         // Nacho: to be more consistent with the rest of the application we are NOT selecting all genotypes by default
         this.genotypeFilter = "";
         this.selectedGenotypes = "";
-        // const selectedGenotypesArray = [];
-        // for (const genotype of this.config.genotypes) {
-        //     if (genotype.fields) {
-        //         selectedGenotypesArray.push(genotype.fields.filter(gt => gt.id).map(gt => gt.id).join(","));
-        //     }
-        // }
-        // this.selectedGenotypes = selectedGenotypesArray.join(",");
     }
 
     updated(changedProperties) {
