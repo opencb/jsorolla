@@ -426,6 +426,13 @@ export default class VariantSamples extends LitElement {
                     </div>
                 ` : nothing}
 
+                ${this.selectedGenotypes !== this.genotypeFilter ? html`
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle align-middle me-1"></i>
+                        <span>The selected genotypes have been updated. Please click the <b>Search</b> button to refresh the table with the updated results.</span>
+                    </div>    
+                ` : nothing}
+
                 <div class="row" style="margin-top: 20px">
                     <div class="col-md-12">
                         <div class="col-md-4"><label>Select Genotypes:</label></div>
