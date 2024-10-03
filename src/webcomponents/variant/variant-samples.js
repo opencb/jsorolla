@@ -431,21 +431,17 @@ export default class VariantSamples extends LitElement {
                         <div class="col-md-4"><label>Select Genotypes:</label></div>
                     </div>
                     <div class="col-md-12">
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <select-field-filter
-                                    .data="${this.config.genotypes}"
-                                    .value="${this.selectedGenotypes}"
-                                    .selectedTextFormat="${"count > 3"}"
-                                    .config="${{multiple: true}}"
-                                    @filterChange="${this.onSelectFilterChange}">
-                                </select-field-filter>
-                                <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" @click="${this.onSearch}">
-                                    <i class="fas fa-search"></i> Search
-                                </button>
-                            </span>
-                            </div>
+                        <div class="d-flex gap-1">
+                            <select-field-filter
+                                .data="${this.config.genotypes}"
+                                .value="${this.selectedGenotypes}"
+                                .selectedTextFormat="${"count > 3"}"
+                                .config="${{multiple: true}}"
+                                @filterChange="${this.onSelectFilterChange}">
+                            </select-field-filter>
+                            <button class="btn btn-light" type="button" @click="${this.onSearch}">
+                                <i class="fas fa-search me-1"></i> Search
+                            </button>
                         </div>
                     </div>
                 </div>
