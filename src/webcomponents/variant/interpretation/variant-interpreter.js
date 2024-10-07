@@ -261,23 +261,6 @@ class VariantInterpreter extends LitElement {
         `;
     }
 
-    renderReportTab() {
-        const settingReporter = this.settings?.tools?.filter(tool => tool?.id === "report")[0];
-        return html`
-            <div class="col-md-10 offset-md-1">
-                <tool-header
-                    class="bg-white"
-                    title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
-                </tool-header>
-                <clinical-analysis-review
-                    @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
-                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                    .opencgaSession="${this.opencgaSession}">
-                </clinical-analysis-review>
-            </div>
-        `;
-    }
-
     renderToolStep(item) {
         if (typeof item.visible === "undefined" || !!item.visible) {
             const isDisabled = !this.clinicalAnalysis && item.id !== "select" || item.disabled;
@@ -378,7 +361,17 @@ class VariantInterpreter extends LitElement {
                 case "report":
                     return html`
                         <div id="${this._prefix}report" >
-                            ${this.renderReportTab()}
+                            <div class="col-md-10 offset-md-1">
+                                <tool-header
+                                    class="bg-white"
+                                    title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
+                                </tool-header>
+                                <clinical-analysis-review
+                                    @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </clinical-analysis-review>
+                            </div>
                         </div>
                     `;
                 default:
