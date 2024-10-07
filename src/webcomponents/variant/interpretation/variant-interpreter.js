@@ -31,7 +31,6 @@ import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
 import "./variant-interpreter-methods.js";
 import "../custom/steiner-variant-interpreter-analysis.js";
-import "../custom/steiner-report.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
@@ -264,35 +263,19 @@ class VariantInterpreter extends LitElement {
 
     renderReportTab() {
         const settingReporter = this.settings?.tools?.filter(tool => tool?.id === "report")[0];
-        if (settingReporter && settingReporter?.component === "steiner-report") {
-            return html`
-                <div class="col-md-10 offset-md-1">
-                    <tool-header
-                        class="bg-white"
-                        title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
-                    </tool-header>
-                    <steiner-report
-                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                        .opencgaSession="${this.opencgaSession}"
-                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                    </steiner-report>
-                </div>
-            `;
-        } else {
-            return html`
-                <div class="col-md-10 offset-md-1">
-                    <tool-header
-                        class="bg-white"
-                        title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
-                    </tool-header>
-                    <clinical-analysis-review
-                        @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
-                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </clinical-analysis-review>
-                </div>
-            `;
-        }
+        return html`
+            <div class="col-md-10 offset-md-1">
+                <tool-header
+                    class="bg-white"
+                    title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
+                </tool-header>
+                <clinical-analysis-review
+                    @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
+                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                    .opencgaSession="${this.opencgaSession}">
+                </clinical-analysis-review>
+            </div>
+        `;
     }
 
     renderToolStep(item) {
