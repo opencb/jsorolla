@@ -30,7 +30,6 @@ import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
 import "./variant-interpreter-methods.js";
-import "../custom/steiner-variant-interpreter-analysis.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
@@ -241,16 +240,6 @@ class VariantInterpreter extends LitElement {
     }
 
     renderCustomAnalysisTab() {
-        const analysisSettings = (this.settings?.tools || []).find(tool => tool?.id === "custom-analysis");
-        if (analysisSettings?.component === "steiner-analysis") {
-            return html`
-                <steiner-variant-interpreter-analysis
-                    .opencgaSession="${this.opencgaSession}"
-                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                </steiner-variant-interpreter-analysis>
-            `;
-        }
-
         // No custom anaysis content available
         return html`
             <div class="col-md-6 offset-md-3 p-4">
