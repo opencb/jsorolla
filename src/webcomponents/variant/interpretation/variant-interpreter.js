@@ -239,17 +239,6 @@ class VariantInterpreter extends LitElement {
             });
     }
 
-    renderCustomAnalysisTab() {
-        // No custom anaysis content available
-        return html`
-            <div class="col-md-6 offset-md-3 p-4">
-                <div class="alert alert-warning" role="alert">
-                    No custom analysis available at this time.
-                </div>
-            </div>
-        `;
-    }
-
     renderToolStep(item) {
         if (typeof item.visible === "undefined" || !!item.visible) {
             const isDisabled = !this.clinicalAnalysis && item.id !== "select" || item.disabled;
@@ -305,7 +294,11 @@ class VariantInterpreter extends LitElement {
                 case "custom-analysis":
                     return html`
                         <div id="${this._prefix}customAnalysis" class="clinical-portal-content">
-                            ${this.renderCustomAnalysisTab()}
+                            <div class="col-md-6 offset-md-3 p-4">
+                                <div class="alert alert-warning" role="alert">
+                                    No custom analysis available at this time.
+                                </div>
+                            </div>
                         </div>
                     `;
                 case "methods":
