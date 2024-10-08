@@ -40,6 +40,10 @@ export default {
                     return extension.render({
                         html: html,
                         opencgaSession: opencgaSession,
+                        data: data,
+                        active: active,
+                        // DEPRECATED: 'tabData' and 'tabActive' have been renamed as 'data' and 'active' respectively.
+                        // Will be removed in future versions
                         tabData: data,
                         tabActive: active,
                     });
