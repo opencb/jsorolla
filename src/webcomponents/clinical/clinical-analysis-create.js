@@ -108,7 +108,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
             //     id: this.opencgaSession?.user?.id
             // },
             comments: [],
-            panelLock: false,
+            panelLocked: false,
             samples: [],
         };
     }
@@ -358,7 +358,35 @@ export default class ClinicalAnalysisCreate extends LitElement {
             delete data.dueDate;
         }
 
-        this.opencgaSession.opencgaClient.clinical().create(data, {study: this.opencgaSession.study.fqn, createDefaultInterpretation: true})
+        this.opencgaSession.opencgaClient.clinical()
+            .create(data, {
+                study: this.opencgaSession.study.fqn,
+                includeResult: true
+            })
+            .then(response => {
+                const interpretationId = response?.responses?.[0]?.results?.[0]?.interpretation?.id;
+                const interpretationData = {
+                    method: {
+                        name: "iva-default",
+                        version: this.opencgaSession?.about?.Version || "-",
+                        dependencies: [
+                            {
+                                name: "OpenCGA",
+                                version: this.opencgaSession?.about?.Version || "-",
+                            },
+                            {
+                                name: "Cellbase",
+                                version: this.opencgaSession.project?.cellbase?.version || "-",
+                            },
+                        ],
+                    },
+                };
+                return this.opencgaSession.opencgaClient.clinical()
+                    .updateInterpretation(data.id, interpretationId, interpretationData, {
+                        study: this.opencgaSession.study.fqn,
+                        methodsAction: "SET",
+                    });
+            })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Clinical analysis created",
@@ -478,7 +506,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                         },
                         {
                             title: "Disease Panel Lock",
-                            field: "panelLock",
+                            field: "panelLocked",
                             type: "toggle-switch",
                             display: {
                                 helpMessage: "You must select at least one of the Clinical Analysis panels to enable Disease Panel Lock.",
@@ -502,7 +530,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     return html`
                                         <clinical-flag-filter
                                             .flag="${flags?.map(f => f.id).join(",")}"
-                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type?.toUpperCase()]}"
+                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags || []}"
                                             .multiple="${true}"
                                             @filterChange="${e => handleFlagsFilterChange(e, "flags.id")}">
                                         </clinical-flag-filter>

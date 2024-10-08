@@ -86,6 +86,7 @@ export default class ClinicalStatusFilter extends LitElement {
             <select-field-filter
                 .data="${this.uniqueStatuses}"
                 .value="${this.status}"
+                .forceSelection="${this.forceSelection}"
                 .config="${{
                     placeholder: this.placeholder,
                     multiple: this.multiple,

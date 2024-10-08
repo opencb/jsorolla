@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
 import "./filters/catalog-search-autocomplete.js";
@@ -190,7 +190,7 @@ export default class OpencgaBrowserFilter extends LitElement {
         let content = "";
 
         if (subsection.render) {
-            content = subsection.render(this.onFilterChange, this.preparedQuery, this.opencgaSession);
+            content = subsection.render((key, value) => this.onFilterChange(key, value), this.preparedQuery, this.opencgaSession);
         } else {
             const id = subsection.id === "priority" ? `${this.resource.toLowerCase()}_${subsection.id}`: subsection.id;
             switch (id) {
@@ -262,6 +262,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "internalStatus":
                 case "visited":
                 case "job_priority":
+                case "visibility":
                     content = html`
                         <select-field-filter
                             .value="${this.preparedQuery[subsection.id]}"
@@ -275,13 +276,13 @@ export default class OpencgaBrowserFilter extends LitElement {
                     break;
                 case "path":
                     content = html`
-                        <text-field-filter2
+                        <text-field-filter
                             .value="${this.preparedQuery[subsection.id]}"
                             .config="${{
                                 placeholder: subsection?.placeholder
                             }}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                        </text-field-filter2>
+                        </text-field-filter>
                     `;
                     break;
                 case "annotations":
@@ -317,7 +318,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                     content = html`
                         <clinical-status-filter
                             .status="${this.preparedQuery[subsection.id]}"
-                            .statuses="${Object.values(this.opencgaSession.study.internal?.configuration?.clinical?.status)?.flat()}"
+                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status || []}"
                             .multiple="${true}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                         </clinical-status-filter>

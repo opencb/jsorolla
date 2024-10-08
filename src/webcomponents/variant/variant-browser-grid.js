@@ -438,73 +438,6 @@ export default class VariantBrowserGrid extends LitElement {
         return result;
     }
 
-    siftPproteinScoreFormatter(value, row, index) {
-        let min = 10;
-        let description = "";
-        if (row && row.annotation?.consequenceTypes?.length > 0) {
-            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
-                    for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                        const substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
-                        if (substitutionScore.source === "sift" && substitutionScore.score < min) {
-                            min = substitutionScore.score;
-                            description = substitutionScore.description;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (min < 10) {
-            return `<span style="color: ${this.consequenceTypeColors.pssColor.get("sift")[description]}" title=${min}>${description}</span>`;
-        }
-        return "-";
-    }
-
-    polyphenProteinScoreFormatter(value, row, index) {
-        let max = 0;
-        let description = "";
-        if (row && row.annotation?.consequenceTypes?.length > 0) {
-            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
-                    for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                        const substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
-                        if (substitutionScore.source === "polyphen" && substitutionScore.score >= max) {
-                            max = substitutionScore.score;
-                            description = substitutionScore.description;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (max > 0) {
-            return `<span style="color: ${this.consequenceTypeColors.pssColor.get("polyphen")[description]}" title=${max}>${description}</span>`;
-        }
-        return "-";
-    }
-
-    revelProteinScoreFormatter(value, row, index) {
-        let max = 0;
-        if (row && row.annotation?.consequenceTypes?.length > 0) {
-            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
-                    for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                        const substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
-                        if (substitutionScore.source === "revel" && substitutionScore.score >= max) {
-                            max = substitutionScore.score;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (max > 0) {
-            return `<span style="color: ${max > 0.5 ? "darkorange" : "black"}" title=${max}>${max}</span>`;
-        }
-        return "-";
-    }
-
     conservationFormatter(value, row, index) {
         if (row?.annotation?.conservation?.length > 0) {
             for (const conservation of row.annotation.conservation) {
@@ -818,7 +751,7 @@ export default class VariantBrowserGrid extends LitElement {
                             tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle text-primary" aria-hidden="true"></i></a>`,
                     field: "clinicalInfo",
                     rowspan: 1,
-                    colspan: 3,
+                    colspan: 6,
                     align: "center"
                 },
                 // ...ExtensionsManager.getColumns("variant-browser-grid"),
@@ -854,13 +787,13 @@ export default class VariantBrowserGrid extends LitElement {
                                     <li>
                                         <a target="_blank" class="dropdown-item" ${row.type !== "SNV" ? "disabled" : ""} title="${row.type !== "SNV" ? "Only SNV are accepted" : ""}"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "decipher")}">
-                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i> Decipher
+                                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> Decipher
                                         </a>
                                     </li>
                                     <li data-cy="varsome-variant-link">
                                         <a target="_blank" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""}
                                             href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Varsome
+                                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> Varsome
                                         </a>
                                     </li>
 
@@ -868,7 +801,7 @@ export default class VariantBrowserGrid extends LitElement {
                                     ${["v5.2", "v5.8"].map(v => `
                                     <li>
                                         <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`)}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
+                                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i>
                                             CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}
                                         </a>
                                     </li>
@@ -877,37 +810,37 @@ export default class VariantBrowserGrid extends LitElement {
                                     <li>
                                         <a target="_blank" class="dropdown-item"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser", this.opencgaSession?.project?.organism?.assembly)}">
-                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i> Ensembl Genome Browser
+                                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> Ensembl Genome Browser
                                         </a>
                                     </li>
                                     <li>
                                         <a target="_blank" class="dropdown-item"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ucsc_genome_browser")}">
-                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i> UCSC Genome Browser
+                                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> UCSC Genome Browser
                                         </a>
                                     </li>
                                     <li role="separator" class="divider"></li>
                                     <li class="dropdown-header">Copy Variant Info</li>
                                     <li data-cy="copy-link">
                                         <a class="btn force-text-left" data-action="copy-link">
-                                            <i class="fas fa-copy icon-padding"></i> Copy IVA Link
+                                            <i class="fas fa-copy me-1"></i> Copy IVA Link
                                         </a>
                                     </li>
                                     <li data-cy="varsome-copy">
                                         <a href="javascript: void 0" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
-                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Copy Varsome ID
+                                            <i class="fas fa-download me-1" aria-hidden="true"></i> Copy Varsome ID
                                         </a>
                                     </li>
                                     <li role="separator" class="divider"></li>
                                     <li class="dropdown-header">Fetch Variant</li>
                                     <li>
                                         <a href="javascript: void 0" class="dropdown-item" data-action="copy-json">
-                                            <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
+                                            <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
                                         </a>
                                     </li>
                                     <li>
                                         <a href="javascript: void 0" class="dropdown-item" data-action="download">
-                                            <i class="fas fa-download" aria-hidden="true"></i> Download JSON
+                                            <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
                                         </a>
                                     </li>
                                 </ul>
@@ -929,7 +862,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "sift",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.siftPproteinScoreFormatter.bind(this),
+                    formatter: (value, row) => VariantGridFormatter.siftPproteinScoreFormatter(value, row, this.consequenceTypeColors),
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("SIFT", "deleteriousness")
                 },
@@ -939,7 +872,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "polyphen",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.polyphenProteinScoreFormatter.bind(this),
+                    formatter: (value, row) => VariantGridFormatter.polyphenProteinScoreFormatter(value, row, this.consequenceTypeColors),
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("polyphen", "deleteriousness")
                 },
@@ -949,7 +882,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "revel",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.revelProteinScoreFormatter.bind(this),
+                    formatter: (value, row) => VariantGridFormatter.revelProteinScoreFormatter(value, row),
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("revel", "deleteriousness")
                 },
@@ -1033,6 +966,16 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: this.gridCommons.isColumnVisible("cosmic", "clinicalInfo")
                 },
                 {
+                    id: "hgmd",
+                    title: "HGMD",
+                    field: "hgmd",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
+                    align: "center",
+                    visible: this.gridCommons.isColumnVisible("hgmd", "clinicalInfo")
+                },
+                {
                     id: "omim",
                     title: "OMIM",
                     field: "omim",
@@ -1041,6 +984,26 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: VariantGridFormatter.clinicalOmimFormatter,
                     align: "center",
                     visible: this.gridCommons.isColumnVisible("omim"),
+                },
+                {
+                    id: "pharmgkb",
+                    title: "PharmGKB",
+                    field: "pharmgkb",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalPharmGKBFormatter,
+                    align: "center",
+                    visible: this.gridCommons.isColumnVisible("pharmgkb"),
+                },
+                {
+                    id: "hotspots",
+                    title: "Cancer Hotspots",
+                    field: "hotspots",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalCancerHotspotsFormatter,
+                    align: "center",
+                    visible: this.gridCommons.isColumnVisible("hotspots"),
                 },
             ]
         ];

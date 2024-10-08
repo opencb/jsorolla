@@ -816,7 +816,7 @@ export default class DataForm extends LitElement {
                 ` : nothing}
                 ${hasErrorMessages ? html`
                     <div class="d-flex mt-2 text-body-secondary">
-                        <div class="ms-2">
+                        <div class="me-2">
                             <i class="${this._getErrorIcon(element)}"></i>
                         </div>
                         <div class="fw-bold">
@@ -837,7 +837,7 @@ export default class DataForm extends LitElement {
         const content = html`
             <div class="${textClass} ${notificationClass}" style="${textStyle}">
                 ${element.display?.icon ? html`
-                    <i class="fas fa-${element.display.icon} ms-1"></i>
+                    <i class="fas fa-${element.display.icon} me-2"></i>
                 ` : nothing}
                 <span>${value || ""}</span>
             </div>
@@ -972,17 +972,14 @@ export default class DataForm extends LitElement {
 
     _createToggleButtonsElement(element) {
         const value = this.getValue(element.field);
-        const names = element.allowedValues;
-        const activeClassName = element.display?.activeClassName ?? element.display?.activeClass ?? "";
-        const inactiveClassName = element.display?.inactiveClassName ?? element.display?.inactiveClass ?? "";
-
+        const allowedValues = element.allowedValues || [];
+        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
         const content = html`
             <toggle-buttons
-                .names="${names}"
+                .data="${allowedValues}"
                 .value="${value}"
-                .activeClass="${activeClassName}"
-                .inactiveClass="${inactiveClassName}"
                 .classes="${this._isUpdated(element) ? "updated" : ""}"
+                .disabled="${disabled}"
                 @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
             </toggle-buttons>
         `;
@@ -1355,7 +1352,8 @@ export default class DataForm extends LitElement {
                                         content = this._createImageElement(elem);
                                         break;
                                     case "custom":
-                                        content = elem.display?.render(this.getValue(elem.field, row));
+                                        // content = elem.display?.render(this.getValue(elem.field, row));
+                                        content = elem.display?.render(this.getValue(elem.field, row), value => this.onFilterChange(elem, value), this.updateParams, this.data, row);
                                         break;
                                     default:
                                         content = this.getValue(elem.field, row, this._getDefaultValue(element, section), elem.display);

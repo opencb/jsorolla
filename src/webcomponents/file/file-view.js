@@ -240,7 +240,7 @@ export default class FileView extends LitElement {
                             title: "Status",
                             type: "complex",
                             display: {
-                                template: "${internal.status.name} (${internal.status.date})",
+                                template: "${internal.status.id} (${internal.status.date})",
                                 format: {
                                     "internal.status.date": date => UtilsNew.dateFormatter(date),
                                 }

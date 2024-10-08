@@ -372,7 +372,7 @@ export default class ClinicalAnalysisView extends LitElement {
                                 template: "${disorder.name} (${disorder.id})",
                                 link: {
                                     "disorder.id": id => id.startsWith("OMIM:") ?
-                                        BioinfoUtils.getOmimLink(id) :
+                                        BioinfoUtils.getOmimOntologyLink(id) :
                                         "",
                                 },
                             },
@@ -478,7 +478,7 @@ export default class ClinicalAnalysisView extends LitElement {
                                     },
                                     {
                                         title: "Status",
-                                        field: "status.name",
+                                        field: "status.id",
                                         display: {
                                             defaultValue: "-",
                                         },

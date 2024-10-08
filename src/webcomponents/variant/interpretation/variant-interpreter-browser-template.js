@@ -116,6 +116,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         if (this.currentQueryBeforeSaveEvent) {
             this.query = {...this.currentQueryBeforeSaveEvent};
             this.currentQueryBeforeEvent = null;
+            this.variant = null;
         }
     }
 
@@ -124,6 +125,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.searchActive = false;
+            this.variant = null;
         }
     }
 
@@ -284,6 +286,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
         this.query = {...e.detail.query}; // We need to update the internal query to propagate to filters
+        this.variant = null;
         this.notifyQueryChange();
         this.requestUpdate();
     }
@@ -291,6 +294,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     onActiveFilterChange(e) {
         VariantUtils.validateQuery(e.detail);
         this.query = {...e.detail};
+        this.variant = null;
         this.notifyQueryChange();
         this.requestUpdate();
     }
@@ -318,7 +322,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         });
 
         // Check if panelLock is enabled
-        if (this.clinicalAnalysis.panelLock) {
+        if (this.clinicalAnalysis.panelLocked) {
             _query.panel = this.query.panel;
             _query.panelIntersection = true;
         }
@@ -412,8 +416,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 <div class="col-2">
                     <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onSearch}">
-                            <i class="fa fa-search" aria-hidden="true"></i>
-                            <strong>${this._config.filter?.searchButtonText || "Search"}</strong>
+                            <i class="fa fa-search mx-1" aria-hidden="true"></i>
+                            <span class="fw-bold fs-5">${this._config.filter?.searchButtonText || "Search"}</span>
                         </button>
                     </div>
                     <variant-browser-filter
@@ -495,14 +499,16 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                 </variant-interpreter-rearrangement-grid>`
                             }
                             <!-- Bottom tabs with detailed variant information -->
-                            <variant-interpreter-detail
-                                .opencgaSession="${this.opencgaSession}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .toolId="${this.toolId}"
-                                .variant="${this.variant}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .config=${this._config.filter.detail}>
-                            </variant-interpreter-detail>
+                            ${this.variant ? html`
+                                <variant-interpreter-detail
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .toolId="${this.toolId}"
+                                    .variant="${this.variant}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .config="${this._config.filter.detail}">
+                                </variant-interpreter-detail>
+                            ` : nothing}
                         </div>
                         <!-- Genome browser view -->
                         ${!this.settings?.hideGenomeBrowser ? html`

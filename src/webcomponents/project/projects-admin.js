@@ -20,7 +20,7 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import {guardPage} from "../commons/html-utils.js";
 import "../commons/tool-header.js";
 import "../study/study-form.js";
-import "../study/study-create.js";
+import "../study/admin/study-create.js";
 import "./project-create.js";
 import "./project-update.js";
 
@@ -218,7 +218,7 @@ export default class ProjectsAdmin extends LitElement {
         let content;
         switch (id) {
             case "createProject":
-                content=html`
+                content = html`
                     <project-create
                         .opencgaSession="${this.opencgaSession}"
                         .displayConfig="${{modal: true, buttonClearText: "Cancel"}}"
