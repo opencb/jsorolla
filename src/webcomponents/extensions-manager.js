@@ -5,18 +5,24 @@ export default {
         DETAIL_TAB: "detail_tab",
         TOOL: "tool",
         COLUMN: "column",
-        INTERPRETATION_TOOL: "interpretation_tool",
+        INTERPRETER_TOOL: "interpreter-tool",
         INTERPRETER_QC_TAB: "interpreter-qc-tab",
+
+        // DEPRECATED: will be removed in future versions
+        INTERPRETATION_TOOL: "interpretation_tool", // --> use INTERPRETER_TOOL instead
     },
 
     // Allows to get a list with all extensions of the specified type
     // @param {string} type - the extension type (e.g. "tool")
     // @return {array} extensions - an array with the extesions of the specified type
-    getByType(type) {
+    getByType(types) {
         return (window?.IVA_EXTENSIONS || [])
             .map(source => source?.extensions || [])
             .flat()
-            .filter(extension => extension.type === type);
+            .filter(extension => {
+                // support for multiple types
+                return Array.isArray(types) ? types.includes(extension.type) : extension.type === types;
+            });
     },
 
     // Gets a list of detail tabs generated from the extensions for the specified component
@@ -116,7 +122,8 @@ export default {
 
     // Injects tools in the variant interpreter
     injectInterpretationTools(tools) {
-        this.getByType(this.TYPES.INTERPRETATION_TOOL)
+        // NOTE: INTERPRETATION_TOOL is deprecated, use INTERPRETER_TOOL instead
+        this.getByType([this.TYPES.INTERPRETER_TOOL, this.TYPES.INTERPRETATION_TOOL])
             .forEach(extension => {
                 const position = extension.position ?? tools.length;
                 tools.splice(position, 0, {
