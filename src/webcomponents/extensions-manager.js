@@ -10,7 +10,7 @@ export default {
 
         // DEPRECATED: will be removed in future versions
         DEPRECATED_INTERPRETATION_TOOL: "interpretation_tool", // --> use INTERPRETER_TOOL instead
-        DEPRECATED_DETAIL_TAB: "detail-tab",
+        DEPRECATED_DETAIL_TAB: "detail_tab",
     },
 
     // Allows to get a list with all extensions of the specified type
