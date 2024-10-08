@@ -6,6 +6,7 @@ export default {
         TOOL: "tool",
         COLUMN: "column",
         INTERPRETATION_TOOL: "interpretation_tool",
+        INTERPRETER_QC_TAB: "interpreter-qc-tab",
     },
 
     // Allows to get a list with all extensions of the specified type
@@ -129,5 +130,31 @@ export default {
                 });
             });
         return tools;
-    }
+    },
+
+    // Gets a list of detailed tabs for the variant interpreter QC section
+    getInterpretationQcTabs() {
+        return this.getByType(this.TYPES.INTERPRETER_QC_TAB).map(extension => {
+            return {
+                id: extension.id,
+                name: extension.name || extension.id,
+                active: !!extension.defaultActive,
+                visible: (clinicalAnalysis, opencgaSession, tabConfig) => {
+                    if (typeof extension.visible === "function") {
+                        return extension.visible(clinicalAnalysis, opencgaSession, tabConfig);
+                    }
+                    return true;
+                },
+                render: (clinicalAnalysis, active, opencgaSession, config) => {
+                    return extension.render({
+                        html: html,
+                        opencgaSession: opencgaSession,
+                        clinicalAnalysis: clinicalAnalysis,
+                        active: active,
+                        config: config,
+                    });
+                },
+            };
+        });
+    },
 };
