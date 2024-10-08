@@ -2,18 +2,19 @@ import {html} from "lit";
 
 export default {
     TYPES: {
-        DETAIL_TAB: "detail_tab",
+        DETAIL_TAB: "detail-tab",
         TOOL: "tool",
         COLUMN: "column",
         INTERPRETER_TOOL: "interpreter-tool",
         INTERPRETER_QC_TAB: "interpreter-qc-tab",
 
         // DEPRECATED: will be removed in future versions
-        INTERPRETATION_TOOL: "interpretation_tool", // --> use INTERPRETER_TOOL instead
+        DEPRECATED_INTERPRETATION_TOOL: "interpretation_tool", // --> use INTERPRETER_TOOL instead
+        DEPRECATED_DETAIL_TAB: "detail-tab",
     },
 
     // Allows to get a list with all extensions of the specified type
-    // @param {string} type - the extension type (e.g. "tool")
+    // @param {string|Array} types - the extension type or array or extensions styles (e.g. "tool")
     // @return {array} extensions - an array with the extesions of the specified type
     getByType(types) {
         return (window?.IVA_EXTENSIONS || [])
@@ -29,7 +30,7 @@ export default {
     // @param {string} componentId - ID of the component where the new detail tabs will be injected
     // @return {array} tabs - a list of detail tabs configuration
     getDetailTabs(componentId) {
-        return this.getByType(this.TYPES.DETAIL_TAB)
+        return this.getByType([this.TYPES.DETAIL_TAB, this.TYPES.DEPRECATED_DETAIL_TAB])
             .filter(extension => (extension.components || []).includes(componentId))
             .map(extension => ({
                 id: extension.id,
@@ -122,8 +123,8 @@ export default {
 
     // Injects tools in the variant interpreter
     injectInterpretationTools(tools) {
-        // NOTE: INTERPRETATION_TOOL is deprecated, use INTERPRETER_TOOL instead
-        this.getByType([this.TYPES.INTERPRETER_TOOL, this.TYPES.INTERPRETATION_TOOL])
+        // NOTE: 'interpretation_tool' is deprecated, use 'interpreter-tool' instead
+        this.getByType([this.TYPES.INTERPRETER_TOOL, this.TYPES.DEPRECATED_INTERPRETATION_TOOL])
             .forEach(extension => {
                 const position = extension.position ?? tools.length;
                 tools.splice(position, 0, {
