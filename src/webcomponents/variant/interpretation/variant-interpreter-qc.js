@@ -39,7 +39,7 @@ class VariantInterpreterQc extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -66,7 +66,7 @@ class VariantInterpreterQc extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._tabs = [];
         this._config = this.getDefaultConfig();
     }
@@ -88,7 +88,7 @@ class VariantInterpreterQc extends LitElement {
     }
 
     settingsObserver() {
-        this._tabs = this.settings?.tabs || VariantInterpreterQc.DEFAULT_TABS; // .map(tab => tab.id);
+        this._tabs = this.settings?.tabs || VariantInterpreterQc.DEFAULT_TABS;
         this._config = this.getDefaultConfig();
     }
 
@@ -128,15 +128,16 @@ class VariantInterpreterQc extends LitElement {
 
         if (!this.clinicalAnalysis) {
             return html`
-                <div>
-                    <h3><i class="fas fa-lock"></i> No Case open</h3>
-                </div>`;
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-lock me-1"></i> No Case open
+                </div>
+            `;
         }
 
         if (!this.clinicalAnalysis.proband?.samples?.length) {
             return html`
                 <div class="alert alert-warning" role="alert">
-                    <i class="fas fa-3x fa-exclamation-circle align-middle"></i> No sample available for Proband
+                    <i class="fas fa-exclamation-circle me-1"></i> No sample available for Proband
                 </div>
             `;
         }
@@ -144,7 +145,7 @@ class VariantInterpreterQc extends LitElement {
         if (this._tabs.length === 0) {
             return html`
                 <div class="alert alert-warning" role="alert">
-                    <i class="fas fa-3x fa-exclamation-circle align-middle"></i> No QC tab available. Check the tool configuration.
+                    <i class="fas fa-exclamation-circle me-1"></i> No QC tab available. Check the tool configuration.
                 </div>
             `;
         }
@@ -272,7 +273,6 @@ class VariantInterpreterQc extends LitElement {
                                                 .active="${active}"
                                                 .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
                                             </sample-variant-stats-browser>
-                                            <!--<h3>Not implemented yet.</h3>-->
                                         </div>
                                     `;
                                 },
