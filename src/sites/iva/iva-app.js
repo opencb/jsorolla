@@ -72,7 +72,8 @@ import "../../webcomponents/variant/interpretation/variant-interpreter-browser-c
 import "../../webcomponents/variant/interpretation/variant-interpreter-browser-rearrangement.js";
 import "../../webcomponents/variant/interpretation/variant-interpreter.js";
 import "../../webcomponents/clinical/analysis/rd-tiering-analysis.js";
-import "../../webcomponents/clinical/analysis/hrdetect-analysis.js";
+import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
+import "../../webcomponents/clinical/analysis/mutational-signature-view.js";
 import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/file/file-manager.js";
 import "../../webcomponents/job/job-monitor.js";
