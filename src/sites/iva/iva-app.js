@@ -39,7 +39,6 @@ import "../../webcomponents/opencga/opencga-protein-view.js";
 import "../../webcomponents/sample/sample-browser.js";
 import "../../webcomponents/sample/sample-view.js";
 import "../../webcomponents/sample/sample-variant-stats-browser.js";
-import "../../webcomponents/sample/sample-cancer-variant-stats-browser.js";
 import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/disease-panel/disease-panel-browser.js";
 import "../../webcomponents/disease-panel/disease-panel-update.js";
@@ -170,7 +169,6 @@ class IvaApp extends LitElement {
             "sample",
             "sample-view",
             "sampleVariantStatsBrowser",
-            "sampleCancerVariantStatsBrowser",
             "sampleUpdate",
             "sample-variant-stats",
             "individual",
@@ -899,7 +897,6 @@ class IvaApp extends LitElement {
                     }
                     break;
                 case "#sampleVariantStatsBrowser":
-                case "#sampleCancerVariantStatsBrowser":
                 case "#sampleUpdate":
                     this.sampleId = hashQuery;
                     break;
@@ -1766,12 +1763,6 @@ class IvaApp extends LitElement {
                                 .active="${true}"
                                 .settings="${{...VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS, showTitle: true}}">
                             </sample-variant-stats-browser>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["sampleCancerVariantStatsBrowser"] ? html`
-                        <div class="content" id="sampleCancerVariantStatsBrowser">
-                            <sample-cancer-variant-stats-browser .opencgaSession="${this.opencgaSession}" .sampleId="${this.sampleId}" .active="${true}"></sample-cancer-variant-stats-browser>
                         </div>
                     ` : nothing}
 
