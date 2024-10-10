@@ -87,7 +87,7 @@ class VariantInterpreterQc extends LitElement {
     }
 
     settingsObserver() {
-        this._tabs = (this.settings?.tabs || VariantInterpreterQc.DEFAULT_TABS).map(tab => tab.id);
+        this._tabs = this.settings?.tabs || VariantInterpreterQc.DEFAULT_TABS; // .map(tab => tab.id);
         this._config = this.getDefaultConfig();
     }
 
@@ -164,179 +164,184 @@ class VariantInterpreterQc extends LitElement {
             const type = this.clinicalAnalysis.type.toUpperCase();
             const probandId = this.clinicalAnalysis.proband.id;
 
-            if (this._tabs.includes("overview")) {
-                items.push({
-                    id: "overview",
-                    name: "Overview",
-                    active: true,
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-10 offset-md-1">
-                                <tool-header title="Quality Control Overview - ${probandId}" class="bg-white"></tool-header>
-                                <variant-interpreter-qc-overview
-                                    .opencgaSession="${opencgaSession}"
-                                    .clinicalAnalysis="${clinicalAnalysis}"
-                                    .active="${active}"
-                                    .settings="${this.settings?.tabs?.find(tab => "overview" === tab.id)?.settings}">
-                                </variant-interpreter-qc-overview>
-                            </div>
-                        `;
-                    },
-                });
-            }
-
-            if (this._tabs.includes("sampleVariantStats") && type === "SINGLE") {
-                items.push({
-                    id: "individual-qc-analysis",
-                    name: "Individual QC Analysis",
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-12">
-                                <tool-header title="Individual QC Analysis - ${probandId}" class="bg-white"></tool-header>
-                                <individual-qc-analysis
-                                    .toolParams="${{individual: clinicalAnalysis.proband?.id}}"
-                                    .opencgaSession="${opencgaSession}"
-                                    .config=${{title: ""}}>
-                                </individual-qc-analysis>
-                            </div>
-                        `;
-                    },
-                });
-                items.push({
-                    id: "sample-variant-stats",
-                    name: "Sample Variant Stats",
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-12">
-                                <tool-header title="Sample Variant Stats - ${probandId} (${this.sample?.id})" class="bg-white"></tool-header>
-                                <sample-variant-stats-browser
-                                    .opencgaSession="${opencgaSession}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .sample="${this.sample}"
-                                    .active="${active}"
-                                    .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
-                                </sample-variant-stats-browser>
-                            </div>
-                        `;
-                    },
-                });
-            }
-
-            if (this._tabs.includes("sampleVariantStats") && type === "FAMILY") {
-                items.push({
-                    id: "family-qc-analysis",
-                    name: "Family QC Analysis",
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-10 offset-md-1">
-                                <tool-header title="Family QC Analysis - ${probandId} (${clinicalAnalysis.family?.id})" class="bg-white"></tool-header>
-                                <family-qc-analysis
-                                    .toolParams="${{family: clinicalAnalysis.family?.id}}"
-                                    .opencgaSession="${opencgaSession}"
-                                    .config=${{title: ""}}>
-                                </family-qc-analysis>
-                            </div>
-                        `;
-                    },
-                });
-                items.push({
-                    id: "individual-qc-analysis",
-                    name: "Individual QC Analysis",
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-10 offset-md-1">
-                                <tool-header title="Individual QC Analysis - ${probandId}" class="bg-white"></tool-header>
-                                <individual-qc-analysis
-                                    .toolParams="${{individual: clinicalAnalysis.proband?.id}}"
-                                    .opencgaSession="${opencgaSession}"
-                                    .config=${{title: ""}}>
-                                </individual-qc-analysis>
-                            </div>
-                        `;
-                    },
-                });
-                items.push({
-                    id: "sample-variant-stats-family",
-                    name: "Sample Variant Stats",
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-10 offset-md-1">
-                                <tool-header title="Sample Variant Stats - ${probandId} (${this.sample?.id})" class="bg-white"></tool-header>
-                                <sample-variant-stats-browser
-                                    .opencgaSession="${opencgaSession}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .sample="${this.sample}"
-                                    .active="${active}"
-                                    .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
-                                </sample-variant-stats-browser>
-                                <!--<h3>Not implemented yet.</h3>-->
-                            </div>
-                        `;
-                    },
-                });
-            }
-
-            if (this._tabs.includes("somaticVariantStats") && type === "CANCER") {
-                items.push({
-                    id: "somatic-variant-stats",
-                    name: "Somatic Variant Stats",
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-12">
-                                <tool-header title="Somatic Variant Stats - ${probandId} (${this.somaticSample?.id})" class="bg-white"></tool-header>
-                                <sample-variant-stats-browser
-                                    .opencgaSession="${opencgaSession}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .sample="${this.somaticSample}"
-                                    .active="${active}"
-                                    .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
-                                </sample-variant-stats-browser>
-                            </div>
-                        `;
-                    },
-                });
-
-                if (this._tabs.includes("germlineVariantStats") && this.sample) {
-                    items.push({
-                        id: "germline-variant-stats",
-                        name: "Germline Variant Stats",
-                        render: (clinicalAnalysis, active, opencgaSession) => {
-                            return html`
-                                <div class="col-md-12">
-                                    <tool-header title="Germline Variant Stats - ${probandId} (${this.sample?.id})" class="bg-white"></tool-header>
-                                    <sample-variant-stats-browser
-                                        .opencgaSession="${opencgaSession}"
-                                        .cellbaseClient="${this.cellbaseClient}"
-                                        .sample="${this.sample}"
-                                        .active="${active}"
-                                        .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
-                                    </sample-variant-stats-browser>
-                                </div>
-                            `;
-                        },
-                    });
+            this._tabs.forEach(tab => {
+                switch (tab.id) {
+                    case "overview":
+                        items.push({
+                            id: "overview",
+                            name: "Overview",
+                            active: true,
+                            render: (clinicalAnalysis, active, opencgaSession) => {
+                                return html`
+                                    <div class="col-md-10 offset-md-1">
+                                        <tool-header title="Quality Control Overview - ${probandId}" class="bg-white"></tool-header>
+                                        <variant-interpreter-qc-overview
+                                            .opencgaSession="${opencgaSession}"
+                                            .clinicalAnalysis="${clinicalAnalysis}"
+                                            .active="${active}"
+                                            .settings="${this.settings?.tabs?.find(tab => "overview" === tab.id)?.settings}">
+                                        </variant-interpreter-qc-overview>
+                                    </div>
+                                `;
+                            },
+                        });
+                        break;
+                    case "sampleVariantStats":
+                        if (type === "SINGLE") {
+                            items.push({
+                                id: "individual-qc-analysis",
+                                name: "Individual QC Analysis",
+                                render: (clinicalAnalysis, active, opencgaSession) => {
+                                    return html`
+                                        <div class="col-md-12">
+                                            <tool-header title="Individual QC Analysis - ${probandId}" class="bg-white"></tool-header>
+                                            <individual-qc-analysis
+                                                .toolParams="${{individual: clinicalAnalysis.proband?.id}}"
+                                                .opencgaSession="${opencgaSession}"
+                                                .config=${{title: ""}}>
+                                            </individual-qc-analysis>
+                                        </div>
+                                    `;
+                                },
+                            });
+                            items.push({
+                                id: "sample-variant-stats",
+                                name: "Sample Variant Stats",
+                                render: (clinicalAnalysis, active, opencgaSession) => {
+                                    return html`
+                                        <div class="col-md-12">
+                                            <tool-header title="Sample Variant Stats - ${probandId} (${this.sample?.id})" class="bg-white"></tool-header>
+                                            <sample-variant-stats-browser
+                                                .opencgaSession="${opencgaSession}"
+                                                .cellbaseClient="${this.cellbaseClient}"
+                                                .sample="${this.sample}"
+                                                .active="${active}"
+                                                .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
+                                            </sample-variant-stats-browser>
+                                        </div>
+                                    `;
+                                },
+                            });
+                        }
+                        if (type === "FAMILY") {
+                            items.push({
+                                id: "family-qc-analysis",
+                                name: "Family QC Analysis",
+                                render: (clinicalAnalysis, active, opencgaSession) => {
+                                    return html`
+                                        <div class="col-md-10 offset-md-1">
+                                            <tool-header title="Family QC Analysis - ${probandId} (${clinicalAnalysis.family?.id})" class="bg-white"></tool-header>
+                                            <family-qc-analysis
+                                                .toolParams="${{family: clinicalAnalysis.family?.id}}"
+                                                .opencgaSession="${opencgaSession}"
+                                                .config=${{title: ""}}>
+                                            </family-qc-analysis>
+                                        </div>
+                                    `;
+                                },
+                            });
+                            items.push({
+                                id: "individual-qc-analysis",
+                                name: "Individual QC Analysis",
+                                render: (clinicalAnalysis, active, opencgaSession) => {
+                                    return html`
+                                        <div class="col-md-10 offset-md-1">
+                                            <tool-header title="Individual QC Analysis - ${probandId}" class="bg-white"></tool-header>
+                                            <individual-qc-analysis
+                                                .toolParams="${{individual: clinicalAnalysis.proband?.id}}"
+                                                .opencgaSession="${opencgaSession}"
+                                                .config=${{title: ""}}>
+                                            </individual-qc-analysis>
+                                        </div>
+                                    `;
+                                },
+                            });
+                            items.push({
+                                id: "sample-variant-stats-family",
+                                name: "Sample Variant Stats",
+                                render: (clinicalAnalysis, active, opencgaSession) => {
+                                    return html`
+                                        <div class="col-md-10 offset-md-1">
+                                            <tool-header title="Sample Variant Stats - ${probandId} (${this.sample?.id})" class="bg-white"></tool-header>
+                                            <sample-variant-stats-browser
+                                                .opencgaSession="${opencgaSession}"
+                                                .cellbaseClient="${this.cellbaseClient}"
+                                                .sample="${this.sample}"
+                                                .active="${active}"
+                                                .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
+                                            </sample-variant-stats-browser>
+                                            <!--<h3>Not implemented yet.</h3>-->
+                                        </div>
+                                    `;
+                                },
+                            });
+                        }
+                        break;
+                    case "somaticVariantStats":
+                        if (type === "CANCER") {
+                            items.push({
+                                id: "somatic-variant-stats",
+                                name: "Somatic Variant Stats",
+                                render: (clinicalAnalysis, active, opencgaSession) => {
+                                    return html`
+                                        <div class="col-md-12">
+                                            <tool-header title="Somatic Variant Stats - ${probandId} (${this.somaticSample?.id})" class="bg-white"></tool-header>
+                                            <sample-variant-stats-browser
+                                                .opencgaSession="${opencgaSession}"
+                                                .cellbaseClient="${this.cellbaseClient}"
+                                                .sample="${this.somaticSample}"
+                                                .active="${active}"
+                                                .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
+                                            </sample-variant-stats-browser>
+                                        </div>
+                                    `;
+                                },
+                            });
+                        }
+                        break;
+                    case "germlineVariantStats":
+                        if (type === "CANCER" && !!this.sample) {
+                            items.push({
+                                id: "germline-variant-stats",
+                                name: "Germline Variant Stats",
+                                render: (clinicalAnalysis, active, opencgaSession) => {
+                                    return html`
+                                        <div class="col-md-12">
+                                            <tool-header title="Germline Variant Stats - ${probandId} (${this.sample?.id})" class="bg-white"></tool-header>
+                                            <sample-variant-stats-browser
+                                                .opencgaSession="${opencgaSession}"
+                                                .cellbaseClient="${this.cellbaseClient}"
+                                                .sample="${this.sample}"
+                                                .active="${active}"
+                                                .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
+                                            </sample-variant-stats-browser>
+                                        </div>
+                                    `;
+                                },
+                            });
+                        }
+                        break;
+                    case "geneCoverage":
+                        items.push({
+                            id: "gene-coverage",
+                            name: "Gene Coverage Stats",
+                            render: (clinicalAnalysis, active, opencgaSession) => {
+                                return html`
+                                    <div class="col-md-12">
+                                        <tool-header title="Gene Coverage Stats - ${probandId}" class="bg-white"></tool-header>
+                                        <variant-interpreter-qc-gene-coverage
+                                            .opencgaSession="${opencgaSession}"
+                                            .cellbaseClient="${this.cellbaseClient}"
+                                            .clinicalAnalysis="${clinicalAnalysis}"
+                                            .active="${active}">
+                                        </variant-interpreter-qc-gene-coverage>
+                                    </div>
+                                `;
+                            },
+                        });
+                        break;
                 }
-            }
-
-            if (this._tabs.includes("geneCoverage")) {
-                items.push({
-                    id: "gene-coverage",
-                    name: "Gene Coverage Stats",
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-12">
-                                <tool-header title="Gene Coverage Stats - ${probandId}" class="bg-white"></tool-header>
-                                <variant-interpreter-qc-gene-coverage
-                                    .opencgaSession="${opencgaSession}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .clinicalAnalysis="${clinicalAnalysis}"
-                                    .active="${active}">
-                                </variant-interpreter-qc-gene-coverage>
-                            </div>
-                        `;
-                    },
-                });
-            }
+            });
         }
 
         return {
