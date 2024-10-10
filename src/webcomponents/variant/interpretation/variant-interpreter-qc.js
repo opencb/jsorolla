@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import {guardPage} from "../../commons/html-utils.js";
+import ExtensionsManager from "../../extensions-manager.js";
 import "./variant-interpreter-qc-overview.js";
 import "./variant-interpreter-qc-gene-coverage.js";
 import "../../commons/view/detail-tabs.js";
@@ -163,6 +164,7 @@ class VariantInterpreterQc extends LitElement {
         if (this.clinicalAnalysis && this._tabs.length > 0) {
             const type = this.clinicalAnalysis.type.toUpperCase();
             const probandId = this.clinicalAnalysis.proband.id;
+            const extensionsTabs = ExtensionsManager.getInterpretationQcTabs();
 
             this._tabs.forEach(tab => {
                 switch (tab.id) {
@@ -340,6 +342,18 @@ class VariantInterpreterQc extends LitElement {
                             },
                         });
                         break;
+                    default:
+                        // Check if the tab is defined in the extensions tabs list
+                        const extensionTab = extensionsTabs.find(extension => extension.id === tab.id);
+                        if (extensionTab && typeof extensionTab.render === "function") {
+                            items.push({
+                                ...extensionTab,
+                                name: tab?.name || extensionTab.name,
+                                render: (clinicalAnalysis, active, opencgaSession) => {
+                                    return extensionTab.render(clinicalAnalysis, active, opencgaSession, tab);
+                                },
+                            });
+                        }
                 }
             });
         }
