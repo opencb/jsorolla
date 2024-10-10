@@ -20,7 +20,6 @@ import "./variant-interpreter-qc-overview.js";
 import "./variant-interpreter-qc-gene-coverage.js";
 import "../../commons/view/detail-tabs.js";
 import "../../sample/sample-variant-stats-browser.js";
-import "../../sample/sample-cancer-variant-stats-browser.js";
 import "../../variant/analysis/family-qc-analysis.js";
 import "../../variant/analysis/individual-qc-analysis.js";
 
@@ -30,7 +29,6 @@ class VariantInterpreterQc extends LitElement {
     // Customisable via external settings in variant-interpreter.settings.js
     static DEFAULT_TABS = [
         {id: "overview"},
-        {id: "cancerQCPlots"},
         {id: "sampleVariantStats"},
         {id: "somaticVariantStats"},
         {id: "germlineVariantStats"},
@@ -272,27 +270,6 @@ class VariantInterpreterQc extends LitElement {
                                     .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
                                 </sample-variant-stats-browser>
                                 <!--<h3>Not implemented yet.</h3>-->
-                            </div>
-                        `;
-                    },
-                });
-            }
-
-            if (this._tabs.includes("cancerQCPlots") && type === "CANCER") {
-                items.push({
-                    id: "variant-qc-cancer",
-                    name: "Cancer QC Plots",
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-12">
-                                <tool-header title="Cancer QC Plots - ${probandId} (${this.somaticSample?.id})" class="bg-white"></tool-header>
-                                <sample-cancer-variant-stats-browser
-                                    .opencgaSession="${opencgaSession}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .sample="${this.somaticSample}"
-                                    .active="${active}"
-                                    .config="${{showTitle: false}}">
-                                </sample-cancer-variant-stats-browser>
                             </div>
                         `;
                     },
