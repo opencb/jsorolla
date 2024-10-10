@@ -50,7 +50,6 @@ import "../../webcomponents/individual/individual-update.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/job-view.js";
-import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
 import "../../webcomponents/variant/analysis/gwas-analysis.js";
 import "../../webcomponents/variant/analysis/sample-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/cohort-variant-stats-analysis.js";
