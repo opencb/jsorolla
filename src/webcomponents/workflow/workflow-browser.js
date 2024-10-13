@@ -139,7 +139,7 @@ export default class WorkflowBrowser extends LitElement {
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </workflow-grid>
                         <workflow-detail
-                            .workflowId="${params.detail.workflow?.id}"
+                            .workflowId="${params.detail?.id}"
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.detail}">
                         </workflow-detail>`
