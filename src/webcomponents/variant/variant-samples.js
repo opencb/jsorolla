@@ -22,7 +22,6 @@ import GridCommons from "../commons/grid-commons.js";
 import "../commons/opencb-grid-toolbar.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
-
 export default class VariantSamples extends LitElement {
 
     constructor() {
@@ -154,15 +153,41 @@ export default class VariantSamples extends LitElement {
 
     async fetchData(query, batchSize) {
         try {
-            const variantResponse = await this.opencgaSession.opencgaClient.variants()
-                .querySample(query);
+            let variantResponse = null;
+            this.numUserTotalSamples = 0;
+            this.numSamples = 0;
+
+            if (query.variant?.length <= 5000) {
+                variantResponse = await this.opencgaSession.opencgaClient.variants()
+                    .querySample(query);
+                this.numSamples = variantResponse.responses[0]?.attributes?.numSamplesRegardlessPermissions;
+            } else {
+                // this is a workaround to prevent an error when the variant ID is too long (as GET requests may be blocked by the browser)
+                // we are using a deprecated POST endpoint of variant/query
+                const bodyParams = {
+                    study: query.study,
+                    id: query.variant,
+                    includeSample: "all",
+                    includeSampleId: true,
+                };
+                // check if we have to filter by genotype
+                if (query.genotype) {
+                    bodyParams.sampleData = `GT=${query.genotype}`;
+                }
+                variantResponse = await this.opencgaSession.opencgaClient.variants()
+                    ._post("analysis", null, "variant", null, "query", bodyParams, {
+                        exclude: "annotation",
+                    });
+
+                // the attributes of the response object from analysis/variant/query does not contain numSamplesRegardlessPermissions
+                // so we have to ise numSamples instead
+                this.numSamples = variantResponse.responses[0]?.attributes?.numSamples;
+            }
+
             const variantSamplesResult = variantResponse.getResult(0);
 
             // const stats = variantSamplesResult.studies[0].stats;
             // const stats = variantSamplesResult.studies[0].stats;
-
-            this.numUserTotalSamples = 0;
-            this.numSamples = variantResponse.responses[0]?.attributes?.numSamplesRegardlessPermissions;
 
             // Get the total number of samples from stats if OpenCGA does not return them
             // if (typeof this.numSamples !== "number" || isNaN(this.numSamples)) {
