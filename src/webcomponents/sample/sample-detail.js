@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
 import "./../commons/view/detail-tabs.js";
 import "./sample-view.js";
@@ -25,6 +25,7 @@ export default class SampleDetail extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -34,14 +35,14 @@ export default class SampleDetail extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
+            sampleId: {
+                type: String
             },
             sample: {
                 type: Object
             },
-            sampleId: {
-                type: String
+            opencgaSession: {
+                type: Object
             },
             config: {
                 type: Object
@@ -60,11 +61,9 @@ export default class SampleDetail extends LitElement {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
-
         if (changedProperties.has("sample")) {
             this.sampleObserver();
         }
-
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
@@ -72,8 +71,12 @@ export default class SampleDetail extends LitElement {
             };
             this.#updateDetailTabs();
         }
-
         super.update(changedProperties);
+    }
+
+    sampleObserver() {
+        this._sample = {...this.sample};
+        this.requestUpdate();
     }
 
     sampleIdObserver() {
@@ -93,11 +96,6 @@ export default class SampleDetail extends LitElement {
         }
     }
 
-    sampleObserver() {
-        this._sample = {...this.sample};
-        this.requestUpdate();
-    }
-
     #updateDetailTabs() {
         this._config.items = [
             ...this._config.items,
@@ -106,8 +104,8 @@ export default class SampleDetail extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession) {
-            return "";
+        if (!this.opencgaSession || !this._sample) {
+            return nothing;
         }
 
         return html`
