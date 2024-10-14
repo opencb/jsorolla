@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import LitUtils from "../commons/utils/lit-utils.js";
-import FormUtils from "../commons/forms/form-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
-import Types from "../commons/types.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+import FormUtils from "../../commons/forms/form-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
+import Types from "../../commons/types.js";
 
 export default class StudyCreate extends LitElement {
 
@@ -118,14 +118,15 @@ export default class StudyCreate extends LitElement {
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.studies()
             .create(this.study, {project: this.project.fqn})
-            .then(res => {
+            .then(() => {
                 this.study = {};
                 this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Study Create",
                     message: "New study created correctly"
                 });
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
+                LitUtils.dispatchCustomEvent(this, "studyCreate", {}, {});
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", {}, {});
             })
             .catch(reason => {
                 study = this.study;
@@ -133,7 +134,6 @@ export default class StudyCreate extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(()=>{
-                LitUtils.dispatchCustomEvent(this, "studyCreate", study, {}, error);
                 this.#setLoading(false);
             });
     }

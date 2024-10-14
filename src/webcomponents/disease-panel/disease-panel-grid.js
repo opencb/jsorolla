@@ -23,8 +23,9 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/catalog-browser-grid-config.js";
 import "../commons/opencb-grid-toolbar.js";
-import ModalUtils from "../commons/modal/modal-utils";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter";
+import ModalUtils from "../commons/modal/modal-utils.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
+import WebUtils from "../commons/utils/web-utils.js";
 
 export default class DiseasePanelGrid extends LitElement {
 
@@ -143,6 +144,8 @@ export default class DiseasePanelGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
+
+        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
     renderTable() {
@@ -463,7 +466,7 @@ export default class DiseasePanelGrid extends LitElement {
                 field: "actions",
                 align: "center",
                 formatter: () => {
-                    const isAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
+                    const isAdmin = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID);
                     return `
                         <div class="d-inline-block dropdown" style="display: flex; justify-content: center;">
                             <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -473,29 +476,29 @@ export default class DiseasePanelGrid extends LitElement {
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
                                     <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
-                                        <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
+                                        <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
                                     </a>
                                 </li>
                                 <li>
                                     <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
-                                        <i class="fas fa-download" aria-hidden="true"></i> Download JSON
+                                        <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a data-action="copy" href="javascript: void 0" class="dropdown-item ${isAdmin ? "" : "disabled" }">
-                                        <i class="fas fa-user" aria-hidden="true"></i> Make a Copy
+                                        <i class="fas fa-user me-1" aria-hidden="true"></i> Make a Copy
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a data-action="edit" class="dropdown-item ${isAdmin ? "" : "disabled" }">
-                                        <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
+                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
                                     </a>
                                 </li>
                                 <li>
                                     <a data-action="delete" href="javascript: void 0" class="dropdown-item ${isAdmin ? "" : "disabled" }">
-                                        <i class="fas fa-trash" aria-hidden="true"></i> Delete
+                                        <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
                                     </a>
                                 </li>
                             </ul>

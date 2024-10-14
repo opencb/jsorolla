@@ -131,7 +131,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                 dependencies: [
                     {
                         name: "OpenCGA",
-                        version: this.opencgaSession.opencgaClient?._config?.version || "-",
+                        version: this.opencgaSession?.about?.Version || "-",
                     },
                     {
                         name: "Cellbase",
@@ -194,6 +194,11 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             },
                         },
                         {
+                            title: "Interpretation Name",
+                            field: "name",
+                            type: "input-text",
+                        },
+                        {
                             title: "Assigned To",
                             field: "analyst.id",
                             type: "select",
@@ -209,7 +214,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                 render: (status, dataFormFilterChange) => html`
                                     <clinical-status-filter
                                         .status="${status?.id}"
-                                        .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.status[this.clinicalAnalysis.type.toUpperCase()]}"
+                                        .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.status || []}"
                                         .multiple=${false}
                                         @filterChange="${e => dataFormFilterChange({id: e.detail.value})}">
                                     </clinical-status-filter>
@@ -222,7 +227,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             type: "custom",
                             display: {
                                 render: (panels, dataFormFilterChange) => {
-                                    const panelLock = !!this.clinicalAnalysis?.panelLock;
+                                    const panelLock = !!this.clinicalAnalysis?.panelLocked;
                                     const panelList = panelLock ? this.clinicalAnalysis.panels : this.opencgaSession.study?.panels;
                                     const handlePanelsFilterChange = e => {
                                         const panelList = (e.detail?.value?.split(",") || [])

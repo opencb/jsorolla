@@ -143,7 +143,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             }
 
             // 3. panelIntersection param: if panel lock is enabled, this param should be also enabled
-            if (this.clinicalAnalysis.panelLock) {
+            if (this.clinicalAnalysis.panelLocked) {
                 this.query.panelIntersection = true;
             }
 
@@ -201,15 +201,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     .filter(file => file.format.toUpperCase() === "VCF");
             }
 
-            // 6.1. Read defaultFilter from study internal configuration
-            if (this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.defaultFilter) {
-                this.query = {
-                    ...this.query,
-                    ...this.opencgaSession.study.internal.configuration.clinical.interpretation.defaultFilter,
-                };
-            }
-
-            // 6.2. Read defaultFilter from browser settings
+            // 6. Read defaultFilter from browser settings
             if (this.settings?.menu?.defaultFilter) {
                 this.query = {
                     ...this.query,
@@ -292,13 +284,13 @@ class VariantInterpreterBrowserCancer extends LitElement {
     getDefaultConfig() {
         const lockedFields = [
             {id: "sample"},
-            {id: "sampleData"},
-            {id: "file"},
-            {id: "fileData"},
+            // {id: "sampleData"},
+            // {id: "file"},
+            // {id: "fileData"},
         ];
 
         // Add panels to locked fields
-        if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLock) {
+        if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLocked) {
             lockedFields.push({id: "panel"});
             lockedFields.push({id: "panelIntersection"});
         }
@@ -334,22 +326,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
-                                params: {
-                                    genotypes: [
-                                        {
-                                            id: "0/1", name: "HET"
-                                        },
-                                        {
-                                            id: "1/1", name: "HOM ALT"
-                                        },
-                                        {
-                                            separator: true
-                                        },
-                                        {
-                                            id: "NA", name: "NA"
-                                        }
-                                    ]
-                                },
                                 tooltip: tooltips.sample,
                             },
                             {
@@ -395,7 +371,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 id: "region",
                                 title: "Genomic Location",
                                 message: {
-                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Regions will be intersected with selected panels.",
                                 },
                                 tooltip: tooltips.region,
@@ -404,7 +380,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 id: "feature",
                                 title: "Feature IDs (gene, SNPs, ...)",
                                 message: {
-                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Feature regions will be intersected with selected panels.",
                                 },
                                 tooltip: tooltips.feature,
@@ -423,40 +399,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV", "BREAKEND"]
                                 },
                             }
-                        ]
-                    },
-                    {
-                        title: "Clinical",
-                        collapsed: true,
-                        filters: [
-                            {
-                                id: "diseasePanels",
-                                title: "Disease Panels",
-                                disabled: () => this.clinicalAnalysis.panelLock,
-                                message: {
-                                    visible: () => this.clinicalAnalysis.panelLock,
-                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
-                                },
-                                tooltip: tooltips.diseasePanels
-                            },
-                            {
-                                id: "clinical-annotation",
-                                title: "Clinical Annotation",
-                                tooltip: tooltips.clinical
-                            },
-                            {
-                                id: "role-in-cancer",
-                                title: "Gene Role In Cancer",
-                                tooltip: tooltips.roleInCancer,
-                                disabled: () => UtilsNew.compareVersions("2.6.0", this.opencgaSession.about.Version) < 0,
-                                message: {
-                                    visible: () => UtilsNew.compareVersions("2.6.0", this.opencgaSession.about.Version) < 0,
-                                    text: "Gene Role in Cancer filter is only available from OpenCGA 2.6.0"
-                                },
-                                params: {
-                                    rolesInCancer: ROLE_IN_CANCER
-                                },
-                            },
                         ]
                     },
                     {
@@ -484,6 +426,40 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                         ?.variantEngine?.sampleIndex?.annotationIndexConfiguration?.populationFrequency,
                                 },
                             }
+                        ]
+                    },
+                    {
+                        title: "Clinical",
+                        collapsed: true,
+                        filters: [
+                            {
+                                id: "diseasePanels",
+                                title: "Disease Panels",
+                                disabled: () => this.clinicalAnalysis.panelLocked,
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLocked,
+                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
+                                },
+                                tooltip: tooltips.diseasePanels
+                            },
+                            {
+                                id: "clinical-annotation",
+                                title: "Clinical Annotation",
+                                tooltip: tooltips.clinical
+                            },
+                            {
+                                id: "role-in-cancer",
+                                title: "Gene Role In Cancer",
+                                tooltip: tooltips.roleInCancer,
+                                disabled: () => UtilsNew.compareVersions("2.6.0", this.opencgaSession.about.Version) < 0,
+                                message: {
+                                    visible: () => UtilsNew.compareVersions("2.6.0", this.opencgaSession.about.Version) < 0,
+                                    text: "Gene Role in Cancer filter is only available from OpenCGA 2.6.0"
+                                },
+                                params: {
+                                    rolesInCancer: ROLE_IN_CANCER
+                                },
+                            },
                         ]
                     },
                     {

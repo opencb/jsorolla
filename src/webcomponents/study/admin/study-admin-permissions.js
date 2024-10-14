@@ -70,11 +70,11 @@ export default class StudyAdminPermissions extends LitElement {
                     active: true,
                     render: (study, active, opencgaSession) => {
                         return html`
-                            <permission-browser-view
+                            <permission-browser-grid
                                 .study=${study}
                                 .active=${active}
                                 .opencgaSession=${opencgaSession}>
-                            </permission-browser-view>`;
+                            </permission-browser-grid>`;
                     }
                 },
                 {

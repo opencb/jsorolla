@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import {guardPage} from "../commons/html-utils.js";
 import "../commons/opencga-browser.js";
@@ -137,15 +137,17 @@ export default class JobBrowser extends LitElement {
                             .search="${params.executedQuery}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .files="${params.files}"
-                            @selectrow="${e => params.onClickRow(e, "job")}"
-                            @jobUpdate="${e => params.onComponentUpdate(e, "job")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @jobUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </job-grid>
-                        <job-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .jobId="${params.detail.job?.id}">
-                        </job-detail>
+                        ${params?.detail ? html`
+                            <job-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .jobId="${params.detail?.id}">
+                            </job-detail>
+                        ` : nothing}
                     `,
                 },
                 {
