@@ -38,7 +38,7 @@ export default class ModalUtils {
                 aria-hidden="true"
                 data-cy="${modalCyDataName}"
             >
-                <div class="modal-dialog ${modalSize}" style="width: ${modalWidth}">
+                <div class="modal-dialog ${modalSize}" style="width: ${modalSize ? "": modalWidth}">
                     <div class="modal-content">
                         <div class="modal-header">
                             ${ModalUtils.#getTitleHeader(modalTitleHeader, modalTitle, "modal-title " + modalTitleClassName, modalTitleStyle)}
