@@ -59,8 +59,9 @@ export class JobMonitor extends LitElement {
             },
         };
         this._interval = -1;
-        this._jobs = [];
-        this._addedJobs= new Set(); // Used for displaying the NEW label in each new job
+        this._jobs = null;
+        this._latestJobs = []; // To store the latest updated jobs
+        this._updatedJobs= new Set(); // Used for displaying the NEW label in each new job
         this._updatedJobsCount = 0; // To store the number of changes (new jobs, state changes)
         this._visibleJobsType = "ALL"; // Current visible jobs types (one of JOB_TYPES)
         this._config = this.getDefaultConfig();
@@ -74,9 +75,9 @@ export class JobMonitor extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this._jobs = [];
-            this._updatedJobsCount = 0;
-            this._addedJobs = new Set();
+            this._jobs = null;
+            this._latestJobs = [];
+            this._updatedJobs = new Set();
             this._visibleJobsType = "ALL";
         }
         if (changedProperties.has("config")) {
@@ -111,22 +112,28 @@ export class JobMonitor extends LitElement {
     }
 
     fetchLastJobs() {
-        this.opencgaSession.opencgaClient.jobs()
-            .search({
-                study: this.opencgaSession.study.fqn,
-                internalStatus: "PENDING,QUEUED,RUNNING,DONE,ERROR,ABORTED",
-                limit: this._config.limit || 10,
-                sort: "creationDate",
-                include: "id,internal.status,tool,creationDate",
-                order: -1,
-            })
-            .then(response => {
-                const newJobsList = response?.responses?.[0]?.results || [];
+        // generate the list of job types to fetch. Note that if the visible jobs type is "ALL",
+        // we will prevent requesting for the same job types multiple times
+        const jobsTypesToFetch = Array.from(new Set(["ALL", this._visibleJobsType]));
+        const jobsPromises = jobsTypesToFetch.map(jobType => {
+            return this.opencgaSession.opencgaClient.jobs()
+                .search({
+                    study: this.opencgaSession.study.fqn,
+                    internalStatus: this.JOBS_TYPES[jobType].jobsTypes.join(","),
+                    limit: this._config.limit || 10,
+                    sort: "creationDate",
+                    include: "id,internal.status,tool,creationDate",
+                    order: -1,
+                });
+        });
+        Promise.all(jobsPromises)
+            .then(responses => {
+                const newJobsList = responses[0]?.responses?.[0]?.results || [];
                 // 1. Process the list of new jobs returned by OpenCGA
                 // Note: we check if the previous list of jobs is not empty, to prevent marking all jobs as new jobs
-                if (this._jobs.length > 0) {
+                if (this._latestJobs?.length > 0) {
                     newJobsList.forEach(job => {
-                        const oldJob = this._jobs.find(j => j.id === job.id);
+                        const oldJob = this._latestJobs.find(j => j.id === job.id);
                         if (oldJob) {
                             const statusId = job?.internal?.status?.id || "-";
                             const oldStatusId = oldJob?.internal?.status?.id || "-";
@@ -135,20 +142,20 @@ export class JobMonitor extends LitElement {
                                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
                                     message: `The job <b>${job?.id}</b> has now status ${statusId}.`,
                                 });
-                                this._updatedJobsCount = this._updatedJobsCount + 1;
                             }
                         } else {
                             // This is a new job, so we display an info notification to the user
                             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
                                 message: `The job <b>${job?.id}</b> has been added.`,
                             });
-                            this._updatedJobsCount = this._updatedJobsCount + 1;
-                            this._addedJobs.add(job.id);
+                            this._updatedJobs.add(job.id);
                         }
                     });
                 }
                 // 2. Save the new jobs list
-                this._jobs = newJobsList;
+                this._latestJobs = newJobsList;
+                // 3. save the visible jobs list
+                this._jobs = responses[1]?.responses?.[0]?.results || newJobsList;
                 this.requestUpdate();
             })
             .catch(response => {
@@ -167,7 +174,9 @@ export class JobMonitor extends LitElement {
 
     onJobTypeChange(event, newJobType) {
         event.stopPropagation();
+        this._jobs = null;
         this._visibleJobsType = newJobType;
+        this.fetchLastJobs();
         this.requestUpdate();
     }
 
