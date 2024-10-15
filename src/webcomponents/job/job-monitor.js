@@ -189,12 +189,9 @@ export class JobMonitor extends LitElement {
     }
 
     renderVisibleJobsList() {
-        // Get the list of visible jobs with the selected type
-        const visibleJobs = this._jobs.filter(job => {
-            return this._visibleJobsType === "ALL" || this.JOBS_TYPES[this._visibleJobsType].jobsTypes.includes(job?.internal?.status?.id);
-        });
-        if (visibleJobs.length > 0) {
-            return visibleJobs.map(job => html`
+        // Display jobs list
+        if (this._jobs && this._jobs.length > 0) {
+            return this._jobs.map(job => html`
                 <li>
                     <a href="${this.getJobUrl(job.id)}" class="dropdown-item border-top">
                         <div class="d-flex align-items-center overflow-hidden">
