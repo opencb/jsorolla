@@ -46,7 +46,7 @@ export class JobMonitor extends LitElement {
     #init() {
         this.JOBS_TYPES = {
             ALL: {
-                title: "All",
+                title: "Latest",
                 jobsTypes: ["PENDING", "QUEUED", "RUNNING", "DONE", "ERROR", "ABORTED"],
             },
             RUNNING: {
