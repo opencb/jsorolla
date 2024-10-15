@@ -36,6 +36,9 @@ export default class JsonViewer extends LitElement {
             data: {
                 type: Object
             },
+            simple: {
+                type: Boolean
+            },
             active: {
                 type: Boolean
             },
@@ -49,6 +52,7 @@ export default class JsonViewer extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.active = true;
         this.jsonView = null;
+        this.simple = false;
         this._config = this.getDefaultConfig();
     }
 
@@ -73,17 +77,21 @@ export default class JsonViewer extends LitElement {
     }
 
     initJsonView() {
-        this.jsonView = new JSONEditor({
-            target: this.querySelector(`#${this._prefix}JsonView`),
-            props: {
-                content: {
-                    json: this.data || {},
-                },
-                mode: this._config?.mode || "tree",
-                indentation: this._config?.indentation || 4,
-                readOnly: true,
-            }
-        });
+        if (this.simple) {
+            $(`#${this._prefix}JsonView`, this).jsonViewer(this.data, {rootCollapsable: false});
+        } else {
+            this.jsonView = new JSONEditor({
+                target: this.querySelector(`#${this._prefix}JsonView`),
+                props: {
+                    content: {
+                        json: this.data || {},
+                    },
+                    mode: this._config?.mode || "tree",
+                    indentation: this._config?.indentation || 4,
+                    readOnly: true,
+                }
+            });
+        }
     }
 
     render() {
