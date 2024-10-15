@@ -168,7 +168,9 @@ export class JobMonitor extends LitElement {
 
     onRefresh(event) {
         event.stopPropagation();
+        this._jobs = null;
         this.fetchLastJobs();
+        this.requestUpdate();
     }
 
     onJobTypeChange(event, newJobType) {
@@ -198,7 +200,7 @@ export class JobMonitor extends LitElement {
                                 <i class="text-secondary fas fa-rocket"></i>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                ${this._addedJobs.has(job?.id) ? html`
+                                ${this._updatedJobs.has(job?.id) ? html`
                                     <span class="badge bg-primary rounded-pill">NEW</span>
                                 ` : nothing}
                                 <div class="mt-0 text-truncate" style="max-width:275px">
