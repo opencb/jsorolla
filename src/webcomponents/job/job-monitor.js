@@ -62,7 +62,6 @@ export class JobMonitor extends LitElement {
         this._jobs = null;
         this._latestJobs = []; // To store the latest updated jobs
         this._updatedJobs= new Set(); // Used for displaying the NEW label in each new job
-        this._updatedJobsCount = 0; // To store the number of changes (new jobs, state changes)
         this._visibleJobsType = "ALL"; // Current visible jobs types (one of JOB_TYPES)
         this._config = this.getDefaultConfig();
     }
