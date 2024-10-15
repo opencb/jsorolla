@@ -218,6 +218,15 @@ export class JobMonitor extends LitElement {
                     </a>
                 </li>
             `);
+        } else if (this._jobs && this._jobs.length === 0) {
+            return html`
+                <li>
+                    <div class="d-flex flex-column justify-content-center align-items-center py-3 gap-1">
+                        <i class="fas fa-tasks"></i>
+                        <div class="fw-bold small">No jobs on this category</div>
+                    </div>
+                </li>
+            `;
         } else {
             return html`
                 <li>
