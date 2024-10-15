@@ -230,8 +230,9 @@ export class JobMonitor extends LitElement {
         } else {
             return html`
                 <li>
-                    <div class="pt-2 pb-1 text-center fw-bold border-top">
-                        No jobs on this category.
+                    <div class="d-flex flex-column justify-content-center align-items-center py-3 gap-1">
+                        <i class="fas fa-sync-alt anim-rotate"></i>
+                        <div class="fw-bold small">Loading jobs...</div>
                     </div>
                 </li>
             `;
