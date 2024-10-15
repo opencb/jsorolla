@@ -237,9 +237,9 @@ export class JobMonitor extends LitElement {
                         <div class="dropdown-button-icon">
                             <i class="fas fa-rocket"></i>
                         </div>
-                        ${this._updatedJobsCount > 0 ? html`
+                        ${this._updatedJobs.size > 0 ? html`
                             <span class="position-absolute top-0 start-100 mt-1 translate-middle badge bg-danger rounded-pill">
-                                ${this._updatedJobsCount}
+                                ${this._updatedJobs.size}
                             </span>
                         ` : nothing}
                     </a>
