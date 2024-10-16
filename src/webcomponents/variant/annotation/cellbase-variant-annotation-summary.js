@@ -162,8 +162,18 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                 }
             }
 
+            // Check if SIFT score is not defined
+            if (typeof proteinSubScore.sift === "undefined") {
+                proteinSubScore.sift = {score: "NA", description: "NA", transcript: ""};
+            }
+            // Check if Polyphen score is not defined
+            if (typeof proteinSubScore.polyphen === "undefined") {
+                proteinSubScore.polyphen = {score: "NA", description: "NA", transcript: ""};
+            }
+
+            // Save the protein substitution scores
             _this.proteinSubScore = proteinSubScore;
-            // debugger
+
             // CADD
             if (typeof _this.variantAnnotation.functionalScore !== "undefined") {
                 for (const i in _this.variantAnnotation.functionalScore) {
