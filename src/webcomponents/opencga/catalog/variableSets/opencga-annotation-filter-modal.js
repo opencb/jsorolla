@@ -110,6 +110,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                 .join(";");
             selected.push(singleVariableSetvariables);
         }
+        debugger
         LitUtils.dispatchCustomEvent(this, "annotationChange", selected.join(";"));
     }
 
@@ -156,6 +157,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
             }*/
             this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: {value, operator}};
         } else {
+            debugger
             delete this.selectedVariables[variableSetId][variableId];
         }
         this.selectedVariables = {...this.selectedVariables};
@@ -203,17 +205,28 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         this.selectedVariablesSerializer();
     }
 
-    changeMap(variableSetId, variableId, key) {
-        console.log(variableSetId, variableId, key);
+    changeMap(e, variableSetId, variableId, key) {
         if (key) {
             this.variableMap[variableSetId] = {
                 ...this.variableMap[variableSetId],
-                [variableId]: key.split(",")
+                [variableId]: key.split(","),
             };
         } else {
             delete this.variableMap[variableSetId][variableId];
         }
+        if (this.selectedVariables?.[variableSetId]) {
+            Object.keys(this.selectedVariables[variableSetId])
+                .forEach(key => {
+                    const [keyVariableId, keyOption] = key.split('.');
+                    if (!this.variableMap[variableSetId][keyVariableId]?.includes(keyOption)) {
+                        delete this.selectedVariables[variableSetId][key];
+                        this.selectedVariables = {...this.selectedVariables};
+                        this.selectedVariablesSerializer();
+                    }
+                });
+        }
         this.variableMap = {...this.variableMap};
+        // Get the ones that are in this.variableMap
         this.requestUpdate();
     }
 
@@ -259,27 +272,21 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                             <select-field-filter
                                 .data="${variable?.allowedKeys}"
                                 .value="${this.variableMap?.[variableSet.id]?.[variable.id] ?? []}"
-                                .config="${{
-                    multiple: true,
-                    liveSearch: false
-                }}"
-                                @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}">
+                                .config="${{multiple: true, liveSearch: false}}"
+                                @filterChange="${e => this.changeMap(e, variableSet.id, variable.id, e.detail.value)}">
                             </select-field-filter>
                             <!-- form-inline -->
                             <div class="row row-cols-lg-auto g-1 align-items-center">
-                                ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {
-                    return html`
-                                        <div class="col-md-3">
-                                            <label class="form-label fw-bold" for="${variable.id}Input">${key}</label>
-                                            <input class="form-control" type="text" placeholder="${key}" id="${variable.id}Input"
-                                                data-variable-id="${variable.id + "." + key}"
-                                                data-variable-set-id="${variableSet.id}"
-                                                @input="${this.addInputFilter}"
-                                                .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
-                                        </div>
-                                        `;
-                })
-                }
+                                ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => html`
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold" for="${variable.id}Input">${key}</label>
+                                        <input class="form-control" type="text" placeholder="${key}" id="${variable.id}Input"
+                                            data-variable-id="${variable.id + "." + key}"
+                                            data-variable-set-id="${variableSet.id}"
+                                            @input="${this.addInputFilter}"
+                                            .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
+                                    </div>
+                                `)}
                             </div>
                         </div>
                     ` : html`
@@ -300,8 +307,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
             case "MAP_INTEGER":
                 content = html`
                     <!--<pre> \${JSON.stringify(variable)}</pre>-->
-                    ${variable?.allowedKeys?.length ?
-                    html`
+                    ${variable?.allowedKeys?.length ? html`
                         <div class="col-md-12">
                             <label class="form-label fw-bold">
                                 <a tooltip-title="${variable.id}" tooltip-text="${variable.description}">
@@ -311,45 +317,44 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                             <select-field-filter
                                 .data="${variable?.allowedKeys}"
                                 .value=${this.variableMap?.[variableSet.id]?.[variable.id] ?? []}
-                                .config="${{
-                        multiple: true,
-                        liveSearch: false
-                    }}"
-                                @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}">
+                                .config="${{multiple: true, liveSearch: false}}"
+                                @filterChange="${e => this.changeMap(e, variableSet.id, variable.id, e.detail.value)}">
                             </select-field-filter>
                             <div class="row">
-                                ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {
-                        return html`
-                                        <div class="col-md-3">
-                                            <label class="form-label fw-bold"  for="${variable.id}Input">
-                                                ${key}
-                                            </label>
-                                            <div class="row row-cols-lg-auto g-1 align-items-center">
-                                                <div class="col-6">
-                                                    <select class="form-select form-select-sm"  id="${variable.id}Input"
-                                                        data-variable-id="${variable.id + "." + key}" data-variable-set-id="${variableSet.id}"
-                                                        @change="${this.changeOperator}">
-                                                            <option value="=">=</option>
-                                                            <option value="&lt;">&lt;</option>
-                                                            <option value="&le;">&le;</option>
-                                                            <option value="&gt;" selected>&gt;</option>
-                                                            <option value="&ge;">&ge;</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-6">
-                                                    <input
-                                                        type="text"
-                                                        class="form-control"
-                                                        placeholder="${key}"
-                                                        data-variable-id="${variable.id + "." + key}"
-                                                        data-variable-set-id="${variableSet.id}" data-operator="&lt;"
-                                                        @input="${this.addNumericFilter}"
-                                                        .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
-                                                </div>
+                                ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => html`
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold"  for="${variable.id}Input">
+                                            ${key}
+                                        </label>
+                                        <div class="row row-cols-lg-auto g-1 align-items-center">
+                                            <div class="col-6">
+                                                <select
+                                                    class="form-select"
+                                                    id="${variable.id}Input"
+                                                    data-variable-id="${variable.id + "." + key}"
+                                                    data-variable-set-id="${variableSet.id}"
+                                                    @change="${this.changeOperator}">
+                                                        <option value="=">=</option>
+                                                        <option value="<">&lt;</option>
+                                                        <option value="<=">&le;</option>
+                                                        <option value=">" selected>&gt;</option>
+                                                        <option value=">=">&ge;</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-6">
+                                                <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    placeholder="${key}"
+                                                    data-variable-id="${variable.id + "." + key}"
+                                                    data-variable-set-id="${variableSet.id}"
+                                                    data-operator=">"
+                                                    @input="${this.addNumericFilter}"
+                                                    .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
                                             </div>
                                         </div>
-                                    `;
-                    })}
+                                    </div>
+                                `)}
                             </div>
                         </div>
                     ` :
@@ -529,7 +534,10 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                 modalTitle: "Annotation Filter",
                 modalDraggable: true,
                 modalCyDataName: "modal-annotation-filter",
-                modalSize: "modal-xl"
+                modalSize: "modal-xl",
+                modalbtnsVisible: true,
+                btnCancelVisible: false,
+                okButtonText: "OK",
             },
             render: () => this.renderBody(),
         })}
