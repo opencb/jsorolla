@@ -17,13 +17,12 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
-import Types from "../../commons/types.js";
 
 export default class CellbaseVariantAnnotationSummary extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -50,18 +49,20 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.variantAnnotation = {};
+        this.variantAnnotation = null;
+        this.proteinSubScore = null;
+        this.consequenceTypeToColor = null;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("variantAnnotation")) {
-            this.variantAnnotationChanged();
-        }
         if (changedProperties.has("consequenceTypes") || changedProperties.has("proteinSubstitutionScores")) {
             this.setColors();
+        }
+        if (changedProperties.has("variantAnnotation")) {
+            this.variantAnnotationChanged();
         }
         super.update(changedProperties);
     }
@@ -87,7 +88,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             this.consequenceTypeToColor = consequenceTypeToColor;
         }
 
-        if (typeof this.proteinSubstitutionScores !== "undefined") {
+        if (this.proteinSubstitutionScores) {
             const pssColor = new Map();
             for (const i in this.proteinSubstitutionScores) {
                 const obj = this.proteinSubstitutionScores[i];
@@ -211,7 +212,9 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                                     const variantId = data.id ? data.id : `${data.chromosome}:${data.start}:${data.reference}:${data.alternate}`;
                                     const url = BioinfoUtils.getVariantLink(variantId, variantRegion, "ensembl_genome_browser", this.assembly);
                                     return html `
-                                        <a class="text-decoration-none" target="_blank" href="${url}">${variantId}</a>
+                                        <a class="text-decoration-none" target="_blank" href="${url}">
+                                            ${variantId}
+                                        </a>
                                     `;
                                 }
                             }
