@@ -199,132 +199,130 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
-            // title: "Summary",
-            sections: [{
-                title: "General",
-                elements: [{
-                    title: "Id",
-                    type: "custom",
-                    display: {
-                        render: data => {
-                            const variantRegion = data.chromosome + ":" + data.start + "-" + data.start;
-                            const variantId = data.id ? data.id : `${data.chromosome}:${data.start}:${data.reference}:${data.alternate}`;
-                            return html `
-                                <a class="text-decoration-none" target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "ensembl_genome_browser", this.assembly)}">
-                                    ${variantId}
-                                </a>
-                            `;
-                        }
-                    }
-                },
+        return {
+            sections: [
                 {
-                    title: "HGVS",
-                    type: "custom",
-                    display: {
-                        visible: data => data?.hgvs.length > 0,
-                        render: data => html `
-                        ${data.hgvs.map(item => html` ${item}<br> `)}
-                        `
-                    }
-                },
-                {
-                    title: "Alleles",
-                    type: "custom",
-                    display: {
-                        render: data => html `
-                        ${data.reference}/${data.alternate}
-                        `
-                    }
-                },
-                {
-                    title: "Location",
-                    type: "custom",
-                    display: {
-                        render: data => html `
-                            ${data.chromosome}:${data.start}
-                            ${data.end ? html`<div>-${data.end}</div>`: nothing}
-                        `
-                    }
-                },
-                {
-                    title: "Type",
-                    type: "custom",
-                    field: "type",
-                    display: {
-                        visible: data => !UtilsNew.isEmpty(data.type),
-                    }
-                },
-                {
-                    title: "Ancestral Allele",
-                    field: "ancestralAllele",
-                    display: {
-                        visible: data => !UtilsNew.isEmpty(data.ancestralAllele),
-                    }
-                },
-                {
-                    title: "MAF",
-                    type: "custom",
-                    display: {
-                        visible: data => UtilsNew.isNotEmpty(data.minorAlleleFreq),
-                        render: data => html `${data.minorAlleleFreq} (${data.minorAllele})`
-                    }
-                },
-                {
-                    title: "Most Severe Consequence Type",
-                    type: "custom",
-                    display: {
-                        render: data => html `
-                            <span id="${this._prefix}CT">${data.displayConsequenceType}</span>
-                            ${this.ctGene ? html`
-                                <span>
-                                    (<b>Gene</b> : ${this.ctGene}, <b>Transcript</b> : ${this.ctTranscript})
-                                </span>
-                            ` : nothing }
-                        `
-                    }
-                },
-                {
-                    title: "Most Severe Deleterious Score",
-                    type: "custom",
-                    display: {
-                        render: data => html `
-                            <span id="${this._prefix}Sift" title="${this.proteinSubScore.sift.score}">
-                                ${this.proteinSubScore.sift.description}
-                            </span>
-                            ${this.isTranscriptAvailable(this.proteinSubScore.sift.transcript) ? html`
-                                (<b>Gene:</b>${this.proteinSubScore.sift.gene}, <b>Transcript: </b>${this.proteinSubScore.sift.transcript})
-                            ` : nothing }
-                        `
-                    }
-                },
-                {
-                    title: "Polyphen",
-                    type: "custom",
-                    display: {
-                        render: data => html `
-                            <span id="${this._prefix}Polyphen" title="${this.proteinSubScore.polyphen.score}">${this.proteinSubScore.polyphen.description}</span>
-                                ${this.isTranscriptAvailable(this.proteinSubScore.polyphen.transcript) ? html`
-                                (<b>Gene:</b>${this.proteinSubScore.polyphen.gene}, <b>Transcript: </b>${this.proteinSubScore.polyphen.transcript})
-                            ` : nothing}
-                        `
-                    }
-                },
-                {
-                    title: "CADD Scaled",
-                    type: "custom",
-                    display: {
-                        render: () => {
-                            const colorClassName = (this.caddScaled !== "NA" && this.caddScaled > 15) ? "text-danger" : "text-body";
-                            return html `
-                                <span class="${colorClassName}">${this.caddScaled || "NA"}</span>
-                            `;
+                    title: "General",
+                    elements: [
+                        {
+                            title: "Id",
+                            type: "custom",
+                            display: {
+                                render: data => {
+                                    const variantRegion = data.chromosome + ":" + data.start + "-" + data.start;
+                                    const variantId = data.id ? data.id : `${data.chromosome}:${data.start}:${data.reference}:${data.alternate}`;
+                                    const url = BioinfoUtils.getVariantLink(variantId, variantRegion, "ensembl_genome_browser", this.assembly);
+                                    return html `
+                                        <a class="text-decoration-none" target="_blank" href="${url}">${variantId}</a>
+                                    `;
+                                }
+                            }
                         },
-                    },
-                }
-                ]
-            }]
-        });
+                        {
+                            title: "HGVS",
+                            type: "custom",
+                            display: {
+                                visible: data => data?.hgvs.length > 0,
+                                render: data => {
+                                    return data.hgvs.map(item => html`${item}<br>`);
+                                },
+                            },
+                        },
+                        {
+                            title: "Alleles",
+                            type: "custom",
+                            display: {
+                                render: data => html`${data.reference}/${data.alternate}`,
+                            },
+                        },
+                        {
+                            title: "Location",
+                            type: "custom",
+                            display: {
+                                render: data => html`${data.chromosome}:${data.start}${data.end ? html`<div>-${data.end}</div>`: nothing}`,
+                            }
+                        },
+                        {
+                            title: "Type",
+                            type: "custom",
+                            field: "type",
+                            display: {
+                                visible: data => !UtilsNew.isEmpty(data.type),
+                            },
+                        },
+                        {
+                            title: "Ancestral Allele",
+                            field: "ancestralAllele",
+                            display: {
+                                visible: data => !UtilsNew.isEmpty(data.ancestralAllele),
+                            },
+                        },
+                        {
+                            title: "MAF",
+                            type: "custom",
+                            display: {
+                                visible: data => UtilsNew.isNotEmpty(data.minorAlleleFreq),
+                                render: data => html`${data.minorAlleleFreq} (${data.minorAllele})`,
+                            },
+                        },
+                        {
+                            title: "Most Severe Consequence Type",
+                            type: "custom",
+                            display: {
+                                render: data => html`
+                                    <span id="${this._prefix}CT">${data.displayConsequenceType}</span>
+                                    ${this.ctGene ? html`
+                                        <span>
+                                            (<b>Gene</b> : ${this.ctGene}, <b>Transcript</b> : ${this.ctTranscript})
+                                        </span>
+                                    ` : nothing}
+                                `,
+                            },
+                        },
+                        {
+                            title: "Most Severe Deleterious Score",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <span id="${this._prefix}Sift" title="${this.proteinSubScore.sift.score}">
+                                        ${this.proteinSubScore.sift.description}
+                                    </span>
+                                    ${this.isTranscriptAvailable(this.proteinSubScore.sift.transcript) ? html`
+                                        (<b>Gene:</b>${this.proteinSubScore.sift.gene}, <b>Transcript: </b>${this.proteinSubScore.sift.transcript})
+                                    ` : nothing }
+                                `,
+                            },
+                        },
+                        {
+                            title: "Polyphen",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <span id="${this._prefix}Polyphen" title="${this.proteinSubScore.polyphen.score}">
+                                        ${this.proteinSubScore.polyphen.description}
+                                    </span>
+                                    ${this.isTranscriptAvailable(this.proteinSubScore.polyphen.transcript) ? html`
+                                        (<b>Gene:</b>${this.proteinSubScore.polyphen.gene}, <b>Transcript: </b>${this.proteinSubScore.polyphen.transcript})
+                                    ` : nothing}
+                                `,
+                            },
+                        },
+                        {
+                            title: "CADD Scaled",
+                            type: "custom",
+                            display: {
+                                render: () => {
+                                    const colorClassName = (this.caddScaled !== "NA" && this.caddScaled > 15) ? "text-danger" : "text-body";
+                                    return html `
+                                        <span class="${colorClassName}">${this.caddScaled || "NA"}</span>
+                                    `;
+                                },
+                            },
+                        },
+                    ],
+                },
+            ],
+        };
     }
 
 }
