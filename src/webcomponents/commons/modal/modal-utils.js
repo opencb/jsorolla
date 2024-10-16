@@ -23,7 +23,7 @@ export default class ModalUtils {
         const modalTitleHeader = config.display?.modalTitleHeader ?? "h4";
         const modalTitleClassName = config.display?.modalTitleClassName ?? "";
         const modalTitleStyle = config.display?.modalTitleStyle ?? "";
-        const btnsVisible = config.display?.modalbtnsVisible ?? true;
+        const btnsVisible = config.display?.modalbtnsVisible ?? false;
         const btnCancelVisible = config.display?.btnCancelVisible ?? true;
         const btnSaveVisible = config.display?.btnOkVisible ?? true;
         const modalDraggable = config.display?.modalDraggable ?? false;
