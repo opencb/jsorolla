@@ -51,26 +51,27 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
 
     #init() {
         this.variantAnnotation = null;
-        this.proteinSubScore = null;
-        this.consequenceTypeToColor = null;
+
+        this._proteinSubScore = null;
+        this._caddScaled = null;
+        this._consequenceTypeGene = null;
+        this._consequenceTypeTranscript = null;
+        this._consequenceTypeToColor = null;
+
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("consequenceTypes") || changedProperties.has("proteinSubstitutionScores")) {
-            this.setColors();
+        if (changedProperties.has("consequenceTypes")) {
+            this.consequenceTypesObserver();
         }
         if (changedProperties.has("variantAnnotation")) {
-            this.variantAnnotationChanged();
+            this.variantAnnotationObserver();
         }
         super.update(changedProperties);
     }
 
-    isTranscriptAvailable(item) {
-        return item !== "";
-    }
-
-    setColors() {
+    consequenceTypesObserver() {
         if (this.consequenceTypes) {
             const consequenceTypeToColor = {};
             for (const category of this.consequenceTypes.categories) {
@@ -84,30 +85,29 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                     }
                 }
             }
-            this.consequenceTypeToColor = consequenceTypeToColor;
+            this._consequenceTypeToColor = consequenceTypeToColor;
         }
-
-        // Note Josemi 20241016: colors for protein substitution scores are now managed in the method getProteinSubstitutionScoresColor
-        // so we do not need to set them in this.pssColor
     }
 
-    variantAnnotationChanged() {
-        if (typeof this.variantAnnotation !== "undefined") {
-            if (UtilsNew.isEmpty(this.variantAnnotation.reference)) {
+    variantAnnotationObserver() {
+        if (this.variantAnnotation) {
+            if (!this.variantAnnotation.reference) {
                 this.variantAnnotation.reference = "-";
             }
 
-            if (UtilsNew.isEmpty(this.variantAnnotation.alternate)) {
+            if (!this.variantAnnotation.alternate) {
                 this.variantAnnotation.alternate = "-";
             }
 
             // Find the gene and transcript that exhibit the display consequence type
+            this._consequenceTypeGene = null;
+            this._consequenceTypeTranscript = null;
             if (typeof this.variantAnnotation.consequenceTypes !== "undefined") {
                 for (let i = 0; i < this.variantAnnotation.consequenceTypes.length; i++) {
                     for (let j = 0; j < this.variantAnnotation.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
                         if (this.variantAnnotation.displayConsequenceType === this.variantAnnotation.consequenceTypes[i].sequenceOntologyTerms[j].name) {
-                            this.ctGene = this.variantAnnotation.consequenceTypes[i].geneName;
-                            this.ctTranscript = this.variantAnnotation.consequenceTypes[i].transcriptId;
+                            this._consequenceTypeGene = this.variantAnnotation.consequenceTypes[i].geneName;
+                            this._consequenceTypeTranscript = this.variantAnnotation.consequenceTypes[i].transcriptId;
                             break;
                         }
                     }
@@ -161,13 +161,13 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             }
 
             // Save the protein substitution scores
-            this.proteinSubScore = proteinSubScore;
+            this._proteinSubScore = proteinSubScore;
 
             // CADD
-            this.caddScaled = "NA"; // default value
+            this._caddScaled = "NA"; // default value
             (this.variantAnnotation.functionalScore || []).forEach(functionalScore => {
                 if (functionalScore?.source === "cadd_scaled") {
-                    this.caddScaled = Number(functionalScore.score).toFixed(2);
+                    this._caddScaled = Number(functionalScore.score).toFixed(2);
                 }
             });
         }
@@ -177,8 +177,12 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
         return this.proteinSubstitutionScores?.style?.[source]?.[description] || "black";
     }
 
+    isTranscriptAvailable(item) {
+        return item !== "";
+    }
+
     render() {
-        if (!this.variantAnnotation || !this.proteinSubScore) {
+        if (!this.variantAnnotation) {
             return nothing;
         }
 
@@ -264,14 +268,14 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
-                                    const consequenceTypeColor = this.consequenceTypeToColor?.[data.displayConsequenceType] || "black";
+                                    const consequenceTypeColor = this._consequenceTypeToColor?.[data.displayConsequenceType] || "black";
                                     return html`
                                         <span style="color:${consequenceTypeColor};">
                                             ${data.displayConsequenceType}
                                         </span>
-                                        ${this.ctGene ? html`
+                                        ${this._consequenceTypeGene ? html`
                                             <span>
-                                                (<b>Gene</b> : ${this.ctGene}, <b>Transcript</b> : ${this.ctTranscript})
+                                                (<b>Gene</b> : ${this._consequenceTypeGene}, <b>Transcript</b> : ${this._consequenceTypeTranscript})
                                             </span>
                                         ` : nothing}
                                     `;
@@ -283,13 +287,13 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => {
-                                    const color = this.getProteinSubstitutionScoresColor("sift", this.proteinSubScore?.sift?.description);
+                                    const color = this.getProteinSubstitutionScoresColor("sift", this._proteinSubScore?.sift?.description);
                                     return html`
-                                        <span title="${this.proteinSubScore.sift.score}" style="color:${color};">
-                                            ${this.proteinSubScore.sift.description || "-"}
+                                        <span title="${this._proteinSubScore.sift.score}" style="color:${color};">
+                                            ${this._proteinSubScore.sift.description || "-"}
                                         </span>
-                                        ${this.isTranscriptAvailable(this.proteinSubScore.sift.transcript) ? html`
-                                            (<b>Gene:</b>${this.proteinSubScore.sift.gene}, <b>Transcript: </b>${this.proteinSubScore.sift.transcript})
+                                        ${this.isTranscriptAvailable(this._proteinSubScore.sift.transcript) ? html`
+                                            (<b>Gene:</b>${this._proteinSubScore.sift.gene}, <b>Transcript: </b>${this._proteinSubScore.sift.transcript})
                                         ` : nothing }
                                     `;
                                 },
@@ -300,13 +304,13 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => {
-                                    const color = this.getProteinSubstitutionScoresColor("polyphen", this.proteinSubScore?.polyphen?.description);
+                                    const color = this.getProteinSubstitutionScoresColor("polyphen", this._proteinSubScore?.polyphen?.description);
                                     return html`
-                                        <span title="${this.proteinSubScore.polyphen.score}" style="color:${color};">
-                                            ${this.proteinSubScore.polyphen.description || "-"}
+                                        <span title="${this._proteinSubScore.polyphen.score}" style="color:${color};">
+                                            ${this._proteinSubScore.polyphen.description || "-"}
                                         </span>
-                                        ${this.isTranscriptAvailable(this.proteinSubScore.polyphen.transcript) ? html`
-                                            (<b>Gene:</b>${this.proteinSubScore.polyphen.gene}, <b>Transcript: </b>${this.proteinSubScore.polyphen.transcript})
+                                        ${this.isTranscriptAvailable(this._proteinSubScore.polyphen.transcript) ? html`
+                                            (<b>Gene:</b>${this._proteinSubScore.polyphen.gene}, <b>Transcript: </b>${this._proteinSubScore.polyphen.transcript})
                                         ` : nothing}
                                     `;
                                 },
@@ -317,9 +321,9 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => {
-                                    const colorClassName = (this.caddScaled !== "NA" && this.caddScaled > 15) ? "text-danger" : "text-body";
+                                    const colorClassName = (this._caddScaled !== "NA" && this._caddScaled > 15) ? "text-danger" : "text-body";
                                     return html `
-                                        <span class="${colorClassName}">${this.caddScaled || "NA"}</span>
+                                        <span class="${colorClassName}">${this._caddScaled}</span>
                                     `;
                                 },
                             },
