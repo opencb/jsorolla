@@ -174,22 +174,12 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             this.proteinSubScore = proteinSubScore;
 
             // CADD
-            if (typeof this.variantAnnotation.functionalScore !== "undefined") {
-                (this.variantAnnotation.functionalScore || []).forEach(functionalScore => {
-                    if (functionalScore?.source === "cadd_scaled") {
-                        const value = Number(functionalScore.score).toFixed(2);
-                        if (value > 15) {
-                            $("#" + this._prefix + "Cadd").css("color", "red");
-                            this.caddScaled = value;
-                        } else {
-                            $("#" + this._prefix + "Cadd").css("color", "black");
-                            this.caddScaled = value;
-                        }
-                    }
-                });
-            } else {
-                this.caddScaled = "NA";
-            }
+            this.caddScaled = "NA"; // default value
+            (this.variantAnnotation.functionalScore || []).forEach(functionalScore => {
+                if (functionalScore?.source === "cadd_scaled") {
+                    this.caddScaled = Number(functionalScore.score).toFixed(2);
+                }
+            });
         }
     }
 
@@ -324,10 +314,13 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                     title: "CADD Scaled",
                     type: "custom",
                     display: {
-                        render: data => html `
-                            ${this.caddScaled}
-                        `
-                    }
+                        render: () => {
+                            const colorClassName = (this.caddScaled !== "NA" && this.caddScaled > 15) ? "text-danger" : "text-body";
+                            return html `
+                                <span class="${colorClassName}">${this.caddScaled || "NA"}</span>
+                            `;
+                        },
+                    },
                 }
                 ]
             }]
