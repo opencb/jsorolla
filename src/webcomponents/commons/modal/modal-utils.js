@@ -17,15 +17,17 @@ export default class ModalUtils {
 
     static create(self, id, config) {
         // Parse modal parameters, all of them must start with prefix 'modal'
-        const modalWidth = config.display?.modalWidth || "768px";
-        const modalSize = config.display?.modalSize || "";
-        const modalTitle = config.display?.modalTitle || "";
-        const modalTitleHeader = config.display?.modalTitleHeader || "h4";
-        const modalTitleClassName = config.display?.modalTitleClassName || "";
-        const modalTitleStyle = config.display?.modalTitleStyle || "";
-        const btnsVisible = config.display?.modalbtnsVisible;
-        const modalDraggable = config.display?.modalDraggable || false;
-        const modalCyDataName = config.display?.modalCyDataName || "";
+        const modalWidth = config.display?.modalWidth ?? "768px";
+        const modalSize = config.display?.modalSize ?? "";
+        const modalTitle = config.display?.modalTitle ?? "";
+        const modalTitleHeader = config.display?.modalTitleHeader ?? "h4";
+        const modalTitleClassName = config.display?.modalTitleClassName ?? "";
+        const modalTitleStyle = config.display?.modalTitleStyle ?? "";
+        const btnsVisible = config.display?.modalbtnsVisible ?? true;
+        const btnCancelVisible = config.display?.btnCancelVisible ?? true;
+        const btnSaveVisible = config.display?.btnOkVisible ?? true;
+        const modalDraggable = config.display?.modalDraggable ?? false;
+        const modalCyDataName = config.display?.modalCyDataName ?? "";
 
         return html`
             <div
@@ -53,6 +55,7 @@ export default class ModalUtils {
                         </div>
                         ${btnsVisible? html`
                             <div class="modal-footer">
+                                ${btnCancelVisible ? html`
                                 <button
                                     type="button"
                                     class="btn btn-light"
@@ -61,6 +64,8 @@ export default class ModalUtils {
                                 >
                                     ${config?.display?.cancelButtonText || "Cancel"}
                                 </button>
+                                ` : nothing}
+                                ${btnSaveVisible ? html`
                                 <button
                                     type="button"
                                     class="btn btn-primary"
@@ -69,6 +74,7 @@ export default class ModalUtils {
                                 >
                                     ${config?.display?.okButtonText || "Save"}
                                 </button>
+                                ` : nothing}
                             </div>
                         `: nothing}
                     </div>
