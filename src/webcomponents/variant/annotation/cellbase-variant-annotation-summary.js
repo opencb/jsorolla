@@ -50,7 +50,6 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
     }
 
     #init() {
-        this._prefix = UtilsNew.randomString(8);
         this.variantAnnotation = null;
         this.proteinSubScore = null;
         this.consequenceTypeToColor = null;
@@ -88,16 +87,8 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             this.consequenceTypeToColor = consequenceTypeToColor;
         }
 
-        if (this.proteinSubstitutionScores) {
-            const pssColor = new Map();
-            for (const i in this.proteinSubstitutionScores) {
-                const obj = this.proteinSubstitutionScores[i];
-                Object.keys(obj).forEach(key => {
-                    pssColor.set(key, obj[key]);
-                });
-            }
-            this.pssColor = pssColor;
-        }
+        // Note Josemi 20241016: colors for protein substitution scores are now managed in the method getProteinSubstitutionScoresColor
+        // so we do not need to set them in this.pssColor
     }
 
     variantAnnotationChanged() {
@@ -139,16 +130,20 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             for (let j = 0; j < scores.length; j++) {
                                 if (scores[j].source === "sift" && scores[j].score <= min) {
                                     min = scores[j].score;
-                                    proteinSubScore.sift = {score: scores[j].score, description: scores[j].description, gene: gene, transcript: transcript};
-                                    // if (typeof this.pssColor !== "undefined" && typeof this.pssColor.get(scores[j].description) !== "undefined") {
-                                    //     $("#" + this._prefix + "Sift").css("color", this.pssColor.get(scores[j].description));
-                                    // }
+                                    proteinSubScore.sift = {
+                                        score: scores[j].score,
+                                        description: scores[j].description,
+                                        gene: gene,
+                                        transcript: transcript,
+                                    };
                                 } else if (scores[j].source === "polyphen" && scores[j].score >= max) {
                                     max = scores[j].score;
-                                    proteinSubScore.polyphen = {score: scores[j].score, description: scores[j].description, gene: gene, transcript: transcript};
-                                    // if (typeof this.pssColor !== "undefined" && typeof this.pssColor.get(scores[j].description) !== "undefined") {
-                                    //     $("#" + this._prefix + "Polyphen").css("color", this.pssColor.get(scores[j].description));
-                                    // }
+                                    proteinSubScore.polyphen = {
+                                        score: scores[j].score,
+                                        description: scores[j].description,
+                                        gene: gene,
+                                        transcript: transcript,
+                                    };
                                 }
                             }
                         }
@@ -176,6 +171,10 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                 }
             });
         }
+    }
+
+    getProteinSubstitutionScoresColor(source, description) {
+        return this.proteinSubstitutionScores?.style?.[source]?.[description] || "black";
     }
 
     render() {
@@ -267,7 +266,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                                 render: data => {
                                     const consequenceTypeColor = this.consequenceTypeToColor?.[data.displayConsequenceType] || "black";
                                     return html`
-                                        <span style="color: ${consequenceTypeColor}">
+                                        <span style="color:${consequenceTypeColor};">
                                             ${data.displayConsequenceType}
                                         </span>
                                         ${this.ctGene ? html`
@@ -283,28 +282,34 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             title: "Most Severe Deleterious Score",
                             type: "custom",
                             display: {
-                                render: () => html`
-                                    <span id="${this._prefix}Sift" title="${this.proteinSubScore.sift.score}">
-                                        ${this.proteinSubScore.sift.description}
-                                    </span>
-                                    ${this.isTranscriptAvailable(this.proteinSubScore.sift.transcript) ? html`
-                                        (<b>Gene:</b>${this.proteinSubScore.sift.gene}, <b>Transcript: </b>${this.proteinSubScore.sift.transcript})
-                                    ` : nothing }
-                                `,
+                                render: () => {
+                                    const color = this.getProteinSubstitutionScoresColor("sift", this.proteinSubScore?.sift?.description);
+                                    return html`
+                                        <span title="${this.proteinSubScore.sift.score}" style="color:${color};">
+                                            ${this.proteinSubScore.sift.description || "-"}
+                                        </span>
+                                        ${this.isTranscriptAvailable(this.proteinSubScore.sift.transcript) ? html`
+                                            (<b>Gene:</b>${this.proteinSubScore.sift.gene}, <b>Transcript: </b>${this.proteinSubScore.sift.transcript})
+                                        ` : nothing }
+                                    `;
+                                },
                             },
                         },
                         {
                             title: "Polyphen",
                             type: "custom",
                             display: {
-                                render: () => html`
-                                    <span id="${this._prefix}Polyphen" title="${this.proteinSubScore.polyphen.score}">
-                                        ${this.proteinSubScore.polyphen.description}
-                                    </span>
-                                    ${this.isTranscriptAvailable(this.proteinSubScore.polyphen.transcript) ? html`
-                                        (<b>Gene:</b>${this.proteinSubScore.polyphen.gene}, <b>Transcript: </b>${this.proteinSubScore.polyphen.transcript})
-                                    ` : nothing}
-                                `,
+                                render: () => {
+                                    const color = this.getProteinSubstitutionScoresColor("polyphen", this.proteinSubScore?.polyphen?.description);
+                                    return html`
+                                        <span title="${this.proteinSubScore.polyphen.score}" style="color:${color};">
+                                            ${this.proteinSubScore.polyphen.description || "-"}
+                                        </span>
+                                        ${this.isTranscriptAvailable(this.proteinSubScore.polyphen.transcript) ? html`
+                                            (<b>Gene:</b>${this.proteinSubScore.polyphen.gene}, <b>Transcript: </b>${this.proteinSubScore.polyphen.transcript})
+                                        ` : nothing}
+                                    `;
+                                },
                             },
                         },
                         {
