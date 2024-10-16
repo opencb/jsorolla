@@ -161,12 +161,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                     }
                 }
             }
-            if (Object.keys(proteinSubScore).length === 0 && proteinSubScore.constructor === Object) {
-                proteinSubScore.sift = {score: "NA", description: "NA", transcript: ""};
-                proteinSubScore.polyphen = {score: "NA", description: "NA", transcript: ""};
-                $("#" + _this._prefix + "Sift").css("color", "black");
-                $("#" + _this._prefix + "Polyphen").css("color", "black");
-            }
+
             _this.proteinSubScore = proteinSubScore;
             // debugger
             // CADD
