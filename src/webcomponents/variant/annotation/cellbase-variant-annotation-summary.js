@@ -100,29 +100,28 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
     }
 
     variantAnnotationChanged() {
-        const _this = this;
         if (typeof this.variantAnnotation !== "undefined") {
-            if (UtilsNew.isEmpty(_this.variantAnnotation.reference)) {
-                _this.variantAnnotation.reference = "-";
+            if (UtilsNew.isEmpty(this.variantAnnotation.reference)) {
+                this.variantAnnotation.reference = "-";
             }
 
-            if (UtilsNew.isEmpty(_this.variantAnnotation.alternate)) {
-                _this.variantAnnotation.alternate = "-";
+            if (UtilsNew.isEmpty(this.variantAnnotation.alternate)) {
+                this.variantAnnotation.alternate = "-";
             }
 
             // Consequence type
             // Color the consequence type
-            if (typeof _this.consequenceTypeToColor !== "undefined" && typeof _this.consequenceTypeToColor[_this.variantAnnotation.displayConsequenceType] !== "undefined") {
-                $("#" + _this._prefix + "CT").css("color", _this.consequenceTypeToColor[_this.variantAnnotation.displayConsequenceType]);
+            if (typeof this.consequenceTypeToColor !== "undefined" && typeof this.consequenceTypeToColor[this.variantAnnotation.displayConsequenceType] !== "undefined") {
+                $("#" + this._prefix + "CT").css("color", this.consequenceTypeToColor[this.variantAnnotation.displayConsequenceType]);
             }
 
             // Find the gene and transcript that exhibit the display consequence type
-            if (typeof _this.variantAnnotation.consequenceTypes !== "undefined") {
-                for (let i = 0; i < _this.variantAnnotation.consequenceTypes.length; i++) {
-                    for (let j = 0; j < _this.variantAnnotation.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
-                        if (_this.variantAnnotation.displayConsequenceType === _this.variantAnnotation.consequenceTypes[i].sequenceOntologyTerms[j].name) {
-                            _this.ctGene = _this.variantAnnotation.consequenceTypes[i].geneName;
-                            _this.ctTranscript = _this.variantAnnotation.consequenceTypes[i].transcriptId;
+            if (typeof this.variantAnnotation.consequenceTypes !== "undefined") {
+                for (let i = 0; i < this.variantAnnotation.consequenceTypes.length; i++) {
+                    for (let j = 0; j < this.variantAnnotation.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
+                        if (this.variantAnnotation.displayConsequenceType === this.variantAnnotation.consequenceTypes[i].sequenceOntologyTerms[j].name) {
+                            this.ctGene = this.variantAnnotation.consequenceTypes[i].geneName;
+                            this.ctTranscript = this.variantAnnotation.consequenceTypes[i].transcriptId;
                             break;
                         }
                     }
@@ -132,28 +131,28 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             // PSS
             const proteinSubScore = {};
             // debugger
-            if (typeof _this.variantAnnotation.consequenceTypes !== "undefined") {
+            if (typeof this.variantAnnotation.consequenceTypes !== "undefined") {
                 let min = 10;
                 let max = 0;
-                for (let i = 0; i < _this.variantAnnotation.consequenceTypes.length; i++) {
-                    if (typeof _this.variantAnnotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
-                        const gene = _this.variantAnnotation.consequenceTypes[i].geneName;
-                        const transcript = _this.variantAnnotation.consequenceTypes[i].ensemblTranscriptId;
-                        const scores = _this.variantAnnotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores;
+                for (let i = 0; i < this.variantAnnotation.consequenceTypes.length; i++) {
+                    if (typeof this.variantAnnotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
+                        const gene = this.variantAnnotation.consequenceTypes[i].geneName;
+                        const transcript = this.variantAnnotation.consequenceTypes[i].ensemblTranscriptId;
+                        const scores = this.variantAnnotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores;
 
                         if (typeof scores !== "undefined") {
                             for (let j = 0; j < scores.length; j++) {
                                 if (scores[j].source === "sift" && scores[j].score <= min) {
                                     min = scores[j].score;
                                     proteinSubScore.sift = {score: scores[j].score, description: scores[j].description, gene: gene, transcript: transcript};
-                                    // if (typeof _this.pssColor !== "undefined" && typeof _this.pssColor.get(scores[j].description) !== "undefined") {
-                                    //     $("#" + _this._prefix + "Sift").css("color", _this.pssColor.get(scores[j].description));
+                                    // if (typeof this.pssColor !== "undefined" && typeof this.pssColor.get(scores[j].description) !== "undefined") {
+                                    //     $("#" + this._prefix + "Sift").css("color", this.pssColor.get(scores[j].description));
                                     // }
                                 } else if (scores[j].source === "polyphen" && scores[j].score >= max) {
                                     max = scores[j].score;
                                     proteinSubScore.polyphen = {score: scores[j].score, description: scores[j].description, gene: gene, transcript: transcript};
-                                    // if (typeof _this.pssColor !== "undefined" && typeof _this.pssColor.get(scores[j].description) !== "undefined") {
-                                    //     $("#" + _this._prefix + "Polyphen").css("color", _this.pssColor.get(scores[j].description));
+                                    // if (typeof this.pssColor !== "undefined" && typeof this.pssColor.get(scores[j].description) !== "undefined") {
+                                    //     $("#" + this._prefix + "Polyphen").css("color", this.pssColor.get(scores[j].description));
                                     // }
                                 }
                             }
@@ -172,28 +171,25 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             }
 
             // Save the protein substitution scores
-            _this.proteinSubScore = proteinSubScore;
+            this.proteinSubScore = proteinSubScore;
 
             // CADD
-            if (typeof _this.variantAnnotation.functionalScore !== "undefined") {
-                for (const i in _this.variantAnnotation.functionalScore) {
-                    const value = Number(_this.variantAnnotation.functionalScore[i].score).toFixed(2);
-                    if (_this.variantAnnotation.functionalScore[i].source === "cadd_scaled") {
+            if (typeof this.variantAnnotation.functionalScore !== "undefined") {
+                (this.variantAnnotation.functionalScore || []).forEach(functionalScore => {
+                    if (functionalScore?.source === "cadd_scaled") {
+                        const value = Number(functionalScore.score).toFixed(2);
                         if (value > 15) {
-                            $("#" + _this._prefix + "Cadd").css("color", "red");
-                            _this.caddScaled = value;
+                            $("#" + this._prefix + "Cadd").css("color", "red");
+                            this.caddScaled = value;
                         } else {
-                            $("#" + _this._prefix + "Cadd").css("color", "black");
-                            _this.caddScaled = value;
+                            $("#" + this._prefix + "Cadd").css("color", "black");
+                            this.caddScaled = value;
                         }
                     }
-                }
+                });
             } else {
-                $("#" + _this._prefix + "Cadd").css("color", "black");
-                _this.caddScaled = "NA";
+                this.caddScaled = "NA";
             }
-
-            // this.requestUpdate();
         }
     }
 
