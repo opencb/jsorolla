@@ -110,12 +110,6 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                 this.variantAnnotation.alternate = "-";
             }
 
-            // Consequence type
-            // Color the consequence type
-            if (typeof this.consequenceTypeToColor !== "undefined" && typeof this.consequenceTypeToColor[this.variantAnnotation.displayConsequenceType] !== "undefined") {
-                $("#" + this._prefix + "CT").css("color", this.consequenceTypeToColor[this.variantAnnotation.displayConsequenceType]);
-            }
-
             // Find the gene and transcript that exhibit the display consequence type
             if (typeof this.variantAnnotation.consequenceTypes !== "undefined") {
                 for (let i = 0; i < this.variantAnnotation.consequenceTypes.length; i++) {
@@ -129,9 +123,9 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                 }
             }
 
-            // PSS
+            // Protein substitution scores
             const proteinSubScore = {};
-            // debugger
+
             if (typeof this.variantAnnotation.consequenceTypes !== "undefined") {
                 let min = 10;
                 let max = 0;
@@ -270,14 +264,19 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             title: "Most Severe Consequence Type",
                             type: "custom",
                             display: {
-                                render: data => html`
-                                    <span id="${this._prefix}CT">${data.displayConsequenceType}</span>
-                                    ${this.ctGene ? html`
-                                        <span>
-                                            (<b>Gene</b> : ${this.ctGene}, <b>Transcript</b> : ${this.ctTranscript})
+                                render: data => {
+                                    const consequenceTypeColor = this.consequenceTypeToColor?.[data.displayConsequenceType] || "black";
+                                    return html`
+                                        <span style="color: ${consequenceTypeColor}">
+                                            ${data.displayConsequenceType}
                                         </span>
-                                    ` : nothing}
-                                `,
+                                        ${this.ctGene ? html`
+                                            <span>
+                                                (<b>Gene</b> : ${this.ctGene}, <b>Transcript</b> : ${this.ctTranscript})
+                                            </span>
+                                        ` : nothing}
+                                    `;
+                                },
                             },
                         },
                         {
