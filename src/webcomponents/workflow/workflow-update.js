@@ -40,11 +40,11 @@ export default class WorkflowUpdate extends LitElement {
             active: {
                 type: Boolean,
             },
-            opencgaSession: {
-                type: Object
-            },
             mode: {
                 type: String
+            },
+            opencgaSession: {
+                type: Object
             },
             displayConfig: {
                 type: Object
@@ -175,6 +175,7 @@ export default class WorkflowUpdate extends LitElement {
                             field: "description",
                             type: "input-text",
                             display: {
+                                rows: 3,
                                 placeholder: "Add the workflow description...",
                             },
                         },
@@ -217,7 +218,15 @@ export default class WorkflowUpdate extends LitElement {
                                     field: "variables[].required",
                                     type: "checkbox",
                                     display: {
-                                        rows: 50,
+                                        placeholder: "Add a content...",
+                                    },
+                                },
+                                {
+                                    title: "Type",
+                                    field: "variables[].type",
+                                    type: "select",
+                                    allowedValues: ["INT", "STRING", "BOOLEAN", "FLAG"],
+                                    display: {
                                         placeholder: "Add a content...",
                                     },
                                 },

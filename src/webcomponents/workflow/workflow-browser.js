@@ -20,6 +20,7 @@ import "./workflow-view.js";
 import "./workflow-grid.js";
 import "./workflow-detail.js";
 import "./workflow-scripts-view.js";
+import "./workflow-jobs.js";
 import "../clinical/clinical-analysis-grid.js";
 import "../commons/opencga-browser.js";
 import "../commons/json-viewer.js";
@@ -169,27 +170,27 @@ export default class WorkflowBrowser extends LitElement {
                                 id: "id",
                                 name: "Workflow ID",
                                 type: "string",
-                                placeholder: "LP-1234,LP-2345...",
+                                placeholder: "eg. wf1, wf2, ...",
                                 description: ""
                             },
                             {
                                 id: "name",
                                 name: "Name",
                                 type: "string",
-                                placeholder: "HG01879, HG01880, HG01881...",
+                                placeholder: "eg. alignment, variant calling, ...",
                                 description: ""
                             },
                             {
                                 id: "type",
                                 name: "Type",
                                 type: "string",
-                                placeholder: "LP-1234,LP-2345...",
+                                placeholder: "eg. RESEARCH_ANALYSIS,...",
                                 description: ""
                             },
                             {
                                 id: "tags",
                                 name: "Tags",
-                                placeholder: "Tags",
+                                placeholder: "eg. tag1, tag2, tag3",
                                 allowedValues: "",
                                 description: "",
                             },
@@ -203,9 +204,7 @@ export default class WorkflowBrowser extends LitElement {
                 ],
                 examples: [],
                 activeFilters: {
-                    complexFields: [
-                        {id: "disorders", separatorRegex: /(?:(?!,\S).)+/g},
-                    ],
+                    complexFields: [],
                 },
                 result: {
                     grid: {
@@ -242,6 +241,16 @@ export default class WorkflowBrowser extends LitElement {
                                 <workflow-scripts-view
                                     .workflow="${workflow}">
                                 </workflow-scripts-view>
+                            `,
+                        },
+                        {
+                            id: "workflow-jobs",
+                            name: "Jobs",
+                            render: (workflow, active, opencgaSession) => html`
+                                <workflow-jobs
+                                    .workflow="${workflow}"
+                                    .opencgaSession="${opencgaSession}">
+                                </workflow-jobs>
                             `,
                         },
                         {

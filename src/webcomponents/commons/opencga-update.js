@@ -326,28 +326,14 @@ export default class OpencgaUpdate extends LitElement {
                 case "WORKFLOW":
                     this.endpoint = this.opencgaSession.opencgaClient.workflows();
                     this.resourceInfoParams = {};
-                    // this.resourceUpdateParams = {
-                    //     samplesAction: "SET",
-                    //     phenotypesAction: "SET",
-                    //     disordersAction: "SET",
-                    // };
-                    // this.updateCustomisation = [
-                    //     params => {
-                    //         // Note: we need to remove additional fields to the father and mother objects that are
-                    //         // added by OpenCGA but not accepted in the update endpoint
-                    //         if (params.father?.id) {
-                    //             // eslint-disable-next-line no-param-reassign
-                    //             params.father = {id: params.father.id};
-                    //         }
-                    //         if (params.mother?.id) {
-                    //             // eslint-disable-next-line no-param-reassign
-                    //             params.mother = {id: params.mother.id};
-                    //         }
-                    //         if (params.dateOfBirth) {
-                    //             params.dateOfBirth = UtilsNew.dateFormatter(params.dateOfBirth, "YYYYMMDD");
-                    //         }
-                    //     },
-                    // ];
+                    this.updateCustomisation = [
+                        params => {
+                            if (params.tags) {
+                                // eslint-disable-next-line no-param-reassign
+                                params.tags = params.tags?.split(",") || [];
+                            }
+                        },
+                    ];
                     break;
                 case "NOTE":
                     this.endpoint = this.component?.scope === "ORGANIZATION" ?

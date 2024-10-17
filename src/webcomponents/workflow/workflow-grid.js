@@ -180,8 +180,7 @@ export default class WorkflowGrid extends LitElement {
                 paginationVAlign: "both",
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                detailFormatter: this.detailFormatter,
+                detailView: this._config.detailView && this.detailFormatter,
                 gridContext: this,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
@@ -284,8 +283,7 @@ export default class WorkflowGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
+            detailView: this._config.detailView && this.detailFormatter,
             gridContext: this,
             // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             loadingTemplate: () => GridCommons.loadingFormatter(),
@@ -301,17 +299,6 @@ export default class WorkflowGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    detailFormatter(value, row) {
-        let result = `
-            <div class='row' style="padding: 5px 10px 20px 10px">
-                <div class='col-md-12'>
-                    <h5 style="font-weight: bold">Steps</h5>
-        `;
-
-        result += "</div></div>";
-        return result;
-    }
-
     async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
         switch (action) {
@@ -322,6 +309,10 @@ export default class WorkflowGrid extends LitElement {
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
                 break;
             case "execute":
+                this.workflowExecuteId = row.id;
+                this.requestUpdate();
+                await this.updateComplete;
+                ModalUtils.show(`${this._prefix}ExecuteModal`);
                 break;
             case "edit":
                 this.workflowUpdateId = row.id;
@@ -340,7 +331,7 @@ export default class WorkflowGrid extends LitElement {
                 field: "id",
                 formatter: (workflowId, workflow) => {
                     return `
-                        <div class="mt-1 mb-1">
+                        <div class="m-1">
                             <span style="font-weight: bold; margin: 5px 0">${workflowId}</span>
                             <span class="d-block text-secondary" style="margin: 5px 0">Version ${workflow.version}</span>
                         </div>`;
@@ -354,7 +345,7 @@ export default class WorkflowGrid extends LitElement {
                 field: "name",
                 formatter: (name, workflow) => {
                     return `
-                        <div>
+                        <div class="m-1">
                             <span style="font-weight: bold; margin: 5px 0">${name}</span>
                             <span class="d-block text-secondary" style="margin: 5px 0">${workflow.description}</span>
                         </div>`;
@@ -382,7 +373,7 @@ export default class WorkflowGrid extends LitElement {
                     `;
                 },
                 halign: "center",
-                visible: this.gridCommons.isColumnVisible("tags")
+                visible: this.gridCommons.isColumnVisible("scripts")
             },
             {
                 id: "tags",
@@ -391,6 +382,24 @@ export default class WorkflowGrid extends LitElement {
                 formatter: tags => tags?.join(",") || "-",
                 halign: "center",
                 visible: this.gridCommons.isColumnVisible("tags")
+            },
+            {
+                id: "minimumRequirements",
+                title: "Minimum Requirements",
+                field: "minimumRequirements",
+                formatter: minimumRequirements => {
+                    return `
+                        <div class="m-1">
+                            <div style="margin: 5px 0">
+                                <span class="px-1">CPU:</span><span>${minimumRequirements.cpu} core(s)</span>
+                            </div>
+                            <div style="margin: 5px 0">
+                                <span class="px-1">Memory:</span><span>${minimumRequirements.memory} GB</span>
+                            </div>
+                        </div>`;
+                },
+                halign: "center",
+                visible: this.gridCommons.isColumnVisible("minumumRequirements")
             },
             {
                 id: "ownerId",
@@ -402,31 +411,13 @@ export default class WorkflowGrid extends LitElement {
             },
             {
                 id: "creationDate",
-                title: "Creation Date",
+                title: "Modified / Created",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
+                formatter: CatalogGridFormatter.modifiedAndCreateDateFormatter,
                 halign: "center",
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
-
-        // Example of custom annotation configuration:
-        // this._config.annotations = [
-        //     {
-        //         title: "Cardiology Tests",
-        //         position: 6,
-        //         variableSetId: "cardiology_tests_checklist",
-        //         variables: ["ecg_test", "echo_test"]
-        //     },
-        //     {
-        //         title: "Risk Assessment",
-        //         position: 7,
-        //         variableSetId: "risk_assessment",
-        //     }
-        // ];
-        if (this._config.annotations?.length > 0) {
-            this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
-        }
 
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
@@ -434,7 +425,7 @@ export default class WorkflowGrid extends LitElement {
                 title: "Actions",
                 field: "actions",
                 align: "center",
-                formatter: (value, row) => `
+                formatter: () => `
                     <div class="d-inline-block dropdown">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
@@ -443,30 +434,29 @@ export default class WorkflowGrid extends LitElement {
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
-                                    <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
+                                    <i class="fas fa-copy pe-1" aria-hidden="true"></i> Copy JSON
                                 </a>
                             </li>
                             <li>
                                 <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
-                                    <i class="fas fa-download" aria-hidden="true"></i> Download JSON
+                                    <i class="fas fa-download pe-1" aria-hidden="true"></i> Download JSON
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="execute" class="dropdown-item"
-                                        href="#workflow-analysis/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                                    <i class="fas fa-stream" aria-hidden="true"></i> Execute
+                                <a data-action="execute" class="dropdown-item">
+                                    <i class="fas fa-stream pe-1" aria-hidden="true"></i> Execute ...
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
+                                    <i class="fas fa-edit pe-1" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
                             <li>
                                 <a data-action="delete" href="javascript: void 0" class="dropdown-item disabled">
-                                    <i class="fas fa-trash" aria-hidden="true"></i> Delete
+                                    <i class="fas fa-trash pe-1" aria-hidden="true"></i> Delete
                                 </a>
                             </li>
                         </ul>
@@ -527,7 +517,24 @@ export default class WorkflowGrid extends LitElement {
         return [];
     }
 
-    renderModalUpdate() {
+    renderExecuteModal() {
+        return ModalUtils.create(this, `${this._prefix}ExecuteModal`, {
+            display: {
+                modalTitle: `Execute Workflow: ${this.workflowExecuteId}`,
+                modalDraggable: true,
+                modalCyDataName: "modal-execute",
+                modalSize: "modal-lg"
+            },
+            render: () => html`
+                <workflow-analysis
+                    .toolParams="${{id: this.workflowExecuteId}}"
+                    .opencgaSession="${this.opencgaSession}">
+                </workflow-analysis>
+            `,
+        });
+    }
+
+    renderUpdateModal() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
                 modalTitle: `Workflow Update: ${this.workflowUpdateId}`,
@@ -567,7 +574,8 @@ export default class WorkflowGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${this.renderModalUpdate()}
+            ${this.renderExecuteModal()}
+            ${this.renderUpdateModal()}
         `;
     }
 
@@ -578,7 +586,7 @@ export default class WorkflowGrid extends LitElement {
             pageList: [5, 10, 25],
             multiSelection: false,
             showSelectCheckbox: false,
-            detailView: true,
+            detailView: false,
             showToolbar: true,
             showActions: true,
 

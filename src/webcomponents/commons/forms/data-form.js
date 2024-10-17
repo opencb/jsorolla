@@ -457,10 +457,10 @@ export default class DataForm extends LitElement {
                 <div class="${layoutClassName} ${className}" style="${style}">
                     ${this._getVisibleSections()
                         .map((section, index) => html`
-                        <div class="d-${this.activeSection === index ? "block": "none"}">
-                            ${this._createSection(section)}
-                        </div>
-                    `)}
+                            <div class="d-${this.activeSection === index ? "block": "none"}">
+                                ${this._createSection(section)}
+                            </div>
+                        `)}
                 </div>
             `;
         } else {
@@ -848,11 +848,15 @@ export default class DataForm extends LitElement {
 
     // Josemi 20220202 NOTE: this function was prev called _createInputTextElement
     _createInputElement(element, type, section) {
-        const value = this.getValue(element.field) || this._getDefaultValue(element, section);
+        let value = this.getValue(element.field) || this._getDefaultValue(element, section);
         const disabled = this._getBooleanValue(element.display?.disabled, false, element);
         const [min = undefined, max = undefined] = element.allowedValues || [];
         const step = element.step || "1";
         const rows = element.display && element.display.rows ? element.display.rows : 1;
+
+        // if (Array.isArray(value)) {
+        //     value = value.join(",");
+        // }
 
         const content = html`
             <text-field-filter
@@ -1214,8 +1218,8 @@ export default class DataForm extends LitElement {
                             <li><span style="${styles[elem]}">${elem}</span></li>
                              ${separators[index] ? `<div>${separators[index]}</div>` : ""}
                         `)
-                        .join("")
-                        }
+                    .join("")
+                }
                     </ul>
                 `;
                 break;
@@ -1585,7 +1589,7 @@ export default class DataForm extends LitElement {
                     <!-- 2. Todo: Render an icon -->
                     <!-- 3. Render -->
                     <div>
-                    ${element.display.search.render(data, object => this.onObjectChange(element, object, {action: "AUTOCOMPLETE"}))}
+                        ${element.display.search.render(data, object => this.onObjectChange(element, object, {action: "AUTOCOMPLETE"}))}
                     </div>
                 </div>
             `;
@@ -1743,7 +1747,7 @@ export default class DataForm extends LitElement {
                                     </div>
                                     <!--FORM-->
                                     <div id="${element?.field}_${index}"
-                                        class="ms-2 ps-3 border-start border-2 border-new d-${index === this.editOpen ? "block" : "none"}">
+                                         class="ms-2 ps-3 border-start border-2 border-new d-${index === this.editOpen ? "block" : "none"}">
                                         ${this._createObjectElement(_element)}
                                         <div class="d-flex flex-row-reverse mb-1">
                                             <button type="button" class="btn btn-sm btn-primary"
@@ -1752,7 +1756,7 @@ export default class DataForm extends LitElement {
                                             </button>
                                         </div>
                                     </div>`;
-                    })
+                            })
                         }
                     </div>
 
@@ -2285,7 +2289,7 @@ export default class DataForm extends LitElement {
 
             <!-- PREVIEW modal -->
             <div class="modal fade" id="${this._prefix}PreviewDataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}PreviewDataModalLabel"
-                aria-hidden="true">
+                 aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -2327,16 +2331,16 @@ export default class DataForm extends LitElement {
             <div>
                 <ul class="nav nav-tabs">
                     ${this._getVisibleSections()
-            .map((section, index) => {
-                const active = index === this.activeSection;
-                return html`
+                        .map((section, index) => {
+                            const active = index === this.activeSection;
+                            return html`
                                 <li class="nav-item ${active ? "show" : ""}" role="presentation">
                                     <a class="nav-link fw-bold" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
                                         ${section.title || ""}
                                     </a>
                                 </li>
                             `;
-            })}
+                        })}
                 </ul>
             </div>
             <!-- Render buttons at the TOP -->
@@ -2464,7 +2468,7 @@ export default class DataForm extends LitElement {
                 ` : nothing
                 }
                 <div class="modal fade" id="${modalId}" tabindex="-1" role="dialog"
-                    aria-labelledby="${this._prefix}DataModalLabel" aria-hidden="true">
+                     aria-labelledby="${this._prefix}DataModalLabel" aria-hidden="true">
                     <div class="modal-dialog ${modalSize}" style="width: ${modalWidth}">
                         <div class="modal-content">
                             <div class="modal-header">
