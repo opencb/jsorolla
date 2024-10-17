@@ -164,32 +164,35 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
     }
 
     changeOperator(e) {
+        debugger
         const {variableId, variableSetId} = e.target.dataset;
         const operator = e.target.value;
-        // TODO remove this line and use the this.selectedVariables[variableSetId][variableId].operator in addNumericFilter
-        $(`.annotation-modal input[type=text][data-variable-id="${variableId}"][data-variable-set-id="${variableSetId}"]`).attr("data-operator", e.target.value);
-        if (this.selectedVariables[variableSetId]?.[variableId]) {
-            this.selectedVariables[variableSetId][variableId] = {...this.selectedVariables[variableSetId][variableId], operator};
-        } else {
-            // the value hasn't been set yet
-            this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: {operator}};
-        }
+
+        this.selectedVariables[variableSetId] = {
+            ...this.selectedVariables[variableSetId] ?? {},
+            [variableId]: {
+                ...this.selectedVariables[variableSetId]?.[variableId], // Spread existing variableId if present
+                operator,
+            },
+        };
+
         this.selectedVariables = {...this.selectedVariables};
         this.selectedVariablesSerializer();
 
     }
 
     addNumericFilter(e) {
-        const {variableId, variableSetId, operator = ""} = e.target.dataset; // numericOperator is defined only for INTEGER and DOUBLE types
+        const {variableId, variableSetId} = e.target.dataset; // numericOperator is defined only for INTEGER and DOUBLE types
 
         const value = e.target.value.trim();
+        const operator = this.selectedVariables[variableSetId]?.[variableId]?.operator || ">";
+
         if (value) {
-            /* if (this.selectedVariables[variableSetId][variableId].operator) {
-               // TODO continue
-            }*/
-            this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: {value, operator}};
+            this.selectedVariables[variableSetId] = {
+                ...this.selectedVariables[variableSetId] ?? {},
+                [variableId]: {value, operator}
+            };
         } else {
-            debugger
             delete this.selectedVariables[variableSetId][variableId];
         }
         this.selectedVariables = {...this.selectedVariables};
@@ -252,13 +255,12 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                     const [keyVariableId, keyOption] = key.split('.');
                     if (keyOption && !this.variableMap[variableSetId][keyVariableId]?.includes(keyOption)) {
                         delete this.selectedVariables[variableSetId][key];
-                        this.selectedVariables = {...this.selectedVariables};
-                        this.selectedVariablesSerializer();
                     }
                 });
         }
         this.variableMap = {...this.variableMap};
-        // Get the ones that are in this.variableMap
+        this.selectedVariables = {...this.selectedVariables};
+        this.selectedVariablesSerializer();
         this.requestUpdate();
     }
 
@@ -361,8 +363,9 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                             <div class="row">
                                 ${
                                     this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {
-                                        const operator = this.selectedVariables?.[variableSet.id]?.[variable.id + "." + key]?.operator || ">";
+                                        const operator = this.selectedVariables?.[variableSet.id]?.[variable.id + "." + key]?.operator || "";
                                         const value = this.selectedVariables?.[variableSet.id]?.[variable.id + "." + key]?.value || "";
+                                        debugger
                                         return html`
                                             <div class="col-md-3">
                                                 <label class="form-label fw-bold"  for="${variable.id}Input">
@@ -376,9 +379,9 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                                             data-variable-id="${variable.id + "." + key}"
                                                             data-variable-set-id="${variableSet.id}"
                                                             @change="${this.changeOperator}">
-                                                                <option value="=">=</option>
                                                                 <option value="<">&lt;</option>
                                                                 <option value="<=">&le;</option>
+                                                                <option value="=">&equals;</option>
                                                                 <option value=">" selected>&gt;</option>
                                                                 <option value=">=">&ge;</option>
                                                         </select>
@@ -391,7 +394,6 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                                             .value="${value}"
                                                             data-variable-id="${variable.id + "." + key}"
                                                             data-variable-set-id="${variableSet.id}"
-                                                            data-operator="${operator}"
                                                             @input="${this.addNumericFilter}"/>
                                                     </div>
                                                 </div>
@@ -444,7 +446,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                         <div class="row row-cols-lg-auto g-1 align-items-center">
                             <div class="col-6">
                                 <select class="form-select" id="${variable.id}Select" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}" @change="${this.changeOperator}">
-                                    <option value="=">=</option>
+                                    <option value="=">&equals;</option>
                                     <option value="<">&lt;</option>
                                     <option value="<=">&le;</option>
                                     <option value=">" selected>&gt;</option>
@@ -459,7 +461,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                     placeholder="${variable.id}"
                                     pattern="${variable?.attributes?.pattern ?? null}"
                                     data-variable-id="${variable.id}"
-                                    data-variable-set-id="${variableSet.id}" data-operator="&gt;"
+                                    data-variable-set-id="${variableSet.id}"
                                     @input="${this.addNumericFilter}"
                                     .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
                             </div>
