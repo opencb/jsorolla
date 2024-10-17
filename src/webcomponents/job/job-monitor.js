@@ -19,6 +19,7 @@ import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 
 export class JobMonitor extends LitElement {
 
@@ -97,7 +98,12 @@ export class JobMonitor extends LitElement {
         clearInterval(this._interval);
         if (this.opencgaSession) {
             // Check if the user has VIEW_JOBS permission in the current study
-            if (CatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "VIEW_JOBS")) {
+            const hasViewPermission = OpencgaCatalogUtils.getStudyEffectivePermission(
+                this.opencgaSession.study,
+                this.opencgaSession.user.id,
+                "VIEW_JOBS",
+                this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+            if (hasViewPermission) {
                 this.fetchLastJobs();
                 this._interval = setInterval(() => this.fetchLastJobs(), this._config.interval);
             }

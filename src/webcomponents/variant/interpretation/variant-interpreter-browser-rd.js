@@ -249,7 +249,7 @@ class VariantInterpreterBrowserRd extends LitElement {
 
             // 2. Add default initial query the active filter menu
             _activeFilterFilters.unshift({
-                id: "Default Initial Query",
+                id: "Default Filter",
                 active: false,
                 query: this.query,
             });

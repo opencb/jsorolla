@@ -169,12 +169,24 @@ class HRDetectView extends LitElement {
                             },
                         },
                         {
-                            name: "Scores",
+                            name: "Probability",
+                            field: "scores",
+                            display: {
+                                format: scores => {
+                                    return scores.find(row => row.key?.toLowerCase?.() === "probability")?.value?.toFixed?.(2) || "-";
+                                },
+                            },
+                        },
+                        {
+                            name: "Contributions",
                             field: "scores",
                             type: "table",
                             display: {
-                                // style: "width:auto",
                                 showHeader: false,
+                                filter: data => (data || []).filter(row => {
+                                    return !["intercept", "probability"].includes(row?.key?.toLowerCase?.());
+                                }),
+                                transform: data => data.toSorted((a, b) => b.value - a.value),
                                 columns: [
                                     {
                                         title: "key",
@@ -182,7 +194,10 @@ class HRDetectView extends LitElement {
                                     },
                                     {
                                         title: "value",
-                                        field: "value"
+                                        field: "value",
+                                        display: {
+                                            format: value => value.toFixed(2),
+                                        },
                                     },
                                 ],
                             },

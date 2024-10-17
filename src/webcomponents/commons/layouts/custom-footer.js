@@ -151,7 +151,7 @@ export default class CustomFooter extends LitElement {
                     <div class="d-flex gap-3">
                         <div class="footer-item footer-section-text">
                             <a class="text-white" href="https://github.com/opencb/jsorolla" target="blank">
-                                ${this.appName || "IVA (JSorolla)"} <sup>${this.version || this.config?.version}</sup>
+                                ${this.appName || "IVA (JSorolla)"} <sup>v${this.version || this.config?.version}</sup>
                             </a>
                         </div>
                         ${this.host?.opencga ? html `

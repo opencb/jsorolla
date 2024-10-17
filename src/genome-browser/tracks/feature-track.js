@@ -229,8 +229,8 @@ export default class FeatureTrack {
 
     hideContent() {
         this.contentVisible = false;
-        this.content.classList.add("hidden");
-        this.resize.classList.add("hidden");
+        this.content.classList.add("d-none");
+        this.resize.classList.add("d-none");
 
         this.titleToggleIcon.classList.remove("fa-minus");
         this.titleToggleIcon.classList.add("fa-plus");
@@ -238,8 +238,8 @@ export default class FeatureTrack {
 
     showContent() {
         this.contentVisible = true;
-        this.content.classList.remove("hidden");
-        this.resize.classList.remove("hidden");
+        this.content.classList.remove("d-none");
+        this.resize.classList.remove("d-none");
 
         this.titleToggleIcon.classList.remove("fa-plus");
         this.titleToggleIcon.classList.add("fa-minus");
@@ -475,6 +475,7 @@ export default class FeatureTrack {
             renderedArea: this.renderedArea,
             renderedFeatures: this.renderedFeatures,
             pixelBase: this.pixelBase,
+            region: this.region,
             position: this.region.center(),
             regionSize: this.region.length(),
             labelMaxRegionSize: this.config.labelMaxRegionSize,

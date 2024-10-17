@@ -194,7 +194,10 @@ export default class SampleView extends LitElement {
                         },
                         {
                             title: "Individual ID",
-                            field: "individualId"
+                            field: "individualId",
+                            display: {
+                                defaultValue: "No individuals or no clinical analyses",
+                            }
                         },
                         {
                             title: "Files",

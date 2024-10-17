@@ -496,6 +496,12 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             return;
         }
 
+        const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
+            this.opencgaSession.study,
+            this.opencgaSession.user.id,
+            "WRITE_CLINICAL_ANALYSIS",
+            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+
         return html`
             ${this.sample && this._config.showTitle ? html`
                 <tool-header
@@ -526,7 +532,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 </div>
 
                 <div class="col-md-10">
-                    ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
+                    ${hasWritePermission ? html`
                         <div>
                             <div class="d-flex justify-content-end mt-0 ms-1 mb-3 me-0" role="toolbar" aria-label="toolbar">
                                 <div class="btn-group me-1">
@@ -548,7 +554,6 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                             </div>
                         </div>
                     ` : null}
-
                     <div id="${this._prefix}MainContent">
                         <div id="${this._prefix}ActiveFilters">
                             <opencga-active-filters

@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
@@ -23,7 +22,7 @@ import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 import "../../commons/filters/consequence-type-select-filter.js";
 
-export default class VariantSecondarySampleIndexConfigureOperation extends LitElement {
+export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
 
     constructor() {
         super();
@@ -50,8 +49,8 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
     }
 
     #init() {
-        this.TOOL = "VariantSecondarySampleConfigureIndex";
-        this.TITLE = "Variant Secondary Sample Index Configure Operation";
+        this.TOOL = "ClinicalAnalysisConfigurationOperation";
+        this.TITLE = "Clinical Analysis Configuration Operation";
         this.DESCRIPTION = "Executes a variant secondary sample index configure operation job";
 
         this.studyId = "";
@@ -59,6 +58,9 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
         this.studyConfiguration = {};
         this.DEFAULT_TOOLPARAMS = {};
         this._toolParams = {};
+        this.displayConfigDefault = {
+            buttonsLayout: "top",
+        };
     }
 
     update(changedProperties) {
@@ -72,6 +74,7 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
                 this.#initToolParams();
             }
         }
+
         super.update(changedProperties);
     }
 
@@ -91,12 +94,11 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
     }
 
     #initToolParams() {
-        this.studyConfiguration = this.study?.internal?.configuration?.variantEngine?.sampleIndex || this.opencgaSession.study?.internal?.configuration?.variantEngine?.sampleIndex || {};
+        this.studyConfiguration = this.study?.internal?.configuration?.clinical || this.opencgaSession.study?.internal?.configuration?.clinical || {};
         this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             ...this.toolParams,
             study: this.study?.fqn || this.opencgaSession.study.fqn,
-            skipRebuild: false,
             body: UtilsNew.objectClone(this.studyConfiguration),
         };
         this.config = this.getDefaultConfig();
@@ -108,7 +110,7 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
     }
 
     check() {
-        if (!this._toolParams.study) {
+        if (!this._toolParams?.study) {
             return {
                 message: "Study is a mandatory parameter, please select one."
             };
@@ -124,22 +126,17 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
     onSubmit() {
         const params = {
             study: this._toolParams.study,
-            skipRebuild: this._toolParams.skipRebuild || false,
-            ...AnalysisUtils.fillJobParams(this._toolParams, this.TOOL),
         };
-        AnalysisUtils.submit(
-            this.TITLE,
-            this.opencgaSession.opencgaClient.variantOperations()
-                .configureVariantSecondarySampleIndex(this._toolParams.body, params),
-            this,
-        ).then(response => {
-            if (response) {
+        this.opencgaSession.opencgaClient.clinical()
+            .updateClinicalConfiguration(this._toolParams.body, params)
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: `${this.TITLE} Update`,
+                    message: `${this.TITLE} has been successfully updated`,
+                });
                 // If the configuration has been updated, dispatch a study update request
-                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest",
-                    UtilsNew.objectClone(this._toolParams.study)
-                );
-            }
-        });
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", UtilsNew.objectClone(this._toolParams.study));
+            });
     }
 
     render() {
@@ -156,7 +153,7 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
     }
 
     getDefaultConfig() {
-        const params = [
+        const sections = [
             {
                 title: "Study Filter",
                 elements: [
@@ -166,67 +163,58 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
                         type: "custom",
                         required: true,
                         display: {
-                            render: study => html`
-                                <catalog-search-autocomplete
-                                    .value="${study}"
-                                    .resource="${"STUDY"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.study}}"
-                                    @filterChange="${e => this.onStudyChange(e, "study")}">
-                                </catalog-search-autocomplete>
-                            `,
+                            render: study => {
+                                // CAUTION 20240901 Vero: refactor this to use this.allowedValues. Otherwise,
+                                //  if enabled, it will only display the studies within the current project.
+                                //  Disabled for now for consistency with the rest of study admin operations.
+                                return html`
+                                    <catalog-search-autocomplete
+                                        .value="${study}"
+                                        .resource="${"STUDY"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: false, disabled: !!this.study}}"
+                                        @filterChange="${e => this.onStudyChange(e, "study")}">
+                                    </catalog-search-autocomplete>
+                                `;
+                            }
                         },
-                    },
+                    }
                 ],
             },
             {
                 title: "Configuration Parameters",
                 elements: [
                     {
-                        title: "Skip Rebuild",
-                        field: "skipRebuild",
-                        type: "checkbox",
-                        display: {
-                            help: {
-                                text: "Skip rebuilding the secondary sample variant index"
-                            }
-                        }
-                    },
-                    {
-                        title: "Sample Index Configuration",
+                        title: "Clinical Analysis Configuration",
                         field: "body",
                         type: "custom",
                         display: {
-                            render: (body, dataFormFilterChange) => html `
-                                <json-editor
-                                    .data="${body}"
-                                    @fieldChange="${e => dataFormFilterChange(e.detail.value.json)}">
-                                </json-editor>
-                            `,
-                        },
+                            render: (body, dataFormFilterChange) => {
+                                return html `
+                                    <json-editor
+                                        .data="${body}"
+                                        @fieldChange="${e => dataFormFilterChange(e.detail.value.json)}">
+                                    </json-editor>
+                                `;
+                            }
+                        }
                     },
                 ],
-            },
+            }
         ];
 
-        return AnalysisUtils.getAnalysisConfiguration(
-            this.TOOL,
-            this.title ?? this.TITLE,
-            this.DESCRIPTION,
-            params,
-            this.check(),
-            {
-                display: {
-                    buttonsLayout: "top"
-                },
-                buttons: {
-                    clearText: "Discard Changes",
-                    okText: "Update",
-                },
+        return {
+            title: this.title ?? this.TITLE,
+            description: this.DESCRIPTION,
+            display: this.displayConfig || this.displayConfigDefault,
+            buttons: {
+                clearText: "Discard Changes",
+                okText: "Update",
             },
-        );
+            sections: sections,
+        };
     }
 
 }
 
-customElements.define("variant-secondary-sample-index-configure-operation", VariantSecondarySampleIndexConfigureOperation);
+customElements.define("clinical-analysis-configuration-update", ClinicalAnalysisConfigurationUpdate);
