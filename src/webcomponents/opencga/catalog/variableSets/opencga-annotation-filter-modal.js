@@ -83,34 +83,66 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         }
     }
 
-    // It builds this.selectedVariables from the serialized string this.selectedVariablesText
+    /**
+     * It builds the two variables involved in the visualization of the annotation variables from the serialized string
+     * this.selectedVariablesText: (1) this.selectedVariables, (2) this.variableMap
+     */
     selectedVariablesTextObserver() {
         this.selectedVariables = {};
+        this.variableMap = {};
+
         if (this.selectedVariablesText) {
             const variables = this.selectedVariablesText.split(";");
+
             for (const v of variables) {
-                const [, variableSetId, variableId, operator, value] = [...v.matchAll(/(\w+):(\w+\.?\w+)(<=?|>=?|=)(\w+[\s+\w+]*)/g)][0];
-                this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: {operator, value}};
+                const match = [...v.matchAll(/(\w+):(\w+\.?\w+)(<=?|>=?|=)(\w+[\s+\w+]*)/g)][0];
+                if (!match) {
+                    // TODO 20241017: Handle potential match failures
+                    console.log(`Annotation variable ${v} failed at matching regular expression`);
+                } else {
+                    const [, variableSetId, variableId, operator, value] = match;
+                    // If variableId in this.selectedVariablesText is a map, the variableId key will follow the format:
+                    // - variableId.option: {operator: ">", value: "whatever"}
+                    const [variableIdClean, option] = variableId.split(".");
+
+                    // 1. Update the  variable this.selectedVariables
+                    this.selectedVariables[variableSetId] = {
+                        ...this.selectedVariables[variableSetId] ?? {},
+                        [variableId]: {operator, value},
+                    };
+
+                    // 2. Update the  variable this.variableMap if there are variables type MAP_* in the prepared query.
+                    if (option) {
+                        // Init variable options
+                        const variableOptions = this.variableMap[variableSetId]?.[variableIdClean] ?? [];
+                        // Add the option selected if not already pushed
+                        if (!variableOptions.includes(option)) {
+                            variableOptions.push(option);
+                        }
+                        // Update the variable this.variableMap
+                        this.variableMap[variableSetId] = {
+                            ...this.variableMap[variableSetId],
+                            [variableIdClean]: variableOptions
+                        };
+                    }
+                }
             }
         }
-        this.selectedVariables = {...this.selectedVariables};
     }
 
     /**
      * It serializes this.selectedVariables in a single string and fire the event
      */
-    // fire in case of selectedVariables change
     selectedVariablesSerializer() {
         const selected = [];
         for (const [variableSetId, variables] of Object.entries(this.selectedVariables)) {
-            // value is not defined iff an operator (<=, >=, ...) has been selected before setting the value. In that case we filter out that entry.
-            const singleVariableSetvariables = Object.entries(variables)
+            // Value is not defined iff an operator (<=, >=, ...) has been selected before setting the value. In that case we filter out that entry.
+            const singleVariableSetVariables = Object.entries(variables)
                 .filter(([, {value}]) => Boolean(value))
                 .map(([variableId, {operator, value}]) => `${variableSetId}:${variableId}${operator}${value}`)
                 .join(";");
-            selected.push(singleVariableSetvariables);
+            selected.push(singleVariableSetVariables);
         }
-        debugger
         LitUtils.dispatchCustomEvent(this, "annotationChange", selected.join(";"));
     }
 
@@ -218,7 +250,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
             Object.keys(this.selectedVariables[variableSetId])
                 .forEach(key => {
                     const [keyVariableId, keyOption] = key.split('.');
-                    if (!this.variableMap[variableSetId][keyVariableId]?.includes(keyOption)) {
+                    if (keyOption && !this.variableMap[variableSetId][keyVariableId]?.includes(keyOption)) {
                         delete this.selectedVariables[variableSetId][key];
                         this.selectedVariables = {...this.selectedVariables};
                         this.selectedVariablesSerializer();
@@ -237,31 +269,30 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
             case "OBJECT":
                 content = html`
                     ${variable?.variableSet?.length ? html`
-                            <div class="col-md-12">
-                                <label class="form-label fw-bold">
-                                    ${variable.id}
-                                </label>
-                                ${variable.variableSet.map(v => this.renderVariable(v, variableSet))}
-                            </div>
-                        ` : html`
-                            <div class="col-md-3">
-                                <label class="form-label fw-bold" for="${variable.id}Textarea">
-                                    <a tooltip-title="${variable.id}" tooltip-text="${variable.description}">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a> ${variable.id}
-                                </label>
-                                <textarea class="form-control" id="${variable.id}Textarea" rows="1"
-                                    data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
-                                    @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}">
-                                </textarea>
-                            </div>
-                        `}
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">
+                                ${variable.id}
+                            </label>
+                            ${variable.variableSet.map(v => this.renderVariable(v, variableSet))}
+                        </div>
+                    ` : html`
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold" for="${variable.id}Textarea">
+                                <a tooltip-title="${variable.id}" tooltip-text="${variable.description}">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a> ${variable.id}
+                            </label>
+                            <textarea class="form-control" id="${variable.id}Textarea" rows="1"
+                                data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
+                                @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}">
+                            </textarea>
+                        </div>
+                    `}
                     </div>`;
                 break;
             case "MAP_STRING":
-                // copy of MAP_INTEGER without operator select
+                // TODO Vero 20241017: Find an example and test
                 content = html`
-                    <!--<pre> \${JSON.stringify(variable)}</pre>-->
                     ${variable?.allowedKeys?.length ? html`
                         <div class="col-md-12">
                             <label class="form-label fw-bold">
@@ -296,10 +327,17 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
                                 </a> ${variable.id}
                             </label>
-                            <input class="form-control" type="text" id="${variable.id}Input" placeholder="${variable.id}"
-                                data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
+                            <input
+                                class="form-control"
+                                type="text"
+                                id="${variable.id}Input"
+                                placeholder="${variable.id}"
+                                data-variable-id="${variable.id}"
+                                data-variable-set-id="${variableSet.id}"
                                 pattern="${variable?.attributes?.pattern ?? null}"
-                                aria-describedby="basic-addon1" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
+                                aria-describedby="basic-addon1"
+                                @input="${this.addInputFilter}"
+                                .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
                         </div>`}
                     `;
                 break;
@@ -321,56 +359,61 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                 @filterChange="${e => this.changeMap(e, variableSet.id, variable.id, e.detail.value)}">
                             </select-field-filter>
                             <div class="row">
-                                ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => html`
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold"  for="${variable.id}Input">
-                                            ${key}
-                                        </label>
-                                        <div class="row row-cols-lg-auto g-1 align-items-center">
-                                            <div class="col-6">
-                                                <select
-                                                    class="form-select"
-                                                    id="${variable.id}Input"
-                                                    data-variable-id="${variable.id + "." + key}"
-                                                    data-variable-set-id="${variableSet.id}"
-                                                    @change="${this.changeOperator}">
-                                                        <option value="=">=</option>
-                                                        <option value="<">&lt;</option>
-                                                        <option value="<=">&le;</option>
-                                                        <option value=">" selected>&gt;</option>
-                                                        <option value=">=">&ge;</option>
-                                                </select>
+                                ${
+                                    this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {
+                                        const operator = this.selectedVariables?.[variableSet.id]?.[variable.id + "." + key]?.operator || ">";
+                                        const value = this.selectedVariables?.[variableSet.id]?.[variable.id + "." + key]?.value || "";
+                                        return html`
+                                            <div class="col-md-3">
+                                                <label class="form-label fw-bold"  for="${variable.id}Input">
+                                                    ${key}
+                                                </label>
+                                                <div class="row row-cols-lg-auto g-1 align-items-center">
+                                                    <div class="col-6">
+                                                        <select
+                                                            class="form-select"
+                                                            id="${variable.id}Input"
+                                                            data-variable-id="${variable.id + "." + key}"
+                                                            data-variable-set-id="${variableSet.id}"
+                                                            @change="${this.changeOperator}">
+                                                                <option value="=">=</option>
+                                                                <option value="<">&lt;</option>
+                                                                <option value="<=">&le;</option>
+                                                                <option value=">" selected>&gt;</option>
+                                                                <option value=">=">&ge;</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <input
+                                                            type="text"
+                                                            class="form-control"
+                                                            placeholder="${key}"
+                                                            .value="${value}"
+                                                            data-variable-id="${variable.id + "." + key}"
+                                                            data-variable-set-id="${variableSet.id}"
+                                                            data-operator="${operator}"
+                                                            @input="${this.addNumericFilter}"/>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="col-6">
-                                                <input
-                                                    type="text"
-                                                    class="form-control"
-                                                    placeholder="${key}"
-                                                    data-variable-id="${variable.id + "." + key}"
-                                                    data-variable-set-id="${variableSet.id}"
-                                                    data-operator=">"
-                                                    @input="${this.addNumericFilter}"
-                                                    .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `)}
+                                        `;
+                                    })
+                                }
                             </div>
                         </div>
-                    ` :
-                    html`
-                            <div class="col-md-3">
-                                <label class="form-label fw-bold" for="${variable.id}Input">
-                                    <a tooltip-title="${variable.id}" tooltip-text="${variable.description}">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a> ${variable.id}
-                                </label>
-                                <input class="form-control" type="text" id="${variable.id}Input"
-                                    placeholder="${variable.id}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
-                                    pattern="${variable?.attributes?.pattern ?? null}" aria-describedby="basic-addon1" @input="${this.addInputFilter}"
-                                    .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
-                            </div>
-                        `}
+                    ` : html`
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold" for="${variable.id}Input">
+                                <a tooltip-title="${variable.id}" tooltip-text="${variable.description}">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a> ${variable.id}
+                            </label>
+                            <input class="form-control" type="text" id="${variable.id}Input"
+                                placeholder="${variable.id}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
+                                pattern="${variable?.attributes?.pattern ?? null}" aria-describedby="basic-addon1" @input="${this.addInputFilter}"
+                                .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
+                        </div>
+                    `}
                 `;
                 break;
             case "TEXT":
@@ -402,10 +445,10 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                             <div class="col-6">
                                 <select class="form-select" id="${variable.id}Select" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}" @change="${this.changeOperator}">
                                     <option value="=">=</option>
-                                    <option value="&lt;">&lt;</option>
-                                    <option value="&le;">&le;</option>
-                                    <option value="&gt;" selected>&gt;</option>
-                                    <option value="&ge;">&ge;</option>
+                                    <option value="<">&lt;</option>
+                                    <option value="<=">&le;</option>
+                                    <option value=">" selected>&gt;</option>
+                                    <option value=">=">&ge;</option>
                                 </select>
                             </div>
                             <div class="col-6">
@@ -435,10 +478,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                         <select-field-filter
                             .data="${variable.allowedValues}"
                             .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"
-                            .config="${{
-                                multiple: !!variable.multiValue,
-                                liveSearch: false,
-                            }}"
+                            .config="${{multiple: !!variable.multiValue, liveSearch: false}}"
                             @filterChange="${e => this.addCategoricalFilter(variableSet.id, variable.id, e.detail.value)}">
                         </select-field-filter>
                     </div>
