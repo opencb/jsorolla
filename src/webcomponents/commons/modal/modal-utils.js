@@ -25,7 +25,7 @@ export default class ModalUtils {
         const modalTitleStyle = config.display?.modalTitleStyle ?? "";
         const btnsVisible = config.display?.modalbtnsVisible ?? false;
         const btnCancelVisible = config.display?.btnCancelVisible ?? true;
-        const btnSaveVisible = config.display?.btnOkVisible ?? true;
+        const btnSaveVisible = config.display?.btnSaveVisible ?? true;
         const modalDraggable = config.display?.modalDraggable ?? false;
         const modalCyDataName = config.display?.modalCyDataName ?? "";
 
