@@ -177,10 +177,6 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
         return this.proteinSubstitutionScores?.style?.[source]?.[description] || "black";
     }
 
-    isTranscriptAvailable(item) {
-        return item !== "";
-    }
-
     render() {
         if (!this.variantAnnotation) {
             return nothing;
@@ -287,12 +283,12 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => {
-                                    const color = this.getProteinSubstitutionScoresColor("sift", this._proteinSubScore?.sift?.description);
+                                    const color = this.getProteinSubstitutionScoresColor("sift", this._proteinSubScore.sift.description);
                                     return html`
                                         <span title="${this._proteinSubScore.sift.score}" style="color:${color};">
                                             ${this._proteinSubScore.sift.description || "-"}
                                         </span>
-                                        ${this.isTranscriptAvailable(this._proteinSubScore.sift.transcript) ? html`
+                                        ${this._proteinSubScore.sift?.transcript ? html`
                                             (<b>Gene:</b>${this._proteinSubScore.sift.gene}, <b>Transcript: </b>${this._proteinSubScore.sift.transcript})
                                         ` : nothing }
                                     `;
@@ -304,12 +300,12 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => {
-                                    const color = this.getProteinSubstitutionScoresColor("polyphen", this._proteinSubScore?.polyphen?.description);
+                                    const color = this.getProteinSubstitutionScoresColor("polyphen", this._proteinSubScore.polyphen.description);
                                     return html`
                                         <span title="${this._proteinSubScore.polyphen.score}" style="color:${color};">
                                             ${this._proteinSubScore.polyphen.description || "-"}
                                         </span>
-                                        ${this.isTranscriptAvailable(this._proteinSubScore.polyphen.transcript) ? html`
+                                        ${this._proteinSubScore.polyphen?.transcript ? html`
                                             (<b>Gene:</b>${this._proteinSubScore.polyphen.gene}, <b>Transcript: </b>${this._proteinSubScore.polyphen.transcript})
                                         ` : nothing}
                                     `;
