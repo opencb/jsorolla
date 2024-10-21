@@ -108,6 +108,11 @@ export default class SelectFieldFilter extends LitElement {
         }
 
         this.select.empty();
+
+        // Force to unbind 'select2:select' and 'select2:unselect' listeners
+        this.select.off("select2:select");
+        this.select.off("select2:unselect");
+
         const options = this.data.map(item => this.getOptions(item));
 
         const selectConfig = {
@@ -309,25 +314,9 @@ export default class SelectFieldFilter extends LitElement {
         };
     }
 
-    filterChange(e) {
-        const disabled = Object.values(e.target.options)
-            .filter(data => data.disabled === true)
-            .map(data => {
-                if (data.selected) {
-                    return data.value;
-                }
-            });
+    filterChange() {
+        const selection = this.select.select2("data").map(el => el.id);
 
-        const selection = Array.isArray(this.select.select2("data")) ?
-            [...this.select.select2("data").map(el => el.id), ...disabled] :
-            this.select.select2("data").map(el => el.id);
-
-        let val = "";
-        if (selection && selection.length) {
-            if (this._config?.multiple) {
-                val = selection.join(",");
-            }
-        }
         LitUtils.dispatchCustomEvent(this, "filterChange", selection.join(","),
         {}, null, {bubbles: false, composed: false});
     }
