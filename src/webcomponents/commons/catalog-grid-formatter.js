@@ -30,7 +30,7 @@ export default class CatalogGridFormatter {
         `;
     }
     static sexFormatter(value, row) {
-        let sexHtml = `${UtilsNew.isEmpty(row?.sex) ? "Not specified" : row.sex.id || row.sex}`;
+        let sexHtml = `${UtilsNew.isEmpty(value) ? "Not specified" : value.id ?? value}`;
         if (row?.karyotypicSex && row.karyotypicSex !== "UNKNOWN") {
             sexHtml += ` (${row.karyotypicSex?.id || row.karyotypicSex})`;
         }
