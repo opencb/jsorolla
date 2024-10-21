@@ -341,7 +341,7 @@ export default class VariantSamples extends LitElement {
                     field: "attributes.OPENCGA_INDIVIDUAL",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: (attributesIndividual, sample) => CatalogGridFormatter.sexFormatter(attributesIndividual?.sex, attributesIndividual),
+                    formatter: attributesIndividual => CatalogGridFormatter.sexFormatter(attributesIndividual?.sex, attributesIndividual),
                     halign: "center"
                 },
                 {
