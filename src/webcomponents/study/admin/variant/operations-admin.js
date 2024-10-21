@@ -194,7 +194,7 @@ export default class OperationsAdmin extends LitElement {
                                 }
                                 return html`
                                     <variant-annotation-index-operation
-                                        .toolParams="${{project: opencgaSession.project.id}}"
+                                        .toolParams="${{project: opencgaSession.project.fqn}}"
                                         .opencgaSession="${opencgaSession}">
                                     </variant-annotation-index-operation>
                                 `;
@@ -217,7 +217,7 @@ export default class OperationsAdmin extends LitElement {
                                 }
                                 return html`
                                     <variant-secondary-annotation-index-operation
-                                        .toolParams="${{project: opencgaSession.project.id}}"
+                                        .toolParams="${{project: opencgaSession.project.fqn}}"
                                         .opencgaSession="${opencgaSession}">
                                     </variant-secondary-annotation-index-operation>
                                 `;
@@ -265,10 +265,9 @@ export default class OperationsAdmin extends LitElement {
                             visibility: "private",
                             type: "navitem",
                             render: (opencgaSession, study) => {
-                                // CAUTION: no .fqn? in toolParams property?
                                 return html`
                                     <variant-secondary-sample-index-operation
-                                        .toolParams="${{study: study.id}}"
+                                        .toolParams="${{study: study.fqn}}"
                                         .opencgaSession="${opencgaSession}">
                                     </variant-secondary-sample-index-operation>
                                 `;
