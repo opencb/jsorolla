@@ -169,7 +169,7 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
                 title: "Configuration Parameters",
                 elements: [
                     {
-                        title: "Sample",
+                        title: "Sample IDs",
                         type: "custom",
                         required: true,
                         display: {
