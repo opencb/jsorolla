@@ -240,7 +240,7 @@ export default class CustomNavBar extends LitElement {
                         <div class="navbar-brand d-flex justify-content-center align-items-center me-n1" style="height: 2.5rem;">
                             <!-- Application logo provided -->
                             ${this.app?.logo ? html`
-                                <img class="d-inline-block" src="${this.app?.logo}" alt="App logo">
+                                <img class="d-inline-block" src="${this.app?.logo}" alt="App logo" style="height:1.3em;">
                             ` : nothing}
                             <!-- No application logo provided -->
                             ${!this.app?.logo && this.app?.name ? html`
