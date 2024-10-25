@@ -279,7 +279,14 @@ export default class OpencgaCatalogUtils {
         };
         return {
             attributes: {
+                // 1. Other attributes that the study might have
                 ...study.attributes,
+                // 2. BACKUP previous settings
+                // eslint-disable-next-line no-undef
+                [SETTINGS_NAME + "_BACKUP"]:
+                // eslint-disable-next-line no-undef
+                    UtilsNew.objectClone(study.attributes[SETTINGS_NAME]),
+                // 3. New tool settings
                 // eslint-disable-next-line no-undef
                 [SETTINGS_NAME]: {
                     userId: opencgaSession.user.id,
@@ -287,6 +294,7 @@ export default class OpencgaCatalogUtils {
                     date: UtilsNew.getDatetime(),
                     settings: getSettings(),
                 },
+
             }
         };
     }
