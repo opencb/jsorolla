@@ -8,6 +8,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const WebpackPluginHtmlAssetsFix = require("./scripts/webpack-plugin-html-assets-fix.js");
 const WebpackPluginHtmlGlobalAssets = require("./scripts/webpack-plugin-html-global-assets.js");
+const WebpackPluginHtmlBuildInfo = require("./scripts/webpack-plugin-html-build-info.js");
 
 // load package.json from the current working directory
 const pkg = require(path.join(process.cwd(), "package.json"));
@@ -18,13 +19,6 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 
 // list of entries to build (in src/sites folder)
 const entries = ["iva", "test-app"];
-
-// build information
-const buildInfo = {
-    branch: childProcess.execSync("git rev-parse --abbrev-ref HEAD").toString().trim(),
-    commit: childProcess.execSync("git rev-parse HEAD").toString().trim(),
-    date: new Date().toString(),
-};
 
 // internal method to get the path to the custom site
 const getCustomSitePath = (entry, folder) => {
@@ -219,6 +213,13 @@ module.exports = {
         }),
         new webpack.DefinePlugin({
             "process.env.VERSION": JSON.stringify(pkg.version),
+        }),
+        new WebpackPluginHtmlBuildInfo({
+            name: "Jsorolla",
+            version: require(path.join(__dirname, "package.json")).version,
+            branch: childProcess.execSync("git rev-parse --abbrev-ref HEAD", {cwd: __dirname}).toString().trim(),
+            commit: childProcess.execSync("git rev-parse HEAD", {cwd: __dirname}).toString().trim(),
+            date: new Date().toString(),
         }),
     ],
 };
