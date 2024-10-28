@@ -20,6 +20,11 @@
 
 import {html, LitElement, nothing} from "lit";
 
+// import jsorolla styles
+import "../../../styles/css/global.css";
+import "../../genome-browser/css/genome-browser.css";
+import "../../core/visualisation/viz-styles.css";
+
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
 import NotificationManager from "../../core/notification-manager.js";
