@@ -8,28 +8,24 @@ const PORT = process.env.PORT || 4000;
 
 // send the provided file as a response
 const sendFile = (request, response, filePath) => {
-    const realFilePath = fs.realpathSync(filePath);
-    if (realFilePath !== filePath) {
-        response.writeHead(401);
-        return response.end("Unauthorized");
-    }
-    const pathExists = fs.existsSync(realFilePath);
-    const pathIsDirectory = pathExists && fs.statSync(filePath).isDirectory();
-    // 1. File exists and is not a directory
-    if (pathExists && !pathIsDirectory) {
-        response.writeHead(200, {
-            "Content-Type": mime.lookup(path.basename(realFilePath)),
-        });
-        return fs.createReadStream(realFilePath).pipe(response);
-    }
-    // 2. Path is a directory: redirect to the same url but adding the trailing '/'
-    if (pathExists && pathIsDirectory) {
-        response.writeHead(302, {location: request.url + "/"});
-        return response.end();
-    }
-    // 3. Path does not exist: send a 404 message
-    response.writeHead(404);
-    response.end("Not found.");
+    fs.realpath(filePath, "utf8", (error, realFilePath) => {
+        if (!error && realFilePath === filePath) {
+            const pathIsDirectory = fs.statSync(realFilePath).isDirectory();
+            // 1. File exists and is not a directory
+            if (!pathIsDirectory) {
+                response.writeHead(200, {
+                    "Content-Type": mime.lookup(path.basename(realFilePath)),
+                });
+                return fs.createReadStream(realFilePath).pipe(response);
+            }
+            // 2. Path is a directory: redirect to the same url but adding the trailing '/'
+            response.writeHead(302, {location: request.url + "/"});
+            return response.end();
+        }
+        // 3. Path does not exist: send a 404 message
+        response.writeHead(404);
+        response.end("Not found.");
+    });
 };
 
 const server = http.createServer((request, response) => {
