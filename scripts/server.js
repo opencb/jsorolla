@@ -8,14 +8,19 @@ const PORT = process.env.PORT || 4000;
 
 // send the provided file as a response
 const sendFile = (request, response, filePath) => {
-    const pathExists = fs.existsSync(filePath);
+    const realFilePath = fs.realpathSync(filePath);
+    if (realFilePath !== filePath) {
+        response.writeHead(401);
+        return response.end("Unauthorized");
+    }
+    const pathExists = fs.existsSync(realFilePath);
     const pathIsDirectory = pathExists && fs.statSync(filePath).isDirectory();
     // 1. File exists and is not a directory
     if (pathExists && !pathIsDirectory) {
         response.writeHead(200, {
-            "Content-Type": mime.lookup(path.basename(filePath)),
+            "Content-Type": mime.lookup(path.basename(realFilePath)),
         });
-        return fs.createReadStream(filePath).pipe(response);
+        return fs.createReadStream(realFilePath).pipe(response);
     }
     // 2. Path is a directory: redirect to the same url but adding the trailing '/'
     if (pathExists && pathIsDirectory) {
