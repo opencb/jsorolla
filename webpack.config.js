@@ -102,7 +102,7 @@ module.exports = {
     devServer: {
         hot: false,
         open: "/iva/index.html",
-        port: 3001,
+        port: 3000,
         client: {
             overlay: false,
         },
