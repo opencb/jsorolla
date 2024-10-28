@@ -14,7 +14,7 @@
   "scripts": {
     "serve": "npm run serve:dev",
     "serve:dev": "webpack serve",
-    "serve:build": "cross-env PORT=4002 node ./scripts/server.js",
+    "serve:build": "cross-env PORT=4000 node ./scripts/server.js",
     "clean": "rm -rf build",
     "build": "npm run clean && cross-env NODE_ENV=production webpack build",
     "test:open": "cypress open",
