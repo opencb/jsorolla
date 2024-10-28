@@ -129,7 +129,7 @@ export default class DetailTabs extends LitElement {
     }
 
     renderTitle() {
-        const title = typeof this._config.title === "function" ? this._config.title(this.data) : this._config.title + " " + (this.data?.id || "");
+        const title = typeof this._config.title === "function" ? this._config.title(this.data) : this._config.title + " " + UtilsNew.substring(this.data?.id || "", this._config.display?.idMaxLength);
         return html`
             <div class="mt-3 ${this._config?.display?.titleClass || ""}" style="${this._config?.display?.titleStyle || ""}">
                 <h3>${title}</h3>
@@ -241,6 +241,9 @@ export default class DetailTabs extends LitElement {
 
                 contentClass: "p-3",
                 contentStyle: "",
+
+                // maximum length of the displayed id in the title
+                idMaxLength: 100,
             },
             items: [],
             // Example:

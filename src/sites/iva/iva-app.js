@@ -87,7 +87,6 @@ import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/study/admin/study-admin-iva.js";
 import "../../webcomponents/study/admin/catalog-admin.js";
-import "../../webcomponents/study/admin/variant/study-variant-admin.js";
 import "../../webcomponents/study/admin/variant/operations-admin.js";
 import "../../webcomponents/user/user-profile.js";
 import "../../webcomponents/api/rest-api.js";
@@ -236,7 +235,6 @@ class IvaApp extends LitElement {
             "study-admin-iva",
             // "catalog-admin",
             "operations-admin",
-            "study-variant-admin",
             "opencga-admin",
             "variants-admin",
             // "projects-admin",

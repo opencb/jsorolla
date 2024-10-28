@@ -207,8 +207,13 @@ export default class VariantInterpreterGridConfig extends LitElement {
             type: "pills",
             validation: {
                 validate: data => {
-                    return data.geneSet?.ensembl || data.geneSet?.refseq;
-                }
+                    // make sure that geneSet is present in the data object
+                    if (typeof data.geneSet !== "undefined") {
+                        return data.geneSet?.ensembl || data.geneSet?.refseq;
+                    }
+                    return true;
+                },
+                message: "You must select at least one Gene Set (Ensembl or RefSeq) in Transcript Filter.",
             },
             display: {
                 width: 12,

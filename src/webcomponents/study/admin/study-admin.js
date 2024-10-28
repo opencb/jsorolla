@@ -22,7 +22,7 @@ import "./study-admin-permissions.js";
 import "./study-admin-variable.js";
 import "./study-admin-audit.js";
 import "./study-admin-configuration.js";
-import "../../variant/operation/clinical-analysis-configuration-operation.js";
+import "../../variant/operation/clinical-analysis-configuration-update.js";
 import "../../variant/operation/variant-secondary-sample-index-configure-operation.js";
 import "../../commons/layouts/custom-vertical-navbar.js";
 
@@ -228,10 +228,10 @@ export default class StudyAdmin extends LitElement {
                             visibility: "private",
                             render: (opencgaSession, study) => {
                                 return html `
-                                    <clinical-analysis-configuration-operation
+                                    <clinical-analysis-configuration-update
                                             .toolParams="${{study: study.id}}"
                                             .opencgaSession="${opencgaSession}">
-                                    </clinical-analysis-configuration-operation>
+                                    </clinical-analysis-configuration-update>
                                 `;
                             }
                         },
