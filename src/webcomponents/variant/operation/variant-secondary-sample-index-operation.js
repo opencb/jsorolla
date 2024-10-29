@@ -125,6 +125,7 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            study: this.toolParams.study || "",
         };
         this.config = this.getDefaultConfig();
     }
@@ -168,7 +169,7 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
                 title: "Configuration Parameters",
                 elements: [
                     {
-                        title: "Sample",
+                        title: "Sample IDs",
                         type: "custom",
                         required: true,
                         display: {
