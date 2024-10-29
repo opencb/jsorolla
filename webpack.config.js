@@ -128,7 +128,7 @@ module.exports = {
         new WebpackPluginHtmlGlobalAssets({
             cwd: __dirname,
             files: {
-                "[name]/js/globals.[hash].js": [
+                "[name]/js/globals.[contenthash].js": [
                     "node_modules/jquery/dist/jquery.min.js",
                     "node_modules/lodash/lodash.min.js",
                     "node_modules/backbone/backbone-min.js",
@@ -158,7 +158,7 @@ module.exports = {
                     // "node_modules/pdfmake/build/vfs_fonts.js",
                     // "node_modules/html-to-pdfmake/browser.js",
                 ],
-                "[name]/css/globals.[hash].css": [
+                "[name]/css/globals.[contenthash].css": [
                     "node_modules/bootstrap/dist/css/bootstrap.min.css",
                     // "node_modules/bootstrap-select/dist/css/bootstrap-select.min.css",
                     "node_modules/select2/dist/css/select2.min.css",

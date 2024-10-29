@@ -38,8 +38,8 @@ class WebpackPluginHtmlGlobalAssets {
                                 .map(file => fs.readFileSync(path.join(cwd, file), "utf8"))
                                 .join(this.options.separator || "\n");
                             // generate the hash of the content
-                            const hash = this.createHash(content).slice(0, 20);
-                            const fileName = outputFileName.replace("[hash]", hash).replace("[name]", chunk);
+                            const contenthash = this.createHash(content).slice(0, 20);
+                            const fileName = outputFileName.replace("[contenthash]", contenthash).replace("[name]", chunk);
                             const fileSource = new webpack.sources.RawSource(content);
                             compilation.emitAsset(fileName, fileSource);
                             this.generatedFilesByChunk[chunk].push(fileName);
