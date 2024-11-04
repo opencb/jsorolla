@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
 import "./filters/catalog-search-autocomplete.js";
@@ -34,7 +34,7 @@ export default class OpencgaBrowserFilter extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
 
     }
     createRenderRoot() {
@@ -67,14 +67,8 @@ export default class OpencgaBrowserFilter extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-
-        this.annotationFilterConfig = {
-            class: "small",
-            buttonClass: "btn-sm",
-            inputClass: "input-sm"
-        };
 
         this.query = {};
         this.preparedQuery = {};
@@ -112,12 +106,6 @@ export default class OpencgaBrowserFilter extends LitElement {
         };
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        this.preparedQuery = {...this.query}; // propagates here the iva-app query object
-    }
-
     firstUpdated(changedProperties) {
         super.firstUpdated(changedProperties);
 
@@ -141,17 +129,18 @@ export default class OpencgaBrowserFilter extends LitElement {
 
     queryObserver() {
         this.preparedQuery = this.query || {};
-        this.requestUpdate();
     }
 
     onFilterChange(key, value) {
         if (value && value !== "") {
-            this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
+            this.preparedQuery[key] = value;
         } else {
             delete this.preparedQuery[key];
-            this.preparedQuery = {...this.preparedQuery};
         }
+        this.preparedQuery = {...this.preparedQuery};
         this.notifyQuery(this.preparedQuery);
+        // Note 20241015 Vero: I believe this.requestUpdate() is not needed, but removing it requires further investigation
+        // (see variant-browser-filter.js, onFilterChange())
         this.requestUpdate();
     }
 
@@ -163,7 +152,6 @@ export default class OpencgaBrowserFilter extends LitElement {
         }
         this.preparedQuery = {...this.preparedQuery};
         this.notifyQuery(this.preparedQuery);
-        this.requestUpdate();
     }
 
     notifyQuery(query) {
@@ -289,7 +277,6 @@ export default class OpencgaBrowserFilter extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .opencgaClient="${this.opencgaSession.opencgaClient}"
                             .resource="${this.resource}"
-                            .config="${this.annotationFilterConfig}"
                             .selectedVariablesText="${this.preparedQuery.annotation}"
                             @annotationChange="${this.onAnnotationChange}">
                         </opencga-annotation-filter-modal>
