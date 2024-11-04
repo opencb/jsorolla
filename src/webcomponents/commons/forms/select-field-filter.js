@@ -357,7 +357,6 @@ export default class SelectFieldFilter extends LitElement {
                 .select-field-filter .select2-results__options {
                     max-height: 600px !important;
                 }
-
                 .select-field-filter .select2-results__option--selected {
                     background-color: #fff !important;
                     color: #000 !important;
@@ -379,7 +378,7 @@ export default class SelectFieldFilter extends LitElement {
     render() {
         return html`
             ${this.renderStyle()}
-            <div class="input-group mb-1 select-field-filter">
+            <div class="input-group select-field-filter">
                 <select
                     class="form-select"
                     id="${this._prefix}"
