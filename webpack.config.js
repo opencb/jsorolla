@@ -65,6 +65,7 @@ module.exports = {
         filename: "[name]/js/[name].[contenthash].js",
         iife: true,
         scriptType: "text/javascript",
+        chunkFormat: "array-push",
     },
     experiments: {
         outputModule: true,
