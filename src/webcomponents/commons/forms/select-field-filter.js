@@ -103,17 +103,13 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     loadData() {
-        if (!this.data || this.data.length === 0) {
-            return;
-        }
-
         this.select.empty();
 
         // Force to unbind 'select2:select' and 'select2:unselect' listeners
         this.select.off("select2:select");
         this.select.off("select2:unselect");
 
-        const options = this.data.map(item => this.getOptions(item));
+        const options = (this.data || []).map(item => this.getOptions(item));
 
         const selectConfig = {
             ...this._config,
