@@ -318,7 +318,7 @@ export default class OpencgaBrowser extends LitElement {
 
     renderButtonViews() {
         return html `
-            <div class="content-pills mb-3" role="toolbar" aria-label="toolbar">
+            <div class="d-flex gap-1 mb-3" role="toolbar" aria-label="toolbar">
                 ${(this._config.views || []).map(view => html`
                     <button
                         type="button"
