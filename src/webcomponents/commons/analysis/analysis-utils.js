@@ -139,6 +139,9 @@ export default class AnalysisUtils {
                 ...paramSections,
                 {
                     title: "Job Info",
+                    display: {
+                        className: "p-2"
+                    },
                     elements: [
                         {
                             title: "Job ID",

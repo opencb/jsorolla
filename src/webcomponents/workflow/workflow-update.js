@@ -225,7 +225,7 @@ export default class WorkflowUpdate extends LitElement {
                                     title: "Type",
                                     field: "variables[].type",
                                     type: "select",
-                                    allowedValues: ["INT", "STRING", "BOOLEAN", "FLAG"],
+                                    allowedValues: ["FLAG", "BOOLEAN", "INTEGER", "DOUBLE", "STRING", "FILE"],
                                     display: {
                                         placeholder: "Add a content...",
                                     },

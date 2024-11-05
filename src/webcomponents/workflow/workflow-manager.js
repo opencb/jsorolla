@@ -17,12 +17,15 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import "../commons/data-list.js";
 import "./workflow-summary.js";
 import "./workflow-view.js";
 import "./workflow-create.js";
 import "./workflow-update.js";
+import "./workflow-import.js";
 import "./analysis/workflow-analysis.js";
 import ModalUtils from "../commons/modal/modal-utils";
+import GridCommons from "../commons/grid-commons";
 
 export default class WorkflowManager extends LitElement {
 
@@ -53,12 +56,19 @@ export default class WorkflowManager extends LitElement {
 
     #init() {
         // this._prefix = UtilsNew.randomString(8);
-        this.WORKFLOW_TYPES = [
-            {id: "SECONDARY_ANALYSIS", name: "Secondary Analysis"},
-            {id: "RESEARCH_ANALYSIS", name: "Research Analysis"},
-            {id: "CLINICAL_INTERPRETATION_ANALYSIS", name: "Clinical Interpretation Analysis"},
-            {id: "OTHER", name: "Other"},
-        ];
+        // this.WORKFLOW_TYPES = [
+        //     {id: "SECONDARY_ANALYSIS", name: "Secondary Analysis"},
+        //     {id: "RESEARCH_ANALYSIS", name: "Research Analysis"},
+        //     {id: "CLINICAL_INTERPRETATION_ANALYSIS", name: "Clinical Interpretation Analysis"},
+        //     {id: "OTHER", name: "Other"},
+        // ];
+
+        this.WORKFLOW_TYPES_COLOR_MAP = {
+            SECONDARY_ANALYSIS: "blue",
+            RESEARCH_ANALYSIS: "orange",
+            CLINICAL_INTERPRETATION_ANALYSIS: "red",
+            OTHER: "black",
+        };
 
         this._config = this.getDefaultConfig();
     }
@@ -66,7 +76,7 @@ export default class WorkflowManager extends LitElement {
     update(changedProperties) {
         // Set workflows from the active study
         if (changedProperties.has("opencgaSession")) {
-            this.workflows = this.opencgaSession?.study?.workflows;
+            this.opencgaSessionObserver();
         }
 
         // Merge the default config with the received config
@@ -80,126 +90,52 @@ export default class WorkflowManager extends LitElement {
         super.update(changedProperties);
     }
 
-    onWorkflowUpdate() {
-        LitUtils.dispatchCustomEvent(this, "workflowUpdate", null, {
-            workflow: this.clinicalAnalysis,
-        });
-    }
-
-    renderItemAction(workflow, action, icon, name, disabled = false) {
-        return html`
-            <li>
-                <a
-                    class="${`dropdown-item`}"
-                    ?disabled="${disabled}"
-                    data-action="${action}"
-                    data-workflow-id="${workflow.id}"
-                    data-workflow="${JSON.stringify(workflow)}"
-                    style="cursor:pointer;"
-                    @click="${this.onActionClick}">
-                    <i class="fas ${icon} me-1" aria-hidden="true"></i> ${name}
-                </a>
-            </li>
-        `;
-    }
-
-    renderWorkflows(workflows, type) {
-        const filteredWorkflows = workflows.filter(workflow => workflow.type === type);
-        if (filteredWorkflows.length === 0) {
-            return html`
-                <div class="">
-                    <label>No workflows available.</label>
-                </div>
-            `;
-        } else {
-            return html`
-                ${filteredWorkflows.map(workflow => html`
-                    <div class="py-2">
-                        <div class="d-flex py-1">
-                            <div class="me-auto">
-                                <h5 class="fw-bold">
-                                    ${workflow.id} - ${workflow.name}
-                                </h5>
-                            </div>
-                            <div class="">
-                                <div class="d-flex gap-2">
-                                    <workflow-update
-                                        .workflowId="${workflow?.id}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .mode="${"modal"}"
-                                        .displayConfig="${
-                                            {
-                                                modalSize: "modal-lg",
-                                                buttonClearText: "Cancel",
-                                                buttonOkText: "Update",
-                                                modalButtonClassName: "btn-light",
-                                                // modalDisabled: this.clinicalAnalysis.locked || interpretation.locked,
-                                                modalTitle: `Edit Workflow '${workflow.id}'`,
-                                                modalButtonName: "Edit Workflow...",
-                                                modalButtonIcon: "fas fa-solid fa-file-medical",
-                                                modalButtonsVisible: false,
-                                                type: "tabs",
-                                                buttonsLayout: "upper",
-                                            }
-                                        }"
-                                        @workflowUpdate="${this.onWorkflowUpdate}">
-                                    </workflow-update>
-
-                                    <div class="dropdown">
-                                        <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                            <i class="fas fa-toolbox pe-1"></i>
-                                            Actions
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            ${this.renderItemAction(workflow, "view", "fa-copy", "View")}
-                                            ${this.renderItemAction(workflow, "copy", "fa-copy", "Copy JSON")}
-                                            <li><hr class="dropdown-divider"></li>
-                                            ${this.renderItemAction(workflow, "execute", "fa-download", "Execute")}
-                                            <li><hr class="dropdown-divider"></li>
-                                            ${this.renderItemAction(workflow, "edit", "fa-eraser", "Edit")}
-                                            ${this.renderItemAction(workflow, "delete", "fa-trash", "Delete", true)}
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <workflow-summary
-                            .workflow="${workflow}">
-                        </workflow-summary>
-                    </div>`)}
-            `;
+    opencgaSessionObserver() {
+        this.workflows = this.opencgaSession?.study?.workflows;
+        if (this.opencgaSession) {
+            if (this.workflows?.length === 0) {
+                this.opencgaSession.opencgaClient.workflows()
+                    .search(
+                        {
+                            study: this.opencgaSession.study.fqn,
+                            limit: 100,
+                            count: true
+                        })
+                    .then(response => {
+                        this.workflows = response.getResults();
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        params.error(error);
+                    }).finally(() => {
+                        this.requestUpdate();
+                    });
+            }
         }
-
-        // this.requestUpdate();
     }
 
-    onActionClick(e) {
+    onActionClick(e, value, workflow) {
         e.preventDefault();
-        const {action, workflowId, workflow} = e.currentTarget.dataset;
-        const workflowCallback = () => {
-            this.onWorkflowUpdate();
-        };
 
+        const action = e.currentTarget.dataset.action;
         switch (action) {
             case "view":
-                this.workflowUpdateId = workflowId;
+                this.workflowUpdateId = workflow.id;
                 this.requestUpdate();
                 // await this.updateComplete;
                 ModalUtils.show(`${this._prefix}ViewModal`);
                 break;
-            case "copy-json":
-                const a = JSON.parse(workflow);
-                UtilsNew.copyToClipboard(JSON.stringify(a, null, "\t"));
+            case "copy":
+                UtilsNew.copyToClipboard(JSON.stringify(workflow, null, "\t"));
                 break;
             case "execute":
-                this.workflowUpdateId = workflowId;
+                this.workflowUpdateId = workflow.id;
                 this.requestUpdate();
                 // await this.updateComplete;
                 ModalUtils.show(`${this._prefix}ExecuteModal`);
                 break;
             case "edit":
-                this.workflowUpdateId = workflowId;
+                this.workflowUpdateId = workflow.id;
                 this.requestUpdate();
                 // await this.updateComplete;
                 ModalUtils.show(`${this._prefix}UpdateModal`);
@@ -208,6 +144,71 @@ export default class WorkflowManager extends LitElement {
                 // this.clinicalAnalysisManager.deleteInterpretation(interpretationId, interpretationCallback);
                 break;
         }
+    }
+
+    onWorkflowCreate(e) {
+        ModalUtils.show(`${this._prefix}CreateModal`);
+    }
+
+    renderCreateModal() {
+        return ModalUtils.create(this, `${this._prefix}CreateModal`, {
+            display: {
+                modalTitle: `Create a new Workflow`,
+                modalDraggable: true,
+                modalCyDataName: "modal-execute",
+                modalSize: "modal-xl"
+            },
+            render: () => html`
+                <workflow-create
+                    .opencgaSession="${this.opencgaSession}"
+                    .displayConfig="${{
+                        buttonClearText: "Cancel",
+                        type: "tabs",
+                        buttonsLayout: "upper"
+                    }}">
+                </workflow-create>
+            `,
+        });
+    }
+
+    onWorkflowImport(e) {
+        ModalUtils.show(`${this._prefix}ImportModal`);
+    }
+
+    onWorkflowImported(e) {
+        this.opencgaSession.opencgaClient.workflows()
+            .search(
+                {
+                    study: this.opencgaSession.study.fqn,
+                    limit: 100,
+                    count: true
+                })
+            .then(response => {
+                this.workflows = response.getResults();
+            })
+            .catch(error => {
+                console.error(error);
+                params.error(error);
+            }).finally(() => {
+                this.requestUpdate();
+            });
+    }
+
+    renderImportModal() {
+        return ModalUtils.create(this, `${this._prefix}ImportModal`, {
+            display: {
+                modalTitle: `Import NextFlow Workflows`,
+                modalDraggable: true,
+                modalCyDataName: "modal-execute",
+                modalSize: "modal-xl"
+            },
+            render: () => html`
+                <workflow-import
+                    .opencgaSession="${this.opencgaSession}"
+                    @workflowImport="${this.onWorkflowImported}">
+                </workflow-import>
+            `,
+        });
     }
 
     renderViewModal() {
@@ -239,10 +240,16 @@ export default class WorkflowManager extends LitElement {
             render: () => html`
                 <workflow-analysis
                     .toolParams="${{id: this.workflowUpdateId}}"
-                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "bottom"}}"
+                    .search="${false}"
                     .opencgaSession="${this.opencgaSession}">
                 </workflow-analysis>
             `,
+        });
+    }
+
+    onWorkflowUpdate() {
+        LitUtils.dispatchCustomEvent(this, "workflowUpdate", null, {
+            workflow: this.clinicalAnalysis,
         });
     }
 
@@ -259,7 +266,8 @@ export default class WorkflowManager extends LitElement {
                     .workflowId="${this.workflowUpdateId}"
                     .active="${active}"
                     .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                    .opencgaSession="${this.opencgaSession}">
+                    .opencgaSession="${this.opencgaSession}"
+                    @workflowUpdate="${this.onWorkflowUpdate}">
                 </workflow-update>
             `,
         });
@@ -277,37 +285,30 @@ export default class WorkflowManager extends LitElement {
         return html`
             <div class="interpreter-content-tab">
                 <div class="row">
-                    <div class="col-md-8 mb-3">
+                    <div class="col-12 mb-3">
                         <h2 style="pb-2">Workflows</h2>
-                        <div class="float-end">
-                            <workflow-create
-                                .opencgaSession="${this.opencgaSession}"
-                                .mode="${"modal"}"
-                                .displayConfig="${{
-                                    modalSize: "modal-lg",
-                                    modalButtonClassName: "btn-primary",
-                                    modalButtonName: "New Workflow...",
-                                    modalTitle: "Create Workflow",
-                                    modalButtonIcon: "fas fa-solid fa-file-medical",
-                                    buttonClearText: "Cancel",
-                                    // modalDisabled: this.clinicalAnalysis.locked,
-                                    modalButtonsVisible: false,
-                                    type: "tabs",
-                                    buttonsLayout: "upper"
-                                }}">
-                            </workflow-create>
+                        <div class="">
+                            <button  type="button" class="btn btn-primary" @click="${this.onWorkflowCreate}">
+                                <i class="fas fa-solid fa-file-medical pe-2" aria-hidden="true"></i>New Workflow ...
+                            </button>
+                            <button  type="button" class="btn btn-primary" @click="${this.onWorkflowImport}">
+                                <i class="fas fa-solid fa-file-medical pe-2" aria-hidden="true"></i>Import ...
+                            </button>
                         </div>
                     </div>
 
-                    ${this.WORKFLOW_TYPES.map(type => html`
-                        <div class="col-md-8 my-3">
-                            <h3>${type.name}</h3>
-                            ${this.renderWorkflows(this.workflows, type.id)}
-                        </div>
-                    `)}
+                    <div>
+                        <data-list
+                            .data="${this.workflows}"
+                            .config="${this._config}">
+                        </data-list>
+                    </div>
+
                 </div>
             </div>
 
+            ${this.renderCreateModal()}
+            ${this.renderImportModal()}
             ${this.renderViewModal()}
             ${this.renderExecuteModal()}
             ${this.renderUpdateModal()}
@@ -315,7 +316,207 @@ export default class WorkflowManager extends LitElement {
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            showTableHeader: false,
+            display: {
+                float: "right"
+            },
+            search: {
+                fields: ["id", "name", "description"],
+                ignoreCase: true
+            },
+            sortBy: {
+                options: [
+                    {
+                        id: "name",
+                        name: "Name",
+                        // order: "asc"
+                    },
+                    {
+                        id: "modificationDate",
+                        name: "Recently updated",
+                        order: "desc"
+                    },
+                    {
+                        id: "creationDate",
+                        name: "Created",
+                        order: "desc"
+                    },
+                ]
+            },
+            groupBy: {
+                options: [
+                    {
+                        id: "type",
+                        name: "Workflow Type",
+                        values: ["SECONDARY_ANALYSIS", "RESEARCH_ANALYSIS", "CLINICAL_INTERPRETATION_ANALYSIS", "OTHER"]
+                    },
+                    {
+                        id: "tags",
+                        name: "Tags",
+                    }
+                ]
+            },
+            table: {
+                classes: "table table-hover table-borderless",
+                theadClasses: "table-light",
+                buttonsClass: "light",
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
+                pagination: false,
+                pageSize: 100,
+                pageList: [100],
+                detailView: false,
+                rowStyle: ""
+            },
+            columns: [
+                {
+                    title: "ID",
+                    field: "id",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        return `
+                            <div style="border-left: 2px solid ${this.WORKFLOW_TYPES_COLOR_MAP[row.type]}; padding: 10px">
+                                <label>${value}</label>
+                                <div class="d-block text-secondary my-1">Version ${row.version}</div>
+                            </div>
+                        `;
+                    }
+                },
+                {
+                    title: "Name",
+                    field: "name",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        return `
+                            <div>
+                                <label>${value}</label>
+                                <div class="d-block text-secondary my-1">${row.description}</div>
+                            </div>
+                        `;
+                    }
+                },
+                {
+                    title: "Scripts",
+                    field: "scripts",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        if (value.length > 0) {
+                            return `
+                                <div>
+                                    ${value?.map(script => `${script.fileName}`).join("<br>")}
+                                </div>
+                            `;
+                        } else {
+                            return `
+                                <div>
+                                    <label>Repository ${row.repository?.id || ""}</label>
+                                    <div class="d-block text-secondary my-1">${row.repository?.version || ""}</div>
+                                </div>
+                            `;
+                        }
+                    }
+                },
+                {
+                    title: "Tags",
+                    field: "tags",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: value => {
+                        return `
+                            <div>
+                                <label>${value.join(", ")}</label>
+                            </div>
+                        `;
+                    }
+                },
+                {
+                    title: "Type",
+                    field: "type",
+                    rowspan: 1,
+                    colspan: 1
+                },
+                {
+                    title: "Modification Date",
+                    field: "modificationDate",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: value => {
+                        return `
+                            <div>
+                                <div class="d-block text-secondary">Updated ${UtilsNew.dateFormatter(value)}</div>
+                            </div>
+                        `;
+                    }
+                },
+                {
+                    title: "Actions",
+                    field: "actions",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: () => {
+                        return `
+                            <div class="dropdown">
+                                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-toolbox pe-2"></i>Actions
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-action="view">
+                                        <i class="fas fa-copy pe-2" aria-hidden="true"></i>View</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-action="copy">
+                                        <i class="fas fa-copy pe-2" aria-hidden="true"></i>Copy JSON</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-action="execute">
+                                        <i class="fas fa-download pe-2" aria-hidden="true"></i>Execute ...</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-action="edit">
+                                        <i class="fas fa-eraser pe-2" aria-hidden="true"></i>Edit ...</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item disabled" href="#" data-action="delete">
+                                        <i class="fas fa-trash pe-2" aria-hidden="true"></i>Delete</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        `;
+                    },
+                    events: {
+                        "click a": (e, value, row) => this.onActionClick(e, value, row)
+                    },
+                }
+            ],
+            grid: {
+                display: {
+                    columns: 3,
+                    rowClass: "g-2",
+                    cellClass: "p-2"
+                },
+                render: data => {
+                    return html`
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">
+                                    ${data.id}
+                                </h4>
+                            </div>
+                            <div class="card-body">
+                                ${data.description}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        };
     }
 
 }

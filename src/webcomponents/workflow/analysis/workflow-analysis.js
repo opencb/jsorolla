@@ -18,6 +18,8 @@ import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
+import CatalogGridFormatter from "../../commons/catalog-grid-formatter";
+import NotificationUtils from "../../commons/utils/notification-utils";
 
 
 export default class WorkflowAnalysis extends LitElement {
@@ -37,6 +39,9 @@ export default class WorkflowAnalysis extends LitElement {
             toolParams: {
                 type: Object,
             },
+            search: {
+                type: Boolean,
+            },
             opencgaSession: {
                 type: Object,
             },
@@ -48,7 +53,7 @@ export default class WorkflowAnalysis extends LitElement {
 
     #init() {
         this.ANALYSIS_TOOL = "workflow";
-        this.ANALYSIS_TITLE = "Workflow Analysis";
+        this.ANALYSIS_TITLE = "Workflow Parameters";
         this.ANALYSIS_DESCRIPTION = "Executes a workflow analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
@@ -56,19 +61,28 @@ export default class WorkflowAnalysis extends LitElement {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
+        this.search = true;
 
         this.config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("toolParams")) {
-            this.toolParams = {
-                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-                ...this.toolParams,
-            };
-            this.config = this.getDefaultConfig();
+            this.toolParamsObserver();
         }
         super.update(changedProperties);
+    }
+
+    toolParamsObserver() {
+        this.toolParams = {
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            ...this.toolParams,
+        };
+        this.config = this.getDefaultConfig();
+
+        if (this.toolParams.id) {
+            this.#fetchWorkflow();
+        }
     }
 
     check() {
@@ -79,22 +93,34 @@ export default class WorkflowAnalysis extends LitElement {
         //         notificationType: "warning"
         //     };
         // }
-        return null;
+        return false;
     }
 
+    #fetchWorkflow() {
+        this.opencgaSession.opencgaClient.workflows()
+            .search({id: this.toolParams.id, study: this.opencgaSession.study.fqn})
+            .then(restResponse => {
+                const results = restResponse.getResults();
+                if (results.length > 0) {
+                    this._workflow = results[0];
+                } else {
+                    console.error("Error in result format");
+                }
+            })
+            .catch(response => {
+                console.log(response);
+            })
+            .finally(() => {
+                this.config = this.getDefaultConfig();
+                this.requestUpdate();
+            });
+    }
     onFieldChange(e) {
         this.toolParams = {...this.toolParams};
-        // Note: these parameters have been removed from the form
-        // Check if changed param was controlCohort --> reset controlCohortSamples field
-        // if (param === "controlCohort") {
-        //     this.toolParams.controlCohortSamples = "";
-        // }
-        // Check if changed param was caseCohort --> reset caseCohortSamples field
-        // if (param === "caseCohort") {
-        //     this.toolParams.caseCohortSamples = "";
-        // }
-        // this.config = this.getDefaultConfig();
-        this.requestUpdate();
+
+        if (this.toolParams?.id) {
+            this.#fetchWorkflow();
+        }
     }
 
     onSubmit() {
@@ -147,9 +173,42 @@ export default class WorkflowAnalysis extends LitElement {
     }
 
     getDefaultConfig() {
+        // Create automatic form based on the workflow variables
+        const variables = [];
+        if (this._workflow?.variables?.length > 0) {
+            for (const variable of this._workflow.variables) {
+                const dataFormElement = {
+                    title: variable.id,
+                    field: variable.id,
+                    required: variable.required || false,
+                    display: {
+                        defaultValue: variable.defaultValue,
+                        help: {
+                            text: `Variable name '${variable.name || variable.id}'. ${variable.description || ""}`,
+                        }
+                    }
+                };
+
+                switch (variable.type) {
+                    case "BOOLEAN":
+                        dataFormElement.type = "checkbox";
+                        break;
+                    case "INTEGER":
+                    case "DOUBLE":
+                    case "STRING":
+                        dataFormElement.type = "input-text";
+                        break;
+                }
+                variables.push(dataFormElement);
+            }
+        }
+
         const params = [
             {
                 title: "Configuration",
+                display: {
+                    className: "p-2"
+                },
                 elements: [
                     {
                         title: "Workflow ID",
@@ -162,7 +221,7 @@ export default class WorkflowAnalysis extends LitElement {
                                     .value="${caseCohort}"
                                     .resource="${"WORKFLOW"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false}}"
+                                    .config="${{multiple: false, disabled: !this.search}}"
                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
@@ -174,6 +233,7 @@ export default class WorkflowAnalysis extends LitElement {
                         type: "input-text",
                         required: false,
                         display: {
+                            defaultValue: this._workflow?.version || "",
                             help: {
                                 text: "Default version is the latest available",
                             }
@@ -183,7 +243,11 @@ export default class WorkflowAnalysis extends LitElement {
             },
             {
                 title: "Parameters",
+                display: {
+                    className: "p-2"
+                },
                 elements: [
+                    ...variables,
                     {
                         title: "Parameters",
                         field: "params",
@@ -192,8 +256,22 @@ export default class WorkflowAnalysis extends LitElement {
                             rows: 5,
                             placeholder: "k1=v1\nk2=v2\nk3=v3",
                             help: {
-                                text: "Format valid is 'key=value', one per line. To use file you must use the prefix 'opencga://' before the path or name, for example: 'input_file=opencga://file.vcf'",
-                            }
+                                text: "Format valid is 'key=value', one per line. To use file you must use the prefix 'file://' before the path or name, for example: 'input_file=file://file.vcf'",
+                            },
+                            visible: () => variables.length === 0
+                        }
+                    },
+                    {
+                        title: "Other Parameters",
+                        field: "params",
+                        type: "input-text",
+                        display: {
+                            rows: 5,
+                            placeholder: "k1=v1\nk2=v2\nk3=v3",
+                            help: {
+                                text: "Format valid is 'key=value', one per line. To use file you must use the prefix 'file://' before the path or name, for example: 'input_file=file://file.vcf'. These parameters will override the ones defined above.",
+                            },
+                            visible: () => variables.length > 0
                         }
                     },
                 ]

@@ -208,12 +208,14 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "WORKFLOW": {
                 searchField: "id",
                 placeholder: "Start typing",
-                client: this.opencgaSession.opencgaClient.workflows(),
+                // client: this.opencgaSession.opencgaClient.workflows(),
+                fetch: filters => this.opencgaSession.opencgaClient.workflows().search(filters),
                 fields: item => ({
-                    "name": item.id
+                    id: item.id,
+                    name: item.name
                 }),
                 query: {
-                    include: "id"
+                    include: "id,name"
                 }
             },
             "DIRECTORY": {

@@ -444,13 +444,13 @@ export default class WorkflowGrid extends LitElement {
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="execute" class="dropdown-item">
+                                <a data-action="execute" href="javascript: void 0" class="dropdown-item">
                                     <i class="fas fa-stream pe-1" aria-hidden="true"></i> Execute ...
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                <a data-action="edit" href="javascript: void 0" class="dropdown-item ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
                                     <i class="fas fa-edit pe-1" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
@@ -528,6 +528,7 @@ export default class WorkflowGrid extends LitElement {
             render: () => html`
                 <workflow-analysis
                     .toolParams="${{id: this.workflowExecuteId}}"
+                    .search="${false}"
                     .opencgaSession="${this.opencgaSession}">
                 </workflow-analysis>
             `,

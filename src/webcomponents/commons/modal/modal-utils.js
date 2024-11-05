@@ -17,7 +17,7 @@ export default class ModalUtils {
 
     static create(self, id, config) {
         // Parse modal parameters, all of them must start with prefix 'modal'
-        const modalWidth = config.display?.modalWidth || "768px";
+        const modalWidth = config.display?.modalWidth || "auto";
         const modalSize = config.display?.modalSize || "";
         const modalTitle = config.display?.modalTitle || "";
         const modalTitleHeader = config.display?.modalTitleHeader || "h4";

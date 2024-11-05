@@ -512,11 +512,11 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
 
 /* Terrible hack to make sure that the bootstrap table has a minimum height of 200px */
 /* This is required to prevent the DNA loader exceed the table container */
-.bootstrap-table {
-    min-height: 200px;
-}
+/*.bootstrap-table {*/
+/*    min-height: 200px;*/
+/*}*/
 
 /* Sets a minimum height to the loading container, to make sure that the loading DNA fits on this space */
 .bootstrap-table .fixed-table-loading {
-    min-height: 110px;
+    min-height: 100px;
 }

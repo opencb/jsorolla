@@ -400,4 +400,16 @@ export default class GridCommons {
         }
     }
 
+    hideHeader(hide = false) {
+        const header = this.context.querySelector(`#${this.gridId} thead`);
+        if (header) {
+            if (hide) {
+                header.style.display = "none";
+                // this.context.querySelector(`#${this.gridId} tbody tr:first-child`).style.borderTopWidth = "1px";
+            } else {
+                header.style.display = "";
+            }
+        }
+    }
+
 }
