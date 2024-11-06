@@ -83,7 +83,6 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     firstUpdated() {
-        $(".bootstrap-select", this).selectpicker();
         UtilsNew.initTooltip(this);
     }
 

@@ -19,8 +19,13 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import "./getting-started.js";
-import "./iva-settings.js";
+// import "./getting-started.js";
+// import "./iva-settings.js";
+
+// import jsorolla styles
+import "../../../styles/css/global.css";
+import "../../genome-browser/css/genome-browser.css";
+import "../../core/visualisation/viz-styles.css";
 
 import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
