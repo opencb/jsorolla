@@ -56,7 +56,6 @@ export default class VariantStatsIndexOperation extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
 
-        this.study = "";
         this.config = this.getDefaultConfig();
     }
 
@@ -84,6 +83,11 @@ export default class VariantStatsIndexOperation extends LitElement {
                 message: "Study is a mandatory parameter, please select one."
             };
         }
+        if (!this.toolParams.cohort) {
+            return {
+                message: "Cohort IDs is a mandatory parameter, please select some cohorts."
+            };
+        }
         return null;
     }
 
@@ -98,6 +102,7 @@ export default class VariantStatsIndexOperation extends LitElement {
 
     onSubmit() {
         const toolParams = {
+            cohort: this.toolParams.cohort?.split(",") || [],
             overwriteStats: this.toolParams.overwriteStats || false,
             resume: this.toolParams.resume || false,
         };
@@ -116,6 +121,7 @@ export default class VariantStatsIndexOperation extends LitElement {
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            study: this.toolParams.study || "",
         };
         this.config = this.getDefaultConfig();
     }
@@ -160,6 +166,22 @@ export default class VariantStatsIndexOperation extends LitElement {
             {
                 title: "Configuration Parameters",
                 elements: [
+                    {
+                        title: "Cohort IDs",
+                        type: "custom",
+                        required: true,
+                        display: {
+                            render: toolParams => html `
+                                <catalog-search-autocomplete
+                                    .value="${toolParams?.cohort}"
+                                    .resource="${"COHORT"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{multiple: true}}"
+                                    @filterChange="${e => this.onFieldChange(e, "cohort")}">
+                                </catalog-search-autocomplete>
+                            `,
+                        },
+                    },
                     {
                         title: "Overwrite Stats",
                         field: "overwriteStats",

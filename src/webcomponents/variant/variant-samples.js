@@ -68,14 +68,8 @@ export default class VariantSamples extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this.config);
 
         // Nacho: to be more consistent with the rest of the application we are NOT selecting all genotypes by default
+        this.genotypeFilter = "";
         this.selectedGenotypes = "";
-        // const selectedGenotypesArray = [];
-        // for (const genotype of this.config.genotypes) {
-        //     if (genotype.fields) {
-        //         selectedGenotypesArray.push(genotype.fields.filter(gt => gt.id).map(gt => gt.id).join(","));
-        //     }
-        // }
-        // this.selectedGenotypes = selectedGenotypesArray.join(",");
     }
 
     updated(changedProperties) {
@@ -421,12 +415,15 @@ export default class VariantSamples extends LitElement {
     }
 
     onSelectFilterChange(e) {
-        this._genotypeFilter = e.detail?.value;
+        this.selectedGenotypes = e.detail?.value;
+        this.requestUpdate();
     }
 
     onSearch() {
-        this.genotypeFilter = this._genotypeFilter;
-        this.renderTable();
+        if (this.selectedGenotypes !== this.genotypeFilter) {
+            this.genotypeFilter = this.selectedGenotypes;
+            this.renderTable();
+        }
     }
 
     render() {
@@ -439,7 +436,7 @@ export default class VariantSamples extends LitElement {
             <div>
                 ${this.numSamples !== this.numUserTotalSamples ? html`
                     <div class="alert alert-warning">
-                        <i class="fas fa-3x fa-exclamation-circle align-middle"></i>
+                        <i class="fas fa-exclamation-circle me-1"></i>
                         Number of samples found is <span style="font-weight: bold">${this.numSamples}</span>
                         ${this.approximateCount === true ? html` (<i>please note this is an estimated number</i>)` : ""}, and
                         your user account has permission to view <span style="font-weight: bold">${this.numUserTotalSamples} samples</span>.
@@ -447,26 +444,29 @@ export default class VariantSamples extends LitElement {
                     </div>
                 ` : nothing}
 
+                ${this.selectedGenotypes !== this.genotypeFilter ? html`
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle align-middle me-1"></i>
+                        <span>The selected genotypes have been updated. Please click the <b>Search</b> button to refresh the table with the updated results.</span>
+                    </div>    
+                ` : nothing}
+
                 <div class="row" style="margin-top: 20px">
                     <div class="col-md-12">
                         <div class="col-md-4"><label>Select Genotypes:</label></div>
                     </div>
                     <div class="col-md-12">
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <select-field-filter
-                                    .data="${this.config.genotypes}"
-                                    .value="${this.selectedGenotypes}"
-                                    .selectedTextFormat="${"count > 3"}"
-                                    .config="${{multiple: true}}"
-                                    @filterChange="${this.onSelectFilterChange}">
-                                </select-field-filter>
-                                <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" @click="${this.onSearch}">
-                                    <i class="fas fa-search"></i> Search
-                                </button>
-                            </span>
-                            </div>
+                        <div class="d-flex gap-1">
+                            <select-field-filter
+                                .data="${this.config.genotypes}"
+                                .value="${this.selectedGenotypes}"
+                                .selectedTextFormat="${"count > 3"}"
+                                .config="${{multiple: true}}"
+                                @filterChange="${this.onSelectFilterChange}">
+                            </select-field-filter>
+                            <button class="btn btn-light" type="button" @click="${this.onSearch}">
+                                <i class="fas fa-search me-1"></i> Search
+                            </button>
                         </div>
                     </div>
                 </div>
