@@ -216,7 +216,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             title: "HGVS",
                             type: "custom",
                             display: {
-                                visible: data => data?.hgvs.length > 0,
+                                visible: data => data?.hgvs?.length > 0,
                                 render: data => {
                                     return data.hgvs.map(item => html`${item}<br>`);
                                 },
