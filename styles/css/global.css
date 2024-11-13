@@ -57,7 +57,8 @@ body {
     min-height: 100vh;
     margin: 0;
     padding: 0;
-    background-color: white;
+    /*background-color: white;*/
+    background-color: #f8f9fa;
     color: var(--main-bg-color) !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

@@ -108,8 +108,8 @@ export default class WorkflowManager extends LitElement {
                         console.error(error);
                         params.error(error);
                     }).finally(() => {
-                        this.requestUpdate();
-                    });
+                    this.requestUpdate();
+                });
             }
         }
     }
@@ -190,8 +190,8 @@ export default class WorkflowManager extends LitElement {
                 console.error(error);
                 params.error(error);
             }).finally(() => {
-                this.requestUpdate();
-            });
+            this.requestUpdate();
+        });
     }
 
     renderImportModal() {
@@ -317,9 +317,8 @@ export default class WorkflowManager extends LitElement {
 
     getDefaultConfig() {
         return {
-            showTableHeader: false,
             display: {
-                float: "right"
+                float: "right",
             },
             search: {
                 fields: ["id", "name", "description"],
@@ -358,107 +357,112 @@ export default class WorkflowManager extends LitElement {
                 ]
             },
             table: {
-                classes: "table table-hover table-borderless",
-                theadClasses: "table-light",
-                buttonsClass: "light",
-                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
-                icons: GridCommons.GRID_ICONS,
-                pagination: false,
-                pageSize: 100,
-                pageList: [100],
-                detailView: false,
-                rowStyle: ""
-            },
-            columns: [
-                {
-                    title: "ID",
-                    field: "id",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        return `
+                uniqueId: "id",
+                showHeader: false,
+                checkbox: false,
+                checkboxIndex: 0,
+                options: {
+                    classes: "table table-hover table-borderless",
+                    theadClasses: "table-light",
+                    buttonsClass: "light",
+                    iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                    icons: GridCommons.GRID_ICONS,
+                    pagination: false,
+                    pageSize: 100,
+                    pageList: [100],
+                    detailView: false,
+                    rowStyle: ""
+                },
+                columns: [
+                    {
+                        title: "ID",
+                        field: "id",
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: (value, row) => {
+                            return `
                             <div style="border-left: 2px solid ${this.WORKFLOW_TYPES_COLOR_MAP[row.type]}; padding: 10px">
                                 <label>${value}</label>
                                 <div class="d-block text-secondary my-1">Version ${row.version}</div>
                             </div>
                         `;
-                    }
-                },
-                {
-                    title: "Name",
-                    field: "name",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        return `
+                        }
+                    },
+                    {
+                        title: "Name",
+                        field: "name",
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: (value, row) => {
+                            return `
                             <div>
                                 <label>${value}</label>
                                 <div class="d-block text-secondary my-1">${row.description}</div>
                             </div>
                         `;
-                    }
-                },
-                {
-                    title: "Scripts",
-                    field: "scripts",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        if (value.length > 0) {
-                            return `
+                        }
+                    },
+                    {
+                        title: "Scripts",
+                        field: "scripts",
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: (value, row) => {
+                            if (value.length > 0) {
+                                return `
                                 <div>
                                     ${value?.map(script => `${script.fileName}`).join("<br>")}
                                 </div>
                             `;
-                        } else {
-                            return `
+                            } else {
+                                return `
                                 <div>
                                     <label>Repository ${row.repository?.id || ""}</label>
                                     <div class="d-block text-secondary my-1">${row.repository?.version || ""}</div>
                                 </div>
                             `;
+                            }
                         }
-                    }
-                },
-                {
-                    title: "Tags",
-                    field: "tags",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: value => {
-                        return `
+                    },
+                    {
+                        title: "Tags",
+                        field: "tags",
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: value => {
+                            return `
                             <div>
-                                <label>${value.join(", ")}</label>
+                                ${value.map(tag => `<span class="badge rounded-pill text-bg-light fs-6">${tag}</span>`).join("")}
                             </div>
                         `;
-                    }
-                },
-                {
-                    title: "Type",
-                    field: "type",
-                    rowspan: 1,
-                    colspan: 1
-                },
-                {
-                    title: "Modification Date",
-                    field: "modificationDate",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: value => {
-                        return `
+                        }
+                    },
+                    {
+                        title: "Type",
+                        field: "type",
+                        rowspan: 1,
+                        colspan: 1
+                    },
+                    {
+                        title: "Modification Date",
+                        field: "modificationDate",
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: value => {
+                            return `
                             <div>
                                 <div class="d-block text-secondary">Updated ${UtilsNew.dateFormatter(value)}</div>
                             </div>
                         `;
-                    }
-                },
-                {
-                    title: "Actions",
-                    field: "actions",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: () => {
-                        return `
+                        }
+                    },
+                    {
+                        title: "Actions",
+                        field: "actions",
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: () => {
+                            return `
                             <div class="dropdown">
                                 <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-toolbox pe-2"></i>Actions
@@ -489,14 +493,15 @@ export default class WorkflowManager extends LitElement {
                                 </ul>
                             </div>
                         `;
-                    },
-                    events: {
-                        "click a": (e, value, row) => this.onActionClick(e, value, row)
-                    },
-                }
-            ],
+                        },
+                        events: {
+                            "click a": (e, value, row) => this.onActionClick(e, value, row)
+                        },
+                    }
+                ],
+            },
             grid: {
-                display: {
+                options: {
                     columns: 3,
                     rowClass: "g-2",
                     cellClass: "p-2"

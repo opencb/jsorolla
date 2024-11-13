@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "./file-view.js";
 import "../loading-spinner.js";
 import ModalUtils from "../commons/modal/modal-utils";
+import GridCommons from "../commons/grid-commons";
+import "../commons/data-list.js";
 
-export default class FileManager extends LitElement {
+export default class FileDataManager extends LitElement {
 
     constructor() {
         super();
@@ -52,6 +54,11 @@ export default class FileManager extends LitElement {
         this.fileId = null;
         this.loading = false;
 
+        this.FILE_TYPES_COLOR_MAP = {
+            DIRECTORY: "blue",
+            FILE: "orange",
+        };
+
         this._config = this.getDefaultConfig();
     }
 
@@ -77,7 +84,7 @@ export default class FileManager extends LitElement {
             const query = {
                 study: this.opencgaSession.study.fqn,
                 maxDepth: 1,
-                include: "id,name,path,size,format",
+                include: "id,name,path,size,format,sampleIds,jobId,internal",
             };
             this.opencgaSession.opencgaClient.files()
                 .tree(this.currentRootId, query)
@@ -108,7 +115,7 @@ export default class FileManager extends LitElement {
         try {
             if (!node.visited) {
                 const restResponse = await this.opencgaSession.opencgaClient.files()
-                    .tree(node.file.id, {study: this.opencgaSession.study.fqn, maxDepth: 1, include: "id,name,path,size,format"});
+                    .tree(node.file.id, {study: this.opencgaSession.study.fqn, maxDepth: 1, include: "id,name,path,format,size,sampleIds,jobId,internal"});
                 const result = restResponse.getResult(0);
                 node.children = result.children;
                 node.visited = true;
@@ -324,26 +331,6 @@ export default class FileManager extends LitElement {
         `;
     }
 
-    renderFileManager(root) {
-        const children = root.children;
-        return html`
-            ${this.path(root)}
-            <div class="file-manager text-center p-2">
-                <div class="row row-cols-5 gap-1">
-                    ${children.map(node => {
-                        if (node.file.type.toUpperCase() === "DIRECTORY") {
-                            return html`${this.folder(node)}`;
-                        } else if (["FILE", "VIRTUAL"].includes(node.file.type.toUpperCase())) {
-                            return html`${this.file(node)}`;
-                        } else {
-                            throw new Error("Type not recognized " + node.file.type);
-                        }
-                    })}
-                </div>
-            </div>
-        `;
-    }
-
     renderTree(root) {
         const children = root.children;
         const domId = `tree-${root.file.id.replace(/:/g, "")}`;
@@ -407,6 +394,27 @@ export default class FileManager extends LitElement {
         }[format];
         return html`<i class="${icon || "fas fa-file"}${size ? ` fa-${size}x` : ""}"></i>`;
     }
+
+    // renderFileManager(root) {
+    //     const children = root.children;
+    //     // debugger
+    //     return html`
+    //         ${this.path(root)}
+    //         <div class="file-manager text-center p-2">
+    //             <div class="row row-cols-5 gap-1">
+    //                 ${children.map(node => {
+    //                     if (node.file.type.toUpperCase() === "DIRECTORY") {
+    //                         return html`${this.folder(node)}`;
+    //                     } else if (["FILE", "VIRTUAL"].includes(node.file.type.toUpperCase())) {
+    //                         return html`${this.file(node)}`;
+    //                     } else {
+    //                         throw new Error("Type not recognized " + node.file.type);
+    //                     }
+    //                 })}
+    //             </div>
+    //         </div>
+    //     `;
+    // }
 
     folder(node) {
         return html`
@@ -485,6 +493,133 @@ export default class FileManager extends LitElement {
         this.requestUpdate();
     }
 
+
+
+
+    // Nacho
+    onCreateFolder() {
+        ModalUtils.show(`${this._prefix}CreateFolderModal`);
+    }
+
+    renderCreateFolder() {
+        return ModalUtils.create(this, `${this._prefix}CreateFolderModal`, {
+            display: {
+                modalTitle: "Create Folder",
+                modalDraggable: true,
+                modalSize: "modal-lg",
+            },
+            render: () => html`
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+                </div>
+            `,
+        });
+    }
+
+    renderViewFile() {
+        return ModalUtils.create(this, `${this._prefix}ViewFileModal`, {
+            display: {
+                modalTitle: "Create Folder",
+                modalDraggable: true,
+                modalSize: "modal-lg",
+            },
+            render: () => html`
+                <div class="mb-3">
+                    <file-view
+                        .opencgaSession="${this.opencgaSession}"
+                        .fileId="${this.fileId}"
+                        mode="full">
+                    </file-view>
+                </div>
+            `,
+        });
+    }
+
+    addButton(title, action, icon = "", className = "btn-primary", style = "") {
+        return html`
+            <button type="button" class="btn ${className}" style="${style}" @click="${action}">
+                ${icon ? html`<span><i class="fas ${icon} pe-2"></i></span>` : nothing}${title}
+            </button>
+        `;
+    }
+
+    addSearch(action, icon = "fa-search", placeholder = "Search ...", className = "", style = "") {
+        return html`
+            <div class="input-group ${className}" style="${style}">
+                ${icon ? html`
+                    <div class="input-group-text" id="btnGroupAddon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                ` : nothing}
+
+                <input id="${this._prefix}InputSearch" type="text" class="form-control" placeholder="${placeholder}" aria-label="Input group example" aria-describedby="btnGroupAddon"
+                       @input="${action}">
+            </div>
+        `;
+    }
+
+    renderToolbar() {
+        return html`
+            <div class="btn-toolbar d-flex" role="toolbar" aria-label="Toolbar with button groups">
+                <div class="m-2">
+                    ${this.addButton("New Folder", this.onCreateFolder, "fa-folder", "btn-primary", "")}
+                    ${this.addButton("New File", this.newFolder, "fa-file-alt", "btn-primary", "")}
+                </div>
+
+                <div class="m-2">
+                    ${this.addButton("Upload", this.newFolder, "fa-upload", "btn-primary", "")}
+                    ${this.addButton("Fetch", this.newFolder, "fa-cloud-download-alt", "btn-primary", "")}
+                </div>
+
+                <div class="m-2">
+                    ${this.addSearch(this.onSearch, "fa-search", "Search ...", "", "")}
+                </div>
+            </div>
+        `;
+    }
+
+    onDblClickRow(e) {
+        debugger
+        this.onClickFile(e.detail.value.id);
+    }
+
+    onCheckRow(e) {
+        debugger
+    }
+
+    onActionClick(e, value, file) {
+        e.preventDefault();
+
+        const action = e.currentTarget.dataset.action;
+        switch (action) {
+            case "view":
+                this.fileId = file.id;
+                this.requestUpdate();
+                // await this.updateComplete;
+                ModalUtils.show(`${this._prefix}ViewFileModal`);
+                break;
+            case "copy":
+                UtilsNew.copyToClipboard(JSON.stringify(file, null, "\t"));
+                break;
+            case "execute":
+                this.fileUpdateId = file.id;
+                this.requestUpdate();
+                // await this.updateComplete;
+                ModalUtils.show(`${this._prefix}ExecuteModal`);
+                break;
+            case "edit":
+                this.fileUpdateId = file.id;
+                this.requestUpdate();
+                // await this.updateComplete;
+                ModalUtils.show(`${this._prefix}UpdateModal`);
+                break;
+            case "delete":
+                // this.clinicalAnalysisManager.deleteInterpretation(interpretationId, interpretationCallback);
+                break;
+        }
+    }
+
     render() {
         if (!this.opencgaSession || !this.currentRoot) {
             return null;
@@ -511,9 +646,20 @@ export default class FileManager extends LitElement {
                                 <loading-spinner></loading-spinner>
                             </div>
                         ` : null}
+
+
+                        ${this.renderToolbar()}
+
                         ${this.currentRoot ? html`
                             <div>
-                                ${this.renderFileManager(this.currentRoot)}
+                                ${this.path(this.currentRoot)}
+                                <data-list
+                                    .data="${this.currentRoot.children.map(child => child.file)}"
+                                    .config="${this._config.dataList}"
+                                    @doubleclickrow="${this.onDblClickRow}"
+                                    @checkrow="${this.onCheckRow}">
+                                </data-list>
+
                             </div>
                             ${this.fileId ? html`
                                 <div class="opencga-file-view">
@@ -528,16 +674,238 @@ export default class FileManager extends LitElement {
                     </div>
                 </div>
             </div>
+
+            ${this.renderCreateFolder()}
+            ${this.renderViewFile()}
         `;
     }
 
     getDefaultConfig() {
         return {
-            title: "File Explorer",
-            icon: "img/tools/icons/file_explorer.svg"
+            title: "Data File Manager",
+            icon: "img/tools/icons/file_explorer.svg",
+            dataList: {
+                showTableHeader: false,
+                display: {
+                    float: "left"
+                },
+                search: {
+                    fields: ["id", "name", "description"],
+                    placeholder: "Filter file ...",
+                    ignoreCase: true
+                },
+                sortBy: {
+                    options: [
+                        {
+                            id: "name",
+                            name: "Name",
+                            // order: "asc"
+                        },
+                        {
+                            id: "modificationDate",
+                            name: "Recently updated",
+                            order: "desc"
+                        },
+                        {
+                            id: "creationDate",
+                            name: "Created",
+                            order: "desc"
+                        },
+                    ]
+                },
+                groupBy: {
+                    options: [
+                        {
+                            id: "type",
+                            name: "File Type",
+                            // values: ["SECONDARY_ANALYSIS", "RESEARCH_ANALYSIS", "CLINICAL_INTERPRETATION_ANALYSIS", "OTHER"]
+                        },
+                        {
+                            id: "tags",
+                            name: "Tags",
+                        }
+                    ]
+                },
+                table: {
+                    showHeader: false,
+                    checkbox: false,
+                    checkboxIndex: 0,
+                    options: {
+                        classes: "table table-hover table-borderless",
+                        theadClasses: "table-light",
+                        buttonsClass: "light",
+                        iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                        icons: GridCommons.GRID_ICONS,
+                        pagination: false,
+                        pageSize: 100,
+                        pageList: [100],
+                        detailView: false,
+                        rowStyle: ""
+                    },
+                    columns: [
+                        {
+                            title: "",
+                            field: "type",
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: value => {
+                                return `
+                                <div>
+                                    <i class="fas fa-${value === "DIRECTORY" ? "folder" : "file"} fa-2x"></i>
+                                </div>
+                            `;
+                            },
+                            width: "20",
+                            widthUnit: "px"
+                        },
+                        {
+                            title: "Name",
+                            field: "name",
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: value => {
+                                return `
+                                <div>
+                                    <label style="cursor: pointer">${value}</label>
+                                </div>
+                            `;
+                            },
+                            events: {
+                                "click label": (e, value, row) => this.onClickFile(row.id),
+                            },
+                            width: "20",
+                            widthUnit: "%"
+                        },
+                        {
+                            title: "Format",
+                            field: "format",
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: (value, row) => {
+                                if (row.type === "DIRECTORY") {
+                                    return "";
+                                }
+
+                                return `
+                                <div>
+                                    <label>${value || "-"}</label>
+                                    <div class="d-block text-secondary my-1">
+                                        ${row.internal.variant?.index?.status?.id === "READY" ? `Indexed ${UtilsNew.dateFormatter(row.internal.variant.index.status.date)}` : ""}
+                                    </div>
+                                </div>
+                            `;
+                            }
+                        },
+                        {
+                            title: "Tags",
+                            field: "tags",
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: value => {
+                                return `
+                                <div>
+                                    <label>${value?.join(", ") || "-"}</label>
+                                </div>
+                            `;
+                            }
+                        },
+                        {
+                            title: "Size",
+                            field: "size",
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: value => UtilsNew.getDiskUsage(value),
+                        },
+                        {
+                            title: "Creation Date",
+                            field: "creationDate",
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: value => {
+                                return `
+                            <div>
+                                <div class="d-block text-secondary">Created ${UtilsNew.dateFormatter(value)}</div>
+                            </div>
+                        `;
+                            }
+                        },
+                        {
+                            title: "Actions",
+                            field: "actions",
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: () => {
+                                return `
+                            <div class="dropdown">
+                                <button type="button" class="btn" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-action="view">
+                                        <i class="fas fa-file-alt pe-2" aria-hidden="true"></i>View</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-action="download">
+                                        <i class="fas fa-download pe-2" aria-hidden="true"></i>Download</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-action="head">
+                                        <i class="fas fa-file-alt pe-2" aria-hidden="true"></i>Head</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-action="tail">
+                                        <i class="fas fa-file-alt pe-2" aria-hidden="true"></i>Tail</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-action="grep">
+                                        <i class="fas fa-filter pe-2" aria-hidden="true"></i>Grep</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                     <li>
+                                        <a class="dropdown-item" href="#" data-action="edit">
+                                        <i class="fas fa-eraser pe-2" aria-hidden="true"></i>Edit ...</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item disabled" href="#" data-action="delete">
+                                        <i class="fas fa-trash pe-2" aria-hidden="true"></i>Delete</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        `;
+                            },
+                            events: {
+                                "click a": (e, value, row) => this.onActionClick(e, value, row)
+                            },
+                        }
+                    ],
+                },
+                grid: {
+                    options: {
+                        columns: 3,
+                        rowClass: "g-2",
+                        cellClass: "p-2"
+                    },
+                    render: data => {
+                        return html`
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title">
+                                        ${data.id}
+                                    </h4>
+                                </div>
+                                <div class="card-body">
+                                    ${data.description}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            }
         };
     }
 
 }
 
-customElements.define("file-manager", FileManager);
+customElements.define("file-data-manager", FileDataManager);

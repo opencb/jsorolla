@@ -80,6 +80,7 @@ import "../../webcomponents/clinical/analysis/rd-tiering-analysis.js";
 import "../../webcomponents/clinical/analysis/hrdetect-analysis.js";
 import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/file/file-manager.js";
+import "../../webcomponents/file/file-data-manager.js";
 import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/organization/admin/organization-admin.js";
@@ -166,6 +167,7 @@ class IvaApp extends LitElement {
             "account",
             "projects",
             "file-manager",
+            "file-data-manager",
             "beacon",
             "project",
             "file",
@@ -1991,6 +1993,14 @@ class IvaApp extends LitElement {
                     ${this.config.enabledComponents["file-manager"] ? html`
                         <div class="content" id="file-manager">
                             <file-manager .opencgaSession="${this.opencgaSession}"></file-manager>
+                        </div>
+                    ` : nothing}
+
+                    ${this.config.enabledComponents["file-data-manager"] ? html`
+                        <div class="content" id="file-data-manager">
+                            <file-data-manager
+                                .opencgaSession="${this.opencgaSession}">
+                            </file-data-manager>
                         </div>
                     ` : nothing}
 

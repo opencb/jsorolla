@@ -350,6 +350,15 @@ export default class CustomNavBar extends LitElement {
                                 </li>
                             ` : nothing}
 
+                            ${UtilsNew.isAppVisible(this.config?.fileExplorer, this.opencgaSession) || UtilsNew.isAppVisible(this.app?.fileExplorer, this.opencgaSession) ? html`
+                                <li id="fileButton">
+                                    <a href="#file-data-manager" class="dropdown-button-wrapper"
+                                       title="Data File Manager" role="button" @click="${this.onChangeTool}">
+                                        <div class="dropdown-button-icon"><i class="fas fa-folder-open"></i></div>
+                                    </a>
+                                </li>
+                            ` : nothing}
+
                             ${UtilsNew.isAppVisible(this.config?.workflowManager, this.opencgaSession) ? html`
                                 <li id="fileButton">
                                     <a href="#workflow-manager" class="dropdown-button-wrapper"

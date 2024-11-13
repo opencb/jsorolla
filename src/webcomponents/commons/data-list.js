@@ -17,6 +17,7 @@
 import {html, LitElement, nothing} from "lit";
 import GridCommons from "./grid-commons.js";
 import UtilsNew from "../../core/utils-new.js";
+import LitUtils from "./utils/lit-utils.js";
 
 export default class DataList extends LitElement {
 
@@ -107,6 +108,10 @@ export default class DataList extends LitElement {
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,
+            display: {
+                ...this.getDefaultConfig().display,
+                ...this.config.display,
+            },
             search: {
                 ...this.getDefaultConfig().search,
                 ...this.config.search,
@@ -122,14 +127,31 @@ export default class DataList extends LitElement {
             table: {
                 ...this.getDefaultConfig().table,
                 ...this.config.table,
+                options: {
+                    ...this.getDefaultConfig().table.options,
+                    ...this.config.table.options
+                },
+                columns: this.config.table?.columns || this.getDefaultConfig().table.columns
             },
             grid: {
                 ...this.getDefaultConfig().grid,
                 ...this.config.grid,
+                options: {
+                    ...this.getDefaultConfig().grid.options,
+                    ...this.config.grid.options
+                },
+                render: this.config.grid?.render || this.getDefaultConfig().grid.render
             },
-            columns: this.config.columns
         };
 
+        if (this._config.table?.checkbox) {
+            this._config.table.columns.splice(this._config.table?.checkboxIndex || 0, 0, {
+                field: "state",
+                checkbox: true,
+                align: "center",
+                valign: "middle"
+            });
+        }
         this.gridCommons = new GridCommons(this.htmlTableId, this, this._config);
         this.renderTable();
     }
@@ -160,6 +182,7 @@ export default class DataList extends LitElement {
         }
     }
 
+    // Private method that filters the data using the provided value
     #search(data, value) {
         return data.filter(item => {
             for (const field of this._config.search.fields) {
@@ -264,23 +287,23 @@ export default class DataList extends LitElement {
     renderToolbar() {
         const float = this._config?.display?.float === "left" ? "float-start" : "float-end";
         return html`
-            <div class="btn-toolbar d-flex" role="toolbar" aria-label="Toolbar with button groups">
-                <div class="input-group my-3 pe-5">
-                    <label class="my-3">Showing ${this._data.length} items</label>
+            <div class="btn-toolbar d-flex ${this._config.display?.classes || ""}" role="toolbar" aria-label="Toolbar with button groups">
+                <div class="input-group m-2 pe-5">
+                    <label class="m-2">Showing ${this._data.length} items</label>
                 </div>
 
                 ${this._config.search?.fields?.length > 0 ? html`
-                    <div class="input-group m-3 ps-5">
+                    <div class="input-group m-2 ps-5">
                         <div class="input-group-text" id="btnGroupAddon">
                             <i class="fas fa-search" aria-hidden="true"></i>
                         </div>
-                        <input id="${this._prefix}InputSearch" type="text" class="form-control" placeholder="Search ..." aria-label="Input group example" aria-describedby="btnGroupAddon"
+                        <input id="${this._prefix}InputSearch" type="text" class="form-control" placeholder="${this._config.search?.placeholder || "Search ..."}" aria-label="Input group example" aria-describedby="btnGroupAddon"
                                @input="${this.onSearch}">
                     </div>
                 ` : nothing}
 
                 ${this._config.sortBy?.options?.length > 0 ? html`
-                    <div class="input-group m-3">
+                    <div class="input-group m-2">
                         <label class="input-group-text fw-semibold" for="${this._prefix}SortBy">Sort by</label>
                         <select id="${this._prefix}SortBy" class="form-select" @change="${this.onSortBy}">
                             <option value="none" style="font-style: italic" selected>Select ...</option>
@@ -293,7 +316,7 @@ export default class DataList extends LitElement {
                 ` : nothing}
 
                 ${this._config.groupBy?.options?.length > 0 ? html`
-                    <div class="input-group m-3">
+                    <div class="input-group m-2">
                         <label class="input-group-text fw-semibold" for="${this._prefix}GroupBy">Group by</label>
                         <select id="${this._prefix}GroupBy" class="form-select" @change="${this.onGroupBy}">
                             <option value="none" selected>Select ...</option>
@@ -305,7 +328,7 @@ export default class DataList extends LitElement {
                     </div>
                 ` : nothing}
 
-                <div class="btn-group m-3" role="group" aria-label="Basic example">
+                <div class="btn-group m-2" role="group" aria-label="Basic example">
                     <button type="button" class="btn" @click="${e => this.modeObserver(e, DataList.LIST_MODE)}"><i class="fas fa-list"></i></button>
                     <button type="button" class="btn" @click="${e => this.modeObserver(e, DataList.GRID_MODE)}"><i class="fas fa-th"></i></button>
                 </div>
@@ -332,21 +355,25 @@ export default class DataList extends LitElement {
         this.table = $("#" + this.htmlTableId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            uniqueId: "id",
+            uniqueId: this._config.table?.uniqueId || "id",
             data: this._data,
-            columns: this._config.columns,
+            columns: this._config.table.columns,
 
             // Add default configuration
-            ...this._config.table,
+            ...this._config.table.options,
 
             detailView: this._config.detailView,
             gridContext: this,
             loadingTemplate: () => GridCommons.loadingFormatter(),
+            onClickRow: (row, selectedElement) => LitUtils.dispatchCustomEvent(this, "clickrow", row, selectedElement),
             // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onDblClickRow: (row, element) => LitUtils.dispatchCustomEvent(this, "doubleclickrow", row, element),
+            onCheck: row => this.gridCommons.onCheck(row.id, row),
+            onUncheck: row => this.gridCommons.onUncheck(row.id, row),
         });
 
         // Show/Hide table header
-        this.gridCommons.hideHeader(!this._config.showTableHeader || true);
+        this.gridCommons.hideHeader(!this._config.table.showHeader || true);
     }
 
     renderGroupByWithLists() {
@@ -355,22 +382,25 @@ export default class DataList extends LitElement {
             this.table = $("#" + valueHtmlTableId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                uniqueId: "id",
+                uniqueId: this._config.table?.uniqueId || "id",
                 data: this.groupByResult[value],
-                columns: this._config.columns,
+                columns: this._config.table.columns,
 
                 // Add default configuration
-                ...this._config.table,
+                ...this._config.table.options,
 
                 detailView: this._config.detailView,
                 gridContext: this,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
-                // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onClickRow: (row, selectedElement) => LitUtils.dispatchCustomEvent(this, "clickrow", row, selectedElement),
+                onDblClickRow: (row, element) => LitUtils.dispatchCustomEvent(this, "doubleclickrow", row, element),
+                onCheck: row => this.gridCommons.onCheck(row.id, row),
+                onUncheck: row => this.gridCommons.onUncheck(row.id, row),
             });
 
             const header = this.querySelector(`#${valueHtmlTableId} thead`);
             if (header) {
-                if (!this._config.showTableHeader) {
+                if (!this._config.table?.showHeader) {
                     header.style.display = "none";
                     // this.context.querySelector(`#${this.gridId} tbody tr:first-child`).style.borderTopWidth = "1px";
                 } else {
@@ -394,7 +424,7 @@ export default class DataList extends LitElement {
         }
 
         // 3. Calculate the number of columns and rows
-        const numColumns = this._config.grid?.display?.columns || 2;
+        const numColumns = this._config.grid?.options?.columns || 2;
         const numRows = Math.ceil(localData.length / numColumns);
         const columnWidth = 12 / numColumns;
 
@@ -410,10 +440,10 @@ export default class DataList extends LitElement {
 
             // 5. Render the row
             htmlResult.push(html`
-                <div class="row ${this._config.grid?.display?.rowClass || "g-2"}">
+                <div class="row ${this._config.grid?.options?.rowClass || "g-2"}">
                     ${row.map(r => html`
                         <div class="col-${columnWidth}">
-                            <div class="${this._config.grid?.display?.cellClass || "p-2"}">
+                            <div class="${this._config.grid?.options?.cellClass || "p-2"}">
                                 ${this._config.grid.render(r)}
                             </div>
                         </div>
@@ -437,13 +467,13 @@ export default class DataList extends LitElement {
                 <!-- Default table to display -->
                 ${this.groupByResultValues?.length === 0 ? html`
                     <div id="${this._prefix}TableDiv" class="">
-                        <table id="${this.htmlTableId}"></table>
+                        <table id="${this.htmlTableId}" style="border-collapse: separate; border-spacing: 0 0.5rem; background-color: transparent"></table>
                     </div>
                 ` : html`
                     ${this.groupByResultValues?.map(value => html`
-                        <div id="${this._prefix}${value}TableDiv" class="my-4">
+                        <div id="${this._prefix}${value}TableDiv" class="">
                             <h4>${value}</h4>
-                            <table id="${this._prefix}${value}TableHtmlId"></table>
+                            <table id="${this._prefix}${value}TableHtmlId" style="border-collapse: separate; border-spacing: 0 0.5rem; background-color: transparent"></table>
                         </div>
                     `)}
                 `}
@@ -452,7 +482,7 @@ export default class DataList extends LitElement {
             ${this.mode === DataList.GRID_MODE ? html`
                 ${this.groupByResultValues?.length === 0 ? this.renderUngroupedAndGroupByWithGrid() : html`
                     ${this.groupByResultValues?.map(value => html`
-                        <div id="${this._prefix}${value}TableDiv" class="my-4">
+                        <div id="${this._prefix}${value}TableDiv" class="">
                             <h4>${value}</h4>
                             ${this.renderUngroupedAndGroupByWithGrid(value)}
                         </div>
@@ -464,26 +494,46 @@ export default class DataList extends LitElement {
 
     getDefaultConfig() {
         return {
-            showTableHeader: false,
             display: {
-                float: "right"
+                classes: "shadow bg-body-tertiary rounded",
+                style: "",
+                float: "left",
             },
             search: {
                 fields: ["id", "name", "description"],
+                placeholder: "Search ...",
                 ignoreCase: true
             },
             table: {
-                classes: "table table-borderless",
-                theadClasses: "table-light",
-                buttonsClass: "light",
-                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
-                icons: GridCommons.GRID_ICONS,
-                pagination: false,
-                pageSize: 100,
-                pageList: [100],
-                detailView: false,
+                uniqueId: "id",
+                showHeader: false,
+                checkbox: false,
+                checkboxIndex: 0,
+                options: {
+                    classes: "table table-hover table-borderless",
+                    theadClasses: "table-light",
+                    buttonsClass: "light",
+                    iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                    icons: GridCommons.GRID_ICONS,
+                    pagination: false,
+                    pageSize: 100,
+                    pageList: [100],
+                    detailView: false,
+                    checkbox: true
+                }
             },
-
+            grid: {
+                options: {
+                    columns: 3,
+                    rowClass: "g-2",
+                    cellClass: "p-2"
+                },
+                render: data => {
+                    return html`
+                        <div></div>
+                    `;
+                }
+            }
         };
     }
 
