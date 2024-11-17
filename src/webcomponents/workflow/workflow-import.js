@@ -139,7 +139,6 @@ export default class WorkflowImport extends LitElement {
 
     getDefaultConfig() {
         return {
-            showTableHeader: false,
             display: {
                 float: "left"
             },
@@ -169,25 +168,27 @@ export default class WorkflowImport extends LitElement {
                 options: []
             },
             table: {
-                classes: "table table-hover table-borderless",
-                theadClasses: "table-light",
-                buttonsClass: "light",
-                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
-                icons: GridCommons.GRID_ICONS,
-                pagination: false,
-                pageSize: 100,
-                pageList: [100],
-                detailView: false,
-                rowStyle: ""
-            },
-            columns: [
-                {
-                    title: "Name",
-                    field: "full_name",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        return `
+                showHeader: false,
+                options: {
+                    classes: "table table-hover table-borderless",
+                    theadClasses: "table-light",
+                    buttonsClass: "light",
+                    iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                    icons: GridCommons.GRID_ICONS,
+                    pagination: false,
+                    pageSize: 100,
+                    pageList: [100],
+                    detailView: false,
+                    rowStyle: "",
+                },
+                columns: [
+                    {
+                        title: "Name",
+                        field: "full_name",
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: (value, row) => {
+                            return `
                             <div>
                                 <div class="my-2">${value}
                                     <a href="${row.homepage}"  target="_blank"><i class="fas fa-external-link-alt ps-2"></i></a>
@@ -195,23 +196,23 @@ export default class WorkflowImport extends LitElement {
                                 <div class="d-block text-secondary my-1">${row.description}</div>
                             </div>
                         `;
+                        },
+                        width: "50",
+                        widthUnit: "%"
                     },
-                    width: "50",
-                    widthUnit: "%"
-                },
-                // {
-                //     title: "Topics",
-                //     field: "topics",
-                //     rowspan: 1,
-                //     colspan: 1,
-                // },
-                {
-                    title: "Stars",
-                    field: "stargazers_count",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: value => {
-                        return `
+                    // {
+                    //     title: "Topics",
+                    //     field: "topics",
+                    //     rowspan: 1,
+                    //     colspan: 1,
+                    // },
+                    {
+                        title: "Stars",
+                        field: "stargazers_count",
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: value => {
+                            return `
                             <div>
                                 <a>
                                     <span>
@@ -220,15 +221,15 @@ export default class WorkflowImport extends LitElement {
                                 </a>
                             </div>
                         `;
-                    }
-                },
-                {
-                    title: "Default branch",
-                    field: "default_branch",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        return `
+                        }
+                    },
+                    {
+                        title: "Default branch",
+                        field: "default_branch",
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: (value, row) => {
+                            return `
                             <div>
                                 <div class="my-2">
                                     <span>Branch: ${value}</span>
@@ -237,25 +238,26 @@ export default class WorkflowImport extends LitElement {
                                 <div class="d-block text-secondary">Updated ${UtilsNew.dateFormatter(row.updated_at)}</div>
                             </div>
                         `;
-                    }
-                },
-                {
-                    title: "Add",
-                    field: "add",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: () => {
-                        return `
+                        }
+                    },
+                    {
+                        title: "Add",
+                        field: "add",
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: () => {
+                            return `
                             <button type="button" class="btn btn-primary">
                                 Add
                             </button>
                         `;
+                        },
+                        events: {
+                            "click button": (e, value, row) => this.onAdd(e, row)
+                        }
                     },
-                    events: {
-                        "click button": (e, value, row) => this.onAdd(e, row)
-                    }
-                },
-            ],
+                ],
+            },
             grid: {
                 display: {
                     columns: 3,
