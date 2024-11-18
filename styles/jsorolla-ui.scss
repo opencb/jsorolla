@@ -3,6 +3,10 @@ $font-size-base: 0.8125rem; // 13px
 // $font-family-base: Inter, sans-serif;
 $font-family-base: "Lato", serif;
 
+// global options
+// https://getbootstrap.com/docs/5.3/customize/options/
+$spacer: 1rem;
+
 // gray color palette
 // https://github.com/twbs/bootstrap/blob/main/scss/_variables.scss#L24-L34
 // $gray-50:  #f9fafa;
@@ -27,28 +31,27 @@ $dark: $gray-900;
 $border-color: $gray-200;
 $border-width: 1px;
 
+// custom configuration for dropdowns
+// https://getbootstrap.com/docs/5.3/components/dropdowns/#sass-variables
+$dropdown-padding-x: 0.5 * $spacer;
+$dropdown-padding-y: 0.5 * $spacer;
+$dropdown-item-padding-x: 0.5 * $spacer;
+$dropdown-item-padding-y: 0.25 * $spacer;
+$dropdown-header-padding-x: 0px; // $dropdown-item-padding-x;
+$dropdown-header-padding-y: $dropdown-item-padding-y;
+
 // import all bootstrap
 @import "../node_modules/bootstrap/scss/bootstrap";
-
-// @import "../node_modules/bootstrap/scss/functions";
-// @import "../node_modules/bootstrap/scss/variables";
-// @import "../node_modules/bootstrap/scss/variables-dark";
-//  
-// @import "../node_modules/bootstrap/scss/maps";
-// @import "../node_modules/bootstrap/scss/mixins";
-// @import "../node_modules/bootstrap/scss/root";
-// // 
-// // // @import "../node_modules/bootstrap/scss/utilities";
-// @import "../node_modules/bootstrap/scss/reboot";
-// // @import "../node_modules/bootstrap/scss/type";
-// // @import "../node_modules/bootstrap/scss/images";
-// // @import "../node_modules/bootstrap/scss/containers";
-// // @import "../node_modules/bootstrap/scss/grid";
-// // @import "../node_modules/bootstrap/scss/helpers";
 
 // override body styles
 body {
     min-height: 100vh;
+}
+
+// Root variables
+:root {
+    --bs-dropdown-border-radius: var(--bs-border-radius);
+    --bs-dropdown-item-border-radius: var(--bs-border-radius-sm);
 }
 
 // additional color utilities
@@ -80,8 +83,14 @@ body {
 .w-full {
     width: 100%;
 }
+.w-px {
+    width: 1px;
+}
 .h-full {
     height: 100%;
+}
+.h-px {
+    height: 1px;
 }
 .h-screen {
     height: 100vh;
