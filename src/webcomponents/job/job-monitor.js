@@ -186,70 +186,50 @@ export class JobMonitor extends LitElement {
         });
         if (visibleJobs.length > 0) {
             return visibleJobs.map(job => html`
-                <li>
-                    <a href="${this.getJobUrl(job.id)}" class="dropdown-item border-top">
-                        <div class="d-flex align-items-center overflow-hidden">
-                            <div class="flex-shrink-0 fs-2 rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
-                                <i class="text-secondary fas fa-rocket"></i>
+                <a href="${this.getJobUrl(job.id)}" class="dropdown-item">
+                    <div class="d-flex align-items-center overflow-hidden">
+                        <div class="flex-shrink-0 fs-2 rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
+                            <i class="text-secondary fas fa-rocket"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            ${this._addedJobs.has(job?.id) ? html`
+                                <span class="badge bg-primary rounded-pill">NEW</span>
+                            ` : nothing}
+                            <div class="mt-0 text-truncate" style="max-width:275px">
+                                ${job?.id || "-"}
                             </div>
-                            <div class="flex-grow-1 ms-3">
-                                ${this._addedJobs.has(job?.id) ? html`
-                                    <span class="badge bg-primary rounded-pill">NEW</span>
-                                ` : nothing}
-                                <div class="mt-0 text-truncate" style="max-width:275px">
-                                    ${job?.id || "-"}
-                                </div>
-                                <small class="text-secondary">
-                                    <span>${job?.tool?.id || "-"}</span>
-                                    <div class="vr"></div>
-                                    ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}
-                                </small>
-                                <div>
-                                    ${UtilsNew.renderHTML(WebUtils.jobStatusFormatter(job?.internal?.status))}
-                                </div>
+                            <small class="text-secondary">
+                                <span>${job?.tool?.id || "-"}</span>
+                                <div class="vr"></div>
+                                ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}
+                            </small>
+                            <div>
+                                ${UtilsNew.renderHTML(WebUtils.jobStatusFormatter(job?.internal?.status))}
                             </div>
                         </div>
-                    </a>
-                </li>
+                    </div>
+                </a>
             `);
         } else {
             return html`
-                <li>
-                    <div class="pt-2 pb-1 text-center fw-bold border-top">
-                        No jobs on this category.
-                    </div>
-                </li>
+                <div class="pt-2 pb-1 text-center fw-bold border-top">
+                    No jobs on this category.
+                </div>
             `;
         }
     }
 
     render() {
         return html`
-            <ul id="job-monitor" class="navbar-nav">
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle dropdown-button-wrapper" data-bs-toggle="dropdown" role="button">
-                        <div class="dropdown-button-icon">
-                            <i class="fas fa-rocket"></i>
-                        </div>
-                        ${this._updatedJobsCount > 0 ? html`
-                            <span class="position-absolute top-0 start-100 mt-1 translate-middle badge bg-danger rounded-pill">
-                                ${this._updatedJobsCount}
-                            </span>
-                        ` : nothing}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" style="width:350px;">
-                        <li class="d-flex justify-content-around mx-1 mb-2 gap-2">
-                            <div class="btn-group w-100">
-                                ${this.renderJobsButtons()}
-                            </div>
-                            <button @click="${e => this.onRefresh(e)}" class="btn btn-light" title="Force immediate refresh">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                        </li>
-                        ${this.renderVisibleJobsList()}
-                    </ul>
-                </li>
-            </ul>
+            <div class="d-flex justify-content-around mx-1 mb-2 gap-2">
+                <div class="btn-group w-100">
+                    ${this.renderJobsButtons()}
+                </div>
+                <button @click="${e => this.onRefresh(e)}" class="btn btn-light" title="Force immediate refresh">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            ${this.renderVisibleJobsList()}
         `;
     }
 
