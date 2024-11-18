@@ -67,7 +67,10 @@ export default class LayoutPrimaryBar extends LitElement {
                                 <b>${project.name} [${project.fqn.split("@")[0]}]</b>
                             </div>
                             ${project.studies.map(study => html`
-                                <div class="dropdown-item cursor-pointer" title="${study.fqn}" @click="${e => this.onStudySelect(e, study)}">
+                                <div
+                                    class="dropdown-item cursor-pointer ${study.fqn === this.opencgaSession?.study?.fqn ? "active" : ""}"
+                                    title="${study.fqn}"
+                                    @click="${e => this.onStudySelect(e, study)}">
                                     <span>${study.name}</span>
                                 </div>
                             `)}
