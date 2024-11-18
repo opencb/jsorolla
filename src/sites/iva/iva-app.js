@@ -23,7 +23,8 @@ import {html, LitElement, nothing} from "lit";
 // import "./iva-settings.js";
 
 // import jsorolla styles
-import "../../../styles/css/global.css";
+import "../../../styles/jsorolla-ui.scss";
+// import "../../../styles/css/global.css";
 import "../../genome-browser/css/genome-browser.css";
 import "../../core/visualisation/viz-styles.css";
 
@@ -98,6 +99,8 @@ import "../../webcomponents/commons/layouts/custom-page.js";
 import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/commons/layouts/custom-landing.js";
+
+import "../../webcomponents/commons/layout/layout-primary-bar.js";
 
 import "../../webcomponents/clinical/rga/rga-browser.js";
 
@@ -1219,6 +1222,30 @@ class IvaApp extends LitElement {
     }
 
     render() {
+        if (!this.isLoggedIn() && !this.isCreatingSession) {
+            return html`
+                <custom-landing
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.config}"
+                    @login="${this.onLogin}">
+                </custom-landing>
+            `;
+        }
+
+        return html`
+            <div class="d-flex flex-column flex-nowrap h-screen">
+                <layout-primary-bar
+                    .app="${this.app}"
+                    .version="${this.version || ""}"
+                    .loggedIn="${this.isLoggedIn()}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.config}">
+                </layout-primary-bar>
+            </div>
+        `;
+    }
+
+    renderOLD() {
         if (!this.isLoggedIn() && !this.isCreatingSession) {
             return html`
                 <custom-landing
