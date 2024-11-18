@@ -23,7 +23,7 @@ const entries = ["iva", "test-app"];
 // internal method to get the path to the custom site
 const getCustomSitePath = (entry, folder) => {
     // NOTE: custom sites are not allowed for 'test-app'
-    if (process.env.npm_config_custom_site && entry !== "test-app") {
+    if (process.env.npm_config_custom_site && entry === "iva") {
         return path.join(__dirname, "custom-sites", process.env.npm_config_custom_site, "iva", folder);
     }
     // return the default path
@@ -95,6 +95,19 @@ module.exports = {
                 use: [MiniCssExtractPlugin.loader, "css-loader"],
             },
             {
+                test: /\.scss$/i,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    "css-loader",
+                    {
+                        loader: "sass-loader",
+                        options: {
+                            implementation: require.resolve("sass"),
+                        },
+                    },
+                ],
+            },
+            {
                 test: /\.(png|svg|jpg|jpeg|gif)$/i,
                 type: "asset/inline",
             },
@@ -149,7 +162,7 @@ module.exports = {
                     // "node_modules/html-to-pdfmake/browser.js",
                 ],
                 "[name]/css/globals.[contenthash].css": [
-                    "node_modules/bootstrap/dist/css/bootstrap.min.css",
+                    // "node_modules/bootstrap/dist/css/bootstrap.min.css",
                     "node_modules/select2/dist/css/select2.min.css",
                     "node_modules/select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.min.css",
                     "node_modules/@eonasdan/tempus-dominus/dist/css/tempus-dominus.min.css",
