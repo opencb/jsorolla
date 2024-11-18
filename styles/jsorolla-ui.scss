@@ -1,0 +1,96 @@
+// typography variables
+$font-size-base: 0.8125rem; // 13px
+// $font-family-base: Inter, sans-serif;
+$font-family-base: "Lato", serif;
+
+// gray color palette
+// https://github.com/twbs/bootstrap/blob/main/scss/_variables.scss#L24-L34
+// $gray-50:  #f9fafa;
+$gray-100: #f3f4f5;
+$gray-200: #d5d9dc;
+$gray-300: #b7bdc3;
+$gray-400: #9ba3ac;
+$gray-500: #7c8792;
+$gray-600: #646e78;
+$gray-700: #4a5259;
+$gray-800: #31363a;
+$gray-900: #191c1f;
+// $gray-950: #0c0d0e;
+
+// theme colors
+$primary: #0456C8;
+$warning: #cc9900;
+$light: $gray-100;
+$dark: $gray-900;
+
+// custom border variables
+$border-color: $gray-200;
+$border-width: 1px;
+
+// import all bootstrap
+@import "../node_modules/bootstrap/scss/bootstrap";
+
+// @import "../node_modules/bootstrap/scss/functions";
+// @import "../node_modules/bootstrap/scss/variables";
+// @import "../node_modules/bootstrap/scss/variables-dark";
+//  
+// @import "../node_modules/bootstrap/scss/maps";
+// @import "../node_modules/bootstrap/scss/mixins";
+// @import "../node_modules/bootstrap/scss/root";
+// // 
+// // // @import "../node_modules/bootstrap/scss/utilities";
+// @import "../node_modules/bootstrap/scss/reboot";
+// // @import "../node_modules/bootstrap/scss/type";
+// // @import "../node_modules/bootstrap/scss/images";
+// // @import "../node_modules/bootstrap/scss/containers";
+// // @import "../node_modules/bootstrap/scss/grid";
+// // @import "../node_modules/bootstrap/scss/helpers";
+
+// override body styles
+body {
+    min-height: 100vh;
+}
+
+// additional color utilities
+// Note: the $grays map is a Sass map that contains all the gray colors
+@each $shade,$color in $grays {
+    .bg-gray-#{$shade} {
+        background-color: $color !important;
+    }
+    .hover\:bg-gray-#{$shade}:hover {
+        background-color: $color !important;
+    }
+    .text-gray-#{$shade} {
+        color: $color;
+    }
+    .hover\:text-gray-#{$shade}:hover {
+        color: $color;
+    }
+    .border-gray-#{$shade} {
+        border-color: $color !important;
+    }
+}
+
+// additional cursor utilities
+.cursor-pointer {
+    cursor: pointer;
+}
+
+// additional width and height utilities
+.w-full {
+    width: 100%;
+}
+.h-full {
+    height: 100%;
+}
+.h-screen {
+    height: 100vh;
+}
+
+// Additional font sizes
+.fs-7 {
+    font-size: $font-size-base * 0.875;
+}
+.fs-8 {
+    font-size: $font-size-base * 0.75;
+}
