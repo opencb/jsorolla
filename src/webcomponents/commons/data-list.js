@@ -373,7 +373,7 @@ export default class DataList extends LitElement {
         });
 
         // Show/Hide table header
-        this.gridCommons.hideHeader(!this._config.table.showHeader || true);
+        this.gridCommons.hideHeader(!this._config.table?.showHeader);
     }
 
     renderGroupByWithLists() {

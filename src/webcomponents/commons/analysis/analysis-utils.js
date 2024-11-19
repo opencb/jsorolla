@@ -14,6 +14,13 @@ export default class AnalysisUtils {
     //     };
     // }
 
+    static extToolsDocker(opencgaSession) {
+        return {
+            id: "opencb/opencga-ext-tools",
+            version: opencgaSession.opencga.version
+        };
+    }
+
     static submit(id, promise, context) {
         return promise
             .then(response => {

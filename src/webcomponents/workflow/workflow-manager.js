@@ -358,7 +358,7 @@ export default class WorkflowManager extends LitElement {
             },
             table: {
                 uniqueId: "id",
-                showHeader: false,
+                showHeader: true,
                 checkbox: false,
                 checkboxIndex: 0,
                 options: {
