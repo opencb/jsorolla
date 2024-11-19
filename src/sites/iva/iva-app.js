@@ -101,6 +101,7 @@ import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/commons/layouts/custom-landing.js";
 
 import "../../webcomponents/commons/layout/layout-primary-bar.js";
+import "../../webcomponents/commons/layout/layout-sidebar.js";
 
 import "../../webcomponents/clinical/rga/rga-browser.js";
 
@@ -1241,6 +1242,15 @@ class IvaApp extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.config}">
                 </layout-primary-bar>
+                <div class="d-flex flex-nowrap">
+                    <layout-sidebar
+                        .app="${this.app}"
+                        .version="${this.version || ""}"
+                        .loggedIn="${this.isLoggedIn()}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${this.config}">
+                    </layout-sidebar>
+                </div>
             </div>
         `;
     }
