@@ -38,10 +38,19 @@ export default class LayoutSidebar extends LitElement {
         return html`<div class="mt-2 text-gray-500 fw-bold fs-7 text-center">${text}</div>`;
     }
 
-    renderItem(item, active = false) {
+    renderLinkButton(item, active = false) {
+        return html`
+            <a class="d-flex align-items-center flex-column gap-2 p-2 rounded-2 text-decoration-none ${active ? "bg-gray-200" : "hover:bg-gray-200 cursor-pointer"}" href="${item.url}">
+                <i class="fas ${item?.icon || ""} lh-1 fs-4 text-gray-900"></i>
+                <div class="fw-bold lh-1 fs-8 text-center text-gray-600">${item?.name || "-"}</div>
+            </a>
+        `;
+    }
+
+    renderAppButton(item, active = false) {
         return html`
             <div class="d-flex align-items-center flex-column gap-2 p-2 rounded-2 ${active ? "bg-gray-200" : "hover:bg-gray-200 cursor-pointer"}">
-                <i class="fas ${item?.icon || ""} lh-1 fs-4"></i>
+                <i class="fas ${item?.icon || ""} lh-1 fs-4 text-gray-900"></i>
                 <div class="fw-bold lh-1 fs-8 text-center text-gray-600">${item?.name || "-"}</div>
             </div>
         `;
@@ -52,13 +61,10 @@ export default class LayoutSidebar extends LitElement {
             <div class="d-flex flex-column justify-content-between flex-shrink-0 border-end bg-gray-100 position-relative" style="width:72px">
                 <div class="d-flex flex-column">
                     <div class="d-flex flex-column gap-1 user-select-none p-2">
-                        <div class="d-flex align-items-center flex-column gap-2 hover:bg-gray-200 p-2 rounded-2 cursor-pointer">
-                            <i class="fas fa-home lh-1 fs-4"></i>
-                            <div class="fw-medium lh-1 fs-8 text-center text-gray-600">Home</div>
-                        </div>
+                        ${this.renderLinkButton({name: "Home", icon: "fa-home", url: "#home"}, false)}
                         ${this.config?.apps?.length > 0 ? html`
                             ${this.renderSectionSeparator("Apps")}
-                            ${this.config.apps.map(app => this.renderItem(app, false))}
+                            ${this.config.apps.map(app => this.renderAppButton(app, false))}
                         `: nothing}
                         <!--
                         <div class="mt-2 text-gray-500 fw-bold small">Favourites</div>
