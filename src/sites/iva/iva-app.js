@@ -2126,7 +2126,12 @@ class IvaApp extends LitElement {
                     .version="${this.version || ""}"
                     .loggedIn="${this.isLoggedIn()}"
                     .opencgaSession="${this.opencgaSession}"
-                    .config="${this.config}">
+                    .config="${this.config}"
+                    @logout="${() => this.logout()}"
+                    @changeTool="${e => this.changeTool(e.detail.value)}"
+                    @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
+                    @studySelect="${e => this.onStudySelect(e.detail.event, e.detail.study)}"
+                    @jobSelected="${e => this.onJobSelected(e)}">
                 </layout-primary-bar>
                 <div class="d-flex flex-nowrap">
                     <layout-sidebar
@@ -2147,7 +2152,7 @@ class IvaApp extends LitElement {
                             ` : this.renderTools()}
                         </div>
                         <layout-footer
-                            .version="${this.version}"
+                            .version="${this.version || ""}"
                             .host="${this.host}"
                             .config="${this.config}">
                         </layout-footer>
