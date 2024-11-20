@@ -106,6 +106,7 @@ import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/commons/layouts/custom-landing.js";
 
+import "../../webcomponents/commons/layout/layout-footer.js";
 import "../../webcomponents/commons/layout/layout-primary-bar.js";
 import "../../webcomponents/commons/layout/layout-sidebar.js";
 
@@ -1237,98 +1238,9 @@ class IvaApp extends LitElement {
         return html`Not found :-(`;
     }
 
-    render() {
-        if (!this.isLoggedIn() && !this.isCreatingSession) {
-            return html`
-                <custom-landing
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this.config}"
-                    @login="${this.onLogin}">
-                </custom-landing>
-            `;
-        }
-
+    renderTools() {
         return html`
-            <div class="d-flex flex-column flex-nowrap h-screen">
-                <layout-primary-bar
-                    .app="${this.app}"
-                    .version="${this.version || ""}"
-                    .loggedIn="${this.isLoggedIn()}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this.config}">
-                </layout-primary-bar>
-                <div class="d-flex flex-nowrap">
-                    <layout-sidebar
-                        .app="${this.app}"
-                        .version="${this.version || ""}"
-                        .loggedIn="${this.isLoggedIn()}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .config="${this.config}">
-                    </layout-sidebar>
-                </div>
-            </div>
-        `;
-    }
-
-    renderOLD() {
-        if (!this.isLoggedIn() && !this.isCreatingSession) {
-            return html`
-                <custom-landing
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this.config}"
-                    @login="${this.onLogin}">
-                </custom-landing>
-            `;
-        }
-
-        return html`
-            <style>
-                .center {
-                    margin: auto;
-                    text-align: justify;
-                    width: 60%;
-                    font-size: 18px;
-                    color: #797979;
-                }
-
-                .feature-view {
-                    margin: auto;
-                    text-align: justify;
-                    width: 90%;
-                }
-            </style>
-
-            <!-- Left Sidebar: we only display this if more than 1 visible app exist -->
-            <custom-sidebar
-                .config="${this.config}"
-                .loggedIn="${this.isLoggedIn()}"
-                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}">
-            </custom-sidebar>
-
-            <!-- Navbar -->
-            <custom-navbar
-                .app="${this.app}"
-                .version="${this.version}"
-                .loggedIn="${this.isLoggedIn()}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this.config}"
-                @logout="${() => this.logout()}"
-                @changeTool="${e => this.changeTool(e.detail.value)}"
-                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
-                @studySelect="${ e => this.onStudySelect(e.detail.event, e.detail.study)}"
-                @jobSelected="${e => this.onJobSelected(e)}">
-            </custom-navbar>
-
-            ${ this.isCreatingSession ? html`
-                <div class="login-overlay position-absolute top-50 start-50 translate-middle">
-                    <loading-spinner
-                        .description="${"Creating session..."}">
-                    </loading-spinner>
-                </div>
-            ` : nothing}
-
-            <!-- This is where main IVA application is rendered -->
-            <div class="container-fluid" style="min-height:calc(100vh - 101px);">
+            <div class="w-full">
                 ${!this.isCreatingSession ? html`
                     ${this.config.enabledComponents.home ? html`
                         <div class="d-flex justify-content-center" id="home">
@@ -2193,12 +2105,55 @@ class IvaApp extends LitElement {
                     `)}
                 ` : nothing}
             </div>
+        `;
+    }
 
-            <custom-footer
-                .version="${this.version}"
-                .host="${this.host}"
-                .config="${this.config}">
-            </custom-footer>
+    render() {
+        if (!this.isLoggedIn() && !this.isCreatingSession) {
+            return html`
+                <custom-landing
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.config}"
+                    @login="${this.onLogin}">
+                </custom-landing>
+            `;
+        }
+
+        return html`
+            <div class="d-flex flex-column flex-nowrap h-screen">
+                <layout-primary-bar
+                    .app="${this.app}"
+                    .version="${this.version || ""}"
+                    .loggedIn="${this.isLoggedIn()}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.config}">
+                </layout-primary-bar>
+                <div class="d-flex flex-nowrap">
+                    <layout-sidebar
+                        .app="${this.app}"
+                        .version="${this.version || ""}"
+                        .loggedIn="${this.isLoggedIn()}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${this.config}">
+                    </layout-sidebar>
+                    <div class="w-full h-full overflow-auto" style="max-height:calc(100vh - 52px);">
+                        <div class="p-3" style="min-height:calc(100vh - 120px);">
+                            ${this.isCreatingSession ? html`
+                                <div class="login-overlay position-absolute top-50 start-50 translate-middle">
+                                    <loading-spinner
+                                        .description="${"Creating session..."}">
+                                    </loading-spinner>
+                                </div>
+                            ` : this.renderTools()}
+                        </div>
+                        <layout-footer
+                            .version="${this.version}"
+                            .host="${this.host}"
+                            .config="${this.config}">
+                        </layout-footer>
+                    </div>
+                </div>
+            </div>
         `;
     }
 
