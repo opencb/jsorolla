@@ -294,7 +294,7 @@ const SUITE = {
     userMenu: [
         {id: "account", name: "Your Profile", url: "#account", icon: "fa fa-user", visibility: "private"},
         // {id: "projects", name: "Projects", url: "#projects", icon: "fa fa-database", visibility: "private"},
-        {id: "file-manager", name: "File Manager", url: "#file-manager", icon: "fas fa-folder-open", visibility: "private"}
+        // {id: "file-manager", name: "File Manager", url: "#file-manager", icon: "fas fa-folder-open", visibility: "private"}
     ],
     footer: {
         display: {
