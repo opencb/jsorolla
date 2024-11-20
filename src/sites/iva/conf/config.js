@@ -318,14 +318,13 @@ const SUITE = {
         },
         custom: "", // Optionally, a custom footer can be added.
     },
-    // The order, title and nested submenus are respected
     apps: [
         {
-            id: "iva",
-            name: "Variant Analysis",
+            id: "research",
+            name: "Research",
+            icon: "fa-flask",
             logo: "img/tools/icons/variant_browser_white.svg",
             logoAlt: "img/tools/icons/variant_browser.svg",
-            icon: "img/tools/icons/variant_browser.svg",
             visibility: "public",
             welcomePage: {
                 display: {
@@ -713,10 +712,10 @@ const SUITE = {
         },
         {
             id: "clinical",
-            name: "Clinical Analysis",
+            name: "Clinical",
+            icon: "fa-stethoscope",
             logo: "img/tools/icons/interpretation_portal_white.svg",
             logoAlt: "img/tools/icons/interpretation_portal.svg",
-            icon: "img/tools/icons/interpretation_portal.svg",
             visibility: "public",
             welcomePage: {
                 title: "Clinical Analysis",
@@ -794,9 +793,9 @@ const SUITE = {
         {
             id: "admin",
             name: "Admin",
+            icon: "fa-user-cog",
             logo: "img/tools/icons/file_explorer_white.svg",
             logoAlt: "img/tools/icons/file_explorer.svg",
-            icon: "img/tools/icons/file_explorer.svg",
             visibility: "public",
             welcomePage: {
                 display: {
