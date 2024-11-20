@@ -116,7 +116,7 @@ export default class LayoutPrimaryBar extends LitElement {
                                 </job-monitor>
                             </div>
                         </div>
-                        <a href="#reat-api" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
+                        <a href="#rest-api" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
                             <i class="fas fa-code lh-1"></i>
                         </a>
                         ${this.renderSeparator()}
