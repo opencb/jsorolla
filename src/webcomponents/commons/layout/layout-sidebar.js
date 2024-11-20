@@ -58,7 +58,7 @@ export default class LayoutSidebar extends LitElement {
 
     render() {
         return html`
-            <div class="d-flex flex-column justify-content-between flex-shrink-0 border-end bg-gray-100 position-relative" style="width:72px">
+            <div class="d-flex flex-column justify-content-between flex-shrink-0 border-end bg-gray-100 position-relative h-full" style="width:72px">
                 <div class="d-flex flex-column">
                     <div class="d-flex flex-column gap-1 user-select-none p-2">
                         ${this.renderLinkButton({name: "Home", icon: "fa-home", url: "#home"}, false)}
