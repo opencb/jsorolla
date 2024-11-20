@@ -57,6 +57,11 @@ import "../../webcomponents/individual/individual-update.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/job-view.js";
+import "../../webcomponents/job/analysis/tool-analysis.js";
+import "../../webcomponents/job/analysis/custom-tool-builder.js";
+import "../../webcomponents/workflow/workflow-browser.js";
+import "../../webcomponents/workflow/workflow-manager.js";
+import "../../webcomponents/workflow/analysis/workflow-analysis.js";
 import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
 import "../../webcomponents/variant/analysis/gwas-analysis.js";
 import "../../webcomponents/variant/analysis/sample-variant-stats-analysis.js";
@@ -81,6 +86,7 @@ import "../../webcomponents/clinical/analysis/rd-tiering-analysis.js";
 import "../../webcomponents/clinical/analysis/hrdetect-analysis.js";
 import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/file/file-manager.js";
+import "../../webcomponents/file/file-data-manager.js";
 import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/organization/admin/organization-admin.js";
@@ -170,6 +176,7 @@ class IvaApp extends LitElement {
             "account",
             "projects",
             "file-manager",
+            "file-data-manager",
             "beacon",
             "project",
             "file",
@@ -195,6 +202,9 @@ class IvaApp extends LitElement {
             "protein",
             "variant-browser",
             "job",
+            "workflow",
+            "workflow-manager",
+            "workflow-analysis",
             "cat-browser",
             "cat-analysis",
             "cat-clinical",
@@ -229,6 +239,8 @@ class IvaApp extends LitElement {
             "alignment-stats",
             "coverage-index",
             "job-view",
+            "tool-analysis",
+            "custom-tool-builder",
             "rga",
             "disease-panel",
             "diseasePanelUpdate",
@@ -927,6 +939,9 @@ class IvaApp extends LitElement {
                     break;
                 case "#diseasePanelUpdate":
                     this.diseasePanelId = hashQuery;
+                    break;
+                case "#workflow-analysis":
+                    this.workflowId = hashQuery;
                     break;
             }
             // this.requestUpdate();
@@ -1756,6 +1771,43 @@ class IvaApp extends LitElement {
                             </category-page>
                         </div>
                     ` : nothing}
+                ${this.config.enabledComponents.workflow ? html`
+                    <div class="content" id="workflow">
+                        <workflow-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.workflow}"
+                            .settings="${this.settings.WORKFLOW_BROWSER}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "workflow")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "workflow")}">
+                        </workflow-browser>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["workflow-manager"] ? html`
+                    <tool-header title="Workflow Manager" icon="fas fa-stream"></tool-header>
+                    <div class="container py-3" id="workflow-manager">
+                        <workflow-manager
+                            .opencgaSession="${this.opencgaSession}">
+                        </workflow-manager>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["workflow-analysis"] ? html`
+                    <tool-header title="Workflow Analysis Executor" icon="fas fa-stream"></tool-header>
+                    <div class="container py-3" id="workflow-analysis">
+                        <workflow-analysis
+                            .toolParams="${{id: this.workflowId}}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </workflow-analysis>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["cat-browser"] ? html`
+                    <div class="content" id="cat-browser">
+                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "variant-browser")}">
+                        </category-page>
+                    </div>
+                ` : nothing}
 
                     ${this.config.enabledComponents["cat-analysis"] ? html`
                         <div class="content" id="cat-analysis">
@@ -1816,19 +1868,23 @@ class IvaApp extends LitElement {
                         </div>
                     ` : nothing}
 
-                    ${this.config.enabledComponents["sample-variant-stats"] ? html`
-                        <div class="container py-3" id="sample-variant-stats-analysis">
-                            <sample-variant-stats-analysis
-                                .opencgaSession="${this.opencgaSession}">
-                            </sample-variant-stats-analysis>
-                        </div>
-                    ` : nothing}
+                ${this.config.enabledComponents["sample-variant-stats"] ? html`
+                    <tool-header title="Sample Variant Stats Analysis" icon="fas fa-stream"></tool-header>
+                    <div class="container py-3" id="sample-variant-stats-analysis">
+                        <sample-variant-stats-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </sample-variant-stats-analysis>
+                    </div>
+                ` : nothing}
 
-                    ${this.config.enabledComponents["cohort-variant-stats"] ? html`
-                        <div class="container py-3" id="cohort-variant-stats-analysis">
-                            <cohort-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></cohort-variant-stats-analysis>
-                        </div>
-                    ` : nothing}
+                ${this.config.enabledComponents["cohort-variant-stats"] ? html`
+                    <tool-header title="Cohort Variant Stats Analysis" icon="fas fa-stream"></tool-header>
+                    <div class="container py-3" id="cohort-variant-stats-analysis">
+                        <cohort-variant-stats-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </cohort-variant-stats-analysis>
+                    </div>
+                ` : nothing}
 
                     ${this.config.enabledComponents["eligibility"] ? html`
                         <div class="content" id="opencga-variant-eligibility-analysis">
@@ -1876,32 +1932,35 @@ class IvaApp extends LitElement {
                         </div>
                     ` : nothing}
 
-                    ${this.config.enabledComponents["sample-qc"] ? html`
-                        <div class="container py-3" id="sample-qc-analysis">
-                            <sample-qc-analysis
-                                .opencgaSession="${this.opencgaSession}"
-                                .config=${{title: ""}}>
-                            </sample-qc-analysis>
-                        </div>
-                    ` : nothing}
+                ${this.config.enabledComponents["sample-qc"] ? html`
+                    <tool-header title="Sample QC Analysis" icon="fas fa-stream"></tool-header>
+                    <div class="container py-3" id="sample-qc-analysis">
+                        <sample-qc-analysis
+                            .opencgaSession="${this.opencgaSession}"
+                            .config=${{title: ""}}>
+                        </sample-qc-analysis>
+                    </div>
+                ` : nothing}
 
-                    ${this.config.enabledComponents["individual-qc"] ? html`
-                        <div class="container py-3" id="individual-qc-analysis">
-                            <individual-qc-analysis
-                                .opencgaSession="${this.opencgaSession}"
-                                .config=${{title: ""}}>
-                            </individual-qc-analysis>
-                        </div>
-                    ` : nothing}
+                ${this.config.enabledComponents["individual-qc"] ? html`
+                    <tool-header title="Individual QC Analysis" icon="fas fa-stream"></tool-header>
+                    <div class="container py-3" id="individual-qc-analysis">
+                        <individual-qc-analysis
+                            .opencgaSession="${this.opencgaSession}"
+                            .config=${{title: ""}}>
+                        </individual-qc-analysis>
+                    </div>
+                ` : nothing}
 
-                    ${this.config.enabledComponents["family-qc"] ? html`
-                        <div class="container py-3" id="family-qc-analysis">
-                            <family-qc-analysis
-                                .opencgaSession="${this.opencgaSession}"
-                                .config=${{title: ""}}>
-                            </family-qc-analysis>
-                        </div>
-                    ` : nothing}
+                ${this.config.enabledComponents["family-qc"] ? html`
+                    <tool-header title="Family QC Analysis" icon="fas fa-stream"></tool-header>
+                    <div class="container py-3" id="family-qc-analysis">
+                        <family-qc-analysis
+                            .opencgaSession="${this.opencgaSession}"
+                            .config=${{title: ""}}>
+                        </family-qc-analysis>
+                    </div>
+                ` : nothing}
 
                     ${this.config.enabledComponents["plink"] ? html`
                         <div class="content" id="opencga-plink-analysis">
@@ -1937,13 +1996,14 @@ class IvaApp extends LitElement {
                         </div>
                     ` : nothing}
 
-                    ${this.config.enabledComponents["gwas"] ? html`
-                        <div class="container py-3" id="gwas-analysis">
-                            <gwas-analysis
-                                .opencgaSession="${this.opencgaSession}">
-                            </gwas-analysis>
-                        </div>
-                    ` : nothing}
+                ${this.config.enabledComponents["gwas"] ? html`
+                    <tool-header title="GWAS Analysis" icon="fas fa-stream"></tool-header>
+                    <div class="container py-3" id="gwas-analysis">
+                        <gwas-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </gwas-analysis>
+                    </div>
+                ` : nothing}
 
                     ${this.config.enabledComponents["rd-tiering"] ? html`
                         <div class="container py-3" id="rd-tiering-analysis">
@@ -1975,6 +2035,14 @@ class IvaApp extends LitElement {
                     ${this.config.enabledComponents["file-manager"] ? html`
                         <div class="content" id="file-manager">
                             <file-manager .opencgaSession="${this.opencgaSession}"></file-manager>
+                        </div>
+                    ` : nothing}
+
+                    ${this.config.enabledComponents["file-data-manager"] ? html`
+                        <div class="content" id="file-data-manager">
+                            <file-data-manager
+                                .opencgaSession="${this.opencgaSession}">
+                            </file-data-manager>
                         </div>
                     ` : nothing}
 
@@ -2015,16 +2083,34 @@ class IvaApp extends LitElement {
                         </div>
                     ` : nothing}
 
-                    ${this.config.enabledComponents["job-view"] ? html`
-                        <tool-header title="${this.jobSelected || "No job selected"}" icon="${"fas fa-rocket"}"></tool-header>
-                        <div class="container py-3" id="job-view">
-                            <job-view
-                                mode="full"
-                                .jobId="${this.jobSelected}"
-                                .opencgaSession="${this.opencgaSession}">
-                            </job-view>
-                        </div>
-                    ` : nothing}
+                ${this.config.enabledComponents["job-view"] ? html`
+                    <tool-header title="${this.jobSelected || "No job selected"}" icon="${"fas fa-rocket"}"></tool-header>
+                    <div class="container py-3" id="job-view">
+                        <job-view
+                            mode="full"
+                            .jobId="${this.jobSelected}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </job-view>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["tool-analysis"] ? html`
+                    <tool-header title="Tool Analysis Executor" icon="fas fa-stream"></tool-header>
+                    <div class="container py-3" id="tool-analysis">
+                        <tool-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </tool-analysis>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["custom-tool-builder"] ? html`
+                    <tool-header title="Custom Tool Builder" icon="fas fa-stream"></tool-header>
+                    <div class="container py-3" id="custom-tool-builder">
+                        <custom-tool-builder
+                            .opencgaSession="${this.opencgaSession}">
+                        </custom-tool-builder>
+                    </div>
+                ` : nothing}
 
                     <!-- Admin -->
                     ${this.config.enabledComponents["organization-admin"] ? html`

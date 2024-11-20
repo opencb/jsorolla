@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {LitElement, html} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
-import "./note-view.js";
+import "./workflow-view.js";
 import "./../commons/view/detail-tabs.js";
 
-export default class NoteDetail extends LitElement {
+export default class WorkflowDetail extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -33,38 +32,37 @@ export default class NoteDetail extends LitElement {
 
     static get properties() {
         return {
-            noteId: {
-                type: String,
-            },
-            note: {
+            opencgaSession: {
                 type: Object
             },
-            noteScope: {
-                type: String,
+            workflowId: {
+                type: String
             },
-            opencgaSession: {
+            workflow: {
                 type: Object
             },
             config: {
                 type: Object
-            }
+            },
         };
     }
 
     #init() {
-        this.COMPONENT_ID = "note-detail";
-        this._note = null;
+        this.COMPONENT_ID = "workflow-detail";
+        this._workflow = null;
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("noteId") || changedProperties.has("noteScope")) {
-            this.noteIdOrScopeObserver();
+        if (changedProperties.has("workflowId")) {
+            this.workflowIdObserver();
         }
-        if (changedProperties.has("note")) {
-            this.noteObserver();
+
+        if (changedProperties.has("workflow")) {
+            this.individualObserver();
         }
+
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
@@ -72,38 +70,29 @@ export default class NoteDetail extends LitElement {
             };
             this.#updateDetailTabs();
         }
+
         super.update(changedProperties);
     }
 
-    noteObserver() {
-        // No need to create a local clone of the note object
-        this._note = this.note;
-    }
-
-    noteIdOrScopeObserver() {
-        this._note = null;
-        if (this.opencgaSession && this.noteId && this.noteScope) {
-            let noteSearchPromise = null;
-            if (this.noteScope === "STUDY") {
-                noteSearchPromise = this.opencgaSession.opencgaClient.studies()
-                    .searchNotes(this.opencgaSession.study.fqn, {
-                        id: this.noteId,
-                    });
-            } else {
-                noteSearchPromise = this.opencgaSession.opencgaClient.organization()
-                    .searchNotes({
-                        id: this.noteId,
-                    });
-            }
-            noteSearchPromise
+    workflowIdObserver() {
+        if (this.opencgaSession && this.workflowId) {
+            this.opencgaSession.opencgaClient.workflows()
+                .info(this.workflowId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
-                    this._note = response?.responses[0]?.results?.[0];
+                    this._workflow = response.getResult(0);
                     this.requestUpdate();
                 })
-                .catch(error => {
-                    console.error(error);
+                .catch(response => {
+                    console.error(response);
                 });
         }
+    }
+
+    individualObserver() {
+        this._workflow = {...this.workflow};
+        this.requestUpdate();
     }
 
     #updateDetailTabs() {
@@ -114,16 +103,18 @@ export default class NoteDetail extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession || !this._note) {
-            return nothing;
+        if (!this.opencgaSession) {
+            return "";
         }
 
         return html`
-            <detail-tabs
-                .data="${this._note}"
-                .config="${this._config}"
-                .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>
+            <div data-cy="ib-detail">
+                <detail-tabs
+                    .data="${this._workflow}"
+                    .config="${this._config}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>
+            </div>
         `;
     }
 
@@ -135,4 +126,4 @@ export default class NoteDetail extends LitElement {
 
 }
 
-customElements.define("note-detail", NoteDetail);
+customElements.define("workflow-detail", WorkflowDetail);

@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import "./workflow-view.js";
+import "./workflow-grid.js";
+import "./workflow-detail.js";
+import "./workflow-scripts-view.js";
+import "./workflow-jobs.js";
+import "../clinical/clinical-analysis-grid.js";
 import "../commons/opencga-browser.js";
-import "../commons/opencb-facet-results.js";
+import "../commons/json-viewer.js";
 import "../commons/facet-filter.js";
-import "./sample-grid.js";
-import "./sample-detail.js";
+import "../commons/opencb-facet-results.js";
 
-export default class SampleBrowser extends LitElement {
+export default class WorkflowBrowser extends LitElement {
 
     constructor() {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -49,8 +54,8 @@ export default class SampleBrowser extends LitElement {
         };
     }
 
-    _init() {
-        this.COMPONENT_ID = "sample-browser";
+    #init() {
+        this.COMPONENT_ID = "workflow-browser";
         this._config = this.getDefaultConfig();
     }
 
@@ -64,7 +69,7 @@ export default class SampleBrowser extends LitElement {
     settingsObserver() {
         this._config = this.getDefaultConfig();
 
-        // Apply Study settings
+        // Apply Study grid configuration
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
@@ -78,7 +83,6 @@ export default class SampleBrowser extends LitElement {
                 ...toolbar,
             });
         }
-        // this._config = UtilsNew.mergeTableSetting(this._config, this.settings);
 
         // Apply User grid configuration. Only 'pageSize' and 'columns' are set
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
@@ -93,7 +97,7 @@ export default class SampleBrowser extends LitElement {
         this.settingsObserver();
     }
 
-    onSampleUpdate() {
+    onWorkflowUpdate() {
         this.settingsObserver();
     }
 
@@ -104,18 +108,18 @@ export default class SampleBrowser extends LitElement {
 
         return html`
             <opencga-browser
-                resource="SAMPLE"
+                resource="WORKFLOW"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
                 .config="${this._config}"
-                @sampleUpdate="${this.onSampleUpdate}">
+                @workflowUpdate="${this.onWorkflowUpdate}">
             </opencga-browser>
         `;
     }
 
     getDefaultConfig() {
         return {
-            title: "Sample Browser",
+            title: "Workflow Browser",
             icon: "fab fa-searchengin",
             views: [
                 {
@@ -124,39 +128,36 @@ export default class SampleBrowser extends LitElement {
                     icon: "fa fa-table",
                     active: true,
                     render: params => html`
-                        <sample-grid
+                        <workflow-grid
                             .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
-                            .query="${params.executedQuery}"
                             .config="${params.config.filter.result.grid}"
+                            .eventNotifyName="${params.eventNotifyName}"
+                            .query="${params.executedQuery}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e)}"
-                            @sampleUpdate="${e => params.onComponentUpdate(e)}"
+                            @selectrow="${e => params.onClickRow(e, "workflow")}"
+                            @workflowUpdate="${e => params.onComponentUpdate(e, "workflow")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
-                        </sample-grid>
-                        ${params?.detail ? html`
-                            <sample-detail
-                                .sampleId="${params.detail?.id}"
-                                .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}">
-                            </sample-detail>
-                        ` : nothing}
-                    `,
-                },
-                {
-                    id: "facet-tab",
-                    name: "Aggregation stats",
-                    icon: "fas fa-chart-bar",
-                    render: params => html `
-                        <opencb-facet-results
-                            resource="${params.resource}"
+                        </workflow-grid>
+                        <workflow-detail
+                            .workflowId="${params.detail?.id}"
                             .opencgaSession="${params.opencgaSession}"
-                            .active="${params.active}"
-                            .query="${params.facetQuery}"
-                            .data="${params.facetResults}">
-                        </opencb-facet-results>
-                    `,
-                }
+                            .config="${params.config.filter.detail}">
+                        </workflow-detail>`
+                },
+                // {
+                //     id: "facet-tab",
+                //     name: "Aggregation stats",
+                //     icon: "fas fa-chart-bar",
+                //     render: params => html`
+                //         <opencb-facet-results
+                //             resource="${params.resource}"
+                //             .opencgaSession="${params.opencgaSession}"
+                //             .active="${params.active}"
+                //             .query="${params.facetQuery}"
+                //             .data="${params.facetResults}">
+                //         </opencb-facet-results>`
+                // }
             ],
             filter: {
                 searchButton: false,
@@ -167,124 +168,97 @@ export default class SampleBrowser extends LitElement {
                         filters: [
                             {
                                 id: "id",
-                                name: "Sample ID",
+                                name: "Workflow ID",
+                                type: "string",
+                                placeholder: "eg. wf1, wf2, ...",
                                 description: ""
                             },
                             {
-                                id: "individualId",
-                                name: "Individual ID",
-                                placeholder: "LP-1234, LP-4567...",
+                                id: "name",
+                                name: "Name",
+                                type: "string",
+                                placeholder: "eg. alignment, variant calling, ...",
                                 description: ""
                             },
                             {
-                                id: "fileIds",
-                                name: "File Name",
-                                placeholder: "file.vcf, ...",
+                                id: "type",
+                                name: "Type",
+                                type: "string",
+                                placeholder: "eg. RESEARCH_ANALYSIS,...",
                                 description: ""
                             },
                             {
-                                id: "phenotypes",
-                                name: "Phenotypes",
-                                placeholder: "Full-text search, e.g. melanoma",
-                                description: ""
-                            },
-                            {
-                                id: "somatic",
-                                name: "Somatic",
-                                description: ""
+                                id: "tags",
+                                name: "Tags",
+                                placeholder: "eg. tag1, tag2, tag3",
+                                allowedValues: "",
+                                description: "",
                             },
                             {
                                 id: "date",
                                 name: "Date",
                                 description: ""
                             },
-                            {
-                                id: "annotations",
-                                name: "Sample Annotations",
-                                description: ""
-                            }
                         ]
                     }
                 ],
                 examples: [],
+                activeFilters: {
+                    complexFields: [],
+                },
                 result: {
                     grid: {
                         pageSize: 10,
                         pageList: [5, 10, 25],
+                        detailView: true,
                         multiSelection: false,
-                        showSelectCheckbox: false,
-                        showToolbar: true,
-                        showCreate: true,
-                        showExport: true,
-                        showSettings: true,
-                        exportTabs: ["download", "link", "code"]
+                        showSelectCheckbox: false
                     }
                 },
                 detail: {
-                    title: "Sample",
+                    title: "Workflow",
                     showTitle: true,
+                    display: {
+                        titleClass: "mt-4",
+                        contentClass: "p-3"
+                    },
                     items: [
                         {
-                            id: "sample-view",
+                            id: "workflow-view",
                             name: "Overview",
                             active: true,
-                            render: (sample, active, opencgaSession) => html`
-                                <sample-view
-                                    .sample="${sample}"
-                                    .active="${active}"
+                            render: (workflow, active, opencgaSession) => html`
+                                <workflow-view
+                                    .workflow="${workflow}"
                                     .opencgaSession="${opencgaSession}">
-                                </sample-view>
+                                </workflow-view>
                             `,
                         },
                         {
-                            id: "sample-variant-stats-view",
-                            name: "Variant Stats",
-                            render: (sample, active, opencgaSession) => html`
-                                <sample-variant-stats-view
-                                    .sampleId="${sample.id}"
-                                    .active="${active}"
-                                    .opencgaSession="${opencgaSession}">
-                                </sample-variant-stats-view>
+                            id: "workflow-scripts",
+                            name: "Scripts",
+                            render: workflow => html`
+                                <workflow-scripts-view
+                                    .workflow="${workflow}">
+                                </workflow-scripts-view>
                             `,
                         },
                         {
-                            id: "samtools-flags-stats-view",
-                            name: "Samtools Flagstat",
-                            render: (sample, active, opencgaSession) => html`
-                                <samtools-flagstats-view
-                                    .sample="${sample}"
+                            id: "workflow-jobs",
+                            name: "Jobs",
+                            render: (workflow, active, opencgaSession) => html`
+                                <workflow-jobs
+                                    .workflow="${workflow}"
                                     .opencgaSession="${opencgaSession}">
-                                </samtools-flagstats-view>
-                            `,
-                        },
-                        {
-                            id: "individual-view",
-                            name: "Individual",
-                            render: (sample, active, opencgaSession) => html`
-                                <individual-view
-                                    .individualId="${sample?.individualId}"
-                                    .opencgaSession="${opencgaSession}">
-                                </individual-view>
-                            `,
-                        },
-                        {
-                            id: "file-view",
-                            name: "Files",
-                            render: (sample, active, opencgaSession) => html`
-                                <file-grid
-                                    .query="${{sampleIds: sample.id, type: "FILE,VIRTUAL"}}"
-                                    .active="${active}"
-                                    .config="${{downloadFile: this.config?.downloadFile}}"
-                                    .opencgaSession="${opencgaSession}">
-                                </file-grid>
+                                </workflow-jobs>
                             `,
                         },
                         {
                             id: "json-view",
                             name: "JSON Data",
-                            render: (sample, active, opencgaSession) => html`
+                            render: (workflow, active) => html`
                                 <json-viewer
-                                    .data="${sample}"
+                                    .data="${workflow}"
                                     .active="${active}">
                                 </json-viewer>
                             `,
@@ -293,21 +267,19 @@ export default class SampleBrowser extends LitElement {
                 }
             },
             aggregation: {
-                default: ["creationYear>>creationMonth", "status", "somatic"],
+                default: ["creationYear>>creationMonth", "status", "ethnicity", "population", "lifeStatus", "phenotypes", "sex", "numSamples[0..10]:1"],
                 render: params => html `
                     <facet-filter
                         .config="${params.config.aggregation}"
                         .selectedFacet="${params.selectedFacet}"
                         @facetQueryChange="${params.onFacetQueryChange}">
-                    </facet-filter>
-                `,
+                    </facet-filter>`,
                 result: {
                     numColumns: 2
                 },
                 sections: [
                     {
-                        name: "Sample Attributes",
-                        // collapsed: false,
+                        name: "Workflow Attributes",
                         fields: [
                             {
                                 id: "studyId",
@@ -332,13 +304,7 @@ export default class SampleBrowser extends LitElement {
                                 id: "creationDay",
                                 name: "Creation Day",
                                 type: "category",
-                                allowedValues: [
-                                    "1", "2", "3", "4", "5",
-                                    "6", "7", "8", "9", "10",
-                                    "11", "12", "13", "14", "15",
-                                    "16", "17", "18", "19", "20",
-                                    "21", "22", "23", "24", "25",
-                                    "26", "27", "28", "29", "30", "31"],
+                                allowedValues: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"],
                                 description: "Creation day"
                             },
                             {
@@ -368,59 +334,112 @@ export default class SampleBrowser extends LitElement {
                                 description: "Version"
                             },
                             {
-                                id: "somatic",
-                                name: "Somatic",
+                                id: "hasFather",
+                                name: "Has Father",
                                 type: "category",
                                 allowedValues: ["true", "false"],
-                                description: "Somatic"
+                                description: "Has father"
                             },
                             {
-                                id: "product",
-                                name: "Product",
-                                type: "string",
-                                description: "Product"
+                                id: "hasMother",
+                                name: "Has Mother",
+                                type: "category",
+                                allowedValues: ["true", "false"],
+                                description: "Has mother"
                             },
                             {
-                                id: "preparationMethod",
-                                name: "Preparation Method",
+                                id: "locationCity",
+                                name: "Location City",
                                 type: "string",
-                                description: "Preparation method"
+                                description: "Location city"
                             },
                             {
-                                id: "extractionMethod",
-                                name: "Extraction Method",
+                                id: "locationState",
+                                name: "Location State",
                                 type: "string",
-                                description: "Extraction method"
+                                description: "Location state"
                             },
                             {
-                                id: "labSampleId",
-                                name: "Lab Sample Id",
+                                id: "locationCountry",
+                                name: "Location Country",
                                 type: "string",
-                                description: "Lab sample Id"
+                                description: "Location country"
                             },
                             {
-                                id: "tissue",
-                                name: "Tissue",
+                                id: "yearOfBirth",
+                                name: "Year Of Birth",
                                 type: "string",
-                                description: "Tissue"
+                                description: "Year of birth"
                             },
                             {
-                                id: "organ",
-                                name: "Organ",
-                                type: "string",
-                                description: "Organ"
+                                id: "monthOfBirth",
+                                name: "Month Of Birth",
+                                type: "category",
+                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
+                                description: "Month of birth (JANUARY, FEBRUARY...)"
                             },
                             {
-                                id: "method",
-                                name: "Method",
+                                id: "dayOfBirth",
+                                name: "Day Of Birth",
+                                type: "category",
+                                allowedValues: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"],
+                                description: "Day of birth"
+                            },
+                            {
+                                id: "sex",
+                                name: "Sex",
                                 type: "string",
-                                description: "Method"
+                                description: "Sex"
+                            },
+                            {
+                                id: "karyotypicSex",
+                                name: "Laryotypic Sex",
+                                type: "string",
+                                description: "Karyotypic sex"
+                            },
+                            {
+                                id: "ethnicity",
+                                name: "Ethnicity",
+                                type: "string",
+                                description: "Ethnicity"
+                            },
+                            {
+                                id: "population",
+                                name: "Population",
+                                type: "string",
+                                description: "Population"
+                            },
+                            {
+                                id: "lifeStatus",
+                                name: "Life Status",
+                                type: "category",
+                                allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
+                                description: "Life status"
                             },
                             {
                                 id: "phenotypes",
                                 name: "Phenotypes",
                                 type: "string",
                                 description: "Phenotypes"
+                            },
+                            {
+                                id: "disorders",
+                                name: "Disorders",
+                                type: "string",
+                                description: "Disorders"
+                            },
+                            {
+                                id: "numSamples",
+                                name: "Number Of Samples",
+                                type: "number",
+                                description: "Number Of Samples"
+                            },
+                            {
+                                id: "parentalConsanguinity",
+                                name: "Parental Consanguinity",
+                                type: "category",
+                                allowedValues: ["true", "false"],
+                                description: "Parental consanguinity"
                             },
                             {
                                 id: "annotations",
@@ -442,10 +461,11 @@ export default class SampleBrowser extends LitElement {
                         ]
                     }
                 ]
-            }
+            },
+            annotations: {}
         };
     }
 
 }
 
-customElements.define("sample-browser", SampleBrowser);
+customElements.define("workflow-browser", WorkflowBrowser);

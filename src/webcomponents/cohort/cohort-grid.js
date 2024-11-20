@@ -235,6 +235,7 @@ export default class CohortGrid extends LitElement {
                         include: "id,creationDate,status,type,numSamples,annotationSets",
                         ...this.query
                     };
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.cohorts()
