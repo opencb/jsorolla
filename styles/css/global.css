@@ -449,6 +449,7 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
 
 /* Fonts */
 
+/* 
 @font-face {
     font-family: 'Ubuntu';
     font-style: normal;
@@ -499,6 +500,7 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
     font-weight: 400;
     src: local('Roboto'), local('Roboto'), url(../fonts/Roboto.woff) format('woff');
 }
+*/
 
 /* qtip tooltip */
 

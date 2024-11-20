@@ -28,11 +28,6 @@ COPY    ./${SITE}/iva/img           /usr/local/apache2/htdocs/iva/img/
 
 RUN true
 
-## API
-COPY    ./build/api                 /usr/local/apache2/htdocs/api
-COPY    ./${SITE}/api/conf          /usr/local/apache2/htdocs/api/conf/
-COPY    ./${SITE}/api/img           /usr/local/apache2/htdocs/api/img/
-
 ## Genome Maps (Coming soon  :-) )
 #COPY    ./build/genome-maps                 /usr/local/apache2/htdocs/genome-maps
 
