@@ -1,4 +1,5 @@
 import {html, LitElement, nothing} from "lit";
+import LitUtils from "../utils/lit-utils";
 
 export default class LayoutSidebar extends LitElement {
 
@@ -22,6 +23,10 @@ export default class LayoutSidebar extends LitElement {
                 type: Object
             }
         };
+    }
+
+    onChangeApp(app) {
+        LitUtils.dispatchCustomEvent(this, "changeApp", app.id);
     }
 
     renderLink(link) {
@@ -49,7 +54,10 @@ export default class LayoutSidebar extends LitElement {
 
     renderAppButton(item, active = false) {
         return html`
-            <div class="d-flex align-items-center flex-column gap-2 p-2 rounded-2 ${active ? "bg-gray-200" : "hover:bg-gray-200 cursor-pointer"}">
+            <div
+                class="d-flex align-items-center flex-column gap-2 p-2 rounded-2 ${active ? "bg-gray-200" : "hover:bg-gray-200 cursor-pointer"}"
+                @click="${() => this.onChangeApp(item)}"
+            >
                 <i class="fas ${item?.icon || ""} lh-1 fs-4 text-gray-900"></i>
                 <div class="fw-bold lh-1 fs-8 text-center text-gray-600">${item?.name || "-"}</div>
             </div>
@@ -64,7 +72,7 @@ export default class LayoutSidebar extends LitElement {
                         ${this.renderLinkButton({name: "Home", icon: "fa-home", url: "#home"}, false)}
                         ${this.config?.apps?.length > 0 ? html`
                             ${this.renderSectionSeparator("Apps")}
-                            ${this.config.apps.map(app => this.renderAppButton(app, false))}
+                            ${this.config.apps.map(app => this.renderAppButton(app, this.app?.id === app.id))}
                         `: nothing}
                         <!--
                         <div class="mt-2 text-gray-500 fw-bold small">Favourites</div>
