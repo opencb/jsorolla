@@ -108,6 +108,7 @@ import "../../webcomponents/commons/layouts/custom-landing.js";
 
 import "../../webcomponents/commons/layout/layout-footer.js";
 import "../../webcomponents/commons/layout/layout-primary-bar.js";
+import "../../webcomponents/commons/layout/layout-secondary-bar.js";
 import "../../webcomponents/commons/layout/layout-sidebar.js";
 
 import "../../webcomponents/clinical/rga/rga-browser.js";
@@ -827,12 +828,12 @@ class IvaApp extends LitElement {
         // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
         // e.preventDefault();
 
-        const target = e.currentTarget;
-        $(".navbar-zetta ul > li > a", this).removeClass("active");
-        $(target).addClass("active");
-        if ($(target).closest("ul").hasClass("dropdown-menu")) {
-            $(target).closest("ul").closest("li > a").addClass("active");
-        }
+        // const target = e.currentTarget;
+        // $(".navbar-zetta ul > li > a", this).removeClass("active");
+        // $(target).addClass("active");
+        // if ($(target).closest("ul").hasClass("dropdown-menu")) {
+        //     $(target).closest("ul").closest("li > a").addClass("active");
+        // }
 
         // if (target?.attributes?.href) {
         //     this.tool = target.attributes.href.value;
@@ -1114,16 +1115,15 @@ class IvaApp extends LitElement {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
     }
 
-    onChangeApp(e) {
+    onChangeApp(appId) {
         // If an App ID exists we display the corresponding app. If not we just show the Suite
-        if (e.currentTarget.dataset.id) {
-            this.app = this.config.apps.find(app => app.id === e.currentTarget.dataset.id);
+        if (appId) {
+            this.app = this.config.apps.find(app => app.id === appId);
         } else {
             this.app = this.getActiveAppConfig();
         }
-
-        // Change current tool in navbar
-        this.changeTool(e);
+        // force to redirect to the home page
+        window.location.hash = "home";
     }
 
     getActiveAppConfig() {
@@ -2129,7 +2129,6 @@ class IvaApp extends LitElement {
                     .config="${this.config}"
                     @logout="${() => this.logout()}"
                     @changeTool="${e => this.changeTool(e.detail.value)}"
-                    @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
                     @studySelect="${e => this.onStudySelect(e.detail.event, e.detail.study)}"
                     @jobSelected="${e => this.onJobSelected(e)}">
                 </layout-primary-bar>
@@ -2139,10 +2138,17 @@ class IvaApp extends LitElement {
                         .version="${this.version || ""}"
                         .loggedIn="${this.isLoggedIn()}"
                         .opencgaSession="${this.opencgaSession}"
-                        .config="${this.config}">
+                        .config="${this.config}"
+                        @changeApp="${e => this.onChangeApp(e.detail.value)}">
                     </layout-sidebar>
                     <div class="w-full h-full overflow-auto" style="max-height:calc(100vh - 52px);">
-                        <div class="p-3" style="min-height:calc(100vh - 120px);">
+                        <div class="px-3" style="min-height:calc(100vh - 120px);">
+                            ${this.app ? html`
+                                <layout-secondary-bar
+                                    .app="${this.app}"
+                                    .currentUrl="${window.location.hash || "#"}">
+                                </layout-secondary-bar>
+                            ` : nothing}
                             ${this.isCreatingSession ? html`
                                 <div class="login-overlay position-absolute top-50 start-50 translate-middle">
                                     <loading-spinner
