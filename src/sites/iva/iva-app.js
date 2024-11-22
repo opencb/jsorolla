@@ -2143,7 +2143,7 @@ class IvaApp extends LitElement {
                     </layout-sidebar>
                     <div class="w-full h-full overflow-auto" style="max-height:calc(100vh - 52px);">
                         <div class="px-3" style="min-height:calc(100vh - 120px);">
-                            ${this.app ? html`
+                            ${(this.app && this.app?.menu?.length > 0) ? html`
                                 <layout-secondary-bar
                                     .app="${this.app}"
                                     .currentUrl="${window.location.hash || "#"}">
