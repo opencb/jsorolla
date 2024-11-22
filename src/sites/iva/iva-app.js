@@ -2134,12 +2134,8 @@ class IvaApp extends LitElement {
                 </layout-primary-bar>
                 <div class="d-flex flex-nowrap">
                     <layout-sidebar
-                        .app="${this.app}"
-                        .version="${this.version || ""}"
-                        .loggedIn="${this.isLoggedIn()}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .config="${this.config}"
-                        @changeApp="${e => this.onChangeApp(e.detail.value)}">
+                        .currentUrl="${window.location.hash || "#"}"
+                        .config="${this.config}">
                     </layout-sidebar>
                     <div class="w-full h-full overflow-auto" style="max-height:calc(100vh - 52px);">
                         <div class="px-3" style="min-height:calc(100vh - 120px);">
