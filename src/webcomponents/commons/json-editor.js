@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import {JSONEditor} from "vanilla-jsoneditor";
+import {createJSONEditor} from "vanilla-jsoneditor";
 import NotificationUtils from "./utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
@@ -90,7 +90,7 @@ export default class JsonEditor extends LitElement {
 
         const editorElm = document.getElementById(this.jsonEditorId);
         // Create Editor
-        this.jsonEditor = new JSONEditor({
+        this.jsonEditor = createJSONEditor({
             target: editorElm,
             props: {
                 content,
@@ -104,10 +104,10 @@ export default class JsonEditor extends LitElement {
                         message: err
                     });
                 },
-                onRenderMenu: (mode, items) => {
-                    // Remove transforms we don't need for the moment
-                    return items.filter(item => item.className !== "jse-transform");
-                },
+                // onRenderMenu: (mode, items) => {
+                //     // Remove transforms we don't need for the moment
+                //     return items.filter(item => item.className !== "jse-transform");
+                // },
             }
         });
     }
