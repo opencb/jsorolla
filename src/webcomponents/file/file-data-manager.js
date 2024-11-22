@@ -172,16 +172,6 @@ export default class FileDataManager extends LitElement {
                     transition: 0.3s background-color;
                 }
 
-                .file-manager-breadcrumbs {
-                    padding: 10px;
-                }
-
-                .file-manager-breadcrumbs a,
-                .file-manager-breadcrumbs .path-separator {
-                    font-size: 1.5em;
-                    cursor: pointer;
-                }
-
                 .file-manager li a {
                     position: absolute;
                     top: 0;
@@ -457,10 +447,19 @@ export default class FileDataManager extends LitElement {
     path(node) {
         const path = node.file.id.split(":").filter(Boolean);
         return html`
-            <div class="file-manager-breadcrumbs">
-                <a @click="${this.reset}"> ~ </a> <span class="path-separator">/</span>
-                ${path.map((name, i) => html`<a @click="${() => this.route(path.slice(0, i + 1).join(":") + ":")}"> ${name} </a> <span class="path-separator">/</span>`)}
-            </div>`;
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item" @click="${this.reset}"> ~ </li>
+                    ${path.map((name, i) => html`
+                        <li
+                            class="breadcrumb-item ${i === path.length ? "active" : ""}"
+                            @click="${() => this.route(path.slice(0, i + 1).join(":") + ":")}">
+                            ${name}
+                        </li>
+                    `)}
+                </ol>
+            </nav>
+        `;
     }
 
     async route(id, resetFileId = true) {
