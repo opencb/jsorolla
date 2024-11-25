@@ -846,7 +846,7 @@ class IvaApp extends LitElement {
     hashFragmentListener() {
         console.log("HASH_LISTENER", window.location.hash);
         this.app = null;
-        this.tool = "not-found";
+        this.tool = null;
         // 0. in case of empty hash fragments, redirect to home tool
         if (window.location.hash === "" || window.location.hash === "#") {
             if (this.opencgaSession?.project?.id && this.opencgaSession?.study?.id) {
@@ -854,7 +854,7 @@ class IvaApp extends LitElement {
                 return;
             }
         }
-        const hashItems = window.location.hash.replace(/^#/, "").split("/");
+        const hashItems = window.location.hash.replace("#", "").split("/");
         let hashApp = null, hashTool = null, hashProject = null, hashStudy = null, hashQuery = null;
         // 1. check if the first hash fragment is an app
         if (this.config?.apps?.length > 0 && this.config.apps.some(app => app.id === hashItems[0])) {
@@ -2222,7 +2222,6 @@ class IvaApp extends LitElement {
                     </div>
                 `;
                 break;
-            case "not-found":
             default:
                 // TODO: check for extensions
                 // ExtensionsManager.getTools().map(tool => html`
