@@ -208,17 +208,13 @@ export default class FileDataManager extends LitElement {
                     color: black;
                 }
 
-                .opencga-file-manager .opencga-file-view {
-                    margin-left: 5px;
-                }
-
-                .opencga-file-manager .file-manager-full-height,
-                .opencga-file-manager .file-manager-tree{
+                .file-manager-full-height,
+                .file-manager-tree{
                     min-height: calc(100vh - 160px);
                 }
 
                 /* temp fix for long filenames in opencga-file-manager  */
-                .opencga-file-manager .file-manager-tree .file {
+                .file-manager-tree .file {
                     display: flex;
                 }
                 .file-manager-tree .file {
@@ -476,51 +472,39 @@ export default class FileDataManager extends LitElement {
 
         return html`
             ${this.renderStyles()}
-            <div class="opencga-file-manager">
-                <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
+            <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
 
-                <div class="row file-manager-full-height">
-                    <div class="file-manager-tree left-menu col-md-3">
-                        ${this.tree ? html`${this.renderTree(this.tree)}` : null}
-                    </div>
+            <div class="row file-manager-full-height">
+                <div class="file-manager-tree left-menu col-md-3">
+                    ${this.tree ? html`${this.renderTree(this.tree)}` : null}
+                </div>
 
-                    <div class="file-manager-grid col-md-9">
-                        ${this.errorState ? html`
-                            <div id="error" class="alert alert-danger" role="alert">
-                                ${this.errorState}
-                            </div>
-                        ` : null}
-                        ${this.loading ? html`
-                            <div id="loading">
-                                <loading-spinner></loading-spinner>
-                            </div>
-                        ` : null}
+                <div class="file-manager-grid col-md-9">
+                    ${this.errorState ? html`
+                        <div id="error" class="alert alert-danger" role="alert">
+                            ${this.errorState}
+                        </div>
+                    ` : null}
+                    ${this.loading ? html`
+                        <div id="loading">
+                            <loading-spinner></loading-spinner>
+                        </div>
+                    ` : null}
 
 
-                        ${this.renderToolbar()}
+                    ${this.renderToolbar()}
 
-                        ${this.currentRoot ? html`
-                            <div>
-                                ${this.path(this.currentRoot)}
-                                <data-list
-                                    .data="${this.currentRoot.children.map(child => child.file)}"
-                                    .config="${this._config.dataList}"
-                                    @doubleclickrow="${this.onDblClickRow}"
-                                    @checkrow="${this.onCheckRow}">
-                                </data-list>
-
-                            </div>
-                            ${this.fileId ? html`
-                                <div class="opencga-file-view">
-                                    <file-view
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .fileId="${this.fileId}"
-                                        mode="full">
-                                    </file-view>
-                                </div>
-                            ` : null}
-                        ` : null}
-                    </div>
+                    ${this.currentRoot ? html`
+                        <div>
+                            ${this.path(this.currentRoot)}
+                            <data-list
+                                .data="${this.currentRoot.children.map(child => child.file)}"
+                                .config="${this._config.dataList}"
+                                @doubleclickrow="${this.onDblClickRow}"
+                                @checkrow="${this.onCheckRow}">
+                            </data-list>
+                        </div>
+                    ` : null}
                 </div>
             </div>
 
