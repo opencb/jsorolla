@@ -1717,7 +1717,7 @@ class IvaApp extends LitElement {
                         title="Workflow Manager"
                         icon="fas fa-stream">
                     </tool-header>
-                    <div class="container">
+                    <div class="content">
                         <workflow-manager
                             .opencgaSession="${this.opencgaSession}">
                         </workflow-manager>
@@ -1730,7 +1730,7 @@ class IvaApp extends LitElement {
                         title="Workflow Analysis Executor"
                         icon="fas fa-stream">
                     </tool-header>
-                    <div class="container">
+                    <div class="content">
                         <workflow-analysis
                             .toolParams="${{id: this.workflowId}}"
                             .opencgaSession="${this.opencgaSession}">
@@ -1826,7 +1826,7 @@ class IvaApp extends LitElement {
                         title="Sample Variant Stats Analysis"
                         icon="fas fa-stream">
                     </tool-header>
-                    <div class="container">
+                    <div class="content">
                         <sample-variant-stats-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </sample-variant-stats-analysis>
@@ -1839,7 +1839,7 @@ class IvaApp extends LitElement {
                         title="Cohort Variant Stats Analysis"
                         icon="fas fa-stream">
                     </tool-header>
-                    <div class="container">
+                    <div class="content">
                         <cohort-variant-stats-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </cohort-variant-stats-analysis>
@@ -1848,7 +1848,7 @@ class IvaApp extends LitElement {
                 break;
             case "eligibility":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <opencga-variant-eligibility-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </opencga-variant-eligibility-analysis>
@@ -1857,7 +1857,7 @@ class IvaApp extends LitElement {
                 break;
             case "sample-eligibility":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <sample-eligibility-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </sample-eligibility-analysis>
@@ -1866,7 +1866,7 @@ class IvaApp extends LitElement {
                 break;
             case "knockout":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <knockout-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </knockout-analysis>
@@ -1875,7 +1875,7 @@ class IvaApp extends LitElement {
                 break;
             case "inferred-sex":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <inferred-sex-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .config=${{title: ""}}>
@@ -1885,7 +1885,7 @@ class IvaApp extends LitElement {
                 break;
             case "individual-relatedness":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <individual-relatedness-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .config=${{title: ""}}>
@@ -1895,7 +1895,7 @@ class IvaApp extends LitElement {
                 break;
             case "mendelian-error":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <mendelian-error-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </mendelian-error-analysis>
@@ -1908,7 +1908,7 @@ class IvaApp extends LitElement {
                         title="Sample QC Analysis"
                         icon="fas fa-stream">
                     </tool-header>
-                    <div class="container">
+                    <div class="content">
                         <sample-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .config=${{title: ""}}>
@@ -1922,7 +1922,7 @@ class IvaApp extends LitElement {
                         title="Individual QC Analysis"
                         icon="fas fa-stream">
                     </tool-header>
-                    <div class="container">
+                    <div class="content">
                         <individual-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .config=${{title: ""}}>
@@ -1936,7 +1936,7 @@ class IvaApp extends LitElement {
                         title="Family QC Analysis"
                         icon="fas fa-stream">
                     </tool-header>
-                    <div class="container">
+                    <div class="content">
                         <family-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .config=${{title: ""}}>
@@ -1946,7 +1946,7 @@ class IvaApp extends LitElement {
                 break;
             case "plink":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <opencga-plink-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </opencga-plink-analysis>
@@ -1955,7 +1955,7 @@ class IvaApp extends LitElement {
                 break;
             case "gatk":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <opencga-gatk-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </opencga-gatk-analysis>
@@ -1964,7 +1964,7 @@ class IvaApp extends LitElement {
                 break;
             case "variant-export":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <variant-export-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </variant-export-analysis>
@@ -1973,7 +1973,7 @@ class IvaApp extends LitElement {
                 break;
             case "variant-stats-exporter":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <opencga-variant-stats-exporter-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </opencga-variant-stats-exporter-analysis>
@@ -1982,7 +1982,7 @@ class IvaApp extends LitElement {
                 break;
             case "mutational-signature":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <mutational-signature-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </mutational-signature-analysis>
@@ -1995,7 +1995,7 @@ class IvaApp extends LitElement {
                         title="GWAS Analysis"
                         icon="fas fa-stream">
                     </tool-header>
-                    <div class="container">
+                    <div class="content">
                         <gwas-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </gwas-analysis>
@@ -2004,7 +2004,7 @@ class IvaApp extends LitElement {
                 break;
             case "rd-tiering":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <rd-tiering-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </rd-tiering-analysis>
@@ -2017,7 +2017,7 @@ class IvaApp extends LitElement {
                         title="Create Case"
                         icon="fas fa-window-restore">
                     </tool-header>
-                    <div class="container">
+                    <div class="content">
                         <clinical-analysis-create
                             .opencgaSession="${this.opencgaSession}"
                             @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
@@ -2028,7 +2028,7 @@ class IvaApp extends LitElement {
             case "account":
             case "profile":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <user-profile
                             .opencgaSession="${this.opencgaSession}"
                             .settings="${this.settings.USER_PROFILE_SETTINGS}">
@@ -2038,7 +2038,7 @@ class IvaApp extends LitElement {
                 break;
             case "file-manager":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <file-manager
                             .opencgaSession="${this.opencgaSession}">
                         </file-manager>
@@ -2047,7 +2047,7 @@ class IvaApp extends LitElement {
                 break;
             case "file-data-manager":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <file-data-manager
                             .opencgaSession="${this.opencgaSession}">
                         </file-data-manager>
@@ -2056,7 +2056,7 @@ class IvaApp extends LitElement {
                 break;
             case "interpreter":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <variant-interpreter
                             .opencgaSession="${this.opencgaSession}"
                             .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
@@ -2069,7 +2069,7 @@ class IvaApp extends LitElement {
                 break;
             case "alignment-index":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <opencga-alignment-index-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </opencga-alignment-index-analysis>
@@ -2078,7 +2078,7 @@ class IvaApp extends LitElement {
                 break;
             case "coverage-index":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <opencga-coverage-index-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </opencga-coverage-index-analysis>
@@ -2087,7 +2087,7 @@ class IvaApp extends LitElement {
                 break;
             case "alignment-stats":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <opencga-alignment-stats-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </opencga-alignment-stats-analysis>
@@ -2100,7 +2100,7 @@ class IvaApp extends LitElement {
                         title="${this.jobSelected || "No job selected"}"
                         icon="${"fas fa-rocket"}">
                     </tool-header>
-                    <div class="container">
+                    <div class="content">
                         <job-view
                             mode="full"
                             .jobId="${this.jobSelected}"
@@ -2115,7 +2115,7 @@ class IvaApp extends LitElement {
                         title="Tool Analysis Executor"
                         icon="fas fa-stream">
                     </tool-header>
-                    <div class="container">
+                    <div class="content">
                         <tool-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </tool-analysis>
@@ -2128,7 +2128,7 @@ class IvaApp extends LitElement {
                         title="Custom Tool Builder"
                         icon="fas fa-stream">
                     </tool-header>
-                    <div class="container">
+                    <div class="content">
                         <custom-tool-builder
                             .opencgaSession="${this.opencgaSession}">
                         </custom-tool-builder>
@@ -2141,7 +2141,7 @@ class IvaApp extends LitElement {
                         title="Organization Admin: ${this.opencgaSession?.user?.organization}"
                         icon="fas fa-sitemap">
                     </tool-header>
-                    <div class="container">
+                    <div class="content">
                         <organization-admin
                             .organization="${this.opencgaSession?.organization}"
                             .opencgaSession="${this.opencgaSession}"
@@ -2153,7 +2153,7 @@ class IvaApp extends LitElement {
                 break;
             case "catalog-admin":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <catalog-admin
                             .opencgaSession="${this.opencgaSession}"
                             @sessionUpdateRequest="${this.onSessionUpdateRequest}">
@@ -2167,7 +2167,7 @@ class IvaApp extends LitElement {
                         title="Study Dashboard"
                         icon="fas fa-rocket">
                     </tool-header>
-                    <div class="container">
+                    <div class="content">
                         <projects-admin
                             .opencgaSession="${this.opencgaSession}"
                             @sessionUpdateRequest="${this.onSessionUpdateRequest}">
@@ -2177,7 +2177,7 @@ class IvaApp extends LitElement {
                 break;
             case "study-admin":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <study-admin
                             .opencgaSession="${this.opencgaSession}"
                             @studyUpdateRequest="${this.onStudyUpdateRequest}">
@@ -2187,7 +2187,7 @@ class IvaApp extends LitElement {
                 break;
             case "study-admin-iva":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <study-admin-iva
                             .organizationId="${this.opencgaSession?.user?.organization}"
                             .opencgaSession="${this.opencgaSession}"
@@ -2199,7 +2199,7 @@ class IvaApp extends LitElement {
                 break;
             case "operations-admin":
                 content = html`
-                    <div class="container">
+                    <div class="content">
                         <operations-admin
                             .organizationId="${this.opencgaSession?.user?.organization}"
                             .study="${this.opencgaSession.study}"
@@ -2215,7 +2215,7 @@ class IvaApp extends LitElement {
                         title="REST API"
                         icon="fas fa-rocket">
                     </tool-header>
-                    <div class="container">
+                    <div class="content">
                         <rest-api
                             .opencgaSession="${this.opencgaSession}">
                         </rest-api>
