@@ -150,94 +150,6 @@ export default class FileDataManager extends LitElement {
     renderStyles() {
         return html`
             <style>
-                /****** file manager ********/
-                .file-manager {
-                    padding: 0;
-                }
-
-                .file-manager > li {
-                    border-radius: 3px;
-                    background-color: #373743;
-                    width: 307px;
-                    height: 118px;
-                    list-style-type: none;
-                    margin: 10px;
-                    display: inline-block;
-                    position: relative;
-                    overflow: hidden;
-                    padding: 0.3em;
-                    z-index: 1;
-                    cursor: pointer;
-                    box-sizing: border-box;
-                    transition: 0.3s background-color;
-                }
-
-                .file-manager li a {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    align-items: center;
-                }
-
-                .file-manager li:hover {
-                    background-color: #42424E;
-                }
-
-                .file-manager li:hover .icon {
-                    color: #286090;
-                }
-
-                .file-manager .icon {
-                    margin: 1em;
-                    background-color: transparent;
-                    overflow: hidden;
-                }
-                .file-manager .content {
-                    width: 210px;
-                }
-
-                .file-manager .name {
-                    color: #ffffff;
-                    font-size: 15px;
-                    font-weight: 700;
-                    line-height: 20px;
-                    word-break: break-all;
-                }
-
-                .file-manager .name .max-lines-2 {
-                    display: -webkit-box;
-                    -webkit-line-clamp: 2;
-                    -webkit-box-orient: vertical;
-                    overflow: hidden;
-                }
-
-                .file-manager .details {
-                    color: #b6c1c9;
-                    font-size: 13px;
-                    font-weight: 400;
-                    width: 55px;
-                    height: 10px;
-                    white-space: nowrap;
-                    display: block;
-                }
-                .file-manager .format {
-                    display: block;
-                    color: #fff;
-                    text-align: center;
-                    margin-top: 3px;
-                    width: 45px;
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                }
-                .file-manager .file.active {
-                    background-color: #3aafdc;
-                    color: white;
-                    outline: thick solid #d0d0d0;
-                }
-
                 .file-manager-tree {
                     border-right: 1px solid gainsboro;
                 }
@@ -385,65 +297,6 @@ export default class FileDataManager extends LitElement {
         return html`<i class="${icon || "fas fa-file"}${size ? ` fa-${size}x` : ""}"></i>`;
     }
 
-    // renderFileManager(root) {
-    //     const children = root.children;
-    //     // debugger
-    //     return html`
-    //         ${this.path(root)}
-    //         <div class="file-manager text-center p-2">
-    //             <div class="row row-cols-5 gap-1">
-    //                 ${children.map(node => {
-    //                     if (node.file.type.toUpperCase() === "DIRECTORY") {
-    //                         return html`${this.folder(node)}`;
-    //                     } else if (["FILE", "VIRTUAL"].includes(node.file.type.toUpperCase())) {
-    //                         return html`${this.file(node)}`;
-    //                     } else {
-    //                         throw new Error("Type not recognized " + node.file.type);
-    //                     }
-    //                 })}
-    //             </div>
-    //         </div>
-    //     `;
-    // }
-
-    folder(node) {
-        return html`
-            <div class="col card mb-3 rounded-3 shadow-sm">
-                <div class="card-body text-center w-100" @click="${() => this.route(node.file.id)}">
-                    <div class="d-flex gap-2 align-items-center">
-                        <span><i class="fas fa-folder fa-4x"></i></span>
-                        <div class="fs-6 text-break p-1" style="width:80%">
-                            ${node.file.name}
-                            <!-- <span class="details">\${node.children.length} items</span> -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    file(node) {
-        return html`
-            <div class="col card mb-3 rounded-3 shadow-sm file ${this.fileId === node.file.id ? "active" : ""}">
-                <div class="card-body text-center w-100" @click="${() => this.onClickFile(node.file.id)}">
-                    <div class="d-flex gap-2 align-items-center">
-                        <div class="d-flex flex-column">
-                            ${this.icon(node.file.format, 4)}
-                            <span>
-                                ${node.file.format !== "UNKNOWN" ? node.file.format : ""}
-                            </span>
-                        </div>
-                        <span class="fs-6 text-break p-3">
-                        ${node.file.name}
-                        <span class="">${UtilsNew.getDiskUsage(node.file.size)}</span>
-                    </span>
-                    </div>
-
-                </div>
-            </div>
-        `;
-    }
-
     path(node) {
         const path = node.file.id.split(":").filter(Boolean);
         return html`
@@ -491,9 +344,6 @@ export default class FileDataManager extends LitElement {
         this.route(path, false);
         this.requestUpdate();
     }
-
-
-
 
     // Nacho
     onCreateFolder() {
