@@ -282,8 +282,9 @@ class IvaApp extends LitElement {
         // eslint-disable-next-line no-undef
         this.version = process.env.VERSION;
 
-        // Initially we load the SUIte config
+        // Initialize app and tool
         this.app = this.getActiveAppConfig();
+        this.tool = "#home";
 
         // We need to listen to hash fragment changes to update the URL
         window.onhashchange = e => {
@@ -293,11 +294,11 @@ class IvaApp extends LitElement {
         };
 
         // Remember the tool that was previously set
-        this.tool = window.location.hash.split("/")[0];
-        if (UtilsNew.isEmpty(this.tool)) {
-            this.tool = "#home";
-            // this.app = null;
-        }
+        // this.tool = window.location.hash.split("/")[0];
+        // if (UtilsNew.isEmpty(this.tool)) {
+        //     this.tool = "#home";
+        //     // this.app = null;
+        // }
 
         // Go to the page that tool has
         // if (window.location.hash !== this.tool) {
@@ -469,7 +470,6 @@ class IvaApp extends LitElement {
                 }
             }
         }
-
         // 2. Init settings
         this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[SETTINGS_NAME].settings);
     }
@@ -557,7 +557,8 @@ class IvaApp extends LitElement {
                 // 2. Set the default active project and study.
                 // 2.1 Check if the user has set a project/study in the URL
                 const [hashTool, hashProject, hashStudy, hashQuery] = window.location.hash.split("/");
-                if (hashProject && hashStudy) {
+                // TODO: REMOVE THIS SECTION --> DO NOT USE HASH TO SET PROJECT AND STUDY
+                if (false && hashProject && hashStudy) {
                     const project = response.projects.find(p => p.id === hashProject);
                     const study = project.studies.find(s => s.id === hashStudy);
                     if (project && study) {
@@ -846,125 +847,161 @@ class IvaApp extends LitElement {
     }
 
     hashFragmentListener() {
-        console.log("hashFragmentListener - Hide all enabled elements");
-
-        // 1. Hide all elements
-        for (const element in this.config.enabledComponents) {
-            if (this.config.enabledComponents[element]) {
-                this.config.enabledComponents[element] = false;
+        console.log("HASH_LISTENER", window.location.hash);
+        this.app = null;
+        this.tool = "not-found";
+        // 0. in case of empty hash fragments, redirect to home tool
+        if (window.location.hash === "" || window.location.hash === "#") {
+            if (this.opencgaSession?.project?.id && this.opencgaSession?.study?.id) {
+                window.location.hash = `home/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+                return;
             }
         }
-
-        // 2. Parse hash fragment URL
-        const [hashTool, hashProject, hashStudy, hashQuery] = window.location.hash.split("/");
-
-        // 3. Processing the actions
-        // NOTE: remove this check: hashTool === "#interpreter" ||
-        if (hashTool !== this.tool) {
-            this.tool = hashTool;
-        }
-
-        // 4. Parse project and study
-        if (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
-            if (hashProject && hashStudy) {
-                this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
-            }
-        }
-
-        // 5. Update location.hash (only if project.id and study.id are defined)
-        if (this.opencgaSession?.project?.id && this.opencgaSession?.study?.id) {
-            // Josemi NOTE 2024-04-25 Added additional check to prevent removing the query section of the url if the tool is interpreter
-            // as we need it tell IVA which clinical analysis should open if user reloads the browser tab.
-            if (hashTool !== "#interpreter") {
-                window.location.hash = `${hashTool || "home"}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
-            }
-        }
-
-        // 6. Parse query fragment in 'featureId'
-        if (hashTool && hashQuery) {
-            const componentId = hashTool.replace("#", "");
-
-            let query = {};
-            // Check if key=value list exist
-            if (hashQuery.includes("=")) {
-                Array.from(new URLSearchParams(hashQuery).entries()).forEach(entry => {
-                    query[entry[0]] = entry[1];
-                });
-            } else {
-                // Default query filter is 'id'
-                query = {id: hashQuery};
-            }
-
-            switch (hashTool) {
-                case "#variant-browser":
-                case "#sample":
-                    this.queries[componentId] = query;
-                    break;
-                case "#gene":
-                    this.gene = hashQuery || null;
-                    break;
-                case "#transcript":
-                    if (hashQuery.startsWith("ENST")) {
-                        this.transcript = hashQuery;
-                    } else {
-                        this.gene = hashQuery;
-                    }
-                    break;
-                case "#protein":
-                    this.protein = hashQuery || null;
-                    break;
-                case "#interpreter":
-                    this.clinicalAnalysisId = hashQuery;
-                    if (!this.clinicalAnalysisId) {
-                        // Redirect to Case Portal when trying to access the interpreter without a valid Clinical Analysis ID
-                        window.location.hash = `#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
-                    }
-                    break;
-                case "#sampleVariantStatsBrowser":
-                case "#sampleCancerVariantStatsBrowser":
-                case "#sampleUpdate":
-                    this.sampleId = hashQuery;
-                    break;
-                case "#fileUpdate":
-                    this.fileId = hashQuery;
-                    break;
-                case "#individualUpdate":
-                    this.individualId = hashQuery;
-                    break;
-                case "#familyUpdate":
-                    this.familyId = hashQuery;
-                    break;
-                case "#study-admin":
-                    // this.studyAdminFqn = arr[1];
-                    const arr = window.location.hash.split("/");
-                    this.changeActiveStudy(arr[1]);
-                    break;
-                case "#diseasePanelUpdate":
-                    this.diseasePanelId = hashQuery;
-                    break;
-                case "#workflow-analysis":
-                    this.workflowId = hashQuery;
-                    break;
-            }
-            // this.requestUpdate();
-        }
-
-        // 7. Enable component
-        console.log("hashFragmentListener - Show enabled element " + this.tool);
-        const componentName = this.tool.replace("#", "");
-        if (this.config.enabledComponents.hasOwnProperty(componentName)) {
-            this.config.enabledComponents[componentName] = true;
+        const hashItems = window.location.hash.replace(/^#/, "").split("/");
+        let hashApp = null, hashTool = null, hashProject = null, hashStudy = null, hashQuery = null;
+        // 1. check if the first hash fragment is an app
+        if (this.config?.apps?.length > 0 && this.config.apps.some(app => app.id === hashItems[0])) {
+            // example: "#research/home/germline/chinese"
+            [hashApp, hashTool, hashProject, hashStudy, hashQuery] = hashItems;
         } else {
-            // If the component does not exist, mark as custom page
-            this.config.enabledComponents["customPage"] = true;
+            // example: "#home/germline/chinese"
+            [hashTool, hashProject, hashStudy, hashQuery] = hashItems;
         }
-
+        // 2. make sure that project and study is in the hash fragment
+        if (!hashProject || !hashStudy) {
+            window.location.hash = [hashApp, hashTool || "home", this.opencgaSession.project.id, this.opencgaSession.study.id].filter(Boolean).join("/");
+            return;
+        }
+        // 3. parse project and study
+        if (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
+            return this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
+        }
+        // 4. save app and tool
+        this.app = (this.config?.apps || []).find(app => app.id === hashApp);
+        this.tool = hashTool;
+        // 5. parse hashQuery
+        if (hashQuery) {
+            // TODO
+        }
+        // 6. update IVA
         this.requestUpdate();
+        // // 1. Hide all elements
+        // for (const element in this.config.enabledComponents) {
+        //     if (this.config.enabledComponents[element]) {
+        //         this.config.enabledComponents[element] = false;
+        //     }
+        // }
 
-        // TODO quickfix to avoid hash browser scroll
-        $("body,html").animate({
-            scrollTop: 0
-        }, 1);
+        // // 2. Parse hash fragment URL
+        // // const [hashTool, hashProject, hashStudy, hashQuery] = window.location.hash.split("/");
+
+        // // 3. Processing the actions
+        // // NOTE: remove this check: hashTool === "#interpreter" ||
+        // if (hashTool !== this.tool) {
+        //     this.tool = hashTool;
+        // }
+
+        // // 4. Parse project and study
+        // if (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
+        //     if (hashProject && hashStudy) {
+        //         this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
+        //     }
+        // }
+
+        // // 5. Update location.hash (only if project.id and study.id are defined)
+        // if (this.opencgaSession?.project?.id && this.opencgaSession?.study?.id) {
+        //     // Josemi NOTE 2024-04-25 Added additional check to prevent removing the query section of the url if the tool is interpreter
+        //     // as we need it tell IVA which clinical analysis should open if user reloads the browser tab.
+        //     if (hashTool !== "#interpreter") {
+        //         window.location.hash = `${hashTool || "home"}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+        //     }
+        // }
+
+        // // 6. Parse query fragment in 'featureId'
+        // if (hashTool && hashQuery) {
+        //     const componentId = hashTool.replace("#", "");
+
+        //     let query = {};
+        //     // Check if key=value list exist
+        //     if (hashQuery.includes("=")) {
+        //         Array.from(new URLSearchParams(hashQuery).entries()).forEach(entry => {
+        //             query[entry[0]] = entry[1];
+        //         });
+        //     } else {
+        //         // Default query filter is 'id'
+        //         query = {id: hashQuery};
+        //     }
+
+        //     switch (hashTool) {
+        //         case "#variant-browser":
+        //         case "#sample":
+        //             this.queries[componentId] = query;
+        //             break;
+        //         case "#gene":
+        //             this.gene = hashQuery || null;
+        //             break;
+        //         case "#transcript":
+        //             if (hashQuery.startsWith("ENST")) {
+        //                 this.transcript = hashQuery;
+        //             } else {
+        //                 this.gene = hashQuery;
+        //             }
+        //             break;
+        //         case "#protein":
+        //             this.protein = hashQuery || null;
+        //             break;
+        //         case "#interpreter":
+        //             this.clinicalAnalysisId = hashQuery;
+        //             if (!this.clinicalAnalysisId) {
+        //                 // Redirect to Case Portal when trying to access the interpreter without a valid Clinical Analysis ID
+        //                 window.location.hash = `#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+        //             }
+        //             break;
+        //         case "#sampleVariantStatsBrowser":
+        //         case "#sampleCancerVariantStatsBrowser":
+        //         case "#sampleUpdate":
+        //             this.sampleId = hashQuery;
+        //             break;
+        //         case "#fileUpdate":
+        //             this.fileId = hashQuery;
+        //             break;
+        //         case "#individualUpdate":
+        //             this.individualId = hashQuery;
+        //             break;
+        //         case "#familyUpdate":
+        //             this.familyId = hashQuery;
+        //             break;
+        //         case "#study-admin":
+        //             // this.studyAdminFqn = arr[1];
+        //             const arr = window.location.hash.split("/");
+        //             this.changeActiveStudy(arr[1]);
+        //             break;
+        //         case "#diseasePanelUpdate":
+        //             this.diseasePanelId = hashQuery;
+        //             break;
+        //         case "#workflow-analysis":
+        //             this.workflowId = hashQuery;
+        //             break;
+        //     }
+        //     // this.requestUpdate();
+        // }
+
+        // // 7. Enable component
+        // console.log("hashFragmentListener - Show enabled element " + this.tool);
+        // const componentName = this.tool.replace("#", "");
+        // if (this.config.enabledComponents.hasOwnProperty(componentName)) {
+        //     this.config.enabledComponents[componentName] = true;
+        // } else {
+        //     // If the component does not exist, mark as custom page
+        //     this.config.enabledComponents["customPage"] = true;
+        // }
+
+        // this.requestUpdate();
+
+        // // TODO quickfix to avoid hash browser scroll
+        // $("body,html").animate({
+        //     scrollTop: 0
+        // }, 1);
     }
 
     onStudySelect(e, study) {
@@ -994,21 +1031,40 @@ class IvaApp extends LitElement {
         }
 
         if (studyFound) {
-            // 1. Update the lastStudy in config iff has changed
+            // 1. Update the lastStudy in config if has changed
             this.opencgaClient.updateUserConfig("IVA", {
                 ...this.opencgaSession.user.configs["IVA"],
                 lastStudy: studyFqn
             });
 
             // 2. Set the new Hash URL
-            let newHashFragmentUrl = this.tool !== "#interpreter" ? this.tool : "#clinicalAnalysisPortal";
-            if (this.opencgaSession?.project) {
-                newHashFragmentUrl += "/" + this.opencgaSession.project.id;
-                if (this.opencgaSession.study) {
-                    newHashFragmentUrl += "/" + this.opencgaSession.study.id;
-                }
+            const hashItems = window.location.hash.replace(/^#/, "").split("/");
+            // 2.1. If the hash fragment only contains one or three items, it is a single tool URL
+            if (hashItems.length === 1 || hashItems.length === 3) {
+                window.location.hash = `${hashItems[0]}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
             }
-            window.location.hash = newHashFragmentUrl;
+            // 2.2 if the hash fragment contains two or more than three items, it is an app/tool URL
+            else if (hashItems.length === 1 || hashItems.length > 3) {
+                // NOTE: if we change current sudy in the interpreter, we must remove the clinical analysis id from the hash fragment
+                // and redirect to case portal
+                const tool = hashItems[1] !== "interpreter" ? hashItems[1] : "clinical-analysis-portal";
+                let newHashFragmentUrl = `${hashItems[0]}/${tool}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+                // add the rest of the items to the hash fragment
+                if (hashItems.length > 4 && hashItems[1] !== "interpreter") {
+                    for (let i = 4; i < hashItems.length; i++) {
+                        newHashFragmentUrl += "/" + hashItems[i];
+                    }
+                }
+                window.location.hash = newHashFragmentUrl;
+            }
+            // let newHashFragmentUrl = this.tool !== "#interpreter" ? this.tool : "#clinicalAnalysisPortal";
+            // if (this.opencgaSession?.project) {
+            //     newHashFragmentUrl += "/" + this.opencgaSession.project.id;
+            //     if (this.opencgaSession.study) {
+            //         newHashFragmentUrl += "/" + this.opencgaSession.study.id;
+            //     }
+            // }
+            // window.location.hash = newHashFragmentUrl;
 
             // 3. Reset queries from old studies
             this.queries = {};
@@ -1236,6 +1292,31 @@ class IvaApp extends LitElement {
 
         // No page found --> Render a not found error page (TODO)
         return html`Not found :-(`;
+    }
+
+    renderTool() {
+        let content = nothing;
+        switch (this.tool) {
+            case "home":
+                content = html`
+                    <div class="d-flex justify-content-center" id="home">
+                        <custom-welcome
+                            .app="${this.app}"
+                            .config="${this.config}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .version="${this.config.version}"
+                            @changeApp="${e => this.onChangeApp(e.detail.e, false)}">
+                        </custom-welcome>
+                    </div>
+                `;                
+                break;
+            case "not-found":
+            default:
+                content = html`
+                    <div align="center">Not found</div>
+                `;
+        }
+        return content;
     }
 
     renderTools() {
@@ -2151,7 +2232,7 @@ class IvaApp extends LitElement {
                                         .description="${"Creating session..."}">
                                     </loading-spinner>
                                 </div>
-                            ` : this.renderTools()}
+                            ` : this.renderTool()}
                         </div>
                         <layout-footer
                             .version="${this.version || ""}"
