@@ -78,9 +78,6 @@ import "../../webcomponents/variant/analysis/opencga-plink-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-gatk-analysis.js";
 import "../../webcomponents/variant/analysis/variant-export-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-variant-stats-exporter-analysis.js";
-import "../../webcomponents/variant/interpretation/variant-interpreter-browser-rd.js";
-import "../../webcomponents/variant/interpretation/variant-interpreter-browser-cancer.js";
-import "../../webcomponents/variant/interpretation/variant-interpreter-browser-rearrangement.js";
 import "../../webcomponents/variant/interpretation/variant-interpreter.js";
 import "../../webcomponents/clinical/analysis/rd-tiering-analysis.js";
 import "../../webcomponents/clinical/analysis/hrdetect-analysis.js";
@@ -869,7 +866,7 @@ class IvaApp extends LitElement {
         }
         // 2. make sure that project and study is in the hash fragment
         if (!hashProject || !hashStudy) {
-            window.location.hash = [hashApp, hashTool || "home", this.opencgaSession.project.id, this.opencgaSession.study.id].filter(Boolean).join("/");
+            window.location.hash = [hashApp, hashTool || "home", this.opencgaSession?.project?.id, this.opencgaSession?.study?.id].filter(Boolean).join("/");
             return;
         }
         // 3. parse project and study
@@ -1299,7 +1296,7 @@ class IvaApp extends LitElement {
         switch (this.tool) {
             case "home":
                 content = html`
-                    <div class="d-flex justify-content-center" id="home">
+                    <div class="d-flex justify-content-center">
                         <custom-welcome
                             .app="${this.app}"
                             .config="${this.config}"
@@ -1310,462 +1307,400 @@ class IvaApp extends LitElement {
                     </div>
                 `;                
                 break;
-            case "not-found":
-            default:
+            case "dahsboard":
                 content = html`
-                    <div align="center">Not found</div>
+                    <div class="d-flex justify-content-center">
+                        <span>Dashboard</span>
+                    </div>
                 `;
-        }
-        return content;
-    }
-
-    renderTools() {
-        return html`
-            <div class="w-full">
-                ${!this.isCreatingSession ? html`
-                    ${this.config.enabledComponents.home ? html`
-                        <div class="d-flex justify-content-center" id="home">
-                            <custom-welcome
-                                .app="${this.app}"
-                                .config="${this.config}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .version="${this.config.version}"
-                                @changeApp="${e => this.onChangeApp(e.detail.e, false)}">
-                            </custom-welcome>
-                        </div>
-                    ` : nothing}
-
-                    <!-- Render custom page content if enabled -->
-                    ${this.config.enabledComponents.customPage ? this.renderCustomPage() : nothing}
-
-                    ${this.config.enabledComponents.terms ? html`
-                        <div class="content" id="terms">
-                            <terms-web version="${this.config.version}"></terms-web>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.contact ? html`
-                        <div class="content" id="contact">
-                            <contact-web version="${this.config.version}"></contact-web>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.faq ? html`
-                        <div class="content" id="faq">
-                            <faq-web version="${this.config.version}"></faq-web>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.gettingstarted ? html`
-                        <div class="content" id="getting-started">
-                            <getting-started .opencgaSession="${this.opencgaSession}" .config="${this.config}"></getting-started>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents?.aboutzetta ? html`
-                        <div class="content" id="faq">
-                            <custom-page
-                                .page="${this.config.aboutPage}"
-                                .opencgaSession="${this.opencgaSession}">
-                            </custom-page>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["variant-browser"] ? html`
-                        <div class="content" id="variant-browser">
-                            <variant-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .reactomeClient="${this.reactomeClient}"
-                                .query="${this.queries["variant-browser"]}"
-                                .settings="${this.settings.VARIANT_BROWSER}"
-                                .consequenceTypes="${this.config.consequenceTypes}"
-                                .populationFrequencies="${this.config.populationFrequencies}"
-                                .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                @onGene="${this.geneSelected}"
-                                @onSamplechange="${this.onSampleChange}"
-                                @querySearch="${e => this.onQueryFilterSearch(e, "variant-browser")}"
-                                onqueryChange="${e => this.onQueryChange(e, "variant")}"
-                                @activeFilterChange="${e => this.onQueryFilterSearch(e, "variant-browser")}">
-                            </variant-browser>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["clinicalAnalysisPortal"] ? html`
-                        <div class="content" id="clinicalAnalysisPortal">
-                            <clinical-analysis-portal
-                                .opencgaSession="${this.opencgaSession}"
-                                .settings="${this.settings.CLINICAL_ANALYSIS_PORTAL_BROWSER}"
-                                @sessionPanelUpdate="${this.onSessionPanelUpdate}">
-                            </clinical-analysis-portal>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["rga"] ? html`
-                        <div class="content" id="rga">
-                            <rga-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .settings="${this.settings.RGA_BROWSER}">
-                            </rga-browser>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["rd-interpreter"] ? html`
-                        <div class="content" id="rd-interpreter">
-                            <variant-rd-interpreter
-                                .opencgaSession="${this.opencgaSession}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .clinicalAnalysisId="${this.clinicalAnalysisId}"
-                                .query="${this.interpretationSearchQuery}"
-                                .consequenceTypes="${this.config.consequenceTypes}"
-                                .populationFrequencies="${this.config.populationFrequencies}"
-                                .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                .config="${true}"
-                                @gene="${this.geneSelected}"
-                                @samplechange="${this.onSampleChange}">
-                            </variant-rd-interpreter>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["cancer-interpreter"] ? html`
-                        <div class="content" id="cancer-interpreter">
-                            <variant-cancer-interpreter
-                                .opencgaSession="${this.opencgaSession}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .clinicalAnalysisId="${this.clinicalAnalysisId}"
-                                .query="${this.interpretationSearchQuery}"
-                                .consequenceTypes="${this.config.consequenceTypes}"
-                                .populationFrequencies="${this.config.populationFrequencies}"
-                                .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                @gene="${this.geneSelected}"
-                                @samplechange="${this.onSampleChange}">
-                            </variant-cancer-interpreter>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.beacon ? html`
-                        <div class="content" id="beacon">
-                            <variant-beacon .opencgaSession="${this.opencgaSession}">
-                            </variant-beacon>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.genomeBrowser ? html`
-                        <div class="content" id="genomeBrowser">
-                            Not available yet...
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.sample ? html`
-                        <div class="content" id="sample">
-                            <sample-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .query="${this.queries.sample}"
-                                .settings="${this.settings.SAMPLE_BROWSER}"
-                                @querySearch="${e => this.onQueryFilterSearch(e, "sample")}"
-                                @activeFilterChange="${e => this.onQueryFilterSearch(e, "sample")}">
-                            </sample-browser>
-                        </div>
-                    ` : nothing}
-
-
-                    ${this.config.enabledComponents.panel ? html`
-                        <div class="content" id="panel">
-                            <opencga-panel-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .opencgaClient="${this.opencgaClient}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .eventNotifyName="${this.config.notifyEventMessage}"
-                                @notifymessage="${this.onNotifyMessage}">
-                            </opencga-panel-browser>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.file ? html`
-                        <div class="content" id="file">
-                            <file-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .query="${this.queries.file}"
-                                .settings="${this.settings.FILE_BROWSER}"
-                                @querySearch="${e => this.onQueryFilterSearch(e, "file")}"
-                                @activeFilterChange="${e => this.onQueryFilterSearch(e, "file")}">
-                            </file-browser>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["disease-panel"] ? html`
-                        <div class="content" id="disease-panel">
-                            <disease-panel-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .query="${this.queries["disease-panel"]}"
-                                .settings="${this.settings.DISEASE_PANEL_BROWSER}"
-                                @querySearch="${e => this.onQueryFilterSearch(e, "disease-panel")}"
-                                @activeFilterChange="${e => this.onQueryFilterSearch(e, "disease-panel")}">
-                            </disease-panel-browser>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["diseasePanelUpdate"] ? html`
-                        <div class="content" id="disease-panel">
-                            <disease-panel-update
-                                .diseasePanelId="${this.diseasePanelId}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .displayConfig=${
-                                    {
-                                        showBtnSampleBrowser: true,
-                                        width: "10",
-                                        style: "margin: 10px",
-                                        labelWidth: 3,
-                                        labelAlign: "right",
-                                        defaultLayout: "horizontal",
-                                        defaultValue: "",
-                                        help: {
-                                            mode: "block" // icon
-                                        }
+                break;
+            case "aoutzetta":
+            case "about":
+                content = html`
+                    <div class="content">
+                        <custom-page
+                            .page="${this.config.aboutPage}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </custom-page>
+                    </div>
+                `;
+                break;
+            case "variant-browser":
+                content = html`
+                    <div class="content">
+                        <variant-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
+                            .reactomeClient="${this.reactomeClient}"
+                            .query="${this.queries["variant-browser"]}"
+                            .settings="${this.settings.VARIANT_BROWSER}"
+                            .consequenceTypes="${this.config.consequenceTypes}"
+                            .populationFrequencies="${this.config.populationFrequencies}"
+                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                            @onGene="${this.geneSelected}"
+                            @onSamplechange="${this.onSampleChange}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "variant-browser")}"
+                            onqueryChange="${e => this.onQueryChange(e, "variant")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "variant-browser")}">
+                        </variant-browser>
+                    </div>
+                `;
+                break;
+            case "clinical-analysis-portal":
+            case "clinicalAnalysisPortal":
+                content = html`
+                    <div class="content">
+                        <clinical-analysis-portal
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${this.settings.CLINICAL_ANALYSIS_PORTAL_BROWSER}"
+                            @sessionPanelUpdate="${this.onSessionPanelUpdate}">
+                        </clinical-analysis-portal>
+                    </div>
+                `;
+                break;
+            case "rga":
+                content = html`
+                    <div class="content">
+                        <rga-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
+                            .settings="${this.settings.RGA_BROWSER}">
+                        </rga-browser>
+                    </div>
+                `;
+                break;
+            case "beacon":
+                content = html`
+                    <div class="content">
+                        <variant-beacon .opencgaSession="${this.opencgaSession}">
+                        </variant-beacon>
+                    </div>
+                `;
+                break;
+            case "sample":
+            case "sample-browser":
+                content = html`
+                    <div class="content">
+                        <sample-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.sample}"
+                            .settings="${this.settings.SAMPLE_BROWSER}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "sample")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "sample")}">
+                        </sample-browser>
+                    </div>
+                `;
+                break;
+            case "sampleUpdate":
+            case "sample-update":
+                content = html`
+                    <tool-header
+                        title="${`Sample <span class="inverse"> ${this.sampleId} </span>` }"
+                        icon="fas fa-vial icon-padding">
+                    </tool-header>
+                    <div class="content">
+                        <sample-update
+                            .sampleId="${this.sampleId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
                                     }
-                                }>
-                            </disease-panel-update>
-                        </div>
-                    ` : nothing}
-
-                    <!--todo check-->
-                    ${this.config.enabledComponents["sample-view"] ? html`
-                        <div class="content" id="sample-view">
-                            <opencga-sample-view
-                                .opencgaSession="${this.opencgaSession}"
-                                .config="${this.config.sampleView}">
-                            </opencga-sample-view>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["fileUpdate"] ? html`
-                        <tool-header title="${`File <span class="inverse"> ${this.fileId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
-                        <div class="content" id="fileUpdate">
-                            <file-update
-                                .fileId="${this.fileId}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .displayConfig=${
-                                    {
-                                        showBtnSampleBrowser: true,
-                                        width: "10",
-                                        style: "margin: 10px",
-                                        labelWidth: 3,
-                                        labelAlign: "right",
-                                        defaultLayout: "horizontal",
-                                        defaultValue: "",
-                                        help: {
-                                            mode: "block" // icon
-                                        }
+                                }
+                            }>
+                        </sample-update>
+                    </div>
+                `;
+                break;
+            case "disease-panel":
+            case "disease-panel-browser":
+                content = html`
+                    <div class="content">
+                        <disease-panel-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
+                            .query="${this.queries["disease-panel"]}"
+                            .settings="${this.settings.DISEASE_PANEL_BROWSER}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "disease-panel")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "disease-panel")}">
+                        </disease-panel-browser>
+                    </div>
+                `;
+                break;
+            case "diseasePanelUpdate":
+            case "disease-panel-update":
+                content = html`
+                    <div class="content">
+                        <disease-panel-update
+                            .diseasePanelId="${this.diseasePanelId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
                                     }
-                                }>
-                            </file-update>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["sampleUpdate"] ? html`
-                        <tool-header title="${`Sample <span class="inverse"> ${this.sampleId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
-                        <div class="content" id="sampleUpdate">
-                            <sample-update
-                                .sampleId="${this.sampleId}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .displayConfig=${
-                                    {
-                                        showBtnSampleBrowser: true,
-                                        width: "10",
-                                        style: "margin: 10px",
-                                        labelWidth: 3,
-                                        labelAlign: "right",
-                                        defaultLayout: "horizontal",
-                                        defaultValue: "",
-                                        help: {
-                                            mode: "block" // icon
-                                        }
+                                }
+                            }>
+                        </disease-panel-update>
+                    </div>
+                `;
+                break;
+            case "file":
+            case "file-browser":
+                content = html`
+                    <div class="content">
+                        <file-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.file}"
+                            .settings="${this.settings.FILE_BROWSER}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "file")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "file")}">
+                        </file-browser>
+                    </div>
+                `;
+                break;
+            case "fileUpdate":
+            case "file-update":
+                content = html`
+                    <tool-header
+                        title="${`File <span class="inverse"> ${this.fileId} </span>` }"
+                        icon="fas fa-vial icon-padding">
+                    </tool-header>
+                    <div class="content">
+                        <file-update
+                            .fileId="${this.fileId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
                                     }
-                                }>
-                            </sample-update>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["individualUpdate"] ? html`
-                        <tool-header title="${`Individual <span class="inverse"> ${this.individualId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
-                        <div class="content" id="individualUpdate">
-                            <individual-update
-                                .individualId="${this.individualId}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .displayConfig=${
-                                    {
-                                        showBtnSampleBrowser: true,
-                                        width: "10",
-                                        style: "margin: 10px",
-                                        labelWidth: 3,
-                                        labelAlign: "right",
-                                        defaultLayout: "horizontal",
-                                        defaultValue: "",
-                                        help: {
-                                            mode: "block" // icon
-                                        }
+                                }
+                            }>
+                        </file-update>
+                    </div>
+                `;
+                break;
+            case "individual":
+            case "individual-browser":
+                content = html`
+                    <div class="content">
+                        <individual-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.individual}"
+                            .settings="${this.settings.INDIVIDUAL_BROWSER}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "individual")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "individual")}">
+                        </individual-browser>
+                    </div>
+                `;
+                break;
+            case "individualUpdate":
+            case "individual-update":
+                content = html`
+                    <tool-header
+                        title="${`Individual <span class="inverse"> ${this.individualId} </span>` }"
+                        icon="fas fa-vial icon-padding">
+                    </tool-header>
+                    <div class="content">
+                        <individual-update
+                            .individualId="${this.individualId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
                                     }
-                                }>
-                            </individual-update>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["familyUpdate"] ? html`
-                        <tool-header title="${`Family <span class="inverse"> ${this.familyId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
-                        <div class="content" id="familyUpdate">
-                            <family-update
-                                .familyId="${this.familyId}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .displayConfig=${
-                                    {
-                                        showBtnSampleBrowser: true,
-                                        width: "10",
-                                        style: "margin: 10px",
-                                        labelWidth: 3,
-                                        labelAlign: "right",
-                                        defaultLayout: "horizontal",
-                                        defaultValue: "",
-                                        help: {
-                                            mode: "block" // icon
-                                        }
+                                }
+                            }>
+                        </individual-update>
+                    </div>
+                `;
+                break;
+            case "family":
+            case "family-browser":
+                content = html`
+                    <div class="content">
+                        <family-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.family}"
+                            .settings="${this.settings.FAMILY_BROWSER}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "family")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "family")}">
+                        </family-browser>
+                    </div>
+                `;
+                break;
+            case "familyUpdate":
+            case "family-update":
+                content = html`
+                    <tool-header
+                        title="${`Family <span class="inverse"> ${this.familyId} </span>` }"
+                        icon="fas fa-vial icon-padding">
+                    </tool-header>
+                    <div class="content">
+                        <family-update
+                            .familyId="${this.familyId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
                                     }
-                                }>
-                            </family-update>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.gene ? html`
-                        <div class="content" id="gene">
-                            <opencga-gene-view
-                                .opencgaSession="${this.opencgaSession}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .geneId="${this.gene}"
-                                .populationFrequencies="${this.config.populationFrequencies}"
-                                .consequenceTypes="${this.config.consequenceTypes}"
-                                .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                .settings="${OPENCGA_GENE_VIEW_SETTINGS}"
-                                .summary="${this.config.opencga.summary}"
-                                @querySearch="${e => this.onQueryFilterSearch(e, "variant")}">
-                            </opencga-gene-view>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.transcript ? html`
-                        <div class="content feature-view" id="transcript">
-                            <opencga-transcript-view
-                                .opencgaSession="${this.opencgaSession}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .opencgaClient="${this.opencgaClient}"
-                                .transcript="${this.transcript}"
-                                .gene="${this.gene}"
-                                .populationFrequencies="${this.config.populationFrequencies}"
-                                .consequenceTypes="${this.config.consequenceTypes}"
-                                .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
-                            </opencga-transcript-view>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.protein ? html`
-                        <div class="content feature-view" id="protein">
-                            <opencga-protein-view
-                                .opencgaSession="${this.opencgaSession}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .opencgaClient="${this.opencgaClient}"
-                                .project="${this.opencgaSession.project}"
-                                .study="${this.opencgaSession.study}"
-                                .protein="${this.protein}"
-                                .populationFrequencies="${this.config.populationFrequencies}"
-                                .consequenceTypes="${this.config.consequenceTypes}"
-                                .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
-                            </opencga-protein-view>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.individual ? html`
-                        <div class="content" id="individual">
-                            <individual-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .query="${this.queries.individual}"
-                                .settings="${this.settings.INDIVIDUAL_BROWSER}"
-                                @querySearch="${e => this.onQueryFilterSearch(e, "individual")}"
-                                @activeFilterChange="${e => this.onQueryFilterSearch(e, "individual")}">
-                            </individual-browser>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.family ? html`
-                        <div class="content" id="family">
-                            <family-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .query="${this.queries.family}"
-                                .settings="${this.settings.FAMILY_BROWSER}"
-                                @querySearch="${e => this.onQueryFilterSearch(e, "family")}"
-                                @activeFilterChange="${e => this.onQueryFilterSearch(e, "family")}">
-                            </family-browser>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.cohort ? html`
-                        <div class="content" id="cohort">
-                            <cohort-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .query="${this.queries.cohort}"
-                                .settings="${this.settings.COHORT_BROWSER}"
-                                @querySearch="${e => this.onQueryFilterSearch(e, "cohort")}"
-                                @activeFilterChange="${e => this.onQueryFilterSearch(e, "cohort")}">
-                            </cohort-browser>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.clinicalAnalysis ? html`
-                        <div class="content" id="clinicalAnalysis">
-                            <clinical-analysis-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .settings="${this.settings.CLINICAL_ANALYSIS_BROWSER}"
-                                .config="${{componentId: "clinicalAnalysisBrowserCatalog"}}"
-                                .query="${this.queries["clinical-analysis"]}"
-                                @querySearch="${e => this.onQueryFilterSearch(e, "clinical-analysis")}"
-                                @activeFilterChange="${e => this.onQueryFilterSearch(e, "clinical-analysis")}">
-                            </clinical-analysis-browser>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.job ? html`
-                        <div class="content" id="job">
-                            <job-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .settings= ${this.settings.JOB_BROWSER}
-                                .query="${this.queries.job}"
-                                @querySearch="${e => this.onQueryFilterSearch(e, "job")}"
-                                @activeFilterChange="${e => this.onQueryFilterSearch(e, "job")}">
-                            </job-browser>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["note-browser"] ? html`
-                        <div class="content" id="note-browser">
-                            <note-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .query="${this.queries["note-browser"]}"
-                                .settings="${this.settings.NOTE_BROWSER}"
-                                @querySearch="${e => this.onQueryFilterSearch(e, "note-browser")}">
-                            </note-browser>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["cat-browser"] ? html`
-                        <div class="content" id="cat-browser">
-                            <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "variant-browser")}">
-                            </category-page>
-                        </div>
-                    ` : nothing}
-                ${this.config.enabledComponents.workflow ? html`
-                    <div class="content" id="workflow">
+                                }
+                            }>
+                        </family-update>
+                    </div>
+                `;
+                break;
+            case "gene":
+                content = html`
+                    <div class="content">
+                        <opencga-gene-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
+                            .geneId="${this.gene}"
+                            .populationFrequencies="${this.config.populationFrequencies}"
+                            .consequenceTypes="${this.config.consequenceTypes}"
+                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}"
+                            .summary="${this.config.opencga.summary}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "variant")}">
+                        </opencga-gene-view>
+                    </div>
+                `;
+                break;
+            case "transcript":
+                content = html`
+                    <div class="content">
+                        <opencga-transcript-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
+                            .opencgaClient="${this.opencgaClient}"
+                            .transcript="${this.transcript}"
+                            .gene="${this.gene}"
+                            .populationFrequencies="${this.config.populationFrequencies}"
+                            .consequenceTypes="${this.config.consequenceTypes}"
+                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
+                        </opencga-transcript-view>
+                    </div>
+                `;
+                break;
+            case "protein":
+                content = html`
+                    <div class="content">
+                        <opencga-protein-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
+                            .opencgaClient="${this.opencgaClient || this.opencgaSession.opencgaClient}"
+                            .project="${this.opencgaSession.project}"
+                            .study="${this.opencgaSession.study}"
+                            .protein="${this.protein}"
+                            .populationFrequencies="${this.config.populationFrequencies}"
+                            .consequenceTypes="${this.config.consequenceTypes}"
+                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
+                        </opencga-protein-view>
+                    </div>
+                `;
+                break;
+            case "cohort":
+            case "cohort-browser":
+                content = html`
+                    <div class="content">
+                        <cohort-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.cohort}"
+                            .settings="${this.settings.COHORT_BROWSER}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "cohort")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "cohort")}">
+                        </cohort-browser>
+                    </div>
+                `;
+                break;
+            case "clinical-analysis":
+            case "clinicalAnalysis":
+            case "clinical-analysis-browser":
+                content = html`
+                    <div class="content">
+                        <clinical-analysis-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${this.settings.CLINICAL_ANALYSIS_BROWSER}"
+                            .config="${{componentId: "clinicalAnalysisBrowserCatalog"}}"
+                            .query="${this.queries["clinical-analysis"]}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "clinical-analysis")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "clinical-analysis")}">
+                        </clinical-analysis-browser>
+                    </div>
+                `;
+                break;
+            case "job":
+            case "job-browser":
+                content = html`
+                    <div class="content">
+                        <job-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings= ${this.settings.JOB_BROWSER}
+                            .query="${this.queries.job}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "job")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "job")}">
+                        </job-browser>
+                    </div>
+                `;
+                break;
+            case "note-browser":
+                content = html`
+                    <div class="content">
+                        <note-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries["note-browser"]}"
+                            .settings="${this.settings.NOTE_BROWSER}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "note-browser")}">
+                        </note-browser>
+                    </div>
+                `;
+                break;
+            case "workflow-browser":
+                content = html`
+                    <div class="content">
                         <workflow-browser
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.queries.workflow}"
@@ -1774,419 +1709,535 @@ class IvaApp extends LitElement {
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "workflow")}">
                         </workflow-browser>
                     </div>
-                ` : nothing}
-
-                ${this.config.enabledComponents["workflow-manager"] ? html`
-                    <tool-header title="Workflow Manager" icon="fas fa-stream"></tool-header>
-                    <div class="container py-3" id="workflow-manager">
+                `;
+                break;
+            case "workflow-manager":
+                content = html`
+                    <tool-header
+                        title="Workflow Manager"
+                        icon="fas fa-stream">
+                    </tool-header>
+                    <div class="container">
                         <workflow-manager
                             .opencgaSession="${this.opencgaSession}">
                         </workflow-manager>
                     </div>
-                ` : nothing}
-
-                ${this.config.enabledComponents["workflow-analysis"] ? html`
-                    <tool-header title="Workflow Analysis Executor" icon="fas fa-stream"></tool-header>
-                    <div class="container py-3" id="workflow-analysis">
+                `;
+                break;
+            case "workflow-analysis":
+                content = html`
+                    <tool-header
+                        title="Workflow Analysis Executor"
+                        icon="fas fa-stream">
+                    </tool-header>
+                    <div class="container">
                         <workflow-analysis
                             .toolParams="${{id: this.workflowId}}"
                             .opencgaSession="${this.opencgaSession}">
                         </workflow-analysis>
                     </div>
-                ` : nothing}
-
-                ${this.config.enabledComponents["cat-browser"] ? html`
-                    <div class="content" id="cat-browser">
-                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "variant-browser")}">
+                `;
+                break;
+            case "cat-browser":
+                content = html`
+                    <div class="content">
+                        <category-page
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.app?.menu?.find(item => item.id === "variant-browser")}">
                         </category-page>
                     </div>
-                ` : nothing}
-
-                    ${this.config.enabledComponents["cat-analysis"] ? html`
-                        <div class="content" id="cat-analysis">
-                            <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "analysis")}">
-                            </category-page>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["cat-clinical"] ? html`
-                        <div class="content" id="cat-clinical">
-                            <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "clinical")}">
-                            </category-page>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["cat-tools"] ? html`
-                        <div class="content" id="cat-tools">
-                            <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "tools")}">
-                            </category-page>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["cat-catalog"] ? html`
-                        <div class="content" id="cat-catalog">
-                            <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "catalog")}">
-                            </category-page>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["cat-alignment"] ? html`
-                        <div class="content" id="cat-alignment">
-                            <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "alignment")}">
-                            </category-page>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["cat-ga4gh"] ? html`
-                        <div class="content" id="cat-ga4gh">
-                            <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "ga4gh")}">
-                            </category-page>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["sampleVariantStatsBrowser"] ? html`
-                        <div class="content" id="sampleVariantStatsBrowser">
-                            <sample-variant-stats-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .sampleId="${this.sampleId}"
-                                .active="${true}"
-                                .settings="${{...VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS, showTitle: true}}">
-                            </sample-variant-stats-browser>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["sampleCancerVariantStatsBrowser"] ? html`
-                        <div class="content" id="sampleCancerVariantStatsBrowser">
-                            <sample-cancer-variant-stats-browser .opencgaSession="${this.opencgaSession}" .sampleId="${this.sampleId}" .active="${true}"></sample-cancer-variant-stats-browser>
-                        </div>
-                    ` : nothing}
-
-                ${this.config.enabledComponents["sample-variant-stats"] ? html`
-                    <tool-header title="Sample Variant Stats Analysis" icon="fas fa-stream"></tool-header>
-                    <div class="container py-3" id="sample-variant-stats-analysis">
+                `;
+                break;
+            case "cat-analysis":
+                content = html`
+                    <div class="content">
+                        <category-page
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.app?.menu?.find(item => item.id === "analysis")}">
+                        </category-page>
+                    </div>
+                `;
+                break;
+            case "cat-clinical":
+                content = html`
+                    <div class="content">
+                        <category-page
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.app?.menu?.find(item => item.id === "clinical")}">
+                        </category-page>
+                    </div>
+                `;
+                break;
+            case "cat-tools":
+                content = html`
+                    <div class="content">
+                        <category-page
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.app?.menu?.find(item => item.id === "tools")}">
+                        </category-page>
+                    </div>
+                `;
+                break;
+            case "cat-catalog":
+                content = html`
+                    <div class="content">
+                        <category-page
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.app?.menu?.find(item => item.id === "catalog")}">
+                        </category-page>
+                    </div>
+                `;
+                break;
+            case "cat-alignment":
+                content = html`
+                    <div class="content">
+                        <category-page
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.app?.menu?.find(item => item.id === "alignment")}">
+                        </category-page>
+                    </div>
+                `;
+            case "cat-ga4gh":
+                content = html`
+                    <div class="content">
+                        <category-page
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.app?.menu?.find(item => item.id === "ga4gh")}">
+                        </category-page>
+                    </div>
+                `;
+                break;
+            case "sampleVariantStatsBrowser":
+            case "sample-variant-stats-browser":
+                content = html`
+                    <div class="content">
+                        <sample-variant-stats-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .sampleId="${this.sampleId}"
+                            .active="${true}"
+                            .settings="${{...VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS, showTitle: true}}">
+                        </sample-variant-stats-browser>
+                    </div>
+                `;
+                break;
+            case "sample-variant-stats":
+                content = html`
+                    <tool-header
+                        title="Sample Variant Stats Analysis"
+                        icon="fas fa-stream">
+                    </tool-header>
+                    <div class="container">
                         <sample-variant-stats-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </sample-variant-stats-analysis>
                     </div>
-                ` : nothing}
-
-                ${this.config.enabledComponents["cohort-variant-stats"] ? html`
-                    <tool-header title="Cohort Variant Stats Analysis" icon="fas fa-stream"></tool-header>
-                    <div class="container py-3" id="cohort-variant-stats-analysis">
+                `;
+                break;
+            case "cohort-variant-stats":
+                content = html`
+                    <tool-header
+                        title="Cohort Variant Stats Analysis"
+                        icon="fas fa-stream">
+                    </tool-header>
+                    <div class="container">
                         <cohort-variant-stats-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </cohort-variant-stats-analysis>
                     </div>
-                ` : nothing}
-
-                    ${this.config.enabledComponents["eligibility"] ? html`
-                        <div class="content" id="opencga-variant-eligibility-analysis">
-                            <opencga-variant-eligibility-analysis .opencgaSession="${this.opencgaSession}"></opencga-variant-eligibility-analysis>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["sample-eligibility"] ? html`
-                        <div class="container py-3" id="sample-eligibility-analysis">
-                            <sample-eligibility-analysis
-                                .opencgaSession="${this.opencgaSession}">
-                            </sample-eligibility-analysis>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["knockout"] ? html`
-                        <div class="container py-3" id="knockout-analysis">
-                            <knockout-analysis
-                                .opencgaSession="${this.opencgaSession}">
-                            </knockout-analysis>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["inferred-sex"] ? html`
-                        <div class="container py-3" id="inferred-sex-analysis">
-                            <inferred-sex-analysis
-                                .opencgaSession="${this.opencgaSession}"
-                                .config=${{title: ""}}>
-                            </inferred-sex-analysis>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["individual-relatedness"] ? html`
-                        <div class="container py-3" id="individual-relatedness-analysis">
-                            <individual-relatedness-analysis
-                                .opencgaSession="${this.opencgaSession}"
-                                .config=${{title: ""}}>
-                            </individual-relatedness-analysis>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["mendelian-error"] ? html`
-                        <div class="container py-3" id="mendelian-error-analysis">
-                            <mendelian-error-analysis .opencgaSession="${this.opencgaSession}"></mendelian-error-analysis>
-                        </div>
-                    ` : nothing}
-
-                ${this.config.enabledComponents["sample-qc"] ? html`
-                    <tool-header title="Sample QC Analysis" icon="fas fa-stream"></tool-header>
-                    <div class="container py-3" id="sample-qc-analysis">
+                `;
+                break;
+            case "eligibility":
+                content = html`
+                    <div class="container">
+                        <opencga-variant-eligibility-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </opencga-variant-eligibility-analysis>
+                    </div>
+                `;
+                break;
+            case "sample-eligibility":
+                content = html`
+                    <div class="container">
+                        <sample-eligibility-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </sample-eligibility-analysis>
+                    </div>
+                `;
+                break;
+            case "knockout":
+                content = html`
+                    <div class="container">
+                        <knockout-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </knockout-analysis>
+                    </div>
+                `;
+                break;
+            case "inferred-sex":
+                content = html`
+                    <div class="container">
+                        <inferred-sex-analysis
+                            .opencgaSession="${this.opencgaSession}"
+                            .config=${{title: ""}}>
+                        </inferred-sex-analysis>
+                    </div>
+                `;
+                break;
+            case "individual-relatedness":
+                content = html`
+                    <div class="container">
+                        <individual-relatedness-analysis
+                            .opencgaSession="${this.opencgaSession}"
+                            .config=${{title: ""}}>
+                        </individual-relatedness-analysis>
+                    </div>
+                `;
+                break;
+            case "mendelian-error":
+                content = html`
+                    <div class="container">
+                        <mendelian-error-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </mendelian-error-analysis>
+                    </div>
+                `;
+                break;
+            case "sample-qc":
+                content = html`
+                    <tool-header
+                        title="Sample QC Analysis"
+                        icon="fas fa-stream">
+                    </tool-header>
+                    <div class="container">
                         <sample-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .config=${{title: ""}}>
                         </sample-qc-analysis>
                     </div>
-                ` : nothing}
-
-                ${this.config.enabledComponents["individual-qc"] ? html`
-                    <tool-header title="Individual QC Analysis" icon="fas fa-stream"></tool-header>
-                    <div class="container py-3" id="individual-qc-analysis">
+                `;
+                break;
+            case "individual-qc":
+                content = html`
+                    <tool-header
+                        title="Individual QC Analysis"
+                        icon="fas fa-stream">
+                    </tool-header>
+                    <div class="container">
                         <individual-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .config=${{title: ""}}>
                         </individual-qc-analysis>
                     </div>
-                ` : nothing}
-
-                ${this.config.enabledComponents["family-qc"] ? html`
-                    <tool-header title="Family QC Analysis" icon="fas fa-stream"></tool-header>
-                    <div class="container py-3" id="family-qc-analysis">
+                `;
+                break;
+            case "family-qc":
+                content = html`
+                    <tool-header
+                        title="Family QC Analysis"
+                        icon="fas fa-stream">
+                    </tool-header>
+                    <div class="container">
                         <family-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .config=${{title: ""}}>
                         </family-qc-analysis>
                     </div>
-                ` : nothing}
-
-                    ${this.config.enabledComponents["plink"] ? html`
-                        <div class="content" id="opencga-plink-analysis">
-                            <opencga-plink-analysis .opencgaSession="${this.opencgaSession}"></opencga-plink-analysis>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["gatk"] ? html`
-                        <div class="content" id="opencga-gatk-analysis">
-                            <opencga-gatk-analysis .opencgaSession="${this.opencgaSession}"></opencga-gatk-analysis>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["variant-export"] ? html`
-                        <div class="container py-3" id="variant-export-analysis">
-                            <variant-export-analysis .opencgaSession="${this.opencgaSession}"></variant-export-analysis>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["variant-stats-exporter"] ? html`
-                        <div id="opencga-variant-stats-exporter-analysis">
-                            <opencga-variant-stats-exporter-analysis
-                                .opencgaSession="${this.opencgaSession}">
-                            </opencga-variant-stats-exporter-analysis>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["mutational-signature"] ? html`
-                        <div class="container py-3" id="mutational-signature-analysis">
-                            <mutational-signature-analysis
-                                .opencgaSession="${this.opencgaSession}">
-                            </mutational-signature-analysis>
-                        </div>
-                    ` : nothing}
-
-                ${this.config.enabledComponents["gwas"] ? html`
-                    <tool-header title="GWAS Analysis" icon="fas fa-stream"></tool-header>
-                    <div class="container py-3" id="gwas-analysis">
+                `;
+                break;
+            case "plink":
+                content = html`
+                    <div class="container">
+                        <opencga-plink-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </opencga-plink-analysis>
+                    </div>
+                `;
+                break;
+            case "gatk":
+                content = html`
+                    <div class="container">
+                        <opencga-gatk-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </opencga-gatk-analysis>
+                    </div>
+                `;
+                break;
+            case "variant-export":
+                content = html`
+                    <div class="container">
+                        <variant-export-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </variant-export-analysis>
+                    </div>
+                `;
+                break;
+            case "variant-stats-exporter":
+                content = html`
+                    <div class="container">
+                        <opencga-variant-stats-exporter-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </opencga-variant-stats-exporter-analysis>
+                    </div>
+                `;
+                break;
+            case "mutational-signature":
+                content = html`
+                    <div class="container">
+                        <mutational-signature-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </mutational-signature-analysis>
+                    </div>
+                `;
+                break;
+            case "gwas":
+                content = html`
+                    <tool-header
+                        title="GWAS Analysis"
+                        icon="fas fa-stream">
+                    </tool-header>
+                    <div class="container">
                         <gwas-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </gwas-analysis>
                     </div>
-                ` : nothing}
-
-                    ${this.config.enabledComponents["rd-tiering"] ? html`
-                        <div class="container py-3" id="rd-tiering-analysis">
-                            <rd-tiering-analysis
-                                .opencgaSession="${this.opencgaSession}">
-                            </rd-tiering-analysis>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["clinical-analysis-create"] ? html`
-                        <tool-header title="${"Create Case"}" icon="${"fas fa-window-restore"}"></tool-header>
-                        <div class="content container" id="opencga-clinical-analysis-create">
-                            <clinical-analysis-create
-                                .opencgaSession="${this.opencgaSession}"
-                                @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
-                            </clinical-analysis-create>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.account ? html`
-                        <div class="content" id="account">
-                            <user-profile
-                                .opencgaSession="${this.opencgaSession}"
-                                .settings="${this.settings.USER_PROFILE_SETTINGS}">
-                            </user-profile>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["file-manager"] ? html`
-                        <div class="content" id="file-manager">
-                            <file-manager .opencgaSession="${this.opencgaSession}"></file-manager>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["file-data-manager"] ? html`
-                        <div class="content" id="file-data-manager">
-                            <file-data-manager
-                                .opencgaSession="${this.opencgaSession}">
-                            </file-data-manager>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents.settings ? html`
-                        <div class="content" id="settings">
-                            <iva-settings .opencgaSession="${this.opencgaSession}"></iva-settings>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["interpreter"] ? html`
-                        <div class="content" id="interpreter">
-                            <variant-interpreter
-                                .opencgaSession="${this.opencgaSession}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .clinicalAnalysisId="${this.clinicalAnalysisId}"
-                                .settings="${this.settings.VARIANT_INTERPRETER_SETTINGS}"
-                                @selectClinicalAnalysis="${this.onSelectClinicalAnalysis}">
-                            </variant-interpreter>
-                        </div>
-                    ` : nothing}
-
-                    <!-- Alignment Analysis-->
-                    ${this.config.enabledComponents["alignment-index"] ? html`
-                        <div id="alignment-index" class="content">
-                            <opencga-alignment-index-analysis .opencgaSession="${this.opencgaSession}"></opencga-alignment-index-analysis>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["coverage-index"] ? html`
-                        <div id="coverage-index" class="content">
-                            <opencga-coverage-index-analysis .opencgaSession="${this.opencgaSession}"></opencga-coverage-index-analysis>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["alignment-stats"] ? html`
-                        <div id="alignment-stats" class="content col-md-6 col-md-offset-3">
-                            <opencga-alignment-stats-analysis .opencgaSession="${this.opencgaSession}"></opencga-alignment-stats-analysis>
-                        </div>
-                    ` : nothing}
-
-                ${this.config.enabledComponents["job-view"] ? html`
-                    <tool-header title="${this.jobSelected || "No job selected"}" icon="${"fas fa-rocket"}"></tool-header>
-                    <div class="container py-3" id="job-view">
+                `;
+                break;
+            case "rd-tiering":
+                content = html`
+                    <div class="container">
+                        <rd-tiering-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </rd-tiering-analysis>
+                    </div>
+                `;
+                break;
+            case "clinical-analysis-create":
+                content = html`
+                    <tool-header
+                        title="Create Case"
+                        icon="fas fa-window-restore">
+                    </tool-header>
+                    <div class="container">
+                        <clinical-analysis-create
+                            .opencgaSession="${this.opencgaSession}"
+                            @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
+                        </clinical-analysis-create>
+                    </div>
+                `;
+                break;
+            case "account":
+            case "profile":
+                content = html`
+                    <div class="container">
+                        <user-profile
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${this.settings.USER_PROFILE_SETTINGS}">
+                        </user-profile>
+                    </div>
+                `;
+                break;
+            case "file-manager":
+                content = html`
+                    <div class="container">
+                        <file-manager
+                            .opencgaSession="${this.opencgaSession}">
+                        </file-manager>
+                    </div>
+                `;
+                break;
+            case "file-data-manager":
+                content = html`
+                    <div class="container">
+                        <file-data-manager
+                            .opencgaSession="${this.opencgaSession}">
+                        </file-data-manager>
+                    </div>
+                `;
+                break;
+            case "interpreter":
+                content = html`
+                    <div class="container">
+                        <variant-interpreter
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
+                            .clinicalAnalysisId="${this.clinicalAnalysisId}"
+                            .settings="${this.settings.VARIANT_INTERPRETER_SETTINGS}"
+                            @selectClinicalAnalysis="${this.onSelectClinicalAnalysis}">
+                        </variant-interpreter>
+                    </div>
+                `;
+                break;
+            case "alignment-index":
+                content = html`
+                    <div class="container">
+                        <opencga-alignment-index-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </opencga-alignment-index-analysis>
+                    </div>
+                `;
+                break;
+            case "coverage-index":
+                content = html`
+                    <div class="container">
+                        <opencga-coverage-index-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </opencga-coverage-index-analysis>
+                    </div>
+                `;
+                break;
+            case "alignment-stats":
+                content = html`
+                    <div class="container">
+                        <opencga-alignment-stats-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </opencga-alignment-stats-analysis>
+                    </div>
+                `;
+                break;
+            case "job-view":
+                content = html`
+                    <tool-header
+                        title="${this.jobSelected || "No job selected"}"
+                        icon="${"fas fa-rocket"}">
+                    </tool-header>
+                    <div class="container">
                         <job-view
                             mode="full"
                             .jobId="${this.jobSelected}"
                             .opencgaSession="${this.opencgaSession}">
                         </job-view>
                     </div>
-                ` : nothing}
-
-                ${this.config.enabledComponents["tool-analysis"] ? html`
-                    <tool-header title="Tool Analysis Executor" icon="fas fa-stream"></tool-header>
-                    <div class="container py-3" id="tool-analysis">
+                `;
+                break;
+            case "tool-analysis":
+                content = html`
+                    <tool-header
+                        title="Tool Analysis Executor"
+                        icon="fas fa-stream">
+                    </tool-header>
+                    <div class="container">
                         <tool-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </tool-analysis>
                     </div>
-                ` : nothing}
-
-                ${this.config.enabledComponents["custom-tool-builder"] ? html`
-                    <tool-header title="Custom Tool Builder" icon="fas fa-stream"></tool-header>
-                    <div class="container py-3" id="custom-tool-builder">
+                `;
+                break;
+            case "custom-tool-builder":
+                content = html`
+                    <tool-header
+                        title="Custom Tool Builder"
+                        icon="fas fa-stream">
+                    </tool-header>
+                    <div class="container">
                         <custom-tool-builder
                             .opencgaSession="${this.opencgaSession}">
                         </custom-tool-builder>
                     </div>
-                ` : nothing}
-
-                    <!-- Admin -->
-                    ${this.config.enabledComponents["organization-admin"] ? html`
-                        <tool-header title="Organization Admin: ${this.opencgaSession?.user?.organization}" icon="${"fas fa-sitemap"}"></tool-header>
-                        <div id="organization-admin">
-                            <organization-admin
-                                .organization="${this.opencgaSession?.organization}"
-                                .opencgaSession="${this.opencgaSession}"
-                                @studyUpdateRequest="${this.onStudyUpdateRequest}"
-                                @sessionUpdateRequest="${this.onSessionUpdateRequest}">
-                            </organization-admin>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["catalog-admin"] ? html`
-                        <div class="content row" id="catalog-admin">
-                            <catalog-admin
-                                .opencgaSession="${this.opencgaSession}"
-                                @sessionUpdateRequest="${this.onSessionUpdateRequest}">
-                            </catalog-admin>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["projects-admin"] ? html`
-                        <tool-header title="Study Dashboard" icon="${"fas fa-rocket"}"></tool-header>
-                        <div id="projects-admin">
-                            <projects-admin
-                                .opencgaSession="${this.opencgaSession}"
-                                @sessionUpdateRequest="${this.onSessionUpdateRequest}">
-                            </projects-admin>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["study-admin"] ? html`
-                        <div class="content" id="study-admin">
-                            <study-admin
-                                .opencgaSession="${this.opencgaSession}"
-                                @studyUpdateRequest="${this.onStudyUpdateRequest}">
-                            </study-admin>
-                        </div>
-                    ` : nothing}
-
-                    <!-- NOTE Vero: "row" class to avoid tricky css for undoing the margin bootstrap of container-fluid -->
-                    <!-- Remove this from the parameters: .study="$ {this.opencgaSession.study}" -->
-                    ${this.config.enabledComponents["study-admin-iva"] ? html`
-                        <div class="content row">
-                            <study-admin-iva
-                                .organizationId="${this.opencgaSession?.user?.organization}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .settings="${this.settings}"
-                                @studyUpdateRequest="${this.onStudyUpdateRequest}">
-                            </study-admin-iva>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["operations-admin"] ? html`
-                        <div class="content row">
-                            <operations-admin
-                                .organizationId="${this.opencgaSession?.user?.organization}"
-                                .study="${this.opencgaSession.study}"
-                                .opencgaSession="${this.opencgaSession}"
-                                @studyUpdateRequest="${this.onStudyUpdateRequest}">
-                            </operations-admin>
-                        </div>
-                    ` : nothing}
-
-                    ${this.config.enabledComponents["rest-api"] ? html`
-                        <tool-header title="REST API" icon="${"fas fa-rocket"}"></tool-header>
-                        <div class="content">
-                            <rest-api .opencgaSession="${this.opencgaSession}"></rest-api>
-                        </div>
-                    ` : nothing}
-
-                    ${ExtensionsManager.getTools().map(tool => html`
-                        ${this.config.enabledComponents[tool.id] ? html`
-                            <div class="content">
-                                ${tool.render(this.opencgaSession)}
-                            </div>
-                        ` : nothing}
-                    `)}
-                ` : nothing}
-            </div>
-        `;
+                `;
+                break;
+            case "organization-admin":
+                content = html`
+                    <tool-header
+                        title="Organization Admin: ${this.opencgaSession?.user?.organization}"
+                        icon="fas fa-sitemap">
+                    </tool-header>
+                    <div class="container">
+                        <organization-admin
+                            .organization="${this.opencgaSession?.organization}"
+                            .opencgaSession="${this.opencgaSession}"
+                            @studyUpdateRequest="${this.onStudyUpdateRequest}"
+                            @sessionUpdateRequest="${this.onSessionUpdateRequest}">
+                        </organization-admin>
+                    </div>
+                `;
+                break;
+            case "catalog-admin":
+                content = html`
+                    <div class="container">
+                        <catalog-admin
+                            .opencgaSession="${this.opencgaSession}"
+                            @sessionUpdateRequest="${this.onSessionUpdateRequest}">
+                        </catalog-admin>
+                    </div>
+                `;
+                break;
+            case "projects-admin":
+                content = html`
+                    <tool-header
+                        title="Study Dashboard"
+                        icon="fas fa-rocket">
+                    </tool-header>
+                    <div class="container">
+                        <projects-admin
+                            .opencgaSession="${this.opencgaSession}"
+                            @sessionUpdateRequest="${this.onSessionUpdateRequest}">
+                        </projects-admin>
+                    </div>
+                `;
+                break;
+            case "study-admin":
+                content = html`
+                    <div class="container">
+                        <study-admin
+                            .opencgaSession="${this.opencgaSession}"
+                            @studyUpdateRequest="${this.onStudyUpdateRequest}">
+                        </study-admin>
+                    </div>
+                `;
+                break;
+            case "study-admin-iva":
+                content = html`
+                    <div class="container">
+                        <study-admin-iva
+                            .organizationId="${this.opencgaSession?.user?.organization}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${this.settings}"
+                            @studyUpdateRequest="${this.onStudyUpdateRequest}">
+                        </study-admin-iva>
+                    </div>
+                `;
+                break;
+            case "operations-admin":
+                content = html`
+                    <div class="container">
+                        <operations-admin
+                            .organizationId="${this.opencgaSession?.user?.organization}"
+                            .study="${this.opencgaSession.study}"
+                            .opencgaSession="${this.opencgaSession}"
+                            @studyUpdateRequest="${this.onStudyUpdateRequest}">
+                        </operations-admin>
+                    </div>
+                `;
+                break;
+            case "rest-api":
+                content = html`
+                    <tool-header
+                        title="REST API"
+                        icon="fas fa-rocket">
+                    </tool-header>
+                    <div class="container">
+                        <rest-api
+                            .opencgaSession="${this.opencgaSession}">
+                        </rest-api>
+                    </div>
+                `;
+                break;
+            case "not-found":
+            default:
+                // TODO: check for extensions
+                // ExtensionsManager.getTools().map(tool => html`
+                //         ${this.config.enabledComponents[tool.id] ? html`
+                //             <div class="content">
+                //                 ${tool.render(this.opencgaSession)}
+                //             </div>
+                //         ` : nothing}
+                //     `)}
+                // TODO: check for custom pages using renderCustomPage method
+                content = html`
+                    <div align="center">Not found</div>
+                `;
+        }
+        return content;
     }
 
     render() {
