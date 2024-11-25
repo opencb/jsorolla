@@ -302,7 +302,7 @@ export default class FileDataManager extends LitElement {
         return html`
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item" @click="${this.reset}"> ~ </li>
+                    <li class="breadcrumb-item" @click="${this.reset}">/</li>
                     ${path.map((name, i) => html`
                         <li
                             class="breadcrumb-item ${i === path.length ? "active" : ""}"
