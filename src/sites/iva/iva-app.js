@@ -849,6 +849,7 @@ class IvaApp extends LitElement {
         console.log("HASH_LISTENER", window.location.hash);
         this.app = null;
         this.tool = null;
+        this.queries = {}; // reset queries object
 
         // 0. in case of empty hash fragments, redirect to home tool
         if (window.location.hash === "" || window.location.hash === "#") {
@@ -857,39 +858,43 @@ class IvaApp extends LitElement {
                 return;
             }
         }
-        const hashItems = window.location.hash.replace("#", "").split("/");
-        let hashApp = null, hashTool = null, hashProject = null, hashStudy = null, hashQuery = null;
 
-        // 1. check if the first hash fragment is an app
+        // 1. parse hash fragments
+        const [hashFragments, hashQuery] = window.location.hash.replace("#", "").split("?");
+        const hashItems = hashFragments.split("/");
+        let hashApp = null, hashTool = null, hashProject = null, hashStudy = null;
+
+        // 2. check if the first hash fragment is an app
         if (this.config?.apps?.length > 0 && this.config.apps.some(app => app.id === hashItems[0])) {
             // example: "#research/home/germline/chinese"
-            [hashApp, hashTool, hashProject, hashStudy, hashQuery] = hashItems;
+            [hashApp, hashTool, hashProject, hashStudy] = hashItems;
         } else {
             // example: "#home/germline/chinese"
-            [hashTool, hashProject, hashStudy, hashQuery] = hashItems;
+            [hashTool, hashProject, hashStudy] = hashItems;
         }
 
-        // 2. make sure that project and study is in the hash fragment
+        // 3. make sure that project and study is in the hash fragment
         if (!hashProject || !hashStudy) {
             window.location.hash = [hashApp, hashTool || "home", this.opencgaSession?.project?.id, this.opencgaSession?.study?.id].filter(Boolean).join("/");
             return;
         }
 
-        // 3. parse project and study
+        // 4. parse project and study
         if (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
             return this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
         }
 
-        // 4. save app and tool
+        // 5. save app and tool
         this.app = (this.config?.apps || []).find(app => app.id === hashApp);
         this.tool = hashTool;
 
-        // 5. parse hashQuery
-        if (hashQuery) {
-            // TODO
+        // 6. parse hashQuery
+        if (hashQuery && this.tool) {
+            const query = Object.fromEntries(Array.from(new URLSearchParams(hashQuery).entries()));
+            this.queries[this.tool] = query;
         }
 
-        // 6. update IVA
+        // 7. update IVA
         this.requestUpdate();
         // // 1. Hide all elements
         // for (const element in this.config.enabledComponents) {
