@@ -47,7 +47,7 @@ export default class LayoutSidebar extends LitElement {
         const active = this.currentUrl.startsWith(`#${app.id}`); // url always start with the app ID
         return html`
             <a
-                class="text-decoration-none d-flex align-items-center flex-column gap-2 p-2 rounded-2 cursor-pointer ${active ? "bg-gray-200" : "hover:bg-gray-200"}"
+                class="text-decoration-none d-flex align-items-center flex-column gap-2 p-2 rounded-2 cursor-pointer ${active ? "bg-gray-200" : "hover:bg-gray-100"}"
                 href="#${app.id}"
             >
                 <i class="fas ${app?.icon || "fa-screwdriver-wrench"} lh-1 fs-4 text-gray-900"></i>
@@ -60,7 +60,7 @@ export default class LayoutSidebar extends LitElement {
         // TODO: get favourites from user configuration
         const favourites = this._config.favourites;
         return html`
-            <div class="d-flex flex-column justify-content-between flex-shrink-0 border-end bg-gray-100 position-relative h-full" style="width:72px">
+            <div class="d-flex flex-column justify-content-between flex-shrink-0 border-end bg-white position-relative h-full" style="width:72px">
                 <div class="d-flex flex-column">
                     <div class="d-flex flex-column gap-1 user-select-none p-2">
                         ${this.renderButton({id: "dashboard", name: "Dashboard", icon: "fa-home"})}
@@ -73,7 +73,7 @@ export default class LayoutSidebar extends LitElement {
                 <div class="d-flex flex-column gap-1 px-2 py-3 mt-auto">
                     ${favourites.length > 0 ? html`
                         <div class="d-flex flex-column dropup dropend">
-                            <div class="d-flex flex-column justify-content-center align-items-center p-2 gap-2 hover:bg-gray-200 rounded-2 cursor-pointer" data-bs-toggle="dropdown">
+                            <div class="d-flex flex-column justify-content-center align-items-center p-2 gap-2 hover:bg-gray-100 rounded-2 cursor-pointer" data-bs-toggle="dropdown">
                                 <i class="fas fa-star rounded-1 lh-1 fs-4"></i>
                                 <div class="fw-medium lh-1 fs-8 text-center text-gray-600">Favourites</div>
                             </div>
@@ -84,7 +84,7 @@ export default class LayoutSidebar extends LitElement {
                     ` : nothing}
                     ${this.config?.about?.dropdown && this.config?.about?.links?.length > 0 ? html`
                         <div class="d-flex flex-column dropup dropend">
-                            <div class="d-flex flex-column justify-content-center align-items-center p-2 gap-2 hover:bg-gray-200 rounded-2 cursor-pointer" data-bs-toggle="dropdown">
+                            <div class="d-flex flex-column justify-content-center align-items-center p-2 gap-2 hover:bg-gray-100 rounded-2 cursor-pointer" data-bs-toggle="dropdown">
                                 <i class="fas fa-question-circle rounded-1 lh-1 fs-4"></i>
                                 <div class="fw-medium lh-1 fs-8 text-center text-gray-600">About</div>
                             </div>
@@ -94,7 +94,7 @@ export default class LayoutSidebar extends LitElement {
                         </div>
                     ` : nothing}
                     <div class="d-flex flex-column">
-                        <div class="d-flex align-items-center justify-content-center gap-1 hover:bg-gray-200 p-2 rounded-2 cursor-pointer border">
+                        <div class="d-flex align-items-center justify-content-center gap-1 hover:bg-gray-100 p-2 rounded-2 cursor-pointer border">
                             <div class="d-flex py-1">
                                 <img src="./img/zetta-logo.png" height="14px" />
                             </div>
