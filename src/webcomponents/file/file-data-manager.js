@@ -59,6 +59,29 @@ export default class FileDataManager extends LitElement {
             FILE: "orange",
         };
 
+        this.toolbarEntity = [
+            {
+                tooltip: "New Folder",
+                action: this.onCreateFolder,
+                icon: "fas fa-folder-plus",
+            },
+            {
+                tooltip: "New File",
+                action: null,
+                icon: "fas fa-file",
+            },
+            {
+                tooltip: "Upload File",
+                action: null,
+                icon: "fas fa-upload",
+            },
+            {
+                tooltip: "Fetch File",
+                action: null,
+                icon: "fas fa-cloud-download-alt",
+            },
+        ];
+
         this._config = this.getDefaultConfig();
     }
 
@@ -91,6 +114,7 @@ export default class FileDataManager extends LitElement {
                 .then(restResponse => {
                     this.errorState = false;
                     this.tree = restResponse.getResult(0);
+                    debugger
                     this.tree.visited = true;
                     this.currentRoot = this.tree;
                     this.requestUpdate();
@@ -113,6 +137,7 @@ export default class FileDataManager extends LitElement {
 
     async fetchFolder(node) {
         try {
+            debugger
             if (!node.visited) {
                 const restResponse = await this.opencgaSession.opencgaClient.files()
                     .tree(node.file.id, {study: this.opencgaSession.study.fqn, maxDepth: 1, include: "id,name,path,format,size,sampleIds,jobId,internal"});
@@ -293,12 +318,13 @@ export default class FileDataManager extends LitElement {
         return html`<i class="${icon || "fas fa-file"}${size ? ` fa-${size}x` : ""}"></i>`;
     }
 
-    path(node) {
+    renderBreadcrumb(node) {
         const path = node.file.id.split(":").filter(Boolean);
+        debugger
         return html`
             <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item" @click="${this.reset}">/</li>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item" @click="${this.reset}">~</li>
                     ${path.map((name, i) => html`
                         <li
                             class="breadcrumb-item ${i === path.length ? "active" : ""}"
@@ -381,14 +407,6 @@ export default class FileDataManager extends LitElement {
         });
     }
 
-    addButton(title, action, icon = "", className = "btn-primary", style = "") {
-        return html`
-            <button type="button" class="btn ${className}" style="${style}" @click="${action}">
-                ${icon ? html`<span><i class="fas ${icon} pe-2"></i></span>` : nothing}${title}
-            </button>
-        `;
-    }
-
     addSearch(action, icon = "fa-search", placeholder = "Search ...", className = "", style = "") {
         return html`
             <div class="input-group ${className}" style="${style}">
@@ -408,18 +426,24 @@ export default class FileDataManager extends LitElement {
         return html`
             <div class="btn-toolbar d-flex" role="toolbar" aria-label="Toolbar with button groups">
                 <div class="m-2">
-                    ${this.addButton("New Folder", this.onCreateFolder, "fa-folder", "btn-primary", "")}
-                    ${this.addButton("New File", this.newFolder, "fa-file-alt", "btn-primary", "")}
+                    ${
+                    this.toolbarEntity.map(button => {
+                        return html`
+                            <button
+                                    type="button"
+                                    class="btn btn-outline-dark ms-2"
+                                    @click="${button.action}">
+                                ${button.icon ? html`<span><i class="${button.icon} fa-lg"></i></span>` : nothing}
+                                ${button.title ? html`${button.title}` : nothing}
+                            </button>
+                        `;
+                    })}
                 </div>
-
+                <!--
                 <div class="m-2">
-                    ${this.addButton("Upload", this.newFolder, "fa-upload", "btn-primary", "")}
-                    ${this.addButton("Fetch", this.newFolder, "fa-cloud-download-alt", "btn-primary", "")}
+                    $this.addSearch(this.onSearch, "fa-search", "Search ...", "", "")}
                 </div>
-
-                <div class="m-2">
-                    ${this.addSearch(this.onSearch, "fa-search", "Search ...", "", "")}
-                </div>
+                -->
             </div>
         `;
     }
@@ -469,7 +493,7 @@ export default class FileDataManager extends LitElement {
         if (!this.opencgaSession || !this.currentRoot) {
             return null;
         }
-
+debugger
         return html`
             ${this.renderStyles()}
             <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
@@ -491,12 +515,20 @@ export default class FileDataManager extends LitElement {
                         </div>
                     ` : null}
 
-
-                    ${this.renderToolbar()}
-
                     ${this.currentRoot ? html`
                         <div>
-                            ${this.path(this.currentRoot)}
+                            <!-- 1. Data list actions -->
+                            <div class="d-flex justify-content-between border-bottom border-black">
+                                <!-- Render breadcrumb -->
+                                <div class="d-flex align-items-center flex-grow-1">
+                                    <div class="me-2 fw-bold">FILE:</div>
+                                    ${this.renderBreadcrumb(this.currentRoot)}
+                                </div>
+                                <!-- Render entity actions toolbar -->
+                                <div>
+                                    ${this.renderToolbar()}
+                                </div>
+                            </div>
                             <data-list
                                 .data="${this.currentRoot.children.map(child => child.file)}"
                                 .config="${this._config.dataList}"
