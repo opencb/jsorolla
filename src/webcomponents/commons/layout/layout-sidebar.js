@@ -22,7 +22,7 @@ export default class LayoutSidebar extends LitElement {
     }
 
     renderSectionSeparator(text) {
-        return html`<div class="mt-2 text-gray-500 fw-bold fs-7 text-center">${text}</div>`;
+        return html`<div class="mt-2 fw-bold text-gray-700 fs-9 text-center">${text}</div>`;
     }
 
     renderLink(link) {
