@@ -18,9 +18,6 @@ export default class LayoutPrimaryBar extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            loggedIn: {
-                type: Boolean
-            },
             app: {
                 type: Object
             },
