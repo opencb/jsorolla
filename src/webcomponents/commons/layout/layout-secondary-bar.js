@@ -25,7 +25,7 @@ export default class LayoutSecondaryBar extends LitElement {
         const active = this.currentUrl.startsWith(`#${tool.id}`);
         return html`
             <li class="nav-item">
-                <a class="nav-link text-body ${active ? "active border-primary" : ""}" href="#${tool.id}">
+                <a class="nav-link text-body ${active ? "active border-primary" : ""}" href="#${this.app.id}/${tool.id}">
                     <div class="px-2 py-1 rounded ${active ? "bg-gray-100" : "hover:bg-gray-100"}">
                         ${tool.name || tool.id || "-"}
                     </div>
