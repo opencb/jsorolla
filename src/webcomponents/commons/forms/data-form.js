@@ -1683,14 +1683,26 @@ export default class DataForm extends LitElement {
             // border-warning is similar to darkorange
             const view = html`
                 <div class="pb-1 ${isUpdated? "pb-1 ps-3 mb-4 border-start border-2 border-updated" :""}">
-                    <span>No items found.</span>
+                    <span>${element.display?.itemsNotFoundText || "No items found."}</span>
                 </div>
             `;
             contents.push(view);
         } else {
             if (maxNumItems > 0) {
                 const view = html`
+                    ${element.display?.summary && items[0][element.display.itemId || "id"] ? html`
+                        <div>
+                            ${element.display.summary(this.data, items)}
+                        </div>
+                    ` : nothing}
+
                     <div class="pb-1 ${isUpdated? "pb-1 ps-3 mb-4 border-start border-2 border-updated" :""}">
+                        ${element.display?.itemsTitle && items[0][element.display.itemId || "id"] ? html`
+                            <div>
+                                <span class="fw-bold">${element.display?.itemsTitle || ""}</span>
+                            </div>
+                        ` : nothing}
+
                         ${items?.slice(0, maxNumItems)
                             .map((item, index) => {
                                 const _element = JSON.parse(JSON.stringify(element));
@@ -1731,14 +1743,14 @@ export default class DataForm extends LitElement {
                                             ${element.display.view(item)}
                                         </div>
                                         <div>
-                                            ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
+                                            ${this._getBooleanValue(element.display.showEditItemListButton, true) && items[0][element.display.itemId || "id"] ? html`
                                                 <button type="button" title="Edit item" class="btn btn-sm btn-primary"
                                                         ?disabled="${isDisabled}"
                                                         @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
                                                     <i aria-hidden="true" class="fas fa-edit"></i>
                                                 </button>` : nothing
                                             }
-                                            ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
+                                            ${this._getBooleanValue(element.display.showDeleteItemListButton, true) && items[0][element.display.itemId || "id"] ? html`
                                                 <button type="button" title="Remove item from list" class="btn btn-sm btn-danger"
                                                         ?disabled="${isDisabled}"
                                                         @click="${e => this.#removeFromObjectList(e, item, index, element)}">
@@ -1797,10 +1809,10 @@ export default class DataForm extends LitElement {
                                     ?disabled="${isDisabled}"
                                     @click="${e => this.#addToObjectList(e, element)}">
                                 <i aria-hidden="true" class="fas fa-plus pe-1"></i>
-                                Add Item
+                                ${element.display?.itemAddText || "Add Item"}
                             </button>`: nothing
                         }
-                        ${this._getBooleanValue(element.display.showAddBatchListButton, true) ? html`
+                        ${this._getBooleanValue(element.display.showAddBatchListButton, false) ? html`
                             <button type="button" class="btn btn-sm btn-primary"
                                     ?disabled="${isDisabled}"
                                     @click="${e => this.#toggleAddBatchToObjectList(e, element)}">

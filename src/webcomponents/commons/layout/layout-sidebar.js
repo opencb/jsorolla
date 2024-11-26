@@ -22,7 +22,7 @@ export default class LayoutSidebar extends LitElement {
     }
 
     renderSectionSeparator(text) {
-        return html`<div class="mt-2 text-gray-500 fw-bold fs-7 text-center">${text}</div>`;
+        return html`<div class="mt-2 fw-bold text-gray-700 fs-9 text-center">${text}</div>`;
     }
 
     renderLink(link) {
@@ -35,7 +35,7 @@ export default class LayoutSidebar extends LitElement {
         `;
     }
 
-    renderAppButton(app) {
+    renderButton(app) {
         const active = this.currentUrl.startsWith(`#${app.id}`); // url always start with the app ID
         return html`
             <a
@@ -49,17 +49,14 @@ export default class LayoutSidebar extends LitElement {
     }
 
     render() {
-        // Note: dashboard app is always the first one and is not included in the Apps section of the sidebar
-        const dashboardApp = this.config?.apps?.find(app => app.id === "dashboard");
-        const otherApps = (this.config?.apps || []).filter(app => app.id !== "dashboard");
         return html`
             <div class="d-flex flex-column justify-content-between flex-shrink-0 border-end bg-gray-100 position-relative h-full" style="width:72px">
                 <div class="d-flex flex-column">
                     <div class="d-flex flex-column gap-1 user-select-none p-2">
-                        ${dashboardApp ? this.renderAppButton(dashboardApp) : nothing}
-                        ${otherApps.length > 0 ? html`
+                        ${this.renderButton({id: "dashboard", name: "Dashboard", icon: "fa-home"})}
+                        ${this.config?.apps?.length > 0 ? html`
                             ${this.renderSectionSeparator("Apps")}
-                            ${otherApps.map(app => this.renderAppButton(app))}
+                            ${this.config.apps.map(app => this.renderButton(app))}
                         `: nothing}
                         <!--
                         <div class="mt-2 text-gray-500 fw-bold small">Favourites</div>

@@ -607,6 +607,14 @@ const SUITE = {
                             icon: "",
                             visibility: "public"
                         },
+                        {
+                            id: "bcftools",
+                            name: "BCFtools",
+                            acronym: "GT",
+                            description: "",
+                            icon: "",
+                            visibility: "public"
+                        },
                     ]
                 },
                 {
@@ -712,7 +720,7 @@ const SUITE = {
         },
         {
             id: "clinical",
-            name: "Clinical",
+            name: "Clinical Analysis",
             icon: "fa-stethoscope",
             logo: "img/tools/icons/interpretation_portal_white.svg",
             logoAlt: "img/tools/icons/interpretation_portal.svg",
@@ -789,6 +797,63 @@ const SUITE = {
                 placeholder: "Search",
                 visible: false
             },
+        },
+        {
+            id: "catalog",
+            name: "Data Catalog",
+            icon: "fa-archive",
+            logo: "img/tools/icons/interpretation_portal_white.svg",
+            logoAlt: "img/tools/icons/interpretation_portal.svg",
+            visibility: "public",
+            welcomePage: {
+                title: "Data Catalog",
+                display: {
+                    titleStyle: "text-align:center;",
+                    subtitleStyle: "text-align:center;",
+                    logoWidth: "100px",
+                },
+                subtitle: "",
+                // logo: "img/Zetta_logo.png",
+                logo: "img/tools/icons/interpretation_portal.svg",
+                content: `
+                    <p class="text-center">
+                        Welcome to the Data Catalog Application
+                        <br>
+                        This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
+                    </p>`
+            },
+            menu: [
+                {
+                    id: "workflow-manager",
+                    name: "Workflow Manager",
+                    icon: "img/tools/icons/interpretation_portal.svg",
+                    description: `
+                        <p>Explore and review Clinical Interpretations analysis</p>
+                        <ul>
+                            <li>Filter by gene, consequence, frequency and much more.</li>
+                            <li>Create clinical interpretations and reports.</li>
+                        </ul>
+                    `,
+                    visibility: "public",
+                    thumbnail: "interpretation_portal.png",
+                },
+                {
+                    id: "clinical-configuration",
+                    name: "Configuration",
+                    icon: "img/tools/icons/interpretation_portal.svg",
+                    visibility: "public",
+                },
+            ],
+            // fileExplorer: {
+            //     visibility: "private"
+            // },
+            // jobMonitor: {
+            //     visibility: "private"
+            // },
+            // search: {
+            //     placeholder: "Search",
+            //     visible: false
+            // },
         },
         {
             id: "admin",

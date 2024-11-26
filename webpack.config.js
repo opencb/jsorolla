@@ -122,7 +122,7 @@ module.exports = {
         },
         setupMiddlewares: setupCustomMiddlewares,
         devMiddleware: {
-            writeToDisk: true,
+            writeToDisk: false,
         },
     },
     performance: {

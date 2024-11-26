@@ -48,14 +48,41 @@ export default class BcfToolsAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "gwas";
-        this.ANALYSIS_TITLE = "GWAS";
+        this.ANALYSIS_TOOL = "bcftools";
+        this.ANALYSIS_TITLE = "BCFtools";
         this.ANALYSIS_DESCRIPTION = "Executes a GWAS analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
+            command: "annotate",
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+        };
+
+        this.bcfToolsCommands = {
+            annotate: "edit VCF files, add or remove annotations",
+            call: "SNP/indel calling (former 'view')",
+            cnv: "Copy Number Variation caller",
+            concat: "concatenate VCF/BCF files from the same set of samples",
+            consensus: "create consensus sequence by applying VCF variants",
+            convert: "convert VCF/BCF to other formats and back",
+            csq: "haplotype aware consequence caller",
+            filter: "filter VCF/BCF files using fixed thresholds",
+            gtcheck: "check sample concordance, detect sample swaps and contamination",
+            head: "view VCF/BCF file headers",
+            index: "index VCF/BCF",
+            isec: "intersections of VCF/BCF files",
+            merge: "merge VCF/BCF files files from non-overlapping sample sets",
+            mpileup: "multi-way pileup producing genotype likelihoods",
+            norm: "normalize indels",
+            plugin: "run user-defined plugin",
+            polysomy: "detect contaminations and whole-chromosome aberrations",
+            query: "transform VCF/BCF into user-defined formats",
+            reheader: "modify VCF/BCF header, change sample names",
+            roh: "identify runs of homo/auto-zygosity",
+            sort: "sort VCF/BCF files",
+            stats: "produce VCF/BCF stats (former vcfcheck)",
+            view: "subset, filter and convert VCF and BCF files",
         };
 
         this.config = this.getDefaultConfig();
@@ -103,8 +130,12 @@ export default class BcfToolsAnalysis extends LitElement {
     }
 
     onSubmit() {
-
+        this.toolParams
+debugger
         const toolParams = {
+            command: this.toolParams.command,
+            commandLine: this.toolParams.commandLine || "",
+
             controlCohort: this.toolParams.controlCohort || "",
             // controlCohortSamples: this.toolParams.controlCohortSamples?.split(",") || [],
             // controlCohortSamplesAnnotation: this.toolParams.controlCohortSamplesAnnotation,
@@ -124,7 +155,7 @@ export default class BcfToolsAnalysis extends LitElement {
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient.jobs()
-                .(toolParams, params),
+                .runTool(toolParams, params),
             this,
         );
     }
@@ -154,38 +185,163 @@ export default class BcfToolsAnalysis extends LitElement {
                 title: "Input Cohorts",
                 elements: [
                     {
-                        title: "Case Cohort",
-                        field: "caseCohort",
+                        title: "Command",
+                        field: "command",
+                        type: "select",
+                        required: true,
+                        allowedValues: Object.keys(this.bcfToolsCommands),
+                        defaultValue: "annotate",
+                    },
+                    {
+                        title: "VCF File",
+                        field: "inputVcfFile1",
                         type: "custom",
                         required: true,
                         display: {
+                            visible: data => data.command !== "mpileup",
                             render: (caseCohort, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
-                                    .value="${caseCohort}"
-                                    .resource="${"COHORT"}"
-                                    .opencgaSession="${this.opencgaSession}"
+                                    .resource="${"FILE"}"
+                                    .query="${{study: this.opencgaSession.study.fqn, format: "VCF"}}"
                                     .config="${{multiple: false}}"
+                                    .opencgaSession="${this.opencgaSession}"
                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
                     },
                     {
-                        title: "Control Cohort",
-                        field: "controlCohort",
+                        title: "Second VCF File",
+                        field: "inputVcfFile2",
                         type: "custom",
+                        required: false,
                         display: {
-                            render: (controlCohort, dataFormFilterChange) => {
+                            visible: data => data.command === "concat" || data.command === "merge" || data.command === "isec",
+                            render: (caseCohort, dataFormFilterChange) => html`
+                                <catalog-search-autocomplete
+                                    .resource="${"FILE"}"
+                                    .query="${{study: this.opencgaSession.study.fqn, format: "VCF"}}"
+                                    .config="${{multiple: false}}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                </catalog-search-autocomplete>
+                            `,
+                        },
+                    },
+                    {
+                        title: "BAM File",
+                        field: "inputBamFile",
+                        type: "custom",
+                        required: false,
+                        display: {
+                            visible: data => data.command === "mpileup",
+                            render: (caseCohort, dataFormFilterChange) => html`
+                                <catalog-search-autocomplete
+                                    .resource="${"FILE"}"
+                                    .query="${{study: this.opencgaSession.study.fqn, format: "BAM"}}"
+                                    .config="${{multiple: false}}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                </catalog-search-autocomplete>
+                            `,
+                        },
+                    },
+                    // {
+                    //     title: "Command Line",
+                    //     field: "commandLine",
+                    //     type: "input-text",
+                    //     required: true,
+                    //     display: {
+                    //         placeholder: ``,
+                    //         help: {
+                    //             text: `bcftools ${this.toolParams.command} .. ${this.bcfToolsCommands[this.toolParams.command]}`,
+                    //         }
+                    //     },
+                    // },
+                    {
+                        title: "Parameters",
+                        field: "parameters",
+                        type: "object-list",
+                        display: {
+                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                            itemId: "name",
+                            itemAddText: "Add parameter",
+                            itemsNotFoundText: "No parameters found",
+                            itemsTitle: "Parameters:",
+                            summary: (data, items) => {
                                 return html`
-                                    <catalog-search-autocomplete
-                                        .value="${controlCohort}"
-                                        .resource="${"COHORT"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
-                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                    </catalog-search-autocomplete>
+                                    <div>
+                                        <span class="fw-bold">Command Line:</span>
+                                    </div>
+                                    <div class="m-2">
+                                        <span>bcftools ${data.command} ${items.map(item => item.name + " " + (item.value ?? "")).join(" ")}</span>
+                                    </div>
                                 `;
+                            },
+                            view: variable => html`
+                                <div class="m-2">${variable.name} ${variable.value}</div>
+                            `,
+                        },
+                        elements: [
+                            {
+                                title: "Parameter Name",
+                                field: "parameters[].name",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "",
+                                    help: {
+                                        text: "Add parameter name, eg: -t, --threads. Parameters MUST include hyphen (-) or double hyphen (--) at the beginning.",
+                                    }
+                                }
+                            },
+                            {
+                                title: "Is a File Parameter?",
+                                field: "parameters[].isFile",
+                                type: "checkbox",
+                                display: {},
+                            },
+                            {
+                                title: "Parameter Value",
+                                field: "parameters[].value",
+                                type: "input-text",
+                                display: {
+                                    visible: (data, item) => {
+                                        return !item.isFile;
+                                    },
+                                }
+                            },
+                            {
+                                title: "Select File",
+                                field: "parameters[].value",
+                                type: "custom",
+                                display: {
+                                    visible: (data, item) => {
+                                        return item.isFile;
+                                    },
+                                    render: (data, dataFormFilterChange) => html`
+                                        <catalog-search-autocomplete
+                                            .resource="${"FILE"}"
+                                            .config="${{multiple: false}}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                        </catalog-search-autocomplete>
+                                    `,
+                                },
                             }
+                        ],
+                    },
+                    {
+                        title: "Usage",
+                        field: "usage",
+                        type: "custom",
+                        required: false,
+                        display: {
+                            render: () => html`
+                                <h4>BCFtools Usage:</h4>
+                                <div class="m-2 shadow">
+                                    <iframe src="https://samtools.github.io/bcftools/bcftools.html#${this.toolParams.command}" width="100%" height="600px"></iframe>
+                                </div>
+                            `,
                         },
                     },
                 ]
@@ -196,7 +352,7 @@ export default class BcfToolsAnalysis extends LitElement {
             this.ANALYSIS_TOOL,
             this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
-            this._config.params,
+            params,
             this.check(),
             this.config
         );
