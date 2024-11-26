@@ -1717,7 +1717,7 @@ class IvaApp extends LitElement {
                     <div class="content">
                         <workflow-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .query="${this.queries.workflow}"
+                            .query="${this.queries["workflow-browser"]}"
                             .settings="${this.settings.WORKFLOW_BROWSER}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "workflow")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "workflow")}">
@@ -2074,7 +2074,7 @@ class IvaApp extends LitElement {
                         <variant-interpreter
                             .opencgaSession="${this.opencgaSession}"
                             .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
-                            .clinicalAnalysisId="${this.clinicalAnalysisId}"
+                            .clinicalAnalysisId="${this.queries["interpreter"]?.id}"
                             .settings="${this.settings.VARIANT_INTERPRETER_SETTINGS}"
                             @selectClinicalAnalysis="${this.onSelectClinicalAnalysis}">
                         </variant-interpreter>
