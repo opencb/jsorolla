@@ -175,11 +175,9 @@ class IvaApp extends LitElement {
         this.tool = "#home";
 
         // We need to listen to hash fragment changes to update the URL
-        window.onhashchange = e => {
-            // e.preventDefault();
-            console.log("URL Hash changed: ", e);
+        window.addEventListener("hashchange", () => {
             this.hashFragmentListener();
-        };
+        });
 
         // Notifications
         this.notificationManager = new NotificationManager({});
