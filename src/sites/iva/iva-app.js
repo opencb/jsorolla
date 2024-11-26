@@ -1919,6 +1919,7 @@ class IvaApp extends LitElement {
                 <!-- Render the App -->
                 <div class="d-flex flex-nowrap">
                     <layout-sidebar
+                        .opencgaSession="${this.opencgaSession}"
                         .currentUrl="${window.location.hash || "#"}"
                         .config="${this.config}">
                     </layout-sidebar>
