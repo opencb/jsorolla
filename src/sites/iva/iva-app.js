@@ -75,6 +75,7 @@ import "../../webcomponents/variant/analysis/family-qc-analysis.js";
 import "../../webcomponents/variant/analysis/knockout-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-plink-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-gatk-analysis.js";
+import "../../webcomponents/variant/analysis/bcftools-analysis.js";
 import "../../webcomponents/variant/analysis/variant-export-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-variant-stats-exporter-analysis.js";
 import "../../webcomponents/variant/interpretation/variant-interpreter-browser-rd.js";
@@ -220,6 +221,7 @@ class IvaApp extends LitElement {
             "mendelian-error",
             "plink",
             "gatk",
+            "bcftools",
             "variant-export",
             "variant-stats-exporter",
             // Quality Control
@@ -1934,6 +1936,14 @@ class IvaApp extends LitElement {
                     ${this.config.enabledComponents["gatk"] ? html`
                         <div class="content" id="opencga-gatk-analysis">
                             <opencga-gatk-analysis .opencgaSession="${this.opencgaSession}"></opencga-gatk-analysis>
+                        </div>
+                    ` : nothing}
+
+                    ${this.config.enabledComponents["bcftools"] ? html`
+                        <div class="content p-3" id="bcftools-analysis">
+                            <bcftools-analysis
+                                .opencgaSession="${this.opencgaSession}">
+                            </bcftools-analysis>
                         </div>
                     ` : nothing}
 

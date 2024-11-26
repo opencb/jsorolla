@@ -608,6 +608,14 @@ const SUITE = {
                             icon: "",
                             visibility: "public"
                         },
+                        {
+                            id: "bcftools",
+                            name: "BCFtools",
+                            acronym: "GT",
+                            description: "",
+                            icon: "",
+                            visibility: "public"
+                        },
                     ]
                 },
                 {
