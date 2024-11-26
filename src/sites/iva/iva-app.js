@@ -713,27 +713,6 @@ class IvaApp extends LitElement {
         }
     }
 
-    changeTool(e) {
-        // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-        // e.preventDefault();
-
-        // const target = e.currentTarget;
-        // $(".navbar-zetta ul > li > a", this).removeClass("active");
-        // $(target).addClass("active");
-        // if ($(target).closest("ul").hasClass("dropdown-menu")) {
-        //     $(target).closest("ul").closest("li > a").addClass("active");
-        // }
-
-        // if (target?.attributes?.href) {
-        //     this.tool = target.attributes.href.value;
-        // } else {
-        //     this.tool = "#home";
-        // }
-
-        // // this.renderHashFragments();
-        // this.hashFragmentListener();
-    }
-
     hashFragmentListener() {
         console.log("HASH_LISTENER", window.location.hash);
         this.app = null;
@@ -2037,7 +2016,6 @@ class IvaApp extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.config}"
                     @logout="${() => this.logout()}"
-                    @changeTool="${e => this.changeTool(e.detail.value)}"
                     @studySelect="${e => this.onStudySelect(e.detail.event, e.detail.study)}"
                     @jobSelected="${e => this.onJobSelected(e)}">
                 </layout-primary-bar>
