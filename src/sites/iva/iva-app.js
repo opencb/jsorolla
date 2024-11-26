@@ -820,34 +820,26 @@ class IvaApp extends LitElement {
                 lastStudy: studyFqn
             });
 
-            // 2. Set the new Hash URL
-            const hashItems = window.location.hash.replace(/^#/, "").split("/");
+            // 2. set the new Hash URL
+            const [hashFragments, hashQuery] = window.location.hash.replace("#", "").split("?");
+            const hashItems = hashFragments.split("/");
+            let newHashFragmentUrl = "";
+
             // 2.1. If the hash fragment only contains one or three items, it is a single tool URL
             if (hashItems.length === 1 || hashItems.length === 3) {
-                window.location.hash = `${hashItems[0]}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+                newHashFragmentUrl = `${hashItems[0]}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
             }
-            // 2.2 if the hash fragment contains two or more than three items, it is an app/tool URL
-            else if (hashItems.length === 1 || hashItems.length > 3) {
+
+            // 2.2 if the hash fragment contains two or four items, it is an app/tool URL
+            else if (hashItems.length === 2 || hashItems.length === 4) {
                 // NOTE: if we change current sudy in the interpreter, we must remove the clinical analysis id from the hash fragment
                 // and redirect to case portal
                 const tool = hashItems[1] !== "interpreter" ? hashItems[1] : "clinical-analysis-portal";
-                let newHashFragmentUrl = `${hashItems[0]}/${tool}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
-                // add the rest of the items to the hash fragment
-                if (hashItems.length > 4 && hashItems[1] !== "interpreter") {
-                    for (let i = 4; i < hashItems.length; i++) {
-                        newHashFragmentUrl += "/" + hashItems[i];
-                    }
-                }
-                window.location.hash = newHashFragmentUrl;
+                newHashFragmentUrl = `${hashItems[0]}/${tool}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
             }
-            // let newHashFragmentUrl = this.tool !== "#interpreter" ? this.tool : "#clinicalAnalysisPortal";
-            // if (this.opencgaSession?.project) {
-            //     newHashFragmentUrl += "/" + this.opencgaSession.project.id;
-            //     if (this.opencgaSession.study) {
-            //         newHashFragmentUrl += "/" + this.opencgaSession.study.id;
-            //     }
-            // }
-            // window.location.hash = newHashFragmentUrl;
+
+            // 2.3. reset hash including queries (if any)
+            window.location.hash = newHashFragmentUrl + (hashQuery ? `?${hashQuery}` : "");
 
             // 3. Reset queries from old studies
             this.queries = {};
