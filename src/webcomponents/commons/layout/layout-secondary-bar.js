@@ -37,10 +37,10 @@ export default class LayoutSecondaryBar extends LitElement {
     render() {
         return html`
             <div class="d-flex align-items-stretch w-full py-2 px-3">
-                <div class="d-flex align-items-center gap-2 me-5 user-select-none">
+                <a class="d-flex align-items-center gap-2 me-5 user-select-none text-body text-decoration-none" href="#${this.app.id}/home">
                     <i class="fas ${this.app.icon || ""} fs-3"></i>
                     <span class="fs-3 fw-bold">${this.app.name || "-"}</span>
-                </div>
+                </a>
                 <ul class="nav nav-underline">
                     ${(this.app?.menu || []).map(tool => this.renderTool(tool))}
                 </ul>
