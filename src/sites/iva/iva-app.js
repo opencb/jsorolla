@@ -175,23 +175,9 @@ class IvaApp extends LitElement {
         this.tool = "#home";
 
         // We need to listen to hash fragment changes to update the URL
-        window.onhashchange = e => {
-            // e.preventDefault();
-            console.log("URL Hash changed: ", e);
+        window.addEventListener("hashchange", () => {
             this.hashFragmentListener();
-        };
-
-        // Remember the tool that was previously set
-        // this.tool = window.location.hash.split("/")[0];
-        // if (UtilsNew.isEmpty(this.tool)) {
-        //     this.tool = "#home";
-        //     // this.app = null;
-        // }
-
-        // Go to the page that tool has
-        // if (window.location.hash !== this.tool) {
-        //     window.location.hash = this.tool;
-        // }
+        });
 
         // Notifications
         this.notificationManager = new NotificationManager({});
@@ -620,35 +606,6 @@ class IvaApp extends LitElement {
         window.clearInterval(this.intervalCheckSession);
     }
 
-    // async saveLastStudy(newStudy) {
-    //     const userConfig = await this.opencgaClient.updateUserConfig({
-    //         ...this.opencgaSession.user.configs.IVA,
-    //         lastStudy: newStudy.fqn
-    //     });
-    //     this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
-    // }
-
-    // onUrlChange(e) {
-    //     let hashFrag = e.detail.id;
-    //     if (UtilsNew.isNotUndefined(this.opencgaSession.project) && UtilsNew.isNotEmpty(this.opencgaSession.project.alias)) {
-    //
-    //         hashFrag += "/" + this.opencgaSession.project.alias;
-    //         if (UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
-    //             hashFrag += "/" + this.opencgaSession.study.alias;
-    //         }
-    //     }
-    //
-    //     const myQueryParams = [];
-    //     for (const key in e.detail.query) {
-    //         myQueryParams.push(key + "=" + e.detail.query[key]);
-    //     }
-    //     if (myQueryParams.length > 0) {
-    //         hashFrag += `?${myQueryParams.join("&")}`;
-    //     }
-    //
-    //     window.location.hash = hashFrag;
-    // }
-
     // TODO: we should move this code to an OpenCGA Utils
     checkSessionActive() {
         // We check if refresh token has updated session id cookie
@@ -711,27 +668,6 @@ class IvaApp extends LitElement {
                 }
             }
         }
-    }
-
-    changeTool(e) {
-        // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-        // e.preventDefault();
-
-        // const target = e.currentTarget;
-        // $(".navbar-zetta ul > li > a", this).removeClass("active");
-        // $(target).addClass("active");
-        // if ($(target).closest("ul").hasClass("dropdown-menu")) {
-        //     $(target).closest("ul").closest("li > a").addClass("active");
-        // }
-
-        // if (target?.attributes?.href) {
-        //     this.tool = target.attributes.href.value;
-        // } else {
-        //     this.tool = "#home";
-        // }
-
-        // // this.renderHashFragments();
-        // this.hashFragmentListener();
     }
 
     hashFragmentListener() {
@@ -820,34 +756,26 @@ class IvaApp extends LitElement {
                 lastStudy: studyFqn
             });
 
-            // 2. Set the new Hash URL
-            const hashItems = window.location.hash.replace(/^#/, "").split("/");
+            // 2. set the new Hash URL
+            const [hashFragments, hashQuery] = window.location.hash.replace("#", "").split("?");
+            const hashItems = hashFragments.split("/");
+            let newHashFragmentUrl = "";
+
             // 2.1. If the hash fragment only contains one or three items, it is a single tool URL
             if (hashItems.length === 1 || hashItems.length === 3) {
-                window.location.hash = `${hashItems[0]}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+                newHashFragmentUrl = `${hashItems[0]}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
             }
-            // 2.2 if the hash fragment contains two or more than three items, it is an app/tool URL
-            else if (hashItems.length === 1 || hashItems.length > 3) {
+
+            // 2.2 if the hash fragment contains two or four items, it is an app/tool URL
+            else if (hashItems.length === 2 || hashItems.length === 4) {
                 // NOTE: if we change current sudy in the interpreter, we must remove the clinical analysis id from the hash fragment
                 // and redirect to case portal
                 const tool = hashItems[1] !== "interpreter" ? hashItems[1] : "clinical-analysis-portal";
-                let newHashFragmentUrl = `${hashItems[0]}/${tool}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
-                // add the rest of the items to the hash fragment
-                if (hashItems.length > 4 && hashItems[1] !== "interpreter") {
-                    for (let i = 4; i < hashItems.length; i++) {
-                        newHashFragmentUrl += "/" + hashItems[i];
-                    }
-                }
-                window.location.hash = newHashFragmentUrl;
+                newHashFragmentUrl = `${hashItems[0]}/${tool}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
             }
-            // let newHashFragmentUrl = this.tool !== "#interpreter" ? this.tool : "#clinicalAnalysisPortal";
-            // if (this.opencgaSession?.project) {
-            //     newHashFragmentUrl += "/" + this.opencgaSession.project.id;
-            //     if (this.opencgaSession.study) {
-            //         newHashFragmentUrl += "/" + this.opencgaSession.study.id;
-            //     }
-            // }
-            // window.location.hash = newHashFragmentUrl;
+
+            // 2.3. reset hash including queries (if any)
+            window.location.hash = newHashFragmentUrl + (hashQuery ? `?${hashQuery}` : "");
 
             // 3. Reset queries from old studies
             this.queries = {};
@@ -880,26 +808,6 @@ class IvaApp extends LitElement {
         }
     }
 
-    // updateProject(e) {
-    //     this.project = this.projects.find(project => project.name === e.detail.project.name);
-    //     // this.tool = "#project";
-    //     this.renderHashFragments("project");
-    //     // this.renderBreadcrumb();
-    // }
-
-    // updateStudy(e) {
-    //     if (e.detail.project?.name) {
-    //         this.project = e.detail.project;
-    //     }
-    //     this.study = this.project.studies.find(study => study.name === e.detail.study.name);
-    //
-    //     //                TODO: Opencga study will be shown later. For now variant browser is shown when the study changes
-    //     //                this.tool = "studyInformation";
-    //     // this.tool = "#variant-browser";
-    //     this.renderHashFragments("variant-browser");
-    //     // this.renderBreadcrumb();
-    // }
-
     onSampleChange(e) {
         // if (UtilsNew.isNotUndefinedOrNull(this.samples) && UtilsNew.isNotUndefinedOrNull(e.detail)) {
         // this.samples = e.detail.samples;
@@ -907,22 +815,6 @@ class IvaApp extends LitElement {
         // this.renderBreadcrumb();
         // }
     }
-
-    // quickSearch(e) {
-    //     this.tool = "#variant-browser";
-    //     window.location.hash = "variant-browser/" + this.opencgaSession.project.id + "/" + this.opencgaSession.study.id;
-    //     // this.browserQuery = {xref: e.detail.value};
-    //
-    //     this.browserSearchQuery = e.detail;
-    // }
-
-    // quickFacetSearch(e) {
-    //     console.log("IVA-APP quickfacetsearch");
-    //     this.tool = "#facet";
-    //     window.location.hash = "facet/" + this.opencgaSession.project.id + "/" + this.opencgaSession.study.id;
-    //     // this.browserQuery = {xref: e.detail.value};
-    //     this.browserSearchQuery = e.detail;
-    // }
 
     onJobSelected(e) {
         this.jobSelected = e.detail.jobId;
@@ -954,17 +846,6 @@ class IvaApp extends LitElement {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
     }
 
-    onChangeApp(appId) {
-        // If an App ID exists we display the corresponding app. If not we just show the Suite
-        if (appId) {
-            this.app = this.config.apps.find(app => app.id === appId);
-        } else {
-            this.app = this.getActiveAppConfig();
-        }
-        // force to redirect to the home page
-        window.location.hash = "home";
-    }
-
     getActiveAppConfig() {
         const visibleApps = this.config.apps.filter(app => app.visibility === "public");
         // If there is only ona visible App we DO NOT need to show the Suite welcome, just the App.
@@ -987,18 +868,6 @@ class IvaApp extends LitElement {
     isLoggedIn() {
         return !!this?.opencgaSession?.token;
     }
-
-    // createAboutLink(link, button) {
-    //     const url = link.url ? `${link.url}` : `#${link.id}`;
-    //     const iconHtml = link.icon ? html`<i class="${link.icon} icon-padding" aria-hidden="true"></i>` : null;
-    //     if (link.url) {
-    //         return html`
-    //             <a href="${url}" role="${button ? "button" : "link"}" target="_blank">${iconHtml} ${link.name}</a>`;
-    //     } else {
-    //         return html`
-    //             <a href="${url}" role="${button ? "button" : "link"}">${iconHtml} ${link.name}</a>`;
-    //     }
-    // }
 
     onSessionUpdateRequest() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -1087,8 +956,7 @@ class IvaApp extends LitElement {
                             .app="${this.app}"
                             .config="${this.config}"
                             .opencgaSession="${this.opencgaSession}"
-                            .version="${this.config.version}"
-                            @changeApp="${e => this.onChangeApp(e.detail.e, false)}">
+                            .version="${this.config.version}">
                         </custom-welcome>
                     </div>
                 `;
@@ -2041,11 +1909,9 @@ class IvaApp extends LitElement {
                 <layout-primary-bar
                     .app="${this.app}"
                     .version="${this.version || ""}"
-                    .loggedIn="${this.isLoggedIn()}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.config}"
                     @logout="${() => this.logout()}"
-                    @changeTool="${e => this.changeTool(e.detail.value)}"
                     @studySelect="${e => this.onStudySelect(e.detail.event, e.detail.study)}"
                     @jobSelected="${e => this.onJobSelected(e)}">
                 </layout-primary-bar>
@@ -2053,6 +1919,7 @@ class IvaApp extends LitElement {
                 <!-- Render the App -->
                 <div class="d-flex flex-nowrap">
                     <layout-sidebar
+                        .opencgaSession="${this.opencgaSession}"
                         .currentUrl="${window.location.hash || "#"}"
                         .config="${this.config}">
                     </layout-sidebar>

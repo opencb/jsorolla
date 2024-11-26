@@ -22,11 +22,11 @@ export default class LayoutSecondaryBar extends LitElement {
     }
 
     renderTool(tool) {
-        const active = this.currentUrl.startsWith(`#${tool.id}`);
+        const active = this.currentUrl.startsWith(`#${this.app.id}/${tool.id}`);
         return html`
             <li class="nav-item">
                 <a class="nav-link text-body ${active ? "active border-primary" : ""}" href="#${this.app.id}/${tool.id}">
-                    <div class="px-2 py-1 rounded ${active ? "bg-gray-100" : "hover:bg-gray-100"}">
+                    <div class="px-2 py-1 rounded ${active ? "bg-gray-200" : "hover:bg-gray-100"}">
                         ${tool.name || tool.id || "-"}
                     </div>
                 </a>
@@ -36,11 +36,11 @@ export default class LayoutSecondaryBar extends LitElement {
 
     render() {
         return html`
-            <div class="d-flex align-items-stretch w-full py-2 px-3">
-                <div class="d-flex align-items-center gap-2 me-5 user-select-none">
+            <div class="d-flex align-items-stretch w-full mt-2 mb-3 px-1 border-bottom">
+                <a class="d-flex align-items-center gap-2 me-5 user-select-none text-body text-decoration-none" href="#${this.app.id}/home">
                     <i class="fas ${this.app.icon || ""} fs-3"></i>
                     <span class="fs-3 fw-bold">${this.app.name || "-"}</span>
-                </div>
+                </a>
                 <ul class="nav nav-underline">
                     ${(this.app?.menu || []).map(tool => this.renderTool(tool))}
                 </ul>
