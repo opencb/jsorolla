@@ -94,7 +94,7 @@ export default class LayoutPrimaryBar extends LitElement {
                     <div class="d-flex align-items-stretch gap-2 ms-auto">
                         ${this.renderStudiesDropdown()}
                         <div class="d-flex dropdown">
-                            <button class="d-flex gap-1 align-items-center btn border border-gray-700 hover:bg-gray-800 text-white dropdown-toggle" data-bs-toggle="dropdown">
+                            <button class="d-flex gap-1 align-items-center btn border border-gray-700 hover:bg-gray-800 text-white" data-bs-toggle="dropdown">
                                 <i class="fas fa-rocket lh-1"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end" style="width:350px;">
