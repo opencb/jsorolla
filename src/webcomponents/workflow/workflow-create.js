@@ -264,7 +264,6 @@ export default class WorkflowCreate extends LitElement {
                                     field: "variables[].required",
                                     type: "checkbox",
                                     display: {
-                                        rows: 50,
                                         placeholder: "Add a content...",
                                     },
                                 },

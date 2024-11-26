@@ -76,6 +76,7 @@ import "../../webcomponents/variant/analysis/family-qc-analysis.js";
 import "../../webcomponents/variant/analysis/knockout-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-plink-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-gatk-analysis.js";
+import "../../webcomponents/variant/analysis/bcftools-analysis.js";
 import "../../webcomponents/variant/analysis/variant-export-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-variant-stats-exporter-analysis.js";
 import "../../webcomponents/variant/interpretation/variant-interpreter.js";
@@ -223,6 +224,7 @@ class IvaApp extends LitElement {
             "mendelian-error",
             "plink",
             "gatk",
+            "bcftools",
             "variant-export",
             "variant-stats-exporter",
             // Quality Control
@@ -847,6 +849,7 @@ class IvaApp extends LitElement {
         console.log("HASH_LISTENER", window.location.hash);
         this.app = null;
         this.tool = null;
+
         // 0. in case of empty hash fragments, redirect to home tool
         if (window.location.hash === "" || window.location.hash === "#") {
             if (this.opencgaSession?.project?.id && this.opencgaSession?.study?.id) {
@@ -856,6 +859,7 @@ class IvaApp extends LitElement {
         }
         const hashItems = window.location.hash.replace("#", "").split("/");
         let hashApp = null, hashTool = null, hashProject = null, hashStudy = null, hashQuery = null;
+
         // 1. check if the first hash fragment is an app
         if (this.config?.apps?.length > 0 && this.config.apps.some(app => app.id === hashItems[0])) {
             // example: "#research/home/germline/chinese"
@@ -864,22 +868,27 @@ class IvaApp extends LitElement {
             // example: "#home/germline/chinese"
             [hashTool, hashProject, hashStudy, hashQuery] = hashItems;
         }
+
         // 2. make sure that project and study is in the hash fragment
         if (!hashProject || !hashStudy) {
             window.location.hash = [hashApp, hashTool || "home", this.opencgaSession?.project?.id, this.opencgaSession?.study?.id].filter(Boolean).join("/");
             return;
         }
+
         // 3. parse project and study
         if (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
             return this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
         }
+
         // 4. save app and tool
         this.app = (this.config?.apps || []).find(app => app.id === hashApp);
         this.tool = hashTool;
+
         // 5. parse hashQuery
         if (hashQuery) {
             // TODO
         }
+
         // 6. update IVA
         this.requestUpdate();
         // // 1. Hide all elements
@@ -1305,7 +1314,7 @@ class IvaApp extends LitElement {
                             @changeApp="${e => this.onChangeApp(e.detail.e, false)}">
                         </custom-welcome>
                     </div>
-                `;                
+                `;
                 break;
             case "dahsboard":
                 content = html`
@@ -2263,19 +2272,24 @@ class IvaApp extends LitElement {
                     @studySelect="${e => this.onStudySelect(e.detail.event, e.detail.study)}"
                     @jobSelected="${e => this.onJobSelected(e)}">
                 </layout-primary-bar>
+
+                <!-- Render the App -->
                 <div class="d-flex flex-nowrap">
                     <layout-sidebar
                         .currentUrl="${window.location.hash || "#"}"
                         .config="${this.config}">
                     </layout-sidebar>
+
+                    <!-- Render the center of the 'app': Secondary NavBar, the Tool and the Footer -->
                     <div class="w-full h-full overflow-auto" style="max-height:calc(100vh - 52px);">
                         <div class="px-3" style="min-height:calc(100vh - 120px);">
-                            ${(this.app && this.app?.menu?.length > 0) ? html`
+                            ${this.app?.menu?.length > 0 ? html`
                                 <layout-secondary-bar
                                     .app="${this.app}"
                                     .currentUrl="${window.location.hash || "#"}">
                                 </layout-secondary-bar>
                             ` : nothing}
+
                             ${this.isCreatingSession ? html`
                                 <div class="login-overlay position-absolute top-50 start-50 translate-middle">
                                     <loading-spinner
@@ -2284,6 +2298,7 @@ class IvaApp extends LitElement {
                                 </div>
                             ` : this.renderTool()}
                         </div>
+
                         <layout-footer
                             .version="${this.version || ""}"
                             .host="${this.host}"
