@@ -100,6 +100,7 @@ export default class DataList extends LitElement {
 
     modeObserver(e, mode) {
         this.mode = mode;
+        debugger
         this.renderTable();
     }
 
@@ -286,13 +287,56 @@ export default class DataList extends LitElement {
 
     renderToolbar() {
         const float = this._config?.display?.float === "left" ? "float-start" : "float-end";
+        debugger
         return html`
-            <div class="btn-toolbar d-flex ${this._config.display?.classes || ""}" role="toolbar" aria-label="Toolbar with button groups">
+            <div
+                class="d-flex justify-content-between border-bottom border-black ${this._config.display?.classes || ""}"
+                role="toolbar"
+                aria-label="Toolbar with button groups">
+                <!--
                 <div class="input-group m-2 pe-5">
                     <label class="m-2">Showing ${this._data.length} items</label>
                 </div>
-
-                ${this._config.search?.fields?.length > 0 ? html`
+                -->
+                <!--<div class="d-flex">-->
+                <div class="btn-toolbar m-2" role="toolbar" aria-label="Toolbar view mode">
+                    <div class="btn-group me-2" role="group" aria-label="Data list views">
+                        <label class="btn btn-outline-secondary">
+                            <i class="fas fa-list"></i>
+                            <input
+                                type="radio"
+                                class="btn-check"
+                                name="mode"
+                                autocomplete="off"
+                                @click="${e => this.modeObserver(e, DataList.LIST_MODE)}"
+                                ?checked="${this.mode === DataList.LIST_MODE}"/>
+                        </label>
+                        <label class="btn btn-outline-secondary">
+                            <i class="fas fa-th"></i>
+                            <input
+                               type="radio"
+                               class="btn-check"
+                               name="mode"
+                               autocomplete="off"
+                               @click="${e => this.modeObserver(e, DataList.GRID_MODE)}"
+                               ?checked="${this.mode === DataList.GRID_MODE}"/>
+                        </label>
+                    </div>
+                    ${this._config.groupBy?.options?.length > 0 ? html`
+                        <div class="input-group">
+                            <label class="input-group-text fw-semibold" for="${this._prefix}GroupBy">Group by</label>
+                            <select id="${this._prefix}GroupBy" class="form-select" @change="${this.onGroupBy}">
+                                <option value="none" selected>Select ...</option>
+                                ${this._config.groupBy?.options?.map(option => html`
+                                <option value="${option.id}">${option.name}</option>
+                            `)}
+                            </select>
+                            <label class="input-group-text" style="cursor: pointer" @click="${this.onGroupByClear}"><i class="fas fa-times"></i></label>
+                        </div>
+                    ` : nothing}
+                </div>
+                <div class="d-flex">
+                    ${this._config.search?.fields?.length > 0 ? html`
                     <div class="input-group m-2 ps-5">
                         <div class="input-group-text" id="btnGroupAddon">
                             <i class="fas fa-search" aria-hidden="true"></i>
@@ -302,7 +346,7 @@ export default class DataList extends LitElement {
                     </div>
                 ` : nothing}
 
-                ${this._config.sortBy?.options?.length > 0 ? html`
+                    ${this._config.sortBy?.options?.length > 0 ? html`
                     <div class="input-group m-2">
                         <label class="input-group-text fw-semibold" for="${this._prefix}SortBy">Sort by</label>
                         <select id="${this._prefix}SortBy" class="form-select" @change="${this.onSortBy}">
@@ -314,23 +358,6 @@ export default class DataList extends LitElement {
                         <label class="input-group-text" style="cursor: pointer" @click="${this.onSortByClear}"><i class="fas fa-times"></i></label>
                     </div>
                 ` : nothing}
-
-                ${this._config.groupBy?.options?.length > 0 ? html`
-                    <div class="input-group m-2">
-                        <label class="input-group-text fw-semibold" for="${this._prefix}GroupBy">Group by</label>
-                        <select id="${this._prefix}GroupBy" class="form-select" @change="${this.onGroupBy}">
-                            <option value="none" selected>Select ...</option>
-                            ${this._config.groupBy?.options?.map(option => html`
-                                <option value="${option.id}">${option.name}</option>
-                            `)}
-                        </select>
-                        <label class="input-group-text" style="cursor: pointer" @click="${this.onGroupByClear}"><i class="fas fa-times"></i></label>
-                    </div>
-                ` : nothing}
-
-                <div class="btn-group m-2" role="group" aria-label="Basic example">
-                    <button type="button" class="btn" @click="${e => this.modeObserver(e, DataList.LIST_MODE)}"><i class="fas fa-list"></i></button>
-                    <button type="button" class="btn" @click="${e => this.modeObserver(e, DataList.GRID_MODE)}"><i class="fas fa-th"></i></button>
                 </div>
             </div>
         `;
@@ -495,7 +522,7 @@ export default class DataList extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                classes: "shadow bg-body-tertiary rounded",
+                // classes: "shadow bg-body-tertiary rounded",
                 style: "",
                 float: "left",
             },
