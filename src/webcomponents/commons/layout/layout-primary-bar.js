@@ -93,16 +93,6 @@ export default class LayoutPrimaryBar extends LitElement {
                     </div>
                     <div class="d-flex align-items-stretch gap-2 ms-auto">
                         ${this.renderStudiesDropdown()}
-                        <button class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-700 text-white">
-                            <i class="fas fa-folder-open lh-1"></i>
-                        </button>
-                        <button class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-700 text-white">
-                            <i class="fas fa-project-diagram lh-1"></i>
-                        </button>
-                        <button class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-700 text-white">
-                            <i class="fas fa-user-cog lh-1"></i>
-                        </button>
-                        ${this.renderSeparator()}
                         <div class="d-flex dropdown">
                             <button class="d-flex gap-1 align-items-center btn border border-gray-700 hover:bg-gray-800 text-white dropdown-toggle" data-bs-toggle="dropdown">
                                 <i class="fas fa-rocket lh-1"></i>
@@ -112,6 +102,11 @@ export default class LayoutPrimaryBar extends LitElement {
                                     .opencgaSession="${this.opencgaSession}">
                                 </job-monitor>
                             </div>
+                        </div>
+                        <div class="d-flex dropdown">
+                            <button class="d-flex gap-1 align-items-center btn border border-gray-700 hover:bg-gray-800 text-white" data-bs-toggle="dropdown">
+                                <i class="fas fa-bell lh-1"></i>
+                            </button>
                         </div>
                         <a href="#rest-api" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
                             <i class="fas fa-code lh-1"></i>
