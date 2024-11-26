@@ -153,10 +153,6 @@ class IvaApp extends LitElement {
         _config.populationFrequencies = POPULATION_FREQUENCIES;
         _config.proteinSubstitutionScores = PROTEIN_SUBSTITUTION_SCORE.style;
 
-        // We can customise which components are active by default, this improves the first loading time.
-        _config.enabledComponents = {};
-        _config.enabledComponents.home = true;
-
         // Reading the default settings from the config files, eg. browser.settings.js
         // Store them in a flat structure.
         this.DEFAULT_TOOL_SETTINGS = {
@@ -166,113 +162,6 @@ class IvaApp extends LitElement {
             ...USER_SETTINGS
             // CUSTOM_PAGES,
         };
-
-        const components = [
-            "home",
-            "gettingstarted",
-            "aboutzetta",
-            // "reset-password",
-            "settings",
-            "account",
-            "projects",
-            "file-manager",
-            "file-data-manager",
-            "beacon",
-            "project",
-            "file",
-            "fileUpdate",
-            // Sample
-            "sample",
-            "sample-view",
-            "sampleVariantStatsBrowser",
-            "sampleCancerVariantStatsBrowser",
-            "sampleUpdate",
-            "sample-variant-stats",
-            "individual",
-            "individualUpdate",
-            "family",
-            "familyUpdate",
-            "cohort",
-            "clinicalAnalysis",
-            "clinicalAnalysisPortal",
-            "clinicalAnalysisCreator",
-            "settings",
-            "gene",
-            "transcript",
-            "protein",
-            "variant-browser",
-            "job",
-            "workflow",
-            "workflow-manager",
-            "workflow-analysis",
-            "cat-browser",
-            "cat-analysis",
-            "cat-clinical",
-            "cat-tools",
-            "cat-catalog",
-            "cat-alignment",
-            "cat-ga4gh",
-            // Variant
-            "eligibility",
-            "gwas",
-            "cohort-variant-stats",
-            "sample-eligibility",
-            "knockout",
-            "inferred-sex",
-            "mutational-signature",
-            "individual-relatedness",
-            "mendelian-error",
-            "plink",
-            "gatk",
-            "bcftools",
-            "variant-export",
-            "variant-stats-exporter",
-            // Quality Control
-            "sample-qc",
-            "individual-qc",
-            "family-qc",
-            // Clinical
-            "clinical-analysis-create",
-            "interpreter",
-            "rd-tiering",
-            // Alignment
-            "alignment-index",
-            "alignment-stats",
-            "coverage-index",
-            "job-view",
-            "tool-analysis",
-            "custom-tool-builder",
-            "rga",
-            "disease-panel",
-            "diseasePanelUpdate",
-            "clinicalAnalysis",
-            // Admin
-            "organization-admin",
-            "study-admin",
-            "study-admin-iva",
-            // "catalog-admin",
-            "operations-admin",
-            "opencga-admin",
-            "variants-admin",
-            // "projects-admin",
-            // REST-API
-            "rest-api",
-            // note
-            "note-browser",
-        ];
-
-        // Add custom tools
-        ExtensionsManager
-            .getTools()
-            .forEach(tool => components.push(tool.id));
-
-        for (const component of components) {
-            _config.enabledComponents[component] = false;
-        }
-
-        // Register custom page component
-        // Only will be displayed if no other component matches the current url
-        _config.enabledComponents["customPage"] = false;
 
         // We set the global Polymer variable, this produces one single event
         this.config = _config;
