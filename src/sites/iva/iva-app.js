@@ -181,18 +181,6 @@ class IvaApp extends LitElement {
             this.hashFragmentListener();
         };
 
-        // Remember the tool that was previously set
-        // this.tool = window.location.hash.split("/")[0];
-        // if (UtilsNew.isEmpty(this.tool)) {
-        //     this.tool = "#home";
-        //     // this.app = null;
-        // }
-
-        // Go to the page that tool has
-        // if (window.location.hash !== this.tool) {
-        //     window.location.hash = this.tool;
-        // }
-
         // Notifications
         this.notificationManager = new NotificationManager({});
 
@@ -620,35 +608,6 @@ class IvaApp extends LitElement {
         window.clearInterval(this.intervalCheckSession);
     }
 
-    // async saveLastStudy(newStudy) {
-    //     const userConfig = await this.opencgaClient.updateUserConfig({
-    //         ...this.opencgaSession.user.configs.IVA,
-    //         lastStudy: newStudy.fqn
-    //     });
-    //     this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
-    // }
-
-    // onUrlChange(e) {
-    //     let hashFrag = e.detail.id;
-    //     if (UtilsNew.isNotUndefined(this.opencgaSession.project) && UtilsNew.isNotEmpty(this.opencgaSession.project.alias)) {
-    //
-    //         hashFrag += "/" + this.opencgaSession.project.alias;
-    //         if (UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
-    //             hashFrag += "/" + this.opencgaSession.study.alias;
-    //         }
-    //     }
-    //
-    //     const myQueryParams = [];
-    //     for (const key in e.detail.query) {
-    //         myQueryParams.push(key + "=" + e.detail.query[key]);
-    //     }
-    //     if (myQueryParams.length > 0) {
-    //         hashFrag += `?${myQueryParams.join("&")}`;
-    //     }
-    //
-    //     window.location.hash = hashFrag;
-    // }
-
     // TODO: we should move this code to an OpenCGA Utils
     checkSessionActive() {
         // We check if refresh token has updated session id cookie
@@ -851,26 +810,6 @@ class IvaApp extends LitElement {
         }
     }
 
-    // updateProject(e) {
-    //     this.project = this.projects.find(project => project.name === e.detail.project.name);
-    //     // this.tool = "#project";
-    //     this.renderHashFragments("project");
-    //     // this.renderBreadcrumb();
-    // }
-
-    // updateStudy(e) {
-    //     if (e.detail.project?.name) {
-    //         this.project = e.detail.project;
-    //     }
-    //     this.study = this.project.studies.find(study => study.name === e.detail.study.name);
-    //
-    //     //                TODO: Opencga study will be shown later. For now variant browser is shown when the study changes
-    //     //                this.tool = "studyInformation";
-    //     // this.tool = "#variant-browser";
-    //     this.renderHashFragments("variant-browser");
-    //     // this.renderBreadcrumb();
-    // }
-
     onSampleChange(e) {
         // if (UtilsNew.isNotUndefinedOrNull(this.samples) && UtilsNew.isNotUndefinedOrNull(e.detail)) {
         // this.samples = e.detail.samples;
@@ -878,22 +817,6 @@ class IvaApp extends LitElement {
         // this.renderBreadcrumb();
         // }
     }
-
-    // quickSearch(e) {
-    //     this.tool = "#variant-browser";
-    //     window.location.hash = "variant-browser/" + this.opencgaSession.project.id + "/" + this.opencgaSession.study.id;
-    //     // this.browserQuery = {xref: e.detail.value};
-    //
-    //     this.browserSearchQuery = e.detail;
-    // }
-
-    // quickFacetSearch(e) {
-    //     console.log("IVA-APP quickfacetsearch");
-    //     this.tool = "#facet";
-    //     window.location.hash = "facet/" + this.opencgaSession.project.id + "/" + this.opencgaSession.study.id;
-    //     // this.browserQuery = {xref: e.detail.value};
-    //     this.browserSearchQuery = e.detail;
-    // }
 
     onJobSelected(e) {
         this.jobSelected = e.detail.jobId;
@@ -925,17 +848,6 @@ class IvaApp extends LitElement {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
     }
 
-    onChangeApp(appId) {
-        // If an App ID exists we display the corresponding app. If not we just show the Suite
-        if (appId) {
-            this.app = this.config.apps.find(app => app.id === appId);
-        } else {
-            this.app = this.getActiveAppConfig();
-        }
-        // force to redirect to the home page
-        window.location.hash = "home";
-    }
-
     getActiveAppConfig() {
         const visibleApps = this.config.apps.filter(app => app.visibility === "public");
         // If there is only ona visible App we DO NOT need to show the Suite welcome, just the App.
@@ -958,18 +870,6 @@ class IvaApp extends LitElement {
     isLoggedIn() {
         return !!this?.opencgaSession?.token;
     }
-
-    // createAboutLink(link, button) {
-    //     const url = link.url ? `${link.url}` : `#${link.id}`;
-    //     const iconHtml = link.icon ? html`<i class="${link.icon} icon-padding" aria-hidden="true"></i>` : null;
-    //     if (link.url) {
-    //         return html`
-    //             <a href="${url}" role="${button ? "button" : "link"}" target="_blank">${iconHtml} ${link.name}</a>`;
-    //     } else {
-    //         return html`
-    //             <a href="${url}" role="${button ? "button" : "link"}">${iconHtml} ${link.name}</a>`;
-    //     }
-    // }
 
     onSessionUpdateRequest() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -1058,8 +958,7 @@ class IvaApp extends LitElement {
                             .app="${this.app}"
                             .config="${this.config}"
                             .opencgaSession="${this.opencgaSession}"
-                            .version="${this.config.version}"
-                            @changeApp="${e => this.onChangeApp(e.detail.e, false)}">
+                            .version="${this.config.version}">
                         </custom-welcome>
                     </div>
                 `;
@@ -2012,7 +1911,6 @@ class IvaApp extends LitElement {
                 <layout-primary-bar
                     .app="${this.app}"
                     .version="${this.version || ""}"
-                    .loggedIn="${this.isLoggedIn()}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.config}"
                     @logout="${() => this.logout()}"
