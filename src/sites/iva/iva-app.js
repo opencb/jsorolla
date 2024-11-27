@@ -302,6 +302,7 @@ class IvaApp extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -706,7 +707,7 @@ class IvaApp extends LitElement {
 
         // 4. parse project and study
         if (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
-            return this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
+            this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
         }
 
         // 5. save app and tool
