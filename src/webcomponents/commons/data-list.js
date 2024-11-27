@@ -298,9 +298,52 @@ export default class DataList extends LitElement {
                     <label class="m-2">Showing ${this._data.length} items</label>
                 </div>
                 -->
-                <!--<div class="d-flex">-->
+                <!-- 1. Data list actions related with data filtering and ordering -->
+                <div class="btn-toolbar m-2" role="toolbar" aria-label="Toolbar filter and order data">
+                    <!-- Filter rows by specified columns -->
+                    ${this._config.search?.fields?.length > 0 ? html`
+                        <div class="input-group me-1">
+                            <div class="input-group-text" id="btnGroupAddon">
+                                <i class="fas fa-search" aria-hidden="true"></i>
+                            </div>
+                            <input
+                                id="${this._prefix}InputSearch"
+                                type="text" class="form-control"
+                                placeholder="${this._config.search?.placeholder || "Search ..."}"
+                                aria-label="Input group example"
+                                aria-describedby="btnGroupAddon"
+                                @input="${this.onSearch}"/>
+                        </div>
+                    ` : nothing}
+                    <!-- Sort by specified options -->
+                    ${this._config.sortBy?.options?.length > 0 ? html`
+                    <div class="input-group me-1">
+                        <label class="input-group-text fw-semibold" for="${this._prefix}SortBy">Sort by</label>
+                        <select id="${this._prefix}SortBy" class="form-select" @change="${this.onSortBy}">
+                            <option value="none" style="font-style: italic" selected>Select ...</option>
+                            ${this._config.sortBy?.options?.map(option => html`
+                                <option value="${option.id}">${option.name}</option>
+                            `)}
+                        </select>
+                        <label class="input-group-text" style="cursor: pointer" @click="${this.onSortByClear}"><i class="fas fa-times"></i></label>
+                    </div>
+                ` : nothing}
+                </div>
+                <!-- 2. Data list actions related to data view -->
                 <div class="btn-toolbar m-2" role="toolbar" aria-label="Toolbar view mode">
-                    <div class="btn-group me-2" role="group" aria-label="Data list views">
+                    ${this._config.groupBy?.options?.length > 0 ? html`
+                        <div class="input-group me-1">
+                            <label class="input-group-text fw-semibold" for="${this._prefix}GroupBy">Group by</label>
+                            <select id="${this._prefix}GroupBy" class="form-select" @change="${this.onGroupBy}">
+                                <option value="none" selected>Select ...</option>
+                                ${this._config.groupBy?.options?.map(option => html`
+                                <option value="${option.id}">${option.name}</option>
+                            `)}
+                            </select>
+                            <label class="input-group-text" style="cursor: pointer" @click="${this.onGroupByClear}"><i class="fas fa-times"></i></label>
+                        </div>
+                    ` : nothing}
+                    <div class="btn-group" role="group" aria-label="Data list views">
                         <input
                                 type="radio"
                                 class="btn-check"
@@ -324,42 +367,6 @@ export default class DataList extends LitElement {
                             <i class="fas fa-th"></i>
                         </label>
                     </div>
-                    ${this._config.groupBy?.options?.length > 0 ? html`
-                        <div class="input-group">
-                            <label class="input-group-text fw-semibold" for="${this._prefix}GroupBy">Group by</label>
-                            <select id="${this._prefix}GroupBy" class="form-select" @change="${this.onGroupBy}">
-                                <option value="none" selected>Select ...</option>
-                                ${this._config.groupBy?.options?.map(option => html`
-                                <option value="${option.id}">${option.name}</option>
-                            `)}
-                            </select>
-                            <label class="input-group-text" style="cursor: pointer" @click="${this.onGroupByClear}"><i class="fas fa-times"></i></label>
-                        </div>
-                    ` : nothing}
-                </div>
-                <div class="d-flex">
-                    ${this._config.search?.fields?.length > 0 ? html`
-                    <div class="input-group m-2 ps-5">
-                        <div class="input-group-text" id="btnGroupAddon">
-                            <i class="fas fa-search" aria-hidden="true"></i>
-                        </div>
-                        <input id="${this._prefix}InputSearch" type="text" class="form-control" placeholder="${this._config.search?.placeholder || "Search ..."}" aria-label="Input group example" aria-describedby="btnGroupAddon"
-                               @input="${this.onSearch}">
-                    </div>
-                ` : nothing}
-
-                    ${this._config.sortBy?.options?.length > 0 ? html`
-                    <div class="input-group m-2">
-                        <label class="input-group-text fw-semibold" for="${this._prefix}SortBy">Sort by</label>
-                        <select id="${this._prefix}SortBy" class="form-select" @change="${this.onSortBy}">
-                            <option value="none" style="font-style: italic" selected>Select ...</option>
-                            ${this._config.sortBy?.options?.map(option => html`
-                                <option value="${option.id}">${option.name}</option>
-                            `)}
-                        </select>
-                        <label class="input-group-text" style="cursor: pointer" @click="${this.onSortByClear}"><i class="fas fa-times"></i></label>
-                    </div>
-                ` : nothing}
                 </div>
             </div>
         `;
