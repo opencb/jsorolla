@@ -48,6 +48,9 @@ export default class FileDataManager extends LitElement {
     }
 
     _init() {
+        this.COMPONENT_ID = "file-manager";
+        this._prefix = UtilsNew.randomString(8);
+
         this.currentRootId = ":";
 
         this.tree = null;
@@ -59,30 +62,45 @@ export default class FileDataManager extends LitElement {
             FILE: "orange",
         };
 
-        this.toolbarEntity = [
-            {
+        this.entityActions = {
+            "create-folder": {
                 tooltip: "New Folder",
-                action: this.onCreateFolder,
                 icon: "fas fa-folder-plus",
+                modalTitle: "Create Folder",
+                modalId: `${this._prefix}CreateFolderModal`,
+                render: () => this.renderFolderCreate(),
+                // permission: this.permissions["organization"](),
             },
-            {
+            "create-file": {
                 tooltip: "New File",
                 action: null,
                 icon: "fas fa-file",
             },
-            {
+            "upload-file": {
                 tooltip: "Upload File",
                 action: null,
                 icon: "fas fa-upload",
             },
-            {
+            "fetch-file": {
                 tooltip: "Fetch File",
                 action: null,
                 icon: "fas fa-cloud-download-alt",
             },
-        ];
+    };
 
         this._config = this.getDefaultConfig();
+    }
+
+    async onEntityActionClick(e, value, row) {
+        this.entityAction = e.currentTarget.dataset.action;
+        this.requestUpdate();
+        await this.updateComplete;
+        ModalUtils.show(this.entityActions[this.entityAction]["modalId"]);
+    }
+
+    onEntityUpdate() {
+        this.entityAction = "";
+        this.requestUpdate();
     }
 
     update(changedProperties) {
@@ -114,7 +132,6 @@ export default class FileDataManager extends LitElement {
                 .then(restResponse => {
                     this.errorState = false;
                     this.tree = restResponse.getResult(0);
-                    debugger
                     this.tree.visited = true;
                     this.currentRoot = this.tree;
                     this.requestUpdate();
@@ -137,7 +154,6 @@ export default class FileDataManager extends LitElement {
 
     async fetchFolder(node) {
         try {
-            debugger
             if (!node.visited) {
                 const restResponse = await this.opencgaSession.opencgaClient.files()
                     .tree(node.file.id, {study: this.opencgaSession.study.fqn, maxDepth: 1, include: "id,name,path,format,size,sampleIds,jobId,internal"});
@@ -265,22 +281,26 @@ export default class FileDataManager extends LitElement {
                 <i class="fas fa-home"></i> <a class="text-decoration-none home" @click="${this.reset}"> Home</a>`}
 
             <ul>
-                ${children.map(node => {
-                    if (node.file.type === "DIRECTORY") {
-                        return html`
-                            <li class="folder">
-                                <!-- <span class="badge">\${node.children.length}</span>-->
-                                ${this.renderTree(node)}
-                            </li>`;
-                    } else if (["FILE", "VIRTUAL"].includes(node.file.type.toUpperCase())) {
-                        return html`
-                            <p class="file ${this.fileId === node.file.id ? "active" : ""}" @click="${() => this.onClickFile(node.file.id)}">
-                                ${this.icon(node.file.format)} ${node.file.name}
-                            </p>`;
-                    } else {
-                        throw new Error("Type not recognized " + node.file.type);
-                    }
-                })}
+                ${
+                    children.map(node => {
+                        switch (node.file.type.toUpperCase()) {
+                            case "DIRECTORY":
+                                return html`
+                                <li class="folder">
+                                    <!-- <span class="badge">\${node.children.length}</span>-->
+                                    ${this.renderTree(node)}
+                                </li>`;
+                            case "FILE":
+                            case "VIRTUAL":
+                                return html`
+                                <p class="file ${this.fileId === node.file.id ? "active" : ""}" @click="${() => this.onClickFile(node.file.id)}">
+                                    ${this.icon(node.file.format)} ${node.file.name}
+                                </p>`;
+                            default:
+                                throw new Error("Type not recognized " + node.file.type);
+                        }
+                    })
+                }
             </ul>
         `;
     }
@@ -320,7 +340,6 @@ export default class FileDataManager extends LitElement {
 
     renderBreadcrumb(node) {
         const path = node.file.id.split(":").filter(Boolean);
-        debugger
         return html`
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
@@ -367,23 +386,14 @@ export default class FileDataManager extends LitElement {
         this.requestUpdate();
     }
 
-    // Nacho
-    onCreateFolder() {
-        ModalUtils.show(`${this._prefix}CreateFolderModal`);
-    }
-
-    renderCreateFolder() {
-        return ModalUtils.create(this, `${this._prefix}CreateFolderModal`, {
+    renderFolderCreate() {
+        return ModalUtils.create(this, `${this.entityActions[this.entityAction]["modalId"]}`, {
             display: {
-                modalTitle: "Create Folder",
+                modalTitle: this.entityActions[this.entityAction]["modalTitle"],
                 modalDraggable: true,
                 modalSize: "modal-lg",
             },
             render: () => html`
-                <div class="mb-3">
-                    <label for="exampleFormControlInput1" class="form-label">Email address</label>
-                    <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
-                </div>
             `,
         });
     }
@@ -422,22 +432,25 @@ export default class FileDataManager extends LitElement {
         `;
     }
 
-    renderToolbar() {
+    renderEntityToolbar() {
         return html`
             <div class="btn-toolbar d-flex" role="toolbar" aria-label="Toolbar with button groups">
                 <div class="m-2">
                     ${
-                    this.toolbarEntity.map(button => {
-                        return html`
-                            <button
+                        Object.keys(this.entityActions).map(actionKey => {
+                            const action = this.entityActions[actionKey];
+                            return html`
+                                <button
                                     type="button"
                                     class="btn btn-outline-dark ms-2"
-                                    @click="${button.action}">
-                                ${button.icon ? html`<span><i class="${button.icon} fa-lg"></i></span>` : nothing}
-                                ${button.title ? html`${button.title}` : nothing}
-                            </button>
-                        `;
-                    })}
+                                    data-action="${actionKey}"
+                                    @click="${ (e, value, row) => this.onEntityActionClick(e, value, row)}">
+                                        ${action.icon ? html`<span><i class="${action.icon} fa-lg"></i></span>` : nothing}
+                                        ${action.title ? html`${action.title}` : nothing}
+                                </button>
+                            `;
+                        })
+                    }
                 </div>
                 <!--
                 <div class="m-2">
@@ -449,13 +462,10 @@ export default class FileDataManager extends LitElement {
     }
 
     onDblClickRow(e) {
-        debugger
         this.onClickFile(e.detail.value.id);
     }
 
-    onCheckRow(e) {
-        debugger
-    }
+    onCheckRow(e) {}
 
     onActionClick(e, value, file) {
         e.preventDefault();
@@ -493,7 +503,7 @@ export default class FileDataManager extends LitElement {
         if (!this.opencgaSession || !this.currentRoot) {
             return null;
         }
-debugger
+
         return html`
             ${this.renderStyles()}
             <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
@@ -521,12 +531,12 @@ debugger
                             <div class="d-flex justify-content-between border-bottom border-black">
                                 <!-- Render breadcrumb -->
                                 <div class="d-flex align-items-center flex-grow-1">
-                                    <div class="me-2 fw-bold">FILE:</div>
+                                    <div class="me-2 fw-bold">CURRENT PATH:</div>
                                     ${this.renderBreadcrumb(this.currentRoot)}
                                 </div>
                                 <!-- Render entity actions toolbar -->
                                 <div>
-                                    ${this.renderToolbar()}
+                                    ${this.renderEntityToolbar()}
                                 </div>
                             </div>
                             <data-list
@@ -539,8 +549,8 @@ debugger
                     ` : null}
                 </div>
             </div>
-
-            ${this.renderCreateFolder()}
+            <!-- 3. On entity action click, render the respective modal -->
+            ${this.entityAction ? this.entityActions[this.entityAction]["render"](): nothing}
             ${this.renderViewFile()}
         `;
     }
