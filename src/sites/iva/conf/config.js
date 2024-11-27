@@ -92,8 +92,8 @@ const opencga = {
 const CATALOG_NAVBAR_MENU = {
     id: "catalog",
     name: "Catalog",
-    visibility: "public",
     icon: "img/tools/icons/aggregation2.svg",
+    visibility: "public",
     submenu: [
         // {
         //     id: "projects",
@@ -185,6 +185,325 @@ const CATALOG_NAVBAR_MENU = {
             name: "Job Browser",
             visibility: "public"
         },
+    ]
+};
+
+const ANALYSIS_TOOL = {
+    id: "analysis",
+    name: "Analysis",
+    description: "",
+    icon: "img/tools/icons/aggregation.svg",
+    visibility: "public",
+    submenu: [
+        {
+            name: "Analysis Execution",
+            category: true,
+            visibility: "public"
+        },
+        {
+            id: "tool-analysis",
+            name: "Tool Executor",
+            description: "",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            id: "custom-tool-builder",
+            name: "Custom Tool Builder",
+            description: "",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            id: "workflow-analysis",
+            name: "Workflow Executor",
+            description: "",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            separator: true,
+            visibility: "public"
+        },
+        {
+            name: "Summary Stats",
+            category: true,
+            visibility: "public"
+        },
+        {
+            id: "sample-variant-stats",
+            name: "Sample Variant Stats",
+            acronym: "SVS",
+            description: "",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            id: "cohort-variant-stats",
+            name: "Cohort Variant Stats",
+            acronym: "CS",
+            description: "",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            separator: true,
+            visibility: "public"
+        },
+        {
+            name: "Association Analysis",
+            category: true,
+            visibility: "public"
+        },
+        {
+            id: "gwas",
+            name: "Genome-Wide Association Study (GWAS)",
+            acronym: "GWAS",
+            description: "Study of a genome-wide set of genetic variants in different individuals to see if any variant is associated with a trait",
+            icon: "img/tools/icons/aggregation.svg",
+            visibility: "public",
+        },
+        {
+            separator: true,
+            visibility: "public"
+        },
+        {
+            name: "Sample Analysis",
+            category: true,
+            visibility: "public"
+        },
+        {
+            id: "knockout",
+            name: "Knockout Analysis",
+            acronym: "KO",
+            description: "",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            id: "sample-eligibility",
+            name: "Eligibility Analysis",
+            description: "",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            separator: true,
+            visibility: "public"
+        },
+        {
+            name: "Individual Analysis",
+            category: true,
+            visibility: "public"
+        },
+        {
+            id: "inferred-sex",
+            name: "Sex Inference",
+            acronym: "SI",
+            description: "",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            id: "individual-relatedness",
+            name: "Relatedness",
+            acronym: "RL",
+            description: "",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            id: "mendelian-error",
+            name: "Mendelian Errors",
+            acronym: "ME",
+            description: "",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            separator: true,
+            visibility: "public"
+        },
+        {
+            name: "Cancer Analysis",
+            category: true,
+            visibility: "public"
+        },
+        {
+            id: "mutational-signature",
+            name: "Mutational Signature",
+            acronym: "SG",
+            description: "",
+            icon: "img/tools/icons/aggregation.svg",
+            visibility: "public"
+        },
+        {
+            separator: true,
+            visibility: "public"
+        },
+        {
+            name: "Quality Control",
+            category: true,
+            visibility: "public"
+        },
+        {
+            id: "sample-qc",
+            name: "Sample Quality Control",
+            description: "Calculate different genetic checks and metrics and store data in Sample Catalog",
+            icon: "img/tools/icons/aggregation.svg",
+            visibility: "public"
+        },
+        {
+            id: "individual-qc",
+            name: "Individual Quality Control",
+            description: "Calculate different genetic checks and metrics and store data in Individual Catalog",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            id: "family-qc",
+            name: "Family Quality Control",
+            description: "Calculate different genetic checks and metrics and store data in Family Catalog",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            separator: true,
+            visibility: "public"
+        },
+        {
+            name: "Export",
+            category: true,
+            visibility: "public"
+        },
+        {
+            id: "variant-export",
+            name: "Variant Export",
+            acronym: "EX",
+            description: `
+                                Filter and export variants, with their annotation and sample genotypes,
+                                from the Variant Storage to a file in multiple supported formats (vcf, json, tped, ensembl vep tab...)
+                                for being shared or processed by an external tool.
+                            `,
+            icon: "img/tools/icons/aggregation.svg",
+            visibility: "public"
+        },
+        {
+            id: "variant-stats-exporter",
+            name: "Variant Stats Export",
+            acronym: "VSE",
+            description: "Export variant stats for different cohorts",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            separator: true,
+            visibility: "public"
+        },
+        {
+            name: "External Tools",
+            category: true,
+            visibility: "public"
+        },
+        {
+            id: "beacon",
+            name: "GA4GH Beacon",
+            description: `
+                                <ul>
+                                    <li>Federated search from the Global Alliance for Genomics and Health</li>
+                                    <li>Find databases that have information about specific variants</li>
+                                </ul>`,
+            thumbnail: "beacon.png",
+            fa_icon: "fa fa-globe-europe",
+            icon: "beacon.svg",
+            visibility: "public"
+        },
+        {
+            id: "plink",
+            name: "Plink",
+            acronym: "Pl",
+            description: "",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            id: "gatk",
+            name: "GATK",
+            acronym: "GT",
+            description: "",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            id: "bcftools",
+            name: "BCFtools",
+            acronym: "GT",
+            description: "",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            name: "Data Management",
+            category: true,
+            visibility: "public"
+        },
+        {
+            id: "alignment-index",
+            name: "Alignment Index",
+            description: "Create a .bai index file.",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            id: "coverage-index",
+            name: "Coverage Index",
+            description: "Precompute coverage in a BigWig file",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            separator: true,
+            visibility: "public"
+        },
+        {
+            name: "Summary Stats",
+            category: true,
+            visibility: "public"
+        },
+        {
+            id: "alignment-stats",
+            name: "Alignment Stats",
+            description: "Compute BAM stats using samtools",
+            icon: "",
+            visibility: "public"
+        },
+        {
+            id: "beacon",
+            name: "GA4GH Beacon",
+            description: `
+                <ul>
+                    <li>Federated search from the Global Alliance for Genomics and Health</li>
+                    <li>Find databases that have information about specific variants</li>
+                </ul>`,
+            thumbnail: "beacon.png",
+            fa_icon: "fa fa-globe-europe",
+            icon: "beacon.svg",
+            visibility: "public"
+        },
+        // {
+        //     id: "genomeBrowser",
+        //     title: "Genome Browser",
+        //     acronym: "GB",
+        //     description: `<ul>
+        //                     <li>Based on Genome Maps (http://genomemaps.org)</li>
+        //                     <li>Smooth, interactive variant visualisation</li>
+        //                     </ul>`,
+        //     visibility: "private",
+        //     thumbnail: "screenshot3.png",
+        //     fa_icon: "fa fa-globe-europe",
+        //     icon: "genome_browser.svg"
+        //
+        // },
     ]
 };
 
@@ -321,7 +640,8 @@ const SUITE = {
     apps: [
         {
             id: "research",
-            name: "Research",
+            name: "Research", // Short name of the app. This is the name that will be displayed in the sidebar
+            title: "Research Environment",
             icon: "fa-flask",
             logo: "img/tools/icons/variant_browser_white.svg",
             logoAlt: "img/tools/icons/variant_browser.svg",
@@ -332,8 +652,8 @@ const SUITE = {
                     titleStyle: "text-align:center;",
                     subtitleStyle: "text-align:center;"
                 },
-                title: "Variant Analysis",
-                subtitle: "Explore variants in real-time and execute analysis",
+                title: "Research Environment",
+                subtitle: "Explore variants in real-time and execute analysis and tools",
                 // logo: "img/Zetta_logo.png",
                 logo: "img/tools/icons/variant_browser.svg",
                 content: `
@@ -343,7 +663,9 @@ const SUITE = {
                     </p>
                 `,
                 links: [
-                    {title: "Documentation", url: "http://docs.opencb.org/display/iva"},
+                    {
+                        title: "Documentation", url: "http://docs.opencb.org/display/iva"
+                    },
                 ]
             },
             menu: [
@@ -362,365 +684,91 @@ const SUITE = {
                     `,
                 },
                 {
-                    id: "analysis",
-                    name: "Analysis",
-                    description: "",
-                    icon: "img/tools/icons/aggregation.svg",
-                    visibility: "public",
-                    submenu: [
-                        {
-                            name: "Analysis Execution",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "tool-analysis",
-                            name: "Tool Executor",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "custom-tool-builder",
-                            name: "Custom Tool Builder",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "workflow-analysis",
-                            name: "Workflow Executor",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "Summary Stats",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "sample-variant-stats",
-                            name: "Sample Variant Stats",
-                            acronym: "SVS",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "cohort-variant-stats",
-                            name: "Cohort Variant Stats",
-                            acronym: "CS",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "Association Analysis",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "gwas",
-                            name: "Genome-Wide Association Study (GWAS)",
-                            acronym: "GWAS",
-                            description: "Study of a genome-wide set of genetic variants in different individuals to see if any variant is associated with a trait",
-                            icon: "img/tools/icons/aggregation.svg",
-                            visibility: "public",
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "Sample Analysis",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "knockout",
-                            name: "Knockout Analysis",
-                            acronym: "KO",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "sample-eligibility",
-                            name: "Eligibility Analysis",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "Individual Analysis",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "inferred-sex",
-                            name: "Sex Inference",
-                            acronym: "SI",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "individual-relatedness",
-                            name: "Relatedness",
-                            acronym: "RL",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "mendelian-error",
-                            name: "Mendelian Errors",
-                            acronym: "ME",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "Cancer Analysis",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "mutational-signature",
-                            name: "Mutational Signature",
-                            acronym: "SG",
-                            description: "",
-                            icon: "img/tools/icons/aggregation.svg",
-                            visibility: "public"
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "Quality Control",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "sample-qc",
-                            name: "Sample Quality Control",
-                            description: "Calculate different genetic checks and metrics and store data in Sample Catalog",
-                            icon: "img/tools/icons/aggregation.svg",
-                            visibility: "public"
-                        },
-                        {
-                            id: "individual-qc",
-                            name: "Individual Quality Control",
-                            description: "Calculate different genetic checks and metrics and store data in Individual Catalog",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "family-qc",
-                            name: "Family Quality Control",
-                            description: "Calculate different genetic checks and metrics and store data in Family Catalog",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "Export",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "variant-export",
-                            name: "Variant Export",
-                            acronym: "EX",
-                            description: `
-                                Filter and export variants, with their annotation and sample genotypes,
-                                from the Variant Storage to a file in multiple supported formats (vcf, json, tped, ensembl vep tab...)
-                                for being shared or processed by an external tool.
-                            `,
-                            icon: "img/tools/icons/aggregation.svg",
-                            visibility: "public"
-                        },
-                        {
-                            id: "variant-stats-exporter",
-                            name: "Variant Stats Export",
-                            acronym: "VSE",
-                            description: "Export variant stats for different cohorts",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "External Tools",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "beacon",
-                            name: "GA4GH Beacon",
-                            description: `
-                                <ul>
-                                    <li>Federated search from the Global Alliance for Genomics and Health</li>
-                                    <li>Find databases that have information about specific variants</li>
-                                </ul>`,
-                            thumbnail: "beacon.png",
-                            fa_icon: "fa fa-globe-europe",
-                            icon: "beacon.svg",
-                            visibility: "public"
-                        },
-                        {
-                            id: "plink",
-                            name: "Plink",
-                            acronym: "Pl",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "gatk",
-                            name: "GATK",
-                            acronym: "GT",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "bcftools",
-                            name: "BCFtools",
-                            acronym: "GT",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                    ]
-                },
-                {
-                    id: "alignment",
-                    name: "Alignment",
-                    description: "",
-                    icon: "img/tools/icons/alignment.svg",
-                    visibility: "none",
-                    submenu: [
-                        {
-                            name: "Data Management",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "alignment-index",
-                            name: "Alignment Index",
-                            description: "Create a .bai index file.",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "coverage-index",
-                            name: "Coverage Index",
-                            description: "Precompute coverage in a BigWig file",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "Summary Stats",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "alignment-stats",
-                            name: "Alignment Stats",
-                            description: "Compute BAM stats using samtools",
-                            icon: "",
-                            visibility: "public"
-                        }
-                    ]
-                },
-                {
-                    id: "tools",
-                    name: "Other Tools",
+                    id: "analysis-tools",
+                    name: "Tools",
                     icon: "img/tools/icons/variant_browser.svg",
-                    visibility: "none",
-                    submenu: [
-                        {
-                            id: "rga",
-                            name: "Recessive Variant Analysis",
-                            acronym: "",
-                            icon: "",
-                            description: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "beacon",
-                            name: "GA4GH Beacon",
-                            description: `
-                                <ul>
-                                    <li>Federated search from the Global Alliance for Genomics and Health</li>
-                                    <li>Find databases that have information about specific variants</li>
-                                </ul>`,
-                            thumbnail: "beacon.png",
-                            fa_icon: "fa fa-globe-europe",
-                            icon: "beacon.svg",
-                            visibility: "public"
-                        }
-                        // {
-                        //     id: "genomeBrowser",
-                        //     title: "Genome Browser",
-                        //     acronym: "GB",
-                        //     description: `<ul>
-                        //                     <li>Based on Genome Maps (http://genomemaps.org)</li>
-                        //                     <li>Smooth, interactive variant visualisation</li>
-                        //                     </ul>`,
-                        //     visibility: "private",
-                        //     thumbnail: "screenshot3.png",
-                        //     fa_icon: "fa fa-globe-europe",
-                        //     icon: "genome_browser.svg"
-                        //
-                        // },
-                    ]
+                    visibility: "public",
+                    featured: true,
+                    description: `
+                        <p>Explore all variants identified by the current study.</p>
+                        <ul>
+                            <li>Rich annotation and links to leading reference databases</li>
+                            <li>Filter by gene, consequence, frequency and much more</li>
+                        </ul>
+                    `,
                 },
-                CATALOG_NAVBAR_MENU,
+                {
+                    id: "workflow-manager",
+                    name: "Workflow Manager",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    visibility: "public",
+                    featured: true,
+                    description: `
+                        <p>Explore all variants identified by the current study.</p>
+                        <ul>
+                            <li>Rich annotation and links to leading reference databases</li>
+                            <li>Filter by gene, consequence, frequency and much more</li>
+                        </ul>
+                    `,
+                },
+                {
+                    id: "jupyter-notebook",
+                    name: "Jupyter Notebooks",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    visibility: "public",
+                    featured: true,
+                    description: `
+                        <p>Explore all variants identified by the current study.</p>
+                        <ul>
+                            <li>Rich annotation and links to leading reference databases</li>
+                            <li>Filter by gene, consequence, frequency and much more</li>
+                        </ul>
+                    `,
+                },
+                {
+                    id: "my-analysis",
+                    name: "My Analysis",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    visibility: "public",
+                    featured: true,
+                    description: `
+                        <p>Explore all variants identified by the current study.</p>
+                        <ul>
+                            <li>Rich annotation and links to leading reference databases</li>
+                            <li>Filter by gene, consequence, frequency and much more</li>
+                        </ul>
+                    `,
+                },
+                {
+                    id: "file-data-manager",
+                    name: "Data Manager",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    visibility: "public",
+                    featured: true,
+                    description: `
+                        <p>Explore all variants identified by the current study.</p>
+                        <ul>
+                            <li>Rich annotation and links to leading reference databases</li>
+                            <li>Filter by gene, consequence, frequency and much more</li>
+                        </ul>
+                    `,
+                },
             ],
-            fileExplorer: {
-                visibility: "private"
-            },
-            jobMonitor: {
-                visibility: "private"
-            },
-            // TODO This option seems to be deprecated, do we need to keep it?
-            search: {
-                placeholder: "Search",
-                visible: false
-            },
+            // fileExplorer: {
+            //     visibility: "private"
+            // },
+            // jobMonitor: {
+            //     visibility: "private"
+            // },
+            // search: {
+            //     placeholder: "Search",
+            //     visible: false
+            // },
         },
         {
             id: "clinical",
-            name: "Clinical Analysis",
+            name: "Clinical",
+            title: "Clinical Analysis",
             icon: "fa-stethoscope",
             logo: "img/tools/icons/interpretation_portal_white.svg",
             logoAlt: "img/tools/icons/interpretation_portal.svg",
@@ -744,9 +792,11 @@ const SUITE = {
             },
             menu: [
                 {
-                    id: "clinicalAnalysisPortal",
+                    id: "clinical-analysis-portal",
                     name: "Case Interpreter Portal",
                     icon: "img/tools/icons/interpretation_portal.svg",
+                    visibility: "public",
+                    featured: true,
                     description: `
                         <p>Explore and review Clinical Interpretations analysis</p>
                         <ul>
@@ -754,53 +804,69 @@ const SUITE = {
                             <li>Create clinical interpretations and reports.</li>
                         </ul>
                     `,
-                    visibility: "public",
                     thumbnail: "interpretation_portal.png",
-                    featured: true,
                 },
                 {
-                    id: "clinical",
-                    name: "Management",
+                    id: "disease-panel-browser",
+                    name: "Disease Panels",
                     icon: "img/tools/icons/interpretation_portal.svg",
                     visibility: "public",
-                    submenu: [
-                        {
-                            name: "Case Management",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "clinical-analysis-create",
-                            name: "Create Case",
-                            icon: "img/tools/icons/genome_browser.svg",
-                            description: `
-                                <p>Create a clinical Case</p>
-                                <ul>
-                                    <li>Execute clinical interpretations analysis.</li>
-                                    <li>Create clinical reports.</li>
-                                </ul>
-                            `,
-                            visibility: "public",
-                            featured: true,
-                        }
-                    ]
+                    featured: true,
+                    description: `
+                        <p>Explore and review Clinical Interpretations analysis</p>
+                        <ul>
+                            <li>Filter by gene, consequence, frequency and much more.</li>
+                            <li>Create clinical interpretations and reports.</li>
+                        </ul>
+                    `,
+                    thumbnail: "interpretation_portal.png",
                 },
-                CATALOG_NAVBAR_MENU
+                {
+                    id: "cvdb-browser",
+                    name: "Clinical Variant DB",
+                    icon: "img/tools/icons/interpretation_portal.svg",
+                    visibility: "public",
+                    featured: true,
+                    description: `
+                        <p>Explore and review Clinical Interpretations analysis</p>
+                        <ul>
+                            <li>Filter by gene, consequence, frequency and much more.</li>
+                            <li>Create clinical interpretations and reports.</li>
+                        </ul>
+                    `,
+                    thumbnail: "interpretation_portal.png",
+                },
+                {
+                    id: "clinical-configuration",
+                    name: "Configuration",
+                    icon: "img/tools/icons/interpretation_portal.svg",
+                    visibility: "public",
+                    featured: true,
+                    description: `
+                        <p>Explore and review Clinical Interpretations analysis</p>
+                        <ul>
+                            <li>Filter by gene, consequence, frequency and much more.</li>
+                            <li>Create clinical interpretations and reports.</li>
+                        </ul>
+                    `,
+                    thumbnail: "interpretation_portal.png",
+                },
             ],
-            fileExplorer: {
-                visibility: "private"
-            },
-            jobMonitor: {
-                visibility: "private"
-            },
-            search: {
-                placeholder: "Search",
-                visible: false
-            },
+            // fileExplorer: {
+            //     visibility: "private"
+            // },
+            // jobMonitor: {
+            //     visibility: "private"
+            // },
+            // search: {
+            //     placeholder: "Search",
+            //     visible: false
+            // },
         },
         {
             id: "catalog",
-            name: "Data Catalog",
+            name: "Catalog",
+            title: "Data Catalog",
             icon: "fa-archive",
             logo: "img/tools/icons/interpretation_portal_white.svg",
             logoAlt: "img/tools/icons/interpretation_portal.svg",
@@ -824,24 +890,74 @@ const SUITE = {
             },
             menu: [
                 {
-                    id: "workflow-manager",
-                    name: "Workflow Manager",
-                    icon: "img/tools/icons/interpretation_portal.svg",
+                    id: "sample-browser",
+                    name: "Sample and Individual",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    visibility: "public",
+                    featured: true,
                     description: `
-                        <p>Explore and review Clinical Interpretations analysis</p>
+                        <p>Explore all variants identified by the current study.</p>
                         <ul>
-                            <li>Filter by gene, consequence, frequency and much more.</li>
-                            <li>Create clinical interpretations and reports.</li>
+                            <li>Rich annotation and links to leading reference databases</li>
+                            <li>Filter by gene, consequence, frequency and much more</li>
                         </ul>
                     `,
-                    visibility: "public",
-                    thumbnail: "interpretation_portal.png",
                 },
                 {
-                    id: "clinical-configuration",
-                    name: "Configuration",
-                    icon: "img/tools/icons/interpretation_portal.svg",
+                    id: "individual-browsers",
+                    name: "Browsers",
+                    icon: "img/tools/icons/variant_browser.svg",
                     visibility: "public",
+                    featured: true,
+                    description: `
+                        <p>Explore all variants identified by the current study.</p>
+                        <ul>
+                            <li>Rich annotation and links to leading reference databases</li>
+                            <li>Filter by gene, consequence, frequency and much more</li>
+                        </ul>
+                    `,
+                },
+                // {
+                //     id: "workflow-manager",
+                //     name: "Workflow Manager",
+                //     icon: "img/tools/icons/variant_browser.svg",
+                //     visibility: "public",
+                //     featured: true,
+                //     description: `
+                //         <p>Explore all variants identified by the current study.</p>
+                //         <ul>
+                //             <li>Rich annotation and links to leading reference databases</li>
+                //             <li>Filter by gene, consequence, frequency and much more</li>
+                //         </ul>
+                //     `,
+                // },
+                {
+                    id: "cohort-browser",
+                    name: "Cohort Builder",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    visibility: "public",
+                    featured: true,
+                    description: `
+                        <p>Explore all variants identified by the current study.</p>
+                        <ul>
+                            <li>Rich annotation and links to leading reference databases</li>
+                            <li>Filter by gene, consequence, frequency and much more</li>
+                        </ul>
+                    `,
+                },
+                {
+                    id: "variable-set-browser",
+                    name: "Custom Annotations",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    visibility: "public",
+                    featured: true,
+                    description: `
+                        <p>Explore all variants identified by the current study.</p>
+                        <ul>
+                            <li>Rich annotation and links to leading reference databases</li>
+                            <li>Filter by gene, consequence, frequency and much more</li>
+                        </ul>
+                    `,
                 },
             ],
             // fileExplorer: {
@@ -912,7 +1028,7 @@ const SUITE = {
                     icon: "img/tools/icons/variant_browser.svg",
                     description: "",
                     visibility: "public",
-                    featured: false,
+                    featured: true,
                 },
                 // {
                 //     id: "catalog-admin",
@@ -951,16 +1067,16 @@ const SUITE = {
                 //     featured: true,
                 // },
             ],
-            fileExplorer: {
-                visibility: "private"
-            },
-            jobMonitor: {
-                visibility: "none"
-            },
-            search: {
-                placeholder: "Search",
-                visible: false
-            },
+            // fileExplorer: {
+            //     visibility: "private"
+            // },
+            // jobMonitor: {
+            //     visibility: "none"
+            // },
+            // search: {
+            //     placeholder: "Search",
+            //     visible: false
+            // },
         }
     ]
 };
