@@ -96,6 +96,7 @@ import "../../webcomponents/study/admin/variant/operations-admin.js";
 import "../../webcomponents/user/user-profile.js";
 import "../../webcomponents/api/rest-api.js";
 import "../../webcomponents/note/note-browser.js";
+import "../../webcomponents/analysis/analysis-tools.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
@@ -1875,6 +1876,13 @@ class IvaApp extends LitElement {
                             .opencgaSession="${this.opencgaSession}">
                         </rest-api>
                     </div>
+                `;
+                break;
+            case "analysis-tools":
+                content = html`
+                    <analysis-tools
+                        .opencgaSession="${this.opencgaSession}">
+                    </analysis-tools>
                 `;
                 break;
             default:
