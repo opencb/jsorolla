@@ -301,25 +301,27 @@ export default class DataList extends LitElement {
                 <!--<div class="d-flex">-->
                 <div class="btn-toolbar m-2" role="toolbar" aria-label="Toolbar view mode">
                     <div class="btn-group me-2" role="group" aria-label="Data list views">
-                        <label class="btn btn-outline-secondary">
-                            <i class="fas fa-list"></i>
-                            <input
+                        <input
                                 type="radio"
                                 class="btn-check"
                                 name="mode"
+                                id="mode-list"
                                 autocomplete="off"
                                 @click="${e => this.modeObserver(e, DataList.LIST_MODE)}"
                                 ?checked="${this.mode === DataList.LIST_MODE}"/>
+                        <label class="btn btn-outline-secondary" for="mode-list">
+                            <i class="fas fa-list"></i>
                         </label>
-                        <label class="btn btn-outline-secondary">
+                        <input
+                                type="radio"
+                                class="btn-check"
+                                name="mode"
+                                id="mode-grid"
+                                autocomplete="off"
+                                @click="${e => this.modeObserver(e, DataList.GRID_MODE)}"
+                                ?checked="${this.mode === DataList.GRID_MODE}"/>
+                        <label class="btn btn-outline-secondary" for="mode-grid">
                             <i class="fas fa-th"></i>
-                            <input
-                               type="radio"
-                               class="btn-check"
-                               name="mode"
-                               autocomplete="off"
-                               @click="${e => this.modeObserver(e, DataList.GRID_MODE)}"
-                               ?checked="${this.mode === DataList.GRID_MODE}"/>
                         </label>
                     </div>
                     ${this._config.groupBy?.options?.length > 0 ? html`
