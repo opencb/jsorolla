@@ -16,11 +16,12 @@
 
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import "./file-view.js";
-import "../loading-spinner.js";
 import ModalUtils from "../commons/modal/modal-utils";
 import GridCommons from "../commons/grid-commons";
 import "../commons/data-list.js";
+import "../loading-spinner.js";
+import "./file-view.js";
+import "./folder-create.js"
 
 export default class FileDataManager extends LitElement {
 
@@ -393,8 +394,16 @@ export default class FileDataManager extends LitElement {
                 modalDraggable: true,
                 modalSize: "modal-lg",
             },
-            render: () => html`
-            `,
+            render: () => {
+                debugger
+                return html`
+                    <folder-create
+                        .route="${this.currentRoot}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}">
+                    </folder-create>
+                `;
+            },
         });
     }
 
