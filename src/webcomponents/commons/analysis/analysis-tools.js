@@ -18,6 +18,9 @@ export default class AnalysisTools extends LitElement {
             opencgaSession: {
                 type: Object,
             },
+            config: {
+                type: Object,
+            },
         };
     }
 
@@ -26,14 +29,27 @@ export default class AnalysisTools extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+        }
+
+        super.update(changedProperties);
+    }
+
     renderSidebarItems() {
-        return this._config.availableTools.map(tool => {
+        return this._config.menu.map(tool => {
             if (tool.category) {
                 return html`
                     <div class="fw-bold text-gray-700 fs-9 user-select-none">
                         ${tool.name}
                     </div>
                 `
+            } else if (tool.separator) {
+                return nothing;
             } else {
                 const active = this._tool === tool.id;
                 return html`
@@ -62,8 +78,8 @@ export default class AnalysisTools extends LitElement {
     render() {
         return html`
             <tool-header
-                .title="${"Analysis Tools"}"
-                .icon="${"fa-tools"}">
+                .title="${this._config.name || this._config.title}"
+                .icon="${this._config.icon}">
             </tool-header>
             <div class="row w-full">
                 <div class="col-2 d-flex flex-column gap-1">
@@ -80,7 +96,9 @@ export default class AnalysisTools extends LitElement {
 
     getDefaultConfig() {
         return {
-            availableTools: [
+            name: "Analysis Tools",
+            icon: "fa-tools",
+            menu: [
                 {name: "Summary Stats", category: true},
                 {id: "sample-variant-stats", name: "Sample Variant Stats"},
                 {id: "cohort-variant-stats", name: "Cohort Variant Stats"},
