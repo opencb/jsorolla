@@ -96,6 +96,7 @@ import "../../webcomponents/study/admin/variant/operations-admin.js";
 import "../../webcomponents/user/user-profile.js";
 import "../../webcomponents/api/rest-api.js";
 import "../../webcomponents/note/note-browser.js";
+import "../../webcomponents/analysis/analysis-tools.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
@@ -302,6 +303,7 @@ class IvaApp extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -706,7 +708,7 @@ class IvaApp extends LitElement {
 
         // 4. parse project and study
         if (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
-            return this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
+            this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
         }
 
         // 5. save app and tool
@@ -1874,6 +1876,13 @@ class IvaApp extends LitElement {
                             .opencgaSession="${this.opencgaSession}">
                         </rest-api>
                     </div>
+                `;
+                break;
+            case "analysis-tools":
+                content = html`
+                    <analysis-tools
+                        .opencgaSession="${this.opencgaSession}">
+                    </analysis-tools>
                 `;
                 break;
             default:

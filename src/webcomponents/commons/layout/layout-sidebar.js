@@ -44,7 +44,7 @@ export default class LayoutSidebar extends LitElement {
     }
 
     renderButton(app) {
-        const active = this.currentUrl.startsWith(`#${app.id}`); // url always start with the app ID
+        const active = this.currentUrl.startsWith(`#${app.id}/`); // url always start with the app ID
         return html`
             <a
                 class="text-decoration-none d-flex align-items-center flex-column gap-2 p-2 rounded-2 cursor-pointer ${active ? "bg-gray-200" : "hover:bg-gray-100"}"

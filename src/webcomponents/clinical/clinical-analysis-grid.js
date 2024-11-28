@@ -216,7 +216,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     caseFormatter(value, row) {
         if (row?.id) {
-            const url = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`;
+            // Note: we have to maintain the URL structure, so if we are inside an app we have to maintain the app
+            const hashItems = window.location.hash.replace("#", "").split("/");
+            const url = `#${[...hashItems.slice(0, -3), "interpreter", this.opencgaSession.project.id, this.opencgaSession.study.id].join("/")}?id=${row.id}`;
             return `
                 <div class="mt-1 me-0">
                     <a class="text-decoration-none" title="Go to Case Interpreter" href="${url}" data-cy="case-id">
