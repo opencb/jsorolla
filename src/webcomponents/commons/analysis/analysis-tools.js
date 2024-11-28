@@ -98,11 +98,7 @@ export default class AnalysisTools extends LitElement {
         return {
             name: "Analysis Tools",
             icon: "fa-tools",
-            menu: [
-                {name: "Summary Stats", category: true},
-                {id: "sample-variant-stats", name: "Sample Variant Stats"},
-                {id: "cohort-variant-stats", name: "Cohort Variant Stats"},
-            ],
+            menu: [],
         };
     }
 
