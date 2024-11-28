@@ -1656,7 +1656,7 @@ class IvaApp extends LitElement {
 
                     <!-- Render the center of the 'app': Secondary NavBar, the Tool and the Footer -->
                     <div class="w-full h-full overflow-auto" style="max-height:calc(100vh - 52px);">
-                        <div class="px-3 pb-3" style="min-height:calc(100vh - 120px);">
+                        <div class="px-4 pb-4" style="min-height:calc(100vh - 120px);">
                             ${this.app?.menu?.length > 0 ? html`
                                 <layout-secondary-bar
                                     .app="${this.app}"
