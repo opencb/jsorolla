@@ -57,31 +57,8 @@ import "../../webcomponents/individual/individual-update.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/job-view.js";
-import "../../webcomponents/job/analysis/tool-analysis.js";
-import "../../webcomponents/job/analysis/custom-tool-builder.js";
 import "../../webcomponents/workflow/workflow-browser.js";
 import "../../webcomponents/workflow/workflow-manager.js";
-import "../../webcomponents/workflow/analysis/workflow-analysis.js";
-import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
-import "../../webcomponents/variant/analysis/gwas-analysis.js";
-import "../../webcomponents/variant/analysis/sample-variant-stats-analysis.js";
-import "../../webcomponents/variant/analysis/cohort-variant-stats-analysis.js";
-import "../../webcomponents/variant/analysis/sample-eligibility-analysis.js";
-import "../../webcomponents/variant/analysis/inferred-sex-analysis.js";
-import "../../webcomponents/variant/analysis/individual-relatedness-analysis.js";
-import "../../webcomponents/variant/analysis/mendelian-error-analysis.js";
-import "../../webcomponents/variant/analysis/sample-qc-analysis.js";
-import "../../webcomponents/variant/analysis/individual-qc-analysis.js";
-import "../../webcomponents/variant/analysis/family-qc-analysis.js";
-import "../../webcomponents/variant/analysis/knockout-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-plink-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-gatk-analysis.js";
-import "../../webcomponents/variant/analysis/bcftools-analysis.js";
-import "../../webcomponents/variant/analysis/variant-export-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-variant-stats-exporter-analysis.js";
-import "../../webcomponents/variant/interpretation/variant-interpreter.js";
-import "../../webcomponents/clinical/analysis/rd-tiering-analysis.js";
-import "../../webcomponents/clinical/analysis/hrdetect-analysis.js";
 import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/file/file-manager.js";
 import "../../webcomponents/file/file-data-manager.js";
@@ -1381,20 +1358,6 @@ class IvaApp extends LitElement {
                     </div>
                 `;
                 break;
-            case "workflow-analysis":
-                content = html`
-                    <tool-header
-                        title="Workflow Analysis Executor"
-                        icon="fas fa-stream">
-                    </tool-header>
-                    <div class="content">
-                        <workflow-analysis
-                            .toolParams="${{id: this.workflowId}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </workflow-analysis>
-                    </div>
-                `;
-                break;
             case "cat-browser":
                 content = html`
                     <div class="content">
@@ -1477,197 +1440,6 @@ class IvaApp extends LitElement {
                     </div>
                 `;
                 break;
-            case "sample-variant-stats":
-                content = html`
-                    <tool-header
-                        title="Sample Variant Stats Analysis"
-                        icon="fas fa-stream">
-                    </tool-header>
-                    <div class="content">
-                        <sample-variant-stats-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </sample-variant-stats-analysis>
-                    </div>
-                `;
-                break;
-            case "cohort-variant-stats":
-                content = html`
-                    <tool-header
-                        title="Cohort Variant Stats Analysis"
-                        icon="fas fa-stream">
-                    </tool-header>
-                    <div class="content">
-                        <cohort-variant-stats-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </cohort-variant-stats-analysis>
-                    </div>
-                `;
-                break;
-            case "eligibility":
-                content = html`
-                    <div class="content">
-                        <opencga-variant-eligibility-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </opencga-variant-eligibility-analysis>
-                    </div>
-                `;
-                break;
-            case "sample-eligibility":
-                content = html`
-                    <div class="content">
-                        <sample-eligibility-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </sample-eligibility-analysis>
-                    </div>
-                `;
-                break;
-            case "knockout":
-                content = html`
-                    <div class="content">
-                        <knockout-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </knockout-analysis>
-                    </div>
-                `;
-                break;
-            case "inferred-sex":
-                content = html`
-                    <div class="content">
-                        <inferred-sex-analysis
-                            .opencgaSession="${this.opencgaSession}"
-                            .config=${{title: ""}}>
-                        </inferred-sex-analysis>
-                    </div>
-                `;
-                break;
-            case "individual-relatedness":
-                content = html`
-                    <div class="content">
-                        <individual-relatedness-analysis
-                            .opencgaSession="${this.opencgaSession}"
-                            .config=${{title: ""}}>
-                        </individual-relatedness-analysis>
-                    </div>
-                `;
-                break;
-            case "mendelian-error":
-                content = html`
-                    <div class="content">
-                        <mendelian-error-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </mendelian-error-analysis>
-                    </div>
-                `;
-                break;
-            case "sample-qc":
-                content = html`
-                    <tool-header
-                        title="Sample QC Analysis"
-                        icon="fas fa-stream">
-                    </tool-header>
-                    <div class="content">
-                        <sample-qc-analysis
-                            .opencgaSession="${this.opencgaSession}"
-                            .config=${{title: ""}}>
-                        </sample-qc-analysis>
-                    </div>
-                `;
-                break;
-            case "individual-qc":
-                content = html`
-                    <tool-header
-                        title="Individual QC Analysis"
-                        icon="fas fa-stream">
-                    </tool-header>
-                    <div class="content">
-                        <individual-qc-analysis
-                            .opencgaSession="${this.opencgaSession}"
-                            .config=${{title: ""}}>
-                        </individual-qc-analysis>
-                    </div>
-                `;
-                break;
-            case "family-qc":
-                content = html`
-                    <tool-header
-                        title="Family QC Analysis"
-                        icon="fas fa-stream">
-                    </tool-header>
-                    <div class="content">
-                        <family-qc-analysis
-                            .opencgaSession="${this.opencgaSession}"
-                            .config=${{title: ""}}>
-                        </family-qc-analysis>
-                    </div>
-                `;
-                break;
-            case "plink":
-                content = html`
-                    <div class="content">
-                        <opencga-plink-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </opencga-plink-analysis>
-                    </div>
-                `;
-                break;
-            case "gatk":
-                content = html`
-                    <div class="content">
-                        <opencga-gatk-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </opencga-gatk-analysis>
-                    </div>
-                `;
-                break;
-            case "variant-export":
-                content = html`
-                    <div class="content">
-                        <variant-export-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </variant-export-analysis>
-                    </div>
-                `;
-                break;
-            case "variant-stats-exporter":
-                content = html`
-                    <div class="content">
-                        <opencga-variant-stats-exporter-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </opencga-variant-stats-exporter-analysis>
-                    </div>
-                `;
-                break;
-            case "mutational-signature":
-                content = html`
-                    <div class="content">
-                        <mutational-signature-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </mutational-signature-analysis>
-                    </div>
-                `;
-                break;
-            case "gwas":
-                content = html`
-                    <tool-header
-                        title="GWAS Analysis"
-                        icon="fas fa-stream">
-                    </tool-header>
-                    <div class="content">
-                        <gwas-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </gwas-analysis>
-                    </div>
-                `;
-                break;
-            case "rd-tiering":
-                content = html`
-                    <div class="content">
-                        <rd-tiering-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </rd-tiering-analysis>
-                    </div>
-                `;
-                break;
             case "clinical-analysis-create":
                 content = html`
                     <tool-header
@@ -1724,33 +1496,6 @@ class IvaApp extends LitElement {
                     </div>
                 `;
                 break;
-            case "alignment-index":
-                content = html`
-                    <div class="content">
-                        <opencga-alignment-index-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </opencga-alignment-index-analysis>
-                    </div>
-                `;
-                break;
-            case "coverage-index":
-                content = html`
-                    <div class="content">
-                        <opencga-coverage-index-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </opencga-coverage-index-analysis>
-                    </div>
-                `;
-                break;
-            case "alignment-stats":
-                content = html`
-                    <div class="content">
-                        <opencga-alignment-stats-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </opencga-alignment-stats-analysis>
-                    </div>
-                `;
-                break;
             case "job-view":
                 content = html`
                     <tool-header
@@ -1763,32 +1508,6 @@ class IvaApp extends LitElement {
                             .jobId="${this.jobSelected}"
                             .opencgaSession="${this.opencgaSession}">
                         </job-view>
-                    </div>
-                `;
-                break;
-            case "tool-analysis":
-                content = html`
-                    <tool-header
-                        title="Tool Analysis Executor"
-                        icon="fas fa-stream">
-                    </tool-header>
-                    <div class="content">
-                        <tool-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </tool-analysis>
-                    </div>
-                `;
-                break;
-            case "custom-tool-builder":
-                content = html`
-                    <tool-header
-                        title="Custom Tool Builder"
-                        icon="fas fa-stream">
-                    </tool-header>
-                    <div class="content">
-                        <custom-tool-builder
-                            .opencgaSession="${this.opencgaSession}">
-                        </custom-tool-builder>
                     </div>
                 `;
                 break;
