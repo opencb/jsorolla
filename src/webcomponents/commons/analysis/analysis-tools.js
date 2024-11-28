@@ -1,6 +1,6 @@
 import {LitElement, html, nothing} from "lit";
-import "../commons/tool-header.js";
-import "../variant/analysis/sample-variant-stats-analysis.js";
+import "../tool-header.js";
+import "../../variant/analysis/sample-variant-stats-analysis.js";
 
 export default class AnalysisTools extends LitElement {
 
