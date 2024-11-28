@@ -57,6 +57,10 @@ export default class AnalysisTools extends LitElement {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
+            // initialize this._tool with the first tool in the list
+            if (!this._tool) {
+                this._tool = this._config.menu.find(tool => !tool.category && !tool.separator)?.id;
+            }
         }
 
         super.update(changedProperties);
