@@ -188,13 +188,12 @@ const CATALOG_NAVBAR_MENU = {
     ]
 };
 
-const ANALYSIS_TOOL = {
+const ANALYSIS_TOOLS = {
     id: "analysis",
-    name: "Analysis",
+    name: "Analysis Tools",
     description: "",
-    icon: "img/tools/icons/aggregation.svg",
-    visibility: "public",
-    submenu: [
+    // icon: "img/tools/icons/aggregation.svg",
+    menu: [
         {
             name: "Analysis Execution",
             category: true,
