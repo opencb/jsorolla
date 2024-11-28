@@ -46,6 +46,10 @@ $dropdown-item-padding-y: 0.25 * $spacer;
 $dropdown-header-padding-x: 0px; // $dropdown-item-padding-x;
 $dropdown-header-padding-y: $dropdown-item-padding-y;
 
+// custom configuration for form components
+// https://getbootstrap.com/docs/5.3/forms/form-control/#sass-variables
+$input-bg: $white;
+
 // import all bootstrap
 @import "../node_modules/bootstrap/scss/bootstrap";
 
