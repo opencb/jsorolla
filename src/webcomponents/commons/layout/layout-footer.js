@@ -34,7 +34,7 @@ export default class LayoutFooter extends LitElement {
 
     render() {
         return html`
-            <div class="d-flex justify-content-between border-top py-4 mx-3">
+            <div class="d-flex justify-content-between border-top py-4 mx-4">
                 <div class=""></div>
                 <div class="d-flex gap-3">
                     ${this.renderVersion("IVA (JSorolla)", "v" + this.version, "https://github.com/opencb/jsorolla")}
