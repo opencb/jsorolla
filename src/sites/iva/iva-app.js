@@ -96,7 +96,7 @@ import "../../webcomponents/study/admin/variant/operations-admin.js";
 import "../../webcomponents/user/user-profile.js";
 import "../../webcomponents/api/rest-api.js";
 import "../../webcomponents/note/note-browser.js";
-import "../../webcomponents/analysis/analysis-tools.js";
+import "../../webcomponents/commons/analysis/analysis-tools.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
