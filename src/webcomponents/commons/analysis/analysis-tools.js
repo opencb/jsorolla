@@ -279,7 +279,7 @@ export default class AnalysisTools extends LitElement {
                     ${this.renderMenu()}
                 </div>
                 <div class="col-10">
-                    <div class="w-full mx-auto" style="max-width:768px;">
+                    <div class="w-full mx-auto" style="max-width:812px;">
                         ${this.renderTool()}
                     </div>
                 </div>
