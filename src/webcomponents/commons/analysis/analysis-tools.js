@@ -25,7 +25,7 @@ export default class AnalysisTools extends LitElement {
     }
 
     #init() {
-        this._tool = "sample-variant-stats";
+        this._tool = "";
         this._config = this.getDefaultConfig();
     }
 
@@ -40,7 +40,12 @@ export default class AnalysisTools extends LitElement {
         super.update(changedProperties);
     }
 
-    renderSidebarItems() {
+    onChangeTool(newTool) {
+        this._tool = newTool;
+        this.requestUpdate();
+    }
+
+    renderMenu() {
         return this._config.menu.map(tool => {
             if (tool.category) {
                 return html`
@@ -53,7 +58,7 @@ export default class AnalysisTools extends LitElement {
             } else {
                 const active = this._tool === tool.id;
                 return html`
-                    <a class="d-block btn w-full text-start ${active ? "btn-primary" : "hover:bg-gray-200"}" href="#${tool.id}">
+                    <a class="d-block btn w-full text-start ${active ? "btn-primary" : "hover:bg-gray-200"}" @click="${() => this.onChangeTool(tool.id)}">
                         ${tool.name}
                     </a>     
                 `;
@@ -83,7 +88,7 @@ export default class AnalysisTools extends LitElement {
             </tool-header>
             <div class="row w-full">
                 <div class="col-2 d-flex flex-column gap-1">
-                    ${this.renderSidebarItems()}
+                    ${this.renderMenu()}
                 </div>
                 <div class="col-10">
                     <div class="w-full mx-auto" style="max-width:768px;">
