@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 
-/**
- * This is a wrapper component of a group of filters
-* */
 export default class SectionFilter extends LitElement {
 
     constructor() {
@@ -54,22 +51,17 @@ export default class SectionFilter extends LitElement {
     render() {
         const id = this.config.title.replace(/ /g, "");
         return this.config && this.filters?.length > 0 ? html`
-            <div class="card shadow-sm" data-cy-section-id="${id}">
-                <div class="card-header" role="tab" id="${this._prefix}Heading">
-                    <h4 class="card-title">
-                        <a class="collapsed text-decoration-none" role="button" data-bs-toggle="collapse" data-parent="#${this._prefix}Accordion" data-cy-section-title="${id}"
-                            href="#${this._prefix}" aria-expanded="true" aria-controls="${this._prefix}">
-                            ${this.config.title}
-                        </a>
-                    </h4>
+            <div class="card shadow-sm">
+                <div class="card-body border-bottom py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#${this._prefix}">
+                    <span class="fw-bold fs-5">${this.config.title}</span>
                 </div>
-                <div class="collapse ${this.config.collapsed ? "" : "show"}" id="${this._prefix}"  role="tabpanel" aria-labelledby="${this._prefix}Heading">
+                <div class="collapse ${this.config.collapsed ? "" : "show"}" id="${this._prefix || ""}">
                     <div class="card-body">
                         ${this.filters?.map(filter => html`${filter}`)}
                     </div>
                 </div>
             </div>
-        ` : "";
+        ` : nothing;
     }
 
 }
