@@ -309,7 +309,7 @@ export default class VariantBrowser extends LitElement {
                     <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onRun}">
                             <i class="fa fa-search mx-1" aria-hidden="true"></i>
-                            <span class="fw-bold fs-5">${this._config.searchButtonText || "Search"}</span>
+                            <span class="fw-bold">${this._config.searchButtonText || "Search"}</span>
                         </button>
                     </div>
                     <ul class="nav nav-tabs mb-3" role="tablist">
@@ -375,7 +375,7 @@ export default class VariantBrowser extends LitElement {
                         <opencga-active-filters
                             facetActive
                             resource="VARIANT"
-                            .toolId="${this.COMPONENT_ID}"
+                            .toolId="${this.COMPONENT_ID }"
                             .opencgaSession="${this.opencgaSession}"
                             .defaultStudy="${this.opencgaSession.study?.fqn}"
                             .query="${this.preparedQuery}"
@@ -452,7 +452,8 @@ export default class VariantBrowser extends LitElement {
         // return BrowserConf.config;
         return {
             title: "Variant Browser",
-            icon: "img/tools/icons/variant_browser.svg",
+            // icon: "img/tools/icons/variant_browser.svg",
+            icon: "fa-dna",
             active: false,
             searchButtonText: "Search",
             filter: {
