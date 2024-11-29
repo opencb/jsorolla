@@ -35,6 +35,11 @@ $body-bg: $gray-50;
 $border-color: $gray-200;
 $border-width: 1px;
 
+// custom card configuration
+// https://getbootstrap.com/docs/5.3/components/card/#sass-variables
+$card-bg: $white;
+$card-cap-bg: $white;
+
 // custom configuration for dropdowns
 // https://getbootstrap.com/docs/5.3/components/dropdowns/#sass-variables
 $dropdown-bg: $white;
