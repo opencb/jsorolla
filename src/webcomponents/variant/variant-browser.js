@@ -347,26 +347,26 @@ export default class VariantBrowser extends LitElement {
 
                 <div class="col-md-10">
                     <!-- TAB buttons -->
-                    <div class="d-flex gap-1 mb-3" role="toolbar" aria-label="toolbar">
+                    <div class="d-flex gap-1 mb-3">
                         <button
                             type="button"
                             class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""}`}"
                             @click="${() => this.changeView("table-tab")}">
-                            <i class="fa fa-table icon-padding" aria-hidden="true"></i>
+                            <i class="fa fa-table me-2"></i>
                             <strong>Table Result</strong>
                         </button>
                         <button
                             type="button"
                             class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""}`}"
                             @click="${() => this.changeView("facet-tab")}">
-                            <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i>
+                            <i class="fas fa-chart-bar me-2"></i>
                             <strong>Aggregation Stats</strong>
                         </button>
                         <button
                             type="button"
                             class="${`btn btn-success ${this.activeTab === "genome-tab" ? "active" : ""}`}"
                             @click="${() => this.changeView("genome-tab")}">
-                            <i class="fas fa-dna icon-padding" aria-hidden="true"></i>
+                            <i class="fas fa-dna me-2"></i>
                             <strong>Genome Browser</strong>
                         </button>
                     </div>
