@@ -32,11 +32,11 @@ export default class SectionFilter extends LitElement {
     static get properties() {
         return {
             filters: {
-                type: Array
+                type: Array,
             },
             config: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
@@ -49,19 +49,23 @@ export default class SectionFilter extends LitElement {
     }
 
     render() {
-        const id = this.config.title.replace(/ /g, "");
-        return this.config && this.filters?.length > 0 ? html`
-            <div class="card shadow-sm">
-                <div class="card-body border-bottom py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#${this._prefix}">
-                    <span class="fw-bold fs-5">${this.config.title}</span>
-                </div>
-                <div class="collapse ${this.config.collapsed ? "" : "show"}" id="${this._prefix || ""}">
-                    <div class="card-body">
-                        ${this.filters?.map(filter => html`${filter}`)}
+        if (this.config && this.filters?.length > 0) {
+            return html`
+                <div class="card shadow-sm">
+                    <div class="card-body border-bottom py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#${this._prefix}">
+                        <span class="fw-bold fs-5">${this.config.title}</span>
+                    </div>
+                    <div class="collapse ${this.config.collapsed ? "" : "show"}" id="${this._prefix || ""}">
+                        <div class="card-body">
+                            ${this.filters?.map(filter => html`${filter}`)}
+                        </div>
                     </div>
                 </div>
-            </div>
-        ` : nothing;
+            `;
+        }
+
+        // no configuration or filters to display
+        return nothing;
     }
 
 }
