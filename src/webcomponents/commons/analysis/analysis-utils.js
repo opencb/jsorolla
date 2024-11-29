@@ -129,7 +129,7 @@ export default class AnalysisUtils {
             title: config.title || title,
             description: config.description || description,
             display: {
-                // defaultLayout: "vertical"
+                buttonOkText: "Run Analysis",
                 ...config?.display
             },
             buttons: config?.buttons || {},
