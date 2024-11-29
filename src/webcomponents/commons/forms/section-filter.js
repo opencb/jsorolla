@@ -56,7 +56,7 @@ export default class SectionFilter extends LitElement {
                         <span class="fw-bold fs-5">${this.config.title}</span>
                     </div>
                     <div class="collapse ${this.config.collapsed ? "" : "show"}" id="${this._prefix || ""}">
-                        <div class="card-body">
+                        <div class="card-body d-flex flex-column gap-3">
                             ${this.filters?.map(filter => html`${filter}`)}
                         </div>
                     </div>
