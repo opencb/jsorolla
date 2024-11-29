@@ -393,7 +393,7 @@ export default class VariantBrowser extends LitElement {
                         </opencga-active-filters>
 
                         <div class="main-view">
-                            <div id="table-tab" class="${`content-tab ${this.activeTab === "table-tab" ? "active" : ""}`}">
+                            <div id="table-tab" class="${this.activeTab === "table-tab" ? "d-block" : "d-none"}">
                                 <variant-browser-grid
                                     .toolId="${this.COMPONENT_ID}"
                                     .opencgaSession="${this.opencgaSession}"
@@ -419,7 +419,7 @@ export default class VariantBrowser extends LitElement {
                                 ` : nothing}
                             </div>
 
-                            <div id="facet-tab" class="${`content-tab ${this.activeTab === "facet-tab" ? "active" : ""}`}">
+                            <div id="facet-tab" class="${this.activeTab === "facet-tab" ? "d-block" : "d-none"}">
                                 <opencb-facet-results
                                     resource="VARIANT"
                                     .opencgaSession="${this.opencgaSession}"
@@ -430,7 +430,7 @@ export default class VariantBrowser extends LitElement {
                                 </opencb-facet-results>
                             </div>
 
-                            <div id="genome-tab" class="${`content-tab ${this.activeTab === "genome-tab" ? "active" : ""}`}">
+                            <div id="genome-tab" class="${this.activeTab === "genome-tab" ? "d-block" : "d-none"}">
                                 ${this.variant ? html`
                                     <genome-browser
                                         .opencgaSession="${this.opencgaSession}"
@@ -439,7 +439,7 @@ export default class VariantBrowser extends LitElement {
                                         .tracks="${this._config.genomeBrowser.tracks}"
                                         .active="${this.activeTab === "genome-tab"}">
                                     </genome-browser>
-                                ` : null}
+                                ` : nothing}
                             </div>
                         </div>
                     </div>
