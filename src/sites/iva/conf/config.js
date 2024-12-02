@@ -636,6 +636,20 @@ const SUITE = {
         },
         custom: "", // Optionally, a custom footer can be added.
     },
+    sidebar: {
+        organisation: {
+            logo: {
+                img: "img/opencb-icon.png",
+            },
+            menu: [
+                {id: "code", name: "Source code", url: "https://github.com/opencb/jsorolla"},
+                {id: "documentation", name: "Documentation", url: "http://docs.opencb.org/display/iva"},
+                {id: "tutorial", name: "Tutorial", url: "http://docs.opencb.org/display/iva/Tutorials"},
+                {id: "releases", name: "Releases", url: "https://github.com/opencb/jsorolla/releases"},
+                {id: "about", name: "About", url: "#about"},
+            ],
+        },
+    },
     apps: [
         {
             id: "research",
