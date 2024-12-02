@@ -93,13 +93,20 @@ export default class LayoutSidebar extends LitElement {
                             </div>
                         </div>
                     ` : nothing}
-                    <div class="d-flex flex-column">
-                        <div class="d-flex align-items-center justify-content-center gap-1 hover:bg-gray-100 p-2 rounded-2 cursor-pointer border">
-                            <div class="d-flex py-1">
-                                <img src="./img/zetta-logo.png" height="14px" />
+                    ${this.config?.sidebar?.organisation ? html`
+                        <div class="d-flex flex-column dropup dropend">
+                            <div class="d-flex align-items-center justify-content-center gap-1 hover:bg-gray-100 py-2 rounded-2 cursor-pointer border" data-bs-toggle="dropdown">
+                                <div class="d-flex">
+                                    <img src="${this.config?.sidebar?.organisation?.logo?.img || ""}" height="32px" />
+                                </div>
                             </div>
+                            ${this.config.sidebar?.organisation?.menu?.length > 0 ? html`
+                                <div class="dropdown-menu">
+                                    ${this.config.sidebar.organisation.menu.map(link => this.renderLink(link))}
+                                </div>
+                            ` : nothing}
                         </div>
-                    </div>
+                    ` : nothing}
                 </div>
             </div>
         `;
