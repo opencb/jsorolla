@@ -74,6 +74,7 @@ import "../../webcomponents/user/user-profile.js";
 import "../../webcomponents/api/rest-api.js";
 import "../../webcomponents/note/note-browser.js";
 import "../../webcomponents/commons/analysis/analysis-tools.js";
+import "../../webcomponents/commons/analysis/jupyter-notebook.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
@@ -1604,6 +1605,13 @@ class IvaApp extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .config="${this.config.analysisTools}">
                     </analysis-tools>
+                `;
+                break;
+            case "jupyter-notebook":
+                content = html`
+                    <jupyter-notebook
+                        .opencgaSession="${this.opencgaSession}">
+                    </jupyter-notebook>
                 `;
                 break;
             default:

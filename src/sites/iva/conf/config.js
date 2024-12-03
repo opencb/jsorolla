@@ -26,7 +26,7 @@ const hosts = [
     },
     {
         id: "reference",
-        url: "https://test.app.zettagenomics.com/TASK-6445/opencga"
+        url: "https://test.app.zettagenomics.com/TASK-6757a/opencga"
     },
 ];
 
@@ -521,16 +521,16 @@ const SUITE = {
     about: {
         dropdown: true,
         links: [
-            {id: "code", name: "Source code", url: "https://github.com/opencb/iva", icon: "fa fa-code"},
-            {id: "documentation", name: "Documentation", url: "http://docs.opencb.org/display/iva", icon: "fa fa-book"},
-            {id: "tutorial", name: "Tutorial", url: "http://docs.opencb.org/display/iva/Tutorials", icon: "fa fa-question-circle"},
-            {id: "releases", name: "Releases", url: "https://github.com/opencb/iva/releases", icon: "fa fa-archive"},
+            // {id: "code", name: "Source code", url: "https://github.com/opencb/iva", icon: "fa fa-code"},
+            // {id: "documentation", name: "Documentation", url: "http://docs.opencb.org/display/iva", icon: "fa fa-book"},
+            // {id: "tutorial", name: "Tutorial", url: "http://docs.opencb.org/display/iva/Tutorials", icon: "fa fa-question-circle"},
+            // {id: "releases", name: "Releases", url: "https://github.com/opencb/iva/releases", icon: "fa fa-archive"},
             {id: "about", name: "About", url: "#about", icon: "fa fa-info-circle"},
             {id: "terms", name: "Terms", url: "#terms", icon: "fa fa-file-alt"},
             {id: "contact", name: "Contact", url: "#contact", icon: "fa fa-envelope"},
             {id: "faq", name: "FAQ", url: "#faq", icon: "fa fa-question"},
-            {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
-            {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
+            // {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
+            // {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
         ]
     },
     fileExplorer: {

@@ -37,7 +37,7 @@ export default class LayoutSidebar extends LitElement {
         const url = link.url || `#${link.id}`;
         return html`
             <a class="dropdown-item" data-cy="${link.id}" href="${url}" target="${link.tab ? "_blank" : "_self"}">
-                ${link.icon ? `` : nothing}
+                ${link.icon ? html`<i class="fas ${link.icon} pe-1"></i>` : nothing}
                 <span>${link.name}</span>
             </a>
         `;
@@ -61,6 +61,7 @@ export default class LayoutSidebar extends LitElement {
         const favourites = this._config.favourites;
         return html`
             <div class="d-flex flex-column justify-content-between flex-shrink-0 border-end bg-white position-relative h-full" style="width:72px">
+                <!-- TOP options -->
                 <div class="d-flex flex-column">
                     <div class="d-flex flex-column gap-1 user-select-none p-2">
                         ${this.renderButton({id: "dashboard", name: "Dashboard", icon: "fa-home"})}
@@ -70,6 +71,8 @@ export default class LayoutSidebar extends LitElement {
                         `: nothing}
                     </div>
                 </div>
+
+                <!-- BOTTOM options -->
                 <div class="d-flex flex-column gap-1 px-2 py-3 mt-auto">
                     ${favourites.length > 0 ? html`
                         <div class="d-flex flex-column dropup dropend">
@@ -82,6 +85,7 @@ export default class LayoutSidebar extends LitElement {
                             </div>
                         </div>
                     ` : nothing}
+
                     ${this.config?.about?.dropdown && this.config?.about?.links?.length > 0 ? html`
                         <div class="d-flex flex-column dropup dropend">
                             <div class="d-flex flex-column justify-content-center align-items-center p-2 gap-2 hover:bg-gray-100 rounded-2 cursor-pointer" data-bs-toggle="dropdown">
@@ -93,14 +97,15 @@ export default class LayoutSidebar extends LitElement {
                             </div>
                         </div>
                     ` : nothing}
+
                     ${this.config?.sidebar?.organisation ? html`
                         <div class="d-flex flex-column dropup dropend">
                             <div class="d-flex align-items-center justify-content-center gap-1 hover:bg-gray-100 py-2 rounded-2 cursor-pointer border" data-bs-toggle="dropdown">
                                 <div class="d-flex">
-                                    <img src="${this.config?.sidebar?.organisation?.logo?.img || ""}" height="32px" />
+                                    <img src="${this.config.sidebar.organisation.logo?.img || ""}" height="32px" />
                                 </div>
                             </div>
-                            ${this.config.sidebar?.organisation?.menu?.length > 0 ? html`
+                            ${this.config.sidebar.organisation.menu?.length > 0 ? html`
                                 <div class="dropdown-menu">
                                     ${this.config.sidebar.organisation.menu.map(link => this.renderLink(link))}
                                 </div>

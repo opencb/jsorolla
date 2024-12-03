@@ -1,3 +1,4 @@
+
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
@@ -28,6 +29,16 @@ export default class LayoutPrimaryBar extends LitElement {
                 type: Object
             }
         };
+    }
+
+    onSearch(e) {
+        const value = document.querySelector("#PrimaryBarInputSearch")?.value;
+        if (value?.length > 3) {
+            // if (value.include(":")) {
+            //
+            // }
+        }
+        debugger
     }
 
     onStudySelect(e, study) {
@@ -74,7 +85,6 @@ export default class LayoutPrimaryBar extends LitElement {
                         `)}
                     </div>
                 </div>
-                ${this.renderSeparator()}
             `;
         }
         return nothing;
@@ -85,14 +95,57 @@ export default class LayoutPrimaryBar extends LitElement {
             <nav class="bg-gray-900 py-2">
                 <div class="container-fluid d-flex">
                     <div class="d-flex align-items-center gap-3 me-auto">
-                        <a href="#home">
-                            ${this.config?.logo ? html`
-                                <img src="${this.config?.logo}" height="20px" alt="logo">
-                            ` : nothing}
-                        </a>
+                        <div class="d-flex">
+                            <a href="#home">
+                                ${this.config?.logo ? html`
+                                    <img src="${this.config?.logo}" height="20px" alt="logo">
+                                ` : nothing}
+                            </a>
+                        </div>
                     </div>
+
+                    <div class="d-flex align-items-stretch gap-2 ms-auto">
+                        <div class="input-group">
+                            <div class="input-group-text" id="btnGroupAddon">
+                                <i class="fas fa-search" aria-hidden="true"></i>
+                            </div>
+                            <input
+                                id="PrimaryBarInputSearch"
+                                type="text"
+                                class="form-control"
+                                placeholder="Search ..."
+                                aria-label="Input group example" aria-describedby="btnGroupAddon"
+                                style="width: 240px;"
+                                @input="${this.onSearch}">
+                        </div>
+                    </div>
+
                     <div class="d-flex align-items-stretch gap-2 ms-auto">
                         ${this.renderStudiesDropdown()}
+
+                        ${this.renderSeparator()}
+                        <div class="d-flex">
+                            <a href="#research/file-data-manager" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
+                                <i class="fas fa-folder lh-1"></i>
+                            </a>
+                        </div>
+                        <div class="d-flex">
+                            <a href="#research/workflow-manager" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
+                                <i class="fas fa-project-diagram lh-1"></i>
+                            </a>
+                        </div>
+                        <div class="d-flex">
+                            <a href="#research/jupyter-notebook" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
+                                <i class="fas fa-file-code lh-1"></i>
+                            </a>
+                        </div>
+                        <div class="d-flex">
+                            <a href="#rest-api" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
+                                <i class="fas fa-code lh-1"></i>
+                            </a>
+                        </div>
+
+                        ${this.renderSeparator()}
                         <div class="d-flex dropdown">
                             <button class="d-flex gap-1 align-items-center btn border border-gray-700 hover:bg-gray-800 text-white" data-bs-toggle="dropdown">
                                 <i class="fas fa-rocket lh-1"></i>
@@ -108,9 +161,7 @@ export default class LayoutPrimaryBar extends LitElement {
                                 <i class="fas fa-bell lh-1"></i>
                             </button>
                         </div>
-                        <a href="#rest-api" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
-                            <i class="fas fa-code lh-1"></i>
-                        </a>
+
                         ${this.renderSeparator()}
                         <div class="dropdown">
                             <button class="btn d-flex align-items-center gap-2 border border-gray-700 hover:bg-gray-800 text-white dropdown-toggle" data-bs-toggle="dropdown">
