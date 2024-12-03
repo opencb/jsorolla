@@ -33,8 +33,8 @@ export default class WelcomePage extends LitElement {
                     <div class="col-3">
                         <div class="d-block text-decoration-none text-body rounded-3">
                             <div class="d-flex mb-3">
-                                <div class="d-flex fs-1 text-white bg-primary rounded-4 p-3">
-                                    <i class="fas ${item.icon}"></i>
+                                <div class="d-flex align-items-center justify-content-center text-white bg-primary rounded-4" style="width:4rem;height:4rem;">
+                                    <i class="fas ${item.icon} fs-1"></i>
                                 </div>
                             </div>
                             <div class="text-decoration-none fs-3 fw-bold mb-1">${item.title || item.name}</div>
@@ -98,7 +98,7 @@ export default class WelcomePage extends LitElement {
         }
 
         return html`
-            <div class="container pt-5">
+            <div class="container pt-5 mt-5">
                 <!-- Welcome page logo -->
                 ${welcomePage?.logo ? html`
                     <div class="mb-3">
