@@ -22,103 +22,75 @@ export default class WelcomePage extends LitElement {
         };
     }
 
-    isWelcomeSuite() {
-        return !this.app || this.app?.id === "suite";
-    }
+    renderApplications() {
+        const visibleApps = (this.config.apps || []).filter(app => {
+            return UtilsNew.isAppVisible(app, this.opencgaSession);
+        });
 
-    getWelcomePageConfig() {
-        return this.isWelcomeSuite() ? this.config.welcomePage : this.app.welcomePage;
-    }
-
-    renderApplicationsOrTools() {
-        const session = this.opencgaSession;
-
-        if (this.isWelcomeSuite()) {
-            // Render applications list
-            const visibleApps = (this.config.apps || []).filter(app => {
-                return UtilsNew.isAppVisible(app, this.opencgaSession);
-            });
-
-            return html`
-                <div class="row">
-                    ${visibleApps.map(item => html`
-                        <div class="col-3">
-                            <div class="d-block text-decoration-none text-body rounded-3">
-                                <div class="d-flex mb-3">
-                                    <div class="d-flex fs-1 text-white bg-primary rounded-4 p-3">
-                                        <i class="fas ${item.icon}"></i>
-                                    </div>
-                                </div>
-                                <div class="text-decoration-none fs-3 fw-bold mb-1">${item.title || item.name}</div>
-                                ${item.description ? html`
-                                    <div class="fs-5 mb-3 text-gray-700">
-                                        ${item.description}
-                                    </div>
-                                ` : nothing}
-                                <div class="">
-                                    <a href="#${item.id}/home" class="d-flex align-items-center gap-2 icon-link cursor-pointer fs-5 text-decoration-none">
-                                        <span class="">Open ${item.name || item.title} App</span>
-                                        <i class="fas fa-chevron-right text-decoration-none"></i>
-                                    </a>
+        return html`
+            <div class="row">
+                ${visibleApps.map(item => html`
+                    <div class="col-3">
+                        <div class="d-block text-decoration-none text-body rounded-3">
+                            <div class="d-flex mb-3">
+                                <div class="d-flex fs-1 text-white bg-primary rounded-4 p-3">
+                                    <i class="fas ${item.icon}"></i>
                                 </div>
                             </div>
-                        </div>
-                    `)}
-                </div>
-            `;
-        } else {
-            // Render tools list
-            const featuredTools = [];
-            (this.app.menu || []).forEach(item => {
-                if (UtilsNew.isAppVisible(item, session)) {
-                    // Check if the primary menu item is featured
-                    if (item.featured) {
-                        featuredTools.push(item);
-                    }
-
-                    // Check for submenu items
-                    (item.submenu || []).forEach(subitem => {
-                        if (UtilsNew.isAppVisible(subitem) && subitem.featured) {
-                            featuredTools.push(subitem);
-                        }
-                    });
-                }
-            });
-
-            return html`
-                <div class="d-flex justify-content-center mt-2 gap-2">
-                    ${
-                        featuredTools.map(item => {
-                            const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
-                            return html`
-                                <div class="card w-50 shadow p-3 mb-5 bg-body rounded border-0" data-cy-welcome-card-id="${item.id}">
-                                    <div class="card-body d-flex flex-column">
-                                        <a class="text-decoration-none" href="#${itemLink}">
-                                            <div class="text-center">
-                                                ${ item?.icon.includes("fas") ? html`
-                                                    <i class="${item.icon}" style="font-size: 5em;"></i>
-                                                ` : html`
-                                                    <img alt="${item.name}" width="100px" src="${item.icon}"/>
-                                                `}
-                                            </div>
-                                            <h4 class="card-title text-center">${item.name}</h4>
-                                        </a>
-                                        ${item.description ? UtilsNew.renderHTML(item.description) : ""}
-                                            <a class="btn btn-primary btn-lg mt-auto text-white" href="#${itemLink}">
-                                                Enter
-                                            </a>
-                                    </div>
+                            <div class="text-decoration-none fs-3 fw-bold mb-1">${item.title || item.name}</div>
+                            ${item.description ? html`
+                                <div class="fs-5 mb-3 text-gray-700">
+                                    ${item.description}
                                 </div>
-                            `;
-                        })
-                    }
-                </div>
-            `;
-        }
+                            ` : nothing}
+                            <div class="">
+                                <a href="#${item.id}/home" class="d-flex align-items-center gap-2 icon-link cursor-pointer fs-5 text-decoration-none">
+                                    <span class="">Open ${item.name || item.title} App</span>
+                                    <i class="fas fa-chevron-right text-decoration-none"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `)}
+            </div>
+        `;
+    }
+
+    renderTools() {
+        const visibleTools = (this.app.menu || []).filter(item => {
+            return UtilsNew.isAppVisible(item, this.opencgaSession);
+        });
+
+        return html`
+            <div class="d-flex justify-content-center mt-2 gap-2">
+                ${visibleTools.map(item => html`
+                    <div class="card w-50 shadow p-3 mb-5 bg-body rounded border-0" data-cy-welcome-card-id="${item.id}">
+                        <div class="card-body d-flex flex-column">
+                            <a class="text-decoration-none" href="#${this.app.id}/${item.id}">
+                                <div class="text-center">
+                                    ${ item?.icon.includes("fas") ? html`
+                                        <i class="${item.icon}" style="font-size: 5em;"></i>
+                                    ` : html`
+                                        <img alt="${item.name}" width="100px" src="${item.icon}"/>
+                                    `}
+                                </div>
+                                <h4 class="card-title text-center">${item.name}</h4>
+                            </a>
+                            ${item.description ? UtilsNew.renderHTML(item.description) : ""}
+                            <a class="btn btn-primary btn-lg mt-auto text-white" href="#${itemLink}">
+                                Enter
+                            </a>
+                        </div>
+                    </div>
+                `)}
+            </div>
+        `;
     }
 
     render() {
-        const welcomePage = this.getWelcomePageConfig();
+        // this checks if we are in the suite (global welcome) or in a specific app (app welcome)
+        const isWelcomeSuite = !this.app || this.app?.id === "suite";
+        const welcomePage = isWelcomeSuite ? this.config.welcomePage : this.app.welcomePage; // get the welcome page config
 
         if (!UtilsNew.isNotEmptyArray(this.opencgaSession?.projects) ||
             this.opencgaSession.projects.every(p => !UtilsNew.isNotEmptyArray(p.studies))) {
@@ -171,7 +143,7 @@ export default class WelcomePage extends LitElement {
                 ` : nothing}
 
                 <!-- Applications or tools -->
-                ${this.renderApplicationsOrTools()}
+                ${isWelcomeSuite ? this.renderApplications() : this.renderTools()}
 
                 <!-- Display custom links -->
                 <div class="text-center mt-5">
