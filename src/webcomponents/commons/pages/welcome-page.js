@@ -36,7 +36,7 @@ export default class WelcomePage extends LitElement {
         if (this.isWelcomeSuite()) {
             // Render applications list
             const visibleApps = (this.config.apps || []).filter(app => {
-                return UtilsNew.isAppVisible(app, session);
+                return UtilsNew.isAppVisible(app, this.opencgaSession);
             });
 
             return html`
@@ -57,7 +57,7 @@ export default class WelcomePage extends LitElement {
                                 ` : nothing}
                                 <div class="">
                                     <a href="#${item.id}/home" class="d-flex align-items-center gap-2 icon-link cursor-pointer fs-5 text-decoration-none">
-                                        <span class="text-decoration-underline">Open ${item.name || item.title} App</span>
+                                        <span class="">Open ${item.name || item.title} App</span>
                                         <i class="fas fa-chevron-right text-decoration-none"></i>
                                     </a>
                                 </div>
@@ -126,27 +126,31 @@ export default class WelcomePage extends LitElement {
         }
 
         return html`
-            <div class="container mt-3">
+            <div class="container pt-5">
                 <!-- Welcome page logo -->
                 ${welcomePage?.logo ? html`
-                    <div class="text-center mt-5">
+                    <div class="mb-3">
                         <img
                             alt="${welcomePage.display?.logoAlt || "logo"}"
                             class="${welcomePage.display?.logoClass}"
                             src="${welcomePage.logo}"
                             style="${welcomePage.display?.logoStyle}"
-                            width="${welcomePage.display?.logoWidth || "300px"}"
+                            width="${welcomePage.display?.logoWidth || "240px"}"
                         />
                     </div>
                 ` : nothing}
 
                 <!-- Welcome page title -->
                 ${welcomePage?.title ? html`
-                    <div class="d-flex justify-content-center my-3">
-                        <img src="${welcomePage.appLogo?.img}" height="${welcomePage.appLogo?.height || "40px"}"/>
-                        <h1 class="${welcomePage.display?.titleClass}" style="${welcomePage.display?.titleStyle}">
-                            ${welcomePage.title}
-                        </h1>
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center">
+                            ${welcomePage.appLogo?.img ? html`
+                                <img src="${welcomePage.appLogo?.img}" height="${welcomePage.appLogo?.height || "40px"}"/>
+                            ` : nothing}
+                            <div class="${welcomePage.display?.titleClass || "display-4 fw-bold"}" style="${welcomePage.display?.titleStyle}">
+                                ${welcomePage.title}
+                            </div>
+                        </div>
                     </div>
                 `: nothing}
 
@@ -159,8 +163,10 @@ export default class WelcomePage extends LitElement {
 
                 <!-- Custom content -->
                 ${welcomePage?.content ? html`
-                    <div style="${welcomePage.display?.contentStyle || "margin-bottom:16px;"}">
-                        ${UtilsNew.renderHTML(welcomePage.content)}
+                    <div class="mb-5">
+                        <div class="${welcomePage.display?.contentClass || "fs-4"}" style="${welcomePage.display?.contentStyle || "max-width:720px;"}">
+                            ${UtilsNew.renderHTML(welcomePage.content)}
+                        </div>
                     </div>
                 ` : nothing}
 
