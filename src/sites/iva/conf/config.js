@@ -589,14 +589,9 @@ const SUITE = {
         logo: "img/iva.svg",
         bottomLogo: {img: "", link: "", height: ""},
         content: `
-        <div style="margin: 20px">
-            <p class="text-center">
-                Welcome to the OpenCB Suite for whole genome variant analysis.<br />
-                This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
-                pedigrees, case-controls or sporadic samples.
-            </p>
-            <br>
-        </div>`,
+            Welcome to the OpenCB Suite for whole genome variant analysis. 
+            This interactive tool allows finding genes affected by deleterious variants that segregate along family pedigrees, case-controls or sporadic samples.
+        `,
     },
     aboutPage: {
         display: {
