@@ -100,7 +100,6 @@ export default class DataList extends LitElement {
 
     modeObserver(e, mode) {
         this.mode = mode;
-        debugger
         this.renderTable();
     }
 
@@ -287,7 +286,6 @@ export default class DataList extends LitElement {
 
     renderToolbar() {
         const float = this._config?.display?.float === "left" ? "float-start" : "float-end";
-        debugger
         return html`
             <div
                 class="d-flex justify-content-between border-bottom border-black ${this._config.display?.classes || ""}"
