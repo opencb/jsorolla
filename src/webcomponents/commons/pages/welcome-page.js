@@ -51,7 +51,9 @@ export default class WelcomePage extends LitElement {
                                 </div>
                                 <div class="text-decoration-none fs-3 fw-bold mb-1">${item.title || item.name}</div>
                                 ${item.description ? html`
-                                    <div class="fs-5 mb-3">${item.description}</div>
+                                    <div class="fs-5 mb-3 text-gray-700">
+                                        ${item.description}
+                                    </div>
                                 ` : nothing}
                                 <div class="">
                                     <a href="#${item.id}/home" class="d-flex align-items-center gap-2 icon-link cursor-pointer fs-5 text-decoration-none">
