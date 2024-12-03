@@ -62,25 +62,23 @@ export default class WelcomePage extends LitElement {
         });
 
         return html`
-            <div class="d-flex justify-content-center mt-2 gap-2">
+            <div class="row">
                 ${visibleTools.map(item => html`
-                    <div class="card w-50 shadow p-3 mb-5 bg-body rounded border-0" data-cy-welcome-card-id="${item.id}">
-                        <div class="card-body d-flex flex-column">
-                            <a class="text-decoration-none" href="#${this.app.id}/${item.id}">
-                                <div class="text-center">
-                                    ${ item?.icon.includes("fas") ? html`
-                                        <i class="${item.icon}" style="font-size: 5em;"></i>
-                                    ` : html`
-                                        <img alt="${item.name}" width="100px" src="${item.icon}"/>
-                                    `}
-                                </div>
-                                <h4 class="card-title text-center">${item.name}</h4>
-                            </a>
-                            ${item.description ? UtilsNew.renderHTML(item.description) : ""}
-                            <a class="btn btn-primary btn-lg mt-auto text-white" href="#${itemLink}">
-                                Enter
-                            </a>
+                    <div class="col-3 mb-5" data-cy-welcome-card-id="${item.id}">
+                        <div class="d-flex mb-3">
+                            <div class="d-flex align-items-center justify-content-center bg-gray-200 rounded-4" style="width:3rem;height:3rem;">
+                                <i class="fas ${item.icon} fs-2"></i>
+                            </div>
                         </div>
+                        <div class="fs-4 fw-bold mb-1">${item.title || item.name}</div>
+                        ${item.description ? html`
+                            <div class="fs-5 mb-3 text-gray-700">
+                                ${UtilsNew.renderHTML(item.description)}
+                            </div>
+                        ` : nothing}
+                        <a class="btn btn-primary text-white" href="#${this.app.id}/${item.id}">
+                            <span class="fw-bold">Enter ${item.name || item.title}</span>
+                        </a>
                     </div>
                 `)}
             </div>
@@ -98,7 +96,7 @@ export default class WelcomePage extends LitElement {
         }
 
         return html`
-            <div class="container pt-5 mt-5">
+            <div class="container pt-5">
                 <!-- Welcome page logo -->
                 ${welcomePage?.logo ? html`
                     <div class="mb-3">
@@ -114,7 +112,7 @@ export default class WelcomePage extends LitElement {
 
                 <!-- Welcome page title -->
                 ${welcomePage?.title ? html`
-                    <div class="mb-3">
+                    <div class="mb-4">
                         <div class="d-flex align-items-center">
                             ${welcomePage.appLogo?.img ? html`
                                 <img src="${welcomePage.appLogo?.img}" height="${welcomePage.appLogo?.height || "40px"}"/>
@@ -123,15 +121,13 @@ export default class WelcomePage extends LitElement {
                                 ${welcomePage.title}
                             </div>
                         </div>
+                        ${welcomePage?.subtitle ? html`
+                            <div class="${welcomePage.display?.subtitleClass || "display-6 text-gray-700 fw-medium"}" style="${welcomePage.display?.subtitleStyle}">
+                                ${welcomePage.subtitle}
+                            </div>
+                        ` : nothing}
                     </div>
                 `: nothing}
-
-                <!-- Welcome page subtitle -->
-                ${welcomePage?.subtitle ? html`
-                    <h4 class="${welcomePage.display?.subtitleClass}" style="${welcomePage.display?.subtitleStyle}">
-                        ${welcomePage.subtitle}
-                    </h4>
-                ` : nothing}
 
                 <!-- Custom content -->
                 ${welcomePage?.content ? html`
@@ -143,13 +139,8 @@ export default class WelcomePage extends LitElement {
                 ` : nothing}
 
                 <!-- Applications or tools -->
-                ${isWelcomeSuite ? this.renderApplications() : this.renderTools()}
-
-                <!-- Display custom links -->
-                <div class="text-center mt-5">
-                    ${(welcomePage?.links || []).map(link => html`
-                        <a class="getting-started" href="${link.url}" target="${link.target || "_blank"}"><span>${link.title}</span></a>
-                    `)}
+                <div class="mt-5">
+                    ${isWelcomeSuite ? this.renderApplications() : this.renderTools()}
                 </div>
 
                 <!-- Logo at the bottom of the content -->
