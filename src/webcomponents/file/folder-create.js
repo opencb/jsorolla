@@ -17,9 +17,9 @@
 import {html, LitElement} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import Types from "../commons/types.js";
 import "../commons/filters/catalog-search-autocomplete.js";
-import UserAdminGrid from "../organization/admin/user-admin-grid";
+
+const FILE_TYPE = "DIRECTORY";
 
 export default class FolderCreate extends LitElement {
 
@@ -35,6 +35,9 @@ export default class FolderCreate extends LitElement {
 
     static get properties() {
         return {
+            path: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -45,15 +48,21 @@ export default class FolderCreate extends LitElement {
     }
 
     #init() {
-        this.folder = {};
-        // this.collection = {from: []};
-        // this.annotationSet = {};
         this.isLoading = false;
         this.displayConfigDefault = {
             style: "margin: 10px",
             titleWidth: 3,
             defaultLayout: "horizontal",
-            buttonOkText: "Create"
+            buttonOkText: "Create Folder",
+            buttonClearText: "Discard Changes",
+
+        };
+        this.#initOriginalObjects();
+    }
+
+    #initOriginalObjects() {
+        this._folder = {
+            type: FILE_TYPE,
         };
         this._config = this.getDefaultConfig();
     }
@@ -64,6 +73,9 @@ export default class FolderCreate extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("path")) {
+            this._folder.path = `/${this.path}`;
+        }
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {
                 ...this.displayConfigDefault,
@@ -75,41 +87,40 @@ export default class FolderCreate extends LitElement {
     }
 
     onFieldChange(e) {
-        this.folder = {...e.detail.data}; // force to refresh the object-list
+        this._folder = {...e.detail.data}; // force to refresh the object-list
         this.requestUpdate();
     }
 
     onClear() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Clear folder",
+            title: "Clear Folder",
             message: "Are you sure to clear?",
             ok: () => {
-                this.sample = {};
-                this._config = this.getDefaultConfig();
+                this.#initOriginalObjects();
                 this.requestUpdate();
             },
         });
     }
 
     onSubmit() {
-        debugger
-        this.folder.path = `${this.folder.path}/${this.folder.name}`;
+        const data = {
+            path: `${this._folder.path}${this._folder.name}`,
+            type: this._folder.type,
+        }
         const params = {
             study: this.opencgaSession.study.fqn,
-            includeResult: true
         };
         let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.files()
-            .create(this.folder, params)
+            .create(data, params)
             .then(() => {
-                this.folder = {};
-                this._config = this.getDefaultConfig();
+                this.#initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Folder Create",
-                    message: "Folder created correctly"
+                    message: "Folder created correctly",
                 });
-                LitUtils.dispatchCustomEvent(this, "folderCreate", this.folder, {}, error);
+                LitUtils.dispatchCustomEvent(this, "folderCreate", this._folder, {}, error);
             })
             .catch(reason => {
                 error = reason;
@@ -127,7 +138,7 @@ export default class FolderCreate extends LitElement {
 
         return html`
             <data-form
-                .data="${this.folder}"
+                .data="${this._folder}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
@@ -158,6 +169,7 @@ export default class FolderCreate extends LitElement {
                             type: "input-text",
                             required: true,
                             display: {
+                                defaultValue: `/${this.path}`,
                                 disabled: true,
                             },
                         },
@@ -166,10 +178,12 @@ export default class FolderCreate extends LitElement {
                             field: "name",
                             required: true,
                             type: "input-text",
-                            validation: {
+                            /*
+                            validation:
                                 validate: () => null,
                                 message: "",
                             }
+                             */
                         },
                     ],
                 },

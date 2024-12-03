@@ -22,6 +22,8 @@ import "../commons/data-list.js";
 import "../loading-spinner.js";
 import "./file-view.js";
 import "./folder-create.js"
+import NotificationUtils from "../commons/utils/notification-utils";
+import LitUtils from "../commons/utils/lit-utils";
 
 export default class FileDataManager extends LitElement {
 
@@ -55,13 +57,9 @@ export default class FileDataManager extends LitElement {
         this.currentRootId = ":";
 
         this.tree = null;
+        this.currentRoot = null;
         this.fileId = null;
         this.loading = false;
-
-        this.FILE_TYPES_COLOR_MAP = {
-            DIRECTORY: "blue",
-            FILE: "orange",
-        };
 
         this.entityActions = {
             "create-folder": {
@@ -87,22 +85,18 @@ export default class FileDataManager extends LitElement {
                 action: null,
                 icon: "fas fa-cloud-download-alt",
             },
-    };
+        };
+
+        this.entityAction = "";
 
         this._config = this.getDefaultConfig();
     }
 
-    async onEntityActionClick(e, value, row) {
-        this.entityAction = e.currentTarget.dataset.action;
+    #setLoading(value) {
+        this.isLoading = value;
         this.requestUpdate();
-        await this.updateComplete;
-        ModalUtils.show(this.entityActions[this.entityAction]["modalId"]);
     }
 
-    onEntityUpdate() {
-        this.entityAction = "";
-        this.requestUpdate();
-    }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
@@ -120,39 +114,36 @@ export default class FileDataManager extends LitElement {
     }
 
     opencgaSessionObserver() {
-        this.currentRoot = null;
         if (this.opencgaSession) {
-            this.loading = true;
-            const query = {
-                study: this.opencgaSession.study.fqn,
-                maxDepth: 1,
-                include: "id,name,path,size,format,sampleIds,jobId,internal",
-            };
-            this.opencgaSession.opencgaClient.files()
-                .tree(this.currentRootId, query)
-                .then(restResponse => {
+            this.#setLoading(true);
+            this.fetchFolder(this.currentRootId)
+                .then(response => {
                     this.errorState = false;
-                    this.tree = restResponse.getResult(0);
+                    this.tree = response.getResult(0);
                     this.tree.visited = true;
                     this.currentRoot = this.tree;
-                    this.requestUpdate();
                 })
-                .catch(restResponse => {
-                    this.currentRoot = null;
-                    if (restResponse.getEvents?.("ERROR")?.length) {
-                        this.errorState = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                    } else {
-                        this.errorState = "Server Error";
-                    }
-                    console.error(restResponse);
+                .catch(error => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                    LitUtils.dispatchCustomEvent(this, "getFolderFailed", null, {}, error);
                 })
                 .finally(() => {
-                    this.loading = false;
-                    this.requestUpdate();
+                    this.#setLoading(false);
                 });
+
         }
     }
 
+    fetchFolder(nodeId) {
+        const query = {
+            study: this.opencgaSession.study.fqn,
+            maxDepth: 1,
+            include: "id,name,path,size,format,sampleIds,jobId,internal",
+        };
+        return this.opencgaSession.opencgaClient.files().tree(nodeId, query);
+    }
+
+    /*
     async fetchFolder(node) {
         try {
             if (!node.visited) {
@@ -173,6 +164,7 @@ export default class FileDataManager extends LitElement {
             console.error(restResponse);
         }
     }
+     */
 
     searchNode(nodeId, baseNode) {
         if (nodeId === ":") {
@@ -357,12 +349,24 @@ export default class FileDataManager extends LitElement {
         `;
     }
 
-    async route(id, resetFileId = true) {
+    route(id, resetFileId = true) {
         this.currentRoot = this.searchNode(id, this.tree);
         this.currentRoot.exploded = true;
 
         if (!this.currentRoot.visited) {
+            /*
             await this.fetchFolder(this.currentRoot);
+             */
+            this.fetchFolder(this.currentRoot.file.id || this.currentRootId)
+                .then(response => {
+                    this.currentRoot.children = response.getResult(0).children;
+                    this.currentRoot.visited = true;
+                    this.requestUpdate();
+                })
+                .catch(error => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                    LitUtils.dispatchCustomEvent(this, "getFolderFailed", null, {}, error);
+                })
         } else {
             console.log("node already visited", this.currentRoot);
         }
@@ -384,7 +388,59 @@ export default class FileDataManager extends LitElement {
         const path = id.split(":").slice(0, -1).join(":") + ":";
         this.fileId = id;
         this.route(path, false);
+    }
+
+    onDblClickRow(e) {
+        this.onClickFile(e.detail.value.id);
+    }
+
+    async onEntityActionClick(e, value, row) {
+        this.entityAction = e.currentTarget.dataset.action;
         this.requestUpdate();
+        await this.updateComplete;
+        ModalUtils.show(this.entityActions[this.entityAction]["modalId"]);
+    }
+
+    onFileAction(e,id) {
+        ModalUtils.close(id);
+        this.entityAction = "";
+        this.currentRoot.visited = false;
+        this.route(this.currentRoot.file.id)
+    }
+
+
+    onCheckRow(e) {}
+
+    onActionClick(e, value, file) {
+        e.preventDefault();
+
+        const action = e.currentTarget.dataset.action;
+        switch (action) {
+            case "view":
+                this.fileId = file.id;
+                this.requestUpdate();
+                // await this.updateComplete;
+                ModalUtils.show(`${this._prefix}ViewFileModal`);
+                break;
+            case "copy":
+                UtilsNew.copyToClipboard(JSON.stringify(file, null, "\t"));
+                break;
+            case "execute":
+                this.fileUpdateId = file.id;
+                this.requestUpdate();
+                // await this.updateComplete;
+                ModalUtils.show(`${this._prefix}ExecuteModal`);
+                break;
+            case "edit":
+                this.fileUpdateId = file.id;
+                this.requestUpdate();
+                // await this.updateComplete;
+                ModalUtils.show(`${this._prefix}UpdateModal`);
+                break;
+            case "delete":
+                // this.clinicalAnalysisManager.deleteInterpretation(interpretationId, interpretationCallback);
+                break;
+        }
     }
 
     renderFolderCreate() {
@@ -395,12 +451,12 @@ export default class FileDataManager extends LitElement {
                 modalSize: "modal-lg",
             },
             render: () => {
-                debugger
                 return html`
                     <folder-create
-                        .route="${this.currentRoot}"
+                        .path="${this.currentRoot.file.path}"
                         .opencgaSession="${this.opencgaSession}"
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}">
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        @folderCreate="${e => this.onFileAction(e, `${this.entityActions[this.entityAction]["modalId"]}`)}">
                     </folder-create>
                 `;
             },
@@ -470,44 +526,6 @@ export default class FileDataManager extends LitElement {
         `;
     }
 
-    onDblClickRow(e) {
-        this.onClickFile(e.detail.value.id);
-    }
-
-    onCheckRow(e) {}
-
-    onActionClick(e, value, file) {
-        e.preventDefault();
-
-        const action = e.currentTarget.dataset.action;
-        switch (action) {
-            case "view":
-                this.fileId = file.id;
-                this.requestUpdate();
-                // await this.updateComplete;
-                ModalUtils.show(`${this._prefix}ViewFileModal`);
-                break;
-            case "copy":
-                UtilsNew.copyToClipboard(JSON.stringify(file, null, "\t"));
-                break;
-            case "execute":
-                this.fileUpdateId = file.id;
-                this.requestUpdate();
-                // await this.updateComplete;
-                ModalUtils.show(`${this._prefix}ExecuteModal`);
-                break;
-            case "edit":
-                this.fileUpdateId = file.id;
-                this.requestUpdate();
-                // await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
-                break;
-            case "delete":
-                // this.clinicalAnalysisManager.deleteInterpretation(interpretationId, interpretationCallback);
-                break;
-        }
-    }
-
     render() {
         if (!this.opencgaSession || !this.currentRoot) {
             return null;
@@ -523,11 +541,13 @@ export default class FileDataManager extends LitElement {
                 </div>
 
                 <div class="file-manager-grid col-md-9">
+                    <!--
                     ${this.errorState ? html`
-                        <div id="error" class="alert alert-danger" role="alert">
-                            ${this.errorState}
-                        </div>
+                    <div id="error" class="alert alert-danger" role="alert">
+                        ${this.errorState}
+                    </div>
                     ` : null}
+                    -->
                     ${this.loading ? html`
                         <div id="loading">
                             <loading-spinner></loading-spinner>
