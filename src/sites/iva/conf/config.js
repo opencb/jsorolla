@@ -658,109 +658,72 @@ const SUITE = {
             welcomePage: {
                 display: {
                     logoWidth: "100px",
-                    titleStyle: "text-align:center;",
-                    subtitleStyle: "text-align:center;"
                 },
                 title: "Research Environment",
-                subtitle: "Explore variants in real-time and execute analysis and tools",
-                // logo: "img/Zetta_logo.png",
-                logo: "img/tools/icons/variant_browser.svg",
-                content: `
-                    <p class="text-center">
-                        Welcome to the OpenCB Variant Analysis application.<br>
-                        This interactive tool allows browse and run variant analysis.
-                    </p>
-                `,
-                links: [
-                    {
-                        title: "Documentation", url: "http://docs.opencb.org/display/iva"
-                    },
-                ]
+                subtitle: "Explore variants in real-time and execute analysis and tools.",
+                content: "Welcome to the OpenCB Variant Analysis application. This interactive tool allows browse and run variant analysis.",
+                // links: [
+                //     {
+                //         title: "Documentation", url: "http://docs.opencb.org/display/iva"
+                //     },
+                // ]
             },
             menu: [
                 {
                     id: "variant-browser",
                     name: "Variant Browser",
-                    icon: "img/tools/icons/variant_browser.svg",
+                    icon: "fa-dna",
                     visibility: "public",
                     featured: true,
-                    description: `
-                        <p>Explore all variants identified by the current study.</p>
-                        <ul>
-                            <li>Rich annotation and links to leading reference databases</li>
-                            <li>Filter by gene, consequence, frequency and much more</li>
-                        </ul>
-                    `,
+                    description: "Explore all variants identified by the current study.",
                 },
                 {
                     id: "analysis-tools",
-                    name: "Tools",
-                    icon: "img/tools/icons/variant_browser.svg",
+                    name: "Analysis Tools",
+                    icon: "fa-tools",
                     visibility: "public",
                     featured: true,
-                    description: `
-                        <p>Explore all variants identified by the current study.</p>
-                        <ul>
-                            <li>Rich annotation and links to leading reference databases</li>
-                            <li>Filter by gene, consequence, frequency and much more</li>
-                        </ul>
-                    `,
+                    description: "Execute analysis tools using data of the current study.",
                 },
                 {
                     id: "workflow-manager",
                     name: "Workflow Manager",
-                    icon: "img/tools/icons/variant_browser.svg",
+                    icon: "fa-stream",
                     visibility: "public",
                     featured: true,
-                    description: `
-                        <p>Explore all variants identified by the current study.</p>
-                        <ul>
-                            <li>Rich annotation and links to leading reference databases</li>
-                            <li>Filter by gene, consequence, frequency and much more</li>
-                        </ul>
-                    `,
+                    description: "Manage and execute workflows in the current study.",
                 },
                 {
                     id: "jupyter-notebook",
                     name: "Jupyter Notebooks",
-                    icon: "img/tools/icons/variant_browser.svg",
+                    icon: "fa-book",
                     visibility: "public",
                     featured: true,
-                    description: `
-                        <p>Explore all variants identified by the current study.</p>
-                        <ul>
-                            <li>Rich annotation and links to leading reference databases</li>
-                            <li>Filter by gene, consequence, frequency and much more</li>
-                        </ul>
-                    `,
+                    description: "Create and execute notebooks using a Jupyter environment.",
                 },
                 {
                     id: "my-analysis",
                     name: "My Analysis",
-                    icon: "img/tools/icons/variant_browser.svg",
+                    icon: "fa-cog",
                     visibility: "public",
                     featured: true,
-                    description: `
-                        <p>Explore all variants identified by the current study.</p>
-                        <ul>
-                            <li>Rich annotation and links to leading reference databases</li>
-                            <li>Filter by gene, consequence, frequency and much more</li>
-                        </ul>
-                    `,
+                    description: "Explore and manage all your analysis.",
+                },
+                {
+                    id: "cohort-browser",
+                    name: "Cohort Manager",
+                    icon: "fa-search",
+                    visibility: "public",
+                    featured: true,
+                    description: "Explore and manage all cohorts in the current study.",
                 },
                 {
                     id: "file-data-manager",
                     name: "Data Manager",
-                    icon: "img/tools/icons/variant_browser.svg",
+                    icon: "fa-folder",
                     visibility: "public",
                     featured: true,
-                    description: `
-                        <p>Explore all variants identified by the current study.</p>
-                        <ul>
-                            <li>Rich annotation and links to leading reference databases</li>
-                            <li>Filter by gene, consequence, frequency and much more</li>
-                        </ul>
-                    `,
+                    description: "Manage your data in OpenCGA",
                 },
             ],
             // fileExplorer: {
@@ -785,20 +748,16 @@ const SUITE = {
             visibility: "public",
             welcomePage: {
                 title: "Clinical Analysis",
-                display: {
-                    titleStyle: "text-align:center;",
-                    subtitleStyle: "text-align:center;",
-                    logoWidth: "100px",
-                },
-                subtitle: "Interactive Case Interpreter",
-                // logo: "img/Zetta_logo.png",
-                logo: "img/tools/icons/interpretation_portal.svg",
+                // display: {
+                //     titleStyle: "text-align:center;",
+                //     subtitleStyle: "text-align:center;",
+                //     logoWidth: "100px",
+                // },
+                // subtitle: "Interactive Case Interpreter",
                 content: `
-                    <p class="text-center">
-                        Welcome to the OpenCB Clinical Analysis Application
-                        <br>
-                        This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
-                    </p>`
+                    Welcome to the OpenCB Clinical Analysis Application. 
+                    This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
+                `,
             },
             menu: [
                 {
@@ -884,49 +843,67 @@ const SUITE = {
             visibility: "public",
             welcomePage: {
                 title: "Data Catalog",
-                display: {
-                    titleStyle: "text-align:center;",
-                    subtitleStyle: "text-align:center;",
-                    logoWidth: "100px",
-                },
+                // display: {
+                //     titleStyle: "text-align:center;",
+                //     subtitleStyle: "text-align:center;",
+                //     logoWidth: "100px",
+                // },
                 subtitle: "",
                 // logo: "img/Zetta_logo.png",
-                logo: "img/tools/icons/interpretation_portal.svg",
+                // logo: "img/tools/icons/interpretation_portal.svg",
                 content: `
-                    <p class="text-center">
-                        Welcome to the Data Catalog Application
-                        <br>
-                        This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
-                    </p>`
+                    Welcome to the Data Catalog Application. 
+                    This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
+                `,
             },
             menu: [
                 {
                     id: "sample-browser",
-                    name: "Sample and Individual",
-                    icon: "img/tools/icons/variant_browser.svg",
+                    name: "Sample Browser",
+                    icon: "fa-vial",
                     visibility: "public",
                     featured: true,
-                    description: `
-                        <p>Explore all variants identified by the current study.</p>
-                        <ul>
-                            <li>Rich annotation and links to leading reference databases</li>
-                            <li>Filter by gene, consequence, frequency and much more</li>
-                        </ul>
-                    `,
+                    description: "Explore and manage all samples in the current study.",
                 },
                 {
-                    id: "individual-browsers",
-                    name: "Browsers",
-                    icon: "img/tools/icons/variant_browser.svg",
+                    id: "individual-browser",
+                    name: "Individual Browser",
+                    icon: "fa-user",
                     visibility: "public",
                     featured: true,
-                    description: `
-                        <p>Explore all variants identified by the current study.</p>
-                        <ul>
-                            <li>Rich annotation and links to leading reference databases</li>
-                            <li>Filter by gene, consequence, frequency and much more</li>
-                        </ul>
-                    `,
+                    description: "Explore and manage all individuals in the current study.",
+                },
+                {
+                    id: "family-browser",
+                    name: "Family Browser",
+                    icon: "fa-users",
+                    visibility: "public",
+                    featured: true,
+                    description: "Explore and manage all families in the current study.",
+                },
+                {
+                    id: "file-browser",
+                    name: "File Browser",
+                    icon: "fa-file",
+                    visibility: "public",
+                    featured: true,
+                    description: "Explore and manage all files in the current study.",
+                },
+                {
+                    id: "note-browser",
+                    name: "Note Browser",
+                    icon: "fa-sticky-note",
+                    visibility: "public",
+                    featured: true,
+                    description: "Explore and manage all notes in the current study.",
+                },
+                {
+                    id: "job-browser",
+                    name: "Job Browser",
+                    icon: "fa-rocket",
+                    visibility: "public",
+                    featured: true,
+                    description: "Explore and manage all jobs in the current study.",
                 },
                 // {
                 //     id: "workflow-manager",
@@ -942,34 +919,34 @@ const SUITE = {
                 //         </ul>
                 //     `,
                 // },
-                {
-                    id: "cohort-browser",
-                    name: "Cohort Builder",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    visibility: "public",
-                    featured: true,
-                    description: `
-                        <p>Explore all variants identified by the current study.</p>
-                        <ul>
-                            <li>Rich annotation and links to leading reference databases</li>
-                            <li>Filter by gene, consequence, frequency and much more</li>
-                        </ul>
-                    `,
-                },
-                {
-                    id: "variable-set-browser",
-                    name: "Custom Annotations",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    visibility: "public",
-                    featured: true,
-                    description: `
-                        <p>Explore all variants identified by the current study.</p>
-                        <ul>
-                            <li>Rich annotation and links to leading reference databases</li>
-                            <li>Filter by gene, consequence, frequency and much more</li>
-                        </ul>
-                    `,
-                },
+                // {
+                //     id: "cohort-browser",
+                //     name: "Cohort Builder",
+                //     icon: "img/tools/icons/variant_browser.svg",
+                //     visibility: "public",
+                //     featured: true,
+                //     description: `
+                //         <p>Explore all variants identified by the current study.</p>
+                //         <ul>
+                //             <li>Rich annotation and links to leading reference databases</li>
+                //             <li>Filter by gene, consequence, frequency and much more</li>
+                //         </ul>
+                //     `,
+                // },
+                // {
+                //     id: "variable-set-browser",
+                //     name: "Custom Annotations",
+                //     icon: "img/tools/icons/variant_browser.svg",
+                //     visibility: "public",
+                //     featured: true,
+                //     description: `
+                //         <p>Explore all variants identified by the current study.</p>
+                //         <ul>
+                //             <li>Rich annotation and links to leading reference databases</li>
+                //             <li>Filter by gene, consequence, frequency and much more</li>
+                //         </ul>
+                //     `,
+                // },
             ],
             // fileExplorer: {
             //     visibility: "private"
