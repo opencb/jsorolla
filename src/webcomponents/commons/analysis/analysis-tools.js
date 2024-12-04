@@ -72,23 +72,21 @@ export default class AnalysisTools extends LitElement {
     }
 
     renderMenu() {
-        return this._config.menu.map(tool => {
-            if (tool.category) {
-                return html`
+        return this._config.menu.map(item => {
+            return html`
+                <div class="">
                     <div class="fw-bold text-gray-700 fs-9 user-select-none">
-                        ${tool.name}
+                        ${item.name}
                     </div>
-                `
-            } else if (tool.separator) {
-                return nothing;
-            } else {
-                const active = this._tool === tool.id;
-                return html`
-                    <a class="d-block btn w-full text-start ${active ? "btn-primary" : "hover:bg-gray-200"}" @click="${() => this.onChangeTool(tool.id)}">
-                        ${tool.name}
-                    </a>     
-                `;
-            }
+                    <div class="">
+                        ${(item.submenu || []).map(tool => html`
+                            <div class="btn w-full text-start ${tool.id === this._tool ? "btn-primary" : "hover:bg-gray-200"}" @click="${() => this.onChangeTool(tool.id)}">
+                                ${tool.name}
+                            </div>     
+                        `)}
+                    </div>
+                </div>
+            `;
         });
     }
 
