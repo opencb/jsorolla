@@ -88,15 +88,14 @@ export default class JupyterNotebook extends LitElement {
         const token = this.opencgaSession.token;
         debugger
         return html`
-            <div class="opencga-analysis-tool">
+            <div class="p-2">
+                <h2>Jupyter Notebook</h2>
+                <div class="m-3">
+                    <iframe src="https://test.app.zettagenomics.com/task-6757a/jupyter/hub/login?userId=${userId}&organizationId=${organizationId}&opencgaUrl=${serverUrl}&logoutUrl=https:%2F%2Fwww.google.com&token=${token}"
+                            width="1600" height="720">
+                    </iframe>
 
-            </div>
-
-            <div class="m-4">
-                <iframe src="https://test.app.zettagenomics.com/task-6757a/jupyter/hub/login?userId=${userId}&organizationId=${organizationId}&opencgaUrl=${serverUrl}&logoutUrl=https:%2F%2Fwww.google.com&token=${token}"
-                        width="1440" height="800">
-                </iframe>
-
+                </div>
             </div>
         `;
     }
