@@ -116,7 +116,7 @@ export default class SampleBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Sample Browser",
-            icon: "fab fa-searchengin",
+            icon: "fa-vial",
             views: [
                 {
                     id: "table-tab",
