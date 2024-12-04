@@ -116,7 +116,7 @@ export default class NoteBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Note Browser",
-            icon: "fab fa-searchengin",
+            icon: "fa-sticky-note",
             views: [
                 {
                     id: "table-tab",
