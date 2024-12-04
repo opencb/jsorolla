@@ -75,10 +75,11 @@ export default class AnalysisTools extends LitElement {
         return this._config.menu.map(item => {
             return html`
                 <div class="">
-                    <div class="fw-bold text-gray-700 fs-9 user-select-none">
-                        ${item.name}
+                    <div class="d-flex align-items-center gap-2 text-gray-700 fs-9 user-select-none py-1">
+                        <i class="fa fa-chevron-down"></i>
+                        <span class="fw-bold">${item.name}</span>
                     </div>
-                    <div class="">
+                    <div class="d-flex flex-column gap-1">
                         ${(item.submenu || []).map(tool => html`
                             <div class="btn w-full text-start ${tool.id === this._tool ? "btn-primary" : "hover:bg-gray-200"}" @click="${() => this.onChangeTool(tool.id)}">
                                 ${tool.name}
@@ -273,7 +274,7 @@ export default class AnalysisTools extends LitElement {
                 .icon="${this._config.icon}">
             </tool-header>
             <div class="row w-full">
-                <div class="col-2 d-flex flex-column gap-1">
+                <div class="col-2 d-flex flex-column gap-3">
                     ${this.renderMenu()}
                 </div>
                 <div class="col-10">
