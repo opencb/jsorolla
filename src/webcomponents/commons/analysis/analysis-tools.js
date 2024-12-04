@@ -59,7 +59,7 @@ export default class AnalysisTools extends LitElement {
             };
             // initialize this._tool with the first tool in the list
             if (!this._tool) {
-                this._tool = this._config.menu.find(tool => !tool.category && !tool.separator)?.id;
+                this._tool = this._config.menu?.[0]?.submenu?.[0]?.id;
             }
         }
 
