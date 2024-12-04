@@ -250,7 +250,7 @@ export default class OpencgaBrowser extends LitElement {
         }
 
         return this._config.views.map(view => html`
-            <div id="${view.id}" class="content-tab ${this.activeView === view.id ? "active" : ""}">
+            <div id="${view.id}" class="${this.activeView === view.id ? "d-block" : "d-none"}">
                 ${view.render({
                     opencgaSession: this.opencgaSession,
                     config: this._config,
@@ -348,8 +348,8 @@ export default class OpencgaBrowser extends LitElement {
                 <div class="col-2">
                     <div class="d-grid gap-2 pb-3">
                         <button type="button" class="btn btn-primary" @click="${this.onRun}">
-                            <i class="fa fa-search mx-1" aria-hidden="true"></i>
-                            <span class="fw-bold fs-5">${this._config.searchButtonText || "Search"}</span>
+                            <i class="fa fa-search mx-1"></i>
+                            <span class="fw-bold">${this._config.searchButtonText || "Search"}</span>
                         </button>
                     </div>
                     <ul class="nav nav-tabs mb-3" id="filterTab" role="tablist">
