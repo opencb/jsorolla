@@ -120,7 +120,7 @@ export default class JobBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Jobs Browser",
-            icon: "fab fa-searchengin",
+            icon: "fa-rocket",
             description: "",
             views: [
                 {

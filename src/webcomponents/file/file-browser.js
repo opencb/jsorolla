@@ -117,7 +117,7 @@ export default class FileBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "File Browser",
-            icon: "fab fa-searchengin",
+            icon: "fa-file",
             description: "",
             views: [
                 {

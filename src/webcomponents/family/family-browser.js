@@ -114,7 +114,7 @@ export default class FamilyBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Family Browser",
-            icon: "fab fa-searchengin",
+            icon: "fa-users",
             views: [
                 {
                     id: "table-tab",

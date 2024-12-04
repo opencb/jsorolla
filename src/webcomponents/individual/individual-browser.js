@@ -121,7 +121,7 @@ export default class IndividualBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Individual Browser",
-            icon: "fab fa-searchengin",
+            icon: "fa-user",
             views: [
                 {
                     id: "table-tab",
