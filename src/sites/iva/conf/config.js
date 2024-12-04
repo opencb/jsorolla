@@ -589,7 +589,7 @@ const SUITE = {
         logo: "img/iva.svg",
         bottomLogo: {img: "", link: "", height: ""},
         content: `
-            Welcome to the OpenCB Suite for whole genome variant analysis. 
+            Welcome to the OpenCB Suite for whole genome variant analysis.
             This interactive tool allows finding genes affected by deleterious variants that segregate along family pedigrees, case-controls or sporadic samples.
         `,
     },
@@ -660,8 +660,12 @@ const SUITE = {
                     logoWidth: "100px",
                 },
                 title: "Research Environment",
-                subtitle: "Explore variants in real-time and execute analysis and tools.",
-                content: "Welcome to the OpenCB Variant Analysis application. This interactive tool allows browse and run variant analysis.",
+                subtitle: "Explore variants in real-time and execute analysis.",
+                content: `
+                    Variant Research Environment App implements different tools to focus on the analysis and interpretation of genomic variants
+                    to understand their role in diseases, traits, and biological processes. It involves the use of our aggregated variant database,
+                    bioinformatics tools, workflows, notebooks, and computational methods to identify, classify, and study variants for personalized medicine and genetic research.
+                `,
                 // links: [
                 //     {
                 //         title: "Documentation", url: "http://docs.opencb.org/display/iva"
@@ -675,7 +679,7 @@ const SUITE = {
                     icon: "fa-dna",
                     visibility: "public",
                     featured: true,
-                    description: "Explore all variants identified by the current study.",
+                    description: "Explore our high-performance and scalable aggregated variant database in real-time.",
                 },
                 {
                     id: "analysis-tools",
@@ -691,7 +695,15 @@ const SUITE = {
                     icon: "fa-stream",
                     visibility: "public",
                     featured: true,
-                    description: "Manage and execute workflows in the current study.",
+                    description: "Build, import and execute NextFlow workflows.",
+                },
+                {
+                    id: "tool-analysis",
+                    name: "Custom Tool",
+                    icon: "fa-rocket",
+                    visibility: "public",
+                    featured: true,
+                    description: "Execute your own custom tools easily in the cloud.",
                 },
                 {
                     id: "jupyter-notebook",
@@ -699,7 +711,7 @@ const SUITE = {
                     icon: "fa-book",
                     visibility: "public",
                     featured: true,
-                    description: "Create and execute notebooks using a Jupyter environment.",
+                    description: "Create, share and execute Jupyter Notebooks with Python.",
                 },
                 {
                     id: "my-analysis",
@@ -707,7 +719,7 @@ const SUITE = {
                     icon: "fa-cog",
                     visibility: "public",
                     featured: true,
-                    description: "Explore and manage all your analysis.",
+                    description: "Explore and manage all your exceuted analysis.",
                 },
                 {
                     id: "cohort-browser",
@@ -723,7 +735,7 @@ const SUITE = {
                     icon: "fa-folder",
                     visibility: "public",
                     featured: true,
-                    description: "Manage your data in OpenCGA",
+                    description: "Manage your data in the cloud",
                 },
             ],
             // fileExplorer: {
@@ -755,7 +767,7 @@ const SUITE = {
                 // },
                 // subtitle: "Interactive Case Interpreter",
                 content: `
-                    Welcome to the OpenCB Clinical Analysis Application. 
+                    Welcome to the OpenCB Clinical Analysis Application.
                     This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
                 `,
             },
@@ -763,7 +775,8 @@ const SUITE = {
                 {
                     id: "clinical-analysis-portal",
                     name: "Case Interpreter Portal",
-                    icon: "img/tools/icons/interpretation_portal.svg",
+                    // icon: "img/tools/icons/interpretation_portal.svg",
+                    icon: "fa-file-medical",
                     visibility: "public",
                     featured: true,
                     description: `
@@ -778,7 +791,8 @@ const SUITE = {
                 {
                     id: "disease-panel-browser",
                     name: "Disease Panels",
-                    icon: "img/tools/icons/interpretation_portal.svg",
+                    // icon: "img/tools/icons/interpretation_portal.svg",
+                    icon: "fa-th-list",
                     visibility: "public",
                     featured: true,
                     description: `
@@ -793,7 +807,8 @@ const SUITE = {
                 {
                     id: "cvdb-browser",
                     name: "Clinical Variant DB",
-                    icon: "img/tools/icons/interpretation_portal.svg",
+                    // icon: "img/tools/icons/interpretation_portal.svg",
+                    icon: "fa-database",
                     visibility: "public",
                     featured: true,
                     description: `
@@ -808,7 +823,8 @@ const SUITE = {
                 {
                     id: "clinical-configuration",
                     name: "Configuration",
-                    icon: "img/tools/icons/interpretation_portal.svg",
+                    // icon: "img/tools/icons/interpretation_portal.svg",
+                    icon: "fa-cog",
                     visibility: "public",
                     featured: true,
                     description: `
@@ -852,7 +868,7 @@ const SUITE = {
                 // logo: "img/Zetta_logo.png",
                 // logo: "img/tools/icons/interpretation_portal.svg",
                 content: `
-                    Welcome to the Data Catalog Application. 
+                    Welcome to the Data Catalog Application.
                     This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
                 `,
             },

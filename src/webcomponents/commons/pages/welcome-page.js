@@ -96,7 +96,7 @@ export default class WelcomePage extends LitElement {
         }
 
         return html`
-            <div class="container pt-5">
+            <div class="container pt-4">
                 <!-- Welcome page logo -->
                 ${welcomePage?.logo ? html`
                     <div class="mb-3">
@@ -132,7 +132,7 @@ export default class WelcomePage extends LitElement {
                 <!-- Custom content -->
                 ${welcomePage?.content ? html`
                     <div class="mb-5">
-                        <div class="${welcomePage.display?.contentClass || "fs-4"}" style="${welcomePage.display?.contentStyle || "max-width:720px;"}">
+                        <div class="${welcomePage.display?.contentClass || "fs-4"}" style="${welcomePage.display?.contentStyle || "max-width: 1200px;"}">
                             ${UtilsNew.renderHTML(welcomePage.content)}
                         </div>
                     </div>

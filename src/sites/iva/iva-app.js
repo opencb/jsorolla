@@ -63,6 +63,7 @@ import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/file/file-manager.js";
 import "../../webcomponents/file/file-data-manager.js";
 import "../../webcomponents/job/job-monitor.js";
+import "../../webcomponents/job/analysis/tool-analysis.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/organization/admin/organization-admin.js";
 import "../../webcomponents/project/projects-admin.js";
@@ -70,6 +71,7 @@ import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/study/admin/study-admin-iva.js";
 import "../../webcomponents/study/admin/catalog-admin.js";
 import "../../webcomponents/study/admin/variant/operations-admin.js";
+import "../../webcomponents/study/study-dashboard.js";
 import "../../webcomponents/user/user-profile.js";
 import "../../webcomponents/api/rest-api.js";
 import "../../webcomponents/note/note-browser.js";
@@ -1606,11 +1608,26 @@ class IvaApp extends LitElement {
                     </analysis-tools>
                 `;
                 break;
+            case "tool-analysis":
+                content = html`
+                    <tool-analysis
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${this.config.analysisTools}">
+                    </tool-analysis>
+                `;
+                break;
             case "jupyter-notebook":
                 content = html`
                     <jupyter-notebook
                         .opencgaSession="${this.opencgaSession}">
                     </jupyter-notebook>
+                `;
+                break;
+            case "study-dashboard":
+                content = html`
+                    <study-dashboard
+                        .opencgaSession="${this.opencgaSession}">
+                    </study-dashboard>
                 `;
                 break;
             default:
