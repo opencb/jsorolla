@@ -192,70 +192,57 @@ const ANALYSIS_TOOLS = {
     id: "analysis",
     name: "Analysis Tools",
     description: "",
-    // icon: "img/tools/icons/aggregation.svg",
     menu: [
         {
             name: "Analysis Execution",
-            category: true,
             visibility: "public",
             submenu: [
                 {
                     id: "tool-analysis",
                     name: "Tool Executor",
                     description: "",
-                    icon: "",
                     visibility: "public"
                 },
                 {
                     id: "custom-tool-builder",
                     name: "Custom Tool Builder",
                     description: "",
-                    icon: "",
                     visibility: "public"
                 },
                 {
                     id: "workflow-analysis",
                     name: "Workflow Executor",
                     description: "",
-                    icon: "",
                     visibility: "public"
                 },
             ],
         },
         {
             name: "Summary Stats",
-            category: true,
             visibility: "public",
             submenu: [
                 {
                     id: "sample-variant-stats",
                     name: "Sample Variant Stats",
-                    acronym: "SVS",
                     description: "",
-                    icon: "",
                     visibility: "public"
                 },
                 {
                     id: "cohort-variant-stats",
                     name: "Cohort Variant Stats",
-                    acronym: "CS",
                     description: "",
-                    icon: "",
                     visibility: "public"
                 },
             ],
         },
         {
             name: "Association Analysis",
-            category: true,
             visibility: "public",
             submenu: [
                 {
                     id: "gwas",
                     name: "Genome-Wide Association Study (GWAS)",
-                    acronym: "GWAS",
                     description: "Study of a genome-wide set of genetic variants in different individuals to see if any variant is associated with a trait",
-                    icon: "img/tools/icons/aggregation.svg",
                     visibility: "public",
                 },
             ],
@@ -267,16 +254,13 @@ const ANALYSIS_TOOLS = {
                 {
                     id: "knockout",
                     name: "Knockout Analysis",
-                    acronym: "KO",
                     description: "",
-                    icon: "",
                     visibility: "public"
                 },
                 {
                     id: "sample-eligibility",
                     name: "Eligibility Analysis",
                     description: "",
-                    icon: "",
                     visibility: "public"
                 },
             ],
@@ -288,28 +272,21 @@ const ANALYSIS_TOOLS = {
                 {
                     id: "inferred-sex",
                     name: "Sex Inference",
-                    acronym: "SI",
                     description: "",
-                    icon: "",
                     visibility: "public"
                 },
                 {
                     id: "individual-relatedness",
                     name: "Relatedness",
-                    acronym: "RL",
                     description: "",
-                    icon: "",
                     visibility: "public"
                 },
                 {
                     id: "mendelian-error",
                     name: "Mendelian Errors",
-                    acronym: "ME",
                     description: "",
-                    icon: "",
                     visibility: "public"
                 },
-
             ],
         },
         {
@@ -319,9 +296,7 @@ const ANALYSIS_TOOLS = {
                 {
                     id: "mutational-signature",
                     name: "Mutational Signature",
-                    acronym: "SG",
                     description: "",
-                    icon: "img/tools/icons/aggregation.svg",
                     visibility: "public"
                 },
             ],
@@ -334,21 +309,18 @@ const ANALYSIS_TOOLS = {
                     id: "sample-qc",
                     name: "Sample Quality Control",
                     description: "Calculate different genetic checks and metrics and store data in Sample Catalog",
-                    icon: "img/tools/icons/aggregation.svg",
                     visibility: "public"
                 },
                 {
                     id: "individual-qc",
                     name: "Individual Quality Control",
                     description: "Calculate different genetic checks and metrics and store data in Individual Catalog",
-                    icon: "",
                     visibility: "public"
                 },
                 {
                     id: "family-qc",
                     name: "Family Quality Control",
                     description: "Calculate different genetic checks and metrics and store data in Family Catalog",
-                    icon: "",
                     visibility: "public"
                 },
             ],
@@ -360,21 +332,17 @@ const ANALYSIS_TOOLS = {
                 {
                     id: "variant-export",
                     name: "Variant Export",
-                    acronym: "EX",
                     description: `
-                                        Filter and export variants, with their annotation and sample genotypes,
-                                        from the Variant Storage to a file in multiple supported formats (vcf, json, tped, ensembl vep tab...)
-                                        for being shared or processed by an external tool.
-                                    `,
-                    icon: "img/tools/icons/aggregation.svg",
+                        Filter and export variants, with their annotation and sample genotypes,
+                        from the Variant Storage to a file in multiple supported formats (vcf, json, tped, ensembl vep tab...)
+                        for being shared or processed by an external tool.
+                    `,
                     visibility: "public"
                 },
                 {
                     id: "variant-stats-exporter",
                     name: "Variant Stats Export",
-                    acronym: "VSE",
                     description: "Export variant stats for different cohorts",
-                    icon: "",
                     visibility: "public"
                 },
             ],
@@ -386,38 +354,25 @@ const ANALYSIS_TOOLS = {
                 {
                     id: "beacon",
                     name: "GA4GH Beacon",
-                    description: `
-                                        <ul>
-                                            <li>Federated search from the Global Alliance for Genomics and Health</li>
-                                            <li>Find databases that have information about specific variants</li>
-                                        </ul>`,
-                    thumbnail: "beacon.png",
-                    fa_icon: "fa fa-globe-europe",
-                    icon: "beacon.svg",
+                    description: "Find databases that have information about specific variants.",
                     visibility: "public"
                 },
                 {
                     id: "plink",
                     name: "Plink",
-                    acronym: "Pl",
                     description: "",
-                    icon: "",
                     visibility: "public"
                 },
                 {
                     id: "gatk",
                     name: "GATK",
-                    acronym: "GT",
                     description: "",
-                    icon: "",
                     visibility: "public"
                 },
                 {
                     id: "bcftools",
                     name: "BCFtools",
-                    acronym: "GT",
                     description: "",
-                    icon: "",
                     visibility: "public"
                 },
             ],
@@ -430,14 +385,12 @@ const ANALYSIS_TOOLS = {
                     id: "alignment-index",
                     name: "Alignment Index",
                     description: "Create a .bai index file.",
-                    icon: "",
                     visibility: "public"
                 },
                 {
                     id: "coverage-index",
                     name: "Coverage Index",
                     description: "Precompute coverage in a BigWig file",
-                    icon: "",
                     visibility: "public"
                 },
             ],
@@ -450,39 +403,17 @@ const ANALYSIS_TOOLS = {
                     id: "alignment-stats",
                     name: "Alignment Stats",
                     description: "Compute BAM stats using samtools",
-                    icon: "",
                     visibility: "public"
                 },
                 {
                     id: "beacon",
                     name: "GA4GH Beacon",
-                    description: `
-                        <ul>
-                            <li>Federated search from the Global Alliance for Genomics and Health</li>
-                            <li>Find databases that have information about specific variants</li>
-                        </ul>`,
-                    thumbnail: "beacon.png",
-                    fa_icon: "fa fa-globe-europe",
-                    icon: "beacon.svg",
+                    description: "Find databases that have information about specific variants.",
                     visibility: "public"
                 },
             ],
         },
-        // {
-        //     id: "genomeBrowser",
-        //     title: "Genome Browser",
-        //     acronym: "GB",
-        //     description: `<ul>
-        //                     <li>Based on Genome Maps (http://genomemaps.org)</li>
-        //                     <li>Smooth, interactive variant visualisation</li>
-        //                     </ul>`,
-        //     visibility: "private",
-        //     thumbnail: "screenshot3.png",
-        //     fa_icon: "fa fa-globe-europe",
-        //     icon: "genome_browser.svg"
-        //
-        // },
-    ]
+    ],
 };
 
 const SUITE = {
