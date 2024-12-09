@@ -596,6 +596,9 @@ class IvaApp extends LitElement {
             .catch(e => {
                 console.error(e);
                 this.notificationManager.error("Error creating session", e.message);
+                // clear cookies and reset opencgaSession
+                this.opencgaClient.logout();
+                this._createOpencgaSessionFromConfig();
             })
             .finally(() => {
                 this.isCreatingSession = false;
