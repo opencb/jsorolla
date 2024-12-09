@@ -692,9 +692,6 @@ class IvaApp extends LitElement {
         // 3. Check if sso is active and logged user is not local
         // In this case, we will redirect to 'meta/sso/logout' endpoint
         if (this.opencgaClient?._config?.sso?.active && !isLocalUser) {
-            // eslint-disable-next-line no-undef
-            Cookies.expire(this.opencgaClient._config.sso.cookie);
-
             const config = this.opencgaClient._config;
             const ivaUrl = window.location;
             window.location = `${config.host}/webservices/rest/${config.version}/meta/sso/logout?url=${ivaUrl}`;
