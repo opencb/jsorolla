@@ -643,16 +643,6 @@ const SUITE = {
                     description: "Manage your data in the cloud",
                 },
             ],
-            // fileExplorer: {
-            //     visibility: "private"
-            // },
-            // jobMonitor: {
-            //     visibility: "private"
-            // },
-            // search: {
-            //     placeholder: "Search",
-            //     visible: false
-            // },
         },
         {
             id: "clinical",
@@ -737,16 +727,6 @@ const SUITE = {
                     thumbnail: "interpretation_portal.png",
                 },
             ],
-            // fileExplorer: {
-            //     visibility: "private"
-            // },
-            // jobMonitor: {
-            //     visibility: "private"
-            // },
-            // search: {
-            //     placeholder: "Search",
-            //     visible: false
-            // },
         },
         {
             id: "catalog",
@@ -857,16 +837,6 @@ const SUITE = {
                 //     `,
                 // },
             ],
-            // fileExplorer: {
-            //     visibility: "private"
-            // },
-            // jobMonitor: {
-            //     visibility: "private"
-            // },
-            // search: {
-            //     placeholder: "Search",
-            //     visible: false
-            // },
         },
         {
             id: "admin",
@@ -911,16 +881,6 @@ const SUITE = {
                     visibility: "public",
                 },
             ],
-            // fileExplorer: {
-            //     visibility: "private"
-            // },
-            // jobMonitor: {
-            //     visibility: "none"
-            // },
-            // search: {
-            //     placeholder: "Search",
-            //     visible: false
-            // },
         }
     ]
 };
