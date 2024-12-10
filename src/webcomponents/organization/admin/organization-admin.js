@@ -20,6 +20,7 @@ import "./user-admin-browser.js";
 import "../../project/projects-admin.js";
 import "./project-admin-browser.js";
 import "./organization-admin-detail.js";
+import "../../commons/pages/restricted-access-page.js";
 
 export default class OrganizationAdmin extends LitElement {
 
@@ -46,28 +47,27 @@ export default class OrganizationAdmin extends LitElement {
         this._activeMenuItem = "";
     }
 
-    // --- RENDER METHOD  ---
     render() {
-        if (this.opencgaSession?.organization) {
-            if (!OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, this.opencgaSession.user.id)) {
-                return html `
-                    <div class="d-flex flex-column align-items-center justify-content-center">
-                        <h1 class="display-1"><i class="fas fa-user-shield me-4"></i>Restricted access</h1>
-                        <h3>The page you are trying to access has restricted access.</h3>
-                        <h3>Please refer to your system administrator.</h3>
-                    </div>
-                `;
-            }
-            return html `
-                <!-- <tool-header class="page-title-no-margin" title="$this._config.name}" icon="$this._config.icon}"></tool-header>-->
-                <custom-vertical-navbar
-                    .organization="${this.opencgaSession.organization}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config}"
-                    .activeMenuItem="${this._activeMenuItem}">
-                </custom-vertical-navbar>
+        if (!this.opencgaSession?.organization || !OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, this.opencgaSession?.user?.id)) {
+            return html`
+                <restricted-access-page
+                    message="The page you are trying to access has restricted access. Please refer to your system administrator.">
+                </restricted-access-page>
             `;
         }
+
+        return html `
+            <tool-header
+                title="Organization Admin: ${this.opencgaSession?.user?.organization}"
+                icon="fas fa-sitemap">
+            </tool-header>
+            <custom-vertical-navbar
+                .organization="${this.opencgaSession.organization}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}"
+                .activeMenuItem="${this._activeMenuItem}">
+            </custom-vertical-navbar>
+        `;
     }
 
     getDefaultConfig() {
