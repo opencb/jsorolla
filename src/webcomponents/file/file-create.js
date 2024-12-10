@@ -141,7 +141,6 @@ export default class FileCreate extends LitElement {
         let params = {
             study: this.opencgaSession.study.fqn,
         };
-        let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.files()
             .create(data, params)
