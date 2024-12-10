@@ -21,8 +21,9 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
-import ModalUtils from "../commons/modal/modal-utils";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import ModalUtils from "../commons/modal/modal-utils.js";
+import WebUtils from "../commons/utils/web-utils.js";
 
 export default class JobGrid extends LitElement {
 
@@ -148,6 +149,8 @@ export default class JobGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
+
+        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
     renderTable() {
@@ -367,7 +370,7 @@ export default class JobGrid extends LitElement {
                                             <tr class="detail-view-row">
                                                 <td>${job.id}</td>
                                                 <td>${job.tool.id}</td>
-                                                <td>${UtilsNew.jobStatusFormatter(job.internal.status)}</td>
+                                                <td>${WebUtils.jobStatusFormatter(job.internal.status)}</td>
                                                 <td>${job.priority}</td>
                                                 <td>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</td>
                                                 <td>${job.visited}</td>
@@ -402,6 +405,12 @@ export default class JobGrid extends LitElement {
                 this.requestUpdate();
                 // await this.updateComplete;
                 ModalUtils.show(`${this._prefix}RetryModal`);
+                break;
+            case "kill":
+                this.jobKillObj = row;
+                this.requestUpdate();
+                // await this.updateComplete;
+                ModalUtils.show(`${this._prefix}KillModal`);
                 break;
             case "edit":
                 this.jobUpdateId = row.id;
@@ -538,7 +547,7 @@ export default class JobGrid extends LitElement {
                 id: "status",
                 title: "Status",
                 field: "internal.status",
-                formatter: status => UtilsNew.jobStatusFormatter(status),
+                formatter: status => WebUtils.jobStatusFormatter(status),
                 visible: this.gridCommons.isColumnVisible("status")
             },
             {
@@ -579,43 +588,55 @@ export default class JobGrid extends LitElement {
                 title: "Actions",
                 field: "actions",
                 align: "center",
-                formatter: (value, row) => `
-                    <div class="d-inline-block dropdown">
-                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
-                            <span>Actions</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a data-action="retry" href="javascript: void 0" class="dropdown-item">
-                                    <i class="fas fa-sync icon-padding" aria-hidden="true"></i> Retry ...
-                                </a>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
-                                    <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
-                                    <i class="fas fa-download" aria-hidden="true"></i> Download JSON
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a data-action="edit" class="dropdown-item disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="delete" href="javascript: void 0" class="dropdown-item disabled">
-                                    <i class="fas fa-trash" aria-hidden="true"></i> Delete
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                `,
+                formatter: (value, row) => {
+                    const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
+                        this.opencgaSession.study,
+                        this.opencgaSession.user.id,
+                        this.permissionID,
+                        this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+                    return `
+                        <div class="d-inline-block dropdown">
+                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
+                                <span>Actions</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a data-action="copy-json" class="dropdown-item" href="javascript: void 0">
+                                        <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-action="download-json" class="dropdown-item" href="javascript: void 0" >
+                                        <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a data-action="retry" class="dropdown-item" href="javascript: void 0">
+                                        <i class="fas fa-sync me-1" aria-hidden="true"></i> Retry ...
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-action="kill" class="dropdown-item" href="javascript: void 0">
+                                        <i class="fas fa-skull me-1" aria-hidden="true"></i> Kill ...
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a data-action="edit" class="dropdown-item disabled ${hasWritePermission ? "" : "disabled"}" href="javascript: void 0">
+                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-action="delete" class="dropdown-item disabled" href="javascript: void 0">
+                                        <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    `;
+                },
                 events: {
                     "click a": this.onActionClick.bind(this),
                 },
@@ -646,7 +667,7 @@ export default class JobGrid extends LitElement {
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toLowerCase() === "tab") {
-                        const fields = ["id", "tool.id", "priority", "tags", "creationDate", "internal.status.name", "visited"];
+                        const fields = ["id", "tool.id", "priority", "tags", "creationDate", "internal.status.id", "visited"];
                         const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "job_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
@@ -670,12 +691,8 @@ export default class JobGrid extends LitElement {
         const params = {
             study: this.opencgaSession.study.fqn
         };
-        let error;
         this.opencgaSession.opencgaClient.jobs()
-            .retry(
-                {
-                    job: this.jobRetryObj?.id
-                }, params)
+            .retry({job: this.jobRetryObj?.id}, params)
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Job Retry",
@@ -683,7 +700,23 @@ export default class JobGrid extends LitElement {
                 });
             })
             .catch(reason => {
-                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            });
+    }
+
+    onJobKill() {
+        const params = {
+            study: this.opencgaSession.study.fqn
+        };
+        this.opencgaSession.opencgaClient.jobs()
+            .kill(this.jobKillObj?.id, params)
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Job Kill",
+                    message: "Job killed correctly"
+                });
+            })
+            .catch(reason => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             });
     }
@@ -693,7 +726,7 @@ export default class JobGrid extends LitElement {
             {
                 render: () => html`
                     <button type="button" data-cy="job-refresh" class="btn btn-light" @click="${() => this.table.bootstrapTable("refresh")}">
-                        <i class="fas fa-sync-alt"></i> Refresh
+                        <i class="fas fa-sync-alt me-1"></i> Refresh
                     </button>
                 `,
             }
@@ -717,6 +750,24 @@ export default class JobGrid extends LitElement {
                 `;
             },
             onOk: e => this.onJobRetry(e)
+        });
+    }
+
+    renderModalKill() {
+        return ModalUtils.create(this, `${this._prefix}KillModal`, {
+            display: {
+                modalTitle: "Job Kill",
+                modalDraggable: true,
+                modalbtnsVisible: true,
+                modalSize: "modal-lg",
+                okButtonText: "Kill Job",
+            },
+            render: () => {
+                return html`
+                    <div>This will kill a queued or running Job. Are you sure do you want to kill <b>${this.jobRetryObj?.id}</b>?</div>
+                `;
+            },
+            onOk: e => this.onJobKill(e)
         });
     }
 
@@ -760,6 +811,7 @@ export default class JobGrid extends LitElement {
             </div>
 
             ${this.renderModalRetry()}
+            ${this.renderModalKill()}
             ${this.renderModalUpdate()}
         `;
     }

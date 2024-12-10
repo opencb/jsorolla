@@ -208,23 +208,20 @@ context("Variant Interpreter Grid Cancer", () => {
             });
         });
 
-        it("should display cohort stats (population frequencies) tooltip", () => {
+        it("should display cohort stats tooltip", () => {
             cy.get("tbody tr:first > td")
-                .eq(10)
-                .within(() => {
-                    cy.get("a").trigger("mouseover");
-                });
+                .eq(13)
+                .find("a")
+                .trigger("mouseover");
             cy.get(".qtip-content")
                 .should("be.visible");
         });
 
-        it("should reference population frequencies tooltip", () => {
+        it("should display reference population frequencies tooltip", () => {
             cy.get("tbody tr:first > td")
-                .eq(11)
-                .within(() => {
-                    cy.get("a")
-                        .trigger("mouseover");
-                });
+                .eq(14)
+                .find("a")
+                .trigger("mouseover");
             cy.get(".qtip-content")
                 .should("be.visible");
         });

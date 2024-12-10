@@ -337,26 +337,38 @@ export default class VariantBrowserFilter extends LitElement {
         } else {
             switch (subsection.id) {
                 case "study":
+                    const sampleSelected = !!this.preparedQuery?.sample;
                     content = html`
+                        ${sampleSelected ? html`
+                            <div class="alert alert-warning" role="alert">
+                                You can not select multiple studies if at least one sample has been selected in <b>Sample Filter</b>.
+                            </div>
+                        ` : nothing}
                         <study-filter
                             .value="${this.preparedQuery.study}"
                             .opencgaSession="${this.opencgaSession}"
+                            .config="${{disabled: sampleSelected}}"
                             @filterChange="${e => this.onFilterChange("study", e.detail.value)}">
-                        </study-filter>`;
+                        </study-filter>
+                    `;
                     break;
                 case "sample":
-                    const multiStudySelected = this.preparedQuery?.study?.split(",")?.length > 1;
+                    const multiStudySelected = this.preparedQuery?.study?.split(/[,;]/)?.length > 1;
                     content = html`
                         ${multiStudySelected ? html`
-                            <div class="alert alert-warning" role="alert">You cannot select samples with more than one study</div>
+                            <div class="alert alert-warning" role="alert">
+                                You cannot select samples if more than one study has been selected in <b>Study Filter</b>.
+                            </div>
                         ` : nothing}
-                        <catalog-search-autocomplete title=${multiStudySelected ? "You cannot select samples with more than one study" : null}
+                        <catalog-search-autocomplete
+                            title="${multiStudySelected ? "You cannot select samples with more than one study" : ""}"
                             .value="${this.preparedQuery.sample}"
                             .opencgaSession="${this.opencgaSession}"
                             .resource="${"SAMPLE"}"
                             .config="${{multiple: true, maxItems: 3, disabled: multiStudySelected}}"
                             @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
-                        </catalog-search-autocomplete>`;
+                        </catalog-search-autocomplete>
+                    `;
                     break;
                 case "cohort":
                     // FIXME subsection.cohorts must be renamed to subsection.studies
@@ -384,13 +396,17 @@ export default class VariantBrowserFilter extends LitElement {
                     `;
                     break;
                 case "sample-genotype":
-                    const sampleConfig = subsection.params?.genotypes ? {genotypes: subsection.params.genotypes} : {};
+                    // Josemi Note 20240730 - We had to change the value of the falsy expression to 'null' to prevent unnecesary
+                    // renders, as if we keep an empty object '{}' as falsy expression Lit will treat it as a new configuration object
+                    // and will force the select-field-filter to load the genotypes as a new data, even the genotypes list is the same.
+                    const sampleConfig = subsection.params?.genotypes ? {genotypes: subsection.params.genotypes} : null;
                     content = html`
                         <sample-genotype-filter
                             .sample="${this.preparedQuery.sample}"
                             .config="${sampleConfig}"
                             @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
-                        </sample-genotype-filter>`;
+                        </sample-genotype-filter>    
+                    `;
                     break;
                 case "individual-hpo":
                     content = html`
@@ -494,10 +510,11 @@ export default class VariantBrowserFilter extends LitElement {
                     content = html`
                         <role-in-cancer-filter
                             .config="${subsection.params?.rolesInCancer || ROLE_IN_CANCER}"
-                            .roleInCancer=${this.preparedQuery.generoleInCancer}
+                            .roleInCancer="${this.preparedQuery.geneRoleInCancer}"
                             .disabled="${disabled}"
                             @filterChange="${e => this.onFilterChange("geneRoleInCancer", e.detail.value)}">
-                        </role-in-cancer-filter>`;
+                        </role-in-cancer-filter>
+                    `;
                     break;
                 case "proteinSubstitutionScore":
                     content = html`
@@ -631,7 +648,7 @@ export default class VariantBrowserFilter extends LitElement {
         // We need to avoid rendering empty filters.
         if (content !== "") {
             return html`
-                <div class="mb-2">
+                <div class="mb-4">
                     ${subsection.title ? html`
                         <label class="form-label fw-bold d-flex justify-content-between align-items-center" id="${this._prefix}${subsection.id}" data-cy="${subsection.id}">
                             ${this._getFilterField(subsection.title)}

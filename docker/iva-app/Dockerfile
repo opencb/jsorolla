@@ -1,10 +1,8 @@
 FROM httpd:2.4-bullseye
-## Custom httpd.conf file to update exposed port from 80 to 8080
-COPY ./docker/iva-app/custom-httpd.conf /usr/local/apache2/conf/httpd.conf
 
 ## To run the docker use:
 ## docker build -f ./docker/iva-app/Dockerfile -t iva-httpd .
-## docker run --name jsorolla -p 8888:8080 opencb/iva-app
+## docker run --name jsorolla -p 8888:80 opencb/iva-app
 ## Then open:  http://localhost:8888/iva o http://localhost:8888/api
 
 LABEL org.label-schema.vendor="OpenCB" \
@@ -17,27 +15,23 @@ LABEL org.label-schema.vendor="OpenCB" \
 ## Update and create iva user
 RUN apt-get update && apt-get -y upgrade && \
     apt-get install -y vim jq && \
-    rm -rf /var/lib/apt/lists/* && \
-    chown -R www-data /usr/local/apache2/logs/
+    rm -rf /var/lib/apt/lists/*
 
 ## Allow to build different images by passing the path to the SITE
 ARG     SITE=src/sites
 
 ## Copy files
 ## IVA
-COPY --chown=www-data   ./build/iva              /usr/local/apache2/htdocs/iva
-COPY --chown=www-data   ./${SITE}/iva/conf       /usr/local/apache2/htdocs/iva/conf/
-COPY --chown=www-data   ./${SITE}/iva/img        /usr/local/apache2/htdocs/iva/img/
+COPY    ./build/iva                 /usr/local/apache2/htdocs/iva
+COPY    ./${SITE}/iva/conf          /usr/local/apache2/htdocs/iva/conf/
+COPY    ./${SITE}/iva/img           /usr/local/apache2/htdocs/iva/img/
 
 RUN true
 
 ## API
-COPY --chown=www-data    ./build/api             /usr/local/apache2/htdocs/api
-COPY --chown=www-data    ./${SITE}/api/conf      /usr/local/apache2/htdocs/api/conf/
-COPY --chown=www-data    ./${SITE}/api/img       /usr/local/apache2/htdocs/api/img/
-
-## Run Docker images as non root
-USER www-data
+COPY    ./build/api                 /usr/local/apache2/htdocs/api
+COPY    ./${SITE}/api/conf          /usr/local/apache2/htdocs/api/conf/
+COPY    ./${SITE}/api/img           /usr/local/apache2/htdocs/api/img/
 
 ## Genome Maps (Coming soon  :-) )
 #COPY    ./build/genome-maps                 /usr/local/apache2/htdocs/genome-maps

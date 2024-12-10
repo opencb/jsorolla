@@ -116,6 +116,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         if (this.currentQueryBeforeSaveEvent) {
             this.query = {...this.currentQueryBeforeSaveEvent};
             this.currentQueryBeforeEvent = null;
+            this.variant = null;
         }
     }
 
@@ -124,6 +125,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.searchActive = false;
+            this.variant = null;
         }
     }
 
@@ -284,6 +286,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
         this.query = {...e.detail.query}; // We need to update the internal query to propagate to filters
+        this.variant = null;
         this.notifyQueryChange();
         this.requestUpdate();
     }
@@ -291,6 +294,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     onActiveFilterChange(e) {
         VariantUtils.validateQuery(e.detail);
         this.query = {...e.detail};
+        this.variant = null;
         this.notifyQueryChange();
         this.requestUpdate();
     }
@@ -318,7 +322,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         });
 
         // Check if panelLock is enabled
-        if (this.clinicalAnalysis.panelLock) {
+        if (this.clinicalAnalysis.panelLocked) {
             _query.panel = this.query.panel;
             _query.panelIntersection = true;
         }
@@ -383,7 +387,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             <button class="${`btn btn-success ${this.activeView === id ? "active" : ""}`}" @click="${() => this.onChangeView(id)}">
                 <i class="${`fa fa-${icon} icon-padding`}" aria-hidden="true"></i>
                 <strong>${title}</strong>
-            </button>`;
+            </button>
+        `;
     }
 
     render() {
@@ -412,8 +417,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 <div class="col-2">
                     <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onSearch}">
-                            <i class="fa fa-search" aria-hidden="true"></i>
-                            <strong>${this._config.filter?.searchButtonText || "Search"}</strong>
+                            <i class="fa fa-search mx-1" aria-hidden="true"></i>
+                            <span class="fw-bold fs-5">${this._config.filter?.searchButtonText || "Search"}</span>
                         </button>
                     </div>
                     <variant-browser-filter
@@ -431,7 +436,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
                 <div class="flex-grow-1">
                     <!-- View toolbar -->
-                    <div class="content-pills mb-3" role="toolbar" aria-label="toolbar">
+                    <div class="d-flex gap-1 mb-3" role="toolbar" aria-label="toolbar">
                         ${this.renderViewButton("table", "Table Result", "table")}
                         ${!this.settings?.hideGenomeBrowser ? this.renderViewButton("genome-browser", "Genome Browser", "dna") : nothing}
                     </div>
@@ -458,7 +463,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                 .state="${this.clinicalAnalysisManager.state}"
                                 .variantInclusionState="${this.variantInclusionState}"
-                                .write="${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")}"
+                                .write="${OpencgaCatalogUtils.getStudyEffectivePermission(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS", this.opencgaSession.organization?.configuration?.optimizations?.simplifyPermissions)}"
                                 @filterVariants="${this.onFilterVariants}"
                                 @resetVariants="${this.onResetVariants}"
                                 @saveInterpretation="${this.onSaveVariants}">
@@ -495,14 +500,16 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                 </variant-interpreter-rearrangement-grid>`
                             }
                             <!-- Bottom tabs with detailed variant information -->
-                            <variant-interpreter-detail
-                                .opencgaSession="${this.opencgaSession}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .toolId="${this.toolId}"
-                                .variant="${this.variant}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .config=${this._config.filter.detail}>
-                            </variant-interpreter-detail>
+                            ${this.variant ? html`
+                                <variant-interpreter-detail
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .toolId="${this.toolId}"
+                                    .variant="${this.variant}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .config="${this._config.filter.detail}">
+                                </variant-interpreter-detail>
+                            ` : nothing}
                         </div>
                         <!-- Genome browser view -->
                         ${!this.settings?.hideGenomeBrowser ? html`
@@ -557,11 +564,50 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 },
                 {
                     type: "opencga-variant",
+                    visible: ["SINGLE", "FAMILY"].includes(this.clinicalAnalysis?.type),
                     config: {
                         title: "Variants",
                         query: {
                             sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
                         },
+                    },
+                },
+                {
+                    type: "opencga-variant",
+                    visible: this.clinicalAnalysis?.type === "CANCER",
+                    config: {
+                        title: "Small Variants",
+                        query: {
+                            sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                            type: "SNV,INDEL",
+                        },
+                        headerHeight: 0,
+                    },
+                },
+                {
+                    type: "opencga-variant",
+                    visible: this.clinicalAnalysis?.type === "CANCER",
+                    config: {
+                        title: "Copy Number Variants",
+                        query: {
+                            sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                            type: "COPY_NUMBER",
+                        },
+                        lollipopVisible: false,
+                        highlightVisible: false,
+                        headerHeight: 0,
+                    },
+                },
+                {
+                    type: "opencga-variant",
+                    visible: this.clinicalAnalysis?.type === "CANCER",
+                    config: {
+                        title: "Structural Variants",
+                        query: {
+                            sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                            type: "BREAKEND,INSERTION,DELETION,DUPLICATION",
+                        },
+                        headerHeight: 0,
                     },
                 },
                 ...(this.clinicalAnalysis.proband?.samples || []).map(sample => ({

@@ -271,6 +271,38 @@ context("Variant Browser Grid", () => {
         });
     });
 
+    context("clinical info", () => {
+        context("cosmic column", () => {
+            const columnIndex = 18;
+            it("should display an 'x' icon if no cosmic information is available", () => {
+                cy.get("@variantBrowser")
+                    .find(`tbody > tr[data-uniqueid="14:91649938:A:G"] > td`)
+                    .eq(columnIndex)
+                    .find("i")
+                    .should("have.class", "fa-times");
+            });
+
+            it("should display the number of entries and total trait associations", () => {
+                cy.get("@variantBrowser")
+                    .find("tbody tr:first > td")
+                    .eq(columnIndex)
+                    .should("contain.text", "1 entry (1)");
+            });
+
+            it("should display a tooltip with a link to cosmic", () => {
+                cy.get("@variantBrowser")
+                    .find("tbody tr:first > td")
+                    .eq(columnIndex)
+                    .find("a")
+                    .trigger("mouseover");
+
+                cy.get(`div[class="qtip-content"]`)
+                    .find(`a[href^="https://cancer.sanger.ac.uk/cosmic/search?q="]`)
+                    .should("exist");
+            });
+        });
+    });
+
     context("actions", () => {
         const variant = "14:91649858:C:T";
         beforeEach(() => {

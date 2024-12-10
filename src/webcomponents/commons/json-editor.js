@@ -50,8 +50,15 @@ export default class JsonEditor extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.jsonEditor = null;
         this.jsonEditorId = this._prefix + "jsoneditor";
-        this._data = "";
+        this._data = {};
         this._config = this.getDefaultConfig();
+    }
+
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("config")) {
+            console.log("init data...");
+            this._data = this._config?.initAsArray ? [] : {};
+        }
     }
 
     update(changedProperties) {
@@ -141,6 +148,7 @@ export default class JsonEditor extends LitElement {
             mode: "text", // Two accepted values: text, tree.
             indentation: 4,
             readOnly: false,
+            initAsArray: false,
             showDownloadButton: true
         };
     }

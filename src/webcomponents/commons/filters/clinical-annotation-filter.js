@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import "../../commons/forms/select-field-filter.js";
 import "../../commons/forms/checkbox-field-filter.js";
 
@@ -24,7 +24,7 @@ export default class ClinicalAnnotationFilter extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,7 +48,7 @@ export default class ClinicalAnnotationFilter extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.query = {};
     }
 
@@ -98,7 +98,7 @@ export default class ClinicalAnnotationFilter extends LitElement {
 
     render() {
         return html`
-            <div class="mb-2">
+            <div class="mb-3">
                 <label class="form-label">
                     Select Clinical Database
                 </label>
@@ -112,7 +112,7 @@ export default class ClinicalAnnotationFilter extends LitElement {
                 </div>
             </div>
 
-            <div class="mb-2">
+            <div class="mb-3">
                 <label class="form-label">
                     Select Clinical Significance
                 </label>
@@ -126,7 +126,7 @@ export default class ClinicalAnnotationFilter extends LitElement {
                 </div>
             </div>
 
-            <div class="mb-2">
+            <div class="mb-3">
                 <label class="form-label">
                     Check Status
                 </label>

@@ -285,7 +285,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                     return html `
                                         <clinical-status-filter
                                             .status="${statusId}"
-                                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status[clinicalAnalysis?.type?.toUpperCase()]}"
+                                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status || []}"
                                             .multiple=${false}
                                             .forceSelection=${true}
                                             .classes="${updateParams?.["status.id"] ? "selection-updated" : ""}"
@@ -384,7 +384,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                             .panel="${panels?.map(panel => panel.id).join(",")}"
                                             .showExtendedFilters="${false}"
                                             .classes="${updateParams?.panels ? "selection-updated" : ""}"
-                                            .disabled="${(!!clinicalAnalysis?.locked || !!clinicalAnalysis?.panelLock)}"
+                                            .disabled="${(!!clinicalAnalysis?.locked || !!clinicalAnalysis?.panelLocked)}"
                                             @filterChange="${e => handlePanelsFilterChange(e)}">
                                         </disease-panel-filter>
                                     `;
@@ -393,7 +393,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                         },
                         {
                             title: "Disease Panel Lock",
-                            field: "panelLock",
+                            field: "panelLocked",
                             type: "toggle-switch",
                             display: {
                                 helpMessage: "All existing interpretations must contain at least one of the Clinical Analysis panels to enable Disease Panel Lock.",
@@ -439,7 +439,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                     return html `
                                         <clinical-flag-filter
                                             .flag="${flags?.map(f => f.id).join(",")}"
-                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[clinicalAnalysis?.type?.toUpperCase()]}"
+                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags || []}"
                                             .multiple="${true}"
                                             .classes="${updateParams?.flags ? "selection-updated" : ""}"
                                             .disabled="${!!clinicalAnalysis?.locked}"

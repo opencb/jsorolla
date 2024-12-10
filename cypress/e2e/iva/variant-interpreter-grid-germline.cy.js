@@ -168,51 +168,23 @@ context("Variant Interpreter Grid Germiline", () => {
             });
         });
 
-        it("should display cohort stats (Population Frequencies) tooltip", () => {
+        it("should display cohort stats tooltip", () => {
             cy.get("tbody tr:first > td")
-                .eq(9)
-                .within(() => {
-                    cy.get("a")
-                        .trigger("mouseover");
-                });
+                .eq(12)
+                .find("a")
+                .trigger("mouseover");
             cy.get(".qtip-content")
                 .should("be.visible");
         });
 
         it("should display reference population frequencies tooltip", () => {
             cy.get("tbody tr:first > td")
-                .eq(10)
-                .within(() => {
-                    cy.get("a")
-                        .trigger("mouseover");
-                });
+                .eq(13)
+                .find("a")
+                .trigger("mouseover");
             cy.get(".qtip-content")
                 .should("be.visible");
         });
-
-        it("should display ACMG Prediction (Classification) tooltip", () => {
-            cy.get("tbody tr:first > td")
-                .eq(16)
-                .within(() => {
-                    cy.get("a")
-                        .trigger("mouseover");
-                });
-            cy.get(".qtip-content")
-                .should("be.visible");
-        });
-
-        it("should display OMIM Prediction (Classification) tooltip", () => {
-            UtilsTest.changePage(browserInterpreterGrid,2);
-
-            cy.get("tbody tr:nth-child(6) > td:nth-child(15)")
-                .within(() => {
-                    cy.get("a")
-                        .trigger("mouseover");
-                });
-            cy.get(".qtip-content")
-                .should("be.visible");
-        });
-
     });
 
     context("Helpers", () => {

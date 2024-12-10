@@ -177,6 +177,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                         <select-field-filter
                             .data="${this.siftKeys}"
                             .value="${this.state["sift"].type}"
+                            .forceSelection="${true}"
                             .config="${{
                                 liveSearch: false,
                             }}"
@@ -187,6 +188,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                         <select-field-filter
                             .data="${this.defaultComparators}"
                             .value="${this.state["sift"].comparator}"
+                            .forceSelection="${true}"
                             .config="${{
                                 liveSearch: false,
                             }}"
@@ -212,6 +214,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                         <select-field-filter
                             .data="${this.polyphenKeys}"
                             .value=${this.state["polyphen"].type}
+                            .forceSelection="${true}"
                             .config="${{
                                 liveSearch: false,
                             }}"
@@ -222,6 +225,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                         <select-field-filter
                             .data="${this.defaultComparators}"
                             .value="${this.state["polyphen"].comparator}"
+                            .forceSelection="${true}"
                             .config="${{
                                 liveSearch: false,
                             }}"

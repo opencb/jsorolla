@@ -62,14 +62,16 @@ export default class SampleGenotypeFilter extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
 
         super.update(changedProperties);
     }
 
     filterChange(e) {
-
         // Prepare sample query filter
         let sampleFilter = this.sampleId;
         if (e.detail.value) {
@@ -77,32 +79,6 @@ export default class SampleGenotypeFilter extends LitElement {
         }
 
         LitUtils.dispatchCustomEvent(this, "filterChange", sampleFilter);
-    }
-
-    getDefaultConfig() {
-        // HOM_REF, HOM_ALT, HET, HET_REF, HET_ALT and MISS e.g. HG0097:HOM_REF;HG0098:HET_REF,HOM_ALT . 3)
-        return {
-            genotypes: [
-                {
-                    id: "0/1", name: "HET"
-                },
-                {
-                    id: "1/1", name: "HOM_ALT"
-                },
-                {
-                    separator: true
-                },
-                {
-                    id: "1/2", name: "BIALLELIC (1/2)"
-                },
-                // {
-                //     id: "./.", name: "Missing"
-                // },
-                // {
-                //     id: "NA", name: "NA"
-                // }
-            ]
-        };
     }
 
     render() {
@@ -118,6 +94,35 @@ export default class SampleGenotypeFilter extends LitElement {
                 @filterChange="${this.filterChange}">
             </select-field-filter>
         `;
+    }
+
+    getDefaultConfig() {
+        // HOM_REF, HOM_ALT, HET, HET_REF, HET_ALT and MISS e.g. HG0097:HOM_REF;HG0098:HET_REF,HOM_ALT . 3)
+        return {
+            genotypes: [
+                {
+                    id: "0/1", name: "Heterozygous (0/1)"
+                },
+                {
+                    id: "1/1", name: "Homozygous Alternate (1/1)"
+                },
+                {
+                    separator: true
+                },
+                {
+                    id: "1", name: "Haploid (1)"
+                },
+                {
+                    id: "1/2", name: "Biallelic (1/2)"
+                },
+                {
+                    id: "NA", name: "NA"
+                }
+                // {
+                //     id: "./.", name: "Missing"
+                // },
+            ]
+        };
     }
 
 }

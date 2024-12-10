@@ -130,6 +130,7 @@ export default class ToolSettingsEditor extends LitElement {
             <select-field-filter
                 .data="${Object.keys(this.toolSettings)}"
                 .value="${this._toolName}"
+                .forceSelection="${true}"
                 .config="${{
                     multiple: false,
                     liveSearch: false

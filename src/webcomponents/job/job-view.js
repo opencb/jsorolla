@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/forms/data-form.js";
 import "./job-detail-log.js";
 import "../loading-spinner.js";
@@ -273,7 +274,7 @@ export default class JobView extends LitElement {
                             display: {
                                 template: "${internal.status}",
                                 format: {
-                                    "internal.status": status => UtilsNew.jobStatusFormatter(status, true),
+                                    "internal.status": status => WebUtils.jobStatusFormatter(status, true),
                                 },
                             }
                         },
@@ -448,7 +449,7 @@ export default class JobView extends LitElement {
                                     },
                                     {
                                         title: "Status",
-                                        field: "internal.status.name"
+                                        field: "internal.status.id"
                                     }
                                 ],
                             },

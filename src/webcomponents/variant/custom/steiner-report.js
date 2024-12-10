@@ -58,9 +58,9 @@ class SteinerReport extends LitElement {
 
     #init() {
         this.gridTypes = {
-            snv: "variantInterpreterCancerSNV",
-            cnv: "variantInterpreterCancerCNV",
-            rearrangements: "variantInterpreterRearrangement",
+            snv: "variant-interpreter-cancer-snv",
+            cnv: "variant-interpreter-cancer-cnv",
+            rearrangements: "variant-interpreter-rearrangement",
         };
 
         this.callersInfo = {
@@ -99,7 +99,7 @@ class SteinerReport extends LitElement {
             this.clinicalAnalysisObserver();
         }
 
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
@@ -297,6 +297,19 @@ class SteinerReport extends LitElement {
                     console.error(error);
                 });
         }
+    }
+
+    getGroupedClinicalAnalsysisStatus() {
+        const statusList = this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.status || [];
+        const groupedStatus = UtilsNew.groupBy(statusList, "type");
+        return Object.keys(groupedStatus)
+            .filter(type => ["ACTIVE", "DONE", "CLOSED"].includes(type))
+            .map(type => {
+                return {
+                    id: type,
+                    fields: groupedStatus[type],
+                };
+            });
     }
 
     onSignatureChange(event, type) {
@@ -1251,7 +1264,7 @@ class SteinerReport extends LitElement {
                             title: "Case Status",
                             field: "status",
                             type: "select",
-                            allowedValues: ["CLOSED", "REJECTED"],
+                            allowedValues: this.getGroupedClinicalAnalsysisStatus(),
                             required: true,
                         },
                         {

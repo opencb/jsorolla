@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 import "../forms/select-field-filter.js";
@@ -33,10 +33,13 @@ export default class StudyFilter extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             value: {
                 type: String,
+            },
+            config: {
+                type: Object,
             },
         };
     }
@@ -68,10 +71,10 @@ export default class StudyFilter extends LitElement {
     opencgaSessionObserver() {
         this._studies = [];
         if (this.opencgaSession?.project?.studies?.length) {
-            // 1. Add current study as the first element and mark it as disabled
+            // 1. Add current active study as the first element and mark it as disabled
             this._studies.push({
-                name: this.opencgaSession.study.name,
                 id: this.opencgaSession.study.fqn,
+                name: this.opencgaSession.study.name,
                 selected: true,
                 disabled: true,
             });
@@ -115,7 +118,7 @@ export default class StudyFilter extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession && !this.opencgaSession.project) {
+        if (!this.opencgaSession || !this.opencgaSession.project) {
             return nothing;
         }
 

@@ -194,7 +194,10 @@ export default class SampleView extends LitElement {
                         },
                         {
                             title: "Individual ID",
-                            field: "individualId"
+                            field: "individualId",
+                            display: {
+                                defaultValue: "No individuals or no clinical analyses",
+                            }
                         },
                         {
                             title: "Files",
@@ -217,7 +220,7 @@ export default class SampleView extends LitElement {
                             title: "Status",
                             type: "complex",
                             display: {
-                                template: "${internal.status.name} (${internal.status.date})",
+                                template: "${internal.status.id} (${internal.status.date})",
                                 format: {
                                     "internal.status.date": date => UtilsNew.dateFormatter(date),
                                 }

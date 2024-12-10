@@ -15,7 +15,7 @@
  */
 
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "./cohort-grid.js";
@@ -125,15 +125,18 @@ export default class CohortBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "cohort")}"
-                            @cohortUpdate="${e => params.onComponentUpdate(e, "cohort")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @cohortUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </cohort-grid>
-                        <cohort-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .cohortId="${params.detail.cohort?.id}">
-                        </cohort-detail>`
+                        ${params?.detail ? html`
+                            <cohort-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .cohortId="${params.detail?.id}">
+                            </cohort-detail>
+                        ` : nothing}
+                    `,
                 },
                 {
                     id: "facet-tab",

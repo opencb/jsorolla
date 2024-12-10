@@ -53,6 +53,9 @@ export default class SelectFieldFilter extends LitElement {
             separator: {
                 type: String,
             },
+            forceSelection: {
+                type: Boolean,
+            },
             config: {
                 type: Object
             }
@@ -81,8 +84,7 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("data")) {
-            // this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("data") || changedProperties.has("config")) {
             this.loadData();
         }
 
@@ -106,6 +108,11 @@ export default class SelectFieldFilter extends LitElement {
         }
 
         this.select.empty();
+
+        // Force to unbind 'select2:select' and 'select2:unselect' listeners
+        this.select.off("select2:select");
+        this.select.off("select2:unselect");
+
         const options = this.data.map(item => this.getOptions(item));
 
         const selectConfig = {
@@ -115,7 +122,7 @@ export default class SelectFieldFilter extends LitElement {
             selectionCssClass: this._config?.selectionClass ? this.config?.selectionClass : "",
             multiple: !!this._config?.multiple,
             placeholder: this._config?.placeholder ?? "Select an option",
-            allowClear: !!this._config?.multiple,
+            allowClear: !this.forceSelection,
             disabled: this._config?.disabled ?? false,
             width: "80%",
             data: options,
@@ -301,29 +308,15 @@ export default class SelectFieldFilter extends LitElement {
 
         return {
             id: item.id,
-            text: item?.name || item?.id
+            text: item?.name || item?.id,
+            selected: item.selected ?? false,
+            disabled: item.disabled ?? false
         };
     }
 
-    filterChange(e) {
-        const disabled = Object.values(e.target.options)
-            .filter(data => data.disabled === true)
-            .map(data => {
-                if (data.selected) {
-                    return data.value;
-                }
-            });
+    filterChange() {
+        const selection = this.select.select2("data").map(el => el.id);
 
-        const selection = Array.isArray(this.select.select2("data")) ?
-            [...this.select.select2("data").map(el => el.id), ...disabled] :
-            this.select.select2("data").map(el => el.id);
-
-        let val = "";
-        if (selection && selection.length) {
-            if (this._config?.multiple) {
-                val = selection.join(",");
-            }
-        }
         LitUtils.dispatchCustomEvent(this, "filterChange", selection.join(","),
         {}, null, {bubbles: false, composed: false});
     }

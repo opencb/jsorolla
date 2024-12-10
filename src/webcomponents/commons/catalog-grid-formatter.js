@@ -19,6 +19,16 @@ import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 
 export default class CatalogGridFormatter {
 
+    static userStatusFormatter(status, config) {
+        const _config = config || [];
+        const currentStatus = status.id || status.name || "UNDEFINED"; // Get current status
+        const displayCurrentStatus = _config.find(status => status.id === currentStatus);
+        return `
+            <span class="badge" style="background-color: ${displayCurrentStatus.displayColor}">
+                <strong>${displayCurrentStatus.displayLabel}</strong>
+            </span>
+        `;
+    }
     static sexFormatter(value, row) {
         let sexHtml = `${UtilsNew.isEmpty(row?.sex) ? "Not specified" : row.sex.id || row.sex}`;
         if (row?.karyotypicSex && row.karyotypicSex !== "UNKNOWN") {

@@ -21,6 +21,7 @@ import "../../commons/tool-settings-update.js";
 import LitUtils from "../../commons/utils/lit-utils";
 import NotificationUtils from "../../commons/utils/notification-utils";
 import UtilsNew from "../../../core/utils-new";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
 
 export default class StudyAdminIva extends LitElement {
 
@@ -36,6 +37,9 @@ export default class StudyAdminIva extends LitElement {
 
     static get properties() {
         return {
+            organizationId: {
+                type: String,
+            },
             studyId: {
                 type: String,
             },
@@ -61,6 +65,9 @@ export default class StudyAdminIva extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("organizationId")) {
+            this.organizationIdObserver();
+        }
         if (changedProperties.has("studyId")) {
             this.studyIdObserver();
         }
@@ -76,9 +83,31 @@ export default class StudyAdminIva extends LitElement {
     }
 
     /* -- OBSERVER METHODS -- */
-    opencgaSessionObserver() {
-        this.study = this.opencgaSession.study;
-        this._config = this.getDefaultConfig();
+    organizationIdObserver() {
+        // FIXME Vero: on creating a new group, for instance,
+        //  the session is updated but the org id does not change.
+        //  I need to get the organization info again to refresh the grid.
+        //  For now, I will query org info only with property opencgaSession change.
+        //  TO think about it.
+        // if (this.organizationId && this.opencgaSession) {
+        if (this.organizationId || this.opencgaSession) {
+            let error;
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.organization()
+                .info(this.opencgaSession.organization.id)
+                .then(response => {
+                    this.organization = UtilsNew.objectClone(response.responses[0].results[0]);
+                })
+                .catch(reason => {
+                    // this.organization = {};
+                    error = reason;
+                    console.error(reason);
+                })
+                .finally(() => {
+                    LitUtils.dispatchCustomEvent(this, "organizationInfo", this.organization, {}, error);
+                    this.#setLoading(false);
+                });
+        }
     }
 
     studyIdObserver() {
@@ -102,9 +131,27 @@ export default class StudyAdminIva extends LitElement {
         }
     }
 
+    opencgaSessionObserver() {
+        this.study = this.opencgaSession.study;
+        this._config = this.getDefaultConfig();
+    }
+
     // --- RENDER METHOD  ---
     render() {
-        return html`
+        if (this.opencgaSession.study && this.organization) {
+            if (!OpencgaCatalogUtils.isOrganizationAdmin(this.organization, this.opencgaSession.user.id) &&
+                !OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
+                return html`
+                    <tool-header class="page-title-no-margin"  title="${this._config.name}" icon="${this._config.icon}"></tool-header>
+                    <div class="d-flex flex-column align-items-center justify-content-center">
+                        <h1 class="display-1"><i class="fas fa-user-shield me-4"></i>Restricted access</h1>
+                        <h3>The page you are trying to access has restricted access.</h3>
+                        <h3>Please refer to your system administrator.</h3>
+                    </div>
+                `;
+            }
+
+            return html`
             <tool-header class="page-title-no-margin" title="${this._config.name}" icon="${this._config.icon}"></tool-header>
             <custom-vertical-navbar
                 .study="${this.study}"
@@ -113,6 +160,7 @@ export default class StudyAdminIva extends LitElement {
                 .config="${this._config}">
             </custom-vertical-navbar>
         `;
+        }
     }
 
     getDefaultConfig() {

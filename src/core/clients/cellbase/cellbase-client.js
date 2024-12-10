@@ -283,7 +283,6 @@ export class CellBaseClient {
         return this.restClient.call(url, options, k);
     }
 
-
     _createRestUrl(host, version, species, category, subcategory, ids, resource, params) {
         let _host = host;
         // Remove trailing '/'
@@ -314,7 +313,7 @@ export class CellBaseClient {
 
     _createSuffixKey(params, suffix) {
         // Do not remove the sort! we need to sort the array to ensure that the key of the cache will be correct
-        const keyArray = _.keys(params).sort();
+        const keyArray = Object.keys(params || {}).sort();
         const keyValueArray = [];
         for (const i in keyArray) {
             if (Object.prototype.hasOwnProperty.call(keyArray, i)) {

@@ -22,7 +22,6 @@ import GridCommons from "../commons/grid-commons.js";
 import "../commons/opencb-grid-toolbar.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
-
 export default class VariantSamples extends LitElement {
 
     constructor() {
@@ -68,15 +67,15 @@ export default class VariantSamples extends LitElement {
         this.config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this.config);
 
-        // Select all genotypes by default
+        // Nacho: to be more consistent with the rest of the application we are NOT selecting all genotypes by default
         this.selectedGenotypes = "";
-        const selectedGenotypesArray = []
-        for (const genotype of this.config.genotypes) {
-            if (genotype.fields) {
-                selectedGenotypesArray.push(genotype.fields.filter(gt => gt.id).map(gt => gt.id).join(","));
-            }
-        }
-        this.selectedGenotypes = selectedGenotypesArray.join(",");
+        // const selectedGenotypesArray = [];
+        // for (const genotype of this.config.genotypes) {
+        //     if (genotype.fields) {
+        //         selectedGenotypesArray.push(genotype.fields.filter(gt => gt.id).map(gt => gt.id).join(","));
+        //     }
+        // }
+        // this.selectedGenotypes = selectedGenotypesArray.join(",");
     }
 
     updated(changedProperties) {
@@ -87,6 +86,7 @@ export default class VariantSamples extends LitElement {
 
     genotypeFormatter(value) {
         if (value?.data?.length > 0) {
+            // Color schema:  0/1, 0|1, 1|0 == darkorange; 1, 1/1 == red
             const gt = value.data[0];
             const color = gt === "0/1" || gt === "0|1" || gt === "1|0" ? "darkorange" : "red";
             return `<span style="color: ${color}">${value.data[0]}</span>`;
@@ -95,7 +95,7 @@ export default class VariantSamples extends LitElement {
         }
     }
 
-    variantFormatter(value, row) {
+    variantFormatter(value) {
         if (value && value.file && value.dataKeys && value.data && value.dataKeys.length === value.data.length) {
             const fileInfo = `Filter: ${value.file.data["FILTER"]}; Qual: ${value.file.data["QUAL"]}`;
             const sampleFormat = [];
@@ -106,10 +106,6 @@ export default class VariantSamples extends LitElement {
         } else {
             return "-";
         }
-    }
-
-    individualFormatter(value) {
-        return value || "-";
     }
 
     renderTable() {
@@ -153,10 +149,6 @@ export default class VariantSamples extends LitElement {
                 total: response.total,
                 rows: response.rows
             }),
-            // responseHandler: response => {
-            //     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-            //     return result.response;
-            // },
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onLoadSuccess: data => {
                 this.gridCommons.onLoadSuccess(data, 2);
@@ -167,15 +159,41 @@ export default class VariantSamples extends LitElement {
 
     async fetchData(query, batchSize) {
         try {
-            const variantResponse = await this.opencgaSession.opencgaClient.variants()
-                .querySample(query);
+            let variantResponse = null;
+            this.numUserTotalSamples = 0;
+            this.numSamples = 0;
+
+            if (query.variant?.length <= 5000) {
+                variantResponse = await this.opencgaSession.opencgaClient.variants()
+                    .querySample(query);
+                this.numSamples = variantResponse.responses[0]?.attributes?.numSamplesRegardlessPermissions;
+            } else {
+                // this is a workaround to prevent an error when the variant ID is too long (as GET requests may be blocked by the browser)
+                // we are using a deprecated POST endpoint of variant/query
+                const bodyParams = {
+                    study: query.study,
+                    id: query.variant,
+                    includeSample: "all",
+                    includeSampleId: true,
+                };
+                // check if we have to filter by genotype
+                if (query.genotype) {
+                    bodyParams.sampleData = `GT=${query.genotype}`;
+                }
+                variantResponse = await this.opencgaSession.opencgaClient.variants()
+                    ._post("analysis", null, "variant", null, "query", bodyParams, {
+                        exclude: "annotation",
+                    });
+
+                // the attributes of the response object from analysis/variant/query does not contain numSamplesRegardlessPermissions
+                // so we have to ise numSamples instead
+                this.numSamples = variantResponse.responses[0]?.attributes?.numSamples;
+            }
+
             const variantSamplesResult = variantResponse.getResult(0);
 
             // const stats = variantSamplesResult.studies[0].stats;
             // const stats = variantSamplesResult.studies[0].stats;
-
-            this.numUserTotalSamples = 0;
-            this.numSamples = variantResponse.responses[0]?.attributes?.numSamplesRegardlessPermissions;
 
             // Get the total number of samples from stats if OpenCGA does not return them
             // if (typeof this.numSamples !== "number" || isNaN(this.numSamples)) {
@@ -276,7 +294,6 @@ export default class VariantSamples extends LitElement {
                     field: "id",
                     rowspan: 2,
                     colspan: 1,
-                    // formatter: this.variantFormatter,
                     halign: "center"
                 },
                 {
@@ -299,7 +316,6 @@ export default class VariantSamples extends LitElement {
                     title: "Individual",
                     rowspan: 1,
                     colspan: 4,
-                    // formatter: this.variantFormatter,
                     halign: "center"
                 },
                 {
@@ -317,7 +333,7 @@ export default class VariantSamples extends LitElement {
                     field: "individualId",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.individualFormatter,
+                    formatter: value => value || "-",
                     halign: "center"
                 },
                 {
@@ -365,6 +381,7 @@ export default class VariantSamples extends LitElement {
                 skip: 0,
                 limit: 5000,
             };
+
             // batch size for sample query
             const BATCH_SIZE = 100;
 
@@ -414,6 +431,11 @@ export default class VariantSamples extends LitElement {
 
     render() {
         return html`
+            <style>
+                variant-samples .select2-dropdown {
+                    width: 250px !important;
+                }
+            </style>
             <div>
                 ${this.numSamples !== this.numUserTotalSamples ? html`
                     <div class="alert alert-warning">
@@ -427,17 +449,16 @@ export default class VariantSamples extends LitElement {
 
                 <div class="row" style="margin-top: 20px">
                     <div class="col-md-12">
-                        <div class="col-md-4"><label>Select genotypes:</label></div>
+                        <div class="col-md-4"><label>Select Genotypes:</label></div>
                     </div>
                     <div class="col-md-12">
                         <div class="col-md-4">
                             <div class="input-group">
                                 <select-field-filter
-                                    multiple
                                     .data="${this.config.genotypes}"
-                                    .value=${this.selectedGenotypes}
-                                    .multiple=${"true"}
-                                    .selectedTextFormat=${"count > 3"}
+                                    .value="${this.selectedGenotypes}"
+                                    .selectedTextFormat="${"count > 3"}"
+                                    .config="${{multiple: true}}"
                                     @filterChange="${this.onSelectFilterChange}">
                                 </select-field-filter>
                                 <span class="input-group-btn">
@@ -484,13 +505,16 @@ export default class VariantSamples extends LitElement {
                             id: "1/1", name: "Homozygous Alternate (1/1)"
                         },
                         {
+                            id: "1", name: "Haploid (1)"
+                        },
+                        {
                             id: "1/2", name: "Biallelic (1/2)"
                         },
                     ]
                 },
-                {
-                    separator: true
-                },
+                // {
+                //     separator: true
+                // },
                 {
                     id: "Secondary Alternate Genotypes",
                     fields: [
@@ -502,6 +526,9 @@ export default class VariantSamples extends LitElement {
                         },
                         {
                             id: "./.", name: "Missing (./0, ./1, ./.)"
+                        },
+                        {
+                            id: "NA", name: "NA (No genotype call provided)"
                         },
                     ]
                 },

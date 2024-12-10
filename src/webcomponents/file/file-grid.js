@@ -21,8 +21,8 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
-
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import WebUtils from "../commons/utils/web-utils.js";
 
 export default class OpencgaFileGrid extends LitElement {
 
@@ -118,6 +118,8 @@ export default class OpencgaFileGrid extends LitElement {
                 `,
             },
         };
+
+        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
     renderTable() {
@@ -304,7 +306,7 @@ export default class OpencgaFileGrid extends LitElement {
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
                 break;
-            case "qualityControl":
+            case "quality-control":
                 alert("Not implemented yet");
                 break;
         }
@@ -416,50 +418,60 @@ export default class OpencgaFileGrid extends LitElement {
                 title: "Actions",
                 field: "actions",
                 align: "center",
-                formatter: (value, row) => `
-                    <div class="d-inline-block dropdown">
-                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
-                            <span>Actions</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item ${downloadUrl.length == 0 ? "disabled" : ""}" data-action="download" href="${downloadUrl.join("").replace("FILE_ID", row.id)}" >
-                                    <i class="fas fa-download"></i> Download
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" data-action="copy-json" href="javascript: void 0">
-                                    <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" data-action="download-json" href="javascript: void 0" >
-                                    <i class="fas fa-download" aria-hidden="true"></i> Download JSON
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}" data-action="qualityControl"
-                                        title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                    <i class="fas fa-rocket" aria-hidden="true"></i> Calculate Quality Control
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }" data-action="edit">
-                                    <i class="fas fa-edit" aria-hidden="true"></i> Edit ...
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item disabled" data-action="delete" href="javascript: void 0">
-                                    <i class="fas fa-trash" aria-hidden="true"></i> Delete
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                `,
+                formatter: (value, row) => {
+                    const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
+                        this.opencgaSession.study,
+                        this.opencgaSession.user.id,
+                        this.permissionID,
+                        this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+                    return `
+                        <div class="d-inline-block dropdown">
+                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
+                                <span>Actions</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a data-action="download"
+                                       class="dropdown-item ${downloadUrl.length === 0 ? "disabled" : ""}"
+                                       href="${downloadUrl.join("").replace("FILE_ID", row.id)}">
+                                            <i class="fas fa-download me-1"></i> Download
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a data-action="copy-json" class="dropdown-item" href="javascript: void 0">
+                                        <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-action="download-json" class="dropdown-item" href="javascript: void 0" >
+                                        <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a data-action="quality-control"
+                                       class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
+                                       title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
+                                           <i class="fas fa-rocket me-1" aria-hidden="true"></i> Calculate Quality Control
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a data-action="edit" class="dropdown-item disabled ${hasWritePermission ? "" : "disabled"}" href="javascript: void 0">
+                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-action="delete" class="dropdown-item disabled" href="javascript: void 0">
+                                        <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    `;
+                },
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
@@ -490,7 +502,7 @@ export default class OpencgaFileGrid extends LitElement {
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toUpperCase() === "TAB") {
-                        const fields = ["id", "name", "path", "format", "bioformat", "size", "creationDate", "modificationDate", "internal.status.name"];
+                        const fields = ["id", "name", "path", "format", "bioformat", "size", "creationDate", "modificationDate", "internal.status.id"];
                         const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "files_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {

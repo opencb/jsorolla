@@ -15,7 +15,7 @@
  */
 
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "./file-preview.js";
 import "./file-view.js";
@@ -132,15 +132,18 @@ export default class FileBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
-                            @selectrow="${e => params.onClickRow(e, "file")}"
-                            @fileUpdate="${e => params.onComponentUpdate(e, "file")}"
+                            @selectrow="${e => params.onClickRow(e)}"
+                            @fileUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </file-grid>
-                        <file-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .fileId="${params.detail.file?.id}">
-                        </file-detail>`
+                        ${params?.detail ? html`
+                            <file-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .fileId="${params.detail?.id}">
+                            </file-detail>
+                        ` : nothing}
+                    `,
                 },
                 {
                     id: "facet-tab-file",

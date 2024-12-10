@@ -194,31 +194,31 @@ class SampleVariantStatsView extends LitElement {
             return html`
                 <div class="alert alert-info">
                     <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i> No Variant Stats found.
-                </div>`;
+                </div>
+            `;
         }
 
         return html`
-            ${this.sample ?
-                html`
-                    <div class="row my-3">
-                        <label class="col-md-2 col-form-label fw-bold">Select Variant Stat</label>
-                        <div class="col-md-2">
-                            <select-field-filter
-                                .data="${this.statsSelect}"
-                                .value=${this.variantStats.id}
-                                .config="${{
-                                    liveSearch: false,
-                                    multiple: false
-                                }}"
-                                @filterChange="${this.statChange}">
-                            </select-field-filter>
-                        </div>
-                    </div>` : nothing
-            }
-
+            ${this.sample ? html`
+                <div class="row my-3">
+                    <label class="col-md-2 col-form-label fw-bold">Select Variant Stat</label>
+                    <div class="col-md-2">
+                        <select-field-filter
+                            .data="${this.statsSelect}"
+                            .value="${this.variantStats.id}"
+                            .forceSelection="${true}"
+                            .config="${{
+                                liveSearch: false,
+                                multiple: false
+                            }}"
+                            @filterChange="${this.statChange}">
+                        </select-field-filter>
+                    </div>
+                </div>
+            ` : nothing}
             <div>
                 <data-form
-                    .data=${this.variantStats}
+                    .data="${this.variantStats}"
                     .config="${this._config}">
                 </data-form>
             </div>

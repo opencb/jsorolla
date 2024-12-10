@@ -16,6 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import WebUtils from "../../commons/utils/web-utils.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import ModalUtils from "../../commons/modal/modal-utils.js";
@@ -430,7 +431,7 @@ class VariantInterpreter extends LitElement {
                     <div class="d-flex flex-column align-items-center" style="margin-right:3rem;">
                         <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
                             ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock pe-1"></span>` : ""}
-                            <strong>${this.clinicalAnalysis.interpretation.id}</strong>
+                            <strong>${WebUtils.getDisplayName(this.clinicalAnalysis.interpretation)}</strong>
                         </div>
                         ${this.clinicalAnalysis.interpretation?.method?.name ? html`
                             <div style="font-size:0.875em;">

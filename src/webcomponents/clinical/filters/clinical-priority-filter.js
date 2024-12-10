@@ -87,6 +87,7 @@ export default class ClinicalPriorityFilter extends LitElement {
             <select-field-filter
                 .data="${this.priorities}"
                 .value=${this.priority}
+                .forceSelection="${this.forceSelection}"
                 .config="${{
                     placeholder: this.placeholder,
                     multiple: this.multiple,

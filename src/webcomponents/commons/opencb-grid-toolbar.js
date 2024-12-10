@@ -21,6 +21,7 @@ import LitUtils from "./utils/lit-utils";
 import ModalUtils from "./modal/modal-utils.js";
 import "./opencga-export.js";
 import "../variant/interpretation/variant-interpreter-grid-config.js";
+import WebUtils from "./utils/web-utils.js";
 
 export default class OpencbGridToolbar extends LitElement {
 
@@ -74,6 +75,8 @@ export default class OpencbGridToolbar extends LitElement {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
+
+            this.permissionID = WebUtils.getPermissionID(this._config.resource, "WRITE");
         }
 
         super.update(changedProperties);
@@ -92,7 +95,9 @@ export default class OpencbGridToolbar extends LitElement {
         const action = e.currentTarget.dataset.action;
         switch (action) {
             case "create":
-                ModalUtils.show(`${this._prefix}CreateModal`);
+                this._config.create?.modalId ?
+                    ModalUtils.show(this._config.create.modalId) :
+                    ModalUtils.show(`${this._prefix}CreateModal`);
                 break;
             case "export":
                 ModalUtils.show(`${this._prefix}ExportModal`);
@@ -111,16 +116,22 @@ export default class OpencbGridToolbar extends LitElement {
                 rightButtons.push(rightButton.render());
             }
         }
+        // Button create text
+        const buttonCreateText = this._settings?.buttonCreateText || "New...";
 
         // Check 'Create' permissions
         let isCreateDisabled = false;
         let isCreateDisabledTooltip = "";
+        const hasPermissions = OpencgaCatalogUtils.getStudyEffectivePermission(
+            this.opencgaSession?.study,
+            this.opencgaSession?.user?.id,
+            this.permissionID,
+            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+
         if (this._config?.create?.display?.disabled) {
             isCreateDisabled = true;
             isCreateDisabledTooltip = this._config?.create?.display?.disabledTooltip;
         } else {
-            const hasPermissions = OpencgaCatalogUtils
-                .checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`);
             if (!hasPermissions) {
                 isCreateDisabled = true;
                 isCreateDisabledTooltip = "Creating a new instance requires write permissions on the study. Please, contact your administrator if you need different access rights.";
@@ -129,7 +140,7 @@ export default class OpencbGridToolbar extends LitElement {
 
         return html`
             <div class="opencb-grid-toolbar">
-                <div class="row mb-3">
+                <div class="row mb-2">
                     <div id="${this._prefix}ToolbarLeft" class="col-md-6">
                         <!-- Display components on the LEFT -->
                     </div>
@@ -151,7 +162,7 @@ export default class OpencbGridToolbar extends LitElement {
                                     ${isCreateDisabled ? html `
                                         <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="${isCreateDisabledTooltip}">
                                             <button data-cy="toolbar-btn-create" data-action="create" type="button" class="btn btn-light" disabled>
-                                                <i class="fas fa-file pe-1" aria-hidden="true"></i> New ...
+                                                <i class="fas fa-file pe-1" aria-hidden="true"></i> ${buttonCreateText}
                                             </button>
                                         </span>
                                     ` : html `
@@ -159,7 +170,7 @@ export default class OpencbGridToolbar extends LitElement {
                                             ${this._settings?.downloading === true ? html`
                                                 <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
                                             ` : nothing}
-                                            <i class="fas fa-file pe-1" aria-hidden="true"></i> New ...
+                                            <i class="fas fa-file pe-1" aria-hidden="true"></i> ${buttonCreateText}
                                         </button>
                                     `}
                                 </div>
@@ -187,10 +198,8 @@ export default class OpencbGridToolbar extends LitElement {
             </div>
 
             <!-- Add modals-->
-            ${(this._config?.create &&
-            (this._settings.showCreate || this._settings.showNew) &&
-            OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`)) ?
-            ModalUtils.create(this, `${this._prefix}CreateModal`, this._config.create) :
+            ${(this._config?.create && (this._settings.showCreate || this._settings.showNew) && hasPermissions) ?
+            ModalUtils.create(this, this._config.create?.modalId || `${this._prefix}CreateModal`, this._config.create) :
             nothing}
 
             ${this._settings?.showExport && this._config?.export ? ModalUtils.create(this, `${this._prefix}ExportModal`, this._config.export) : nothing}
