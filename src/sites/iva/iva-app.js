@@ -1515,18 +1515,12 @@ class IvaApp extends LitElement {
                 break;
             case "organization-admin":
                 content = html`
-                    <tool-header
-                        title="Organization Admin: ${this.opencgaSession?.user?.organization}"
-                        icon="fas fa-sitemap">
-                    </tool-header>
-                    <div class="content">
-                        <organization-admin
-                            .organization="${this.opencgaSession?.organization}"
-                            .opencgaSession="${this.opencgaSession}"
-                            @studyUpdateRequest="${this.onStudyUpdateRequest}"
-                            @sessionUpdateRequest="${this.onSessionUpdateRequest}">
-                        </organization-admin>
-                    </div>
+                    <organization-admin
+                        .organization="${this.opencgaSession?.organization}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @studyUpdateRequest="${this.onStudyUpdateRequest}"
+                        @sessionUpdateRequest="${this.onSessionUpdateRequest}">
+                    </organization-admin>
                 `;
                 break;
             case "catalog-admin":
