@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import LitUtils from "../../commons/utils/lit-utils";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "./study-admin-users.js";
 import "./study-admin-permissions.js";
@@ -24,7 +23,6 @@ import "./study-admin-audit.js";
 import "./study-admin-configuration.js";
 import "../../variant/operation/clinical-analysis-configuration-update.js";
 import "../../variant/operation/variant-secondary-sample-index-configure-operation.js";
-// import "../../commons/layouts/custom-vertical-navbar.js";
 import "../../commons/vertical-navbar.js";
 import "../../commons/pages/restricted-access-page.js";
 
@@ -52,36 +50,8 @@ export default class StudyAdmin extends LitElement {
     }
 
     #init() {
-        this._study = {};
         this._config = this.getDefaultConfig();
     }
-
-    update(changedProperties) {
-        // if (changedProperties.has("studyId") || changedProperties.has("opencgaSession")) {
-        //     this.studyIdObserver();
-        // }
-
-        super.update(changedProperties);
-    }
-
-    // studyIdObserver() {
-    //     this._study = {};
-    //     if (this.studyId && this.opencgaSession) {
-    //         this.opencgaSession.opencgaClient.studies()
-    //             .info(this.studyId)
-    //             .then(response => {
-    //                 this._study = response.responses[0].results[0];
-    //             })
-    //             .catch(reason => {
-    //                 error = reason;
-    //                 console.error(reason);
-    //             })
-    //             .finally(() => {
-    //                 // LitUtils.dispatchCustomEvent(this, "studySearch", this.study, {}, error);
-    //                 this.requestUpdate();
-    //             });
-    //     }
-    // }
 
     render() {
         const isOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, this.opencgaSession?.user?.id);
