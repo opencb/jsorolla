@@ -570,17 +570,12 @@ const SUITE = {
                     logoWidth: "100px",
                 },
                 title: "Research Environment",
-                subtitle: "Explore variants in real-time and execute analysis.",
+                // subtitle: "Explore variants in real-time and execute analysis.",
                 content: `
                     Variant Research Environment App implements different tools to focus on the analysis and interpretation of genomic variants
                     to understand their role in diseases, traits, and biological processes. It involves the use of our aggregated variant database,
                     bioinformatics tools, workflows, notebooks, and computational methods to identify, classify, and study variants for personalized medicine and genetic research.
                 `,
-                // links: [
-                //     {
-                //         title: "Documentation", url: "http://docs.opencb.org/display/iva"
-                //     },
-                // ]
             },
             menu: [
                 {
@@ -648,16 +643,6 @@ const SUITE = {
                     description: "Manage your data in the cloud",
                 },
             ],
-            // fileExplorer: {
-            //     visibility: "private"
-            // },
-            // jobMonitor: {
-            //     visibility: "private"
-            // },
-            // search: {
-            //     placeholder: "Search",
-            //     visible: false
-            // },
         },
         {
             id: "clinical",
@@ -670,11 +655,6 @@ const SUITE = {
             visibility: "public",
             welcomePage: {
                 title: "Clinical Analysis",
-                // display: {
-                //     titleStyle: "text-align:center;",
-                //     subtitleStyle: "text-align:center;",
-                //     logoWidth: "100px",
-                // },
                 // subtitle: "Interactive Case Interpreter",
                 content: `
                     Welcome to the OpenCB Clinical Analysis Application.
@@ -747,16 +727,6 @@ const SUITE = {
                     thumbnail: "interpretation_portal.png",
                 },
             ],
-            // fileExplorer: {
-            //     visibility: "private"
-            // },
-            // jobMonitor: {
-            //     visibility: "private"
-            // },
-            // search: {
-            //     placeholder: "Search",
-            //     visible: false
-            // },
         },
         {
             id: "catalog",
@@ -769,14 +739,7 @@ const SUITE = {
             visibility: "public",
             welcomePage: {
                 title: "Data Catalog",
-                // display: {
-                //     titleStyle: "text-align:center;",
-                //     subtitleStyle: "text-align:center;",
-                //     logoWidth: "100px",
-                // },
-                subtitle: "",
-                // logo: "img/Zetta_logo.png",
-                // logo: "img/tools/icons/interpretation_portal.svg",
+                // subtitle: "",
                 content: `
                     Welcome to the Data Catalog Application.
                     This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
@@ -874,16 +837,6 @@ const SUITE = {
                 //     `,
                 // },
             ],
-            // fileExplorer: {
-            //     visibility: "private"
-            // },
-            // jobMonitor: {
-            //     visibility: "private"
-            // },
-            // search: {
-            //     placeholder: "Search",
-            //     visible: false
-            // },
         },
         {
             id: "admin",
@@ -894,104 +847,40 @@ const SUITE = {
             logoAlt: "img/tools/icons/file_explorer.svg",
             visibility: "public",
             welcomePage: {
-                display: {
-                    titleStyle: "text-align:center;",
-                    subtitleStyle: "text-align:center;",
-                    logoWidth: "100px",
-                },
                 title: "Admin",
                 // subtitle: "",
-                logo: "img/tools/icons/file_explorer.svg",
-                content: `
-                    <p class="text-center">
-                        Welcome to the OpenCB Administration Application
-                    </p>
-                    <br>`
+                content: "Administration tools for managing users, projects, and studies.",
             },
             menu: [
                 {
                     id: "organization-admin",
                     name: "Organizations Admin",
-                    fa_icon: "fas fa-file-invoice",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    description: "",
+                    icon: "fa-building",
+                    description: "Manage the configuration of the current organization.",
                     visibility: "public",
-                    featured: true,
                 },
                 {
                     id: "study-admin",
                     name: "Study Admin",
-                    fa_icon: "fas fa-file-invoice",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    description: "",
+                    icon: "fa-file-invoice",
+                    description: "Manage the configuration of the current study.",
                     visibility: "public",
-                    featured: true,
                 },
-                // {
-                //     id: "variant-admin",
-                //     name: "Variant database",
-                //     fa_icon: "fas fa-file-invoice",
-                //     icon: "img/tools/icons/variant_browser.svg",
-                //     description: "",
-                //     visibility: "public",
-                //     featured: false,
-                // },
                 {
                     id: "study-admin-iva",
                     name: "IVA Configuration",
-                    fa_icon: "fas fa-file-invoice",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    description: "",
+                    icon: "fa-cogs",
+                    description: "Manage the configuration of the current IVA instance.",
                     visibility: "public",
-                    featured: true,
                 },
-                // {
-                //     id: "catalog-admin",
-                //     name: "Catalog Management",
-                //     fa_icon: "fas fa-file-invoice",
-                //     icon: "img/tools/icons/variant_browser.svg",
-                //     description: "",
-                //     visibility: "public",
-                //     featured: false,
-                // },
-                // {
-                //     id: "study-variant-admin",
-                //     name: "Study Variant Admin",
-                //     fa_icon: "fas fa-file-invoice",
-                //     icon: "img/tools/icons/variant_browser.svg",
-                //     description: "",
-                //     visibility: "public",
-                //     featured: true,
-                // },
                 {
                     id: "operations-admin",
                     name: "Operations Admin",
-                    fa_icon: "fas fa-file-invoice",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    description: "",
+                    icon: "fa-server",
+                    description: "Execute variant operations in the current study.",
                     visibility: "public",
-                    featured: true,
                 },
-                // {
-                //     id: "projects-admin",
-                //     name: "Project Manager",
-                //     fa_icon: "fas fa-file-invoice",
-                //     icon: "img/tools/icons/variant_browser.svg",
-                //     description: "",
-                //     visibility: "public",
-                //     featured: true,
-                // },
             ],
-            // fileExplorer: {
-            //     visibility: "private"
-            // },
-            // jobMonitor: {
-            //     visibility: "none"
-            // },
-            // search: {
-            //     placeholder: "Search",
-            //     visible: false
-            // },
         }
     ]
 };
