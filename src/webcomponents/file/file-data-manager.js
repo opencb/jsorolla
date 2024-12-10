@@ -21,7 +21,8 @@ import GridCommons from "../commons/grid-commons";
 import "../commons/data-list.js";
 import "../loading-spinner.js";
 import "./file-view.js";
-import "./folder-create.js"
+import "./folder-create.js";
+import "./file-create.js";
 import NotificationUtils from "../commons/utils/notification-utils";
 import LitUtils from "../commons/utils/lit-utils";
 
@@ -72,8 +73,10 @@ export default class FileDataManager extends LitElement {
             },
             "create-file": {
                 tooltip: "New File",
-                action: null,
                 icon: "fas fa-file",
+                modalTitle: "Create File",
+                modalId: `${this._prefix}CreateFileModal`,
+                render: () => this.renderFileCreate(),
             },
             "upload-file": {
                 tooltip: "Upload File",
@@ -408,7 +411,6 @@ export default class FileDataManager extends LitElement {
         this.route(this.currentRoot.file.id)
     }
 
-
     onCheckRow(e) {}
 
     onActionClick(e, value, file) {
@@ -463,10 +465,32 @@ export default class FileDataManager extends LitElement {
         });
     }
 
+    renderFileCreate() {
+        debugger
+        return ModalUtils.create(this, `${this.entityActions[this.entityAction]["modalId"]}`, {
+            display: {
+                modalTitle: this.entityActions[this.entityAction]["modalTitle"],
+                modalDraggable: true,
+                modalSize: "modal-lg",
+            },
+            render: () => {
+                debugger
+                return html`
+                    <file-create
+                        .path="${this.currentRoot.file.path}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        @fileCreate="${e => this.onFileAction(e, `${this.entityActions[this.entityAction]["modalId"]}`)}">
+                    </file-create>
+                `;
+            },
+        });
+    }
+
     renderViewFile() {
         return ModalUtils.create(this, `${this._prefix}ViewFileModal`, {
             display: {
-                modalTitle: "Create Folder",
+                modalTitle: "View File",
                 modalDraggable: true,
                 modalSize: "modal-lg",
             },
