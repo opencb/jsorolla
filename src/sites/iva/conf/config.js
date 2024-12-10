@@ -570,7 +570,7 @@ const SUITE = {
                     logoWidth: "100px",
                 },
                 title: "Research Environment",
-                subtitle: "Explore variants in real-time and execute analysis.",
+                // subtitle: "Explore variants in real-time and execute analysis.",
                 content: `
                     Variant Research Environment App implements different tools to focus on the analysis and interpretation of genomic variants
                     to understand their role in diseases, traits, and biological processes. It involves the use of our aggregated variant database,
