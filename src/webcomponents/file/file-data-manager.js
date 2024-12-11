@@ -83,6 +83,7 @@ export default class FileDataManager extends LitElement {
                 tooltip: "Upload File",
                 action: null,
                 icon: "fas fa-upload",
+                permission: "disabled",
             },
             "file-fetch": {
                 tooltip: "Fetch File",
@@ -557,7 +558,7 @@ export default class FileDataManager extends LitElement {
                             return html`
                                 <button
                                     type="button"
-                                    class="btn btn-outline-dark ms-2"
+                                    class="btn btn-outline-dark ms-2 ${action.permission}"
                                     data-action="${actionKey}"
                                     @click="${ (e, value, row) => this.onEntityActionClick(e, value, row)}">
                                         ${action.icon ? html`<span><i class="${action.icon} fa-lg"></i></span>` : nothing}
