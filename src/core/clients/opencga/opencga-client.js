@@ -420,6 +420,7 @@ export class OpenCGAClient {
                                                     const cohortsResponse = await _this.cohorts()
                                                         .search({
                                                             study: study.fqn,
+                                                            internalStatus: "READY,CALCULATING,INVALID",
                                                             exclude: "samples",
                                                             limit: 100,
                                                         });
