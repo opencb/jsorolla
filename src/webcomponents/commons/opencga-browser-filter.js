@@ -355,7 +355,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                     // but for the note's type, we need to use select-field-filter as we have a fixed set of values
                     content = html`
                         <select-field-filter
-                            .value="${"type"}"
+                            .value="${this.preparedQuery.type}"
                             .data="${subsection.allowedValues || []}"
                             .config="${{
                                 multiple: subsection?.multiple
