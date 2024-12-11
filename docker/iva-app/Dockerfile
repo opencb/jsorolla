@@ -17,7 +17,7 @@ LABEL org.label-schema.vendor="OpenCB" \
 ## Update and create iva user
 RUN apt-get update && apt-get -y upgrade && \
     apt-get install -y vim jq && \
-    rm -rf /var/lib/apt/lists/* \
+    rm -rf /var/lib/apt/lists/* && \
     chown -R www-data /usr/local/apache2/logs/
 
 ## Allow to build different images by passing the path to the SITE
