@@ -350,6 +350,20 @@ export default class OpencgaBrowserFilter extends LitElement {
                         </date-picker>
                     `;
                     break;
+                case "noteType":
+                    // Josemi Note 2024-12-11: the 'type' id is associated with the cohort's type and uses catalog-distinct-autocomplete
+                    // but for the note's type, we need to use select-field-filter as we have a fixed set of values
+                    content = html`
+                        <select-field-filter
+                            .value="${"type"}"
+                            .data="${subsection.allowedValues || []}"
+                            .config="${{
+                                multiple: subsection?.multiple
+                            }}"
+                            @filterChange="${e => this.onFilterChange("type", e.detail.value)}">
+                        </select-field-filter>
+                    `;
+                    break;
                 default:
                     console.error("Filter component not found: ", id);
             }
