@@ -45,6 +45,8 @@ export default class JupyterNotebook extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+
+        this.enter = false;
     }
 
     connectedCallback() {
@@ -61,7 +63,10 @@ export default class JupyterNotebook extends LitElement {
         super.update(changedProperties);
     }
 
-    onAnalysisRun(e) {
+    onEnterClick(e) {
+        this.enter = true;
+        this.requestUpdate();
+
         // Execute function provided in the configuration
         /* if (this.analysisClass.execute) {
             this.analysisClass.execute(this.opencgaSession, e.detail.data, e.detail.params);
@@ -69,10 +74,10 @@ export default class JupyterNotebook extends LitElement {
             console.error(`No execute() function provided for analysis: ${this._config.id}`)
         }*/
 
-        // TODO NOTE onAnalysisRun at the moment just forwards the `analysisRun` event fired in opencga-analysis-tool-form
-        this.dispatchEvent(new CustomEvent("execute", {
-            detail: e.detail
-        }));
+        // // TODO NOTE onAnalysisRun at the moment just forwards the `analysisRun` event fired in opencga-analysis-tool-form
+        // this.dispatchEvent(new CustomEvent("execute", {
+        //     detail: e.detail
+        // }));
     }
 
     render() {
@@ -81,23 +86,39 @@ export default class JupyterNotebook extends LitElement {
             return guardPage("No OpenCGA study available to run an analysis. Please login to continue.");
         }
 
-        const userId = this.opencgaSession.user.id;
-        const organizationId = this.opencgaSession.organization.id;
-        const serverUrl = this.opencgaSession.server.host.replace("/opencga", "");
-        const jupyterLoginUrl = serverUrl + "/jupyter/hub/login";
-        const token = this.opencgaSession.token;
-        debugger
-        return html`
-            <div class="p-2">
-                <h2>Jupyter Notebook</h2>
-                <div class="m-3">
-                    <iframe src="https://test.app.zettagenomics.com/task-6757a/jupyter/hub/login?userId=${userId}&organizationId=${organizationId}&opencgaUrl=${serverUrl}&logoutUrl=https:%2F%2Fwww.google.com&token=${token}"
-                            width="1600" height="720">
-                    </iframe>
-
+        if (!this.enter) {
+            return html`
+                <div>
+                    <div>
+                        <h2>Jupyter Notebook</h2>
+                    </div>
+                    <div>
+                        <span>Open Jupyter Notebook</span>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-primary" @click="${this.onEnterClick}">Click me!</button>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+        } else {
+            const userId = this.opencgaSession.user.id;
+            const organizationId = this.opencgaSession.organization.id;
+            const serverUrl = this.opencgaSession.server.host.replace("/opencga", "");
+            const jupyterLoginUrl = serverUrl + "/jupyter/hub/login";
+            const token = this.opencgaSession.token;
+            // debugger
+            return html`
+                <div class="p-2">
+                    <h2>Jupyter Notebook</h2>
+                    <div class="m-3">
+                        <iframe src="https://test.app.zettagenomics.com/task-6757a/jupyter/hub/login?userId=${userId}&organizationId=${organizationId}&opencgaUrl=${serverUrl}&logoutUrl=https:%2F%2Fwww.google.com&token=${token}"
+                                width="1600" height="720">
+                        </iframe>
+
+                    </div>
+                </div>
+            `;
+        }
     }
 
 }
