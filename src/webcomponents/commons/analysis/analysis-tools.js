@@ -66,6 +66,20 @@ export default class AnalysisTools extends LitElement {
         super.update(changedProperties);
     }
 
+    firstUpdated() {
+        // register listeners to bootstrap collapse events
+        Array.from(this.querySelectorAll(`[data-bs-role="collapse"]`)).forEach(el => {
+            el.addEventListener("show.bs.collapse", e => {
+                e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-down");
+                e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-up");
+            });
+            el.addEventListener("hide.bs.collapse", e => {
+                e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-up");
+                e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-down");
+            });
+        });
+    }
+
     onChangeTool(newTool) {
         this._tool = newTool;
         this.requestUpdate();
@@ -73,18 +87,21 @@ export default class AnalysisTools extends LitElement {
 
     renderMenu() {
         return this._config.menu.map(item => {
+            const id = (item.name || item.id).replace(/ /g, "-").toLowerCase();
             return html`
                 <div class="">
-                    <div class="d-flex align-items-center gap-2 text-gray-700 fs-9 user-select-none py-1">
-                        <i class="fa fa-chevron-down"></i>
+                    <div class="d-flex align-items-center gap-2 text-gray-700 fs-9 user-select-none py-1 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#tools-${id}">
+                        <i class="fa fa-chevron-up"></i>
                         <span class="fw-bold">${item.name}</span>
                     </div>
-                    <div class="d-flex flex-column gap-1">
-                        ${(item.submenu || []).map(tool => html`
-                            <div class="btn w-full text-start ${tool.id === this._tool ? "btn-primary" : "hover:bg-gray-200"}" @click="${() => this.onChangeTool(tool.id)}">
-                                ${tool.name}
-                            </div>     
-                        `)}
+                    <div class="collapse show" id="tools-${id}" data-bs-role="collapse">
+                        <div class="d-flex flex-column gap-1">
+                            ${(item.submenu || []).map(tool => html`
+                                <div class="btn w-full text-start ${tool.id === this._tool ? "btn-primary" : "hover:bg-gray-200"}" @click="${() => this.onChangeTool(tool.id)}">
+                                    ${tool.name}
+                                </div>     
+                            `)}
+                        </div>
                     </div>
                 </div>
             `;

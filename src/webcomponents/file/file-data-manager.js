@@ -21,7 +21,9 @@ import GridCommons from "../commons/grid-commons";
 import "../commons/data-list.js";
 import "../loading-spinner.js";
 import "./file-view.js";
-import "./folder-create.js"
+import "./folder-create.js";
+import "./file-create.js";
+import "./file-fetch.js"
 import NotificationUtils from "../commons/utils/notification-utils";
 import LitUtils from "../commons/utils/lit-utils";
 
@@ -62,28 +64,32 @@ export default class FileDataManager extends LitElement {
         this.loading = false;
 
         this.entityActions = {
-            "create-folder": {
+            "folder-create": {
                 tooltip: "New Folder",
                 icon: "fas fa-folder-plus",
                 modalTitle: "Create Folder",
-                modalId: `${this._prefix}CreateFolderModal`,
+                modalId: `${this._prefix}FolderCreateModal`,
                 render: () => this.renderFolderCreate(),
                 // permission: this.permissions["organization"](),
             },
-            "create-file": {
+            "file-create": {
                 tooltip: "New File",
-                action: null,
                 icon: "fas fa-file",
+                modalTitle: "Create File",
+                modalId: `${this._prefix}FileCreateModal`,
+                render: () => this.renderFileCreate(),
             },
-            "upload-file": {
+            "file-upload": {
                 tooltip: "Upload File",
                 action: null,
                 icon: "fas fa-upload",
             },
-            "fetch-file": {
+            "file-fetch": {
                 tooltip: "Fetch File",
-                action: null,
                 icon: "fas fa-cloud-download-alt",
+                modalTitle: "Fetch File",
+                modalId: `${this._prefix}FileFetchModal`,
+                render: () => this.renderFileFetch(),
             },
         };
 
@@ -408,7 +414,6 @@ export default class FileDataManager extends LitElement {
         this.route(this.currentRoot.file.id)
     }
 
-
     onCheckRow(e) {}
 
     onActionClick(e, value, file) {
@@ -463,10 +468,55 @@ export default class FileDataManager extends LitElement {
         });
     }
 
+    renderFileCreate() {
+        debugger
+        return ModalUtils.create(this, `${this.entityActions[this.entityAction]["modalId"]}`, {
+            display: {
+                modalTitle: this.entityActions[this.entityAction]["modalTitle"],
+                modalDraggable: true,
+                modalSize: "modal-lg",
+            },
+            render: () => {
+                debugger
+                return html`
+                    <file-create
+                        .path="${this.currentRoot.file.path}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        @fileCreate="${e => this.onFileAction(e, `${this.entityActions[this.entityAction]["modalId"]}`)}">
+                    </file-create>
+                `;
+            },
+        });
+    }
+
+    renderFileFetch() {
+        debugger
+        return ModalUtils.create(this, `${this.entityActions[this.entityAction]["modalId"]}`, {
+            display: {
+                modalTitle: this.entityActions[this.entityAction]["modalTitle"],
+                modalDraggable: true,
+                modalSize: "modal-lg",
+            },
+            render: () => {
+                debugger
+                return html`
+                    <file-fetch
+                        .path="${this.currentRoot.file.path}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        @fileFetch="${e => this.onFileAction(e, `${this.entityActions[this.entityAction]["modalId"]}`)}">
+                    </file-fetch>
+                `;
+            },
+        });
+    }
+
+
     renderViewFile() {
         return ModalUtils.create(this, `${this._prefix}ViewFileModal`, {
             display: {
-                modalTitle: "Create Folder",
+                modalTitle: "View File",
                 modalDraggable: true,
                 modalSize: "modal-lg",
             },

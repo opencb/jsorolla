@@ -112,8 +112,8 @@ export default class WelcomePage extends LitElement {
 
                 <!-- Welcome page title -->
                 ${welcomePage?.title ? html`
-                    <div class="mb-4">
-                        <div class="d-flex align-items-center">
+                    <div class="">
+                        <div class="d-flex align-items-center mb-2">
                             ${welcomePage.appLogo?.img ? html`
                                 <img src="${welcomePage.appLogo?.img}" height="${welcomePage.appLogo?.height || "40px"}"/>
                             ` : nothing}
@@ -122,8 +122,10 @@ export default class WelcomePage extends LitElement {
                             </div>
                         </div>
                         ${welcomePage?.subtitle ? html`
-                            <div class="${welcomePage.display?.subtitleClass || "display-6 text-gray-700 fw-medium"}" style="${welcomePage.display?.subtitleStyle}">
-                                ${welcomePage.subtitle}
+                            <div class="mb-4">
+                                <div class="${welcomePage.display?.subtitleClass || "display-6 text-gray-700 fw-medium"}" style="${welcomePage.display?.subtitleStyle}">
+                                    ${welcomePage.subtitle}
+                                </div>
                             </div>
                         ` : nothing}
                     </div>
