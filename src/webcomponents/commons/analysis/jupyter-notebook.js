@@ -75,8 +75,10 @@ export default class JupyterNotebook extends LitElement {
             <div class="p-2">
                 <h2>Jupyter Notebook</h2>
                 <div class="m-3">
-                    <iframe src="${jupyterLoginUrl}?userId=${userId}&organizationId=${organizationId}&opencgaUrl=${serverUrl}&logoutUrl=https:%2F%2Fwww.google.com&token=${token}"
-                            width="1600" height="720">
+                    <iframe
+                        src="${jupyterLoginUrl}?userId=${userId}&organizationId=${organizationId}&opencgaUrl=${serverUrl}&logoutUrl=https:%2F%2Fwww.google.com&token=${token}"
+                        width="1600"
+                        height="720">
                     </iframe>
                 </div>
             </div>
