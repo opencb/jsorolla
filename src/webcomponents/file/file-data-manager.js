@@ -31,7 +31,7 @@ export default class FileDataManager extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -52,7 +52,7 @@ export default class FileDataManager extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "file-manager";
         this._prefix = UtilsNew.randomString(8);
 
@@ -63,8 +63,9 @@ export default class FileDataManager extends LitElement {
         this.fileId = null;
         this.loading = false;
 
-        this.entityActions = {
-            "folder-create": {
+        const entityActions = [
+            {
+                id: "folder-create",
                 tooltip: "New Folder",
                 icon: "fas fa-folder-plus",
                 modalTitle: "Create Folder",
@@ -72,32 +73,59 @@ export default class FileDataManager extends LitElement {
                 render: () => this.renderFolderCreate(),
                 // permission: this.permissions["organization"](),
             },
-            "file-create": {
+            {
+                id: "file-create",
                 tooltip: "New File",
                 icon: "fas fa-file",
                 modalTitle: "Create File",
                 modalId: `${this._prefix}FileCreateModal`,
                 render: () => this.renderFileCreate(),
             },
-            "file-upload": {
+            // Note 20241211 Vero: Disabled for now. Endpoint not implemented.
+            {
+                id: "file-upload",
                 tooltip: "Upload File",
                 action: null,
                 icon: "fas fa-upload",
                 permission: "disabled",
             },
-            "file-fetch": {
+            {
+                id: "file-fetch",
                 tooltip: "Fetch File",
                 icon: "fas fa-cloud-download-alt",
                 modalTitle: "Fetch File",
                 modalId: `${this._prefix}FileFetchModal`,
                 render: () => this.renderFileFetch(),
+            }
+        ];
+        const instanceActions = [
+            {
+                id: "file-view",
+                title: "View",
+                icon: "fas fa-file-alt",
+                modalTitle: "View File",
+                modalId: `${this._prefix}FileViewModal`,
+                render: () => this.renderFileView(),
+                // permission: this.permissions["organization"](),
             },
+            {
+                id: "file-copy",
+                title: "Copy JSON",
+                icon: "fas fa-copy",
+                render: () => this.renderFileCopy(),
+            },
+        ];
+
+        this.actions = {
+            "entity": entityActions,
+            "instance": instanceActions,
         };
 
-        this.entityAction = "";
+        this.currentAction = {};
 
         this._config = this.getDefaultConfig();
     }
+    x
 
     #setLoading(value) {
         this.isLoading = value;
@@ -401,58 +429,30 @@ export default class FileDataManager extends LitElement {
         this.onClickFile(e.detail.value.id);
     }
 
-    async onEntityActionClick(e, value, row) {
-        this.entityAction = e.currentTarget.dataset.action;
+    async onActionClick(e, value, file) {
+        debugger
+        this.currentAction = this.actions[e.currentTarget.dataset.type].find(action => action.id === e.currentTarget.dataset.action);
+        this.fileId = file?.id ?? "";
+        this.file = file ?? {};
         this.requestUpdate();
         await this.updateComplete;
-        ModalUtils.show(this.entityActions[this.entityAction]["modalId"]);
+        ModalUtils.show(this.currentAction["modalId"]);
     }
+
 
     onFileAction(e,id) {
         ModalUtils.close(id);
-        this.entityAction = "";
+        this.currentAction = {};
         this.currentRoot.visited = false;
         this.route(this.currentRoot.file.id)
     }
 
     onCheckRow(e) {}
 
-    onActionClick(e, value, file) {
-        e.preventDefault();
-
-        const action = e.currentTarget.dataset.action;
-        switch (action) {
-            case "view":
-                this.fileId = file.id;
-                this.requestUpdate();
-                // await this.updateComplete;
-                ModalUtils.show(`${this._prefix}ViewFileModal`);
-                break;
-            case "copy":
-                UtilsNew.copyToClipboard(JSON.stringify(file, null, "\t"));
-                break;
-            case "execute":
-                this.fileUpdateId = file.id;
-                this.requestUpdate();
-                // await this.updateComplete;
-                ModalUtils.show(`${this._prefix}ExecuteModal`);
-                break;
-            case "edit":
-                this.fileUpdateId = file.id;
-                this.requestUpdate();
-                // await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
-                break;
-            case "delete":
-                // this.clinicalAnalysisManager.deleteInterpretation(interpretationId, interpretationCallback);
-                break;
-        }
-    }
-
     renderFolderCreate() {
-        return ModalUtils.create(this, `${this.entityActions[this.entityAction]["modalId"]}`, {
+        return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
             display: {
-                modalTitle: this.entityActions[this.entityAction]["modalTitle"],
+                modalTitle: this.currentAction["modalTitle"],
                 modalDraggable: true,
                 modalSize: "modal-lg",
             },
@@ -462,7 +462,7 @@ export default class FileDataManager extends LitElement {
                         .path="${this.currentRoot.file.path}"
                         .opencgaSession="${this.opencgaSession}"
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        @folderCreate="${e => this.onFileAction(e, `${this.entityActions[this.entityAction]["modalId"]}`)}">
+                        @folderCreate="${e => this.onFileAction(e, `${this.currentAction["modalId"]}`)}">
                     </folder-create>
                 `;
             },
@@ -471,9 +471,9 @@ export default class FileDataManager extends LitElement {
 
     renderFileCreate() {
         debugger
-        return ModalUtils.create(this, `${this.entityActions[this.entityAction]["modalId"]}`, {
+        return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
             display: {
-                modalTitle: this.entityActions[this.entityAction]["modalTitle"],
+                modalTitle: this.currentAction["modalTitle"],
                 modalDraggable: true,
                 modalSize: "modal-lg",
             },
@@ -484,7 +484,7 @@ export default class FileDataManager extends LitElement {
                         .path="${this.currentRoot.file.path}"
                         .opencgaSession="${this.opencgaSession}"
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        @fileCreate="${e => this.onFileAction(e, `${this.entityActions[this.entityAction]["modalId"]}`)}">
+                        @fileCreate="${e => this.onFileAction(e, `${this.currentAction["modalId"]}`)}">
                     </file-create>
                 `;
             },
@@ -493,9 +493,9 @@ export default class FileDataManager extends LitElement {
 
     renderFileFetch() {
         debugger
-        return ModalUtils.create(this, `${this.entityActions[this.entityAction]["modalId"]}`, {
+        return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
             display: {
-                modalTitle: this.entityActions[this.entityAction]["modalTitle"],
+                modalTitle: this.currentAction["modalTitle"],
                 modalDraggable: true,
                 modalSize: "modal-lg",
             },
@@ -506,16 +506,15 @@ export default class FileDataManager extends LitElement {
                         .path="${this.currentRoot.file.path}"
                         .opencgaSession="${this.opencgaSession}"
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        @fileFetch="${e => this.onFileAction(e, `${this.entityActions[this.entityAction]["modalId"]}`)}">
+                        @fileFetch="${e => this.onFileAction(e, `${this.currentAction["modalId"]}`)}">
                     </file-fetch>
                 `;
             },
         });
     }
 
-
-    renderViewFile() {
-        return ModalUtils.create(this, `${this._prefix}ViewFileModal`, {
+    renderFileView() {
+        return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
             display: {
                 modalTitle: "View File",
                 modalDraggable: true,
@@ -531,6 +530,10 @@ export default class FileDataManager extends LitElement {
                 </div>
             `,
         });
+    }
+
+    renderFileCopy() {
+        UtilsNew.copyToClipboard(JSON.stringify(this.file, null, "\t"));
     }
 
     addSearch(action, icon = "fa-search", placeholder = "Search ...", className = "", style = "") {
@@ -553,14 +556,15 @@ export default class FileDataManager extends LitElement {
             <div class="btn-toolbar d-flex" role="toolbar" aria-label="Toolbar with button groups">
                 <div class="m-2">
                     ${
-                        Object.keys(this.entityActions).map(actionKey => {
-                            const action = this.entityActions[actionKey];
+                        this.actions["entity"].map(action => {
+                            debugger
                             return html`
                                 <button
                                     type="button"
                                     class="btn btn-outline-dark ms-2 ${action.permission}"
-                                    data-action="${actionKey}"
-                                    @click="${ (e, value, row) => this.onEntityActionClick(e, value, row)}">
+                                    data-action="${action.id}"
+                                    data-type="entity"
+                                    @click="${ (e, value, row) => this.onActionClick(e, value, row)}">
                                         ${action.icon ? html`<span><i class="${action.icon} fa-lg"></i></span>` : nothing}
                                         ${action.title ? html`${action.title}` : nothing}
                                 </button>
@@ -630,8 +634,7 @@ export default class FileDataManager extends LitElement {
                 </div>
             </div>
             <!-- 3. On entity action click, render the respective modal -->
-            ${this.entityAction ? this.entityActions[this.entityAction]["render"](): nothing}
-            ${this.renderViewFile()}
+            ${UtilsNew.isNotEmpty(this.currentAction) ? this.currentAction["render"](): nothing}
         `;
     }
 
@@ -740,7 +743,6 @@ export default class FileDataManager extends LitElement {
                                 if (row.type === "DIRECTORY") {
                                     return "";
                                 }
-
                                 return `
                                 <div>
                                     <label>${value || "-"}</label>
@@ -791,11 +793,29 @@ export default class FileDataManager extends LitElement {
                             colspan: 1,
                             formatter: () => {
                                 return `
-                            <div class="dropdown">
+                            <div class="dropdown d-flex justify-content-end">
                                 <button type="button" class="btn" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
                                 <ul class="dropdown-menu">
+                                ${this.actions["instance"].map(action => {
+                                    debugger
+                                    return `
+                                        <li>
+                                            <a
+                                            class="dropdown-item ${action.permission}"
+                                            data-action="${action.id}"
+                                            data-type="instance"
+                                            style="cursor:pointer;">
+                                                ${action.icon ? `<span><i class="${action.icon} pe-2"></i></span>` : ""}
+                                                ${action.title ? `${action.title}` : ""}
+                                            </a>
+                                        </li>
+                                    `;
+                                }).join("")}
+                                </ul>
+                            </div>
+                                <!--
                                     <li>
                                         <a class="dropdown-item" href="#" data-action="view">
                                         <i class="fas fa-file-alt pe-2" aria-hidden="true"></i>View</a>
@@ -826,12 +846,11 @@ export default class FileDataManager extends LitElement {
                                         <a class="dropdown-item disabled" href="#" data-action="delete">
                                         <i class="fas fa-trash pe-2" aria-hidden="true"></i>Delete</a>
                                     </li>
-                                </ul>
-                            </div>
+                                    -->
                         `;
                             },
                             events: {
-                                "click a": (e, value, row) => this.onActionClick(e, value, row)
+                                "click a": (e, value, row) => this.onActionClick(e, value, row),
                             },
                         }
                     ],
