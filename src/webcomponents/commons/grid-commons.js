@@ -344,15 +344,7 @@ export default class GridCommons {
         if (eventsContainer && (response?.events?.length > 0 || response?.responses?.[0]?.events?.length > 0)) {
             const events = [...(response?.events || []), ...(response?.responses?.[0]?.events || [])]
                 .filter(event => event && event.type === "WARNING" && !!event.message);
-                // .map(event => {
-                //     return `
-                //         <div class="alert alert-warning mb-2">
-                //             <i class="fas fa-exclamation-triangle pe-1"></i>
-                //             <span>${event.message}</span>
-                //         </div>
-                //     `;
-                // });
-            // If there are only one event message, just display it
+            // If there is only one event message, just display it
             if (events.length === 1) {
                 const eventsContent = UtilsNew.renderHTML(`
                     <div class="alert alert-warning mb-2">
@@ -362,8 +354,6 @@ export default class GridCommons {
                 `).querySelector("div");
                 eventsContainer.replaceChildren(eventsContent);
             } else if (events.length > 1) {
-                // const defaultVisibleEvents = events.length > maxVisibleEvents ? events.slice(0, maxVisibleEvents) : events;
-                // const defaultHiddenEvents = events.length > maxVisibleEvents ? events.slice(maxVisibleEvents) : [];
                 const eventsContent = UtilsNew.renderHTML(`
                     <div>
                         <div class="alert alert-warning mb-2">
