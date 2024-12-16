@@ -99,7 +99,7 @@ export default class VariantNotes extends LitElement {
             // 2. get notes where the ID of the note is the variant ID or the gene ID
             this.opencgaSession.opencgaClient.studies()
                 .searchNotes(this.opencgaSession.study.fqn, {
-                    id: `${this.variant.id},${genes.join(",")}`,
+                    id: [this.variant.id, ...genes].filter(Boolean).join(","),
                 })
                 .then(response => {
                     this.notes = response.responses[0].results || [];
@@ -179,13 +179,13 @@ export default class VariantNotes extends LitElement {
 
         return html`
             <div style="">
-                <div class="py-2">
+                <div class="mb-4">
                     <h2>Variant Note</h2>
                     <div class="px-2">
                         ${this.renderNotes("VARIANT")}
                     </div>
                 </div>
-                <div class="py-2">
+                <div class="mb-4">
                     <h2>Gene Notes</h2>
                     <div class="px-2">
                         ${this.renderNotes("GENE")}
