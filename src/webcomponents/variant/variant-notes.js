@@ -111,7 +111,7 @@ export default class VariantNotes extends LitElement {
         }
     }
 
-    #renderNoteByType(note) {
+    renderNoteByType(note) {
         let noteHtml;
         switch (note.valueType.toUpperCase()) {
             case "INTEGER":
@@ -130,61 +130,41 @@ export default class VariantNotes extends LitElement {
                     </json-viewer>
                 `;
                 break;
+            default:
+                noteHtml = html`<span>${note.value}</span>`;
         }
         return noteHtml;
     }
 
-    renderVariantNotes() {
-        const notes = this.notes.find(note => note.type === "VARIANT");
+    renderNotes(noteType) {
+        // 1. filter notes by the specified note type
+        const notes = this.notes.filter(note => note.type === noteType);
+
+        // 2. if there are no notes, return a message
         if (notes.length === 0) {
             return html`
-                <span>No variant notes available for variant '${this.variant.id}'</span>
+                <span>No ${noteType.toLowerCase()} notes available for variant '${this.variant.id}'</span>
             `;
         }
-
-        const variantNoteHtml = this.#renderNoteByType(note);
-        return html`
+        
+        // 3. render notes
+        return notes.map(note => html`
             <h4>${note.id}</h4>
-            ${variantNoteHtml || html`<span>${note.value}</span>`}
-        `;
-    }
-
-    renderGeneNotes() {
-        // filter notes by note.type === "GENE"
-        const notes = this.notes.filter(note => note.type === "GENE");
-
-        if (notes.length === 0) {
-            return html`
-                <span>No gene notes available for variant '${this.variant.id}'</span>
-            `;
-        }
-
-        // FIXME filter by new note.entityType = "GENE"
-        const geneNotes = notes.filter(note => this.genes.includes(note.id));
-        const geneNoteHtml = {};
-        for (const geneNote of geneNotes) {
-            geneNoteHtml[geneNote.id] = this.#renderNoteByType(geneNote);
-        }
-
-        return html`
-            ${geneNotes.map(note => html`
-                <h4>${note.id}</h4>
-                <div style="background-color:#f3f3f3; border-left: 2px solid #0c2f4c;padding:12px">
-                    <div style="float: right">
-                        <span class="px-2">Last modified on ${UtilsNew.dateFormatter(note.modificationDate)}.</span>
-                        <span>(Version ${note.version})</span>
-                    </div>
-                    <div class="my-2">
-                        <span style="font-weight: bold">Created by user:</span>
-                        <span>${note.userId}</span>
-                    </div>
-                    <div class="my-2">
-                        <span style="font-weight: bold">Note info:</span>
-                        ${geneNoteHtml[note.id] || html`<span>${note.value}</span>`}
-                    </div>
+            <div style="background-color:#f3f3f3; border-left: 2px solid #0c2f4c;padding:12px">
+                <div style="float: right">
+                    <span class="px-2">Last modified on ${UtilsNew.dateFormatter(note.modificationDate)}.</span>
+                    <span>(Version ${note.version})</span>
                 </div>
-            `)}
-        `;
+                <div class="my-2">
+                    <span style="font-weight: bold">Created by user:</span>
+                    <span>${note.userId}</span>
+                </div>
+                <div class="my-2">
+                    <span style="font-weight: bold">Note info:</span>
+                    ${this.renderNoteByType(note)}
+                </div>
+            </div>
+        `);
     }
 
     render() {
@@ -202,13 +182,13 @@ export default class VariantNotes extends LitElement {
                 <div class="py-2">
                     <h2>Variant Note</h2>
                     <div class="px-2">
-                        ${this.renderVariantNotes()}
+                        ${this.renderNotes("VARIANT")}
                     </div>
                 </div>
                 <div class="py-2">
                     <h2>Gene Notes</h2>
                     <div class="px-2">
-                        ${this.renderGeneNotes()}
+                        ${this.renderNotes("GENE")}
                     </div>
                 </div>
             </div>
