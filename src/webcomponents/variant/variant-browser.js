@@ -449,7 +449,6 @@ export default class VariantBrowser extends LitElement {
     }
 
     getDefaultConfig() {
-        // return BrowserConf.config;
         return {
             title: "Variant Browser",
             icon: "img/tools/icons/variant_browser.svg",
