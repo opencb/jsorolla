@@ -339,7 +339,7 @@ export default class GridCommons {
         return columns;
     }
 
-    displayResponseWarningEvents(response, maxVisibleEvents = 3) {
+    displayResponseWarningEvents(response) {
         const eventsContainer = this.context.querySelector(`div#${this.gridId}WarningEvents`);
         if (eventsContainer && (response?.events?.length > 0 || response?.responses?.[0]?.events?.length > 0)) {
             const events = [...(response?.events || []), ...(response?.responses?.[0]?.events || [])]
