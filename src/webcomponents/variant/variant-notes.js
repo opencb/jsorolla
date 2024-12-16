@@ -91,18 +91,18 @@ export default class VariantNotes extends LitElement {
     }
 
     variantObserver() {
+        this.notes = [];
         if (this.variant && this.active) {
-            if (this.variant.annotation?.consequenceTypes) {
-                this.genes = this.variant.annotation.consequenceTypes.map(ct => ct.geneName);
-            }
+            // 1. get the list of genes
+            const genes = (this.variant?.annotation?.consequenceTypes || []).map(ct => ct.geneName);
 
+            // 2. get notes where the ID of the note is the variant ID or the gene ID
             this.opencgaSession.opencgaClient.studies()
                 .searchNotes(this.opencgaSession.study.fqn, {
-                    id: `${this.variant.id},${this.genes.join(",")}`,
+                    id: `${this.variant.id},${genes.join(",")}`,
                 })
                 .then(response => {
-                    this.variantNote = null;
-                    this.geneNotes = response.responses[0].results || null;
+                    this.notes = response.responses[0].results || [];
                     this.requestUpdate();
                 })
                 .catch(error => {
@@ -134,10 +134,11 @@ export default class VariantNotes extends LitElement {
         return noteHtml;
     }
 
-    renderVariantNotes(note) {
-        if (!note) {
+    renderVariantNotes() {
+        const notes = this.notes.find(note => note.type === "VARIANT");
+        if (notes.length === 0) {
             return html`
-                <span>No variant notes available for '${this.variant.id}'</span>
+                <span>No variant notes available for variant '${this.variant.id}'</span>
             `;
         }
 
@@ -148,10 +149,13 @@ export default class VariantNotes extends LitElement {
         `;
     }
 
-    renderGeneNotes(notes) {
-        if (!notes || notes.length === 0) {
+    renderGeneNotes() {
+        // filter notes by note.type === "GENE"
+        const notes = this.notes.filter(note => note.type === "GENE");
+
+        if (notes.length === 0) {
             return html`
-                <span>No gene notes available for this variant</span>
+                <span>No gene notes available for variant '${this.variant.id}'</span>
             `;
         }
 
@@ -184,7 +188,7 @@ export default class VariantNotes extends LitElement {
     }
 
     render() {
-        if (!this.geneNotes || this.geneNotes.length === 0) {
+        if (!this.notes || this.notes.length === 0) {
             return html`
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle pe-1"></i>
@@ -195,19 +199,16 @@ export default class VariantNotes extends LitElement {
 
         return html`
             <div style="">
-                <div>
-                    <div class="py-2">
-                        <h2>Variant Note</h2>
-                        <div class="px-2">
-                            ${this.renderVariantNotes(this.variantNote)}
-                        </div>
+                <div class="py-2">
+                    <h2>Variant Note</h2>
+                    <div class="px-2">
+                        ${this.renderVariantNotes()}
                     </div>
-
-                    <div class="py-2">
-                        <h2>Gene Notes</h2>
-                        <div class="px-2">
-                            ${this.renderGeneNotes(this.geneNotes)}
-                        </div>
+                </div>
+                <div class="py-2">
+                    <h2>Gene Notes</h2>
+                    <div class="px-2">
+                        ${this.renderGeneNotes()}
                     </div>
                 </div>
             </div>
