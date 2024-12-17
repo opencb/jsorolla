@@ -21,6 +21,7 @@ import GridCommons from "../commons/grid-commons";
 import "../commons/data-list.js";
 import "../loading-spinner.js";
 import "./file-view.js";
+import "./file-delete.js";
 import "./folder-create.js";
 import "./file-create.js";
 import "./file-fetch.js"
@@ -114,6 +115,24 @@ export default class FileDataManager extends LitElement {
                 icon: "fas fa-copy",
                 render: () => this.renderFileCopy(),
             },
+            /*
+            {
+                id: "file-execute",
+                title: "View",
+                icon: "",
+                modalTitle: "Execute",
+                modalId: `${this._prefix}FileExecuteModal`,
+                render: () => this.renderFileExecute(),
+                // permission: this.permissions["organization"](),
+            },
+            */
+            {
+                id: "file-delete",
+                title: "Delete",
+                icon: "far fa-trash-alt",
+                render: () => this.renderFileDelete(),
+            },
+
         ];
 
         this.actions = {
@@ -439,12 +458,21 @@ export default class FileDataManager extends LitElement {
         ModalUtils.show(this.currentAction["modalId"]);
     }
 
+    #initOriginalObjects() {
+        this.currentAction = {};
+        this.fileId = "";
+        this.file = {};
+        this.currentRoot.visited = false;
+        this.route(this.currentRoot.file.id)
+    }
 
     onFileAction(e,id) {
         ModalUtils.close(id);
-        this.currentAction = {};
-        this.currentRoot.visited = false;
-        this.route(this.currentRoot.file.id)
+        this.#initOriginalObjects();
+    }
+
+    onCloseNotification() {
+        this.#initOriginalObjects();
     }
 
     onCheckRow(e) {}
@@ -500,7 +528,7 @@ export default class FileDataManager extends LitElement {
                 modalSize: "modal-lg",
             },
             render: () => {
-                debugger
+                // FIXME 20241217 Vero: unlink files for fetched files not working. Waiting for Pedro's feedback.
                 return html`
                     <file-fetch
                         .path="${this.currentRoot.file.path}"
@@ -534,6 +562,16 @@ export default class FileDataManager extends LitElement {
 
     renderFileCopy() {
         UtilsNew.copyToClipboard(JSON.stringify(this.file, null, "\t"));
+    }
+
+    renderFileDelete() {
+        return html`
+            <file-delete
+                .opencgaSession="${this.opencgaSession}"
+                .fileId="${this.fileId}"
+                @closeNotification="${e => this.onCloseNotification(e)}">
+            </file-delete>
+        `;
     }
 
     addSearch(action, icon = "fa-search", placeholder = "Search ...", className = "", style = "") {
@@ -734,6 +772,7 @@ export default class FileDataManager extends LitElement {
                             width: "20",
                             widthUnit: "%"
                         },
+                        // CAUTION 20241217 Vero: Nacho,
                         {
                             title: "Format",
                             field: "format",
@@ -752,6 +791,12 @@ export default class FileDataManager extends LitElement {
                                 </div>
                             `;
                             }
+                        },
+                        {
+                            title: "Status",
+                            field: "internal.status.id",
+                            rowspan: 1,
+                            colspan: 1,
                         },
                         {
                             title: "Tags",
