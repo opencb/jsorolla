@@ -238,61 +238,7 @@ export default class VariantBrowserGrid extends LitElement {
 
                     this.opencgaSession.opencgaClient.variants()
                         .query(this.filters)
-                        .then(res => {
-                            // FIXME A quick temporary fix -> TASK-947
-                            if (this.opencgaSession?.project?.cellbase?.version === "v4" || this.opencgaSession?.project?.internal?.cellbase?.version === "v4") {
-                                let found = false;
-                                const variants = res.responses[0].results;
-                                for (const variant of variants) {
-                                    for (const ct of variant.annotation.consequenceTypes) {
-                                        if (ct.transcriptFlags || ct.transcriptAnnotationFlags) {
-                                            found = true;
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                if (!found) {
-                                    this.cellbaseClient = new CellBaseClient({
-                                        host: this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.project?.internal?.cellbase?.url,
-                                        // host: "https://ws.opencb.org/cellbase-4.8.2",
-                                        version: "v4",
-                                        species: "hsapiens",
-                                    });
-                                    const variantIds = variants.map(v => v.id);
-                                    this.cellbaseClient.get("genomic", "variant", variantIds.join(","), "annotation", {
-                                        assembly: this.opencgaSession.project.organism.assembly,
-                                        exclude: "populationFrequencies,conservation,expression,geneDisease,drugInteraction"
-                                    }).then(response => {
-                                        const annotatedVariants = response.responses;
-                                        for (let i = 0; i < variants.length; i++) {
-                                            // Store annotatedVariant in a Map, so we can search later and we do not need them to have the same order
-                                            const annotatedVariantsMap = new Map();
-                                            for (const av of annotatedVariants[i].results[0].consequenceTypes) {
-                                                // We can ignore the CTs without ensemblTranscriptId since they do not have flags.
-                                                if (av.ensemblTranscriptId) {
-                                                    annotatedVariantsMap.set(av.ensemblTranscriptId, av);
-                                                }
-                                            }
-
-                                            for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
-                                                if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId) {
-                                                    // We can ignore the CTs without ensemblTranscriptId since they do not have flags.
-                                                    const annotatedVariant = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
-                                                    if (annotatedVariant) {
-                                                        variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariant;
-                                                        variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariant;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }).catch(error => {
-                                        console.log(error);
-                                    });
-                                }
-                            }
-                            params.success(res);
-                        })
+                        .then(response => params.success(response))
                         .catch(error => {
                             console.error(error);
                             params.error(error);
