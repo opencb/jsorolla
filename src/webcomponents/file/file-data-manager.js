@@ -623,7 +623,7 @@ export default class FileDataManager extends LitElement {
         if (!this.opencgaSession || !this.currentRoot) {
             return null;
         }
-
+debugger
         return html`
             ${this.renderStyles()}
             <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
@@ -820,15 +820,30 @@ export default class FileDataManager extends LitElement {
                         },
                         {
                             title: "Creation Date",
-                            field: "creationDate",
+                            field: "internal.registrationDate",
                             rowspan: 1,
                             colspan: 1,
                             formatter: value => {
+                                debugger
                                 return `
-                            <div>
-                                <div class="d-block text-secondary">Created ${UtilsNew.dateFormatter(value)}</div>
-                            </div>
-                        `;
+                                    <div>
+                                        <div class="d-block text-secondary">${UtilsNew.dateFormatter(value)}</div>
+                                    </div>
+                                `;
+                            }
+                        },
+                        {
+                            title: "Modification Date",
+                            field: "internal.lastModified",
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: value => {
+                                debugger
+                                return `
+                                    <div>
+                                        <div class="d-block text-secondary">${UtilsNew.dateFormatter(value)}</div>
+                                    </div>
+                                `;
                             }
                         },
                         {
