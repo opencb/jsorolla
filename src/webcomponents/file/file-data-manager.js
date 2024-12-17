@@ -681,7 +681,6 @@ debugger
             title: "Data File Manager",
             icon: "img/tools/icons/file_explorer.svg",
             dataList: {
-                showTableHeader: false,
                 display: {
                     float: "left"
                 },
@@ -723,7 +722,7 @@ debugger
                     ]
                 },
                 table: {
-                    showHeader: false,
+                    showHeader: true,
                     checkbox: false,
                     checkboxIndex: 0,
                     options: {
@@ -838,7 +837,6 @@ debugger
                             rowspan: 1,
                             colspan: 1,
                             formatter: value => {
-                                debugger
                                 return `
                                     <div>
                                         <div class="d-block text-secondary">${UtilsNew.dateFormatter(value)}</div>
@@ -853,28 +851,28 @@ debugger
                             colspan: 1,
                             formatter: () => {
                                 return `
-                            <div class="dropdown d-flex justify-content-end">
-                                <button type="button" class="btn" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                ${this.actions["instance"].map(action => {
-                                    debugger
-                                    return `
-                                        <li>
-                                            <a
-                                            class="dropdown-item ${action.permission}"
-                                            data-action="${action.id}"
-                                            data-type="instance"
-                                            style="cursor:pointer;">
-                                                ${action.icon ? `<span><i class="${action.icon} pe-2"></i></span>` : ""}
-                                                ${action.title ? `${action.title}` : ""}
-                                            </a>
-                                        </li>
-                                    `;
-                                }).join("")}
-                                </ul>
-                            </div>
+                                    <div class="dropdown d-flex justify-content-end">
+                                        <button type="button" class="btn" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                        ${this.actions["instance"].map(action => {
+                                            debugger
+                                            return `
+                                                <li>
+                                                    <a
+                                                    class="dropdown-item ${action.permission}"
+                                                    data-action="${action.id}"
+                                                    data-type="instance"
+                                                    style="cursor:pointer;">
+                                                        ${action.icon ? `<span><i class="${action.icon} pe-2"></i></span>` : ""}
+                                                        ${action.title ? `${action.title}` : ""}
+                                                    </a>
+                                                </li>
+                                            `;
+                                        }).join("")}
+                                        </ul>
+                                    </div>
                                 <!--
                                     <li>
                                         <a class="dropdown-item" href="#" data-action="view">
