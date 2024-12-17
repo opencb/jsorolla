@@ -1,7 +1,6 @@
 import {LitElement, html, nothing} from "lit";
-import UtilsNew from "../../core/utils-new.js";
 
-export default class VerticalNavBar extends LitElement {
+export default class VerticalMenu extends LitElement {
 
     constructor() {
         super();
@@ -122,4 +121,4 @@ export default class VerticalNavBar extends LitElement {
 
 }
 
-customElements.define("vertical-navbar", VerticalNavBar);
+customElements.define("vertical-menu", VerticalMenu);
