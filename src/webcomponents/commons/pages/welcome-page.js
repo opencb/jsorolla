@@ -70,15 +70,18 @@ export default class WelcomePage extends LitElement {
                                 <i class="fas ${item.icon} fs-2"></i>
                             </div>
                         </div>
-                        <div class="fs-4 fw-bold mb-1">${item.title || item.name}</div>
+                        <div class="fs-3 fw-bold mb-1">${item.title || item.name}</div>
                         ${item.description ? html`
                             <div class="fs-5 mb-3 text-gray-700">
                                 ${UtilsNew.renderHTML(item.description)}
                             </div>
                         ` : nothing}
-                        <a class="btn btn-primary text-white" href="#${this.app.id}/${item.id}">
-                            <span class="fw-bold">Enter ${item.name || item.title}</span>
-                        </a>
+                        <div class="d-flex">
+                            <a class="d-inline-flex align-items-center gap-2 btn btn-primary text-white" href="#${this.app.id}/${item.id}">
+                                <span class="fw-bold">Enter tool</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
                     </div>
                 `)}
             </div>
