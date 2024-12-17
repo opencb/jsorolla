@@ -15,18 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utils-new.js";
 import {guardPage} from "../html-utils.js";
 import "../../text-icon.js";
 import "./opencga-analysis-tool-form.js";
 
 export default class JupyterNotebook extends LitElement {
-
-    constructor() {
-        super();
-
-        this._init();
-    }
 
     createRenderRoot() {
         return this;
@@ -49,16 +42,11 @@ export default class JupyterNotebook extends LitElement {
         this.enter = false;
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-    }
-
     update(changedProperties) {
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.config
             };
-            // this.requestUpdate();
         }
         super.update(changedProperties);
     }
@@ -106,15 +94,16 @@ export default class JupyterNotebook extends LitElement {
             const serverUrl = this.opencgaSession.server.host.replace("/opencga", "");
             const jupyterLoginUrl = serverUrl + "/jupyter/hub/login";
             const token = this.opencgaSession.token;
-            // debugger
+
             return html`
                 <div class="p-2">
                     <h2>Jupyter Notebook</h2>
                     <div class="m-3">
-                        <iframe src="https://test.app.zettagenomics.com/task-6757a/jupyter/hub/login?userId=${userId}&organizationId=${organizationId}&opencgaUrl=${serverUrl}&logoutUrl=https:%2F%2Fwww.google.com&token=${token}"
-                                width="1600" height="720">
+                        <iframe
+                            src="${jupyterLoginUrl}?userId=${userId}&organizationId=${organizationId}&opencgaUrl=${serverUrl}&logoutUrl=https:%2F%2Fwww.google.com&token=${token}"
+                            width="1600"
+                            height="720">
                         </iframe>
-
                     </div>
                 </div>
             `;
