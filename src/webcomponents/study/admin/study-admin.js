@@ -23,7 +23,7 @@ import "./study-admin-audit.js";
 import "./study-admin-configuration.js";
 import "../../variant/operation/clinical-analysis-configuration-update.js";
 import "../../variant/operation/variant-secondary-sample-index-configure-operation.js";
-import "../../commons/vertical-navbar.js";
+import "../../commons/view/vertical-menu.js";
 import "../../commons/pages/restricted-access-page.js";
 
 export default class StudyAdmin extends LitElement {
@@ -67,10 +67,10 @@ export default class StudyAdmin extends LitElement {
 
         return html `
             <tool-header title="Study Admin" icon="fa-sliders-h"></tool-header>
-            <vertical-navbar
+            <vertical-menu
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config || {}}">
-            </vertical-navbar>
+            </vertical-menu>
         `;
     }
 
