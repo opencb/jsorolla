@@ -99,7 +99,7 @@ export default class WelcomePage extends LitElement {
         }
 
         return html`
-            <div class="container pt-4">
+            <div class="container pt-5">
                 <!-- Welcome page logo -->
                 ${welcomePage?.logo ? html`
                     <div class="mb-3">
