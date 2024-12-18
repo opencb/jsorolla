@@ -48,15 +48,15 @@ export default class LayoutSidebar extends LitElement {
     renderButton(app) {
         const active = this.currentUrl.startsWith(`#${app.id}/`); // url always start with the app ID
         const buttonClassName = classMap({
-            "text-decoration-none d-flex align-items-center flex-column gap-2 p-2 rounded-2 cursor-pointer": true,
-            "hover:bg-gray-100 text-gray-800": !active,
+            "hover:bg-gray-100": !active,
+            "text-gray-800": !active,
             "text-white": active,
         });
         const buttonStyle = styleMap({
             backgroundColor: active ? (app.color || "") : "",
         });
         return html`
-            <a class="${buttonClassName}" style="${buttonStyle}" href="#${app.id}">
+            <a class="text-decoration-none d-flex align-items-center flex-column gap-2 p-2 rounded-2 cursor-pointer ${buttonClassName}" style="${buttonStyle}" href="#${app.id}">
                 <i class="fas ${app?.icon || "fa-screwdriver-wrench"} lh-1 fs-4"></i>
                 <div class="fw-bold lh-1 fs-8 text-center">${app?.name || "-"}</div>
             </a>
