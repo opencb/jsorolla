@@ -74,7 +74,7 @@ export default class LayoutSidebar extends LitElement {
                 <!-- TOP options -->
                 <div class="d-flex flex-column">
                     <div class="d-flex flex-column gap-1 user-select-none p-2">
-                        ${this.renderButton({id: "study-dashboard", name: "Dashboard", icon: "fa-home"})}
+                        ${this.renderButton({id: "study-dashboard", name: "Dashboard", icon: "fa-home", color: "#191C1F"})}
                         ${this.config?.apps?.length > 0 ? html`
                             ${this.renderSectionSeparator("Apps")}
                             ${this.config.apps.map(app => this.renderButton(app))}
