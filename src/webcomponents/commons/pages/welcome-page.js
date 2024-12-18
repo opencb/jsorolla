@@ -65,20 +65,23 @@ export default class WelcomePage extends LitElement {
             <div class="row">
                 ${visibleTools.map(item => html`
                     <div class="col-3 mb-5" data-cy-welcome-card-id="${item.id}">
-                        <div class="d-flex mb-3">
+                        <div class="d-none mb-3">
                             <div class="d-flex align-items-center justify-content-center bg-gray-200 rounded-4" style="width:3rem;height:3rem;">
                                 <i class="fas ${item.icon} fs-2"></i>
                             </div>
                         </div>
-                        <div class="fs-4 fw-bold mb-1">${item.title || item.name}</div>
+                        <div class="fs-3 fw-bold mb-1">${item.title || item.name}</div>
                         ${item.description ? html`
                             <div class="fs-5 mb-3 text-gray-700">
                                 ${UtilsNew.renderHTML(item.description)}
                             </div>
                         ` : nothing}
-                        <a class="btn btn-primary text-white" href="#${this.app.id}/${item.id}">
-                            <span class="fw-bold">Enter ${item.name || item.title}</span>
-                        </a>
+                        <div class="d-flex">
+                            <a class="d-inline-flex align-items-center gap-2 btn btn-primary text-white" href="#${this.app.id}/${item.id}">
+                                <span class="fw-bold">Enter tool</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
                     </div>
                 `)}
             </div>

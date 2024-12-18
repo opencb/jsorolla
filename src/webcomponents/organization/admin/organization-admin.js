@@ -21,7 +21,7 @@ import "../../project/projects-admin.js";
 import "./project-admin-browser.js";
 import "./organization-admin-detail.js";
 import "../../commons/pages/restricted-access-page.js";
-import "../../commons/vertical-navbar.js";
+import "../../commons/view/vertical-menu.js";
 
 export default class OrganizationAdmin extends LitElement {
 
@@ -61,10 +61,10 @@ export default class OrganizationAdmin extends LitElement {
                 title="Organization Admin: ${this.opencgaSession?.user?.organization}"
                 icon="fas fa-sitemap">
             </tool-header>
-            <vertical-navbar
+            <vertical-menu
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config || {}}">
-            </vertical-navbar>
+            </vertical-menu>
         `;
     }
 

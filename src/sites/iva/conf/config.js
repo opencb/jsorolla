@@ -562,6 +562,7 @@ const SUITE = {
             title: "Research Environment",
             description: "Explore variants in real-time and execute analysis and tools.",
             icon: "fa-flask",
+            color: "#3789FB",
             logo: "img/tools/icons/variant_browser_white.svg",
             logoAlt: "img/tools/icons/variant_browser.svg",
             visibility: "public",
