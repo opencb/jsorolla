@@ -108,7 +108,8 @@ export default class WelcomePage extends LitElement {
                             class="${welcomePage.display?.logoClass}"
                             src="${welcomePage.logo}"
                             style="${welcomePage.display?.logoStyle}"
-                            width="${welcomePage.display?.logoWidth || "240px"}"
+                            width="${welcomePage.display?.logoWidth ?? "240px"}"
+                            height="${welcomePage.display?.logoHeight ?? "auto"}"
                         />
                     </div>
                 ` : nothing}
@@ -149,21 +150,13 @@ export default class WelcomePage extends LitElement {
                 </div>
 
                 <!-- Logo at the bottom of the content -->
-                ${welcomePage?.bottomLogo?.img ? html`
-                    <div id="bottomLogo">
-                        ${welcomePage.bottomLogo.link ? html `
-                            <a href="${welcomePage.bottomLogo.link}" target="blank">
-                                <img
-                                    src="${welcomePage.bottomLogo.img}"
-                                    height="${welcomePage.bottomLogo.height || "60px"}"
-                                />
-                            </a>
-                        ` : html `
-                            <img
-                                src="${welcomePage.bottomLogo.img}"
-                                height="${welcomePage.bottomLogo.height || "60px"}"
-                            />
-                        `}
+                ${welcomePage?.bottomLogo ? html`
+                    <div class="mt-5">
+                        <img
+                            src="${welcomePage.bottomLogo}"
+                            width="${welcomePage.display?.bottomLogoWidth ?? ""}"
+                            height="${welcomePage.display?.bottomLogoHeight ?? "auto"}"
+                        />
                     </div>
                 ` : nothing}
             </div>
