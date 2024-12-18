@@ -135,7 +135,6 @@ class IvaApp extends LitElement {
         _config.consequenceTypes = CONSEQUENCE_TYPES;
         _config.populationFrequencies = POPULATION_FREQUENCIES;
         _config.proteinSubstitutionScores = PROTEIN_SUBSTITUTION_SCORE.style;
-        _config.analysisTools = ANALYSIS_TOOLS;
 
         // Reading the default settings from the config files, eg. browser.settings.js
         // Store them in a flat structure.
@@ -1597,8 +1596,7 @@ class IvaApp extends LitElement {
             case "analysis-tools":
                 content = html`
                     <analysis-tools
-                        .opencgaSession="${this.opencgaSession}"
-                        .config="${this.config.analysisTools}">
+                        .opencgaSession="${this.opencgaSession}">
                     </analysis-tools>
                 `;
                 break;
