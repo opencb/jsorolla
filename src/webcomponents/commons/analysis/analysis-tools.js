@@ -61,6 +61,11 @@ export default class AnalysisTools extends LitElement {
     getDefaultConfig() {
         return {
             title: "Analysis Tools",
+            display: {
+                contentClassName: "mx-auto",
+                contentStyle: "max-width:920px;",
+                menuStyle: "width:240px",
+            },
             menu: [
                 {
                     id: "analysis-execution",
