@@ -41,129 +41,16 @@ export default class AnalysisTools extends LitElement {
             opencgaSession: {
                 type: Object,
             },
-            config: {
-                type: Object,
-            },
         };
     }
 
     #init() {
-        this._tool = "";
         this._config = this.getDefaultConfig();
-    }
-
-    update(changedProperties) {
-        if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            // initialize this._tool with the first tool in the list
-            if (!this._tool) {
-                this._tool = this._config.menu?.[0]?.submenu?.[0]?.id;
-            }
-        }
-
-        super.update(changedProperties);
-    }
-
-    firstUpdated() {
-        // register listeners to bootstrap collapse events
-        Array.from(this.querySelectorAll(`[data-bs-role="collapse"]`)).forEach(el => {
-            el.addEventListener("show.bs.collapse", e => {
-                e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-down");
-                e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-up");
-            });
-            el.addEventListener("hide.bs.collapse", e => {
-                e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-up");
-                e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-down");
-            });
-        });
-    }
-
-    onChangeTool(newTool) {
-        this._tool = newTool;
-        this.requestUpdate();
-    }
-
-    renderMenu() {
-        return this._config.menu.map(item => {
-            const id = (item.name || item.id).replace(/ /g, "-").toLowerCase();
-            return html`
-                <div class="">
-                    <div class="d-flex align-items-center gap-2 text-gray-700 fs-9 user-select-none py-1 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#tools-${id}">
-                        <i class="fa fa-chevron-up"></i>
-                        <span class="fw-bold">${item.name}</span>
-                    </div>
-                    <div class="collapse show" id="tools-${id}" data-bs-role="collapse">
-                        <div class="d-flex flex-column gap-1">
-                            ${(item.submenu || []).map(tool => html`
-                                <div class="btn w-full text-start ${tool.id === this._tool ? "btn-primary" : "hover:bg-gray-200"}" @click="${() => this.onChangeTool(tool.id)}">
-                                    ${tool.name}
-                                </div>     
-                            `)}
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    renderTool() {
-        let content = nothing;
-
-        switch (this._tool) {
-            case "sample-variant-stats":
-                content = html`
-                `;
-                break;
-            case "cohort-variant-stats":
-                content = html`
-                `;
-                break;
-            case "eligibility":
-                content = html`
-                    <opencga-variant-eligibility-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </opencga-variant-eligibility-analysis>
-                `;
-                break;
-            case "sample-eligibility":
-                content = html`
-                    <sample-eligibility-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </sample-eligibility-analysis>
-                `;
-                break;
-            case "knockout":
-                content = html`
-                    <knockout-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </knockout-analysis>
-                `;
-                break;
-            case "rd-tiering":
-                content = html`
-                    <rd-tiering-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </rd-tiering-analysis>
-                `;
-                break;
-            case "coverage-index":
-                content = html`
-                `;
-                break;
-            case "alignment-stats":
-                content = html`
-                `;
-                break;
-        }
-        return content;
     }
 
     render() {
         return html`
-            <tool-header .title="${this._config.name || this._config.title}"></tool-header>
+            <tool-header .title="${this._config.title}"></tool-header>
             <vertical-menu
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config || {}}">
@@ -173,7 +60,7 @@ export default class AnalysisTools extends LitElement {
 
     getDefaultConfig() {
         return {
-            name: "Analysis Tools",
+            title: "Analysis Tools",
             menu: [
                 {
                     id: "analysis-execution",
