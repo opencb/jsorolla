@@ -343,28 +343,28 @@ export default class AnalysisTools extends LitElement {
                         },
                     ],
                 },
-                {
-                    id: "summary-stats",
-                    name: "Summary Stats",
-                    submenu: [
-                        {
-                            id: "alignment-stats",
-                            name: "Alignment Stats",
-                            description: "Compute BAM stats using samtools",
-                            render: opencgaSession => html`
-                                <opencga-alignment-stats-analysis
-                                    .opencgaSession="${opencgaSession}">
-                                </opencga-alignment-stats-analysis>
-                            `,
-                        },
-                        // {
-                        //     id: "beacon",
-                        //     name: "GA4GH Beacon",
-                        //     description: "Find databases that have information about specific variants.",
-                        //     render: opencgaSession => html``,
-                        // },
-                    ],
-                },
+                // {
+                //     id: "summary-stats",
+                //     name: "Summary Stats",
+                //     submenu: [
+                //         {
+                //             id: "alignment-stats",
+                //             name: "Alignment Stats",
+                //             description: "Compute BAM stats using samtools",
+                //             render: opencgaSession => html`
+                //                 <opencga-alignment-stats-analysis
+                //                     .opencgaSession="${opencgaSession}">
+                //                 </opencga-alignment-stats-analysis>
+                //             `,
+                //         },
+                //         {
+                //             id: "beacon",
+                //             name: "GA4GH Beacon",
+                //             description: "Find databases that have information about specific variants.",
+                //             render: opencgaSession => html``,
+                //         },
+                //     ],
+                // },
             ],
         };
     }
