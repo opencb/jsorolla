@@ -37,6 +37,7 @@ export default class LayoutSidebar extends LitElement {
 
     renderLink(link) {
         const url = link.url || `#${link.id}`;
+
         return html`
             <a class="dropdown-item" data-cy="${link.id}" href="${url}" target="${link.tab ? "_blank" : "_self"}">
                 ${link.icon ? html`<i class="fas ${link.icon} pe-1"></i>` : nothing}
@@ -55,6 +56,7 @@ export default class LayoutSidebar extends LitElement {
         const buttonStyle = styleMap({
             backgroundColor: active ? (app.color || "") : "",
         });
+
         return html`
             <a class="text-decoration-none d-flex align-items-center flex-column gap-2 p-2 rounded-2 cursor-pointer ${buttonClassName}" style="${buttonStyle}" href="#${app.id}">
                 <i class="fas ${app?.icon || "fa-screwdriver-wrench"} lh-1 fs-4"></i>
@@ -66,6 +68,7 @@ export default class LayoutSidebar extends LitElement {
     render() {
         // TODO: get favourites from user configuration
         const favourites = this._config.favourites;
+
         return html`
             <div class="d-flex flex-column justify-content-between flex-shrink-0 border-end bg-white position-relative h-full" style="width:72px">
                 <!-- TOP options -->
