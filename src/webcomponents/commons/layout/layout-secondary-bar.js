@@ -36,7 +36,7 @@ export default class LayoutSecondaryBar extends LitElement {
 
     render() {
         return html`
-            <div class="d-flex align-items-stretch w-full mb-3 px-1 border-bottom">
+            <div class="d-flex align-items-stretch w-full mb-3 px-1 border-bottom" style="border-color:${this.app.color || ""}!important;">
                 <a class="d-flex align-items-center gap-2 me-5 user-select-none text-body text-decoration-none" href="#${this.app.id}/home">
                     <i class="fas ${this.app.icon || ""} fs-3"></i>
                     <span class="fs-3 fw-bold">${this.app.title || this.app.name || "-"}</span>

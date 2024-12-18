@@ -188,234 +188,6 @@ const CATALOG_NAVBAR_MENU = {
     ]
 };
 
-const ANALYSIS_TOOLS = {
-    id: "analysis",
-    name: "Analysis Tools",
-    description: "",
-    menu: [
-        {
-            name: "Analysis Execution",
-            visibility: "public",
-            submenu: [
-                {
-                    id: "tool-analysis",
-                    name: "Tool Executor",
-                    description: "",
-                    visibility: "public"
-                },
-                {
-                    id: "custom-tool-builder",
-                    name: "Custom Tool Builder",
-                    description: "",
-                    visibility: "public"
-                },
-                {
-                    id: "workflow-analysis",
-                    name: "Workflow Executor",
-                    description: "",
-                    visibility: "public"
-                },
-            ],
-        },
-        {
-            name: "Summary Stats",
-            visibility: "public",
-            submenu: [
-                {
-                    id: "sample-variant-stats",
-                    name: "Sample Variant Stats",
-                    description: "",
-                    visibility: "public"
-                },
-                {
-                    id: "cohort-variant-stats",
-                    name: "Cohort Variant Stats",
-                    description: "",
-                    visibility: "public"
-                },
-            ],
-        },
-        {
-            name: "Association Analysis",
-            visibility: "public",
-            submenu: [
-                {
-                    id: "gwas",
-                    name: "Genome-Wide Association Study (GWAS)",
-                    description: "Study of a genome-wide set of genetic variants in different individuals to see if any variant is associated with a trait",
-                    visibility: "public",
-                },
-            ],
-        },
-        {
-            name: "Sample Analysis",
-            visibility: "public",
-            submenu: [
-                {
-                    id: "knockout",
-                    name: "Knockout Analysis",
-                    description: "",
-                    visibility: "public"
-                },
-                {
-                    id: "sample-eligibility",
-                    name: "Eligibility Analysis",
-                    description: "",
-                    visibility: "public"
-                },
-            ],
-        },
-        {
-            name: "Individual Analysis",
-            visibility: "public",
-            submenu: [
-                {
-                    id: "inferred-sex",
-                    name: "Sex Inference",
-                    description: "",
-                    visibility: "public"
-                },
-                {
-                    id: "individual-relatedness",
-                    name: "Relatedness",
-                    description: "",
-                    visibility: "public"
-                },
-                {
-                    id: "mendelian-error",
-                    name: "Mendelian Errors",
-                    description: "",
-                    visibility: "public"
-                },
-            ],
-        },
-        {
-            name: "Cancer Analysis",
-            visibility: "public",
-            submenu: [
-                {
-                    id: "mutational-signature",
-                    name: "Mutational Signature",
-                    description: "",
-                    visibility: "public"
-                },
-            ],
-        },
-        {
-            name: "Quality Control",
-            visibility: "public",
-            submenu: [
-                {
-                    id: "sample-qc",
-                    name: "Sample Quality Control",
-                    description: "Calculate different genetic checks and metrics and store data in Sample Catalog",
-                    visibility: "public"
-                },
-                {
-                    id: "individual-qc",
-                    name: "Individual Quality Control",
-                    description: "Calculate different genetic checks and metrics and store data in Individual Catalog",
-                    visibility: "public"
-                },
-                {
-                    id: "family-qc",
-                    name: "Family Quality Control",
-                    description: "Calculate different genetic checks and metrics and store data in Family Catalog",
-                    visibility: "public"
-                },
-            ],
-        },
-        {
-            name: "Export",
-            visibility: "public",
-            submenu: [
-                {
-                    id: "variant-export",
-                    name: "Variant Export",
-                    description: `
-                        Filter and export variants, with their annotation and sample genotypes,
-                        from the Variant Storage to a file in multiple supported formats (vcf, json, tped, ensembl vep tab...)
-                        for being shared or processed by an external tool.
-                    `,
-                    visibility: "public"
-                },
-                {
-                    id: "variant-stats-exporter",
-                    name: "Variant Stats Export",
-                    description: "Export variant stats for different cohorts",
-                    visibility: "public"
-                },
-            ],
-        },
-        {
-            name: "External Tools",
-            visibility: "public",
-            submenu: [
-                {
-                    id: "beacon",
-                    name: "GA4GH Beacon",
-                    description: "Find databases that have information about specific variants.",
-                    visibility: "public"
-                },
-                {
-                    id: "plink",
-                    name: "Plink",
-                    description: "",
-                    visibility: "public"
-                },
-                {
-                    id: "gatk",
-                    name: "GATK",
-                    description: "",
-                    visibility: "public"
-                },
-                {
-                    id: "bcftools",
-                    name: "BCFtools",
-                    description: "",
-                    visibility: "public"
-                },
-            ],
-        },
-        {
-            name: "Data Management",
-            visibility: "public",
-            submenu: [
-                {
-                    id: "alignment-index",
-                    name: "Alignment Index",
-                    description: "Create a .bai index file.",
-                    visibility: "public"
-                },
-                {
-                    id: "coverage-index",
-                    name: "Coverage Index",
-                    description: "Precompute coverage in a BigWig file",
-                    visibility: "public"
-                },
-            ],
-        },
-        {
-            name: "Summary Stats",
-            visibility: "public",
-            submenu: [
-                {
-                    id: "alignment-stats",
-                    name: "Alignment Stats",
-                    description: "Compute BAM stats using samtools",
-                    visibility: "public"
-                },
-                {
-                    id: "beacon",
-                    name: "GA4GH Beacon",
-                    description: "Find databases that have information about specific variants.",
-                    visibility: "public"
-                },
-            ],
-        },
-    ],
-};
-
 const SUITE = {
     id: "suite",
     name: "OpenCB Suite",
@@ -492,12 +264,8 @@ const SUITE = {
         }
     },
     welcomePage: {
-        display: {
-            titleStyle: "text-align:center"
-        },
         title: "OpenCB Suite",
         logo: "img/iva.svg",
-        bottomLogo: {img: "", link: "", height: ""},
         content: `
             Welcome to the OpenCB Suite for whole genome variant analysis.
             This interactive tool allows finding genes affected by deleterious variants that segregate along family pedigrees, case-controls or sporadic samples.
@@ -562,6 +330,7 @@ const SUITE = {
             title: "Research Environment",
             description: "Explore variants in real-time and execute analysis and tools.",
             icon: "fa-flask",
+            color: "#3789FB",
             logo: "img/tools/icons/variant_browser_white.svg",
             logoAlt: "img/tools/icons/variant_browser.svg",
             visibility: "public",
@@ -650,6 +419,7 @@ const SUITE = {
             title: "Clinical Analysis",
             description: "Create cases, execute clinical interpretations, and create clinical reports.",
             icon: "fa-stethoscope",
+            color: "#FA8938",
             logo: "img/tools/icons/interpretation_portal_white.svg",
             logoAlt: "img/tools/icons/interpretation_portal.svg",
             visibility: "public",
@@ -734,6 +504,7 @@ const SUITE = {
             title: "Data Catalog",
             description: "Manage and explore your data, files, samples, individuals, and families.",
             icon: "fa-archive",
+            color: "#15D0C1",
             logo: "img/tools/icons/interpretation_portal_white.svg",
             logoAlt: "img/tools/icons/interpretation_portal.svg",
             visibility: "public",
@@ -842,6 +613,7 @@ const SUITE = {
             id: "admin",
             name: "Admin",
             icon: "fa-user-cog",
+            color: "#9C64F7",
             description: "Administration tools for managing users, projects, and studies.",
             logo: "img/tools/icons/file_explorer_white.svg",
             logoAlt: "img/tools/icons/file_explorer.svg",

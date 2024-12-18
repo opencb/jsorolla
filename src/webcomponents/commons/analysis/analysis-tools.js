@@ -1,5 +1,6 @@
-import {LitElement, html, nothing} from "lit";
+import {LitElement, html, nothing, render} from "lit";
 import "../tool-header.js";
+import "../view/vertical-menu.js";
 import "../../clinical/analysis/mutational-signature-analysis.js";
 import "../../clinical/analysis/rd-tiering-analysis.js";
 import "../../clinical/analysis/hrdetect-analysis.js";
@@ -40,274 +41,331 @@ export default class AnalysisTools extends LitElement {
             opencgaSession: {
                 type: Object,
             },
-            config: {
-                type: Object,
-            },
         };
     }
 
     #init() {
-        this._tool = "";
         this._config = this.getDefaultConfig();
-    }
-
-    update(changedProperties) {
-        if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            // initialize this._tool with the first tool in the list
-            if (!this._tool) {
-                this._tool = this._config.menu?.[0]?.submenu?.[0]?.id;
-            }
-        }
-
-        super.update(changedProperties);
-    }
-
-    firstUpdated() {
-        // register listeners to bootstrap collapse events
-        Array.from(this.querySelectorAll(`[data-bs-role="collapse"]`)).forEach(el => {
-            el.addEventListener("show.bs.collapse", e => {
-                e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-down");
-                e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-up");
-            });
-            el.addEventListener("hide.bs.collapse", e => {
-                e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-up");
-                e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-down");
-            });
-        });
-    }
-
-    onChangeTool(newTool) {
-        this._tool = newTool;
-        this.requestUpdate();
-    }
-
-    renderMenu() {
-        return this._config.menu.map(item => {
-            const id = (item.name || item.id).replace(/ /g, "-").toLowerCase();
-            return html`
-                <div class="">
-                    <div class="d-flex align-items-center gap-2 text-gray-700 fs-9 user-select-none py-1 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#tools-${id}">
-                        <i class="fa fa-chevron-up"></i>
-                        <span class="fw-bold">${item.name}</span>
-                    </div>
-                    <div class="collapse show" id="tools-${id}" data-bs-role="collapse">
-                        <div class="d-flex flex-column gap-1">
-                            ${(item.submenu || []).map(tool => html`
-                                <div class="btn w-full text-start ${tool.id === this._tool ? "btn-primary" : "hover:bg-gray-200"}" @click="${() => this.onChangeTool(tool.id)}">
-                                    ${tool.name}
-                                </div>     
-                            `)}
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    renderTool() {
-        let content = nothing;
-
-        switch (this._tool) {
-            case "tool-analysis":
-                content = html`
-                    <tool-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </tool-analysis>
-                `;
-                break;
-            case "custom-tool-builder":
-                content = html`
-                    <custom-tool-builder
-                        .opencgaSession="${this.opencgaSession}">
-                    </custom-tool-builder>
-                `;
-                break;
-            case "workflow-analysis":
-                content = html`
-                    <workflow-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </workflow-analysis>
-                `;
-                break;
-            case "sample-variant-stats":
-                content = html`
-                    <sample-variant-stats-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </sample-variant-stats-analysis>
-                `;
-                break;
-            case "cohort-variant-stats":
-                content = html`
-                    <cohort-variant-stats-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </cohort-variant-stats-analysis>
-                `;
-                break;
-            case "eligibility":
-                content = html`
-                    <opencga-variant-eligibility-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </opencga-variant-eligibility-analysis>
-                `;
-                break;
-            case "sample-eligibility":
-                content = html`
-                    <sample-eligibility-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </sample-eligibility-analysis>
-                `;
-                break;
-            case "knockout":
-                content = html`
-                    <knockout-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </knockout-analysis>
-                `;
-                break;
-            case "inferred-sex":
-                content = html`
-                    <inferred-sex-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </inferred-sex-analysis>
-                `;
-                break;
-            case "individual-relatedness":
-                content = html`
-                    <individual-relatedness-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </individual-relatedness-analysis>
-                `;
-                break;
-            case "mendelian-error":
-                content = html`
-                    <mendelian-error-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </mendelian-error-analysis>
-                `;
-                break;
-            case "sample-qc":
-                content = html`
-                    <sample-qc-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </sample-qc-analysis>
-                `;
-                break;
-            case "individual-qc":
-                content = html`
-                    <individual-qc-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </individual-qc-analysis>
-                `;
-                break;
-            case "family-qc":
-                content = html`
-                    <family-qc-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </family-qc-analysis>
-                `;
-                break;
-            case "plink":
-                content = html`
-                    <opencga-plink-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </opencga-plink-analysis>
-                `;
-                break;
-            case "gatk":
-                content = html`
-                    <opencga-gatk-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </opencga-gatk-analysis>
-                `;
-                break;
-            case "variant-export":
-                content = html`
-                    <variant-export-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </variant-export-analysis>
-                `;
-                break;
-            case "variant-stats-exporter":
-                content = html`
-                    <opencga-variant-stats-exporter-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </opencga-variant-stats-exporter-analysis>
-                `;
-                break;
-            case "mutational-signature":
-                content = html`
-                    <mutational-signature-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </mutational-signature-analysis>
-                `;
-                break;
-            case "gwas":
-                content = html`
-                    <gwas-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </gwas-analysis>
-                `;
-                break;
-            case "rd-tiering":
-                content = html`
-                    <rd-tiering-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </rd-tiering-analysis>
-                `;
-                break;
-            case "alignment-index":
-                content = html`
-                    <opencga-alignment-index-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </opencga-alignment-index-analysis>
-                `;
-                break;
-            case "coverage-index":
-                content = html`
-                    <opencga-coverage-index-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </opencga-coverage-index-analysis>
-                `;
-                break;
-            case "alignment-stats":
-                content = html`
-                    <opencga-alignment-stats-analysis
-                        .opencgaSession="${this.opencgaSession}">
-                    </opencga-alignment-stats-analysis>
-                `;
-                break;
-        }
-        return content;
     }
 
     render() {
         return html`
-            <tool-header
-                .title="${this._config.name || this._config.title}"
-                .icon="${this._config.icon}">
-            </tool-header>
-            <div class="row w-full">
-                <div class="col-2 d-flex flex-column gap-3">
-                    ${this.renderMenu()}
-                </div>
-                <div class="col-10">
-                    <div class="w-full mx-auto" style="max-width:812px;">
-                        ${this.renderTool()}
-                    </div>
-                </div>
-            </div>
+            <tool-header .title="${this._config.title}"></tool-header>
+            <vertical-menu
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config || {}}">
+            </vertical-menu>
         `;
     }
 
     getDefaultConfig() {
         return {
-            name: "Analysis Tools",
-            icon: "fa-tools",
-            menu: [],
+            title: "Analysis Tools",
+            display: {
+                contentClassName: "mx-auto",
+                contentStyle: "max-width:920px;",
+                menuStyle: "width:240px",
+            },
+            menu: [
+                {
+                    id: "analysis-execution",
+                    name: "Analysis Execution",
+                    submenu: [
+                        {
+                            id: "tool-analysis",
+                            name: "Tool Executor",
+                            render: opencgaSession => html`
+                                <tool-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </tool-analysis>
+                            `,
+                        },
+                        {
+                            id: "custom-tool-builder",
+                            name: "Custom Tool Builder",
+                            render: opencgaSession => html`
+                                <custom-tool-builder
+                                    .opencgaSession="${opencgaSession}">
+                                </custom-tool-builder>
+                            `,
+                        },
+                        {
+                            id: "workflow-analysis",
+                            name: "Workflow Executor",
+                            render: opencgaSession => html`
+                                <workflow-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </workflow-analysis>
+                            `,
+                        },
+                    ],
+                },
+                {
+                    id: "summary-stats",
+                    name: "Summary Stats",
+                    submenu: [
+                        {
+                            id: "sample-variant-stats",
+                            name: "Sample Variant Stats",
+                            render: opencgaSession => html`
+                                <sample-variant-stats-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </sample-variant-stats-analysis>
+                            `,
+                        },
+                        {
+                            id: "cohort-variant-stats",
+                            name: "Cohort Variant Stats",
+                            render: opencgaSession => html`
+                                <cohort-variant-stats-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </cohort-variant-stats-analysis>
+                            `,
+                        },
+                    ],
+                },
+                {
+                    id: "association-analysis",
+                    name: "Association Analysis",
+                    submenu: [
+                        {
+                            id: "gwas",
+                            name: "Genome-Wide Association Study (GWAS)",
+                            description: "Study of a genome-wide set of genetic variants in different individuals to see if any variant is associated with a trait",
+                            render: opencgaSession => html`
+                                <gwas-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </gwas-analysis>
+                            `,
+                        },
+                    ],
+                },
+                {
+                    id: "sample-analysis",
+                    name: "Sample Analysis",
+                    submenu: [
+                        {
+                            id: "knockout",
+                            name: "Knockout Analysis",
+                            render: opencgaSession => html`
+                                <knockout-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </knockout-analysis>
+                            `,
+                        },
+                        {
+                            id: "sample-eligibility",
+                            name: "Eligibility Analysis",
+                            render: opencgaSession => html`
+                                <sample-eligibility-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </sample-eligibility-analysis>
+                            `,
+                        },
+                    ],
+                },
+                {
+                    id: "individual-analysis",
+                    name: "Individual Analysis",
+                    submenu: [
+                        {
+                            id: "inferred-sex",
+                            name: "Sex Inference",
+                            render: opencgaSession => html`
+                                <inferred-sex-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </inferred-sex-analysis>
+                            `,
+                        },
+                        {
+                            id: "individual-relatedness",
+                            name: "Relatedness",
+                            render: opencgaSession => html`
+                                <individual-relatedness-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </individual-relatedness-analysis>
+                            `,
+                        },
+                        {
+                            id: "mendelian-error",
+                            name: "Mendelian Errors",
+                            render: opencgaSession => html`
+                                <mendelian-error-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </mendelian-error-analysis>
+                            `,
+                        },
+                    ],
+                },
+                {
+                    id: "cancer-analysis",
+                    name: "Cancer Analysis",
+                    submenu: [
+                        {
+                            id: "mutational-signature",
+                            name: "Mutational Signature",
+                            render: opencgaSession => html`
+                                <mutational-signature-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </mutational-signature-analysis>
+                            `,
+                        },
+                    ],
+                },
+                {
+                    id: "quality-control",
+                    name: "Quality Control",
+                    submenu: [
+                        {
+                            id: "sample-qc",
+                            name: "Sample Quality Control",
+                            description: "Calculate different genetic checks and metrics and store data in Sample Catalog",
+                            render: opencgaSession => html`
+                                <sample-qc-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </sample-qc-analysis>
+                            `,
+                        },
+                        {
+                            id: "individual-qc",
+                            name: "Individual Quality Control",
+                            description: "Calculate different genetic checks and metrics and store data in Individual Catalog",
+                            render: opencgaSession => html`
+                                <individual-qc-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </individual-qc-analysis>
+                            `,
+                        },
+                        {
+                            id: "family-qc",
+                            name: "Family Quality Control",
+                            description: "Calculate different genetic checks and metrics and store data in Family Catalog",
+                            render: opencgaSession => html`
+                                <family-qc-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </family-qc-analysis>
+                            `,
+                        },
+                    ],
+                },
+                {
+                    id: "export",
+                    name: "Export",
+                    submenu: [
+                        {
+                            id: "variant-export",
+                            name: "Variant Export",
+                            description: `
+                                Filter and export variants, with their annotation and sample genotypes,
+                                from the Variant Storage to a file in multiple supported formats (vcf, json, tped, ensembl vep tab...)
+                                for being shared or processed by an external tool.
+                            `,
+                            render: opencgaSession => html`
+                                <variant-export-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-export-analysis>
+                            `,
+                        },
+                        {
+                            id: "variant-stats-exporter",
+                            name: "Variant Stats Export",
+                            description: "Export variant stats for different cohorts",
+                            render: opencgaSession => html`
+                                <opencga-variant-stats-exporter-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </opencga-variant-stats-exporter-analysis>
+                            `,
+                        },
+                    ],
+                },
+                {
+                    id: "external-tools",
+                    name: "External Tools",
+                    submenu: [
+                        // {
+                        //     id: "beacon",
+                        //     name: "GA4GH Beacon",
+                        //     description: "Find databases that have information about specific variants.",
+                        //     render: opencgaSession => html`
+                        //         <beacon-analysis
+                        //             .opencgaSession="${opencgaSession}">
+                        //         </beacon-analysis>
+                        //     `,
+                        // },
+                        {
+                            id: "plink",
+                            name: "Plink",
+                            render: opencgaSession => html`
+                                <opencga-plink-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </opencga-plink-analysis>
+                            `,
+                        },
+                        {
+                            id: "gatk",
+                            name: "GATK",
+                            render: opencgaSession => html`
+                                <opencga-gatk-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </opencga-gatk-analysis>
+                            `,
+                        },
+                        {
+                            id: "bcftools",
+                            name: "BCFtools",
+                            render: opencgaSession => html``,
+                        },
+                    ],
+                },
+                {
+                    id: "data-management",
+                    name: "Data Management",
+                    submenu: [
+                        {
+                            id: "alignment-index",
+                            name: "Alignment Index",
+                            description: "Create a .bai index file.",
+                            render: opencgaSession => html`
+                                <opencga-alignment-index-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </opencga-alignment-index-analysis>
+                            `,
+                        },
+                        {
+                            id: "coverage-index",
+                            name: "Coverage Index",
+                            description: "Precompute coverage in a BigWig file",
+                            render: opencgaSession => html`
+                                <opencga-coverage-index-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </opencga-coverage-index-analysis>
+                            `,
+                        },
+                    ],
+                },
+                // {
+                //     id: "summary-stats",
+                //     name: "Summary Stats",
+                //     submenu: [
+                //         {
+                //             id: "alignment-stats",
+                //             name: "Alignment Stats",
+                //             description: "Compute BAM stats using samtools",
+                //             render: opencgaSession => html`
+                //                 <opencga-alignment-stats-analysis
+                //                     .opencgaSession="${opencgaSession}">
+                //                 </opencga-alignment-stats-analysis>
+                //             `,
+                //         },
+                //         {
+                //             id: "beacon",
+                //             name: "GA4GH Beacon",
+                //             description: "Find databases that have information about specific variants.",
+                //             render: opencgaSession => html``,
+                //         },
+                //     ],
+                // },
+            ],
         };
     }
 

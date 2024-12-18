@@ -21,6 +21,7 @@ import GridCommons from "../commons/grid-commons";
 import "../commons/data-list.js";
 import "../loading-spinner.js";
 import "./file-view.js";
+import "./file-delete.js";
 import "./folder-create.js";
 import "./file-create.js";
 import "./file-fetch.js"
@@ -114,6 +115,24 @@ export default class FileDataManager extends LitElement {
                 icon: "fas fa-copy",
                 render: () => this.renderFileCopy(),
             },
+            /*
+            {
+                id: "file-execute",
+                title: "View",
+                icon: "",
+                modalTitle: "Execute",
+                modalId: `${this._prefix}FileExecuteModal`,
+                render: () => this.renderFileExecute(),
+                // permission: this.permissions["organization"](),
+            },
+            */
+            {
+                id: "file-delete",
+                title: "Delete",
+                icon: "far fa-trash-alt",
+                render: () => this.renderFileDelete(),
+            },
+
         ];
 
         this.actions = {
@@ -439,12 +458,21 @@ export default class FileDataManager extends LitElement {
         ModalUtils.show(this.currentAction["modalId"]);
     }
 
+    #initOriginalObjects() {
+        this.currentAction = {};
+        this.fileId = "";
+        this.file = {};
+        this.currentRoot.visited = false;
+        this.route(this.currentRoot.file.id)
+    }
 
     onFileAction(e,id) {
         ModalUtils.close(id);
-        this.currentAction = {};
-        this.currentRoot.visited = false;
-        this.route(this.currentRoot.file.id)
+        this.#initOriginalObjects();
+    }
+
+    onCloseNotification() {
+        this.#initOriginalObjects();
     }
 
     onCheckRow(e) {}
@@ -500,7 +528,7 @@ export default class FileDataManager extends LitElement {
                 modalSize: "modal-lg",
             },
             render: () => {
-                debugger
+                // FIXME 20241217 Vero: unlink files for fetched files not working. Waiting for Pedro's feedback.
                 return html`
                     <file-fetch
                         .path="${this.currentRoot.file.path}"
@@ -534,6 +562,16 @@ export default class FileDataManager extends LitElement {
 
     renderFileCopy() {
         UtilsNew.copyToClipboard(JSON.stringify(this.file, null, "\t"));
+    }
+
+    renderFileDelete() {
+        return html`
+            <file-delete
+                .opencgaSession="${this.opencgaSession}"
+                .fileId="${this.fileId}"
+                @closeNotification="${e => this.onCloseNotification(e)}">
+            </file-delete>
+        `;
     }
 
     addSearch(action, icon = "fa-search", placeholder = "Search ...", className = "", style = "") {
@@ -585,7 +623,7 @@ export default class FileDataManager extends LitElement {
         if (!this.opencgaSession || !this.currentRoot) {
             return null;
         }
-
+debugger
         return html`
             ${this.renderStyles()}
             <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
@@ -643,7 +681,6 @@ export default class FileDataManager extends LitElement {
             title: "Data File Manager",
             icon: "img/tools/icons/file_explorer.svg",
             dataList: {
-                showTableHeader: false,
                 display: {
                     float: "left"
                 },
@@ -685,7 +722,7 @@ export default class FileDataManager extends LitElement {
                     ]
                 },
                 table: {
-                    showHeader: false,
+                    showHeader: true,
                     checkbox: false,
                     checkboxIndex: 0,
                     options: {
@@ -734,6 +771,7 @@ export default class FileDataManager extends LitElement {
                             width: "20",
                             widthUnit: "%"
                         },
+                        // CAUTION 20241217 Vero: Nacho,
                         {
                             title: "Format",
                             field: "format",
@@ -752,6 +790,12 @@ export default class FileDataManager extends LitElement {
                                 </div>
                             `;
                             }
+                        },
+                        {
+                            title: "Status",
+                            field: "internal.status.id",
+                            rowspan: 1,
+                            colspan: 1,
                         },
                         {
                             title: "Tags",
@@ -775,15 +819,29 @@ export default class FileDataManager extends LitElement {
                         },
                         {
                             title: "Creation Date",
-                            field: "creationDate",
+                            field: "internal.registrationDate",
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: value => {
+                                debugger
+                                return `
+                                    <div>
+                                        <div class="d-block text-secondary">${UtilsNew.dateFormatter(value)}</div>
+                                    </div>
+                                `;
+                            }
+                        },
+                        {
+                            title: "Modification Date",
+                            field: "internal.lastModified",
                             rowspan: 1,
                             colspan: 1,
                             formatter: value => {
                                 return `
-                            <div>
-                                <div class="d-block text-secondary">Created ${UtilsNew.dateFormatter(value)}</div>
-                            </div>
-                        `;
+                                    <div>
+                                        <div class="d-block text-secondary">${UtilsNew.dateFormatter(value)}</div>
+                                    </div>
+                                `;
                             }
                         },
                         {
@@ -793,28 +851,28 @@ export default class FileDataManager extends LitElement {
                             colspan: 1,
                             formatter: () => {
                                 return `
-                            <div class="dropdown d-flex justify-content-end">
-                                <button type="button" class="btn" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                ${this.actions["instance"].map(action => {
-                                    debugger
-                                    return `
-                                        <li>
-                                            <a
-                                            class="dropdown-item ${action.permission}"
-                                            data-action="${action.id}"
-                                            data-type="instance"
-                                            style="cursor:pointer;">
-                                                ${action.icon ? `<span><i class="${action.icon} pe-2"></i></span>` : ""}
-                                                ${action.title ? `${action.title}` : ""}
-                                            </a>
-                                        </li>
-                                    `;
-                                }).join("")}
-                                </ul>
-                            </div>
+                                    <div class="dropdown d-flex justify-content-end">
+                                        <button type="button" class="btn" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                        ${this.actions["instance"].map(action => {
+                                            debugger
+                                            return `
+                                                <li>
+                                                    <a
+                                                    class="dropdown-item ${action.permission}"
+                                                    data-action="${action.id}"
+                                                    data-type="instance"
+                                                    style="cursor:pointer;">
+                                                        ${action.icon ? `<span><i class="${action.icon} pe-2"></i></span>` : ""}
+                                                        ${action.title ? `${action.title}` : ""}
+                                                    </a>
+                                                </li>
+                                            `;
+                                        }).join("")}
+                                        </ul>
+                                    </div>
                                 <!--
                                     <li>
                                         <a class="dropdown-item" href="#" data-action="view">

@@ -27,7 +27,7 @@ const getCustomSitePath = (entry, folder) => {
         return path.join(__dirname, "custom-sites", process.env.npm_config_custom_site, "iva", folder);
     }
     // return the default path
-    return path.join(__dirname, "src", "sites", entry, folder);
+    return path.join(entry === "iva" ? process.cwd() : __dirname, "src", "sites", entry, folder);
 };
 
 // Setup middlewares for development server.

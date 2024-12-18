@@ -1,4 +1,6 @@
 import {html, LitElement, nothing} from "lit";
+import {classMap} from "lit/directives/class-map.js";
+import {styleMap} from "lit/directives/style-map.js";
 
 export default class LayoutSidebar extends LitElement {
 
@@ -35,6 +37,7 @@ export default class LayoutSidebar extends LitElement {
 
     renderLink(link) {
         const url = link.url || `#${link.id}`;
+
         return html`
             <a class="dropdown-item" data-cy="${link.id}" href="${url}" target="${link.tab ? "_blank" : "_self"}">
                 ${link.icon ? html`<i class="fas ${link.icon} pe-1"></i>` : nothing}
@@ -45,13 +48,19 @@ export default class LayoutSidebar extends LitElement {
 
     renderButton(app) {
         const active = this.currentUrl.startsWith(`#${app.id}/`); // url always start with the app ID
+        const buttonClassName = classMap({
+            "hover:bg-gray-100": !active,
+            "text-gray-800": !active,
+            "text-white": active,
+        });
+        const buttonStyle = styleMap({
+            backgroundColor: active ? (app.color || "") : "",
+        });
+
         return html`
-            <a
-                class="text-decoration-none d-flex align-items-center flex-column gap-2 p-2 rounded-2 cursor-pointer ${active ? "bg-gray-200" : "hover:bg-gray-100"}"
-                href="#${app.id}"
-            >
-                <i class="fas ${app?.icon || "fa-screwdriver-wrench"} lh-1 fs-4 text-gray-900"></i>
-                <div class="fw-bold lh-1 fs-8 text-center text-gray-600">${app?.name || "-"}</div>
+            <a class="text-decoration-none d-flex align-items-center flex-column gap-2 p-2 rounded-2 cursor-pointer ${buttonClassName}" style="${buttonStyle}" href="#${app.id}">
+                <i class="fas ${app?.icon || "fa-screwdriver-wrench"} lh-1 fs-4"></i>
+                <div class="fw-bold lh-1 fs-8 text-center">${app?.name || "-"}</div>
             </a>
         `;
     }
@@ -59,12 +68,13 @@ export default class LayoutSidebar extends LitElement {
     render() {
         // TODO: get favourites from user configuration
         const favourites = this._config.favourites;
+
         return html`
             <div class="d-flex flex-column justify-content-between flex-shrink-0 border-end bg-white position-relative h-full" style="width:72px">
                 <!-- TOP options -->
                 <div class="d-flex flex-column">
                     <div class="d-flex flex-column gap-1 user-select-none p-2">
-                        ${this.renderButton({id: "study-dashboard", name: "Dashboard", icon: "fa-home"})}
+                        ${this.renderButton({id: "study-dashboard", name: "Dashboard", icon: "fa-home", color: "#191C1F"})}
                         ${this.config?.apps?.length > 0 ? html`
                             ${this.renderSectionSeparator("Apps")}
                             ${this.config.apps.map(app => this.renderButton(app))}
