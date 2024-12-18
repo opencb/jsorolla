@@ -264,12 +264,8 @@ const SUITE = {
         }
     },
     welcomePage: {
-        display: {
-            titleStyle: "text-align:center"
-        },
         title: "OpenCB Suite",
         logo: "img/iva.svg",
-        bottomLogo: {img: "", link: "", height: ""},
         content: `
             Welcome to the OpenCB Suite for whole genome variant analysis.
             This interactive tool allows finding genes affected by deleterious variants that segregate along family pedigrees, case-controls or sporadic samples.
