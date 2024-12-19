@@ -130,63 +130,68 @@ export default class LoginPage extends LitElement {
         `;
     }
 
-    render() {
+    renderOrganisationSection() {
+        const config = this.config?.loginPage?.organisation || {};
         const ukcaSection = this.config?.loginPage?.organisation?.ukca || {};
 
         return html`
-            <div class="d-flex w-full h-screen" style="background-color:#030F30;">
-                <div class="w-full text-white">
-                    <!-- Landing company section -->
-                    ${this.config?.landingPage?.organisation?.logo?.img ? html`
-                        <div class="landing-logo ${this.config.landingPage?.organisation?.display?.logoClass}"
-                            style="${this.config.landingPage?.organisation?.display?.logoStyle}">
-                            ${this.config?.landingPage?.organisation?.logo?.link ? html `
-                                <a href="${this.config?.landingPage?.organisation?.logo?.link}" target="_blank">
-                                    <img height="${this.config?.landingPage?.organisation?.logo?.height || "30px"}"
-                                        src="${this.config.landingPage?.organisation?.logo?.img}"/>
-                                </a>
-                            `: html `
-                                <img height="${this.config?.landingPage?.organisation?.logo?.height || "30px"}"
-                                    src="${this.config.landingPage?.organisation?.logo?.img}"/>
-                            `}
+            <div class="w-full h-full d-flex flex-column justify-content-center text-white">
+                <!-- Landing company section -->
+                <div class="w-full d-flex flex-column align-items-center justify-content-center h-full">
+                    ${config?.logo ? html`
+                        <div class="${config.display?.logoClass}" style="${config.display?.logoStyle}">
+                            <a href="${config.link || ""}" target="_blank">
+                                <img height="${config.display?.logoHeight || "30px"}" src="${config.logo}"/>
+                            </a>
                         </div>
-                        <div class="landing-title ${this.config.landingPage?.organisation?.display?.titleClass}"
-                            style="${this.config.landingPage?.organisation?.display?.titleStyle}">
-                            ${this.config.landingPage?.organisation?.title}
+                    ` : nothing}
+                    ${config?.title ? html`
+                        <div class="text-center ${config.display?.titleClass}" style="${config.display?.titleStyle}">
+                            <span>${config.title}</span>
                         </div>
-                    ` : null}
-                    <!-- Landing ukca margin section -->
-                    ${ukcaSection?.enabled ? html`
-                        <div class="landing-ukca">
-                            <div class="landing-ukca-logo">
-                                <div class="${ukcaSection.display?.logoClass}">
-                                    ${ukcaSection?.logo?.link ? html `
-                                        <a href="${ukcaSection?.logo?.link}" target="_blank">
-                                            <img height="${ukcaSection?.logo?.height || "100px"}"
-                                                src="${ukcaSection?.logo?.img}"
-                                                style="${ukcaSection?.display?.logoStyle || "padding: 1em; margin-right: 30px; background-color: white"}"/>
-                                        </a>
-                                    `: html `
+                    ` : nothing}
+                </div>
+                <!-- Landing ukca margin section -->
+                ${ukcaSection?.enabled ? html`
+                    <div class="landing-ukca">
+                        <div class="landing-ukca-logo">
+                            <div class="${ukcaSection.display?.logoClass}">
+                                ${ukcaSection?.logo?.link ? html `
+                                    <a href="${ukcaSection?.logo?.link}" target="_blank">
                                         <img height="${ukcaSection?.logo?.height || "100px"}"
                                             src="${ukcaSection?.logo?.img}"
                                             style="${ukcaSection?.display?.logoStyle || "padding: 1em; margin-right: 30px; background-color: white"}"/>
-                                    `}
-                                </div>
-                            </div>
-                            <div class="landing-ukca-description">
-                                <div class="landing-ukca-title ${ukcaSection?.display?.titleClass}"
-                                    style="${ukcaSection?.display?.titleStyle || "color: #f2f4f6; font-size:20px"}">
-                                    ${ukcaSection?.title}
-                                </div>
-                                <div class="landing-ukca-content ${ukcaSection?.display?.contentClass}"
-                                    style="${ukcaSection?.display?.contentStyle || "color: #8d9ab8"}">
-                                    ${ukcaSection?.content || ""}
-                                </div>
+                                    </a>
+                                `: html `
+                                    <img height="${ukcaSection?.logo?.height || "100px"}"
+                                        src="${ukcaSection?.logo?.img}"
+                                        style="${ukcaSection?.display?.logoStyle || "padding: 1em; margin-right: 30px; background-color: white"}"/>
+                                `}
                             </div>
                         </div>
-                    ` : null}
+                        <div class="landing-ukca-description">
+                            <div class="landing-ukca-title ${ukcaSection?.display?.titleClass}"
+                                style="${ukcaSection?.display?.titleStyle || "color: #f2f4f6; font-size:20px"}">
+                                ${ukcaSection?.title}
+                            </div>
+                            <div class="landing-ukca-content ${ukcaSection?.display?.contentClass}"
+                                style="${ukcaSection?.display?.contentStyle || "color: #8d9ab8"}">
+                                ${ukcaSection?.content || ""}
+                            </div>
+                        </div>
+                    </div>
+                ` : nothing}
+            </div>
+        `;
+    }
+
+    render() {
+        return html`
+            <div class="d-flex w-full h-screen" style="background-color:#030F30;">
+                <div class="w-full h-full">
+                    ${this.renderOrganisationSection()}
                 </div>
-                <div class="w-full d-flex flex-column align-items-center justify-content-center bg-gray-100 rounded-start-5" style="max-width:800px;">
+                <div class="w-full d-flex align-items-center justify-content-center bg-gray-100 rounded-start-5" style="max-width:800px;">
                     ${this.renderLoginSection()}
                 </div>
             </div>
