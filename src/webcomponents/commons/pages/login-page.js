@@ -102,29 +102,29 @@ export default class LoginPage extends LitElement {
         const config = this.config?.loginPage?.login || {};
 
         return html`
-            <!-- Login logo -->
-            ${config?.logo ? html`
-                <div class="${config?.display?.logoClass}" style="${config?.display?.logoStyle}">
-                    <img height="${config?.display?.logoHeight || "30px"}" src="${config?.logo}"/>
-                </div>
-            ` : nothing}
+            <div class="d-flex flex-column align-items-center">
+                <!-- Login logo -->
+                ${config?.logo ? html`
+                    <div class="${config?.display?.logoClass}" style="${config?.display?.logoStyle}">
+                        <img height="${config?.display?.logoHeight || "30px"}" src="${config?.logo}"/>
+                    </div>
+                ` : nothing}
 
-            <!-- Login title -->
-            ${config?.title ? html`
-                <div class="text-center ${config?.display?.titleClass}" style="${config?.display?.titleStyle}">
-                    <span>${config?.title}</span>
-                </div>
-            ` : nothing}
+                <!-- Login title -->
+                ${config?.title ? html`
+                    <div class="text-center ${config?.display?.titleClass}" style="${config?.display?.titleStyle}">
+                        <span>${config?.title}</span>
+                    </div>
+                ` : nothing}
 
-            <!-- Login subtitle -->
-            ${config?.subtitle ? html`
-                <div class="text-center ${config?.display?.subtitleClass}" style="${config?.display?.subtitleStyle}">
-                    <span>${config.subtitle}</span>
-                </div>
-            ` : nothing}
+                <!-- Login subtitle -->
+                ${config?.subtitle ? html`
+                    <div class="text-center ${config?.display?.subtitleClass}" style="${config?.display?.subtitleStyle}">
+                        <span>${config.subtitle}</span>
+                    </div>
+                ` : nothing}
 
-            <!-- Landing login -->
-            <div class="landing-login">
+                <!-- Login form -->
                 ${this.renderLogin()}
             </div>
         `;
