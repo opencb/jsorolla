@@ -135,7 +135,7 @@ export default class LoginPage extends LitElement {
         const ukcaSection = this.config?.loginPage?.organisation?.ukca || {};
 
         return html`
-            <div class="w-full h-full d-flex flex-column justify-content-center text-white">
+            <div class="w-full h-full d-flex flex-column justify-content-center text-white p-5">
                 <!-- Landing company section -->
                 <div class="w-full d-flex flex-column align-items-center justify-content-center h-full">
                     ${config?.logo ? html`
@@ -151,33 +151,24 @@ export default class LoginPage extends LitElement {
                         </div>
                     ` : nothing}
                 </div>
+
                 <!-- Landing ukca margin section -->
                 ${ukcaSection?.enabled ? html`
-                    <div class="landing-ukca">
-                        <div class="landing-ukca-logo">
-                            <div class="${ukcaSection.display?.logoClass}">
-                                ${ukcaSection?.logo?.link ? html `
-                                    <a href="${ukcaSection?.logo?.link}" target="_blank">
-                                        <img height="${ukcaSection?.logo?.height || "100px"}"
-                                            src="${ukcaSection?.logo?.img}"
-                                            style="${ukcaSection?.display?.logoStyle || "padding: 1em; margin-right: 30px; background-color: white"}"/>
-                                    </a>
-                                `: html `
-                                    <img height="${ukcaSection?.logo?.height || "100px"}"
-                                        src="${ukcaSection?.logo?.img}"
-                                        style="${ukcaSection?.display?.logoStyle || "padding: 1em; margin-right: 30px; background-color: white"}"/>
-                                `}
+                    <div class="d-flex gap-4">
+                        ${ukcaSection?.logo ? html`
+                            <div class="d-flex align-items-center ${ukcaSection.display?.logoClass}" style="${ukcaSection.display?.logoStyle}">
+                                <img height="${ukcaSection.display?.logoHeight || "100px"}" src="${ukcaSection.logo}">
                             </div>
-                        </div>
-                        <div class="landing-ukca-description">
-                            <div class="landing-ukca-title ${ukcaSection?.display?.titleClass}"
-                                style="${ukcaSection?.display?.titleStyle || "color: #f2f4f6; font-size:20px"}">
-                                ${ukcaSection?.title}
+                        ` : nothing}
+                        <div class="d-flex flex-column gap-2 justify-content-center">
+                            <div class="${ukcaSection?.display?.titleClass}" style="${ukcaSection?.display?.titleStyle}">
+                                <span>${ukcaSection?.title}</span>
                             </div>
-                            <div class="landing-ukca-content ${ukcaSection?.display?.contentClass}"
-                                style="${ukcaSection?.display?.contentStyle || "color: #8d9ab8"}">
-                                ${ukcaSection?.content || ""}
-                            </div>
+                            ${ukcaSection?.subtitle ? html`
+                                <div class="${ukcaSection?.display?.subtitleClass}" style="${ukcaSection?.display?.subtitleStyle}">
+                                    <span>${ukcaSection?.subtitle}</span>
+                                </div>
+                            ` : nothing}
                         </div>
                     </div>
                 ` : nothing}
