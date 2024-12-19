@@ -113,7 +113,7 @@ export default class CohortBrowser extends LitElement {
             views: [
                 {
                     id: "table-tab",
-                    name: "Table result",
+                    name: "Table View",
                     icon: "fa fa-table",
                     active: true,
                     render: params => html `

@@ -353,7 +353,7 @@ export default class VariantBrowser extends LitElement {
                             class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""}`}"
                             @click="${() => this.changeView("table-tab")}">
                             <i class="fa fa-table me-2"></i>
-                            <strong>Table Result</strong>
+                            <strong>Table View</strong>
                         </button>
                         <button
                             type="button"
