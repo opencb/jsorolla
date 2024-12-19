@@ -140,7 +140,7 @@ export default class UserLogin extends LitElement {
 
     render() {
         return html`
-            <div class="container-fluid" style="max-width:480px;">
+            <div style="max-width:480px;">
                 <div class="input-group mb-3 ${this.hasEmptyUser ? "is-invalid" : ""}">
                     <span class="input-group-text bg-white">
                         <i class="fa fa-user text-gray-700 py-1 fs-5"></i>
