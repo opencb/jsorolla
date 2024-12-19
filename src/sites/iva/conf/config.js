@@ -251,15 +251,15 @@ const SUITE = {
             }
         },
         login: {
-            logo: {img: "img/iva.svg", height: "80px", link: ""},
-            title: "Welcome back!",
+            logo: "img/iva.svg",
+            title: "Sign in",
+            subtitle: "Welcome back!",
             display: {
-                logoStyle: "margin-bottom: 32px;",
-                logoClass: "",
-                titleStyle: "",
-                titleClass: "",
-                contentStyle: "",
-                contentClass: "",
+                logoClass: "mb-4",
+                logoHeight: "50px",
+                titleClass: "fs-1 fw-medium mb-0",
+                subtitleClass: "fs-5 fw-normal text-gray-800 mb-4",
+                subtitleStyle: "max-width:320px;",
             },
         }
     },
