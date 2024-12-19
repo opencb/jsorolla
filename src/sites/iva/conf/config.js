@@ -241,13 +241,13 @@ const SUITE = {
     },
     loginPage: {
         organisation: {
-            logo: {img: "img/opencb-logo.png", height: "60px", link: "https://github.com/opencb"},
+            logo: "img/opencb-logo.png",
+            link: "https://github.com/opencb",
             title: "Unleash the power of genomic data",
             display: {
-                logoStyle: "",
-                logoClass: "",
-                titleStyle: "",
-                titleClass: "",
+                logoHeight: "100px",
+                logoClass: "mb-2",
+                titleClass: "fs-3 opacity-25",
             }
         },
         login: {
