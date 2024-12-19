@@ -99,7 +99,7 @@ export default class LoginPage extends LitElement {
     }
 
     renderLoginSection() {
-        const config = this.config?.landingPage?.login || {};
+        const config = this.config?.loginPage?.login || {};
 
         return html`
             <!-- Login logo -->
@@ -131,7 +131,7 @@ export default class LoginPage extends LitElement {
     }
 
     render() {
-        const ukcaSection = this.config?.landingPage?.organisation?.ukca || {};
+        const ukcaSection = this.config?.loginPage?.organisation?.ukca || {};
 
         return html`
             <div class="d-flex w-full h-screen" style="background-color:#030F30;">
