@@ -78,18 +78,19 @@ import "../../webcomponents/note/note-browser.js";
 import "../../webcomponents/commons/analysis/analysis-tools.js";
 import "../../webcomponents/commons/analysis/jupyter-notebook.js";
 
-import "../../webcomponents/commons/layouts/custom-footer.js";
-import "../../webcomponents/commons/layouts/custom-navbar.js";
-import "../../webcomponents/commons/layouts/custom-page.js";
-import "../../webcomponents/commons/layouts/custom-sidebar.js";
-import "../../webcomponents/commons/layouts/custom-welcome.js";
-import "../../webcomponents/commons/layouts/custom-landing.js";
+// import "../../webcomponents/commons/layouts/custom-footer.js";
+// import "../../webcomponents/commons/layouts/custom-navbar.js";
+// import "../../webcomponents/commons/layouts/custom-page.js";
+// import "../../webcomponents/commons/layouts/custom-sidebar.js";
+// import "../../webcomponents/commons/layouts/custom-welcome.js";
+// import "../../webcomponents/commons/layouts/custom-landing.js";
 
 import "../../webcomponents/commons/layout/layout-footer.js";
 import "../../webcomponents/commons/layout/layout-primary-bar.js";
 import "../../webcomponents/commons/layout/layout-secondary-bar.js";
 import "../../webcomponents/commons/layout/layout-sidebar.js";
 
+import "../../webcomponents/commons/pages/login-page.js";
 import "../../webcomponents/commons/pages/welcome-page.js";
 
 import "../../webcomponents/clinical/rga/rga-browser.js";
@@ -1642,11 +1643,11 @@ class IvaApp extends LitElement {
     render() {
         if (!this.isLoggedIn() && !this.isCreatingSession) {
             return html`
-                <custom-landing
+                <login-page
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.config}"
                     @login="${this.onLogin}">
-                </custom-landing>
+                </login-page>
             `;
         }
 
