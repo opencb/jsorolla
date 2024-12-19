@@ -259,7 +259,6 @@ const SUITE = {
                 logoHeight: "50px",
                 titleClass: "fs-1 fw-medium mb-0",
                 subtitleClass: "fs-5 fw-normal text-gray-800 mb-4",
-                subtitleStyle: "max-width:320px;",
             },
         }
     },
