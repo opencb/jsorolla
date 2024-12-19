@@ -239,7 +239,7 @@ const SUITE = {
         minRemainingTime: 60000,
         maxRemainingTime: 600000 // 10 min
     },
-    landingPage: {
+    loginPage: {
         organisation: {
             logo: {img: "img/opencb-logo.png", height: "60px", link: "https://github.com/opencb"},
             title: "Unleash the power of genomic data",
