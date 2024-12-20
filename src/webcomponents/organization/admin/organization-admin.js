@@ -68,7 +68,7 @@ export default class OrganizationAdmin extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                menuStyle: "width:200px;",
+                menuStyle: "width:240px;",
             },
             menu: [
                 // {
