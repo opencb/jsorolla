@@ -57,10 +57,7 @@ export default class OrganizationAdmin extends LitElement {
         }
 
         return html `
-            <tool-header
-                title="Organization Admin: ${this.opencgaSession?.user?.organization}"
-                icon="fas fa-sitemap">
-            </tool-header>
+            <tool-header title="Organization Admin: ${this.opencgaSession?.organization?.id}"></tool-header>
             <vertical-menu
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config || {}}">
@@ -102,10 +99,6 @@ export default class OrganizationAdmin extends LitElement {
                 {
                     id: "manage",
                     name: "Manage",
-                    description: "",
-                    icon: "",
-                    featured: "", // true | false
-                    visibility: "private",
                     submenu: [
                         /* Vero Note: Maintained for future use in Organization Admin
                         {
@@ -124,24 +117,18 @@ export default class OrganizationAdmin extends LitElement {
                         {
                             id: "users",
                             name: "Users",
-                            icon: "fas fa-users",
-                            visibility: "private",
-                            render: (opencgaSession, organization) => html`
+                            render: opencgaSession => html`
                                 <user-admin-browser
-                                    .organization="${organization}"
                                     .opencgaSession="${opencgaSession}">
                                 </user-admin-browser>
                             `,
                         },
                         {
                             id: "studies",
-                            name: "Projects/Studies",
-                            icon: "fas fa-project-diagram",
-                            visibility: "private",
-                            render: (opencgaSession, organization) => {
+                            name: "Projects and Studies",
+                            render: opencgaSession => {
                                 return html`
                                     <project-admin-browser
-                                        .organization="${organization}"
                                         .opencgaSession="${opencgaSession}">
                                     </project-admin-browser>
                                 `;
@@ -152,20 +139,14 @@ export default class OrganizationAdmin extends LitElement {
                 {
                     id: "configure",
                     name: "Configure",
-                    description: "",
-                    icon: "",
-                    featured: "",
-                    visibility: "private",
                     submenu: [
                         {
                             id: "settings",
                             name: "Organization",
-                            icon: "fas fa-sitemap",
-                            visibility: "private",
-                            render: (opencgaSession, organization) => {
+                            render: opencgaSession => {
                                 return html`
                                     <organization-admin-detail
-                                        .organization="${organization}"
+                                        .organization="${opencgaSession?.organization}"
                                         .opencgaSession="${opencgaSession}">
                                     </organization-admin-detail>
                                 `;
