@@ -26,9 +26,7 @@ export default class SampleBrowser extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -49,7 +47,7 @@ export default class SampleBrowser extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "sample-browser";
         this._config = this.getDefaultConfig();
     }
@@ -58,6 +56,7 @@ export default class SampleBrowser extends LitElement {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -85,21 +84,21 @@ export default class SampleBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
-
-        this.requestUpdate();
     }
 
     onSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onSampleUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
         if (!this.opencgaSession) {
-            return html`<div>Not valid session</div>`;
+            return nothing;
         }
 
         return html`
@@ -116,7 +115,6 @@ export default class SampleBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Sample Browser",
-            icon: "fa-vial",
             views: [
                 {
                     id: "table-tab",
