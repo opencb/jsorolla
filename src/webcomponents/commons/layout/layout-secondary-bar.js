@@ -22,7 +22,7 @@ export default class LayoutSecondaryBar extends LitElement {
     }
 
     renderTool(tool) {
-        const active = this.currentUrl.startsWith(`#${this.app.id}/${tool.id}`);
+        const active = this.currentUrl.startsWith(`#${this.app.id}/${tool.id}/`);
         return html`
             <li class="nav-item">
                 <a class="nav-link text-body ${active ? "active" : ""}" style="${active ? `border-color:${this.app.color || ""};border-width: 2px` : ""}" href="#${this.app.id}/${tool.id}">
