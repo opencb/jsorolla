@@ -142,16 +142,16 @@ export default class UserLogin extends LitElement {
         return html`
             <div style="max-width:480px;">
                 <div class="input-group mb-3 ${this.hasEmptyUser ? "is-invalid" : ""}">
-                    <span class="input-group-text bg-white">
+                    <span class="input-group-text bg-white pe-2">
                         <i class="fa fa-user text-gray-700 py-1 fs-5"></i>
                     </span>
-                    <input id="user" class="form-control border-start-0 ps-0 lh-1" type="text" placeholder="User ID" @keyup="${e => this.onKeyUp(e)}">
+                    <input id="user" class="form-control border-start-0 px-2 lh-1" type="text" placeholder="User ID" @keyup="${e => this.onKeyUp(e)}">
                 </div>
                 <div class="input-group mb-3 ${this.hasEmptyPassword ? "is-invalid" : ""}">
-                    <span class="input-group-text bg-white">
+                    <span class="input-group-text bg-white pe-2">
                         <i class="fa fa-key text-gray-700 py-1 fs-5"></i>
                     </span>
-                    <input id="password" class="form-control border-start-0 ps-0 lh-1" type="password" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
+                    <input id="password" class="form-control border-start-0 px-2 lh-1" type="password" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
                 </div>
                 ${(this.opencgaSession?.opencgaClient?._config?.organizations?.length > 1) ? html`
                     <div class="form-group">

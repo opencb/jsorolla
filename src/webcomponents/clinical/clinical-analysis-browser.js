@@ -93,21 +93,21 @@ export default class ClinicalAnalysisBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         });
-
-        this.requestUpdate();
     }
 
     onSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onClinicalAnalysisUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
-        if (!this._config) {
-            return null;
+        if (!this.opencgaSession) {
+            return nothing;
         }
 
         return html`
@@ -124,8 +124,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Clinical Analysis Browser",
-            icon: "fab fa-searchengin",
-            // searchButtonText: "Search",
             views: [
                 {
                     id: "table-tab",

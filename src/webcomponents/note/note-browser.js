@@ -27,7 +27,6 @@ export default class NoteBrowser extends LitElement {
 
     constructor() {
         super();
-        // Set status and init private properties
         this.#init();
     }
 
@@ -58,6 +57,7 @@ export default class NoteBrowser extends LitElement {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -100,8 +100,9 @@ export default class NoteBrowser extends LitElement {
 
     render() {
         if (!this.opencgaSession) {
-            return html`<div>Not valid session</div>`;
+            return nothing;
         }
+
         return html`
             <opencga-browser
                 resource="NOTE"
@@ -116,7 +117,6 @@ export default class NoteBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Note Browser",
-            icon: "fa-sticky-note",
             views: [
                 {
                     id: "table-tab",

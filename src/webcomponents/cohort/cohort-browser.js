@@ -25,9 +25,7 @@ export default class CohortBrowser extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,7 +46,7 @@ export default class CohortBrowser extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "cohort-browser";
         this._config = this.getDefaultConfig();
     }
@@ -57,6 +55,7 @@ export default class CohortBrowser extends LitElement {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -83,33 +82,37 @@ export default class CohortBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
-
-        this.requestUpdate();
     }
 
     onSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onCohortUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
-        return this.opencgaSession && this._config ? html`
+        if (!this.opencgaSession) {
+            return nothing;
+        }
+
+        return html`
             <opencga-browser
                 resource="COHORT"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
                 .config="${this._config}"
                 @cohortUpdate="${this.onCohortUpdate}">
-            </opencga-browser>` : "";
+            </opencga-browser>
+        `;
     }
 
     getDefaultConfig() {
         return {
             title: "Cohort Browser",
-            icon: "fab fa-searchengin",
             views: [
                 {
                     id: "table-tab",

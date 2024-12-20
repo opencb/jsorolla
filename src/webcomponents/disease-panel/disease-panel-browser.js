@@ -28,7 +28,7 @@ export default class DiseasePanelBrowser extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -55,7 +55,7 @@ export default class DiseasePanelBrowser extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "disease-panel-browser";
         this._config = this.getDefaultConfig();
     }
@@ -64,6 +64,7 @@ export default class DiseasePanelBrowser extends LitElement {
         if (changedProperties.has("settings") || changedProperties.has("config")) {
             this.settingsObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -93,19 +94,20 @@ export default class DiseasePanelBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
-
-        this.requestUpdate();
     }
 
     onSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
+
     onDiseasePanelUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
-        return html `
+        return html`
             <opencga-browser
                 resource="DISEASE_PANEL"
                 .opencgaSession="${this.opencgaSession}"
@@ -120,7 +122,6 @@ export default class DiseasePanelBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Disease Panel Browser",
-            icon: "fab fa-searchengin",
             views: [
                 {
                     id: "table-tab",

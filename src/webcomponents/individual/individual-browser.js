@@ -32,9 +32,7 @@ export default class IndividualBrowser extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -55,7 +53,7 @@ export default class IndividualBrowser extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "individual-browser";
         this._config = this.getDefaultConfig();
     }
@@ -64,6 +62,7 @@ export default class IndividualBrowser extends LitElement {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -90,21 +89,21 @@ export default class IndividualBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
-
-        this.requestUpdate();
     }
 
     onSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onIndividualUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
         if (!this.opencgaSession) {
-            return html`<div>Not valid session</div>`;
+            return nothing;
         }
 
         return html`
@@ -121,7 +120,6 @@ export default class IndividualBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Individual Browser",
-            icon: "fa-user",
             views: [
                 {
                     id: "table-tab",

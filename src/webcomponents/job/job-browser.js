@@ -30,9 +30,7 @@ export default class JobBrowser extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -53,7 +51,7 @@ export default class JobBrowser extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "job-browser";
         this._config = this.getDefaultConfig();
     }
@@ -62,6 +60,7 @@ export default class JobBrowser extends LitElement {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -88,22 +87,21 @@ export default class JobBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
-
-        this.requestUpdate();
     }
 
     onSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onJobUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
-        // No openCGA session available
         if (!this.opencgaSession) {
-            return guardPage();
+            return nothing;
         }
 
         return html`
@@ -120,7 +118,6 @@ export default class JobBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Jobs Browser",
-            icon: "fa-rocket",
             description: "",
             views: [
                 {
