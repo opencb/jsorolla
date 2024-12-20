@@ -56,13 +56,16 @@ export default class FileDataManager extends LitElement {
     #init() {
         this.COMPONENT_ID = "file-manager";
         this._prefix = UtilsNew.randomString(8);
-
+        this.resource = "FILE";
         this.currentRootId = ":";
 
         this.tree = null;
         this.currentRoot = null;
         this.fileId = null;
         this.loading = false;
+
+        this.preparedQuery = {};
+        this.lastFilters = {};
 
         const entityActions = [
             {
@@ -167,6 +170,12 @@ export default class FileDataManager extends LitElement {
         super.update(changedProperties);
     }
 
+    updated(changedProperties) {
+        super.firstUpdated(changedProperties);
+
+        UtilsNew.initTooltip(this);
+    }
+
     opencgaSessionObserver() {
         if (this.opencgaSession) {
             this.#setLoading(true);
@@ -192,7 +201,7 @@ export default class FileDataManager extends LitElement {
         const query = {
             study: this.opencgaSession.study.fqn,
             maxDepth: 1,
-            include: "id,name,path,size,format,sampleIds,jobId,internal",
+            include: "id,name,path,size,format,bioformat,sampleIds,jobId,internal",
         };
         return this.opencgaSession.opencgaClient.files().tree(nodeId, query);
     }
@@ -449,7 +458,6 @@ export default class FileDataManager extends LitElement {
     }
 
     async onActionClick(e, value, file) {
-        debugger
         this.currentAction = this.actions[e.currentTarget.dataset.type].find(action => action.id === e.currentTarget.dataset.action);
         this.fileId = file?.id ?? "";
         this.file = file ?? {};
@@ -498,7 +506,6 @@ export default class FileDataManager extends LitElement {
     }
 
     renderFileCreate() {
-        debugger
         return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
             display: {
                 modalTitle: this.currentAction["modalTitle"],
@@ -506,7 +513,6 @@ export default class FileDataManager extends LitElement {
                 modalSize: "modal-lg",
             },
             render: () => {
-                debugger
                 return html`
                     <file-create
                         .path="${this.currentRoot.file.path}"
@@ -520,7 +526,6 @@ export default class FileDataManager extends LitElement {
     }
 
     renderFileFetch() {
-        debugger
         return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
             display: {
                 modalTitle: this.currentAction["modalTitle"],
@@ -595,7 +600,6 @@ export default class FileDataManager extends LitElement {
                 <div class="m-2">
                     ${
                         this.actions["entity"].map(action => {
-                            debugger
                             return html`
                                 <button
                                     type="button"
@@ -619,6 +623,97 @@ export default class FileDataManager extends LitElement {
         `;
     }
 
+    #onViewChange(newView) {
+        this.currentView = newView;
+        this.requestUpdate();
+    }
+
+    renderToolViews() {
+        return html`
+            <div>
+                ${this._config.views.map(view => html`
+                    <button
+                        class="${`btn btn-light ${this.currentView === view.id ? "active bg-primary text-white" : ""}`}"
+                        @click="${() => this.#onViewChange(view.id)}">
+                            ${view.icon ? html`
+                                <i class="${`fas ${view.icon}`}"></i>
+                            ` : null}
+                            <strong>${view.name}</strong>
+                    </button>
+                `)}
+            </div>
+        `;
+    }
+
+    onQueryFilterChange(e) {
+        this.preparedQuery = e.detail.query
+        this.requestUpdate();
+    }
+
+    onQueryFilterSearch(e) {
+        debugger
+        let filesResponse = null;
+        const query = {
+            study: this.opencgaSession.study.fqn,
+            type: this.preparedQuery.directory ? "FILE,DIRECTORY" : "FILE",
+            include: "id,name,path,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal,annotationSets",
+            ...this.preparedQuery,
+        };
+
+        // Store the current filters
+        this.lastFilters = {query};
+        this.opencgaSession.opencgaClient.files()
+            .search(query)
+            .then(response => {
+                debugger
+                this.currentRoot = {};
+                // Prepare data for columns extensions
+                this.searchResult = response.responses?.[0]?.results || [];
+                this.requestUpdate()
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
+
+
+    renderFilter() {
+        const filter = this._config.filter;
+        debugger
+        return html`
+            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas-${filter.id}" aria-labelledby="offcanvas-${filter.id}-Label">
+                <div class="offcanvas-header d-flex justify-content-between">
+                    <div class="d-flex align-items-center">
+                        ${this._config.showQuery ? html`
+                            <span
+                                    class="flex-grow-1 me-2 text-gray-200"
+                                    tooltip-title="VIEW QUERY"
+                                    tooltip-text="${JSON.stringify(this.preparedQuery)}">
+                                    <span class="fa-stack">
+                                      <i class="fa fa-circle fa-stack-2x"></i>
+                                      <i class="fa fa-code fa-xs fa-stack-1x text-gray-700"></i>
+                                    </span>
+                            </span>
+                        `: nothing}
+                        <h5 class="offcanvas-title flex-grow-1" id="offcanvasExampleLabel">FILE ${filter.name}</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <opencga-browser-filter
+                        .query="${this.preparedQuery}"
+                        .resource="${this.resource}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${this._config.filter}"
+                        @queryChange="${e => this.onQueryFilterChange(e)}"
+                        @querySearch="${this.onQueryFilterSearch}">
+                    </opencga-browser-filter>
+                </div>
+            </div>
+        `;
+    }
+
     render() {
         if (!this.opencgaSession || !this.currentRoot) {
             return null;
@@ -626,13 +721,21 @@ export default class FileDataManager extends LitElement {
 debugger
         return html`
             ${this.renderStyles()}
-            <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
+            <tool-header
+                title="${this._config.title}"
+                subtitle="${this._config.subtitle}"
+                icon="${this._config.icon}"
+                .rhs="${this.renderToolViews()}">
+            </tool-header>
 
-            <div class="row file-manager-full-height">
+            <div class="row w-full">
+                <!-- TREE -->
+                <!--
                 <div class="file-manager-tree left-menu col-md-3">
                     ${this.tree ? html`${this.renderTree(this.tree)}` : null}
                 </div>
-
+                -->
+                <!-- FILE MANAGER -->
                 <div class="file-manager-grid col-md-9">
                     <!--
                     ${this.errorState ? html`
@@ -647,39 +750,67 @@ debugger
                         </div>
                     ` : null}
 
-                    ${this.currentRoot ? html`
-                        <div>
+                    <div class="px-2">
+                        <!-- 0. Activated filters / search with filters -->
+                        <div class="d-flex py-4">
+                            <button
+                                class="d-flex flex-grow-0 btn bg-secondary-subtle btn-sm"
+                                style="cursor: pointer"
+                                data-bs-toggle="offcanvas"
+                                data-bs-target="#offcanvas-${this._config.filter.id}"
+                                aria-controls="offcanvasExample">
+                                <!-- Icon -->
+                                <div class="me-2">
+                                    <i class="${this._config.filter.icon}"></i>
+                                </div>
+                                <!-- Label -->
+                                <div>
+                                ${this._config.filter.label}
+                                </div>
+                                <!--<div>opencgaActiveFilters</div>-->
+                            </button>
+                        </div>
                             <!-- 1. Data list actions -->
+                        ${UtilsNew.isNotEmpty(this.currentRoot) ? html`
                             <div class="d-flex justify-content-between border-bottom border-black">
-                                <!-- Render breadcrumb -->
+                                <!-- BREADCRUMBS-->
                                 <div class="d-flex align-items-center flex-grow-1">
                                     <div class="me-2 fw-bold">CURRENT PATH:</div>
                                     ${this.renderBreadcrumb(this.currentRoot)}
                                 </div>
-                                <!-- Render entity actions toolbar -->
+                                <!-- ENTITY ACTIONS TOOLBAR -->
                                 <div>
                                     ${this.renderEntityToolbar()}
                                 </div>
                             </div>
-                            <data-list
-                                .data="${this.currentRoot.children.map(child => child.file)}"
-                                .config="${this._config.dataList}"
-                                @doubleclickrow="${this.onDblClickRow}"
-                                @checkrow="${this.onCheckRow}">
-                            </data-list>
-                        </div>
-                    ` : null}
+                        ` : html `
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <div class="me-2 fw-bold">SEARCH RESULT</div>
+                            </div>
+                        `}
+                        <!-- 2. Data list -->
+                        <data-list
+                            .data="${this.currentRoot?.children?.map(child => child.file) ?? this.searchResult}"
+                            .config="${this._config.dataList}"
+                            @doubleclickrow="${this.onDblClickRow}"
+                            @checkrow="${this.onCheckRow}">
+                        </data-list>
+                    </div>
                 </div>
             </div>
             <!-- 3. On entity action click, render the respective modal -->
             ${UtilsNew.isNotEmpty(this.currentAction) ? this.currentAction["render"](): nothing}
+            <!-- 4. Render filter in offcanvas right-->
+            ${this.renderFilter()}
         `;
     }
 
     getDefaultConfig() {
         return {
-            title: "Data File Manager",
-            icon: "img/tools/icons/file_explorer.svg",
+            showQuery: true,
+            title: "Data Manager",
+            subtitle: "This is a subtitle",
+            // icon: "img/tools/icons/file_explorer.svg",
             dataList: {
                 display: {
                     float: "left"
@@ -744,9 +875,10 @@ debugger
                             rowspan: 1,
                             colspan: 1,
                             formatter: value => {
+                                debugger
                                 return `
                                 <div>
-                                    <i class="fas fa-${value === "DIRECTORY" ? "folder" : "file"} fa-2x"></i>
+                                    <i class="${value === "DIRECTORY" ? "fas fa-folder" : "far fa-file"}"></i>
                                 </div>
                             `;
                             },
@@ -771,13 +903,13 @@ debugger
                             width: "20",
                             widthUnit: "%"
                         },
-                        // CAUTION 20241217 Vero: Nacho,
                         {
                             title: "Format",
                             field: "format",
                             rowspan: 1,
                             colspan: 1,
                             formatter: (value, row) => {
+                                debugger
                                 if (row.type === "DIRECTORY") {
                                     return "";
                                 }
@@ -790,6 +922,12 @@ debugger
                                 </div>
                             `;
                             }
+                        },
+                        {
+                            title: "Bioformat",
+                            field: "bioformat",
+                            rowspan: 1,
+                            colspan: 1,
                         },
                         {
                             title: "Status",
@@ -823,7 +961,6 @@ debugger
                             rowspan: 1,
                             colspan: 1,
                             formatter: value => {
-                                debugger
                                 return `
                                     <div>
                                         <div class="d-block text-secondary">${UtilsNew.dateFormatter(value)}</div>
@@ -857,7 +994,6 @@ debugger
                                         </button>
                                         <ul class="dropdown-menu">
                                         ${this.actions["instance"].map(action => {
-                                            debugger
                                             return `
                                                 <li>
                                                     <a
@@ -934,7 +1070,131 @@ debugger
                         `;
                     }
                 }
-            }
+            },
+            views: [
+                {
+                    id: "datalist",
+                    name: "",
+                    icon: "fas fa-list",
+                    display: {
+                        titleVisible: true,
+                    },
+                    /*
+                    render: () => html`
+                        <clinical-analysis-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${this.settings}"
+                            .config="${{componentId: "clinicalAnalysisBrowserPortal", showHeader: false}}">
+                        </clinical-analysis-browser>
+                    `,
+                     */
+                },
+                {
+                    id: "aggregation",
+                    name: "",
+                    icon: "far fa-chart-bar",
+                    display: {
+                        titleVisible: true,
+                    },
+                    /*
+                    render: () => html`
+                        <clinical-analysis-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${this.settings}"
+                            .config="${{componentId: "clinicalAnalysisBrowserPortal", showHeader: false}}">
+                        </clinical-analysis-browser>
+                    `,
+                     */
+                },
+            ],
+            filter: {
+                    id: "form-search",
+                    icon: "fas fa-search",
+                    label: "ACTIVE FILTERS",
+                    name: "SEARCH",
+                    searchButton: true,
+                    sections: [
+                        {
+                            title: "Section title",
+                            collapsed: false,
+                            filters: [
+                                {
+                                    id: "directory",
+                                    name: "Directory",
+                                    type: "string",
+                                    placeholder: "genomes/resources/files/...",
+                                    description: ""
+                                },
+                                {
+                                    id: "name",
+                                    name: "Name",
+                                    type: "string",
+                                    placeholder: "accepted_hits.bam, phenotypes.vcf...",
+                                    description: ""
+                                },
+                                /*
+                                {
+                                    id: "sampleIds",
+                                    name: "Sample ID",
+                                    type: "string",
+                                    placeholder: "HG01879, HG01880, HG01881...",
+                                    description: ""
+                                },
+                                 */
+                                /*
+                                {
+                                    id: "jobId",
+                                    name: "Job ID",
+                                    type: "string",
+                                    placeholder: "Job ID ...",
+                                    description: "",
+                                },
+                                 */
+                                {
+                                    id: "format",
+                                    name: "Format",
+                                    type: "string",
+                                    placeholder: "Format ...",
+                                    description: ""
+                                },
+                                /* ToDo 2024-12-20
+                                {
+                                    id: "bioformat",
+                                    name: "Bioformat",
+                                    type: "string",
+                                    placeholder: "Bioformat ...",
+                                    description: ""
+                                },
+                                 */
+                                /*
+                                {
+                                    id: "internalVariantIndexStatus",
+                                    name: "Variant Index Status",
+                                    multiple: true,
+                                    // NOTE 20230310 Vero: The current internalVariantIndexStatus (internal.variant.index.status) vocabulary is:
+                                    // "READY", "DELETED", "NONE", "TRANSFORMED", "TRANSFORMING", "LOADING", "INDEXING"
+                                    // But the DELETED status gets mapped in opencga to NONE (Jacobo)
+                                    allowedValues: ["READY", "NONE", "TRANSFORMED", "TRANSFORMING", "LOADING", "INDEXING"],
+                                    type: "category"
+                                },
+                                 */
+                                {
+                                    id: "date",
+                                    name: "Date",
+                                    type: "date",
+                                    description: ""
+                                },
+                                /*
+                                {
+                                    id: "annotations",
+                                    name: "File Annotations",
+                                    description: "",
+                                }
+                                 */
+                            ],
+                        },
+                    ],
+                },
         };
     }
 
