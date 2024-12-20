@@ -38,12 +38,6 @@ export default class StudyAdminIva extends LitElement {
 
     static get properties() {
         return {
-            studyId: {
-                type: String,
-            },
-            study: {
-                type: Object,
-            },
             opencgaSession: {
                 type: Object,
             },
@@ -58,60 +52,11 @@ export default class StudyAdminIva extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("studyId")) {
-            this.studyIdObserver();
-        }
-
         if (changedProperties.has("opencgaSession") || changedProperties.has("settings")) {
             this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
-    }
-
-    organizationIdObserver() {
-        // FIXME Vero: on creating a new group, for instance,
-        //  the session is updated but the org id does not change.
-        //  I need to get the organization info again to refresh the grid.
-        //  For now, I will query org info only with property opencgaSession change.
-        //  TO think about it.
-        // if (this.organizationId && this.opencgaSession) {
-        if (this.organizationId || this.opencgaSession) {
-            let error;
-            this.opencgaSession.opencgaClient.organization()
-                .info(this.opencgaSession.organization.id)
-                .then(response => {
-                    this.organization = UtilsNew.objectClone(response.responses[0].results[0]);
-                })
-                .catch(reason => {
-                    // this.organization = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    LitUtils.dispatchCustomEvent(this, "organizationInfo", this.organization, {}, error);
-                    this.requestUpdate();
-                });
-        }
-    }
-
-    studyIdObserver() {
-        if (this.studyId && this.opencgaSession) {
-            let error;
-            this.opencgaSession.opencgaClient.studies()
-                .info(this.studyId)
-                .then(response => {
-                    this.study = response.responses[0].results[0];
-                })
-                .catch(reason => {
-                    error = reason;
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-                })
-                .finally(() => {
-                    LitUtils.dispatchCustomEvent(this, "studySearch", this.study, {}, error);
-                    this.requestUpdate();
-                });
-        }
     }
 
     render() {
