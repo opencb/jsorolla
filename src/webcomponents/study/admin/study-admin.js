@@ -66,7 +66,7 @@ export default class StudyAdmin extends LitElement {
         }
 
         return html `
-            <tool-header title="Study Admin" icon="fa-sliders-h"></tool-header>
+            <tool-header title="Study Admin"></tool-header>
             <vertical-menu
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config || {}}">
