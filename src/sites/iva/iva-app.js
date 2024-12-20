@@ -1349,15 +1349,10 @@ class IvaApp extends LitElement {
                 break;
             case "workflow-manager":
                 content = html`
-                    <tool-header
-                        title="Workflow Manager"
-                        icon="fas fa-stream">
-                    </tool-header>
-                    <div class="content">
-                        <workflow-manager
-                            .opencgaSession="${this.opencgaSession}">
-                        </workflow-manager>
-                    </div>
+                    <tool-header title="Workflow Manager"></tool-header>
+                    <workflow-manager
+                        .opencgaSession="${this.opencgaSession}">
+                    </workflow-manager>
                 `;
                 break;
             case "cat-browser":
