@@ -43,9 +43,6 @@ export default class StudyAdmin extends LitElement {
             opencgaSession: {
                 type: Object,
             },
-            studyId: {
-                type: String,
-            },
         };
     }
 
@@ -66,7 +63,7 @@ export default class StudyAdmin extends LitElement {
         }
 
         return html `
-            <tool-header title="Study Admin"></tool-header>
+            <tool-header title="${this._config.name}"></tool-header>
             <vertical-menu
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config || {}}">
@@ -76,6 +73,10 @@ export default class StudyAdmin extends LitElement {
 
     getDefaultConfig() {
         return {
+            name: "Study Admin",
+            display: {
+                menuStyle: "width:240px;",
+            },
             menu: [
                 {
                     id: "general",
