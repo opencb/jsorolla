@@ -1511,7 +1511,6 @@ class IvaApp extends LitElement {
             case "organization-admin":
                 content = html`
                     <organization-admin
-                        .organization="${this.opencgaSession?.organization}"
                         .opencgaSession="${this.opencgaSession}"
                         @studyUpdateRequest="${this.onStudyUpdateRequest}"
                         @sessionUpdateRequest="${this.onSessionUpdateRequest}">
@@ -1520,60 +1519,49 @@ class IvaApp extends LitElement {
                 break;
             case "catalog-admin":
                 content = html`
-                    <div class="content">
-                        <catalog-admin
-                            .opencgaSession="${this.opencgaSession}"
-                            @sessionUpdateRequest="${this.onSessionUpdateRequest}">
-                        </catalog-admin>
-                    </div>
+                    <catalog-admin
+                        .opencgaSession="${this.opencgaSession}"
+                        @sessionUpdateRequest="${this.onSessionUpdateRequest}">
+                    </catalog-admin>
                 `;
                 break;
-            case "projects-admin":
-                content = html`
-                    <tool-header
-                        title="Study Dashboard"
-                        icon="fas fa-rocket">
-                    </tool-header>
-                    <div class="content">
-                        <projects-admin
-                            .opencgaSession="${this.opencgaSession}"
-                            @sessionUpdateRequest="${this.onSessionUpdateRequest}">
-                        </projects-admin>
-                    </div>
-                `;
-                break;
+            // case "projects-admin":
+            //     content = html`
+            //         <tool-header
+            //             title="Study Dashboard"
+            //             icon="fas fa-rocket">
+            //         </tool-header>
+            //         <div class="content">
+            //             <projects-admin
+            //                 .opencgaSession="${this.opencgaSession}"
+            //                 @sessionUpdateRequest="${this.onSessionUpdateRequest}">
+            //             </projects-admin>
+            //         </div>
+            //     `;
+            //     break;
             case "study-admin":
                 content = html`
-                    <div class="content">
-                        <study-admin
-                            .opencgaSession="${this.opencgaSession}"
-                            @studyUpdateRequest="${this.onStudyUpdateRequest}">
-                        </study-admin>
-                    </div>
+                    <study-admin
+                        .opencgaSession="${this.opencgaSession}"
+                        @studyUpdateRequest="${this.onStudyUpdateRequest}">
+                    </study-admin>
                 `;
                 break;
             case "study-admin-iva":
                 content = html`
-                    <div class="content">
-                        <study-admin-iva
-                            .organizationId="${this.opencgaSession?.user?.organization}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .settings="${this.settings}"
-                            @studyUpdateRequest="${this.onStudyUpdateRequest}">
-                        </study-admin-iva>
-                    </div>
+                    <study-admin-iva
+                        .opencgaSession="${this.opencgaSession}"
+                        .settings="${this.settings}"
+                        @studyUpdateRequest="${this.onStudyUpdateRequest}">
+                    </study-admin-iva>
                 `;
                 break;
             case "operations-admin":
                 content = html`
-                    <div class="content">
-                        <operations-admin
-                            .organizationId="${this.opencgaSession?.user?.organization}"
-                            .study="${this.opencgaSession.study}"
-                            .opencgaSession="${this.opencgaSession}"
-                            @studyUpdateRequest="${this.onStudyUpdateRequest}">
-                        </operations-admin>
-                    </div>
+                    <operations-admin
+                        .opencgaSession="${this.opencgaSession}"
+                        @studyUpdateRequest="${this.onStudyUpdateRequest}">
+                    </operations-admin>
                 `;
                 break;
             case "rest-api":
