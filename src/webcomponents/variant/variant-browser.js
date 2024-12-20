@@ -452,9 +452,6 @@ export default class VariantBrowser extends LitElement {
         // return BrowserConf.config;
         return {
             title: "Variant Browser",
-            // icon: "img/tools/icons/variant_browser.svg",
-            icon: "fa-dna",
-            active: false,
             searchButtonText: "Search",
             filter: {
                 title: "Filter",
