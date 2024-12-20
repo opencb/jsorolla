@@ -101,6 +101,9 @@ export default class StudyAdminIva extends LitElement {
 
         return {
             name: "IVA Configuration",
+            display: {
+                menuStyle: "width:240px;",
+            },
             menu: [
                 {
                     id: "general",
