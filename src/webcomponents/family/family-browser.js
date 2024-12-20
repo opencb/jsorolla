@@ -25,9 +25,7 @@ export default class FamilyBrowser extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,7 +46,7 @@ export default class FamilyBrowser extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "family-browser";
         this._config = this.getDefaultConfig();
     }
@@ -57,6 +55,7 @@ export default class FamilyBrowser extends LitElement {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -83,21 +82,21 @@ export default class FamilyBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
-
-        this.requestUpdate();
     }
 
     onSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onFamilyUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
         if (!this.opencgaSession) {
-            return html`<div>Not valid session</div>`;
+            return nothing;
         }
 
         return html`
@@ -114,7 +113,6 @@ export default class FamilyBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Family Browser",
-            icon: "fa-users",
             views: [
                 {
                     id: "table-tab",
