@@ -37,14 +37,11 @@ export default class ProjectAdminBrowser extends LitElement {
 
     static get properties() {
         return {
-            organization: {
-                type: Object,
-            },
             opencgaSession: {
                 type: Object,
             },
             config: {
-                type: Object
+                type: Object,
             },
         };
     }
@@ -58,11 +55,10 @@ export default class ProjectAdminBrowser extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession") ||
-            changedProperties.has("organization") ||
-            changedProperties.has("config")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("organization") || changedProperties.has("config")) {
             this.propertyObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -148,18 +144,6 @@ export default class ProjectAdminBrowser extends LitElement {
         });
     }
 
-    renderProjectsToolbar() {
-        if (this._config.showToolbar) {
-            return html `
-                <opencb-grid-toolbar
-                    .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.toolbarSetting}"
-                    .config="${this.toolbarConfig}">
-                </opencb-grid-toolbar>
-            `;
-        }
-    }
-
     renderProject(project) {
         return html `
             <div class="card mb-5">
@@ -233,16 +217,25 @@ export default class ProjectAdminBrowser extends LitElement {
 
     render() {
         return html`
+            <h2 class="fw-bold mb-0">${this._config.title}</h2>
+
             <!-- 1. Render toolbar at project browser level if enabled -->
-            ${this.renderProjectsToolbar()}
+            ${this._config.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .opencgaSession="${this.opencgaSession}"
+                    .settings="${this.toolbarSetting}"
+                    .config="${this.toolbarConfig}">
+                </opencb-grid-toolbar>
+            ` : nothing}
+
             <!-- 2. Render projects. Each project has each own grid -->
-            ${this.organization.projects.map(project => this.renderProject(project))}
+            ${(this.opencgaSession?.organization?.projects || []).map(project => this.renderProject(project))}
         `;
     }
 
-    // *** CONFIG ***
     getDefaultConfig() {
         return {
+            title: "Manage Projects and Studies",
             showToolbar: true,
             showExport: false,
             showSettings: false,
