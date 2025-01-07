@@ -37,9 +37,13 @@ export default class ToolHeader extends LitElement {
             class: {
                 type: String
             },
+            rightContent: {
+                type: Object,
+            },
+            // 'rhs' is deprecated, use 'rightContent' instead
             rhs: {
                 type: Object
-            }
+            },
         };
     }
 
@@ -59,6 +63,10 @@ export default class ToolHeader extends LitElement {
         }
     }
 
+    renderContent(content) {
+        return (typeof content === "function") ? content() : content;
+    }
+
     render() {
         return html`
             <div class="d-flex align-items-center my-3 py-2 ${this.class ?? ""}">
@@ -69,9 +77,9 @@ export default class ToolHeader extends LitElement {
                 ${this.subtitle ? html`
                     <h3>${this.subtitle}</h3>
                 ` : nothing}
-                <div class="ms-auto">
-                    ${this.rhs}
-                </div>
+                ${(this.rightContent || this.rhs) ? html`
+                    <div class="ms-auto">${this.renderContent(this.rightContent || this.rhs)}</div>
+                ` : nothing}
             </div>
         `;
     }
