@@ -72,7 +72,9 @@ export default class WelcomePage extends LitElement {
                                 <i class="fas ${item.icon} fs-2"></i>
                             </div>
                         </div>
-                        <div class="fs-3 fw-bold mb-1">${item.title || item.name}</div>
+                        <a href="#${this.app.id}/${item.id}" class="d-block fs-3 fw-bold mb-1 text-decoration-none text-body">
+                            <span>${item.title || item.name}</span>
+                        </a>
                         ${item.description ? html`
                             <div class="fs-5 mb-3 text-gray-700">
                                 ${UtilsNew.renderHTML(item.description)}
