@@ -88,6 +88,9 @@ body {
         border-color: $color !important;
     }
 }
+.hover\:bg-white:hover {
+    background-color: $white !important;
+}
 
 // additional cursor utilities
 .cursor-pointer {
@@ -174,3 +177,22 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
 .select2-search.select2-search--inline {
     display: inline-block;
 }
+
+
+// bootstrap-table styles override
+.bootstrap-table .loading-text {
+    min-height: 135px;
+}
+// Custom pagination-detail on top of the boostrap-table grids.
+// This removes the pager buttons on top pf the grids leaving only the counter of records.
+// nth-child(2) is the top pager while nth-child(4) would the bottom pager.
+// .bootstrap-table.bootstrap5 .fixed-table-pagination:nth-child(2) .pagination-info {
+//     line-height: 1;
+// }
+// .bootstrap-table.bootstrap5 .fixed-table-pagination:nth-child(2) .page-list,
+// .bootstrap-table.bootstrap5 .fixed-table-pagination:nth-child(2) .pagination {
+//     display: none;
+// }
+// .bootstrap-table .pagination-info {
+//     font-size: 12px;
+// }
