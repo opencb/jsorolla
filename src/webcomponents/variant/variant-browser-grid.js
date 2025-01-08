@@ -247,7 +247,9 @@ export default class VariantBrowserGrid extends LitElement {
                         .then(() => params.success(variantResponse))
                         .catch(e => params.error(e))
                         .finally(() => {
-                            LitUtils.dispatchCustomEvent(this, "queryComplete", null);
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: variantResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
