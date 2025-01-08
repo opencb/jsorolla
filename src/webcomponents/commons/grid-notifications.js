@@ -61,7 +61,7 @@ export default class GridNotifications extends LitElement {
                         <div class="fw-bold fs-5 mb-1">${this._config.title}</div>
                     ` : nothing}
                     ${this.notifications?.length > 0 ? html`
-                        <div class="d-flex flex-column gap-2">
+                        <div class="d-flex flex-column gap-2 overflow-y-auto" style="max-height:320px;">
                             ${this.notifications?.map(notification => this.renderNotification(notification))}
                         </div>
                     ` : html`
