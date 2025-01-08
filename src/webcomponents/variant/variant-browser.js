@@ -19,6 +19,7 @@ import UtilsNew from "../../core/utils-new.js";
 import VariantUtils from "./variant-utils.js";
 import {guardPage} from "../commons/html-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import WebUtils from "../commons/utils/web-utils.js";
 import "./variant-browser-filter.js";
 import "./variant-browser-grid.js";
 import "./variant-browser-detail.js";
@@ -26,6 +27,7 @@ import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../commons/tool-header.js";
+import "../commons/grid-notifications.js";
 import "./annotation/cellbase-variant-annotation-summary.js";
 import "./annotation/variant-consequence-type-view.js";
 import "./annotation/cellbase-population-frequency-grid.js";
@@ -96,6 +98,7 @@ export default class VariantBrowser extends LitElement {
         this.preparedFacetQueryFormatted = {};
         this.errorState = false;
         this.variant = null;
+        this.notifications = [];
 
         this.activeTab = "table-tab";
         this._config = this.getDefaultConfig();
@@ -197,6 +200,7 @@ export default class VariantBrowser extends LitElement {
     onRun() {
         this.executedQuery = {...this.preparedQuery};
         this.searchActive = false;
+        this.notifications = [];
         this.variant = null;
         this.notifySearch(this.preparedQuery);
 
@@ -272,7 +276,8 @@ export default class VariantBrowser extends LitElement {
         this.onRun();
     }
 
-    onQueryComplete() {
+    onQueryComplete(event) {
+        this.notifications = WebUtils.getResponseEvents(event.detail.response);
         this.searchActive = true;
         this.requestUpdate();
     }
@@ -313,11 +318,11 @@ export default class VariantBrowser extends LitElement {
                     </button>
                 `)}
                 <div class="w-px bg-gray-200"></div>
+                <grid-notifications
+                    .notifications="${this.notifications || []}">
+                </grid-notifications>
                 <button class="btn btn-light">
-                    <i class="fa fa-bell"></i>
-                </button>
-                <button class="btn btn-light">
-                    <i class="fa fa-help-circle"></i>
+                    <i class="fa fa-question-circle"></i>
                 </button>
             </div>
         `;
