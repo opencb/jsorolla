@@ -63,10 +63,6 @@ export default class ToolHeader extends LitElement {
         }
     }
 
-    renderContent(content) {
-        return (typeof content === "function") ? content() : content;
-    }
-
     render() {
         return html`
             <div class="d-flex align-items-center my-3 py-2 ${this.class ?? ""}">
@@ -78,7 +74,7 @@ export default class ToolHeader extends LitElement {
                     <h3>${this.subtitle}</h3>
                 ` : nothing}
                 ${(this.rightContent || this.rhs) ? html`
-                    <div class="ms-auto">${this.renderContent(this.rightContent || this.rhs)}</div>
+                    <div class="ms-auto">${this.rightContent || this.rhs}</div>
                 ` : nothing}
             </div>
         `;
