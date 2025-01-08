@@ -19,13 +19,13 @@ import UtilsNew from "../../core/utils-new.js";
 import VariantUtils from "./variant-utils.js";
 import {guardPage} from "../commons/html-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
-import "../commons/tool-header.js";
 import "./variant-browser-filter.js";
 import "./variant-browser-grid.js";
 import "./variant-browser-detail.js";
 import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
 import "../commons/opencga-active-filters.js";
+import "../commons/tool-header.js";
 import "./annotation/cellbase-variant-annotation-summary.js";
 import "./annotation/variant-consequence-type-view.js";
 import "./annotation/cellbase-population-frequency-grid.js";
@@ -34,7 +34,6 @@ import "./annotation/variant-annotation-pharmacogenomics-view.js";
 import "./variant-cohort-stats.js";
 import "./variant-samples.js";
 import "./variant-notes.js";
-
 import "../visualization/genome-browser.js";
 
 export default class VariantBrowser extends LitElement {
@@ -296,6 +295,34 @@ export default class VariantBrowser extends LitElement {
         this.requestUpdate();
     }
 
+    renderHeaderRightContent() {
+        return html`
+            <div class="d-flex gap-1">
+                <button
+                    type="button"
+                    class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""}`}"
+                    @click="${() => this.changeView("table-tab")}">
+                    <i class="fa fa-table me-2"></i>
+                    <strong>Table View</strong>
+                </button>
+                <button
+                    type="button"
+                    class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""}`}"
+                    @click="${() => this.changeView("facet-tab")}">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    <strong>Aggregation Stats</strong>
+                </button>
+                <button
+                    type="button"
+                    class="${`btn btn-success ${this.activeTab === "genome-tab" ? "active" : ""}`}"
+                    @click="${() => this.changeView("genome-tab")}">
+                    <i class="fas fa-dna me-2"></i>
+                    <strong>Genome Browser</strong>
+                </button>
+            </div>
+        `;
+    }
+
     render() {
         // Check if there is any project available
         if (!this.opencgaSession?.study) {
@@ -303,7 +330,10 @@ export default class VariantBrowser extends LitElement {
         }
 
         return html`
-            <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
+            <tool-header
+                .title="${this._config.title}"
+                .rightContent="${this.renderHeaderRightContent()}">
+            </tool-header>
             <div class="row">
                 <div class="col-2 mb-3">
                     <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
@@ -346,31 +376,6 @@ export default class VariantBrowser extends LitElement {
                 </div>
 
                 <div class="col-md-10">
-                    <!-- TAB buttons -->
-                    <div class="d-flex gap-1 mb-3">
-                        <button
-                            type="button"
-                            class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""}`}"
-                            @click="${() => this.changeView("table-tab")}">
-                            <i class="fa fa-table me-2"></i>
-                            <strong>Table View</strong>
-                        </button>
-                        <button
-                            type="button"
-                            class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""}`}"
-                            @click="${() => this.changeView("facet-tab")}">
-                            <i class="fas fa-chart-bar me-2"></i>
-                            <strong>Aggregation Stats</strong>
-                        </button>
-                        <button
-                            type="button"
-                            class="${`btn btn-success ${this.activeTab === "genome-tab" ? "active" : ""}`}"
-                            @click="${() => this.changeView("genome-tab")}">
-                            <i class="fas fa-dna me-2"></i>
-                            <strong>Genome Browser</strong>
-                        </button>
-                    </div>
-
                     <div>
                         <opencga-active-filters
                             facetActive
