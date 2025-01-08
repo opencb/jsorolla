@@ -296,29 +296,22 @@ export default class VariantBrowser extends LitElement {
     }
 
     renderHeaderRightContent() {
+        const viewButtons = [
+            {name: "Table View", id: "table-tab", icon: "fa fa-table"},
+            {name: "Aggregation Stats", id: "facet-tab", icon: "fas fa-chart-bar"},
+            {name: "Genome Browser", id: "genome-tab", icon: "fas fa-dna"},
+        ];
         return html`
             <div class="d-flex gap-1">
-                <button
-                    type="button"
-                    class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""}`}"
-                    @click="${() => this.changeView("table-tab")}">
-                    <i class="fa fa-table me-2"></i>
-                    <strong>Table View</strong>
-                </button>
-                <button
-                    type="button"
-                    class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""}`}"
-                    @click="${() => this.changeView("facet-tab")}">
-                    <i class="fas fa-chart-bar me-2"></i>
-                    <strong>Aggregation Stats</strong>
-                </button>
-                <button
-                    type="button"
-                    class="${`btn btn-success ${this.activeTab === "genome-tab" ? "active" : ""}`}"
-                    @click="${() => this.changeView("genome-tab")}">
-                    <i class="fas fa-dna me-2"></i>
-                    <strong>Genome Browser</strong>
-                </button>
+                ${viewButtons.map(button => html`
+                    <button
+                        type="button"
+                        class="${`btn btn-success ${this.activeTab === button.id ? "active" : ""}`}"
+                        @click="${() => this.changeView(button.id)}">
+                        <i class="fa ${button.icon} me-2"></i>
+                        <strong>${button.name}</strong>
+                    </button>
+                `)}
             </div>
         `;
     }
