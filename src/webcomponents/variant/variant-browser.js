@@ -312,6 +312,13 @@ export default class VariantBrowser extends LitElement {
                         <strong>${button.name}</strong>
                     </button>
                 `)}
+                <div class="w-px bg-gray-200"></div>
+                <button class="btn btn-light">
+                    <i class="fa fa-bell"></i>
+                </button>
+                <button class="btn btn-light">
+                    <i class="fa fa-help-circle"></i>
+                </button>
             </div>
         `;
     }
