@@ -111,4 +111,10 @@ export default class WebUtils {
         return priorityRankToColor[rank] ?? "";
     }
 
+    static getResponseEvents(response) {
+        return [...(response?.events || []), ...(response?.responses?.[0]?.events || [])].filter(event => {
+            return event && !!event.message;
+        });
+    }
+
 }
