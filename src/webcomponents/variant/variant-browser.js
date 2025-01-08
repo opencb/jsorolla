@@ -307,9 +307,10 @@ export default class VariantBrowser extends LitElement {
             {name: "Genome Browser", id: "genome-tab", icon: "fas fa-dna"},
         ];
         return html`
-            <div class="d-flex gap-1">
-                ${viewButtons.map(button => html`
-                    <button
+            <div class="d-flex gap-1 align-items-stretch">
+                <div class="d-flex align-items-center gap-1">
+                    ${viewButtons.map(button => html`
+                        <button
                         type="button"
                         class="${`btn btn-success ${this.activeTab === button.id ? "active" : ""}`}"
                         @click="${() => this.changeView(button.id)}">
@@ -317,8 +318,10 @@ export default class VariantBrowser extends LitElement {
                         <strong>${button.name}</strong>
                     </button>
                 `)}
-                <div class="w-px bg-gray-200"></div>
+                </div>
+                <div class="w-px bg-gray-200 mx-1"></div>
                 <grid-notifications
+                    class="d-flex align-items-stretch"
                     .notifications="${this.notifications || []}">
                 </grid-notifications>
                 <button class="btn btn-light">
