@@ -650,33 +650,30 @@ export default class FileDataManager extends LitElement {
         this.requestUpdate();
     }
 
-    onQueryFilterSearch(e) {
-        debugger
-        let filesResponse = null;
+    onQueryFilterSearch() {
+        this.executedQuery = UtilsNew.objectClone(this.preparedQuery);
         const query = {
             study: this.opencgaSession.study.fqn,
             type: this.preparedQuery.directory ? "FILE,DIRECTORY" : "FILE",
             include: "id,name,path,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal,annotationSets",
             ...this.preparedQuery,
         };
-
         // Store the current filters
         this.lastFilters = {query};
         this.opencgaSession.opencgaClient.files()
             .search(query)
             .then(response => {
-                debugger
                 this.currentRoot = {};
                 // Prepare data for columns extensions
                 this.searchResult = response.responses?.[0]?.results || [];
-                this.requestUpdate()
+                this.requestUpdate();
             })
             .catch(error => {
                 console.error(error);
             });
     }
 
-
+    searchFiles() {}
 
     renderFilter() {
         const filter = this._config.filter;
@@ -736,7 +733,7 @@ debugger
                 </div>
                 -->
                 <!-- FILE MANAGER -->
-                <div class="file-manager-grid col-md-9">
+                <div class="file-manager-grid">
                     <!--
                     ${this.errorState ? html`
                     <div id="error" class="alert alert-danger" role="alert">
@@ -752,7 +749,7 @@ debugger
 
                     <div class="px-2">
                         <!-- 0. Activated filters / search with filters -->
-                        <div class="d-flex py-4">
+                        <div class="d-flex py-4 align-items-start">
                             <button
                                 class="d-flex flex-grow-0 btn bg-secondary-subtle btn-sm"
                                 style="cursor: pointer"
@@ -767,10 +764,25 @@ debugger
                                 <div>
                                 ${this._config.filter.label}
                                 </div>
-                                <!--<div>opencgaActiveFilters</div>-->
                             </button>
+                            ${UtilsNew.isNotEmpty(this.executedQuery) ? html`
+                                <opencga-active-filters
+                                    .resource="${this.resource}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .defaultStudy="${this.opencgaSession?.study?.fqn}"
+                                    .query="${this.preparedQuery}"
+                                    .executedQuery="${this.executedQuery}"
+                                    .config="${this._config?.filter?.activeFilters}"
+                                    .filters="${this._config?.filter?.examples}"
+                                    .defaultFilter="${this._config?.filter?.defaultFilter}"
+                                    @activeFilterChange="${this.onActiveFilterChange}"
+                                    @activeFilterClear="${this.onActiveFilterClear}"
+                                    @activeFacetChange="${this.onActiveFacetChange}"
+                                    @activeFacetClear="${this.onActiveFacetClear}">
+                                </opencga-active-filters>
+                            `: nothing}
                         </div>
-                            <!-- 1. Data list actions -->
+                        <!-- 1. Data list actions -->
                         ${UtilsNew.isNotEmpty(this.currentRoot) ? html`
                             <div class="d-flex justify-content-between border-bottom border-black">
                                 <!-- BREADCRUMBS-->
@@ -1109,9 +1121,9 @@ debugger
             ],
             filter: {
                     id: "form-search",
-                    icon: "fas fa-search",
-                    label: "ACTIVE FILTERS",
-                    name: "SEARCH",
+                    icon: "fas fa-sliders-h",
+                    label: "ADVANCED SEARCH",
+                    name: "ADVANCED SEARCH",
                     searchButton: true,
                     sections: [
                         {
