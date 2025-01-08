@@ -51,10 +51,12 @@ export default class GridNotifications extends LitElement {
 
     render() {
         return html`
-            <div class="dropdown">
+            <div class="dropdown d-flex">
                 <button class="btn ${this._config.display?.buttonClass}" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                     <i class="fa ${this._config.icon}"></i> 
-                    <span>(${this.notifications?.length ?? 0})</span>
+                    ${this.notifications?.length > 0 ? html`
+                        <span class="fw-bold text-gray-600"> (${this.notifications?.length ?? 0})</span>
+                    ` : nothing}
                 </button>
                 <div class="dropdown-menu dropdown-menu-end shadow ${this._config?.display?.contentClass}" style="${this._config.display?.contentStyle}">
                     ${this._config.title ? html`
