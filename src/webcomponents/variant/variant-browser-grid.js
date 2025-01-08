@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import VariantGridFormatter from "./variant-grid-formatter.js";
 import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter.js";
@@ -1043,7 +1043,7 @@ export default class VariantBrowserGrid extends LitElement {
                     @export="${this.onDownload}"
                     @changeExportField="${this.onChangeExportField}">
                 </opencb-grid-toolbar>
-            ` : null}
+            ` : nothing}
 
             <div data-cy="vb-grid">
                 <table id="${this.gridId}"></table>
