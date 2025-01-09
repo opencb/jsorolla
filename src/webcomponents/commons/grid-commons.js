@@ -266,7 +266,7 @@ export default class GridCommons {
         }
         // Terrible hack to display the top pagination info
         // Note that this is only executed if there is a pagination container in the grid
-        const paginationContainer = this.context?.querySelector(`#${this.gridId}Pagination`);
+        const paginationContainer = this.context?.querySelector(`#${this.gridId}PaginationInfo`);
         if (paginationContainer) {
             paginationContainer.innerHTML = Number(totalRows) > 0 ? message : "";
         }

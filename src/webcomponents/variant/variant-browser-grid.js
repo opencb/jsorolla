@@ -1033,7 +1033,7 @@ export default class VariantBrowserGrid extends LitElement {
 
     renderToolbarLeftContent() {
         return html`
-            <span id="${this.gridId + "Pagination"}"></span>
+            <span id="${this.gridId + "PaginationInfo"}"></span>
         `;
     }
 
