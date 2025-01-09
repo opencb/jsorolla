@@ -69,56 +69,57 @@ export default class JupyterNotebook extends LitElement {
         // }));
     }
 
-    renderContent() {
-        // Check Project exists
+    renderWelcomeView() {
+        return html`
+            <div class="card">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center py-5">
+                    <div class="d-flex text-gray-600 mb-3 mt-5" style="font-size:3rem;">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <div class="text-center fs-5 text-gray-700 mb-4" style="max-width:560px;">
+                        <span>Create and execute Jupyter Notebooks to analyze your data on this OpenCGA instance. </span>
+                        <span class="fw-bold">Please note that this may involve additional costs.</span>
+                    </div>
+                    <div class="mb-5">
+                        <button type="button" class="btn btn-lg btn-primary" @click="${this.onEnterClick}">
+                            <span>Run Jupyter Notebook</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderJupyterFrame() {
+        const userId = this.opencgaSession.user.id;
+        const organizationId = this.opencgaSession.organization.id;
+        const serverUrl = this.opencgaSession.server.host.replace("/opencga", "");
+        const jupyterLoginUrl = serverUrl + "/jupyter/hub/login";
+        const token = this.opencgaSession.token;
+
+        return html`
+            <div class="card">
+                <div class="card-body p-0">
+                    <iframe
+                        src="${jupyterLoginUrl}?userId=${userId}&organizationId=${organizationId}&opencgaUrl=${serverUrl}&logoutUrl=https:%2F%2Fwww.google.com&token=${token}"
+                        width="100%"
+                        height="720">
+                    </iframe>
+                </div>
+            </div>
+        `;
+    }
+
+    render() {
         if (!this.opencgaSession.study) {
             return guardPage("No OpenCGA study available to run an analysis. Please login to continue.");
         }
 
-        if (!this.enter) {
-            return html`
-                <div class="card">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-5">
-                        <div class="d-flex text-gray-600 mb-3 mt-5" style="font-size:3rem;">
-                            <i class="fas fa-rocket"></i>
-                        </div>
-                        <div class="text-center fs-5 text-gray-700 mb-4" style="max-width:560px;">
-                            <span>Create and execute Jupyter Notebooks to analyze your data on this OpenCGA instance. </span>
-                            <span class="fw-bold">Please note that this may involve additional costs.</span>
-                        </div>
-                        <div class="mb-5">
-                            <button type="button" class="btn btn-lg btn-primary" @click="${this.onEnterClick}">
-                                <span>Run Jupyter Notebook</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        } else {
-            const userId = this.opencgaSession.user.id;
-            const organizationId = this.opencgaSession.organization.id;
-            const serverUrl = this.opencgaSession.server.host.replace("/opencga", "");
-            const jupyterLoginUrl = serverUrl + "/jupyter/hub/login";
-            const token = this.opencgaSession.token;
-
-            return html`
-                <div class="card">
-                    <div class="card-body p-0">
-                        <iframe
-                            src="${jupyterLoginUrl}?userId=${userId}&organizationId=${organizationId}&opencgaUrl=${serverUrl}&logoutUrl=https:%2F%2Fwww.google.com&token=${token}"
-                            width="100%"
-                            height="720">
-                        </iframe>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    render() {
         return html`
-            <tool-header title="Jupyter Notebook"></tool-header>
-            ${this.renderContent()}
+            <tool-header
+                title="Jupyter Notebook">
+            </tool-header>
+            ${this.enter ? this.renderJupyterFrame() : this.renderWelcomeView()}
         `;
     }
 
