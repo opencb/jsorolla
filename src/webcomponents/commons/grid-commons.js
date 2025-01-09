@@ -264,6 +264,12 @@ export default class GridCommons {
                 Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>${Number(totalRowsNotTruncated).toLocaleString()}</b> records
                 <span title="Only first 1M pages shown" style="color: darkorange; vertical-align: top; font-size: 1.0rem"><i class="fas fa-asterisk fa-xs"></i></span>`;
         }
+        // Terrible hack to display the top pagination info
+        // Note that this is only executed if there is a pagination container in the grid
+        const paginationContainer = this.context?.querySelector(`#${this.gridId}Pagination`);
+        if (paginationContainer) {
+            paginationContainer.innerHTML = Number(totalRows) > 0 ? message : "";
+        }
         return message;
     }
 
