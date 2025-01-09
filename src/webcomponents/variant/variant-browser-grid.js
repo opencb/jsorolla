@@ -189,8 +189,9 @@ export default class VariantBrowserGrid extends LitElement {
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
                 paginationVAlign: "bottom",
-                formatShowingRows: (pageFrom, pageTo, totalRows) =>
-                    this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, this.totalRowsNotTruncated, this.isApproximateCount),
+                formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, this.totalRowsNotTruncated);
+                },
                 detailView: this._config.detailView,
                 detailFormatter: this.detailFormatter,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
@@ -1030,12 +1031,19 @@ export default class VariantBrowserGrid extends LitElement {
         LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
     }
 
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "Pagination"}"></span>
+        `;
+    }
+
     render() {
         return html`
             ${this._config?.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.query}"
                     .opencgaSession="${this.opencgaSession}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
