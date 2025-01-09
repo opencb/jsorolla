@@ -45,10 +45,10 @@ $card-cap-bg: $white;
 // https://getbootstrap.com/docs/5.3/components/dropdowns/#sass-variables
 $dropdown-bg: $white;
 $dropdown-border-color: var(--bs-border-color);
-$dropdown-padding-x: 0.25 * $spacer;
-$dropdown-padding-y: 0.25 * $spacer;
+$dropdown-padding-x: 0.3 * $spacer;
+$dropdown-padding-y: 0.3 * $spacer;
 $dropdown-item-padding-x: 0.5 * $spacer;
-$dropdown-item-padding-y: 0.25 * $spacer;
+$dropdown-item-padding-y: 0.3 * $spacer;
 $dropdown-header-padding-x: 0px; // $dropdown-item-padding-x;
 $dropdown-header-padding-y: $dropdown-item-padding-y;
 
