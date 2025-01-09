@@ -66,8 +66,8 @@ export default class LayoutPrimaryBar extends LitElement {
             return html`
                 <div class="d-flex dropdown" title="Projects and Studies">
                     <button class="btn d-flex align-items-center gap-1 border border-gray-700 hover:bg-gray-800 text-white dropdown-toggle" data-bs-toggle="dropdown">
-                        <div class="project-name">${this.opencgaSession.project?.name}:</div>
-                        <div class="fw-bold">${this.opencgaSession.study.name}</div>
+                        <div class="project-name lh-1">${this.opencgaSession.project?.name}:</div>
+                        <div class="fw-bold lh-1">${this.opencgaSession.study.name}</div>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
                         ${visibleProjects.map(project => html`
@@ -163,10 +163,10 @@ export default class LayoutPrimaryBar extends LitElement {
                         </div>
 
                         ${this.renderSeparator()}
-                        <div class="dropdown">
+                        <div class="d-flex dropdown">
                             <button class="btn d-flex align-items-center gap-2 border border-gray-700 hover:bg-gray-800 text-white dropdown-toggle" data-bs-toggle="dropdown">
                                 <i class="fas fa-user lh-1"></i>
-                                <span>${this.opencgaSession?.user?.name ?? this.opencgaSession?.user?.id ?? "-"}</span>
+                                <span class="lh-1">${this.opencgaSession?.user?.name ?? this.opencgaSession?.user?.id ?? "-"}</span>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
                                 ${this.getVisibleUserMenuItems().map(item => html`
