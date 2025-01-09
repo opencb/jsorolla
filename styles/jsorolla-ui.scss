@@ -69,6 +69,12 @@ body {
     --bs-dropdown-item-border-radius: var(--bs-border-radius-sm);
 }
 
+// override button styles
+.btn-light {
+    --bs-btn-border-color: #{$gray-200};
+    --bs-btn-border-width: #{$border-width};
+}
+
 // additional color utilities
 // Note: the $grays map is a Sass map that contains all the gray colors
 @each $shade,$color in $grays {
