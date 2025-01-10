@@ -69,7 +69,7 @@ export default class JupyterNotebook extends LitElement {
                 <div class="card-body d-flex flex-column align-items-center justify-content-center py-5 my-5">
                     ${this._config?.logo ? html`
                         <div class="d-flex text-gray-600 mb-4">
-                            <img src="${this._config.logo}" style="${this._config?.display?.logoStyle}">
+                            <img src="${this._config.logo}" class="${this._config?.display?.logoClass || ""}" style="${this._config?.display?.logoStyle || ""}">
                         </div>
                     ` : nothing}
                     <div class="text-center fs-5 text-gray-700 mb-4" style="max-width:560px;">
@@ -94,12 +94,14 @@ export default class JupyterNotebook extends LitElement {
         const token = this.opencgaSession.token;
 
         return html`
-            <div class="card">
-                <div class="card-body p-0">
+            <div class="card overflow-hidden">
+                <div class="card-body p-0 overflow-hidden">
                     <iframe
                         src="${jupyterLoginUrl}?userId=${userId}&organizationId=${organizationId}&opencgaUrl=${serverUrl}&logoutUrl=https:%2F%2Fwww.google.com&token=${token}"
-                        width="100%"
-                        height="720">
+                        class="${this._config?.display?.frameClass || ""}"
+                        style="${this._config?.display?.frameStyle || ""}"
+                        width="${this._config?.display?.frameWidth || "100%"}"
+                        height="${this._config?.display?.frameHeight || "720px"}">
                     </iframe>
                 </div>
             </div>
@@ -122,7 +124,12 @@ export default class JupyterNotebook extends LitElement {
     getDefaultConfig() {
         return {
             display: {
+                logoClass: "",
                 logoStyle: "width:200px;opacity:0.75;",
+                frameClass: "",
+                frameStyle: "border:0",
+                frameWidth: "100%",
+                frameHeight: "720px",
             },
             logo: "https://raw.githubusercontent.com/jupyter/design/refs/heads/main/logos/Rectangle%20Logo/rectanglelogo-blacktext-blackbody-blackplanets/rectanglelogo-blacktext-blackbody-blackplanets.svg",
         };
