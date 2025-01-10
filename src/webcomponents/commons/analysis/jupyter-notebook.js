@@ -43,7 +43,7 @@ export default class JupyterNotebook extends LitElement {
     }
 
     #init() {
-        this.enter = false;
+        this._enter = false;
         this._config = this.getDefaultConfig();
     }
 
@@ -54,24 +54,13 @@ export default class JupyterNotebook extends LitElement {
                 ...this.config
             };
         }
+
         super.update(changedProperties);
     }
 
     onEnterClick() {
-        this.enter = true;
+        this._enter = true;
         this.requestUpdate();
-
-        // Execute function provided in the configuration
-        /* if (this.analysisClass.execute) {
-            this.analysisClass.execute(this.opencgaSession, e.detail.data, e.detail.params);
-        } else {
-            console.error(`No execute() function provided for analysis: ${this._config.id}`)
-        }*/
-
-        // // TODO NOTE onAnalysisRun at the moment just forwards the `analysisRun` event fired in opencga-analysis-tool-form
-        // this.dispatchEvent(new CustomEvent("execute", {
-        //     detail: e.detail
-        // }));
     }
 
     renderWelcomeView() {
@@ -126,7 +115,7 @@ export default class JupyterNotebook extends LitElement {
             <tool-header
                 title="Jupyter Notebook">
             </tool-header>
-            ${this.enter ? this.renderJupyterFrame() : this.renderWelcomeView()}
+            ${this._enter ? this.renderJupyterFrame() : this.renderWelcomeView()}
         `;
     }
 
