@@ -60,9 +60,10 @@ export default class LayoutPrimaryBar extends LitElement {
     renderStudiesDropdown() {
         if (this.opencgaSession?.projects?.length > 0) {
             // Note: in the study selection we only display projects with at least one study
-            const visibleProjects = this.opencgaSession.projects.filter(project => {
-                return project?.studies?.length > 0;
-            });
+            const visibleProjects = this.opencgaSession.projects
+                .filter(project => {
+                    return project?.studies?.length > 0;
+                });
             return html`
                 <div class="d-flex dropdown" title="Projects and Studies">
                     <button class="btn d-flex align-items-center gap-1 border border-gray-700 hover:bg-gray-800 text-white dropdown-toggle" data-bs-toggle="dropdown">
@@ -125,6 +126,11 @@ export default class LayoutPrimaryBar extends LitElement {
 
                         ${this.renderSeparator()}
                         <div class="d-flex">
+                            <a href="#research/variant-browser" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
+                                <i class="fas fa-dna lh-1"></i>
+                            </a>
+                        </div>
+                        <div class="d-flex">
                             <a href="#research/file-data-manager" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
                                 <i class="fas fa-folder lh-1"></i>
                             </a>
@@ -178,7 +184,7 @@ export default class LayoutPrimaryBar extends LitElement {
                                 <hr class="dropdown-divider">
                                 <a class="dropdown-item cursor-pointer" data-user-menu="logout" @click="${() => this.logout()}">
                                     <i class="fa fa-sign-out-alt me-1"></i>
-                                    <span>Log out</span>
+                                    <span>Sign out</span>
                                 </a>
                             </div>
                         </div>
