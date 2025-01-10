@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import {guardPage} from "../html-utils.js";
 import "../../text-icon.js";
 import "./opencga-analysis-tool-form.js";
 import "../tool-header.js";
 
 export default class JupyterNotebook extends LitElement {
+
+    constructor() {
+        super();
+        this.#init();
+    }
 
     createRenderRoot() {
         return this;
@@ -37,22 +42,22 @@ export default class JupyterNotebook extends LitElement {
         };
     }
 
-    _init() {
-        this._prefix = UtilsNew.randomString(8);
-
+    #init() {
         this.enter = false;
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
             this._config = {
+                ...this.getDefaultConfig(),
                 ...this.config
             };
         }
         super.update(changedProperties);
     }
 
-    onEnterClick(e) {
+    onEnterClick() {
         this.enter = true;
         this.requestUpdate();
 
@@ -72,15 +77,17 @@ export default class JupyterNotebook extends LitElement {
     renderWelcomeView() {
         return html`
             <div class="card">
-                <div class="card-body d-flex flex-column align-items-center justify-content-center py-5">
-                    <div class="d-flex text-gray-600 mb-3 mt-5" style="font-size:3rem;">
-                        <i class="fas fa-rocket"></i>
-                    </div>
+                <div class="card-body d-flex flex-column align-items-center justify-content-center py-5 my-5">
+                    ${this._config?.logo ? html`
+                        <div class="d-flex text-gray-600 mb-4">
+                            <img src="${this._config.logo}" style="${this._config?.display?.logoStyle}">
+                        </div>
+                    ` : nothing}
                     <div class="text-center fs-5 text-gray-700 mb-4" style="max-width:560px;">
                         <span>Create and execute Jupyter Notebooks to analyze your data on this OpenCGA instance. </span>
                         <span class="fw-bold">Please note that this may involve additional costs.</span>
                     </div>
-                    <div class="mb-5">
+                    <div class="">
                         <button type="button" class="btn btn-lg btn-primary" @click="${this.onEnterClick}">
                             <span>Run Jupyter Notebook</span>
                         </button>
@@ -121,6 +128,15 @@ export default class JupyterNotebook extends LitElement {
             </tool-header>
             ${this.enter ? this.renderJupyterFrame() : this.renderWelcomeView()}
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            display: {
+                logoStyle: "width:200px;opacity:0.75;",
+            },
+            logo: "https://raw.githubusercontent.com/jupyter/design/refs/heads/main/logos/Rectangle%20Logo/rectanglelogo-blacktext-blackbody-blackplanets/rectanglelogo-blacktext-blackbody-blackplanets.svg",
+        };
     }
 
 }
