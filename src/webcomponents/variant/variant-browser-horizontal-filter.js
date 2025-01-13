@@ -293,7 +293,16 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         this.preparedQuery = {...this.preparedQuery};
         // this.updateQueryList();
         this.notifyQuery(this.preparedQuery);
-        this.requestUpdate();
+        // this.requestUpdate();
+        // check if this is a quick filter --> if so, we have to dispatch the search event
+        if (this.quickFiltersList.length > 0) {
+            const filterId = Object.keys(this.mapFilterIdToField)
+                .find(id => this.mapFilterIdToField[id] === key);
+            // verify of the filter id is in the quickFiltersList
+            if (filterId && this.quickFiltersList.find(filter => filter.id === filterId)) {
+                this.notifySearch(this.preparedQuery);
+            }
+        }
     }
 
     // DEPRECATED
