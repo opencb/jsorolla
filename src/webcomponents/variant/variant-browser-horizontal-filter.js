@@ -857,7 +857,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         }, 0);
 
         return html`
-            <div class="d-flex align-items-center gap-2 mb-3 border p-1 rounded">
+            <div class="d-flex align-items-center gap-2 mb-3">
                 ${this.renderQuickFilters()}
                 <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="offcanvas" data-bs-target="#${this._prefix}AdvancedFilters">
                     ${advancedFiltersCount > 0 ? html`
