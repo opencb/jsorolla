@@ -793,11 +793,20 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
 
     renderAdvancedFilters() {
         return this.advancedFilters.map((section, index) => {
+            const appliedFilters = section.filters.filter(filter => {
+                const fieldId = this.mapFilterIdToField[filter.id] || "";
+                const field = this.queryList.find(query => query.name === fieldId);
+                return !!field;
+            });
+
             return html`
                 <div class="d-flex flex-column gap-3">
                     <div class="d-flex align-items-center gap-2 cursor-pointer text-gray-700" data-bs-toggle="collapse" data-bs-target="#${this._prefix}AdvancedFilters${index}">
                         <i class="fa fa-chevron-down fs-5"></i>
                         <span class="fw-bold fs-4">${section.title}</span>
+                        ${appliedFilters.length > 0 ? html`
+                            <span class="fw-bold fs-4">(${appliedFilters.length})</span>    
+                        ` : nothing}
                     </div>
                     <div class="collapse" id="${this._prefix}AdvancedFilters${index}" data-bs-role="collapse">
                         <div class="d-flex flex-column gap-3">
