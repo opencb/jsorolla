@@ -309,14 +309,14 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         this.notifyQuery(this.preparedQuery);
         // this.requestUpdate();
         // check if this is a quick filter --> if so, we have to dispatch the search event
-        if (this.quickFiltersList.length > 0) {
-            const filterId = Object.keys(this.mapFilterIdToField)
-                .find(id => this.mapFilterIdToField[id] === key);
-            // verify of the filter id is in the quickFiltersList
-            if (filterId && this.quickFiltersList.find(filter => filter.id === filterId)) {
-                this.notifySearch(this.preparedQuery);
-            }
-        }
+        // if (this.quickFiltersList.length > 0) {
+        //     const filterId = Object.keys(this.mapFilterIdToField)
+        //         .find(id => this.mapFilterIdToField[id] === key);
+        //     // verify of the filter id is in the quickFiltersList
+        //     if (filterId && this.quickFiltersList.find(filter => filter.id === filterId)) {
+        //         this.notifySearch(this.preparedQuery);
+        //     }
+        // }
     }
 
     // DEPRECATED
@@ -778,10 +778,10 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
             return html`
                 <div class="dropdown d-flex">
                     <button class="btn btn-light d-flex align-items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                        <span>${filter.title}</span>
                         ${field ? html`
-                            <span class="badge text-bg-dark rounded-pill">${field.items.length}</span>
+                            <span class="fw-bold">(${field.items.length})</span>
                         ` : nothing}
+                        <span>${filter.title}</span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end shadow p-2" style="width: 240px;">
                         ${this.renderFilter(filter)}
@@ -843,26 +843,25 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
     }
 
     render() {
-        const advancedFieldsCount = this.advancedFilters.reduce((count, section) => {
-            const filtersCounts = section.filters.map(filter => {
+        const advancedFiltersCount = this.advancedFilters.reduce((count, section) => {
+            const appliedFilters = section.filters.filter(filter => {
                 const fieldId = this.mapFilterIdToField[filter.id] || "";
-                const field = this.queryList.find(query => query.name === fieldId);
-                return field ? field.items.length : 0;
+                return !!this.queryList.find(query => query.name === fieldId);
             });
-            return count + filtersCounts.reduce((acc, val) => acc + val, 0);
+            return count + appliedFilters.length;
         }, 0);
 
         return html`
             <div class="d-flex align-items-center gap-1 mb-3 border p-1 rounded">
                 ${this.renderQuickFilters()}
                 <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="offcanvas" data-bs-target="#${this._prefix}AdvancedFilters">
+                    ${advancedFiltersCount > 0 ? html`
+                        <span class="fw-bold">(${advancedFiltersCount})</span>
+                    ` : nothing}
                     <div class="d-flex align-items-center gap-1">
                         <i class="fa fa-filter"></i>
                         <span>Advanced Filters</span>
                     </div>
-                    ${advancedFieldsCount > 0 ? html`
-                        <span class="badge text-bg-dark rounded-pill">${advancedFieldsCount}</span>
-                    ` : nothing}
                 </button>
             </div>
             <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}AdvancedFilters" style="width:500px;">
