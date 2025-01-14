@@ -777,7 +777,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
 
             return html`
                 <div class="dropdown d-flex">
-                    <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                    <button class="btn btn-light d-flex align-items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <span>${filter.title}</span>
                         ${field ? html`
                             <span class="badge text-bg-dark rounded-pill">${field.items.length}</span>
