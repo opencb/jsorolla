@@ -771,21 +771,26 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
     }
 
     renderQuickFilters() {
-        return this.quickFiltersList.map(filter => {
+        return this.quickFiltersList.map((filter, index) => {
             const fieldId = this.mapFilterIdToField[filter.id] || "";
             const field = this.queryList.find(query => query.name === fieldId);
 
             return html`
-                <div class="dropdown d-flex">
-                    <button class="btn btn-light d-flex align-items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                <div class="d-flex align-items-stretch">
+                    <button class="btn btn-light d-flex align-items-center gap-2 dropdown-toggle ${field ? "rounded-end-0" : ""}" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         ${field ? html`
                             <span class="fw-bold">(${field.items.length})</span>
                         ` : nothing}
                         <span>${filter.title}</span>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-end shadow p-2" style="width: 240px;">
+                    <div class="dropdown-menu dropdown-menu-start shadow p-2" style="width: 240px;">
                         ${this.renderFilter(filter)}
                     </div>
+                    ${field ? html`
+                        <button class="btn btn-light d-flex align-items-center cursor-pointer rounded-start-0 border-start-0" @click="${() => this.onFilterChange(field.name, null)}">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    ` : nothing}
                 </div>
             `;
         });
@@ -852,7 +857,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         }, 0);
 
         return html`
-            <div class="d-flex align-items-center gap-1 mb-3 border p-1 rounded">
+            <div class="d-flex align-items-center gap-2 mb-3 border p-1 rounded">
                 ${this.renderQuickFilters()}
                 <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="offcanvas" data-bs-target="#${this._prefix}AdvancedFilters">
                     ${advancedFiltersCount > 0 ? html`
