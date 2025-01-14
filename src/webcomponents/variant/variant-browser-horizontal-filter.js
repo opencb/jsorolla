@@ -122,6 +122,20 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
     //     this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     // }
 
+    firstUpdated() {
+        // register listeners to bootstrap collapse events
+        Array.from(this.querySelectorAll(`[data-bs-role="collapse"]`)).forEach(el => {
+            el.addEventListener("show.bs.collapse", e => {
+                e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-down");
+                e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-up");
+            });
+            el.addEventListener("hide.bs.collapse", e => {
+                e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-up");
+                e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-down");
+            });
+        });
+    }
+
     update(changedProperties) {
         // if (changedProperties.has("opencgaSession")) {
         //     this.opencgaSessionObserver();
@@ -778,14 +792,45 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
     }
 
     renderAdvancedFilters() {
-        return this.advancedFilters.map(section => {
+        return this.advancedFilters.map((section, index) => {
             return html`
-                <h5>${section.title}</h5>
                 <div class="d-flex flex-column gap-3">
-                    ${section.filters.map(subsection => this.renderFilter(subsection))}
+                    <div class="d-flex align-items-center gap-2 cursor-pointer text-gray-700" data-bs-toggle="collapse" data-bs-target="#${this._prefix}AdvancedFilters${index}">
+                        <i class="fa fa-chevron-down fs-5"></i>
+                        <span class="fw-bold fs-4">${section.title}</span>
+                    </div>
+                    <div class="collapse" id="${this._prefix}AdvancedFilters${index}" data-bs-role="collapse">
+                        <div class="d-flex flex-column gap-3">
+                            ${section.filters.map(subsection => this.renderAdvancedFilterSubsection(subsection))}
+                        </div>
+                    </div>
                 </div>
             `;
         });
+    }
+
+    renderAdvancedFilterSubsection(subsection) {
+        return html`
+            <div class="">
+                ${subsection.title ? html`
+                    <div class="mb-2 fs-5 fw-bold d-flex justify-content-between align-items-center" id="${this._prefix}${subsection.id}" data-cy="${subsection.id}">
+                        ${this._getFilterField(subsection.title)}
+                        ${subsection.tooltip ? html`
+                            <a tooltip-title="Info" tooltip-text="${subsection.tooltip}">
+                                <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
+                            </a>
+                        ` : nothing}
+                    </div>
+                `: nothing}
+                <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
+                    ${this._createMessage(subsection)}
+                    ${subsection.description ? html`
+                        <div>${this._getFilterField(subsection.description)}</div>
+                    ` : nothing}
+                    ${this.renderFilter(subsection)}
+                </div>
+            </div>
+        `;
     }
 
     render() {
@@ -811,12 +856,12 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                     ` : nothing}
                 </button>
             </div>
-            <div class="offcanvas offcanvas-end" id="${this._prefix}AdvancedFilters">
-                <div class="offcanvas-header">
-                    <h5 class="offcanvas-title">Advanced Filters</h5>
+            <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}AdvancedFilters" style="width:500px;">
+                <div class="offcanvas-header px-5 py-3">
+                    <h4 class="offcanvas-title fw-bold">Advanced Filters</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
-                <div class="offcanvas-body">
+                <div class="offcanvas-body px-5 py-3 d-flex flex-column gap-4">
                     ${this.renderAdvancedFilters()}
                 </div>
             </div>
