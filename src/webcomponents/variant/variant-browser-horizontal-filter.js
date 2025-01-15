@@ -91,6 +91,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         this.advancedFilters = [];
 
         // map filter id to filter field
+        // TO_REMOVE
         this.mapFilterIdToField = {
             "variant": "id",
             "region": "region",
@@ -118,6 +119,38 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
             "hpo": "annot-hpo",
             "diseasePanels": "panels", // TODO
             "clinical-annotation": "clinical", // TODO
+        };
+
+        // map query field id to filter id
+        this.mapQueryFieldIdToFilterId = {
+            "id": "variant",
+            "region": "region",
+            "xref": "feature",
+            "biotype": "biotype",
+            "type": "type",
+            "study": "study",
+            "sample": "sample",
+            "cohortStatsAlt": "cohort",
+            "sampleData": "variant-file-sample-filter", // "file-quality" ??
+            "fileData": "variant-file-info-filter",
+            "populationFrequencyAlt": "populationFrequency",
+            "ct": "consequence-type",
+            "geneRoleInCancer": "role-in-cancer",
+            "proteinSubstitution": "proteinSubstitutionScore",
+            "annot-functional-score": "cadd",
+            "conservation": "conservation",
+            "go": "go",
+            "annot-hpo": "hpo",
+            "panel": "diseasePanels",
+            "panelFeatureType": "diseasePanels",
+            "panelModeOfInheritance": "diseasePanels",
+            "panelConfidence": "diseasePanels",
+            "panelRoleInCancer": "diseasePanels",
+            "panelIntersection": "diseasePanels",
+            "clinical": "clinical-annotation",
+            "clinicalSignificance": "clinical-annotation",
+            "clinicalConfirmedStatus": "clinical-annotation",
+            "traits": "fullTextSearch",
         };
     }
 
@@ -176,6 +209,10 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         }
 
         super.update(changedProperties);
+    }
+
+    updated() {
+        console.log(this.queryList);
     }
 
     // opencgaSessionObserver() {
@@ -329,6 +366,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
      * @param {String|Object} value the new value of the property
      */
     onFilterChange(key, value) {
+        console.log(key, value);
         /* Some filters may return more than one parameter, in this case key and value are objects with all the keys and filters
              - key: an object mapping filter name with the one returned
              - value: and object with the filter
@@ -830,8 +868,9 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
     }
 
     renderQuickFilters() {
-        return this.quickFiltersList.map((filter, index) => {
-            const fieldId = this.mapFilterIdToField[filter.id] || "";
+        return this.quickFiltersList.map((filter) => {
+            const fieldId = Object.keys(this.mapQueryFieldIdToFilterId)
+                .find(key => this.mapQueryFieldIdToFilterId[key] === filter.id);
             const field = this.queryList.find(query => query.name === fieldId);
 
             return html`
@@ -858,9 +897,9 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
     renderAdvancedFilters() {
         return this.advancedFilters.map((section, index) => {
             const appliedFilters = section.filters.filter(filter => {
-                const fieldId = this.mapFilterIdToField[filter.id] || "";
-                const field = this.queryList.find(query => query.name === fieldId);
-                return !!field;
+                const fieldIds = Object.keys(this.mapQueryFieldIdToFilterId)
+                    .filter(key => this.mapQueryFieldIdToFilterId[key] === filter.id);
+                return !!this.queryList.some(query => fieldIds.includes(query.name));
             });
 
             return html`
@@ -947,8 +986,9 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
     render() {
         const advancedFiltersCount = this.advancedFilters.reduce((count, section) => {
             const appliedFilters = section.filters.filter(filter => {
-                const fieldId = this.mapFilterIdToField[filter.id] || "";
-                return !!this.queryList.find(query => query.name === fieldId);
+                const fieldIds = Object.keys(this.mapQueryFieldIdToFilterId)
+                    .filter(key => this.mapQueryFieldIdToFilterId[key] === filter.id);
+                return this.queryList.some(query => fieldIds.includes(query.name));
             });
             return count + appliedFilters.length;
         }, 0);
