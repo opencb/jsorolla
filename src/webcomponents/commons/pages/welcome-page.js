@@ -33,7 +33,7 @@ export default class WelcomePage extends LitElement {
                     <div class="col-3">
                         <div class="d-block text-decoration-none text-body rounded-3">
                             <div class="d-flex mb-3">
-                                <a href="#${item.id}/home" class="text-decoration-none d-flex align-items-center justify-content-center bg-primary rounded-4" style="width:4rem;height:4rem;">
+                                <a href="#${item.id}/home" class="text-decoration-none d-flex align-items-center justify-content-center bg-primary bg-gradient rounded-4" style="width:4.5rem;height:4.5rem;">
                                     <i class="fas ${item.icon} fs-1 text-white"></i>
                                 </a>
                             </div>
