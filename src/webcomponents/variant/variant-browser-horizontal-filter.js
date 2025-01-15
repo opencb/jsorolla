@@ -69,9 +69,21 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
             cellbaseClient: {
                 type: Object
             },
+            resource: {
+                type: String,
+            },
+            toolId: {
+                type: String,
+            },
+            filters: {
+                type: Array,
+            },
+            defaultFilter: {
+                type: Object,
+            },
             config: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
@@ -83,12 +95,13 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         this.queryList = [];
         this.preparedQuery = {};
 
-        // history filters
-        this.history = [];
-
         // quick and advanced filters
         this.quickFiltersList = [];
         this.advancedFilters = [];
+
+        this.applicationFilters = [];
+        this.userFilters = [];
+        this.history = [];
 
         // map filter id to filter field
         // TO_REMOVE
@@ -196,9 +209,13 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
     }
 
     update(changedProperties) {
-        // if (changedProperties.has("opencgaSession")) {
-        //     this.opencgaSessionObserver();
-        // }
+        if (changedProperties.has("opencgaSession")) {
+            this.updateUserFilters();
+        }
+
+        if (changedProperties.has("filters") || changedProperties.has("defaultFilter")) {
+            this.updateApplicationFilters();
+        }
 
         if (changedProperties.has("query")) {
             this.queryObserver();
@@ -209,10 +226,6 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         }
 
         super.update(changedProperties);
-    }
-
-    updated() {
-        console.log(this.queryList);
     }
 
     // opencgaSessionObserver() {
@@ -273,6 +286,31 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         LitUtils.dispatchCustomEvent(this, "querySearch", null, {query});
     }
 
+    updateApplicationFilters() {
+        this.applicationFilters = [];
+
+        // 1. Add default filter
+        if (!!this.defaultFilter) {
+            const isDisabled = UtilsNew.isEmpty(this.defaultFilter);
+            this.applicationFilters.push({
+                id: "Default Filter",
+                query: UtilsNew.objectClone(this.defaultFilter),
+                disabled: isDisabled,
+                description: isDisabled ? "Filter not configured." : "",
+                active: false,
+            });
+        }
+
+        // 2. Add example filters
+        if (this.filters?.length > 0) {
+            this.applicationFilters.push(...this.filters);
+        }
+    }
+
+    updateUserFilters() {
+        this.userFilters = this.opencgaSession.user.filters.filter(f => f.resource === this.resource);
+    }
+
     updateHistory() {
         // 1. remove all identical filters
         const _history = this.history.filter(historyItem => {
@@ -286,7 +324,8 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
 
         // 3. prepare new latest filter and add at the beginning
         _history.unshift({
-            date: UtilsNew.getDatetime(),
+            id: UtilsNew.dateFormatter(UtilsNew.getDatetime(), "HH:mm:ss"),
+            // date: UtilsNew.getDatetime(),
             query: UtilsNew.objectClone(this.preparedQuery),
             latest: true,
         });
@@ -946,9 +985,8 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         `;
     }
 
-    renderHistoryItems() {
-        return this.history.map(item => {
-            const filterTitle = UtilsNew.dateFormatter(item.date, "HH:mm:ss");
+    renderFilterItems(items) {
+        return items.map(item => {
             const filterParams = Object.keys(item.query)
                 .filter(key => key !== "study" && !!item.query[key]);
             const filterTooltip = filterParams
@@ -960,7 +998,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
                             <div class="text-truncate">
-                                ${filterTitle} ${item.latest ? html` <b>(latest)</b>` : nothing}
+                                ${item.id} ${item.latest ? html` <b>(latest)</b>` : nothing}
                             </div>
                             <div class="small text-muted">
                             ${filterParams?.length > 0 ? html`
@@ -973,7 +1011,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                             </div>
                         </div>
                         <div class="flex-shrink-0 text-secondary mb-auto">
-                            <span  class="action-buttons" tooltip-title="${filterTitle}" tooltip-text="${filterTooltip || "Empty query."}">
+                            <span  class="action-buttons" tooltip-title="${item.id}" tooltip-text="${filterTooltip || "Empty query."}">
                                 <i class="fas fa-eye" data-action="view-filter"></i>
                             </span>
                         </div>
@@ -1011,6 +1049,24 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                     <span class="fw-bold">Search</span>
                 </button>
                 <div class="ms-auto d-flex align-items-stretch gap-2">
+                    <!-- Saved filters -->
+                    <div class="dropdown d-flex">
+                        <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                            <i class="fas fa-save"></i>
+                            <span class="fw-bold">Saved Filters</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end shadow" style="width:240px;">
+                            <div class="dropdown-header user-select-none">
+                                <span class="fw-bold">Application Filters</span>
+                            </div>
+                            ${this.renderFilterItems(this.applicationFilters)}
+                            <hr class="dropdown-divider">
+                            <div class="dropdown-header user-select-none">
+                                <span class="fw-bold">User Filters</span>
+                            </div>
+                            ${this.renderFilterItems(this.userFilters)}
+                        </div>
+                    </div>
                     <!-- History filters -->
                      <div class="dropdown d-flex">
                         <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown" data-bs-auto-close="outside">
@@ -1018,7 +1074,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                             <span class="fw-bold">History</span>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end shadow" style="width:240px;">
-                            ${this.renderHistoryItems()}
+                            ${this.renderFilterItems(this.history)}
                         </div>
                     </div>
                     <!-- Filters actions -->
