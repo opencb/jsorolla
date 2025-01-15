@@ -93,8 +93,31 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         // map filter id to filter field
         this.mapFilterIdToField = {
             "variant": "id",
+            "region": "region",
             "feature": "xref",
+            "biotype": "biotype",
             "type": "type",
+            "study": "study",
+            "sample": "sample",
+            "cohort": "cohortStatsAlt",
+            "family-genotype": "sample",
+            "sample-genotype": "sample",
+            "individual-hpo": "annot-hpo",
+            "variant-file": "file",
+            "file-quality": "sampleData",
+            "variant-file-sample-filter": "sampleData",
+            "variant-file-info-filter": "fileData",
+            "populationFrequency": "populationFrequencyAlt",
+            "consequence-type": "ct",
+            "consequenceTypeSelect": "ct",
+            "role-in-cancer": "geneRoleInCancer",
+            "proteinSubstitutionScore": "proteinSubstitution",
+            "cadd": "annot-functional-score",
+            "conservation": "conservation",
+            "go": "go",
+            "hpo": "annot-hpo",
+            "diseasePanels": "panels", // TODO
+            "clinical-annotation": "clinical", // TODO
         };
     }
 
