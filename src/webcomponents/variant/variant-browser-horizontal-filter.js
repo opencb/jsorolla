@@ -83,6 +83,9 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         this.queryList = [];
         this.preparedQuery = {};
 
+        // history filters
+        this.history = [];
+
         // quick and advanced filters
         this.quickFiltersList = [];
         this.advancedFilters = [];
@@ -172,7 +175,11 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         // 4. you will see again the deleted filter in active-filters
         this.preparedQuery = {...this.query};
         this.updateQueryList();
-        // this.requestUpdate();
+
+        // update the history only if it is empty
+        if (this.history.length === 0) {
+            this.updateHistory();
+        }
     }
 
     configObserver() {
@@ -198,16 +205,34 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
             .filter(section => section.filters.length > 0);
     }
 
-    onSearch() {
-        this.notifySearch(this.preparedQuery);
-    }
-
     notifyQuery(query) {
         LitUtils.dispatchCustomEvent(this, "queryChange", null, {query});
     }
 
     notifySearch(query) {
         LitUtils.dispatchCustomEvent(this, "querySearch", null, {query});
+    }
+
+    updateHistory() {
+        // 1. remove all identical filters
+        const _history = this.history.filter(historyItem => {
+            return JSON.stringify(historyItem.query) !== JSON.stringify(this.preparedQuery);
+        });
+
+        // 2. remove previous latest
+        if (_history?.length > 0) {
+            _history[0].latest = false;
+        }
+
+        // 3. prepare new latest filter and add at the beginning
+        _history.unshift({
+            date: UtilsNew.getDatetime(),
+            query: UtilsNew.objectClone(this.preparedQuery),
+            latest: true,
+        });
+
+        // 4. limit up to 10 history items
+        this.history = _history.slice(0, 10);
     }
 
     updateQueryList() {
@@ -347,6 +372,14 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         }
 
         this.requestUpdate();
+    }
+
+    onApplyQuery(query) {
+    }
+
+    onSearch() {
+        this.notifySearch(this.preparedQuery);
+        this.updateHistory();
     }
 
     _isFilterVisible(subsection) {
@@ -848,6 +881,43 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         `;
     }
 
+    renderHistoryItems() {
+        return this.history.map(item => {
+            const filterTitle = UtilsNew.dateFormatter(item.date, "HH:mm:ss");
+            const filterParams = Object.keys(item.query)
+                .filter(key => key !== "study" && !!item.query[key]);
+            const filterTooltip = filterParams
+                .map(key => `<b>${key}</b> = ${item.query[key]}`)
+                .join("<br>");
+
+            return html`
+                <a class="dropdown-item cursor-pointer" @click="${e => this.onFilterChange(e, item.query)}">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="text-truncate">
+                                ${filterTitle} ${item.latest ? html` <b>(latest)</b>` : nothing}
+                            </div>
+                            <div class="small text-muted">
+                            ${filterParams?.length > 0 ? html`
+                                ${filterParams.slice(0, 2).map(key => html`
+                                    <div class="" title="${item.query[key]}">
+                                        <b>${key}</b>: ${UtilsNew.substring(item.query[key], 20)}
+                                    </div>
+                                `)}
+                            ` : html`Empty query.`}
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0 text-secondary mb-auto">
+                            <span  class="action-buttons" tooltip-title="${filterTitle}" tooltip-text="${filterTooltip || "Empty query."}">
+                                <i class="fas fa-eye" data-action="view-filter"></i>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            `;
+        });
+    }
+
     render() {
         const advancedFiltersCount = this.advancedFilters.reduce((count, section) => {
             const appliedFilters = section.filters.filter(filter => {
@@ -881,8 +951,8 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                             <i class="fas fa-history"></i>
                             <span class="fw-bold">History</span>
                         </button>
-                        <div class="dropdown-menu dropdown-menu-end shadow">
-                            <span>History...</span>
+                        <div class="dropdown-menu dropdown-menu-end shadow" style="width:240px;">
+                            ${this.renderHistoryItems()}
                         </div>
                     </div>
                     <!-- Filters actions -->
