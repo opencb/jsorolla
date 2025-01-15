@@ -864,15 +864,36 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                         <span class="fw-bold">(${advancedFiltersCount})</span>
                     ` : nothing}
                     <div class="d-flex align-items-center gap-1">
-                        <i class="fa fa-filter"></i>
+                        <i class="fas fa-filter"></i>
                         <span>Advanced Filters</span>
                     </div>
                 </button>
                 <div class="w-px bg-gray-200"></div>
                 <button class="btn btn-primary d-flex align-items-center gap-2" @click="${this.onSearch}">
-                    <i class="fa fa-search"></i>
+                    <i class="fas fa-search"></i>
                     <span class="fw-bold">Search</span>
                 </button>
+                <div class="ms-auto d-flex align-items-stretch gap-2">
+                    <div class="dropdown d-flex">
+                        <button class="btn btn-light d-flex align-items-center" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end shadow">
+                            <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2" @click="${this.onCopyLink}" data-action="copy-link">
+                                <i class="fas fa-copy"></i>
+                                <span class="fw-bold">Copy IVA Link</span>
+                            </a>
+                            <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2" @click="${this.clear}" data-action="active-filter-clear">
+                                <i class="fas fa-eraser"></i>
+                                <span class="fw-bold">Clear</span>
+                            </a>
+                            <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2" @click="${this.launchModal}" data-action="active-filter-save">
+                                <i class="fas fa-save"></i>
+                                <span class="fw-bold">Save current filter</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}AdvancedFilters" style="width:500px;">
                 <div class="offcanvas-header px-5 py-3">
