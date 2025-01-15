@@ -374,7 +374,11 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         this.requestUpdate();
     }
 
-    onApplyQuery(query) {
+    onApplyQuery(event, query) {
+        // event.preventDefault();
+        this.preparedQuery = UtilsNew.objectClone(query || {});
+        this.notifySearch(this.preparedQuery);
+        this.updateHistory();
     }
 
     onSearch() {
@@ -891,7 +895,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                 .join("<br>");
 
             return html`
-                <a class="dropdown-item cursor-pointer" @click="${e => this.onFilterChange(e, item.query)}">
+                <a class="dropdown-item cursor-pointer" @click="${e => this.onApplyQuery(e, item.query)}">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
                             <div class="text-truncate">
