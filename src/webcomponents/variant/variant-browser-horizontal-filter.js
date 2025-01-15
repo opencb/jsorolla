@@ -124,16 +124,16 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
 
     firstUpdated() {
         // register listeners to bootstrap collapse events
-        Array.from(this.querySelectorAll(`[data-bs-role="collapse"]`)).forEach(el => {
-            el.addEventListener("show.bs.collapse", e => {
-                e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-down");
-                e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-up");
-            });
-            el.addEventListener("hide.bs.collapse", e => {
-                e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-up");
-                e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-down");
-            });
-        });
+        // Array.from(this.querySelectorAll(`[data-bs-role="collapse"]`)).forEach(el => {
+        //     el.addEventListener("show.bs.collapse", e => {
+        //         e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-down");
+        //         e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-up");
+        //     });
+        //     el.addEventListener("hide.bs.collapse", e => {
+        //         e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-up");
+        //         e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-down");
+        //     });
+        // });
     }
 
     update(changedProperties) {
@@ -805,16 +805,17 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
             });
 
             return html`
-                <div class="d-flex flex-column gap-3">
-                    <div class="d-flex align-items-center gap-2 cursor-pointer text-gray-700" data-bs-toggle="collapse" data-bs-target="#${this._prefix}AdvancedFilters${index}">
-                        <i class="fa fa-chevron-down fs-5"></i>
-                        <span class="fw-bold fs-4">${section.title}</span>
-                        ${appliedFilters.length > 0 ? html`
-                            <span class="fw-bold fs-4">(${appliedFilters.length})</span>    
-                        ` : nothing}
+                <div class="accordion-item bg-white">
+                    <div class="accordion-header">
+                        <button class="accordion-button collapsed fw-bold d-flex align-items-center gap-2" data-bs-toggle="collapse" data-bs-target="#${this.prefix}AdvancedFilters${index}">
+                            <span class="fs-5">${section.title}</span>
+                            ${appliedFilters.length > 0 ? html`
+                                <span class="fw-bold fs-5">(${appliedFilters.length})</span>    
+                            ` : nothing}
+                        </button>
                     </div>
-                    <div class="collapse" id="${this._prefix}AdvancedFilters${index}" data-bs-role="collapse">
-                        <div class="d-flex flex-column gap-3">
+                    <div id="${this.prefix}AdvancedFilters${index}" class="accordion-collapse collapse" data-bs-parent="#${this._prefix}AdvancedFilters">
+                        <div class="accordion-body d-flex flex-column gap-3">
                             ${section.filters.map(subsection => this.renderAdvancedFilterSubsection(subsection))}
                         </div>
                     </div>
@@ -874,8 +875,19 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                     <span class="fw-bold">Search</span>
                 </button>
                 <div class="ms-auto d-flex align-items-stretch gap-2">
+                    <!-- History filters -->
+                     <div class="dropdown d-flex">
+                        <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                            <i class="fas fa-history"></i>
+                            <span class="fw-bold">History</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end shadow">
+                            <span>History...</span>
+                        </div>
+                    </div>
+                    <!-- Filters actions -->
                     <div class="dropdown d-flex">
-                        <button class="btn btn-light d-flex align-items-center" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                        <button class="btn btn-light" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end shadow">
@@ -896,12 +908,14 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                 </div>
             </div>
             <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}AdvancedFilters" style="width:500px;">
-                <div class="offcanvas-header px-5 py-3">
+                <div class="offcanvas-header px-4">
                     <h4 class="offcanvas-title fw-bold">Advanced Filters</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
-                <div class="offcanvas-body px-5 py-3 d-flex flex-column gap-4">
-                    ${this.renderAdvancedFilters()}
+                <div class="offcanvas-body px-4">
+                    <div class="accordion" id="${this._prefix}AdvancedFilters">
+                        ${this.renderAdvancedFilters()}
+                    </div>
                 </div>
             </div>
         `;
