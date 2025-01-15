@@ -857,7 +857,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         }, 0);
 
         return html`
-            <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="d-flex align-items-stretch gap-2 mb-3">
                 ${this.renderQuickFilters()}
                 <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="offcanvas" data-bs-target="#${this._prefix}AdvancedFilters">
                     ${advancedFiltersCount > 0 ? html`
@@ -867,6 +867,11 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                         <i class="fa fa-filter"></i>
                         <span>Advanced Filters</span>
                     </div>
+                </button>
+                <div class="w-px bg-gray-200"></div>
+                <button class="btn btn-primary d-flex align-items-center gap-2" @click="${this.onSearch}">
+                    <i class="fa fa-search"></i>
+                    <span class="fw-bold">Search</span>
                 </button>
             </div>
             <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}AdvancedFilters" style="width:500px;">
