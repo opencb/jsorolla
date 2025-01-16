@@ -531,7 +531,6 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
      * @param {String|Object} value the new value of the property
      */
     onFilterChange(key, value) {
-        console.log(key, value);
         /* Some filters may return more than one parameter, in this case key and value are objects with all the keys and filters
              - key: an object mapping filter name with the one returned
              - value: and object with the filter
@@ -1212,7 +1211,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                 <div class="ms-auto d-flex align-items-stretch gap-2">
                     <!-- Clear current query -->
                      <button class="btn btn-light d-flex align-items-center gap-2 ${emptyPreparedQuery ? "disabled" : ""}" @click="${this.onClear}">
-                        <i class="fas fa-eraser"></i>
+                        <i class="fas fa-times"></i>
                         <span class="fw-bold">Clear</span>
                     </button>
                     <div class="w-px bg-gray-200"></div>
