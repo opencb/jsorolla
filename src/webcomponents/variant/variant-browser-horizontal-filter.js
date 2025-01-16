@@ -1184,6 +1184,8 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
             });
             return count + appliedFilters.length;
         }, 0);
+        // used to disable clear or save buttons
+        const emptyPreparedQuery = Object.keys(this.preparedQuery).length === 0;
 
         return html`
             <div class="d-flex align-items-stretch gap-2 mb-3">
@@ -1203,13 +1205,8 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                     <span class="fw-bold">Search</span>
                 </button>
                 <div class="ms-auto d-flex align-items-stretch gap-2">
-                    <!-- Save current query -->
-                     <button class="btn btn-light d-flex align-items-center gap-2 ${Object.keys(this.preparedQuery).length === 0 ? "disabled" : ""}" @click="${this.onSave}">
-                        <i class="fas fa-save"></i>
-                        <span class="fw-bold">Save</span>
-                    </button>
                     <!-- Clear current query -->
-                     <button class="btn btn-light d-flex align-items-center gap-2" @click="${this.onClear}">
+                     <button class="btn btn-light d-flex align-items-center gap-2 ${emptyPreparedQuery ? "disabled" : ""}" @click="${this.onClear}">
                         <i class="fas fa-eraser"></i>
                         <span class="fw-bold">Clear</span>
                     </button>
@@ -1248,6 +1245,10 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end shadow">
+                            <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2 ${emptyPreparedQuery ? "disabled": ""}" @click="${this.onSave}">
+                                <i class="fas fa-save"></i>
+                                <span class="fw-bold">Save Current Filter</span>
+                            </a>
                             <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2" @click="${this.onCopyLink}" data-action="copy-link">
                                 <i class="fas fa-copy"></i>
                                 <span class="fw-bold">Copy IVA Link</span>
