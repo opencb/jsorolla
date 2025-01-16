@@ -17,6 +17,8 @@
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import ModalUtils from "../commons/modal/modal-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
 import "../commons/filters/variant-filter.js";
@@ -209,7 +211,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("resource")) {
             this.updateUserFilters();
         }
 
@@ -308,7 +310,20 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
     }
 
     updateUserFilters() {
-        this.userFilters = this.opencgaSession.user.filters.filter(f => f.resource === this.resource);
+        this.userFilters = [];
+        if (this.opencgaSession && this.resource) {
+            this.opencgaSession.opencgaClient.users()
+                .filters(this.opencgaSession.user.id)
+                .then(response => {
+                    this.userFilters = (response.responses?.[0]?.results || []).filter(filter => {
+                        return filter.resource === this.resource;
+                    });
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error(response);
+                });
+        }
     }
 
     updateHistory() {
@@ -397,6 +412,112 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                 }
             }
         });
+    }
+
+    saveFilter() {
+        const filterName = this.querySelector(`#${this._prefix}SaveFilterName`).value;
+        const filterDescription = this.querySelector(`#${this._prefix}SaveFilterDescription`).value;
+        const query = UtilsNew.objectClone(this.query); // generate a clone of the current query
+
+        // 1. filter out the current active study
+        if (query.study) {
+            const studies = query.study.split(",").filter(fqn => fqn !== this.opencgaSession.study.fqn);
+            if (studies.length > 0) {
+                query.study = studies.join(",");
+            } else {
+                delete query.study;
+            }
+        }
+
+        // 2. remove ignored params
+        // When saving a filter we do no twant to save the exact sample or file ID, otherwise the filter cannot be reused
+        if (this._config?.save?.ignoreParams?.length > 0) {
+            this._config.save.ignoreParams.forEach(param => {
+                delete query[param];
+            });
+        }
+
+        // 3. fetch saved filters of the user
+        this.opencgaSession.opencgaClient.users()
+            .filters(this.opencgaSession.user.id)
+            .then(response => {
+                const savedFilters = response.responses?.[0]?.results || [];
+
+                // 3.1. check if the filter name already exists
+                if (savedFilters.find(savedFilter => savedFilter.id === filterName)) {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                        display: {
+                            okButtonText: "Yes, overwrite filter",
+                            cancelButtonText: "Cancel",
+                        },
+                        title: "Overwrite Filter",
+                        message: `A Filter with the name <b>${filterName}</b> is already present. Do you want to overwrite it?`,
+                        ok: () => {
+                            this.opencgaSession.opencgaClient.users()
+                                .updateFilter(this.opencgaSession.user.id, filterName, {
+                                    description: filterDescription,
+                                    resource: this.resource,
+                                    query: query,
+                                    options: {},
+                                })
+                                .then(() => {
+                                    // if (response?.getEvents?.("ERROR")?.length) {
+                                    //     return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                                    // }
+                                    // Display success message
+                                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                        message: "Filter has been saved",
+                                    });
+
+                                    // clear the name and description fields
+                                    this.querySelector(`#${this._prefix}SaveFilterName`).value = "";
+                                    this.querySelector(`#${this._prefix}SaveFilterDescription`).value = "";
+
+                                    // update user filters
+                                    this.updateUserFilters();
+                                })
+                                .catch(response => {
+                                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                                });
+                        },
+                    });
+
+                } else {
+                    // saving a new filter
+                    const data = {
+                        id: filterName,
+                        description: filterDescription,
+                        resource: this.resource,
+                        query: query,
+                        options: {}
+                    };
+                    this.opencgaSession.opencgaClient.users()
+                        .updateFilters(this.opencgaSession.user.id, data, {action: "ADD"})
+                        .then(() => {
+                            // if (response.getEvents?.("ERROR")?.length) {
+                            //     return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                            // }
+
+                            // Display success message
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                message: "Filter has been saved",
+                            });
+
+                            // clear the name and description fields
+                            this.querySelector(`#${this._prefix}SaveFilterName`).value = "";
+                            this.querySelector(`#${this._prefix}SaveFilterDescription`).value = "";
+
+                            // update user filters
+                            this.updateUserFilters();
+                        })
+                        .catch(response => {
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                        });
+                }
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
     }
 
     /*
@@ -489,6 +610,10 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         this.preparedQuery = {};
         this.notifySearch(this.preparedQuery);
         this.updateHistory();
+    }
+
+    onSave() {
+        ModalUtils.show(`${this._prefix}SaveFilter`);
     }
 
     _isFilterVisible(subsection) {
@@ -1027,6 +1152,29 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         });
     }
 
+    renderSaveModal() {
+        return ModalUtils.create(this, this._prefix + "SaveFilter", {
+            display: {
+                modalTitle: "Save Current Filter",
+                modalbtnsVisible: true,
+                okButtonText: "Save Filter",
+            },
+            render: () => html`
+                <div class="mb-3">
+                    <label for="${this._prefix}SaveFilterName" class="col-sm-2 col-form-label fw-bold">Name</label>
+                    <input class="form-control" type="text" id="${this._prefix}SaveFilterName" data-cy="modal-filter-name">
+                </div>
+                <div class="mb-3">
+                    <label for="${this._prefix}SaveFilterDescription" class="col-sm-2 col-form-label fw-bold">Description</label>
+                    <input class="form-control" type="text" id="${this._prefix}SaveFilterDescription" data-cy="modal-filter-description">
+                </div>
+            `,
+            onOk: () => {
+                this.saveFilter();
+            },
+        });
+    }
+
     render() {
         const advancedFiltersCount = this.advancedFilters.reduce((count, section) => {
             const appliedFilters = section.filters.filter(filter => {
@@ -1055,6 +1203,11 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                     <span class="fw-bold">Search</span>
                 </button>
                 <div class="ms-auto d-flex align-items-stretch gap-2">
+                    <!-- Save current query -->
+                     <button class="btn btn-light d-flex align-items-center gap-2 ${Object.keys(this.preparedQuery).length === 0 ? "disabled" : ""}" @click="${this.onSave}">
+                        <i class="fas fa-save"></i>
+                        <span class="fw-bold">Save</span>
+                    </button>
                     <!-- Clear current query -->
                      <button class="btn btn-light d-flex align-items-center gap-2" @click="${this.onClear}">
                         <i class="fas fa-eraser"></i>
@@ -1099,10 +1252,6 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                                 <i class="fas fa-copy"></i>
                                 <span class="fw-bold">Copy IVA Link</span>
                             </a>
-                            <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2" @click="${this.launchModal}" data-action="active-filter-save">
-                                <i class="fas fa-save"></i>
-                                <span class="fw-bold">Save current filter</span>
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -1118,6 +1267,8 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                     </div>
                 </div>
             </div>
+            <!-- Modal to save current filters -->
+            ${this.renderSaveModal()}
         `;
     }
 
