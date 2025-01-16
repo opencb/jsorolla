@@ -83,6 +83,9 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
             defaultFilter: {
                 type: Object,
             },
+            searchActive: {
+                type: Boolean,
+            },
             config: {
                 type: Object,
             },
@@ -94,6 +97,8 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         this._config = this.getDefaultConfig();
 
         this.query = {};
+        this.searchActive = true;
+
         this.queryList = [];
         this.preparedQuery = {};
 
@@ -1200,7 +1205,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                     </div>
                 </button>
                 <div class="w-px bg-gray-200"></div>
-                <button class="btn btn-primary d-flex align-items-center gap-2" @click="${this.onSearch}">
+                <button class="btn btn-primary d-flex align-items-center gap-2 ${!this.searchActive ? "disabled" : ""}" @click="${this.onSearch}">
                     <i class="fas fa-search"></i>
                     <span class="fw-bold">Search</span>
                 </button>
