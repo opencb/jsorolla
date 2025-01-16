@@ -485,6 +485,12 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         this.updateHistory();
     }
 
+    onClear() {
+        this.preparedQuery = {};
+        this.notifySearch(this.preparedQuery);
+        this.updateHistory();
+    }
+
     _isFilterVisible(subsection) {
         let visible = true;
         if (typeof subsection?.visible !== "undefined" && subsection?.visible !== null) {
@@ -1049,6 +1055,12 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                     <span class="fw-bold">Search</span>
                 </button>
                 <div class="ms-auto d-flex align-items-stretch gap-2">
+                    <!-- Clear current query -->
+                     <button class="btn btn-light d-flex align-items-center gap-2" @click="${this.onClear}">
+                        <i class="fas fa-eraser"></i>
+                        <span class="fw-bold">Clear</span>
+                    </button>
+                    <div class="w-px bg-gray-200"></div>
                     <!-- Saved filters -->
                     <div class="dropdown d-flex">
                         <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown" data-bs-auto-close="outside">
@@ -1086,10 +1098,6 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                             <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2" @click="${this.onCopyLink}" data-action="copy-link">
                                 <i class="fas fa-copy"></i>
                                 <span class="fw-bold">Copy IVA Link</span>
-                            </a>
-                            <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2" @click="${this.clear}" data-action="active-filter-clear">
-                                <i class="fas fa-eraser"></i>
-                                <span class="fw-bold">Clear</span>
                             </a>
                             <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2" @click="${this.launchModal}" data-action="active-filter-save">
                                 <i class="fas fa-save"></i>
