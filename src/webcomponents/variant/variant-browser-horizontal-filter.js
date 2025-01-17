@@ -129,6 +129,10 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         super.update(changedProperties);
     }
 
+    updated() {
+        UtilsNew.initTooltip(this);
+    }
+
     queryObserver() {
         this.preparedQuery = UtilsNew.objectClone(this.query);
         this.updateQueryList();
