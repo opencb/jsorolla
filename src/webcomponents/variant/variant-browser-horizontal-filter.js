@@ -936,7 +936,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                             </div>
                         </div>
                         <div class="flex-shrink-0 mb-auto">
-                            <span  class="action-buttons" tooltip-title="${item.id}" tooltip-text="${filterTooltip || "Empty query."}">
+                            <span tooltip-title="${item.id}" tooltip-text="${filterTooltip || "Empty query."}" tooltip-position-my="top right">
                                 <i class="fas fa-eye opacity-75" data-action="view-filter"></i>
                             </span>
                         </div>
