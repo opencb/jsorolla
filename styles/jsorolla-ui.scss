@@ -24,7 +24,7 @@ $gray-900: #191c1f;
 
 // theme colors
 $primary: #0456C8;
-$warning: #cc9900;
+// $warning: #cc9900;
 $light: $gray-100;
 $dark: $gray-900;
 $white: #fff;
@@ -127,11 +127,21 @@ body {
 }
 
 // Additional font sizes
+// https://getbootstrap.com/docs/5.3/utilities/text/#font-size
 .fs-7 {
     font-size: $font-size-base * 0.875;
 }
 .fs-8 {
     font-size: $font-size-base * 0.75;
+}
+
+// additional text decoration utilities
+// https://getbootstrap.com/docs/5.3/utilities/text/#text-decoration
+.hover\:text-decoration-line-through:hover {
+    text-decoration: line-through;
+}
+.hover\:text-decoration-underline:hover {
+    text-decoration: underline;
 }
 
 
