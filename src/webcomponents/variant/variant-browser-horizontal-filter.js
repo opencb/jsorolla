@@ -107,97 +107,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         this.applicationFilters = [];
         this.userFilters = [];
         this.historyFilters = [];
-
-        // map filter id to filter field
-        // TO_REMOVE
-        this.mapFilterIdToField = {
-            "variant": "id",
-            "region": "region",
-            "feature": "xref",
-            "biotype": "biotype",
-            "type": "type",
-            "study": "study",
-            "sample": "sample",
-            "cohort": "cohortStatsAlt",
-            "family-genotype": "sample",
-            "sample-genotype": "sample",
-            "individual-hpo": "annot-hpo",
-            "variant-file": "file",
-            "file-quality": "sampleData",
-            "variant-file-sample-filter": "sampleData",
-            "variant-file-info-filter": "fileData",
-            "populationFrequency": "populationFrequencyAlt",
-            "consequence-type": "ct",
-            "consequenceTypeSelect": "ct",
-            "role-in-cancer": "geneRoleInCancer",
-            "proteinSubstitutionScore": "proteinSubstitution",
-            "cadd": "annot-functional-score",
-            "conservation": "conservation",
-            "go": "go",
-            "hpo": "annot-hpo",
-            "diseasePanels": "panels", // TODO
-            "clinical-annotation": "clinical", // TODO
-        };
-
-        // map query field id to filter id
-        this.mapQueryFieldIdToFilterId = {
-            "id": "variant",
-            "region": "region",
-            "xref": "feature",
-            "biotype": "biotype",
-            "type": "type",
-            "study": "study",
-            "sample": "sample",
-            "cohortStatsAlt": "cohort",
-            "sampleData": "variant-file-sample-filter", // "file-quality" ??
-            "fileData": "variant-file-info-filter",
-            "populationFrequencyAlt": "populationFrequency",
-            "ct": "consequence-type",
-            "geneRoleInCancer": "role-in-cancer",
-            "proteinSubstitution": "proteinSubstitutionScore",
-            "annot-functional-score": "cadd",
-            "conservation": "conservation",
-            "go": "go",
-            "annot-hpo": "hpo",
-            "panel": "diseasePanels",
-            "panelFeatureType": "diseasePanels",
-            "panelModeOfInheritance": "diseasePanels",
-            "panelConfidence": "diseasePanels",
-            "panelRoleInCancer": "diseasePanels",
-            "panelIntersection": "diseasePanels",
-            "clinical": "clinical-annotation",
-            "clinicalSignificance": "clinical-annotation",
-            "clinicalConfirmedStatus": "clinical-annotation",
-            "traits": "fullTextSearch",
-        };
     }
-
-    // connectedCallback() {
-    //     super.connectedCallback();
-
-    //     // Add event to allow Ctrl+Enter to fire the Search
-    //     let isCtrl = false;
-    //     document.addEventListener("keyup", e => {
-    //         if (e.key?.toUpperCase() === "CONTROL") {
-    //             isCtrl = false;
-    //         }
-    //     });
-
-    //     document.addEventListener("keydown", e => {
-    //         if (e.key?.toUpperCase() === "CONTROL") {
-    //             isCtrl = true;
-    //         }
-
-    //         if (e.key?.toUpperCase() === "ENTER" && isCtrl) {
-    //             e.preventDefault();
-    //             e.stopImmediatePropagation();
-
-    //             this.onSearch();
-    //         }
-    //     });
-
-    //     this.preparedQuery = {...this.query}; // propagates here the iva-app query object
-    // }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("resource")) {
@@ -1002,26 +912,14 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
 
     renderQuickFilters() {
         return this.quickFilters.map((filter) => {
-            const fieldId = Object.keys(this.mapQueryFieldIdToFilterId)
-                .find(key => this.mapQueryFieldIdToFilterId[key] === filter.id);
-            const field = this.queryList.find(query => query.name === fieldId);
-
             return html`
                 <div class="d-flex align-items-stretch">
-                    <button class="btn btn-light d-flex align-items-center gap-2 dropdown-toggle ${field ? "rounded-end-0" : ""}" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                        ${field ? html`
-                            <span class="fw-bold">(${field.items.length})</span>
-                        ` : nothing}
+                    <button class="btn btn-light d-flex align-items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <span>${filter.title}</span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-start shadow p-2" style="width: 240px;">
                         ${this.renderFilter(filter)}
                     </div>
-                    ${field ? html`
-                        <button class="btn btn-light d-flex align-items-center cursor-pointer rounded-start-0 border-start-0" @click="${() => this.onFilterChange(field.name, null)}">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    ` : nothing}
                 </div>
             `;
         });
@@ -1029,20 +927,11 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
 
     renderAdvancedFilters() {
         return this._config.sections.map((section, index) => {
-            const appliedFilters = section.filters.filter(filter => {
-                const fieldIds = Object.keys(this.mapQueryFieldIdToFilterId)
-                    .filter(key => this.mapQueryFieldIdToFilterId[key] === filter.id);
-                return !!this.queryList.some(query => fieldIds.includes(query.name));
-            });
-
             return html`
                 <div class="accordion-item bg-white">
                     <div class="accordion-header">
-                        <button class="accordion-button collapsed fw-bold d-flex align-items-center gap-2" data-bs-toggle="collapse" data-bs-target="#${this.prefix}AdvancedFilters${index}">
+                        <button class="accordion-button collapsed fw-bold" data-bs-toggle="collapse" data-bs-target="#${this.prefix}AdvancedFilters${index}">
                             <span class="fs-5">${section.title}</span>
-                            ${appliedFilters.length > 0 ? html`
-                                <span class="fw-bold fs-5">(${appliedFilters.length})</span>    
-                            ` : nothing}
                         </button>
                     </div>
                     <div id="${this.prefix}AdvancedFilters${index}" class="accordion-collapse collapse" data-bs-parent="#${this._prefix}AdvancedFilters">
@@ -1171,14 +1060,6 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
     }
 
     render() {
-        const advancedFiltersCount = this._config.sections.reduce((count, section) => {
-            const appliedFilters = section.filters.filter(filter => {
-                const fieldIds = Object.keys(this.mapQueryFieldIdToFilterId)
-                    .filter(key => this.mapQueryFieldIdToFilterId[key] === filter.id);
-                return this.queryList.some(query => fieldIds.includes(query.name));
-            });
-            return count + appliedFilters.length;
-        }, 0);
         // used to disable clear or save buttons
         const emptyPreparedQuery = Object.keys(this.preparedQuery).length === 0;
 
@@ -1187,9 +1068,6 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                 <div class="d-flex align-items-stretch gap-2 mb-2">
                     ${this.renderQuickFilters()}
                     <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="offcanvas" data-bs-target="#${this._prefix}AdvancedFilters">
-                        ${advancedFiltersCount > 0 ? html`
-                            <span class="fw-bold">(${advancedFiltersCount})</span>
-                        ` : nothing}
                         <div class="d-flex align-items-center gap-1">
                             <i class="fas fa-filter"></i>
                             <span>Advanced Filters</span>
