@@ -1169,89 +1169,91 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         const emptyPreparedQuery = Object.keys(this.preparedQuery).length === 0;
 
         return html`
-            <div class="d-flex align-items-stretch gap-2 mb-3">
-                ${this.renderQuickFilters()}
-                <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="offcanvas" data-bs-target="#${this._prefix}AdvancedFilters">
-                    ${advancedFiltersCount > 0 ? html`
-                        <span class="fw-bold">(${advancedFiltersCount})</span>
-                    ` : nothing}
-                    <div class="d-flex align-items-center gap-1">
-                        <i class="fas fa-filter"></i>
-                        <span>Advanced Filters</span>
-                    </div>
-                </button>
-                <div class="w-px bg-gray-200"></div>
-                <button class="btn btn-primary d-flex align-items-center gap-2 ${!this.searchActive ? "disabled" : ""}" @click="${this.onSearch}">
-                    <i class="fas fa-search"></i>
-                    <span class="fw-bold">Search</span>
-                </button>
-                <div class="ms-auto d-flex align-items-stretch gap-2">
-                    <!-- Clear current query -->
-                     <button class="btn btn-light d-flex align-items-center gap-2 ${emptyPreparedQuery ? "disabled" : ""}" @click="${this.onClear}">
-                        <i class="fas fa-times"></i>
-                        <span class="fw-bold">Clear</span>
+            <div class="border p-1 rounded-3 mb-3">
+                <div class="d-flex align-items-stretch gap-2 mb-3">
+                    ${this.renderQuickFilters()}
+                    <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="offcanvas" data-bs-target="#${this._prefix}AdvancedFilters">
+                        ${advancedFiltersCount > 0 ? html`
+                            <span class="fw-bold">(${advancedFiltersCount})</span>
+                        ` : nothing}
+                        <div class="d-flex align-items-center gap-1">
+                            <i class="fas fa-filter"></i>
+                            <span>Advanced Filters</span>
+                        </div>
                     </button>
                     <div class="w-px bg-gray-200"></div>
-                    <!-- Saved filters -->
-                    <div class="dropdown d-flex">
-                        <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                            <i class="fas fa-save"></i>
-                            <span class="fw-bold">Saved Filters</span>
+                    <button class="btn btn-primary d-flex align-items-center gap-2 ${!this.searchActive ? "disabled" : ""}" @click="${this.onSearch}">
+                        <i class="fas fa-search"></i>
+                        <span class="fw-bold">Search</span>
+                    </button>
+                    <div class="ms-auto d-flex align-items-stretch gap-2">
+                        <!-- Clear current query -->
+                         <button class="btn btn-light d-flex align-items-center gap-2 ${emptyPreparedQuery ? "disabled" : ""}" @click="${this.onClear}">
+                            <i class="fas fa-times"></i>
+                            <span class="fw-bold">Clear</span>
                         </button>
-                        <div class="dropdown-menu dropdown-menu-end shadow" style="width:240px;">
-                            <div class="dropdown-header user-select-none">
-                                <span class="fw-bold">Application Filters</span>
-                            </div>
-                            ${this.renderFilterItems(this.applicationFilters)}
-                            <hr class="dropdown-divider">
-                            <div class="dropdown-header user-select-none">
-                                <span class="fw-bold">User Filters</span>
-                            </div>
-                            ${this.renderFilterItems(this.userFilters)}
-                        </div>
-                    </div>
-                    <!-- History filters -->
-                     <div class="dropdown d-flex">
-                        <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                            <i class="fas fa-history"></i>
-                            <span class="fw-bold">History</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end shadow" style="width:240px;">
-                            ${this.renderFilterItems(this.historyFilters)}
-                        </div>
-                    </div>
-                    <!-- Filters actions -->
-                    <div class="dropdown d-flex">
-                        <button class="btn btn-light" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end shadow">
-                            <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2 ${emptyPreparedQuery ? "disabled": ""}" @click="${this.onSave}">
+                        <div class="w-px bg-gray-200"></div>
+                        <!-- Saved filters -->
+                        <div class="dropdown d-flex">
+                            <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                                 <i class="fas fa-save"></i>
-                                <span class="fw-bold">Save Current Filter</span>
-                            </a>
-                            <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2" @click="${this.onCopyLink}" data-action="copy-link">
-                                <i class="fas fa-copy"></i>
-                                <span class="fw-bold">Copy IVA Link</span>
-                            </a>
+                                <span class="fw-bold">Saved Filters</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow" style="width:240px;">
+                                <div class="dropdown-header user-select-none">
+                                    <span class="fw-bold">Application Filters</span>
+                                </div>
+                                ${this.renderFilterItems(this.applicationFilters)}
+                                <hr class="dropdown-divider">
+                                <div class="dropdown-header user-select-none">
+                                    <span class="fw-bold">User Filters</span>
+                                </div>
+                                ${this.renderFilterItems(this.userFilters)}
+                            </div>
+                        </div>
+                        <!-- History filters -->
+                         <div class="dropdown d-flex">
+                            <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                <i class="fas fa-history"></i>
+                                <span class="fw-bold">History</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow" style="width:240px;">
+                                ${this.renderFilterItems(this.historyFilters)}
+                            </div>
+                        </div>
+                        <!-- Filters actions -->
+                        <div class="dropdown d-flex">
+                            <button class="btn btn-light" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow">
+                                <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2 ${emptyPreparedQuery ? "disabled": ""}" @click="${this.onSave}">
+                                    <i class="fas fa-save"></i>
+                                    <span class="fw-bold">Save Current Filter</span>
+                                </a>
+                                <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2" @click="${this.onCopyLink}" data-action="copy-link">
+                                    <i class="fas fa-copy"></i>
+                                    <span class="fw-bold">Copy IVA Link</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}AdvancedFilters" style="width:500px;">
-                <div class="offcanvas-header px-4">
-                    <h4 class="offcanvas-title fw-bold">Advanced Filters</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                </div>
-                <div class="offcanvas-body px-4">
-                    <div class="accordion" id="${this._prefix}AdvancedFilters">
-                        ${this.renderAdvancedFilters()}
+                <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}AdvancedFilters" style="width:500px;">
+                    <div class="offcanvas-header px-4">
+                        <h4 class="offcanvas-title fw-bold">Advanced Filters</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body px-4">
+                        <div class="accordion" id="${this._prefix}AdvancedFilters">
+                            ${this.renderAdvancedFilters()}
+                        </div>
                     </div>
                 </div>
-            </div>
-            <!-- Active filters -->
-            <div class="d-flex gap-2 mb-3 border p-1 rounded-3">
-                ${this.queryList.length > 0 ? this.renderActiveFilters() : html`<span class="fw-bold p-2">No filters selected</span>`}
+                <!-- Active filters -->
+                <div class="d-flex gap-2">
+                    ${this.queryList.length > 0 ? this.renderActiveFilters() : html`<span class="fw-bold p-2">No filters selected</span>`}
+                </div>
             </div>
             <!-- Modal to save current filters -->
             ${this.renderSaveModal()}
