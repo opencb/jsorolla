@@ -102,13 +102,10 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         this.queryList = [];
         this.preparedQuery = {};
 
-        // quick and advanced filters
-        this.quickFiltersList = [];
-        this.advancedFilters = [];
-
+        this.quickFilters = [];
         this.applicationFilters = [];
         this.userFilters = [];
-        this.history = [];
+        this.historyFilters = [];
 
         // map filter id to filter field
         // TO_REMOVE
@@ -226,7 +223,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         this.updateQueryList();
 
         // update the history only if it is empty
-        if (this.history.length === 0) {
+        if (this.historyFilters.length === 0) {
             this.updateHistory();
         }
     }
@@ -240,20 +237,10 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         const quickFiltersIds = new Set(["variant", "feature"]);
 
         // prepare list of quick and advanced filters
-        this.quickFiltersList = (this._config?.sections || [])
+        this.quickFilters = (this._config?.sections || [])
             .map(section => (section?.filters || [])
             .filter(filter => quickFiltersIds.has(filter.id)))
             .flat();
-
-        // NOTE: advanced filters are grouped in sections instead of a plain list of filters
-        this.advancedFilters = (this._config?.sections || [])
-            .map(section => {
-                return {
-                    ...section,
-                    filters: section.filters.filter(filter => !quickFiltersIds.has(filter.id)),
-                };
-            })
-            .filter(section => section.filters.length > 0);
     }
 
     notifyQuery(query) {
@@ -304,17 +291,17 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
 
     updateHistory() {
         // 1. remove all identical filters
-        const _history = this.history.filter(historyItem => {
+        const history = this.historyFilters.filter(historyItem => {
             return JSON.stringify(historyItem.query) !== JSON.stringify(this.preparedQuery);
         });
 
         // 2. remove previous latest
-        if (_history?.length > 0) {
-            _history[0].latest = false;
+        if (history?.length > 0) {
+            history[0].latest = false;
         }
 
         // 3. prepare new latest filter and add at the beginning
-        _history.unshift({
+        history.unshift({
             id: UtilsNew.dateFormatter(UtilsNew.getDatetime(), "HH:mm:ss"),
             // date: UtilsNew.getDatetime(),
             query: UtilsNew.objectClone(this.preparedQuery),
@@ -322,7 +309,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         });
 
         // 4. limit up to 10 history items
-        this.history = _history.slice(0, 10);
+        this.historyFilters = history.slice(0, 10);
     }
 
     updateQueryList() {
@@ -1000,7 +987,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
     }
 
     renderQuickFilters() {
-        return this.quickFiltersList.map((filter) => {
+        return this.quickFilters.map((filter) => {
             const fieldId = Object.keys(this.mapQueryFieldIdToFilterId)
                 .find(key => this.mapQueryFieldIdToFilterId[key] === filter.id);
             const field = this.queryList.find(query => query.name === fieldId);
@@ -1027,7 +1014,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
     }
 
     renderAdvancedFilters() {
-        return this.advancedFilters.map((section, index) => {
+        return this._config.sections.map((section, index) => {
             const appliedFilters = section.filters.filter(filter => {
                 const fieldIds = Object.keys(this.mapQueryFieldIdToFilterId)
                     .filter(key => this.mapQueryFieldIdToFilterId[key] === filter.id);
@@ -1170,7 +1157,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
     }
 
     render() {
-        const advancedFiltersCount = this.advancedFilters.reduce((count, section) => {
+        const advancedFiltersCount = this._config.sections.reduce((count, section) => {
             const appliedFilters = section.filters.filter(filter => {
                 const fieldIds = Object.keys(this.mapQueryFieldIdToFilterId)
                     .filter(key => this.mapQueryFieldIdToFilterId[key] === filter.id);
@@ -1230,7 +1217,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                             <span class="fw-bold">History</span>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end shadow" style="width:240px;">
-                            ${this.renderFilterItems(this.history)}
+                            ${this.renderFilterItems(this.historyFilters)}
                         </div>
                     </div>
                     <!-- Filters actions -->
