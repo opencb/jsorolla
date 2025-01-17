@@ -253,7 +253,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         // 2. delete 1 filter from active-filter
         // 3. add another filter from variant-filter
         // 4. you will see again the deleted filter in active-filters
-        this.preparedQuery = {...this.query};
+        this.preparedQuery = UtilsNew.objectClone(this.query);
         this.updateQueryList();
 
         // update the history only if it is empty
@@ -525,19 +525,13 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
             });
     }
 
-    /*
-     * Handles filterChange events from all the filter components (this is the new updateQueryFilters)
-     * @param {String} key the name of the property in this.query
-     * @param {String|Object} value the new value of the property
-     */
     onFilterChange(key, value) {
-        /* Some filters may return more than one parameter, in this case key and value are objects with all the keys and filters
-             - key: an object mapping filter name with the one returned
-             - value: and object with the filter
-            Example: REST accepts filter and qual while filter returns FILTER and QUALITY
-             - key: {filter: "FILTER", qual: "QUALITY"}
-             - value: {FILTER: "pass", QUALITY: "25"}
-         */
+        // Some filters may return more than one parameter, in this case key and value are objects with all the keys and filters
+        //  - key: an object mapping filter name with the one returned
+        //  - value: and object with the filter
+        // Example: REST accepts filter and qual while filter returns FILTER and QUALITY
+        //  - key: {filter: "FILTER", qual: "QUALITY"}
+        //  - value: {FILTER: "pass", QUALITY: "25"}
         if (typeof key === "object" && typeof value === "object") {
             Object.values(key).forEach(k => {
                 if (value[k] && value[k] !== "") {
@@ -547,56 +541,48 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                 }
             });
         } else {
-            if (value && value !== "") {
+            if (!!value) {
                 this.preparedQuery[key] = value;
             } else {
-                // deleting `key` from this.preparedQuery
                 delete this.preparedQuery[key];
             }
         }
-        this.preparedQuery = {...this.preparedQuery};
-        // this.updateQueryList();
         this.notifyQuery(this.preparedQuery);
-        // this.requestUpdate();
-        // check if this is a quick filter --> if so, we have to dispatch the search event
-        // if (this.quickFiltersList.length > 0) {
-        //     const filterId = Object.keys(this.mapFilterIdToField)
-        //         .find(id => this.mapFilterIdToField[id] === key);
-        //     // verify of the filter id is in the quickFiltersList
-        //     if (filterId && this.quickFiltersList.find(filter => filter.id === filterId)) {
-        //         this.notifySearch(this.preparedQuery);
-        //     }
-        // }
     }
 
-    // DEPRECATED
-    // FIXME: is it deprecated?
-    onVariantCallerInfoFilter(fileId, fileDataFilter, callback) {
-        let fileDataArray = [];
-        if (this.preparedQuery.fileData) {
-            fileDataArray = this.preparedQuery.fileData.split(",");
-            const fileDataIndex = fileDataArray.findIndex(e => e.startsWith(fileId));
-            if (fileDataIndex >= 0) {
-                fileDataArray[fileDataIndex] = fileDataFilter;
-            } else {
-                fileDataArray.push(fileDataFilter);
-            }
+    onFilterDelete(key, value) {
+        // in case that we want to remove the whole filter, or the filter has a single value
+        if (!value || this.preparedQuery[key] === value) {
+            delete this.preparedQuery[key];
         } else {
-            fileDataArray.push(fileDataFilter);
+            let filterFields = [];
+            const complexField = (this._config?.complexFields || []).find(item => item.id === key);
+
+            if (complexField) {
+                filterFields = complexField?.separator ? this.preparedQuery[key].split(complexField.separator) : UtilsNew.splitByRegex(this.preparedQuery[key], complexField.separatorRegex);
+            } else if (value.indexOf(";") !== -1 && value.indexOf(",") !== -1) {
+                filterFields = this.preparedQuery[key].split(";"); // If we find a field with both ; and , we will separate by ;
+            } else {
+                filterFields = this.preparedQuery[key].split(new RegExp("[,;]"));
+            }
+
+            // remove value from filterFields
+            filterFields = filterFields.filter(field => field !== value); 
+
+            // restore the query field
+            if (complexField) {
+                this.preparedQuery[key] = complexField?.separator ? filterFields.join(complexField.separator) : filterFields.join(",");
+            } else if (value.indexOf(";") !== -1 && value.indexOf(",") !== -1) {
+                this.preparedQuery[key] = filterFields.join(";");
+            } else if (this.preparedQuery[key].indexOf(",") !== -1) {
+                this.preparedQuery[key] = filterFields.join(",");
+            } else {
+                this.preparedQuery[key] = filterFields.join(";");
+            }
         }
 
-        this.preparedQuery = {
-            ...this.preparedQuery,
-            fileData: fileDataArray.join(",")
-        };
-
-        this.notifyQuery(this.preparedQuery);
-
-        if (callback) {
-            callback(fileDataFilter);
-        }
-
-        this.requestUpdate();
+        this.notifySearch(this.preparedQuery);
+        this.updateHistory();
     }
 
     onApplyQuery(query) {
@@ -1184,14 +1170,14 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
             const itemClass = item.locked ? "disabled" : "hover:text-decoration-line-through cursor-pointer";
             if (item.items.length === 1) {
                 return html`
-                    <button class="btn btn-warning ${itemClass}" data-filter-name="${item.name}" @click="${this.onQueryFilterDelete}">
+                    <button class="btn btn-warning ${itemClass}" @click="${() => this.onFilterDelete(item.name)}">
                         <span>${item.text}</span>
                     </button>
                 `;
             } else {
                 return html`
                     <div class="btn-group">
-                        <button class="btn btn-warning ${itemClass}" data-filter-name="${item.name}" @click="${this.onQueryFilterDelete}">
+                        <button class="btn btn-warning ${itemClass}" @click="${() => this.onFilterDelete(item.name)}">
                             <span>${item.text}</span>
                             <span class="fw-bold ps-1">(${item.items.length})</span>
                         </button>
@@ -1200,7 +1186,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                         </button>
                         <div class="dropdown-menu shadow">
                             ${item.items.map(filterItem => html`
-                                <a class="dropdown-item ${itemClass}" data-filter-name="${item.name}" data-filter-value="${filterItem}" @click="${this.onQueryFilterDelete}">
+                                <a class="dropdown-item ${itemClass}" @click="${() => this.onFilterDelete(item.name, filterItem)}">
                                     <span>${filterItem}</span>
                                 </a>
                             `)}
