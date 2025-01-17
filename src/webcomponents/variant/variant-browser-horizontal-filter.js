@@ -201,20 +201,6 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
     //     this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     // }
 
-    firstUpdated() {
-        // register listeners to bootstrap collapse events
-        // Array.from(this.querySelectorAll(`[data-bs-role="collapse"]`)).forEach(el => {
-        //     el.addEventListener("show.bs.collapse", e => {
-        //         e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-down");
-        //         e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-up");
-        //     });
-        //     el.addEventListener("hide.bs.collapse", e => {
-        //         e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-up");
-        //         e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-down");
-        //     });
-        // });
-    }
-
     update(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("resource")) {
             this.updateUserFilters();
@@ -235,24 +221,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         super.update(changedProperties);
     }
 
-    // opencgaSessionObserver() {
-    //     if (this.opencgaSession.study) {
-    //         // Render filter menu and add event and tooltips
-    //         // if (this._initialised) {
-    //         //     this.renderFilterMenu();
-    //         // }
-    //         this.renderFilterMenu();
-    //     }
-    // }
-
     queryObserver() {
-        // The following line FIX the "silent" persistence of active filters once 1 is deleted, due to an inconsistency
-        // between query and preparedQuery. Step to reproduce:
-        // 0. comment the line `this.preparedQuery = this.query;`
-        // 1. add some filters from variant=filter
-        // 2. delete 1 filter from active-filter
-        // 3. add another filter from variant-filter
-        // 4. you will see again the deleted filter in active-filters
         this.preparedQuery = UtilsNew.objectClone(this.query);
         this.updateQueryList();
 
@@ -269,11 +238,13 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         };
         // TODO: generate the list of quick filters ids from the configuration
         const quickFiltersIds = new Set(["variant", "feature"]);
+
         // prepare list of quick and advanced filters
         this.quickFiltersList = (this._config?.sections || [])
             .map(section => (section?.filters || [])
             .filter(filter => quickFiltersIds.has(filter.id)))
             .flat();
+
         // NOTE: advanced filters are grouped in sections instead of a plain list of filters
         this.advancedFilters = (this._config?.sections || [])
             .map(section => {
