@@ -547,6 +547,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                 delete this.preparedQuery[key];
             }
         }
+
         this.notifyQuery(this.preparedQuery);
     }
 
