@@ -1197,7 +1197,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                         <div class="dropdown d-flex">
                             <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                                 <i class="fas fa-save"></i>
-                                <span class="fw-bold">Saved Filters</span>
+                                <span class="fw-bold">Filters</span>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end shadow" style="width:240px;">
                                 <div class="dropdown-header user-select-none">
@@ -1221,8 +1221,13 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                                 ${this.renderFilterItems(this.historyFilters)}
                             </div>
                         </div>
+                        <!-- Copy IVA Link -->
+                        <button class="btn btn-light d-flex align-items-center gap-2" @click="${this.onCopyLink}">
+                            <i class="fas fa-copy"></i>
+                            <span class="fw-bold">Copy</span>
+                        </button>
                         <!-- Filters actions -->
-                        <div class="dropdown d-flex">
+                        <div class="dropdown d-none">
                             <button class="btn btn-light" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
