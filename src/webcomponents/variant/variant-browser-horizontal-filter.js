@@ -1179,6 +1179,38 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         });
     }
 
+    renderActiveFilters() {
+        return this.queryList.map(item => {
+            const itemClass = item.locked ? "disabled" : "hover:text-decoration-line-through cursor-pointer";
+            if (item.items.length === 1) {
+                return html`
+                    <button class="btn btn-warning ${itemClass}" data-filter-name="${item.name}" @click="${this.onQueryFilterDelete}">
+                        <span>${item.text}</span>
+                    </button>
+                `;
+            } else {
+                return html`
+                    <div class="btn-group">
+                        <button class="btn btn-warning ${itemClass}" data-filter-name="${item.name}" @click="${this.onQueryFilterDelete}">
+                            <span>${item.text}</span>
+                            <span class="fw-bold ps-1">(${item.items.length})</span>
+                        </button>
+                        <button class="btn btn-warning dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" data-bs-reference="parent">
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <div class="dropdown-menu shadow">
+                            ${item.items.map(filterItem => html`
+                                <a class="dropdown-item ${itemClass}" data-filter-name="${item.name}" data-filter-value="${filterItem}" @click="${this.onQueryFilterDelete}">
+                                    <span>${filterItem}</span>
+                                </a>
+                            `)}
+                        </div>
+                    </div>
+                `;
+            }
+        });
+    }
+
     render() {
         const advancedFiltersCount = this.advancedFilters.reduce((count, section) => {
             const appliedFilters = section.filters.filter(filter => {
@@ -1271,6 +1303,10 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                         ${this.renderAdvancedFilters()}
                     </div>
                 </div>
+            </div>
+            <!-- Active filters -->
+            <div class="d-flex gap-2 mb-3 border p-1 rounded-3">
+                ${this.queryList.length > 0 ? this.renderActiveFilters() : html`<span class="fw-bold p-2">No filters selected</span>`}
             </div>
             <!-- Modal to save current filters -->
             ${this.renderSaveModal()}
