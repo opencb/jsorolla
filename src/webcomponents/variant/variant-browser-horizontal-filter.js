@@ -149,7 +149,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
             ...this.config
         };
         // TODO: generate the list of quick filters ids from the configuration
-        const quickFiltersIds = new Set(["variant", "feature"]);
+        const quickFiltersIds = new Set(["variant", "feature", "consequence-type", "diseasePanels"]);
 
         // prepare list of quick and advanced filters
         this.quickFilters = (this._config?.sections || [])
@@ -493,7 +493,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         });
     }
 
-    _isFilterVisible(subsection) {
+    isFilterVisible(subsection) {
         let visible = true;
         if (typeof subsection?.visible !== "undefined" && subsection?.visible !== null) {
             if (typeof subsection.visible === "boolean") {
@@ -509,7 +509,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         return visible;
     }
 
-    _isFilterDisabled(subsection) {
+    isFilterDisabled(subsection) {
         let disabled = false;
         if (typeof subsection?.disabled !== "undefined" && subsection?.disabled !== null) {
             if (typeof subsection?.disabled === "boolean") {
@@ -523,54 +523,9 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         return disabled;
     }
 
-    _getFilterField(filterField) {
-        if (filterField) {
-            if (typeof filterField === "string") {
-                return filterField;
-            } else {
-                if (typeof filterField === "function") {
-                    return filterField();
-                } else {
-                    console.error(`Field '${filterField}' not string or function: ${typeof filterField}`);
-                }
-            }
-        }
-        return "";
-    }
-
-    _createMessage(subsection) {
-        let message = null;
-        if (subsection?.message?.text) {
-            if (this._isFilterVisible(subsection.message)) {
-                const type = (subsection.message.type || "warning").toLowerCase();
-                message = html`
-                    <div class="alert alert-${type}" role="alert">
-                        ${subsection.message.text}
-                    </div>
-                `;
-            }
-        }
-        return message;
-    }
-
-    _createSection(section) {
-        // TODO replicate in all filters components
-        const filters = section.filters.filter(filter => this._isFilterVisible(filter)) ?? [];
-        const htmlFields = filters.map(filter => this._createSubSection(filter));
-
-        // TODO should we add a config variable to decide if the accordion is shown
-        // We only display section accordions when more than a section exists,
-        // otherwise we just render all filters without an accordion box.
-        return this.config.sections.length > 0 ? html`
-            <section-filter
-                .filters="${htmlFields}"
-                .config="${section}">
-            </section-filter>` : htmlFields;
-    }
-
     renderFilter(subsection) {
         let content = nothing;
-        const disabled = this._isFilterDisabled(subsection);
+        const disabled = this.isFilterDisabled(subsection);
 
         // We allow to pass a render function
         if (subsection.render) {
@@ -886,32 +841,6 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         }
 
         return content;
-
-        // In some rare cases the filter might be empty, for instance study-filter is empty if ONLY on study exist in that study.
-        // We need to avoid rendering empty filters.
-        if (content !== "") {
-            return html`
-                <div class="">
-                    ${subsection.title ? html`
-                        <label class="form-label fw-bold d-flex justify-content-between align-items-center" id="${this._prefix}${subsection.id}" data-cy="${subsection.id}">
-                            ${this._getFilterField(subsection.title)}
-                            ${subsection.tooltip ? html`
-                                <a tooltip-title="Info" tooltip-text="${subsection.tooltip}">
-                                    <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
-                                </a>
-                            ` : null}
-                        </label>
-                    `: null}
-                    <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
-                        ${this._createMessage(subsection)}
-                        ${subsection.description ? html`
-                            <div>${this._getFilterField(subsection.description)}</div>` : null
-                        }
-                        ${content}
-                    </div>
-                </div>
-            `;
-        }
     }
 
     renderQuickFilters() {
@@ -921,7 +850,10 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                     <button class="btn btn-light d-flex align-items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <span>${filter.title}</span>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-start shadow p-2" style="width: 240px;">
+                    <div class="dropdown-menu dropdown-menu-start shadow p-2" style="width:280px;">
+                        ${filter.description ? html`
+                            <div class="mb-2">${filter.description}</div>    
+                        ` : nothing}
                         ${this.renderFilter(filter)}
                     </div>
                 </div>
@@ -931,20 +863,26 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
 
     renderAdvancedFilters() {
         return this._config.sections.map((section, index) => {
-            return html`
-                <div class="accordion-item bg-white">
-                    <div class="accordion-header">
-                        <button class="accordion-button collapsed fw-bold" data-bs-toggle="collapse" data-bs-target="#${this.prefix}AdvancedFilters${index}">
-                            <span class="fs-5">${section.title}</span>
-                        </button>
-                    </div>
-                    <div id="${this.prefix}AdvancedFilters${index}" class="accordion-collapse collapse" data-bs-parent="#${this._prefix}AdvancedFilters">
-                        <div class="accordion-body d-flex flex-column gap-3">
-                            ${section.filters.map(subsection => this.renderAdvancedFilterSubsection(subsection))}
+            const filters = (section.filters || []).filter(filter => this.isFilterVisible(filter));
+
+            if (filters.length === 0) {
+                return nothing;
+            } else {
+                return html`
+                    <div class="accordion-item bg-white">
+                        <div class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold" data-bs-toggle="collapse" data-bs-target="#${this.prefix}AdvancedFilters${index}">
+                                <span class="fs-5">${section.title}</span>
+                            </button>
+                        </div>
+                        <div id="${this.prefix}AdvancedFilters${index}" class="accordion-collapse collapse" data-bs-parent="#${this._prefix}AdvancedFilters">
+                            <div class="accordion-body d-flex flex-column gap-3">
+                                ${section.filters.map(subsection => this.renderAdvancedFilterSubsection(subsection))}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
         });
     }
 
@@ -953,7 +891,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
             <div class="">
                 ${subsection.title ? html`
                     <div class="mb-2 fs-5 fw-bold d-flex justify-content-between align-items-center" id="${this._prefix}${subsection.id}" data-cy="${subsection.id}">
-                        ${this._getFilterField(subsection.title)}
+                        <div>${subsection.title}</div>
                         ${subsection.tooltip ? html`
                             <a tooltip-title="Info" tooltip-text="${subsection.tooltip}">
                                 <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
@@ -962,9 +900,8 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                     </div>
                 `: nothing}
                 <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
-                    ${this._createMessage(subsection)}
                     ${subsection.description ? html`
-                        <div>${this._getFilterField(subsection.description)}</div>
+                        <div class="mb-2">${subsection.description}</div>
                     ` : nothing}
                     ${this.renderFilter(subsection)}
                 </div>
