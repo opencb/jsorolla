@@ -893,7 +893,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                     <div class="mb-2 fs-5 fw-bold d-flex justify-content-between align-items-center" id="${this._prefix}${subsection.id}" data-cy="${subsection.id}">
                         <div>${subsection.title}</div>
                         ${subsection.tooltip ? html`
-                            <a tooltip-title="Info" tooltip-text="${subsection.tooltip}">
+                            <a tooltip-title="Info" tooltip-text="${subsection.tooltip}" tooltip-position-my="top right">
                                 <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                             </a>
                         ` : nothing}
