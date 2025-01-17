@@ -1200,15 +1200,25 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                                 <span class="fw-bold">Filters</span>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end shadow" style="width:240px;">
-                                <div class="dropdown-header user-select-none">
-                                    <span class="fw-bold">Application Filters</span>
-                                </div>
-                                ${this.renderFilterItems(this.applicationFilters)}
-                                <hr class="dropdown-divider">
-                                <div class="dropdown-header user-select-none">
-                                    <span class="fw-bold">User Filters</span>
-                                </div>
-                                ${this.renderFilterItems(this.userFilters)}
+                                ${this.applicationFilters.length > 0 ? html`
+                                    <div class="dropdown-header user-select-none">
+                                        <span class="fw-bold">Application Filters</span>
+                                    </div>
+                                    ${this.renderFilterItems(this.applicationFilters)}
+                                ` : nothing}
+                                ${this.userFilters.length > 0 ? html`
+                                    <div class="dropdown-header user-select-none">
+                                        <span class="fw-bold">User Filters</span>
+                                    </div>
+                                    ${this.renderFilterItems(this.userFilters)}
+                                ` : nothing}
+                                ${this.applicationFilters.length > 0 || this.userFilters.length > 0 ? html`
+                                    <hr class="dropdown-divider">
+                                ` : nothing}
+                                <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2 ${emptyPreparedQuery ? "disabled": ""}" @click="${this.onSave}">
+                                    <i class="fas fa-save"></i>
+                                    <span class="fw-bold">Save Current Filter</span>
+                                </a>
                             </div>
                         </div>
                         <!-- History filters -->
@@ -1226,22 +1236,6 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                             <i class="fas fa-copy"></i>
                             <span class="fw-bold">Copy</span>
                         </button>
-                        <!-- Filters actions -->
-                        <div class="dropdown d-none">
-                            <button class="btn btn-light" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end shadow">
-                                <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2 ${emptyPreparedQuery ? "disabled": ""}" @click="${this.onSave}">
-                                    <i class="fas fa-save"></i>
-                                    <span class="fw-bold">Save Current Filter</span>
-                                </a>
-                                <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2" @click="${this.onCopyLink}" data-action="copy-link">
-                                    <i class="fas fa-copy"></i>
-                                    <span class="fw-bold">Copy IVA Link</span>
-                                </a>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}AdvancedFilters" style="width:500px;">
