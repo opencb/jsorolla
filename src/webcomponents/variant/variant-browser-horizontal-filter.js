@@ -968,8 +968,9 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
         `;
     }
 
-    renderFilterItems(items) {
+    renderFilterItems(items, highlightActiveFilter = true) {
         return items.map(item => {
+            const isActive = highlightActiveFilter && UtilsNew.objectCompare(this.preparedQuery, item.query);
             const filterParams = Object.keys(item.query)
                 .filter(key => key !== "study" && !!item.query[key]);
             const filterTooltip = filterParams
@@ -977,13 +978,13 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                 .join("<br>");
 
             return html`
-                <a class="dropdown-item cursor-pointer" @click="${() => this.onApplyQuery(item.query)}">
+                <a class="dropdown-item cursor-pointer ${isActive ? "active" : ""}" @click="${() => this.onApplyQuery(item.query)}">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
                             <div class="text-truncate">
                                 ${item.id} ${item.latest ? html` <b>(latest)</b>` : nothing}
                             </div>
-                            <div class="small text-muted">
+                            <div class="small opacity-50">
                             ${filterParams?.length > 0 ? html`
                                 ${filterParams.slice(0, 2).map(key => html`
                                     <div class="" title="${item.query[key]}">
@@ -993,9 +994,9 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                             ` : html`Empty query.`}
                             </div>
                         </div>
-                        <div class="flex-shrink-0 text-secondary mb-auto">
+                        <div class="flex-shrink-0 mb-auto">
                             <span  class="action-buttons" tooltip-title="${item.id}" tooltip-text="${filterTooltip || "Empty query."}">
-                                <i class="fas fa-eye" data-action="view-filter"></i>
+                                <i class="fas fa-eye opacity-75" data-action="view-filter"></i>
                             </span>
                         </div>
                     </div>
@@ -1096,13 +1097,13 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                                     <div class="dropdown-header user-select-none">
                                         <span class="fw-bold">Application Filters</span>
                                     </div>
-                                    ${this.renderFilterItems(this.applicationFilters)}
+                                    ${this.renderFilterItems(this.applicationFilters, true)}
                                 ` : nothing}
                                 ${this.userFilters.length > 0 ? html`
                                     <div class="dropdown-header user-select-none">
                                         <span class="fw-bold">User Filters</span>
                                     </div>
-                                    ${this.renderFilterItems(this.userFilters)}
+                                    ${this.renderFilterItems(this.userFilters, true)}
                                 ` : nothing}
                                 ${this.applicationFilters.length > 0 || this.userFilters.length > 0 ? html`
                                     <hr class="dropdown-divider">
@@ -1120,7 +1121,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                                 <span class="fw-bold">History</span>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end shadow" style="width:240px;">
-                                ${this.renderFilterItems(this.historyFilters)}
+                                ${this.renderFilterItems(this.historyFilters, false)}
                             </div>
                         </div>
                         <!-- Copy IVA Link -->
