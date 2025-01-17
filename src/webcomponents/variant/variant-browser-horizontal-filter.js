@@ -19,6 +19,7 @@ import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
 import "../commons/filters/variant-filter.js";
@@ -563,6 +564,19 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
 
     onSave() {
         ModalUtils.show(`${this._prefix}SaveFilter`);
+    }
+
+    onCopyLink() {
+        // 1. Generate the url to the tool with the current query
+        const link = WebUtils.getIVALink(this.opencgaSession, this.toolId, this.query);
+
+        // 2. Copy this link to the user clipboard
+        UtilsNew.copyToClipboard(link);
+
+        // 3. Notify user that the link has been copied to the clipboard
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+            message: "Link to current query copied to clipboard.",
+        });
     }
 
     _isFilterVisible(subsection) {
