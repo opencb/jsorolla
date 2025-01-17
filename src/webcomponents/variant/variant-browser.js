@@ -522,6 +522,7 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "variant",
                                 title: "Variant ID",
+                                description: "Introduce a comma separated list of variant IDs. Example: 11:66923381:-:A",
                                 tooltip: tooltips.variant
                             },
                             {
@@ -531,7 +532,8 @@ export default class VariantBrowser extends LitElement {
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs (gene, SNPs...)",
+                                title: "Feature IDs",
+                                description: "Select a feature from the list (gene, SNP, etc.)",
                                 tooltip: tooltips.feature
                             },
                             {
