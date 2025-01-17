@@ -1170,7 +1170,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
 
         return html`
             <div class="border p-1 rounded-3 mb-3">
-                <div class="d-flex align-items-stretch gap-2 mb-3">
+                <div class="d-flex align-items-stretch gap-2 mb-2">
                     ${this.renderQuickFilters()}
                     <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="offcanvas" data-bs-target="#${this._prefix}AdvancedFilters">
                         ${advancedFiltersCount > 0 ? html`
@@ -1196,7 +1196,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                         <!-- Saved filters -->
                         <div class="dropdown d-flex">
                             <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                                <i class="fas fa-save"></i>
+                                <i class="fas fa-bookmark"></i>
                                 <span class="fw-bold">Filters</span>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end shadow" style="width:240px;">
