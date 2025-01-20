@@ -1049,7 +1049,7 @@ export default class VariantBrowserHorizontalFilter extends LitElement {
                                 ${this.applicationFilters.length > 0 || this.userFilters.length > 0 ? html`
                                     <hr class="dropdown-divider">
                                 ` : nothing}
-                                <a class="dropdown-item cursor-pointer d-flex align-items-center gap-2 ${emptyPreparedQuery ? "disabled": ""}" @click="${this.onSave}">
+                                <a class="dropdown-item d-flex align-items-center gap-2 ${emptyPreparedQuery ? "disabled": "cursor-pointer"}" @click="${this.onSave}">
                                     <i class="fas fa-save"></i>
                                     <span class="fw-bold">Save Current Filter</span>
                                 </a>
