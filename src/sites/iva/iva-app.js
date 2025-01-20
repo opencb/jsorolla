@@ -19,12 +19,9 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-// import "./getting-started.js";
-// import "./iva-settings.js";
 
 // import jsorolla styles
 import "../../../styles/jsorolla-ui.scss";
-// import "../../../styles/css/global.css";
 import "../../genome-browser/css/genome-browser.css";
 import "../../core/visualisation/viz-styles.css";
 
@@ -77,13 +74,6 @@ import "../../webcomponents/api/rest-api.js";
 import "../../webcomponents/note/note-browser.js";
 import "../../webcomponents/commons/analysis/analysis-tools.js";
 import "../../webcomponents/commons/analysis/jupyter-notebook.js";
-
-// import "../../webcomponents/commons/layouts/custom-footer.js";
-// import "../../webcomponents/commons/layouts/custom-navbar.js";
-// import "../../webcomponents/commons/layouts/custom-page.js";
-// import "../../webcomponents/commons/layouts/custom-sidebar.js";
-// import "../../webcomponents/commons/layouts/custom-welcome.js";
-// import "../../webcomponents/commons/layouts/custom-landing.js";
 
 import "../../webcomponents/commons/layout/layout-footer.js";
 import "../../webcomponents/commons/layout/layout-primary-bar.js";
@@ -914,22 +904,6 @@ class IvaApp extends LitElement {
             //         // params.error(e);
             //     });
         }
-    }
-
-    renderCustomPage() {
-        const pageName = this.tool.replace("#", "");
-        const page = (this.config.pages || []).find(p => p.url === pageName);
-
-        if (page) {
-            return html`
-                <div class="d-flex justify-content-center align-items-center vh-100" id="page">
-                    <custom-page .page="${page}"></custom-page>
-                </div>
-            `;
-        }
-
-        // No page found --> Render a not found error page (TODO)
-        return html`Not found :-(`;
     }
 
     renderTool() {
