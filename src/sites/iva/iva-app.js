@@ -1607,18 +1607,18 @@ class IvaApp extends LitElement {
                 `;
                 break;
             default:
-                // TODO: check for extensions
-                // ExtensionsManager.getTools().map(tool => html`
-                //         ${this.config.enabledComponents[tool.id] ? html`
-                //             <div class="content">
-                //                 ${tool.render(this.opencgaSession)}
-                //             </div>
-                //         ` : nothing}
-                //     `)}
-                // TODO: check for custom pages using renderCustomPage method
-                content = html`
-                    <div align="center">Not found</div>
-                `;
+                // check if there is an extension with this tool ID
+                const extensionTool = ExtensionsManager.getTools()
+                    .find(tool => tool.id === this.tool);
+                
+                if (extensionTool) {
+                    content = extensionTool.render(this.opencgaSession);
+                } else {
+                    // TODO: check for custom pages using renderCustomPage method
+                    content = html`
+                        <div align="center">Not found</div>
+                    `;
+                }
         }
         return content;
     }
