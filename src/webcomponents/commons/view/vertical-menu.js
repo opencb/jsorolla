@@ -1,4 +1,5 @@
 import {LitElement, html, nothing} from "lit";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class VerticalMenu extends LitElement {
 
@@ -23,6 +24,7 @@ export default class VerticalMenu extends LitElement {
     }
 
     #init() {
+        this._prefix = UtilsNew.randomString(8);
         this._activeItem = "";
         this._config = this.getDefaultConfig();
     }
@@ -42,20 +44,6 @@ export default class VerticalMenu extends LitElement {
         super.update(changedProperties);
     }
 
-    firstUpdated() {
-        // register listeners to bootstrap collapse events
-        Array.from(this.querySelectorAll(`[data-bs-role="collapse"]`)).forEach(el => {
-            el.addEventListener("show.bs.collapse", e => {
-                e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-down");
-                e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-up");
-            });
-            el.addEventListener("hide.bs.collapse", e => {
-                e.target.previousElementSibling.querySelector("i").classList.remove("fa-chevron-up");
-                e.target.previousElementSibling.querySelector("i").classList.add("fa-chevron-down");
-            });
-        });
-    }
-
     onChangeActiveItem(newActiveItem) {
         this._activeItem = newActiveItem;
         this.requestUpdate();
@@ -66,12 +54,11 @@ export default class VerticalMenu extends LitElement {
             const id = (item.name || item.id).replace(/ /g, "-").toLowerCase();
             return html`
                 <div class="">
-                    <div class="d-flex align-items-center gap-2 text-gray-700 fs-9 user-select-none py-1 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#menu-${id}">
-                        <i class="fa fa-chevron-up"></i>
+                    <div class="btn btn-toggle d-inline-flex align-items-center gap-1 border-0 fs-5" aria-expanded="true" data-bs-toggle="collapse" data-bs-target="#${this._prefix}Menu${id}">
                         <span class="fw-bold">${item.name}</span>
                     </div>
-                    <div class="collapse show" id="menu-${id}" data-bs-role="collapse">
-                        <div class="d-flex flex-column gap-1">
+                    <div class="collapse show" id="${this._prefix}Menu${id}" data-bs-role="collapse">
+                        <div class="d-flex flex-column gap-1 ps-4 pt-1">
                             ${(item.submenu || []).map(subitem => html`
                                 <div
                                     class="btn w-full text-start ${subitem.id === this._activeItem ? "btn-primary" : "hover:bg-gray-200"}"
@@ -100,7 +87,7 @@ export default class VerticalMenu extends LitElement {
     render() {
         return html`
             <div class="d-flex flex-nowrap gap-5">
-                <div class="d-flex flex-column gap-3 flex-shrink-0" style="${this._config?.display?.menuStyle}">
+                <div class="d-flex flex-column gap-2 flex-shrink-0" style="${this._config?.display?.menuStyle}">
                     ${this.renderMenu()}
                 </div>
                 <div class="w-full ${this._config?.display?.contentClassName}" style="${this._config?.display?.contentStyle}">
