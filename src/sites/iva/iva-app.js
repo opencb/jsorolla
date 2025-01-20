@@ -90,6 +90,7 @@ import "../../webcomponents/commons/layout/layout-primary-bar.js";
 import "../../webcomponents/commons/layout/layout-secondary-bar.js";
 import "../../webcomponents/commons/layout/layout-sidebar.js";
 
+import "../../webcomponents/commons/pages/custom-page.js";
 import "../../webcomponents/commons/pages/login-page.js";
 import "../../webcomponents/commons/pages/welcome-page.js";
 
@@ -1614,10 +1615,23 @@ class IvaApp extends LitElement {
                 if (extensionTool) {
                     content = extensionTool.render(this.opencgaSession);
                 } else {
-                    // TODO: check for custom pages using renderCustomPage method
-                    content = html`
-                        <div align="center">Not found</div>
-                    `;
+                    // check if there is a custom page with this tool ID
+                    const pageName = this.tool.replace("#", "");
+                    const page = (this.config.pages || []).find(p => p.url === pageName);
+
+                    if (page) {
+                        return html`
+                            <custom-page
+                                .opencgaSession="${this.opencgaSession}"
+                                .page="${page}">
+                            </custom-page>
+                        `;
+                    } else {
+                        // No tool found --> Render a not found error page (TODO)
+                        content = html`
+                            <div align="center">Not found</div>
+                        `;
+                    }
                 }
         }
         return content;
