@@ -227,6 +227,7 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
 // bootstrap-table styles override
 .bootstrap-table .fixed-table-loading {
     min-height: 120px;
+    z-index: 500 !important;
 }
 // Custom pagination-detail on top of the boostrap-table grids.
 // This removes the pager buttons on top pf the grids leaving only the counter of records.
