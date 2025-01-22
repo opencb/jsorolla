@@ -21,6 +21,7 @@ import {guardPage} from "../commons/html-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "./variant-browser-filter.js";
+import "./variant-browser-horizontal-filter.js";
 import "./variant-browser-grid.js";
 import "./variant-browser-detail.js";
 import "../commons/opencb-facet-results.js";
@@ -343,7 +344,7 @@ export default class VariantBrowser extends LitElement {
                 .rightContent="${this.renderHeaderRightContent()}">
             </tool-header>
             <div class="row">
-                <div class="col-2 mb-3">
+                <div class="col-2 mb-3 d-none">
                     <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onRun}">
                             <i class="fa fa-search mx-1" aria-hidden="true"></i>
@@ -383,27 +384,43 @@ export default class VariantBrowser extends LitElement {
                     </div>
                 </div>
 
-                <div class="col-md-10">
+                <div class="col-md-12">
                     <div>
-                        <opencga-active-filters
-                            facetActive
-                            resource="VARIANT"
-                            .toolId="${this.COMPONENT_ID }"
-                            .opencgaSession="${this.opencgaSession}"
-                            .defaultStudy="${this.opencgaSession.study?.fqn}"
+                        <div class="d-none">
+                            <opencga-active-filters
+                                facetActive
+                                resource="VARIANT"
+                                .toolId="${this.COMPONENT_ID }"
+                                .opencgaSession="${this.opencgaSession}"
+                                .defaultStudy="${this.opencgaSession.study?.fqn}"
+                                .query="${this.preparedQuery}"
+                                .executedQuery="${this.executedQuery}"
+                                .facetQuery="${this.preparedFacetQueryFormatted}"
+                                .executedFacetQuery="${this.executedFacetQueryFormatted}"
+                                .alias="${this._config.filter.activeFilters.alias}"
+                                .filters="${this._config.filter.examples}"
+                                .defaultFilter="${this._config.filter.defaultFilter}"
+                                .config="${this._config.filter.activeFilters}"
+                                @activeFacetChange="${this.onActiveFacetChange}"
+                                @activeFacetClear="${this.onActiveFacetClear}"
+                                @activeFilterChange="${this.onActiveFilterChange}"
+                                @activeFilterClear="${this.onActiveFilterClear}">
+                            </opencga-active-filters>
+                        </div>
+
+                        <variant-browser-horizontal-filter
+                            .resource="${"VARIANT"}"
+                            .toolId="${this.COMPONENT_ID || ""}"
+                            .opencgaSession=${this.opencgaSession}
                             .query="${this.preparedQuery}"
-                            .executedQuery="${this.executedQuery}"
-                            .facetQuery="${this.preparedFacetQueryFormatted}"
-                            .executedFacetQuery="${this.executedFacetQueryFormatted}"
-                            .alias="${this._config.filter.activeFilters.alias}"
+                            .cellbaseClient="${this.cellbaseClient}"
                             .filters="${this._config.filter.examples}"
                             .defaultFilter="${this._config.filter.defaultFilter}"
-                            .config="${this._config.filter.activeFilters}"
-                            @activeFacetChange="${this.onActiveFacetChange}"
-                            @activeFacetClear="${this.onActiveFacetClear}"
-                            @activeFilterChange="${this.onActiveFilterChange}"
-                            @activeFilterClear="${this.onActiveFilterClear}">
-                        </opencga-active-filters>
+                            .searchActive="${this.searchActive}"
+                            .config="${this._config.filter}"
+                            @queryChange="${this.onQueryFilterChange}"
+                            @querySearch="${this.onVariantFilterSearch}">
+                        </variant-browser-horizontal-filter>
 
                         <div class="main-view">
                             <div id="table-tab" class="${this.activeTab === "table-tab" ? "d-block" : "d-none"}">
@@ -505,6 +522,7 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "variant",
                                 title: "Variant ID",
+                                description: "Introduce a comma separated list of variant IDs. Example: 11:66923381:-:A",
                                 tooltip: tooltips.variant
                             },
                             {
@@ -514,7 +532,8 @@ export default class VariantBrowser extends LitElement {
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs (gene, SNPs...)",
+                                title: "Feature IDs",
+                                description: "Select a feature from the list (gene, SNP, etc.)",
                                 tooltip: tooltips.feature
                             },
                             {

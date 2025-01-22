@@ -19,12 +19,9 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-// import "./getting-started.js";
-// import "./iva-settings.js";
 
 // import jsorolla styles
 import "../../../styles/jsorolla-ui.scss";
-// import "../../../styles/css/global.css";
 import "../../genome-browser/css/genome-browser.css";
 import "../../core/visualisation/viz-styles.css";
 
@@ -79,18 +76,12 @@ import "../../webcomponents/note/note-browser.js";
 import "../../webcomponents/commons/analysis/analysis-tools.js";
 import "../../webcomponents/commons/analysis/jupyter-notebook.js";
 
-// import "../../webcomponents/commons/layouts/custom-footer.js";
-// import "../../webcomponents/commons/layouts/custom-navbar.js";
-// import "../../webcomponents/commons/layouts/custom-page.js";
-// import "../../webcomponents/commons/layouts/custom-sidebar.js";
-// import "../../webcomponents/commons/layouts/custom-welcome.js";
-// import "../../webcomponents/commons/layouts/custom-landing.js";
-
 import "../../webcomponents/commons/layout/layout-footer.js";
 import "../../webcomponents/commons/layout/layout-primary-bar.js";
 import "../../webcomponents/commons/layout/layout-secondary-bar.js";
 import "../../webcomponents/commons/layout/layout-sidebar.js";
 
+import "../../webcomponents/commons/pages/custom-page.js";
 import "../../webcomponents/commons/pages/login-page.js";
 import "../../webcomponents/commons/pages/welcome-page.js";
 
@@ -916,22 +907,6 @@ class IvaApp extends LitElement {
         }
     }
 
-    renderCustomPage() {
-        const pageName = this.tool.replace("#", "");
-        const page = (this.config.pages || []).find(p => p.url === pageName);
-
-        if (page) {
-            return html`
-                <div class="d-flex justify-content-center align-items-center vh-100" id="page">
-                    <custom-page .page="${page}"></custom-page>
-                </div>
-            `;
-        }
-
-        // No page found --> Render a not found error page (TODO)
-        return html`Not found :-(`;
-    }
-
     renderTool() {
         let content = nothing;
         switch (this.tool) {
@@ -1622,18 +1597,31 @@ class IvaApp extends LitElement {
                 `;
                 break;
             default:
-                // TODO: check for extensions
-                // ExtensionsManager.getTools().map(tool => html`
-                //         ${this.config.enabledComponents[tool.id] ? html`
-                //             <div class="content">
-                //                 ${tool.render(this.opencgaSession)}
-                //             </div>
-                //         ` : nothing}
-                //     `)}
-                // TODO: check for custom pages using renderCustomPage method
-                content = html`
-                    <div align="center">Not found</div>
-                `;
+                // check if there is an extension with this tool ID
+                const extensionTool = ExtensionsManager.getTools()
+                    .find(tool => tool.id === this.tool);
+                
+                if (extensionTool) {
+                    content = extensionTool.render(this.opencgaSession);
+                } else {
+                    // check if there is a custom page with this tool ID
+                    const pageName = this.tool.replace("#", "");
+                    const page = (this.config.pages || []).find(p => p.url === pageName);
+
+                    if (page) {
+                        return html`
+                            <custom-page
+                                .opencgaSession="${this.opencgaSession}"
+                                .page="${page}">
+                            </custom-page>
+                        `;
+                    } else {
+                        // No tool found --> Render a not found error page (TODO)
+                        content = html`
+                            <div align="center">Not found</div>
+                        `;
+                    }
+                }
         }
         return content;
     }
@@ -1670,8 +1658,8 @@ class IvaApp extends LitElement {
                     </layout-sidebar>
 
                     <!-- Render the center of the 'app': Secondary NavBar, the Tool and the Footer -->
-                    <div class="w-full h-full overflow-auto" style="max-height:calc(100vh - 52px);">
-                        <div class="px-4 pb-4" style="min-height:calc(100vh - 120px);">
+                    <div class="w-full h-full overflow-auto" style="max-height:calc(100vh - 45px);">
+                        <div class="px-4 pb-4" style="min-height:100vh;">
                             ${this.app?.menu?.length > 0 ? html`
                                 <layout-secondary-bar
                                     .app="${this.app}"
