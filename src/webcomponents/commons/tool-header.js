@@ -34,6 +34,9 @@ export default class ToolHeader extends LitElement {
             icon: {
                 type: String
             },
+            iconSize: {
+                type: String
+            },
             class: {
                 type: String
             },
@@ -51,7 +54,7 @@ export default class ToolHeader extends LitElement {
         if (this.icon) {
             if (this.icon.match(/\./)?.length) {
                 return html`
-                    <img width="48px" height="48px" src="${this.icon}" alt="${this.title}">
+                    <img width="${this.iconSize || 48}px" height="${this.iconSize || 48}px" src="${this.icon}" alt="${this.title}">
                 `;
             } else {
                 return html`

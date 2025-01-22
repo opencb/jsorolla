@@ -157,6 +157,8 @@ module.exports = {
                     "node_modules/bootstrap-table/dist/bootstrap-table.min.js",
                     "node_modules/jwt-decode/build/jwt-decode.min.js",
                     "node_modules/clipboard/dist/clipboard.min.js",
+                    "node_modules/swagger-ui/dist/swagger-ui-bundle.js",
+                    "node_modules/swagger-ui/dist/swagger-ui-standalone-preset.js"
                     // "node_modules/pdfmake/build/pdfmake.min.js",
                     // "node_modules/pdfmake/build/vfs_fonts.js",
                     // "node_modules/html-to-pdfmake/browser.js",
@@ -169,6 +171,7 @@ module.exports = {
                     "node_modules/bootstrap-table/dist/bootstrap-table.min.css",
                     "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
                     "node_modules/qtip2/dist/jquery.qtip.min.css",
+                    "node_modules/swagger-ui/dist/swagger-ui.css"
                 ],
             },
             chunks: entries,

@@ -74,6 +74,7 @@ import "../../webcomponents/study/admin/variant/operations-admin.js";
 import "../../webcomponents/study/study-dashboard.js";
 import "../../webcomponents/user/user-profile.js";
 import "../../webcomponents/api/rest-api.js";
+import "../../webcomponents/api/swagger-ui.js";
 import "../../webcomponents/note/note-browser.js";
 import "../../webcomponents/commons/analysis/analysis-tools.js";
 import "../../webcomponents/commons/analysis/jupyter-notebook.js";
@@ -1574,6 +1575,20 @@ class IvaApp extends LitElement {
                         <rest-api
                             .opencgaSession="${this.opencgaSession}">
                         </rest-api>
+                    </div>
+                `;
+                break;
+            case "swagger-ui":
+                content = html`
+                    <tool-header
+                        title="Swagger UI"
+                        icon="https://raw.githubusercontent.com/swagger-api/swagger-ui/refs/heads/master/dist/favicon-32x32.png"
+                        iconSize="32">
+                    </tool-header>
+                    <div class="content">
+                        <swagger-ui
+                            .opencgaSession="${this.opencgaSession}">
+                        </swagger-ui>
                     </div>
                 `;
                 break;
