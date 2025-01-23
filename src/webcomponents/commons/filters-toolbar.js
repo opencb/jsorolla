@@ -185,10 +185,9 @@ export default class FiltersToolbar extends LitElement {
 
     updateQueryList() {
         this.queryList = [];
-        const defaultStudy = this.opencgaSession?.study?.fqn || "";
+
         Object.keys(this.preparedQuery).forEach(key => {
-            // if (UtilsNew.isNotEmpty(this.preparedQuery[key]) && (!this._config.hiddenFields || (this._config.hiddenFields && !this._config.hiddenFields.includes(key)))) {
-            if (UtilsNew.isNotEmpty(this.preparedQuery[key])) {
+            if (!!this.preparedQuery[key] && (!this._config.activeFilters.hiddenFields || !this._config.activeFilters.hiddenFields.includes(key))) {
                 // We use the alias to rename the key
                 let title = key;
 
@@ -209,7 +208,7 @@ export default class FiltersToolbar extends LitElement {
                     filterFields = value.split(";");
                 } else if (key === "study") {
                     // We fist have need to remove defaultStudy from 'filterFields' and 'value'
-                    filterFields = value.split(/[,;]/).filter(fqn => fqn !== defaultStudy);
+                    filterFields = value.split(/[,;]/).filter(fqn => fqn !== this.opencgaSession?.study?.fqn);
                     // defaultStudy was the only one present so no need to render anything
                     if (!filterFields.length) {
                         return;
