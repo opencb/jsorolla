@@ -718,10 +718,12 @@ export default class FiltersToolbar extends LitElement {
                             </div>
                         </div>
                         <!-- Copy IVA Link -->
-                        <button class="btn btn-light d-flex align-items-center gap-2" @click="${this.onCopyLink}">
-                            <i class="fas fa-copy"></i>
-                            <span class="fw-bold">Copy</span>
-                        </button>
+                        ${!!this.toolId ? html`
+                            <button class="btn btn-light d-flex align-items-center gap-2" @click="${this.onCopyLink}">
+                                <i class="fas fa-copy"></i>
+                                <span class="fw-bold">Copy</span>
+                            </button>
+                        ` : nothing}
                     </div>
                 </div>
                 <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}AdvancedFilters" style="width:500px;">
