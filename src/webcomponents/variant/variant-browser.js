@@ -460,9 +460,8 @@ export default class VariantBrowser extends LitElement {
             filter: {
                 title: "Filter",
                 activeFilters: {
-                    alias: {},
-                    complexFields: [],
-                    hiddenFields: []
+                    hiddenFields: [],
+                    lockedFields: [],
                 },
                 sections: [ // sections and subsections, structure and order is respected
                     {
