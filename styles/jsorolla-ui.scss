@@ -32,6 +32,10 @@ $white: #fff;
 // custom body configuration
 $body-bg: $gray-50;
 
+// Overwrite z-index configuration
+$zindex-dropdown: 1020;
+$zindex-sticky: 1000;
+
 // custom border configuration
 $border-color: $gray-200;
 $border-width: 1px;
