@@ -63,6 +63,7 @@ export default class FiltersToolbar extends LitElement {
         this.applicationFilters = [];
         this.userFilters = [];
         this.historyFilters = [];
+        this.lockedFieldsMap = {};
     }
 
     update(changedProperties) {
@@ -143,6 +144,12 @@ export default class FiltersToolbar extends LitElement {
         if (this._config.filters?.length > 0) {
             this.applicationFilters.push(...this._config.filters);
         }
+
+        // generate the list of locked fields
+        this.lockedFieldsMap = {};
+        (this._config.activeFilters?.lockedFields || []).forEach(lockedField => {
+            this.lockedFieldsMap[lockedField.id] = lockedField;
+        });
     }
 
     notifyQuery(query) {
@@ -178,14 +185,16 @@ export default class FiltersToolbar extends LitElement {
 
     updateQueryList() {
         this.queryList = [];
+        const defaultStudy = this.opencgaSession?.study?.fqn || "";
         Object.keys(this.preparedQuery).forEach(key => {
             // if (UtilsNew.isNotEmpty(this.preparedQuery[key]) && (!this._config.hiddenFields || (this._config.hiddenFields && !this._config.hiddenFields.includes(key)))) {
             if (UtilsNew.isNotEmpty(this.preparedQuery[key])) {
                 // We use the alias to rename the key
                 let title = key;
-                // if (UtilsNew.isNotUndefinedOrNull(this._config.alias) && UtilsNew.isNotUndefinedOrNull(this._config.alias[key])) {
-                //     title = this._config.alias[key];
-                // }
+
+                if (this._config?.activeFilters?.alias && this._config.activeFilters.alias[key]) {
+                    title = this._config.activeFilters.alias[key];
+                }
 
                 // We convert the Query entry object into an array of small objects (queryList)
                 let value = this.preparedQuery[key];
@@ -200,7 +209,7 @@ export default class FiltersToolbar extends LitElement {
                     filterFields = value.split(";");
                 } else if (key === "study") {
                     // We fist have need to remove defaultStudy from 'filterFields' and 'value'
-                    filterFields = value.split(/[,;]/).filter(fqn => fqn !== this.defaultStudy);
+                    filterFields = value.split(/[,;]/).filter(fqn => fqn !== defaultStudy);
                     // defaultStudy was the only one present so no need to render anything
                     if (!filterFields.length) {
                         return;
@@ -208,7 +217,9 @@ export default class FiltersToolbar extends LitElement {
                     value = filterFields.join(/[,;]/);
                 } else {
                     // Check if the field has been defined as complex
-                    const complexField = (this._config?.complexFields || []).find(item => item.id === key);
+                    const complexField = (this._config?.activeFilters?.complexFields || [])
+                        .find(item => item.id === key);
+
                     if (complexField) {
                         filterFields = complexField?.separator ? value.split(complexField.separator) : UtilsNew.splitByRegex(value, complexField.separatorRegex);
                     } else if (value.indexOf(";") !== -1 && value.indexOf(",") !== -1) {
@@ -219,8 +230,8 @@ export default class FiltersToolbar extends LitElement {
                     }
                 }
 
-                // [TODO]
-                const locked = false; // UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]);
+                // Check if the field is locked
+                const locked = !!this.lockedFieldsMap[key];
                 const lockedTooltip = locked ? this.lockedFieldsMap[key].message : "";
 
                 // Just in case one is a flag
@@ -746,7 +757,8 @@ export default class FiltersToolbar extends LitElement {
             activeFilters: {
                 alias: {},
                 complexFields: [],
-                hiddenFields: []
+                hiddenFields: [],
+                lockedFields: [],
             },
             sections: [],
             examples: [],
