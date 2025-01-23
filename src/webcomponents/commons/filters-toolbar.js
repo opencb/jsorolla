@@ -67,16 +67,16 @@ export default class FiltersToolbar extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this.configObserver();
+        }
+
         if (changedProperties.has("opencgaSession") || changedProperties.has("resource")) {
             this.opencgaSessionObserver();
         }
 
         if (changedProperties.has("query")) {
             this.queryObserver();
-        }
-
-        if (changedProperties.has("config")) {
-            this.configObserver();
         }
 
         super.update(changedProperties);
