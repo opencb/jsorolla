@@ -67,11 +67,7 @@ export default class FiltersToolbar extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("resource")) {
-            this.updateUserFilters();
-        }
-
-        if (changedProperties.has("filters") || changedProperties.has("defaultFilter")) {
-            this.updateApplicationFilters();
+            this.opencgaSessionObserver();
         }
 
         if (changedProperties.has("query")) {
@@ -87,6 +83,23 @@ export default class FiltersToolbar extends LitElement {
 
     updated() {
         UtilsNew.initTooltip(this);
+    }
+
+    opencgaSessionObserver() {
+        this.userFilters = [];
+        if (this.opencgaSession && this.resource) {
+            this.opencgaSession.opencgaClient.users()
+                .filters(this.opencgaSession.user.id)
+                .then(response => {
+                    this.userFilters = (response.responses?.[0]?.results || []).filter(filter => {
+                        return filter.resource === this.resource;
+                    });
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error(response);
+                });
+        }
     }
 
     queryObserver() {
@@ -112,6 +125,24 @@ export default class FiltersToolbar extends LitElement {
             .map(section => (section?.filters || [])
             .filter(filter => quickFiltersIds.has(filter.id)))
             .flat();
+
+        // update the application filters
+        this.applicationFilters = [];
+
+        if (this._config.defaultFilter) {
+            const isDisabled = UtilsNew.isEmpty(this._config.defaultFilter);
+            this.applicationFilters.push({
+                id: "Default Filter",
+                query: UtilsNew.objectClone(this._config.defaultFilter),
+                disabled: isDisabled,
+                description: isDisabled ? "Filter not configured." : "",
+                active: false,
+            });
+        }
+
+        if (this._config.filters?.length > 0) {
+            this.applicationFilters.push(...this._config.filters);
+        }
     }
 
     notifyQuery(query) {
@@ -120,44 +151,6 @@ export default class FiltersToolbar extends LitElement {
 
     notifySearch(query) {
         LitUtils.dispatchCustomEvent(this, "querySearch", null, {query});
-    }
-
-    updateApplicationFilters() {
-        this.applicationFilters = [];
-
-        // 1. Add default filter
-        if (!!this.defaultFilter) {
-            const isDisabled = UtilsNew.isEmpty(this.defaultFilter);
-            this.applicationFilters.push({
-                id: "Default Filter",
-                query: UtilsNew.objectClone(this.defaultFilter),
-                disabled: isDisabled,
-                description: isDisabled ? "Filter not configured." : "",
-                active: false,
-            });
-        }
-
-        // 2. Add example filters
-        if (this.filters?.length > 0) {
-            this.applicationFilters.push(...this.filters);
-        }
-    }
-
-    updateUserFilters() {
-        this.userFilters = [];
-        if (this.opencgaSession && this.resource) {
-            this.opencgaSession.opencgaClient.users()
-                .filters(this.opencgaSession.user.id)
-                .then(response => {
-                    this.userFilters = (response.responses?.[0]?.results || []).filter(filter => {
-                        return filter.resource === this.resource;
-                    });
-                    this.requestUpdate();
-                })
-                .catch(response => {
-                    console.error(response);
-                });
-        }
     }
 
     updateHistory() {
@@ -486,7 +479,7 @@ export default class FiltersToolbar extends LitElement {
         // We allow to pass a render function
         if (subsection.render) {
             content = subsection.render(this.onFilterChange, this.preparedQuery, this.opencgaSession, disabled);
-        } else if (typeof this._config?.renderFilter === "function") {
+        } else if (typeof this.renderFilter === "function") {
             content = this.renderFilter(subsection, this.onFilterChange, this.preparedQuery, this.opencgaSession, disabled);
         }
 
