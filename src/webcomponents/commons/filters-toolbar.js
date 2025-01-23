@@ -231,20 +231,16 @@ export default class FiltersToolbar extends LitElement {
                 const locked = !!this.lockedFieldsMap[key];
                 const lockedTooltip = locked ? this.lockedFieldsMap[key].message : "";
 
-                // Just in case one is a flag
-                if (filterFields.length === 0) {
-                    this.queryList.push({name: key, text: title, locked: locked, message: lockedTooltip});
-                } else {
-                    if (filterFields.length === 1) {
-                        if (value.indexOf(">") !== -1 || value.indexOf("<") !== -1 || value.indexOf("=") !== -1) {
-                            this.queryList.push({name: key, text: title + ": " + value, items: filterFields, locked: locked, message: lockedTooltip});
-                        } else {
-                            this.queryList.push({name: key, text: title + " = " + value, items: filterFields, locked: locked, message: lockedTooltip});
-                        }
-                    } else {
-                        this.queryList.push({name: key, text: title, items: filterFields, locked: locked, message: lockedTooltip});
-                    }
-                }
+                // separator used in the text in case that we only have one filter field
+                const separator = (value.indexOf(">") !== -1 || value.indexOf("<") !== -1 || value.indexOf("=") !== -1) ? ": " : " = ";
+
+                this.queryList.push({
+                    name: key,
+                    text: filterFields.length === 1 ? title + separator + value : title,
+                    items: filterFields,
+                    locked: locked,
+                    message: lockedTooltip,
+                });
             }
         });
     }
