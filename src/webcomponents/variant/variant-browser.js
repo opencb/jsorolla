@@ -16,12 +16,10 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import VariantUtils from "./variant-utils.js";
 import {guardPage} from "../commons/html-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
-// import "./variant-browser-filter.js";
-import "./variant-browser-horizontal-filter.js";
+import "./variant-browser-filter.js";
 import "./variant-browser-grid.js";
 import "./variant-browser-detail.js";
 import "../commons/aggregation-stats.js";
@@ -405,19 +403,16 @@ export default class VariantBrowser extends LitElement {
                         </div>
                         </DEPRECATED> -->
 
-                        <variant-browser-horizontal-filter
+                        <variant-browser-filter
                             .resource="${"VARIANT"}"
                             .toolId="${this.COMPONENT_ID || ""}"
                             .opencgaSession=${this.opencgaSession}
                             .query="${this.preparedQuery}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .filters="${this._config.filter.examples}"
-                            .defaultFilter="${this._config.filter.defaultFilter}"
-                            .searchActive="${this.searchActive}"
+                            .searchActive="${this.searchActive || false}"
                             .config="${this._config.filter}"
                             @queryChange="${this.onQueryFilterChange}"
                             @querySearch="${this.onVariantFilterSearch}">
-                        </variant-browser-horizontal-filter>
+                        </variant-browser-filter>
 
                         <div class="main-view">
                             <div id="table-tab" class="${this.activeTab === "table-tab" ? "d-block" : "d-none"}">
