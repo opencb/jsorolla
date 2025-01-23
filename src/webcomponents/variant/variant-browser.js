@@ -25,7 +25,6 @@ import "./variant-browser-detail.js";
 import "../commons/aggregation-stats.js";
 import "../commons/opencb-facet-results.js";
 // import "../commons/facet-filter.js";
-// import "../commons/opencga-active-filters.js";
 import "../commons/tool-header.js";
 import "../commons/grid-notifications.js";
 import "./annotation/cellbase-variant-annotation-summary.js";
@@ -379,30 +378,6 @@ export default class VariantBrowser extends LitElement {
 
                 <div class="col-md-12">
                     <div>
-                            <!-- <DEPRECATED>
-                        <div class="d-none">
-                            <opencga-active-filters
-                                facetActive
-                                resource="VARIANT"
-                                .toolId="${this.COMPONENT_ID }"
-                                .opencgaSession="${this.opencgaSession}"
-                                .defaultStudy="${this.opencgaSession.study?.fqn}"
-                                .query="${this.preparedQuery}"
-                                .executedQuery="${this.executedQuery}"
-                                .facetQuery="${this.preparedFacetQueryFormatted}"
-                                .executedFacetQuery="${this.executedFacetQueryFormatted}"
-                                .alias="${this._config.filter.activeFilters.alias}"
-                                .filters="${this._config.filter.examples}"
-                                .defaultFilter="${this._config.filter.defaultFilter}"
-                                .config="${this._config.filter.activeFilters}"
-                                @activeFacetChange="${this.onActiveFacetChange}"
-                                @activeFacetClear="${this.onActiveFacetClear}"
-                                @activeFilterChange="${this.onActiveFilterChange}"
-                                @activeFilterClear="${this.onActiveFilterClear}">
-                            </opencga-active-filters>
-                        </div>
-                        </DEPRECATED> -->
-
                         <variant-browser-filter
                             .resource="${"VARIANT"}"
                             .toolId="${this.COMPONENT_ID || ""}"
@@ -480,7 +455,6 @@ export default class VariantBrowser extends LitElement {
     }
 
     getDefaultConfig() {
-        // return BrowserConf.config;
         return {
             title: "Variant Browser",
             searchButtonText: "Search",
