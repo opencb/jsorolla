@@ -476,11 +476,16 @@ export default class FiltersToolbar extends LitElement {
         let content = nothing;
         const disabled = this.isFilterDisabled(subsection);
 
+        // this allows to pass the onFilterChange function to the render function and keep the context to the component
+        const onFilterChange = (key, value) => {
+            return this.onFilterChange(key, value);
+        };
+
         // We allow to pass a render function
         if (subsection.render) {
-            content = subsection.render(this.onFilterChange, this.preparedQuery, this.opencgaSession, disabled);
+            content = subsection.render(onFilterChange, this.preparedQuery, this.opencgaSession, disabled);
         } else if (typeof this.renderFilter === "function") {
-            content = this.renderFilter(subsection, this.onFilterChange, this.preparedQuery, this.opencgaSession, disabled);
+            content = this.renderFilter(subsection, onFilterChange, this.preparedQuery, this.opencgaSession, disabled);
         }
 
         return content;
