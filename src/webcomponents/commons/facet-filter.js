@@ -43,14 +43,13 @@ export default class FacetFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
         this.fns = {avg: "Average", min: "Minimum", max: "Maxiumum", unique: "Uniques values", hll: "Distributed cardinality estimate", percentile: "Percentile estimate", sumsq: "Sum of squares of fields or function"};
         this.selectFns = Object.entries({range: "Range", ...this.fns}).map(([k, v]) => ({id: k, name: v}));
 
         // copy of selectedFacet in JSON string, to avoid unnecessary refresh
         this._JsonSelectedFacet = null;
         this.preparedQuery = {};
-
     }
 
     update(changedProperties) {
@@ -174,7 +173,7 @@ export default class FacetFilter extends LitElement {
             this.selectedFacet[difference] = {...newField, value: newField && newField.defaultValue ? newField.defaultValue : ""};
             this.requestUpdate();
             await this.updateComplete;
-            $(".bootstrap-select", this).selectpicker();
+            // $(".bootstrap-select", this).selectpicker();
         } else {
             console.log("deletion of", difference);
             // deletion

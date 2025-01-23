@@ -20,13 +20,14 @@ import VariantUtils from "./variant-utils.js";
 import {guardPage} from "../commons/html-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
-import "./variant-browser-filter.js";
+// import "./variant-browser-filter.js";
 import "./variant-browser-horizontal-filter.js";
 import "./variant-browser-grid.js";
 import "./variant-browser-detail.js";
+import "../commons/aggregation-stats.js";
 import "../commons/opencb-facet-results.js";
-import "../commons/facet-filter.js";
-import "../commons/opencga-active-filters.js";
+// import "../commons/facet-filter.js";
+// import "../commons/opencga-active-filters.js";
 import "../commons/tool-header.js";
 import "../commons/grid-notifications.js";
 import "./annotation/cellbase-variant-annotation-summary.js";
@@ -206,17 +207,7 @@ export default class VariantBrowser extends LitElement {
         this.notifySearch(this.preparedQuery);
 
         this.facetQueryBuilder();
-        /* if (Object.keys(this.selectedFacet).length) {
-            this.facetQuery = {
-                ...this.preparedQuery,
-                study: this.opencgaSession.study.fqn,
-                timeout: 60000,
-                fields: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
-            };
-            this._changeView("facet-tab");
-        } else {
-            this.facetQuery = null;
-        }*/
+
         this.requestUpdate();
     }
 
@@ -239,55 +230,55 @@ export default class VariantBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    onActiveFilterChange(e) {
-        VariantUtils.validateQuery(e.detail);
-        this.preparedQuery = {...e.detail};
-        this.executedQuery = {...e.detail};
-        this.searchActive = false;
-        this.variant = null;
-        this.notifySearch(this.preparedQuery);
-        this.facetQueryBuilder();
-        this.requestUpdate();
-    }
+    // onActiveFilterChange(e) {
+    //     VariantUtils.validateQuery(e.detail);
+    //     this.preparedQuery = {...e.detail};
+    //     this.executedQuery = {...e.detail};
+    //     this.searchActive = false;
+    //     this.variant = null;
+    //     this.notifySearch(this.preparedQuery);
+    //     this.facetQueryBuilder();
+    //     this.requestUpdate();
+    // }
 
-    onActiveFilterClear() {
-        this.preparedQuery = {};
-        this.executedQuery = {};
-        this.searchActive = false;
-        this.variant = null;
-        this.notifySearch(this.preparedQuery);
-        this.facetQueryBuilder();
-        this.requestUpdate();
-    }
+    // onActiveFilterClear() {
+    //     this.preparedQuery = {};
+    //     this.executedQuery = {};
+    //     this.searchActive = false;
+    //     this.variant = null;
+    //     this.notifySearch(this.preparedQuery);
+    //     this.facetQueryBuilder();
+    //     this.requestUpdate();
+    // }
 
-    onFacetQueryChange(e) {
-        this.preparedFacetQueryFormatted = e.detail.value;
-        this.requestUpdate();
-    }
+    // onFacetQueryChange(e) {
+    //     this.preparedFacetQueryFormatted = e.detail.value;
+    //     this.requestUpdate();
+    // }
 
-    onActiveFacetChange(e) {
-        this.selectedFacet = {...e.detail};
-        this.preparedFacetQueryFormatted = {...e.detail};
-        this.facetQueryBuilder();
-        this.requestUpdate();
-    }
+    // onActiveFacetChange(e) {
+    //     this.selectedFacet = {...e.detail};
+    //     this.preparedFacetQueryFormatted = {...e.detail};
+    //     this.facetQueryBuilder();
+    //     this.requestUpdate();
+    // }
 
-    onActiveFacetClear() {
-        this.selectedFacet = {};
-        this.onRun();
-    }
+    // onActiveFacetClear() {
+    //     this.selectedFacet = {};
+    //     this.onRun();
+    // }
+
+    // onSampleChange(e) {
+    //     this.samples = e.detail.samples;
+    //     LitUtils.dispatchCustomEvent(this, "sampleChange", undefined, {
+    //         samples: this.samples,
+    //     });
+    // }
 
     onQueryComplete(event) {
         this.notifications = WebUtils.getResponseEvents(event.detail.response);
         this.searchActive = true;
         this.requestUpdate();
-    }
-
-    onSampleChange(e) {
-        this.samples = e.detail.samples;
-        LitUtils.dispatchCustomEvent(this, "sampleChange", undefined, {
-            samples: this.samples,
-        });
     }
 
     onSelectVariant(e) {
@@ -309,17 +300,19 @@ export default class VariantBrowser extends LitElement {
         ];
         return html`
             <div class="d-flex gap-1 align-items-stretch">
+                <!-- View buttons -->
                 <div class="d-flex align-items-center gap-1">
                     ${viewButtons.map(button => html`
                         <button
-                        type="button"
-                        class="${`btn btn-success ${this.activeTab === button.id ? "active" : ""}`}"
-                        @click="${() => this.changeView(button.id)}">
-                        <i class="fa ${button.icon} me-2"></i>
-                        <strong>${button.name}</strong>
-                    </button>
-                `)}
+                            type="button"
+                            class="${`btn btn-success ${this.activeTab === button.id ? "active" : ""}`}"
+                            @click="${() => this.changeView(button.id)}">
+                            <i class="fa ${button.icon} me-2"></i>
+                            <strong>${button.name}</strong>
+                        </button>
+                    `)}
                 </div>
+                <!-- Separator and buttons -->
                 <div class="w-px bg-gray-200 mx-1"></div>
                 <grid-notifications
                     class="d-flex align-items-stretch"
@@ -344,6 +337,7 @@ export default class VariantBrowser extends LitElement {
                 .rightContent="${this.renderHeaderRightContent()}">
             </tool-header>
             <div class="row">
+                    <!-- <DEPRECATED>
                 <div class="col-2 mb-3 d-none">
                     <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onRun}">
@@ -383,9 +377,11 @@ export default class VariantBrowser extends LitElement {
                         </div>
                     </div>
                 </div>
+                </DEPRECATED> -->
 
                 <div class="col-md-12">
                     <div>
+                            <!-- <DEPRECATED>
                         <div class="d-none">
                             <opencga-active-filters
                                 facetActive
@@ -407,6 +403,7 @@ export default class VariantBrowser extends LitElement {
                                 @activeFilterClear="${this.onActiveFilterClear}">
                             </opencga-active-filters>
                         </div>
+                        </DEPRECATED> -->
 
                         <variant-browser-horizontal-filter
                             .resource="${"VARIANT"}"
@@ -450,6 +447,15 @@ export default class VariantBrowser extends LitElement {
                             </div>
 
                             <div id="facet-tab" class="${this.activeTab === "facet-tab" ? "d-block" : "d-none"}">
+                                <aggregation-stats
+                                    resource="VARIANT"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .active="${this.activeTab === "facet-tab"}"
+                                    .query="${this.facetQuery}"
+                                    .data="${this.facetResults}"
+                                    .error="${this.errorState}"
+                                    .config="${this._config.aggregation}">
+                                </aggregation-stats>
                                 <opencb-facet-results
                                     resource="VARIANT"
                                     .opencgaSession="${this.opencgaSession}"
