@@ -118,13 +118,11 @@ export default class FiltersToolbar extends LitElement {
             ...this.getDefaultConfig(),
             ...this.config
         };
-        // TODO: generate the list of quick filters ids from the configuration
-        const quickFiltersIds = new Set(["variant", "feature", "consequence-type", "diseasePanels"]);
 
         // prepare list of quick and advanced filters
         this.quickFilters = (this._config?.sections || [])
             .map(section => (section?.filters || [])
-            .filter(filter => quickFiltersIds.has(filter.id)))
+            .filter(filter => !!filter.quick))
             .flat();
 
         // update the application filters

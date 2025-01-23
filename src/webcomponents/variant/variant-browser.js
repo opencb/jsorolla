@@ -498,7 +498,8 @@ export default class VariantBrowser extends LitElement {
                                 id: "variant",
                                 title: "Variant ID",
                                 description: "Introduce a comma separated list of variant IDs. Example: 11:66923381:-:A",
-                                tooltip: tooltips.variant
+                                tooltip: tooltips.variant,
+                                quick: true,
                             },
                             {
                                 id: "region",
@@ -509,7 +510,8 @@ export default class VariantBrowser extends LitElement {
                                 id: "feature",
                                 title: "Feature IDs",
                                 description: "Select a feature from the list (gene, SNP, etc.)",
-                                tooltip: tooltips.feature
+                                tooltip: tooltips.feature,
+                                quick: true,
                             },
                             {
                                 id: "biotype",
@@ -537,7 +539,8 @@ export default class VariantBrowser extends LitElement {
                                 tooltip: tooltips.consequenceTypeSelect,
                                 params: {
                                     consequenceTypes: this.consequenceTypes || CONSEQUENCE_TYPES
-                                }
+                                },
+                                quick: true,
                             }
                         ]
                     },
@@ -563,7 +566,8 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "diseasePanels",
                                 title: "Disease Panels",
-                                tooltip: tooltips.diseasePanels
+                                tooltip: tooltips.diseasePanels,
+                                quick: true,
                             },
                             {
                                 id: "clinical-annotation",
