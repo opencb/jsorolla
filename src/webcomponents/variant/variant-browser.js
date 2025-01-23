@@ -298,11 +298,10 @@ export default class VariantBrowser extends LitElement {
         return html`
             <div class="d-flex gap-1 align-items-stretch">
                 <!-- View buttons -->
-                <div class="d-flex align-items-center gap-1">
+                <div class="d-flex align-items-center gap-1 border bg-gray-100 rounded-3 p-1">
                     ${viewButtons.map(button => html`
                         <button
-                            type="button"
-                            class="${`btn btn-success ${this.activeTab === button.id ? "active" : ""}`}"
+                            class="${`btn ${this.activeTab === button.id ? "active bg-primary text-white" : ""}`}"
                             @click="${() => this.changeView(button.id)}">
                             <i class="fa ${button.icon} me-2"></i>
                             <strong>${button.name}</strong>
