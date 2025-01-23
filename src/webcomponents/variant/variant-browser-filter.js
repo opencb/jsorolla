@@ -441,9 +441,32 @@ export default class VariantBrowserFilter extends LitElement {
     getDefaultConfig() {
         return {
             activeFilters: {
-                alias: {},
-                complexFields: [],
-                hiddenFields: []
+                alias: {
+                    "region": "Region",
+                    "gene": "Gene",
+                    "genotype": "Sample Genotype",
+                    "sample": "Sample",
+                    "maf": "Cohort Stat MAF",
+                    "cohortStatsAlt": "Cohort Stats",
+                    "xref": "XRef",
+                    "panel": "Disease Panel",
+                    "file": "Files",
+                    "qual": "QUAL",
+                    "filter": "FILTER",
+                    "biotype": "Biotype",
+                    "ct": "Consequence Type",
+                    "annot-functional-score": "CADD",
+                    "populationFrequencyAlt": "Population Frequency",
+                    "proteinSubstitution": "Protein Substitution",
+                    "annot-go": "GO",
+                    "annot-hpo": "HPO"
+                },
+                complexFields: [
+                    {id: "sample", separator: ";"},
+                    {id: "fileData", separator: ","},
+                ],
+                hiddenFields: [],
+                lockedFields: [],
             },
             sections: [],
             examples: [],
