@@ -397,7 +397,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 <variant-browser-filter
                     .resource="${"VARIANT"}"
                     .opencgaSession="${this.opencgaSession}"
-                    .query="${this.preparedQuery}"
+                    .preparedQuery="${this.preparedQuery}"
+                    .executedQuery="${this.executedQuery}"
                     .searchActive="${this.searchActive ?? false}"
                     .config="${this._config.filter}"
                     @queryChange="${this.onVariantFilterChange}"
