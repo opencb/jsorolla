@@ -322,16 +322,11 @@ class VariantInterpreterBrowserRd extends LitElement {
                 searchButton: true,
                 searchButtonText: "Search",
                 activeFilters: {
-                    alias: {
-                        "ct": "Consequence Types",
-                        "sample": "Sample Genotype"
-                    },
-                    complexFields: [
-                        {id: "sample", separator: ";"},
-                        {id: "fileData", separator: ","},
-                    ],
                     hiddenFields: [],
                     lockedFields: lockedFields
+                },
+                save: {
+                    ignoreParams: ["study", "sample", "file", "fileData"],
                 },
                 sections: [
                     {

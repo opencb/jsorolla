@@ -281,13 +281,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 searchButton: true,
                 searchButtonText: "Search",
                 activeFilters: {
-                    alias: {
-                        "ct": "Consequence Types"
-                    },
-                    complexFields: [
-                        {id: "sample", separator: ";"},
-                        {id: "fileData", separator: ","},
-                    ],
                     hiddenFields: [],
                     lockedFields: [
                         {id: "sample"},
@@ -295,6 +288,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         // {id: "file"},
                         // {id: "fileData"},
                     ],
+                },
+                save: {
+                    ignoreParams: ["study", "sample", "file", "fileData"],
                 },
                 callers: [],
                 sections: [
