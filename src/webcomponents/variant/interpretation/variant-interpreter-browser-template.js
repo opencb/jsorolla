@@ -382,12 +382,31 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             </style>`;
     }
 
-    renderViewButton(id, title, icon) {
+    renderHeaderRightContent() {
+        const viewButtons = [
+            {name: "Table View", id: "table", icon: "fa fa-table"},
+            {name: "Genome Browser", id: "genome-browser", icon: "fas fa-dna"},
+        ];
         return html`
-            <button class="${`btn btn-success ${this.activeView === id ? "active" : ""}`}" @click="${() => this.onChangeView(id)}">
-                <i class="${`fa fa-${icon} icon-padding`}" aria-hidden="true"></i>
-                <strong>${title}</strong>
-            </button>
+            <div class="d-flex gap-1 align-items-stretch">
+                <!-- View buttons -->
+                <div class="d-flex align-items-center gap-1 border bg-gray-100 rounded-3 p-1">
+                    ${viewButtons.map(button => html`
+                        <button
+                            class="${`btn ${this.activeView === button.id ? "active bg-primary text-white" : ""}`}"
+                            @click="${() => this.onChangeView(button.id)}">
+                            <i class="fa ${button.icon} me-2"></i>
+                            <strong>${button.name}</strong>
+                        </button>
+                    `)}
+                </div>
+                <!-- Separator and buttons -->
+                <div class="w-px bg-gray-200 mx-1"></div>
+                <grid-notifications
+                    class="d-flex align-items-stretch"
+                    .notifications="${this.notifications || []}">
+                </grid-notifications>
+            </div>
         `;
     }
 
@@ -400,8 +419,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         return html`
             ${this._config.showTitle ? html`
                 <tool-header
-                    title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}"
-                    icon="${this._config.icon}">
+                    .title="${this._config?.title + "AAAAAA"}"
+                    .rightContent="${this.renderHeaderRightContent()}">
                 </tool-header>
             ` : nothing}
 
@@ -413,12 +432,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             ` : nothing}
 
             <div class="">
-                <!-- View toolbar -->
-                <div class="d-flex gap-1 mb-3" role="toolbar" aria-label="toolbar">
-                    ${this.renderViewButton("table", "Table View", "table")}
-                    ${!this.settings?.hideGenomeBrowser ? this.renderViewButton("genome-browser", "Genome Browser", "dna") : nothing}
-                </div>
-
                 <!-- Filters toolbar -->
                 <variant-browser-filter
                     .resource="${"VARIANT"}"
@@ -431,7 +444,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 </variant-browser-filter>
 
                 <div class="main-view">
-                    <div id="table-view" class="${`content-tab ${this.activeView === "table" ? "active" : ""}`}">
+                    <div id="table-view" class="${this.activeView === "table" ? "d-block" : "d-none"}">
                         <!-- Interpreter browser toolbar -->
                         <variant-interpreter-browser-toolbar
                             .clinicalAnalysis="${this.clinicalAnalysis}"
@@ -487,7 +500,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     </div>
                     <!-- Genome browser view -->
                     ${!this.settings?.hideGenomeBrowser ? html`
-                        <div id="genome-browser-view" class="${`content-tab ${this.activeView === "genome-browser" ? "active" : ""}`}">
+                        <div id="genome-browser-view" class="${this.activeView === "genome-browser" ? "d-block" : "d-none"}">
                             ${!this._config.filter.result.grid.isRearrangement ? html`
                                 <genome-browser
                                     .opencgaSession="${this.opencgaSession}"
@@ -670,6 +683,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         }
 
         return {
+            showTitle: true,
             genomeBrowser: {
                 config: genomeBrowserConfig,
                 tracks: genomeBrowserTracks,
