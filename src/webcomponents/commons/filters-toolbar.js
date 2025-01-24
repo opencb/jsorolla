@@ -755,6 +755,9 @@ export default class FiltersToolbar extends LitElement {
                 hiddenFields: [],
                 lockedFields: [],
             },
+            save: {
+                ignoreParams: [],
+            },
             sections: [],
             examples: [],
             defaultFilter: {},
