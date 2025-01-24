@@ -313,14 +313,8 @@ class VariantInterpreterBrowserRd extends LitElement {
         }
 
         return {
-            title: this.title || "RD Case Interpreter",
-            showSaveInterpretation: true,
-            showOtherTools: true,
-            showTitle: true,
+            title: this.title || "RD Variant Browser",
             filter: {
-                title: "Filter",
-                searchButton: true,
-                searchButtonText: "Search",
                 activeFilters: {
                     hiddenFields: [],
                     lockedFields: lockedFields

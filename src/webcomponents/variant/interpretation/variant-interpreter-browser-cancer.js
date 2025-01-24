@@ -292,15 +292,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
         }
 
         return {
-            title: this.title || "Cancer Case Interpreter",
-            icon: "fas fa-search",
-            active: false,
-            showOtherTools: false,
-            showTitle: true,
+            title: this.title || "SNV Variant Browser",
             filter: {
-                title: "Filter",
-                searchButton: true,
-                searchButtonText: "Search",
                 activeFilters: {
                     hiddenFields: [],
                     lockedFields: lockedFields,

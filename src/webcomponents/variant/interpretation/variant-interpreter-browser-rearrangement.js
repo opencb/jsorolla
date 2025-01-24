@@ -271,15 +271,8 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: this.title || "Cancer Case Interpreter",
-            icon: "fas fa-search",
-            active: false,
-            showOtherTools: false,
-            showTitle: true,
+            title: this.title || "Rearrangement Variant Browser",
             filter: {
-                title: "Filter",
-                searchButton: true,
-                searchButtonText: "Search",
                 activeFilters: {
                     hiddenFields: [],
                     lockedFields: [
