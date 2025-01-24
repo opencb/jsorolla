@@ -167,7 +167,7 @@ export default class VariantBrowserFilter extends LitElement {
                         .sample="${preparedQuery.sample}"
                         .config="${sampleConfig || {}}"
                         @filterChange="${e => onFilterChange("sample", e.detail.value)}">
-                    </sample-genotype-filter>    
+                    </sample-genotype-filter>
                 `;
                 break;
             case "individual-hpo":
@@ -463,6 +463,7 @@ export default class VariantBrowserFilter extends LitElement {
                 },
                 complexFields: [
                     {id: "sample", separator: ";"},
+                    {id: "sampleData", separator: ","},
                     {id: "fileData", separator: ","},
                 ],
                 hiddenFields: [],
