@@ -15,7 +15,6 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import VariantUtils from "../variant-utils.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
@@ -26,6 +25,7 @@ import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../variant-browser-filter.js";
 import "../../commons/tool-header.js";
+import "../../commons/grid-notifications.js";
 import "../../commons/opencga-active-filters.js";
 import "../../visualization/genome-browser.js";
 import "../../visualization/split-genome-browser.js";
