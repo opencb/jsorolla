@@ -19,6 +19,7 @@ import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js
 import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
+import WebUtils from "../../commons/utils/web-utils.js";
 import Region from "../../../core/bioinfo/region.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
@@ -36,7 +37,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -72,12 +73,13 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
 
         this.searchActive = true;
         this.variant = null;
         this.query = {};
+        this.notifications = [];
 
         // Saves the current active view
         this.activeView = "table";
@@ -213,7 +215,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         });
     }
 
-    onQueryComplete() {
+    onQueryComplete(event) {
+        this.notifications = WebUtils.getResponseEvents(event.detail.response);
         this.searchActive = true;
         this.requestUpdate();
     }
