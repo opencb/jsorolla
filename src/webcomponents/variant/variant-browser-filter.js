@@ -86,9 +86,14 @@ export default class VariantBrowserFilter extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
+            const defaultConfig = this.getDefaultConfig();
             this._config = {
-                ...this.getDefaultConfig(),
+                ...defaultConfig,
                 ...this.config,
+                activeFilters: {
+                    ...defaultConfig.activeFilters,
+                    ...this.config.activeFilters,
+                },
             };
         }
 
