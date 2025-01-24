@@ -310,8 +310,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         });
     }
 
-    onActiveFilterClear() {
-        const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id)];
+    onVariantFilterClear() {
+        const lockedFields = this._config?.filter?.activeFilters?.lockedFields.map(key => key.id);
         let _query = {
             study: this.opencgaSession.study.fqn
         };
@@ -401,7 +401,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     .searchActive="${this.searchActive ?? false}"
                     .config="${this._config.filter}"
                     @queryChange="${this.onVariantFilterChange}"
-                    @querySearch="${this.onVariantFilterSearch}">
+                    @querySearch="${this.onVariantFilterSearch}"
+                    @queryClear="${this.onVariantFilterClear}">
                 </variant-browser-filter>
 
                 <div id="table-view" class="${this.activeView === "table" ? "d-block" : "d-none"}">
