@@ -424,9 +424,7 @@ export default class FiltersToolbar extends LitElement {
     }
 
     onClear() {
-        this.preparedQuery = {};
-        this.notifySearch(this.preparedQuery);
-        this.updateHistory();
+        LitUtils.dispatchCustomEvent(this, "queryClear", null, {});
     }
 
     onSave() {
