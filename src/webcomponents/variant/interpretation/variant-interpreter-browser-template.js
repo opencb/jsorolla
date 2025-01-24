@@ -341,47 +341,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.requestUpdate();
     }
 
-    renderStyles() {
-        return html `
-            <style>
-                .prioritization-center {
-                    margin: auto;
-                    text-align: justify;
-                    width: 95%;
-                }
-
-                .browser-variant-tab-title {
-                    font-size: 115%;
-                    font-weight: bold;
-                }
-
-                .prioritization-variant-tab-title {
-                    font-size: 115%;
-                    font-weight: bold;
-                }
-
-                .form-section-title {
-                    padding: 5px 0px;
-                    width: 95%;
-                    border-bottom-width: 1px;
-                    border-bottom-style: solid;
-                    border-bottom-color: #ddd
-                }
-
-                #clinicalAnalysisIdText {
-                    padding: 10px;
-                }
-
-                .clinical-analysis-id-wrapper {
-                    padding: 20px;
-                }
-
-                .clinical-analysis-id-wrapper .text-filter-wrapper {
-                    margin: 20px 0;
-                }
-            </style>`;
-    }
-
     renderHeaderRightContent() {
         const viewButtons = [
             {name: "Table View", id: "table", icon: "fa fa-table", visible: true},
@@ -411,7 +370,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     render() {
-        // Check Project exists
         if (!this.opencgaSession?.study) {
             return nothing;
         }
