@@ -390,7 +390,8 @@ export default class VariantBrowser extends LitElement {
                             .resource="${"VARIANT"}"
                             .toolId="${this.COMPONENT_ID || ""}"
                             .opencgaSession=${this.opencgaSession}
-                            .query="${this.preparedQuery}"
+                            .preparedQuery="${this.preparedQuery}"
+                            .executedQuery="${this.executedQuery}"
                             .searchActive="${this.searchActive || false}"
                             .config="${this._config.filter}"
                             @queryChange="${this.onVariantFilterChange}"
