@@ -1517,20 +1517,6 @@ export default class VariantInterpreterGrid extends LitElement {
         this.evidenceReview = null;
     }
 
-    getRightToolbar() {
-        if (this._config?.showSettings) {
-            return [
-                {
-                    render: () => html`
-                        <button type="button" class="btn btn-light btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
-                            <i class="fas fa-cog"></i> Settings ...
-                        </button>`
-                }
-            ];
-        }
-        return [];
-    }
-
     renderToolbarLeftContent() {
         return html`
             <span id="${this.gridId + "PaginationInfo"}"></span>
