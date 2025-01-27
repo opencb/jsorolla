@@ -133,6 +133,7 @@ export default class NoteBrowser extends LitElement {
                                 .config="${params.config.filter.result.grid}"
                                 .eventNotifyName="${params.eventNotifyName}"
                                 .active="${true}"
+                                @queryComplete="${e => params.onQueryComplete(e)}"
                                 @selectrow="${e => params.onClickRow(e, "note")}"
                                 @noteUpdate="${e => params.onComponentUpdate(e, "note")}"
                                 @settingsUpdate="${() => this.onSettingsUpdate()}">
@@ -158,7 +159,7 @@ export default class NoteBrowser extends LitElement {
                         filters: [
                             {
                                 id: "scope",
-                                name: "Scope",
+                                title: "Scope",
                                 render: (onFilterChange, query, opencgaSession) => {
                                     const value = (query?.scope || "study").toLowerCase();
                                     const allowedValues = [
@@ -187,10 +188,11 @@ export default class NoteBrowser extends LitElement {
                                         </div>
                                     `;
                                 },
+                                quick: true,
                             },
                             {
                                 id: "id",
-                                name: "Note ID",
+                                title: "Note ID",
                                 type: "string",
                                 render: (onFilterChange, query, opencgaSession) => {
                                     const resource = query?.scope === "ORGANIZATION" || query?.scope === "NOTE_ORGANIZATION" ? "NOTE_ORGANIZATION" : "NOTE_STUDY";
@@ -203,17 +205,19 @@ export default class NoteBrowser extends LitElement {
                                         </catalog-search-autocomplete>
                                     `;
                                 },
+                                quick: true,
                             },
                             {
                                 id: "visibility",
-                                name: "Visibility",
+                                title: "Visibility",
                                 allowedValues: ["PUBLIC", "PRIVATE"],
                                 multiple: true,
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "date",
-                                name: "Creation Date",
+                                title: "Creation Date",
                                 description: ""
                             },
                         ]
