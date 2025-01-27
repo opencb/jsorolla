@@ -27,7 +27,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,6 +48,9 @@ class VariantInterpreterBrowserCNV extends LitElement {
             cellbaseClient: {
                 type: Object
             },
+            title: {
+                type: String,
+            },
             settings: {
                 type: Object
             },
@@ -57,7 +60,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "variant-interpreter-cancer-cnv";
         this._prefix = UtilsNew.randomString(8);
 
@@ -264,26 +267,14 @@ class VariantInterpreterBrowserCNV extends LitElement {
         }
 
         return {
-            title: "Cancer CNV Case Interpreter",
-            icon: "fas fa-search",
-            active: false,
-            showOtherTools: false,
-            showTitle: false,
+            title: this.title || "Cancer CNV Variant Browser",
             filter: {
-                title: "Filter",
-                searchButton: true,
-                searchButtonText: "Search",
                 activeFilters: {
-                    alias: {
-                        "ct": "Consequence Types",
-                        "sample": "Sample Genotype"
-                    },
-                    complexFields: [
-                        {id: "sample", separator: ";"},
-                        {id: "fileData", separator: ","},
-                    ],
                     hiddenFields: [],
                     lockedFields: lockedFields,
+                },
+                save: {
+                    ignoreParams: ["study", "sample", "file", "fileData"],
                 },
                 sections: [ // sections and subsections, structure and order is respected
                     {

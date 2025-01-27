@@ -22,8 +22,11 @@ export default class FiltersToolbar extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            query: {
-                type: Object
+            preparedQuery: {
+                type: Object,
+            },
+            executedQuery: {
+                type: Object,
             },
             resource: {
                 type: String,
@@ -53,12 +56,11 @@ export default class FiltersToolbar extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
 
-        this.query = {};
         this.searchActive = true;
+        this.preparedQuery = {};
+        this.executedQuery = {};
 
         this.queryList = [];
-        this.preparedQuery = {};
-
         this.quickFilters = [];
         this.applicationFilters = [];
         this.userFilters = [];
@@ -75,8 +77,12 @@ export default class FiltersToolbar extends LitElement {
             this.opencgaSessionObserver();
         }
 
-        if (changedProperties.has("query")) {
+        if (changedProperties.has("preparedQuery") || changedProperties.has("executedQuery")) {
             this.queryObserver();
+        }
+
+        if (changedProperties.has("executedQuery")) {
+            this.updateHistory();
         }
 
         super.update(changedProperties);
@@ -104,84 +110,6 @@ export default class FiltersToolbar extends LitElement {
     }
 
     queryObserver() {
-        this.preparedQuery = UtilsNew.objectClone(this.query);
-        this.updateQueryList();
-
-        // update the history only if it is empty
-        if (this.historyFilters.length === 0) {
-            this.updateHistory();
-        }
-    }
-
-    configObserver() {
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
-        };
-
-        // prepare list of quick and advanced filters
-        this.quickFilters = (this._config?.sections || [])
-            .map(section => (section?.filters || [])
-            .filter(filter => !!filter.quick))
-            .flat();
-
-        // update the application filters
-        this.applicationFilters = [];
-
-        if (this._config.defaultFilter) {
-            const isDisabled = UtilsNew.isEmpty(this._config.defaultFilter);
-            this.applicationFilters.push({
-                id: "Default Filter",
-                query: UtilsNew.objectClone(this._config.defaultFilter),
-                disabled: isDisabled,
-                description: isDisabled ? "Filter not configured." : "",
-                active: false,
-            });
-        }
-
-        if (this._config.filters?.length > 0) {
-            this.applicationFilters.push(...this._config.filters);
-        }
-
-        // generate the list of locked fields
-        this.lockedFieldsMap = {};
-        (this._config.activeFilters?.lockedFields || []).forEach(lockedField => {
-            this.lockedFieldsMap[lockedField.id] = lockedField;
-        });
-    }
-
-    notifyQuery(query) {
-        LitUtils.dispatchCustomEvent(this, "queryChange", null, {query});
-    }
-
-    notifySearch(query) {
-        LitUtils.dispatchCustomEvent(this, "querySearch", null, {query});
-    }
-
-    updateHistory() {
-        // 1. remove all identical filters
-        const history = this.historyFilters.filter(historyItem => {
-            return JSON.stringify(historyItem.query) !== JSON.stringify(this.preparedQuery);
-        });
-
-        // 2. remove previous latest
-        if (history?.length > 0) {
-            history[0].latest = false;
-        }
-
-        // 3. prepare new latest filter and add at the beginning
-        history.unshift({
-            id: UtilsNew.dateFormatter(UtilsNew.getDatetime(), "HH:mm:ss"),
-            // date: UtilsNew.getDatetime(),
-            query: UtilsNew.objectClone(this.preparedQuery),
-            latest: true,
-        });
-
-        // 4. limit up to 10 history items
-        this.historyFilters = history.slice(0, 10);
-    }
-
-    updateQueryList() {
         this.queryList = [];
 
         Object.keys(this.preparedQuery).forEach(key => {
@@ -243,6 +171,78 @@ export default class FiltersToolbar extends LitElement {
                 });
             }
         });
+    }
+
+    configObserver() {
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config
+        };
+
+        // prepare list of quick and advanced filters
+        this.quickFilters = (this._config?.sections || [])
+            .map(section => (section?.filters || [])
+            .filter(filter => !!filter.quick))
+            .flat();
+
+        // update the application filters
+        this.applicationFilters = [];
+
+        if (this._config.defaultFilter) {
+            const isDisabled = UtilsNew.isEmpty(this._config.defaultFilter);
+            this.applicationFilters.push({
+                id: "Default Filter",
+                query: UtilsNew.objectClone(this._config.defaultFilter),
+                disabled: isDisabled,
+                description: isDisabled ? "Filter not configured." : "",
+                active: false,
+            });
+        }
+
+        if (this._config.filters?.length > 0) {
+            this.applicationFilters.push(...this._config.filters);
+        }
+
+        // generate the list of locked fields
+        this.lockedFieldsMap = {};
+        (this._config.activeFilters?.lockedFields || []).forEach(lockedField => {
+            this.lockedFieldsMap[lockedField.id] = lockedField;
+        });
+    }
+
+    notifyQuery(query) {
+        LitUtils.dispatchCustomEvent(this, "queryChange", null, {query});
+    }
+
+    notifySearch(query) {
+        LitUtils.dispatchCustomEvent(this, "querySearch", null, {query});
+    }
+
+    updateHistory() {
+        // 1. remove all identical filters
+        const history = this.historyFilters.filter(historyItem => {
+            return JSON.stringify(historyItem.query) !== JSON.stringify(this.executedQuery);
+        });
+
+        // 2. remove previous latest
+        if (history?.length > 0) {
+            history[0].latest = false;
+        }
+
+        // 3. prepare new latest filter and add at the beginning
+        history.unshift({
+            id: UtilsNew.dateFormatter(UtilsNew.getDatetime(), "HH:mm:ss"),
+            // date: UtilsNew.getDatetime(),
+            query: UtilsNew.objectClone(this.executedQuery),
+            latest: true,
+        });
+
+        // 4. limit up to 10 history items
+        this.historyFilters = history.slice(0, 10);
+    }
+
+    updateQueryList() {
+        return null;
     }
 
     saveFilter() {
@@ -358,39 +358,43 @@ export default class FiltersToolbar extends LitElement {
         // Example: REST accepts filter and qual while filter returns FILTER and QUALITY
         //  - key: {filter: "FILTER", qual: "QUALITY"}
         //  - value: {FILTER: "pass", QUALITY: "25"}
+        const query = UtilsNew.objectClone(this.preparedQuery);
+
         if (typeof key === "object" && typeof value === "object") {
             Object.values(key).forEach(k => {
                 if (value[k] && value[k] !== "") {
-                    this.preparedQuery[k] = value[k];
+                    query[k] = value[k];
                 } else {
-                    delete this.preparedQuery[k];
+                    delete query[k];
                 }
             });
         } else {
             if (!!value) {
-                this.preparedQuery[key] = value;
+                query[key] = value;
             } else {
-                delete this.preparedQuery[key];
+                delete query[key];
             }
         }
 
-        this.notifyQuery(this.preparedQuery);
+        this.notifyQuery(query);
     }
 
     onFilterDelete(key, value) {
+        const query = UtilsNew.objectClone(this.preparedQuery);
+
         // in case that we want to remove the whole filter, or the filter has a single value
-        if (!value || this.preparedQuery[key] === value) {
-            delete this.preparedQuery[key];
+        if (!value || query[key] === value) {
+            delete query[key];
         } else {
             let filterFields = [];
             const complexField = (this._config?.complexFields || []).find(item => item.id === key);
 
             if (complexField) {
-                filterFields = complexField?.separator ? this.preparedQuery[key].split(complexField.separator) : UtilsNew.splitByRegex(this.preparedQuery[key], complexField.separatorRegex);
+                filterFields = complexField?.separator ? query[key].split(complexField.separator) : UtilsNew.splitByRegex(query[key], complexField.separatorRegex);
             } else if (value.indexOf(";") !== -1 && value.indexOf(",") !== -1) {
-                filterFields = this.preparedQuery[key].split(";"); // If we find a field with both ; and , we will separate by ;
+                filterFields = query[key].split(";"); // If we find a field with both ; and , we will separate by ;
             } else {
-                filterFields = this.preparedQuery[key].split(new RegExp("[,;]"));
+                filterFields = query[key].split(new RegExp("[,;]"));
             }
 
             // remove value from filterFields
@@ -398,35 +402,29 @@ export default class FiltersToolbar extends LitElement {
 
             // restore the query field
             if (complexField) {
-                this.preparedQuery[key] = complexField?.separator ? filterFields.join(complexField.separator) : filterFields.join(",");
+                query[key] = complexField?.separator ? filterFields.join(complexField.separator) : filterFields.join(",");
             } else if (value.indexOf(";") !== -1 && value.indexOf(",") !== -1) {
-                this.preparedQuery[key] = filterFields.join(";");
-            } else if (this.preparedQuery[key].indexOf(",") !== -1) {
-                this.preparedQuery[key] = filterFields.join(",");
+                query[key] = filterFields.join(";");
+            } else if (query[key].indexOf(",") !== -1) {
+                query[key] = filterFields.join(",");
             } else {
-                this.preparedQuery[key] = filterFields.join(";");
+                query[key] = filterFields.join(";");
             }
         }
 
-        this.notifySearch(this.preparedQuery);
-        this.updateHistory();
+        this.notifySearch(query);
     }
 
     onApplyQuery(query) {
-        this.preparedQuery = UtilsNew.objectClone(query || {});
-        this.notifySearch(this.preparedQuery);
-        this.updateHistory();
+        this.notifySearch(query);
     }
 
     onSearch() {
         this.notifySearch(this.preparedQuery);
-        this.updateHistory();
     }
 
     onClear() {
-        this.preparedQuery = {};
-        this.notifySearch(this.preparedQuery);
-        this.updateHistory();
+        LitUtils.dispatchCustomEvent(this, "queryClear", null, {});
     }
 
     onSave() {
@@ -435,7 +433,7 @@ export default class FiltersToolbar extends LitElement {
 
     onCopyLink() {
         // 1. Generate the url to the tool with the current query
-        const link = WebUtils.getIVALink(this.opencgaSession, this.toolId, this.query);
+        const link = WebUtils.getIVALink(this.opencgaSession, this.toolId, this.preparedQuery);
 
         // 2. Copy this link to the user clipboard
         UtilsNew.copyToClipboard(link);
@@ -754,6 +752,9 @@ export default class FiltersToolbar extends LitElement {
                 complexFields: [],
                 hiddenFields: [],
                 lockedFields: [],
+            },
+            save: {
+                ignoreParams: [],
             },
             sections: [],
             examples: [],

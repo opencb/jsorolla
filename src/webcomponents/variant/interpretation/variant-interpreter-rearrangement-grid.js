@@ -285,7 +285,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
+                paginationVAlign: "bottom",
                 formatShowingRows: (pageFrom, pageTo, totalRows) =>
                     this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
                 showExport: this._config.showExport,
@@ -346,7 +346,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         });
                 },
                 responseHandler: response => {
-                    this.gridCommons.displayResponseWarningEvents(response);
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
@@ -407,7 +406,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
-            paginationVAlign: "both",
+            paginationVAlign: "bottom",
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
             // detailView: this._config.detailView,
@@ -973,28 +972,20 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.requestUpdate();
     }
 
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "PaginationInfo"}"></span>
+        `;
+    }
+
     render() {
         return html`
-            <style>
-                .variant-link-dropdown:hover .dropdown-menu {
-                    display: block;
-                }
-                .qtip-custom-class {
-                    font-size: 13px;
-                    max-width: none;
-                }
-                .check-variant {
-                    transform: scale(1.2);
-                }
-            </style>
-
-            <div id="${this.gridId}WarningEvents"></div>
-
             <opencb-grid-toolbar
                 .config="${this.toolbarConfig}"
                 .settings="${this.toolbarSetting}"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.filters}"
+                .leftContent="${this.renderToolbarLeftContent()}"
                 @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}"
                 @export="${this.onDownload}"

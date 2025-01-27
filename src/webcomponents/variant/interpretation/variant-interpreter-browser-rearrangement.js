@@ -47,6 +47,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             cellbaseClient: {
                 type: Object
             },
+            title: {
+                type: String,
+            },
             active: {
                 type: Boolean,
             },
@@ -80,9 +83,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         super.update(changedProperties);
     }
 
-    /*
-     * Fetch the ClinicalAnalysis object from REST and trigger the observer call.
-     */
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
@@ -271,23 +271,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Cancer Case Interpreter",
-            icon: "fas fa-search",
-            active: false,
-            showOtherTools: false,
-            showTitle: false,
+            title: this.title || "Rearrangement Variant Browser",
             filter: {
-                title: "Filter",
-                searchButton: true,
-                searchButtonText: "Search",
                 activeFilters: {
-                    alias: {
-                        "ct": "Consequence Types"
-                    },
-                    complexFields: [
-                        {id: "sample", separator: ";"},
-                        {id: "fileData", separator: ","},
-                    ],
                     hiddenFields: [],
                     lockedFields: [
                         {id: "sample"},
@@ -295,6 +281,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         // {id: "file"},
                         // {id: "fileData"},
                     ],
+                },
+                save: {
+                    ignoreParams: ["study", "sample", "file", "fileData"],
                 },
                 callers: [],
                 sections: [

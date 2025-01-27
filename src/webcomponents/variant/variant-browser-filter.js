@@ -62,8 +62,11 @@ export default class VariantBrowserFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            query: {
-                type: Object
+            preparedQuery: {
+                type: Object,
+            },
+            executedQuery: {
+                type: Object,
             },
             resource: {
                 type: String,
@@ -86,9 +89,14 @@ export default class VariantBrowserFilter extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
+            const defaultConfig = this.getDefaultConfig();
             this._config = {
-                ...this.getDefaultConfig(),
+                ...defaultConfig,
                 ...this.config,
+                activeFilters: {
+                    ...defaultConfig.activeFilters,
+                    ...this.config.activeFilters,
+                },
             };
         }
 
@@ -430,7 +438,8 @@ export default class VariantBrowserFilter extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .toolId="${this.toolId}"
                 .resource="${this.resource}"
-                .query="${this.query}"
+                .preparedQuery="${this.preparedQuery}"
+                .executedQuery="${this.executedQuery}"
                 .searchActive="${this.searchActive}"
                 .renderFilter="${this.renderFilter}"
                 .config="${this._config}">

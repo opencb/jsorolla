@@ -222,7 +222,16 @@ export default class VariantBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    onQueryFilterChange(e) {
+    onVariantFilterClear() {
+        this.preparedQuery = {};
+        this.executedQuery = {};
+        this.searchActive = false;
+        this.variant = null;
+        this.notifySearch(this.preparedQuery);
+        this.requestUpdate();
+    }
+
+    onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
@@ -381,11 +390,13 @@ export default class VariantBrowser extends LitElement {
                             .resource="${"VARIANT"}"
                             .toolId="${this.COMPONENT_ID || ""}"
                             .opencgaSession=${this.opencgaSession}
-                            .query="${this.preparedQuery}"
+                            .preparedQuery="${this.preparedQuery}"
+                            .executedQuery="${this.executedQuery}"
                             .searchActive="${this.searchActive || false}"
                             .config="${this._config.filter}"
-                            @queryChange="${this.onQueryFilterChange}"
-                            @querySearch="${this.onVariantFilterSearch}">
+                            @queryChange="${this.onVariantFilterChange}"
+                            @querySearch="${this.onVariantFilterSearch}"
+                            @queryClear="${this.onVariantFilterClear}">
                         </variant-browser-filter>
 
                         <div class="main-view">
