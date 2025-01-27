@@ -137,6 +137,7 @@ export default class DiseasePanelBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
+                            @queryComplete="${e => params.onQueryComplete(e)}"
                             @selectrow="${e => params.onClickRow(e)}"
                             @diseasePanelUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
@@ -152,7 +153,6 @@ export default class DiseasePanelBrowser extends LitElement {
                 },
             ],
             filter: {
-                searchButton: false,
                 sections: [
                     {
                         title: "Section title",
@@ -160,8 +160,9 @@ export default class DiseasePanelBrowser extends LitElement {
                         filters: [
                             {
                                 id: "id",
-                                name: "Disease Panel ID",
-                                description: ""
+                                title: "Disease Panel ID",
+                                description: "",
+                                quick: true,
                             },
                             // {
                             //     id: "name",
@@ -175,26 +176,28 @@ export default class DiseasePanelBrowser extends LitElement {
                             // },
                             {
                                 id: "source",
-                                name: "Panel Source Name",
+                                title: "Panel Source Name",
                                 placeholder: "Amelogenesis...",
                                 description: "",
                                 multiple: true,
                                 freeTag: true,
                                 field: "source.name",
-                                resource: "DISEASE_PANEL"
+                                resource: "DISEASE_PANEL",
+                                quick: true,
                             },
                             {
                                 id: "disorders",
-                                name: "Disorders",
+                                title: "Disorders",
                                 description: "",
                                 multiple: true,
                                 freeTag: true,
                                 field: "disorders.id",
-                                resource: "DISEASE_PANEL"
+                                resource: "DISEASE_PANEL",
+                                quick: true,
                             },
                             {
                                 id: "categories",
-                                name: "Categories",
+                                title: "Categories",
                                 placeholder: "Cancer programme...",
                                 description: "",
                                 multiple: true,
@@ -204,7 +207,7 @@ export default class DiseasePanelBrowser extends LitElement {
                             },
                             {
                                 id: "genes",
-                                name: "Genes",
+                                title: "Genes",
                                 placeholder: "Select genes...",
                                 description: "",
                                 multiple: true,
@@ -214,13 +217,13 @@ export default class DiseasePanelBrowser extends LitElement {
                             },
                             {
                                 id: "region",
-                                name: "Region",
+                                title: "Region",
                                 placeholder: "Comma-separated list of regions...",
                                 description: ""
                             },
                             {
                                 id: "tags",
-                                name: "Tags",
+                                title: "Tags",
                                 description: "",
                                 placeholder: "cancer...",
                                 multiple: true,
