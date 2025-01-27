@@ -128,6 +128,7 @@ export default class CohortBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
+                            @queryComplete="${e => params.onQueryComplete(e)}"
                             @selectrow="${e => params.onClickRow(e)}"
                             @cohortUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
@@ -156,7 +157,6 @@ export default class CohortBrowser extends LitElement {
                 }
             ],
             filter: {
-                searchButton: false,
                 sections: [
                     {
                         title: "Section title",
@@ -164,33 +164,36 @@ export default class CohortBrowser extends LitElement {
                         filters: [
                             {
                                 id: "id",
-                                name: "Cohort ID",
+                                title: "Cohort ID",
                                 type: "string",
                                 placeholder: "Start typing...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "samples",
-                                name: "Samples",
+                                title: "Samples",
                                 type: "string",
                                 placeholder: "HG01879, HG01880, HG01881...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "type",
-                                name: "Type",
+                                title: "Type",
                                 type: "string",
                                 multiple: true,
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "date",
-                                name: "Date",
+                                title: "Date",
                                 description: ""
                             },
                             {
                                 id: "annotations",
-                                name: "Cohort annotations",
+                                title: "Cohort annotations",
                                 placeholder: "Full-text search, e.g. *melanoma*",
                                 description: ""
                             }
