@@ -158,7 +158,6 @@ export default class SampleBrowser extends LitElement {
                 }
             ],
             filter: {
-                searchButton: false,
                 sections: [
                     {
                         title: "Section title",
@@ -166,40 +165,43 @@ export default class SampleBrowser extends LitElement {
                         filters: [
                             {
                                 id: "id",
-                                name: "Sample ID",
-                                description: ""
+                                title: "Sample ID",
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "individualId",
-                                name: "Individual ID",
+                                title: "Individual ID",
                                 placeholder: "LP-1234, LP-4567...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "fileIds",
-                                name: "File Name",
+                                title: "File Name",
                                 placeholder: "file.vcf, ...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "phenotypes",
-                                name: "Phenotypes",
+                                title: "Phenotypes",
                                 placeholder: "Full-text search, e.g. melanoma",
                                 description: ""
                             },
                             {
                                 id: "somatic",
-                                name: "Somatic",
+                                title: "Somatic",
                                 description: ""
                             },
                             {
                                 id: "date",
-                                name: "Date",
+                                title: "Date",
                                 description: ""
                             },
                             {
                                 id: "annotations",
-                                name: "Sample Annotations",
+                                title: "Sample Annotations",
                                 description: ""
                             }
                         ]
