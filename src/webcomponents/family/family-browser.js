@@ -119,7 +119,7 @@ export default class FamilyBrowser extends LitElement {
                     name: "Table View",
                     icon: "fa fa-table",
                     active: true,
-                    render: params => html `
+                    render: params => html`
                         <family-grid
                             .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
@@ -127,6 +127,7 @@ export default class FamilyBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .active="${true}"
                             .eventNotifyName="${params.eventNotifyName}"
+                            @queryComplete="${e => params.onQueryComplete(e)}"
                             @selectrow="${e => params.onClickRow(e)}"
                             @familyUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
@@ -156,7 +157,6 @@ export default class FamilyBrowser extends LitElement {
                 }
             ],
             filter: {
-                searchButton: false,
                 sections: [
                     {
                         title: "Section title",
@@ -164,38 +164,42 @@ export default class FamilyBrowser extends LitElement {
                         filters: [
                             {
                                 id: "id",
-                                name: "Family ID",
+                                title: "Family ID",
                                 type: "string",
                                 placeholder: "LP-1234,LP-2345...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "members",
-                                name: "Members",
+                                title: "Members",
                                 type: "string",
                                 placeholder: "HG01879, HG01880, HG01881...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "disorders",
-                                name: "Disorders",
+                                title: "Disorders",
                                 placeholder: "Intellectual disability,Arthrogryposis...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "phenotypes",
-                                name: "Phenotype",
+                                title: "Phenotype",
                                 placeholder: "Full-text search, e.g. *melanoma*",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "date",
-                                name: "Creation Date",
+                                title: "Creation Date",
                                 description: ""
                             },
                             {
                                 id: "annotations",
-                                name: "Family Annotations",
+                                title: "Family Annotations",
                                 description: ""
                             }
                         ]
