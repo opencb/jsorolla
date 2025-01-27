@@ -130,6 +130,7 @@ export default class FileBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
+                            @queryComplete="${e => params.onQueryComplete(e)}"
                             @selectrow="${e => params.onClickRow(e)}"
                             @fileUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
@@ -159,7 +160,6 @@ export default class FileBrowser extends LitElement {
                 }
             ],
             filter: {
-                searchButton: false,
                 sections: [
                     {
                         title: "Section title",
@@ -167,42 +167,45 @@ export default class FileBrowser extends LitElement {
                         filters: [
                             {
                                 id: "name",
-                                name: "Name",
+                                title: "Name",
                                 type: "string",
                                 placeholder: "accepted_hits.bam, phenotypes.vcf...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "sampleIds",
-                                name: "Sample ID",
+                                title: "Sample ID",
                                 type: "string",
                                 placeholder: "HG01879, HG01880, HG01881...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "jobId",
-                                name: "Job ID",
+                                title: "Job ID",
                                 type: "string",
                                 placeholder: "Job ID ...",
                                 description: "",
                             },
                             {
                                 id: "directory",
-                                name: "Directory",
+                                title: "Directory",
                                 type: "string",
                                 placeholder: "genomes/resources/files/...",
-                                description: ""
+                                description: "",
                             },
                             {
                                 id: "format",
-                                name: "Format",
+                                title: "Format",
                                 type: "string",
                                 placeholder: "Format ...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "internalVariantIndexStatus",
-                                name: "Variant Index Status",
+                                title: "Variant Index Status",
                                 multiple: true,
                                 // NOTE 20230310 Vero: The current internalVariantIndexStatus (internal.variant.index.status) vocabulary is:
                                 // "READY", "DELETED", "NONE", "TRANSFORMED", "TRANSFORMING", "LOADING", "INDEXING"
@@ -212,13 +215,13 @@ export default class FileBrowser extends LitElement {
                             },
                             {
                                 id: "date",
-                                name: "Date",
+                                title: "Date",
                                 type: "date",
                                 description: ""
                             },
                             {
                                 id: "annotations",
-                                name: "File Annotations",
+                                title: "File Annotations",
                                 description: "",
                             }
                         ]
