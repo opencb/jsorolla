@@ -134,6 +134,7 @@ export default class JobBrowser extends LitElement {
                             .search="${params.executedQuery}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .files="${params.files}"
+                            @queryComplete="${e => params.onQueryComplete(e)}"
                             @selectrow="${e => params.onClickRow(e)}"
                             @jobUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
@@ -174,7 +175,6 @@ export default class JobBrowser extends LitElement {
                 },
             ],
             filter: {
-                searchButton: false,
                 sections: [
                     {
                         title: "Section title",
@@ -182,42 +182,44 @@ export default class JobBrowser extends LitElement {
                         filters: [
                             {
                                 id: "id",
-                                name: "Job ID",
+                                title: "Job ID",
                                 placeholder: "ID",
                                 allowedValues: "",
                                 defaultValue: "",
                                 description: "",
-                                fileUpload: false,
+                                quick: true,
                             },
                             {
                                 id: "tool",
-                                name: "Analysis Tool ID",
+                                title: "Analysis Tool ID",
                                 placeholder: "Tool",
                                 allowedValues: "",
                                 defaultValue: "",
                                 description: "",
+                                quick: true,
                             },
                             {
                                 id: "input",
-                                name: "Input File Name",
+                                title: "Input File Name",
                                 placeholder: "e.g.  NA12877.vcf.gz",
                                 allowedValues: "",
                                 defaultValue: "",
                                 description: "",
-                                fileUpload: false,
+                                quick: true,
                             },
                             {
                                 id: "internalStatus",
-                                name: "Status",
+                                title: "Status",
                                 placeholder: "Status",
                                 allowedValues: ["PENDING", "QUEUED", "RUNNING", "DONE", "ERROR", "UNKNOWN", "ABORTED", "DELETED"],
                                 multiple: true,
                                 defaultValue: "",
                                 description: "",
+                                quick: true,
                             },
                             {
                                 id: "priority",
-                                name: "Priority",
+                                title: "Priority",
                                 placeholder: "Priority",
                                 allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
                                 multiple: true,
@@ -226,7 +228,7 @@ export default class JobBrowser extends LitElement {
                             },
                             {
                                 id: "tags",
-                                name: "Tags",
+                                title: "Tags",
                                 placeholder: "Tags",
                                 allowedValues: "",
                                 defaultValue: "",
@@ -234,13 +236,13 @@ export default class JobBrowser extends LitElement {
                             },
                             {
                                 id: "creationDate",
-                                name: "Creation Date",
+                                title: "Creation Date",
                                 placeholder: "Creation Date",
                                 description: "",
                             },
                             {
                                 id: "visited",
-                                name: "Visited",
+                                title: "Visited",
                                 placeholder: "Visited",
                                 allowedValues: ["true", "false"],
                                 defaultValue: "",
