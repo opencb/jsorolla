@@ -341,115 +341,66 @@ export default class VariantBrowser extends LitElement {
                 .title="${this._config.title}"
                 .rightContent="${this.renderHeaderRightContent()}">
             </tool-header>
-            <div class="row">
-                    <!-- <DEPRECATED>
-                <div class="col-2 mb-3 d-none">
-                    <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
-                        <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onRun}">
-                            <i class="fa fa-search mx-1" aria-hidden="true"></i>
-                            <span class="fw-bold">${this._config.searchButtonText || "Search"}</span>
-                        </button>
-                    </div>
-                    <ul class="nav nav-tabs mb-3" role="tablist">
-                        <li class="nav-item" role="presentation" >
-                            <a class="active nav-link fw-bold fs-5" href="#filters_tab" aria-controls="profile" role="tab" data-bs-toggle="tab">${this._config.filter.title}</a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link fw-bold fs-5" href="#facet_tab" aria-controls="home" role="tab" data-bs-toggle="tab">${this._config.aggregation.title}</a>
-                        </li>
-                    </ul>
 
-                    <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                            <variant-browser-filter
-                                .opencgaSession=${this.opencgaSession}
-                                .query="${this.preparedQuery}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .config="${this._config.filter}"
-                                @queryChange="${this.onQueryFilterChange}"
-                                @querySearch="${this.onVariantFilterSearch}"
-                                @activeFacetChange="${this.onActiveFacetChange}"
-                                @activeFacetClear="${this.onActiveFacetClear}">
-                            </variant-browser-filter>
-                        </div>
+            <variant-browser-filter
+                .resource="${"VARIANT"}"
+                .toolId="${this.COMPONENT_ID || ""}"
+                .opencgaSession=${this.opencgaSession}
+                .preparedQuery="${this.preparedQuery}"
+                .executedQuery="${this.executedQuery}"
+                .searchActive="${this.searchActive || false}"
+                .config="${this._config.filter}"
+                @queryChange="${this.onVariantFilterChange}"
+                @querySearch="${this.onVariantFilterSearch}"
+                @queryClear="${this.onVariantFilterClear}">
+            </variant-browser-filter>
 
-                        <div role="tabpanel" class="tab-pane" id="facet_tab">
-                            <facet-filter
-                                .selectedFacet="${this.selectedFacet}"
-                                .config="${this._config.aggregation}"
-                                @facetQueryChange="${this.onFacetQueryChange}">
-                            </facet-filter>
-                        </div>
-                    </div>
-                </div>
-                </DEPRECATED> -->
+            <div class="${this.activeView === "table" ? "d-block" : "d-none"}">
+                <variant-browser-grid
+                    .toolId="${this.COMPONENT_ID}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .query="${this.executedQuery}"
+                    .cohorts="${this.opencgaSession?.project?.studies ?? []}"
+                    .cellbaseClient="${this.cellbaseClient}"
+                    .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
+                    .populationFrequencies="${this.populationFrequencies || POPULATION_FREQUENCIES}"
+                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                    .config="${this._config.filter.result.grid}"
+                    @queryComplete="${this.onQueryComplete}"
+                    @selectrow="${this.onSelectVariant}"
+                    @settingsUpdate="${this.onSettingsUpdate}">
+                </variant-browser-grid>
 
-                <div class="col-md-12">
-                    <div>
-                        <variant-browser-filter
-                            .resource="${"VARIANT"}"
-                            .toolId="${this.COMPONENT_ID || ""}"
-                            .opencgaSession=${this.opencgaSession}
-                            .preparedQuery="${this.preparedQuery}"
-                            .executedQuery="${this.executedQuery}"
-                            .searchActive="${this.searchActive || false}"
-                            .config="${this._config.filter}"
-                            @queryChange="${this.onVariantFilterChange}"
-                            @querySearch="${this.onVariantFilterSearch}"
-                            @queryClear="${this.onVariantFilterClear}">
-                        </variant-browser-filter>
+                ${this.variant ? html`
+                    <variant-browser-detail
+                        .variant="${this.variant}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .cellbaseClient="${this.cellbaseClient}"
+                        .config="${this._config.filter.detail}">
+                    </variant-browser-detail>
+                ` : nothing}
+            </div>
 
-                        <div class="main-view">
-                            <div class="${this.activeView === "table" ? "d-block" : "d-none"}">
-                                <variant-browser-grid
-                                    .toolId="${this.COMPONENT_ID}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .query="${this.executedQuery}"
-                                    .cohorts="${this.opencgaSession?.project?.studies ?? []}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
-                                    .populationFrequencies="${this.populationFrequencies || POPULATION_FREQUENCIES}"
-                                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                    .config="${this._config.filter.result.grid}"
-                                    @queryComplete="${this.onQueryComplete}"
-                                    @selectrow="${this.onSelectVariant}"
-                                    @settingsUpdate="${this.onSettingsUpdate}">
-                                </variant-browser-grid>
+            <div class="${this.activeView === "aggregation" ? "d-block" : "d-none"}">
+                <aggregation-stats
+                    resource="VARIANT"
+                    .query="${this.executedQuery}"
+                    .active="${this.activeView === "aggregation"}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config.aggregation}">
+                </aggregation-stats>
+            </div>
 
-                                ${this.variant ? html`
-                                    <variant-browser-detail
-                                        .variant="${this.variant}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .cellbaseClient="${this.cellbaseClient}"
-                                        .config="${this._config.filter.detail}">
-                                    </variant-browser-detail>
-                                ` : nothing}
-                            </div>
-
-                            <div class="${this.activeView === "aggregation" ? "d-block" : "d-none"}">
-                                <aggregation-stats
-                                    resource="VARIANT"
-                                    .query="${this.executedQuery}"
-                                    .active="${this.activeView === "aggregation"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${this._config.aggregation}">
-                                </aggregation-stats>
-                            </div>
-
-                            <div class="${this.activeView === "genome" ? "d-block" : "d-none"}">
-                                ${this.variant ? html`
-                                    <genome-browser
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${this._config.genomeBrowser.config}"
-                                        .region="${this.variant}"
-                                        .tracks="${this._config.genomeBrowser.tracks}"
-                                        .active="${this.activeView === "genome"}">
-                                    </genome-browser>
-                                ` : nothing}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="${this.activeView === "genome" ? "d-block" : "d-none"}">
+                ${this.variant ? html`
+                    <genome-browser
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${this._config.genomeBrowser.config}"
+                        .region="${this.variant}"
+                        .tracks="${this._config.genomeBrowser.tracks}"
+                        .active="${this.activeView === "genome"}">
+                    </genome-browser>
+                ` : nothing}
             </div>
         `;
     }
