@@ -315,19 +315,20 @@ export default class OpencgaBrowser extends LitElement {
         `;
     }
 
-    renderButtonViews() {
-        return html `
-            <div class="d-flex gap-1 mb-3" role="toolbar" aria-label="toolbar">
-                ${(this._config.views || []).map(view => html`
-                    <button
-                        type="button"
-                        class="btn btn-success ${this.activeView === view.id ? "active" : ""}"
-                        ?disabled=${view.disabled}
-                        @click="${() => this.changeView(view.id)}">
-                        <i class="${view.icon ?? "fa fa-table"} pe-1" aria-hidden="true"></i>
-                        <strong>${view.name}</strong>
-                    </button>
-                `)}
+    renderHeaderRightContent() {
+        return html`
+            <div class="d-flex gap-1 align-items-stretch">
+                <!-- View buttons -->
+                <div class="d-flex align-items-center gap-1 border bg-gray-100 rounded-3 p-1">
+                    ${(this._config.views || []).map(view => html`
+                        <button
+                            class="${`btn ${this.activeView === view.id ? "active bg-primary text-white" : ""}`}"
+                            @click="${() => this.changeView(view.id)}">
+                            <i class="fa ${view.icon} me-2"></i>
+                            <strong>${view.name}</strong>
+                        </button>
+                    `)}
+                </div>
             </div>
         `;
     }
@@ -341,9 +342,10 @@ export default class OpencgaBrowser extends LitElement {
             ${this._config.showHeader ? html`
                 <tool-header
                     .title="${this._config.title}"
-                    .icon="${this._config.icon}">
+                    .rightContent="${this.renderHeaderRightContent()}">
                 </tool-header>
-            ` : null}
+            ` : nothing}
+
             <div class="d-flex gap-4" style="padding-right:21px">
                 <div class="col-2">
                     <div class="d-grid gap-2 pb-3">
@@ -386,7 +388,6 @@ export default class OpencgaBrowser extends LitElement {
                     </div>
                 </div>
                 <div class="col-10">
-                    ${this.renderButtonViews()}
                     <div>
                         <opencga-active-filters
                             facetActive
