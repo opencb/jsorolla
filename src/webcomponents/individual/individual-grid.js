@@ -21,8 +21,9 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
-import "../commons/opencb-grid-toolbar.js";
 import WebUtils from "../commons/utils/web-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import "../commons/opencb-grid-toolbar.js";
 
 export default class IndividualGrid extends LitElement {
 
@@ -207,8 +208,10 @@ export default class IndividualGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
+                paginationVAlign: "bottom",
+                formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+                },
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this.detailFormatter,
@@ -244,6 +247,11 @@ export default class IndividualGrid extends LitElement {
                         .catch(error => {
                             console.error(error);
                             params.error(error);
+                        })
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: individualResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
@@ -319,6 +327,10 @@ export default class IndividualGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
+            paginationVAlign: "bottom",
+            formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+            },
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
@@ -790,11 +802,18 @@ export default class IndividualGrid extends LitElement {
         });
     }
 
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "PaginationInfo"}"></span>
+        `;
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.filters}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
                     .rightToolbar="${this.getRightToolbar()}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
