@@ -16,8 +16,6 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/opencga-browser.js";
 import "./clinical-analysis-view.js";
 import "./clinical-analysis-grid.js";
@@ -130,7 +128,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                     name: "Table View",
                     icon: "fa fa-table",
                     active: true,
-                    render: params => html `
+                    render: params => html`
                         <clinical-analysis-grid
                             .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
@@ -138,7 +136,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .query="${params.executedQuery}"
                             .active="${params.active}"
-                            @selectanalysis="${params.onSelectClinicalAnalysis}"
+                            @queryComplete="${e => params.onQueryComplete(e)}"
                             @selectrow="${e => params.onClickRow(e)}"
                             @rowUpdate="${e => params.onComponentUpdate(e)}"
                             @clinicalAnalysisUpdate="${e => params.onComponentUpdate(e)}"
@@ -170,62 +168,64 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                 },
             ],
             filter: {
-                searchButton: false,
                 sections: [
                     {
-                        name: "section title",
                         filters: [
                             {
                                 id: "id",
-                                name: "Clinical Analysis ID",
+                                title: "Clinical Analysis ID",
                                 type: "string",
                                 placeholder: "CA-1234,CA-2345...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "family",
-                                name: "Family ID",
+                                title: "Family ID",
                                 type: "string",
                                 placeholder: "FAM123, FAM124...",
-                                description: ""
+                                description: "",
                             },
                             {
                                 id: "proband",
-                                name: "Proband ID",
+                                title: "Proband ID",
                                 placeholder: "PRO-1234, PRO-2345...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "sample",
-                                name: "Sample ID",
+                                title: "Sample ID",
                                 placeholder: "HG01879, HG01880, HG01881...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "type",
-                                name: "Case Type",
+                                title: "Case Type",
                                 description: "",
                                 multiple: true,
                                 allowedValues: ["SINGLE", "FAMILY", "CANCER"],
+                                quick: true,
                             },
                             {
                                 id: "status",
-                                name: "Status",
+                                title: "Status",
                                 description: ""
                             },
                             {
                                 id: "priority",
-                                name: "Priority",
+                                title: "Priority",
                                 description: ""
                             },
                             {
                                 id: "creationDate",
-                                name: "Creation Date",
+                                title: "Creation Date",
                                 description: ""
                             },
                             {
                                 id: "dueDate",
-                                name: "Due Date",
+                                title: "Due Date",
                                 description: ""
                             }
                         ]
