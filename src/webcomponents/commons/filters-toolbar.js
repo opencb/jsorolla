@@ -513,7 +513,9 @@ export default class FiltersToolbar extends LitElement {
 
     renderAdvancedFilters() {
         return this._config.sections.map((section, index) => {
+            console.log(section);
             const filters = (section.filters || []).filter(filter => this.isFilterVisible(filter));
+            const expanded = this._config.sections.length === 1 || !section.collapsed;
 
             if (filters.length === 0) {
                 return nothing;
@@ -521,11 +523,15 @@ export default class FiltersToolbar extends LitElement {
                 return html`
                     <div class="accordion-item bg-white">
                         <div class="accordion-header">
-                            <button class="accordion-button collapsed fw-bold" data-bs-toggle="collapse" data-bs-target="#${this.prefix}AdvancedFilters${index}">
-                                <span class="fs-5">${section.title}</span>
+                            <button
+                                class="accordion-button fw-bold ${!expanded ? "collapsed" : ""}"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#${this.prefix}AdvancedFilters${index}"
+                                aria-expanded="${expanded ? "true" : "false"}">
+                                <span class="fs-5">${section.title || "General"}</span>
                             </button>
                         </div>
-                        <div id="${this.prefix}AdvancedFilters${index}" class="accordion-collapse collapse" data-bs-parent="#${this._prefix}AdvancedFilters">
+                        <div id="${this.prefix}AdvancedFilters${index}" class="accordion-collapse collapse ${expanded ? "show" : ""}" data-bs-parent="#${this._prefix}AdvancedFilters">
                             <div class="accordion-body d-flex flex-column gap-3">
                                 ${section.filters.map(subsection => this.renderAdvancedFilterSubsection(subsection))}
                             </div>
