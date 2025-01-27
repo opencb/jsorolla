@@ -134,6 +134,7 @@ export default class IndividualBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .query="${params.executedQuery}"
                             .active="${true}"
+                            @queryComplete="${e => params.onQueryComplete(e)}"
                             @selectrow="${e => params.onClickRow(e)}"
                             @individualUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
@@ -145,7 +146,7 @@ export default class IndividualBrowser extends LitElement {
                                 .individualId="${params.detail?.id}">
                             </individual-detail>
                         ` : nothing}
-                    `
+                    `,
                 },
                 {
                     id: "facet-tab",
@@ -162,7 +163,6 @@ export default class IndividualBrowser extends LitElement {
                 }
             ],
             filter: {
-                searchButton: false,
                 sections: [
                     {
                         title: "Section title",
@@ -170,73 +170,77 @@ export default class IndividualBrowser extends LitElement {
                         filters: [
                             {
                                 id: "id",
-                                name: "Individual ID",
+                                title: "Individual ID",
                                 type: "string",
                                 placeholder: "LP-1234,LP-2345...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "samples",
-                                name: "Sample ID",
+                                title: "Sample ID",
                                 type: "string",
                                 placeholder: "HG01879, HG01880, HG01881...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "father",
-                                name: "Father ID",
+                                title: "Father ID",
                                 type: "string",
                                 placeholder: "LP-1234,LP-2345...",
                                 description: ""
                             },
                             {
                                 id: "mother",
-                                name: "Mother ID",
+                                title: "Mother ID",
                                 type: "string",
                                 placeholder: "LP-1234,LP-2345...",
                                 description: ""
                             },
                             {
                                 id: "disorders",
-                                name: "Disorder",
+                                title: "Disorder",
                                 placeholder: "Intellectual disability,Arthrogryposis...",
                                 multiple: true,
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "phenotypes",
-                                name: "Phenotype",
+                                title: "Phenotype",
                                 placeholder: "Full-text search, e.g. *melanoma*",
                                 multiple: true,
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "sex",
-                                name: "Sex",
+                                title: "Sex",
                                 multiple: true,
                                 description: ""
                             },
                             {
                                 id: "karyotypicSex",
-                                name: "Karyotypic Sex",
+                                title: "Karyotypic Sex",
                                 multiple: true,
                                 description: ""
                             },
                             {
                                 id: "ethnicity",
-                                name: "Ethnicity",
+                                title: "Ethnicity",
                                 type: "string",
                                 placeholder: "White caucasian,asiatic...",
                                 description: ""
                             },
                             {
                                 id: "date",
-                                name: "Date",
+                                title: "Date",
                                 description: ""
                             },
                             {
                                 id: "annotations",
-                                name: "Individual Annotations",
+                                title: "Individual Annotations",
                                 description: ""
                             }
                         ]
