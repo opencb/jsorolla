@@ -333,7 +333,9 @@ export default class VariantBrowserGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             paginationVAlign: "bottom",
-            formatShowingRows: this.gridCommons.formatShowingRows,
+            formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+            },
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             loadingTemplate: () => GridCommons.loadingFormatter(),

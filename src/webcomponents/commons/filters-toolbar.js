@@ -513,7 +513,6 @@ export default class FiltersToolbar extends LitElement {
 
     renderAdvancedFilters() {
         return this._config.sections.map((section, index) => {
-            console.log(section);
             const filters = (section.filters || []).filter(filter => this.isFilterVisible(filter));
             const expanded = this._config.sections.length === 1 || !section.collapsed;
 
