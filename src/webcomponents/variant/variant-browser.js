@@ -408,9 +408,7 @@ export default class VariantBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Variant Browser",
-            searchButtonText: "Search",
             filter: {
-                title: "Filter",
                 activeFilters: {
                     hiddenFields: [],
                     lockedFields: [],
