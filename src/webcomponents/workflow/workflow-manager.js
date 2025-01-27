@@ -274,14 +274,6 @@ export default class WorkflowManager extends LitElement {
     }
 
     render() {
-        if (this.workflows?.length === 0) {
-            return html`
-                <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i>
-                    No workflows available.
-                </div>
-            `;
-        }
-
         return html`
             <div class="interpreter-content-tab">
                 <div class="row">
@@ -296,14 +288,19 @@ export default class WorkflowManager extends LitElement {
                             </button>
                         </div>
                     </div>
-
-                    <div>
-                        <data-list
-                            .data="${this.workflows}"
-                            .config="${this._config}">
-                        </data-list>
+                    ${this.workflows?.length === 0 ? html`
+                    <div class="alert alert-info">
+                        <i class="fas fa-3x fa-info-circle align-middle me-2"></i>
+                        No workflows available.
                     </div>
-
+                    ` : html`
+                        <div>
+                            <data-list
+                                .data="${this.workflows}"
+                                .config="${this._config}">
+                            </data-list>
+                        </div>
+                    `}
                 </div>
             </div>
 
