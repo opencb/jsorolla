@@ -128,6 +128,7 @@ export default class SampleBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .config="${params.config.filter.result.grid}"
                             .active="${true}"
+                            @queryComplete="${e => params.onQueryComplete(e)}"
                             @selectrow="${e => params.onClickRow(e)}"
                             @sampleUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">

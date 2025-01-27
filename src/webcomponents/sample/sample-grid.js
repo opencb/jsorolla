@@ -16,6 +16,7 @@
 
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -251,6 +252,11 @@ export default class SampleGrid extends LitElement {
                         .catch(error => {
                             console.error(error);
                             params.error(error);
+                        })
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: sampleResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
