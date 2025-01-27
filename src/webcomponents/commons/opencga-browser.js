@@ -20,7 +20,6 @@ import LitUtils from "./utils/lit-utils.js";
 import {guardPage} from "./html-utils.js";
 import "./opencga-browser-filter.js";
 import "./opencga-facet-result-view.js";
-import "./opencga-active-filters.js";
 import "./opencb-facet-results.js";
 import "./facet-filter.js";
 import "../loading-spinner.js";
@@ -184,36 +183,59 @@ export default class OpencgaBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    onQueryFilterChange(e) {
+    onFilterSearch(e) {
+        this.preparedQuery = e.detail.query;
+        this.executedQuery = e.detail.query;
+        this.searchActive = false;
+        this.detail = null;
+        this.notifySearch(this.preparedQuery);
+        this.requestUpdate();
+    }
+
+    onFilterClear() {
+        this.preparedQuery = {};
+        this.executedQuery = {};
+        this.searchActive = false;
+        this.detail = null;
+        this.notifySearch(this.preparedQuery);
+        this.requestUpdate();
+    }
+
+    onFilterChange(e) {
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
 
-    onQueryFilterSearch(e) {
-        this.preparedQuery = {...e.detail};
-        this.executedQuery = {...e.detail};
-        this.detail = null;
-        this.notifySearch(this.preparedQuery);
-        this.requestUpdate();
-    }
+    // onQueryFilterChange(e) {
+    //     this.preparedQuery = e.detail.query;
+    //     this.requestUpdate();
+    // }
 
-    onActiveFilterChange(e) {
-        this.preparedQuery = {...e.detail};
-        this.executedQuery = {...e.detail};
-        this.detail = null;
-        this.notifySearch(this.preparedQuery);
-        this.facetQueryBuilder();
-        this.requestUpdate();
-    }
+    // onQueryFilterSearch(e) {
+    //     this.preparedQuery = {...e.detail};
+    //     this.executedQuery = {...e.detail};
+    //     this.detail = null;
+    //     this.notifySearch(this.preparedQuery);
+    //     this.requestUpdate();
+    // }
 
-    onActiveFilterClear() {
-        this.preparedQuery = {};
-        this.executedQuery = {};
-        this.detail = null;
-        this.notifySearch(this.preparedQuery);
-        this.facetQueryBuilder();
-        this.requestUpdate();
-    }
+    // onActiveFilterChange(e) {
+    //     this.preparedQuery = {...e.detail};
+    //     this.executedQuery = {...e.detail};
+    //     this.detail = null;
+    //     this.notifySearch(this.preparedQuery);
+    //     this.facetQueryBuilder();
+    //     this.requestUpdate();
+    // }
+
+    // onActiveFilterClear() {
+    //     this.preparedQuery = {};
+    //     this.executedQuery = {};
+    //     this.detail = null;
+    //     this.notifySearch(this.preparedQuery);
+    //     this.facetQueryBuilder();
+    //     this.requestUpdate();
+    // }
 
     onFacetQueryChange(e) {
         this.preparedFacetQueryFormatted = e.detail.value;
@@ -285,15 +307,6 @@ export default class OpencgaBrowser extends LitElement {
         } else {
             return html`
                 <div class="tab-pane active" id="filters_tab" role="tabpanel" >
-                    <opencga-browser-filter
-                        .query="${this.preparedQuery}"
-                        .resource="${this.resource}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .cellbaseClient="${this.cellbaseClient}"
-                        .config="${this._config.filter}"
-                        @queryChange="${this.onQueryFilterChange}"
-                        @querySearch="${this.onQueryFilterSearch}">
-                    </opencga-browser-filter>
                 </div>
             `;
         }
@@ -346,6 +359,7 @@ export default class OpencgaBrowser extends LitElement {
                 </tool-header>
             ` : nothing}
 
+            <!-- DEPRECATED
             <div class="d-flex gap-4" style="padding-right:21px">
                 <div class="col-2">
                     <div class="d-grid gap-2 pb-3">
@@ -387,35 +401,38 @@ export default class OpencgaBrowser extends LitElement {
                         ${this.renderAggregation()}
                     </div>
                 </div>
-                <div class="col-10">
-                    <div>
-                        <opencga-active-filters
-                            facetActive
-                            .resource="${this.resource}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .defaultStudy="${this.opencgaSession?.study?.fqn}"
-                            .query="${this.preparedQuery}"
-                            .executedQuery="${this.executedQuery}"
-                            .facetQuery="${this.preparedFacetQueryFormatted}"
-                            .executedFacetQuery="${this.executedFacetQueryFormatted}"
-                            .alias="${this.activeFilterAlias}"
-                            .config="${this._config?.filter?.activeFilters}"
-                            .filters="${this._config?.filter?.examples}"
-                            .defaultFilter="${this._config?.filter?.defaultFilter}"
-                            @activeFilterChange="${this.onActiveFilterChange}"
-                            @activeFilterClear="${this.onActiveFilterClear}"
-                            @activeFacetChange="${this.onActiveFacetChange}"
-                            @activeFacetClear="${this.onActiveFacetClear}">
-                        </opencga-active-filters>
+            <opencga-active-filters
+                facetActive
+                .resource="${this.resource}"
+                .opencgaSession="${this.opencgaSession}"
+                .defaultStudy="${this.opencgaSession?.study?.fqn}"
+                .query="${this.preparedQuery}"
+                .executedQuery="${this.executedQuery}"
+                .facetQuery="${this.preparedFacetQueryFormatted}"
+                .executedFacetQuery="${this.executedFacetQueryFormatted}"
+                .alias="${this.activeFilterAlias}"
+                .config="${this._config?.filter?.activeFilters}"
+                .filters="${this._config?.filter?.examples}"
+                .defaultFilter="${this._config?.filter?.defaultFilter}"
+                @activeFilterChange="${this.onActiveFilterChange}"
+                @activeFilterClear="${this.onActiveFilterClear}"
+                @activeFacetChange="${this.onActiveFacetChange}"
+                @activeFacetClear="${this.onActiveFacetClear}">
+            </opencga-active-filters>
+            -->
 
-                        <div class="main-view">
-                            ${this.renderView()}
-                        </div>
-                        <!-- Other option: return an {string, TemplateResult} map -->
-                        <div class="v-space"></div>
-                    </div>
-                </div>
-            </div>
+            <opencga-browser-filter
+                .preparedQuery="${this.preparedQuery}"
+                .executedQuery="${this.executedQuery}"
+                .resource="${this.resource}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config.filter}"
+                @queryClear="${this.onFilterClear}"
+                @queryChange="${this.onFilterChange}"
+                @querySearch="${this.onFilterSearch}">
+            </opencga-browser-filter>
+
+            ${this.renderView()}
         `;
     }
 
