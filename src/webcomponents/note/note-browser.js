@@ -208,12 +208,61 @@ export default class NoteBrowser extends LitElement {
                                 quick: true,
                             },
                             {
+                                id: "noteType",
+                                name: "Note Type",
+                                allowedValues: [
+                                    "VARIANT",
+                                    "GENE",
+                                    "TRANSCRIPT",
+                                    "PROTEIN",
+                                    "JOB",
+                                    "FILE",
+                                    "SAMPLE",
+                                    "INDIVIDUAL",
+                                    "FAMILY",
+                                    "COHORT",
+                                    "DISEASE_PANEL",
+                                    "CLINICAL_ANALYSIS",
+                                    "WORKFLOW",
+                                    "ORGANIZATION",
+                                    "OTHER",
+                                    "UNKNOWN",
+                                ],
+                                multiple: true,
+                                description: "",
+                            },
+                            {
                                 id: "visibility",
                                 title: "Visibility",
                                 allowedValues: ["PUBLIC", "PRIVATE"],
                                 multiple: true,
                                 description: "",
                                 quick: true,
+                            },
+                            {
+                                id: "tags",
+                                name: "Tags",
+                                render: (onFilterChange, query, opencgaSession) => {
+                                    const resource = (query?.scope === "ORGANIZATION" || query?.scope === "NOTE_ORGANIZATION") ? "NOTE_ORGANIZATION" : "NOTE_STUDY";
+                                    const tagsFilterConfig = {
+                                        preprocessResults: results => {
+                                            return results.map(result => result.tags)
+                                                .flat()
+                                                .map(tag => ({id: tag}));
+                                        },
+                                    };
+                                    return html`
+                                        <catalog-search-autocomplete
+                                            .resource="${resource}"
+                                            .value="${query?.tags}"
+                                            .searchField="${"tags"}"
+                                            .query="${{include: "tags"}}"
+                                            .opencgaSession="${opencgaSession}"
+                                            .config="${tagsFilterConfig}"
+                                            @filterChange="${e => onFilterChange("tags", e.detail.value)}">
+                                        </catalog-search-autocomplete>
+                                    `;
+                                },
                             },
                             {
                                 id: "date",

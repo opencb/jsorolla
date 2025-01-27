@@ -19,6 +19,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-template.js";
 import "./exomiser/variant-interpreter-exomiser-view.js";
 import "../variant-samples.js";
+import "../variant-notes.js";
 import "../../visualization/protein-lollipop-variant-view.js";
 
 class VariantInterpreterBrowserCancer extends LitElement {
@@ -610,6 +611,17 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     .variantId="${variant.id}"
                                     .active="${active}">
                                 </variant-samples>
+                            `,
+                        },
+                        {
+                            id: "notes",
+                            name: "Notes",
+                            render: (variant, active, opencgaSession) => html`
+                                <variant-notes
+                                    .opencgaSession="${opencgaSession}"
+                                    .variant="${variant}"
+                                    .active="${active}">
+                                </variant-notes>
                             `,
                         },
                         {

@@ -91,18 +91,18 @@ export default class VariantNotes extends LitElement {
     }
 
     variantObserver() {
+        this.notes = [];
         if (this.variant && this.active) {
-            if (this.variant.annotation?.consequenceTypes) {
-                this.genes = this.variant.annotation.consequenceTypes.map(ct => ct.geneName);
-            }
+            // 1. get the list of genes
+            const genes = (this.variant?.annotation?.consequenceTypes || []).map(ct => ct.geneName);
 
+            // 2. get notes where the ID of the note is the variant ID or the gene ID
             this.opencgaSession.opencgaClient.studies()
                 .searchNotes(this.opencgaSession.study.fqn, {
-                    id: `${this.variant.id},${this.genes.join(",")}`,
+                    id: [this.variant.id, ...genes].filter(Boolean).join(","),
                 })
                 .then(response => {
-                    this.variantNote = null;
-                    this.geneNotes = response.responses[0].results || null;
+                    this.notes = response.responses[0].results || [];
                     this.requestUpdate();
                 })
                 .catch(error => {
@@ -111,7 +111,7 @@ export default class VariantNotes extends LitElement {
         }
     }
 
-    #renderNoteByType(note) {
+    renderNoteByType(note) {
         let noteHtml;
         switch (note.valueType.toUpperCase()) {
             case "INTEGER":
@@ -130,61 +130,45 @@ export default class VariantNotes extends LitElement {
                     </json-viewer>
                 `;
                 break;
+            default:
+                noteHtml = html`<span>${note.value}</span>`;
         }
         return noteHtml;
     }
 
-    renderVariantNotes(note) {
-        if (!note) {
+    renderNotes(noteType) {
+        // 1. filter notes by the specified note type
+        const notes = this.notes.filter(note => note.type === noteType);
+
+        // 2. if there are no notes, return a message
+        if (notes.length === 0) {
             return html`
-                <span>No variant notes available for '${this.variant.id}'</span>
+                <span>No ${noteType.toLowerCase()} notes available for variant '${this.variant.id}'</span>
             `;
         }
-
-        const variantNoteHtml = this.#renderNoteByType(note);
-        return html`
+        
+        // 3. render notes
+        return notes.map(note => html`
             <h4>${note.id}</h4>
-            ${variantNoteHtml || html`<span>${note.value}</span>`}
-        `;
-    }
-
-    renderGeneNotes(notes) {
-        if (!notes || notes.length === 0) {
-            return html`
-                <span>No gene notes available for this variant</span>
-            `;
-        }
-
-        // FIXME filter by new note.entityType = "GENE"
-        const geneNotes = notes.filter(note => this.genes.includes(note.id));
-        const geneNoteHtml = {};
-        for (const geneNote of geneNotes) {
-            geneNoteHtml[geneNote.id] = this.#renderNoteByType(geneNote);
-        }
-
-        return html`
-            ${geneNotes.map(note => html`
-                <h4>${note.id}</h4>
-                <div style="background-color:#f3f3f3; border-left: 2px solid #0c2f4c;padding:12px">
-                    <div style="float: right">
-                        <span class="px-2">Last modified on ${UtilsNew.dateFormatter(note.modificationDate)}.</span>
-                        <span>(Version ${note.version})</span>
-                    </div>
-                    <div class="my-2">
-                        <span style="font-weight: bold">Created by user:</span>
-                        <span>${note.userId}</span>
-                    </div>
-                    <div class="my-2">
-                        <span style="font-weight: bold">Note info:</span>
-                        ${geneNoteHtml[note.id] || html`<span>${note.value}</span>`}
-                    </div>
+            <div style="background-color:#f3f3f3; border-left: 2px solid #0c2f4c;padding:12px">
+                <div style="float: right">
+                    <span class="px-2">Last modified on ${UtilsNew.dateFormatter(note.modificationDate)}.</span>
+                    <span>(Version ${note.version})</span>
                 </div>
-            `)}
-        `;
+                <div class="my-2">
+                    <span style="font-weight: bold">Created by user:</span>
+                    <span>${note.userId}</span>
+                </div>
+                <div class="my-2">
+                    <span style="font-weight: bold">Note info:</span>
+                    ${this.renderNoteByType(note)}
+                </div>
+            </div>
+        `);
     }
 
     render() {
-        if (!this.geneNotes || this.geneNotes.length === 0) {
+        if (!this.notes || this.notes.length === 0) {
             return html`
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle pe-1"></i>
@@ -195,19 +179,16 @@ export default class VariantNotes extends LitElement {
 
         return html`
             <div style="">
-                <div>
-                    <div class="py-2">
-                        <h2>Variant Note</h2>
-                        <div class="px-2">
-                            ${this.renderVariantNotes(this.variantNote)}
-                        </div>
+                <div class="mb-4">
+                    <h2>Variant Note</h2>
+                    <div class="px-2">
+                        ${this.renderNotes("VARIANT")}
                     </div>
-
-                    <div class="py-2">
-                        <h2>Gene Notes</h2>
-                        <div class="px-2">
-                            ${this.renderGeneNotes(this.geneNotes)}
-                        </div>
+                </div>
+                <div class="mb-4">
+                    <h2>Gene Notes</h2>
+                    <div class="px-2">
+                        ${this.renderNotes("GENE")}
                     </div>
                 </div>
             </div>
