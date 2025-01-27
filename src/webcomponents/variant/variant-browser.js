@@ -99,7 +99,7 @@ export default class VariantBrowser extends LitElement {
         this.variant = null;
         this.notifications = [];
 
-        this.activeTab = "table-tab";
+        this.activeView = "table";
         this._config = this.getDefaultConfig();
     }
 
@@ -209,7 +209,7 @@ export default class VariantBrowser extends LitElement {
     // }
 
     changeView(id) {
-        this.activeTab = id;
+        this.activeView = id;
         this.requestUpdate();
     }
 
@@ -300,9 +300,9 @@ export default class VariantBrowser extends LitElement {
 
     renderHeaderRightContent() {
         const viewButtons = [
-            {name: "Table View", id: "table-tab", icon: "fa fa-table"},
-            {name: "Aggregation Stats", id: "aggregation-tab", icon: "fas fa-chart-bar"},
-            {name: "Genome Browser", id: "genome-tab", icon: "fas fa-dna"},
+            {name: "Table View", id: "table", icon: "fa fa-table"},
+            {name: "Aggregation Stats", id: "aggregation", icon: "fas fa-chart-bar"},
+            {name: "Genome Browser", id: "genome", icon: "fas fa-dna"},
         ];
         return html`
             <div class="d-flex gap-1 align-items-stretch">
@@ -310,7 +310,7 @@ export default class VariantBrowser extends LitElement {
                 <div class="d-flex align-items-center gap-1 border bg-gray-100 rounded-3 p-1">
                     ${viewButtons.map(button => html`
                         <button
-                            class="${`btn ${this.activeTab === button.id ? "active bg-primary text-white" : ""}`}"
+                            class="${`btn ${this.activeView === button.id ? "active bg-primary text-white" : ""}`}"
                             @click="${() => this.changeView(button.id)}">
                             <i class="fa ${button.icon} me-2"></i>
                             <strong>${button.name}</strong>
@@ -400,7 +400,7 @@ export default class VariantBrowser extends LitElement {
                         </variant-browser-filter>
 
                         <div class="main-view">
-                            <div id="table-tab" class="${this.activeTab === "table-tab" ? "d-block" : "d-none"}">
+                            <div class="${this.activeView === "table" ? "d-block" : "d-none"}">
                                 <variant-browser-grid
                                     .toolId="${this.COMPONENT_ID}"
                                     .opencgaSession="${this.opencgaSession}"
@@ -426,24 +426,24 @@ export default class VariantBrowser extends LitElement {
                                 ` : nothing}
                             </div>
 
-                            <div id="aggregation-tab" class="${this.activeTab === "aggregation-tab" ? "d-block" : "d-none"}">
+                            <div class="${this.activeView === "aggregation" ? "d-block" : "d-none"}">
                                 <aggregation-stats
                                     resource="VARIANT"
                                     .query="${this.executedQuery}"
-                                    .active="${this.activeTab === "aggregation-tab"}"
+                                    .active="${this.activeView === "aggregation"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${this._config.aggregation}">
                                 </aggregation-stats>
                             </div>
 
-                            <div id="genome-tab" class="${this.activeTab === "genome-tab" ? "d-block" : "d-none"}">
+                            <div class="${this.activeView === "genome" ? "d-block" : "d-none"}">
                                 ${this.variant ? html`
                                     <genome-browser
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${this._config.genomeBrowser.config}"
                                         .region="${this.variant}"
                                         .tracks="${this._config.genomeBrowser.tracks}"
-                                        .active="${this.activeTab === "genome-tab"}">
+                                        .active="${this.activeView === "genome"}">
                                     </genome-browser>
                                 ` : nothing}
                             </div>
