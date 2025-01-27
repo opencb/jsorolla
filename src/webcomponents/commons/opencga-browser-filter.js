@@ -61,6 +61,9 @@ export default class OpencgaBrowserFilter extends LitElement {
             variables: {
                 type: Array
             },
+            searchActive: {
+                type: Boolean,
+            },
             config: {
                 type: Object
             }

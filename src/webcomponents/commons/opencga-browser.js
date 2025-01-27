@@ -71,6 +71,7 @@ export default class OpencgaBrowser extends LitElement {
         this.query = {};
         this.preparedQuery = {};
         this.executedQuery = {};
+        this.searchActive = true;
 
         this.activeView = "";
 
@@ -110,6 +111,7 @@ export default class OpencgaBrowser extends LitElement {
             this.preparedQuery = {...this._config?.filter?.defaultFilter};
             this.executedQuery = {...this._config?.filter?.defaultFilter};
             this.detail = null;
+            this.searchActive = false;
 
             this.facetQuery = null;
             this.preparedFacetQueryFormatted = null;
@@ -126,6 +128,7 @@ export default class OpencgaBrowser extends LitElement {
                 // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
                 LitUtils.dispatchCustomEvent(this, "queryChange", undefined, this.preparedQuery);
                 this.detail = null;
+                this.searchActive = false;
             }
         }
     }
@@ -178,8 +181,14 @@ export default class OpencgaBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    changeView(id) {
+    onChangeView(id) {
         this.activeView = id;
+        this.requestUpdate();
+    }
+
+    onQueryComplete(event) {
+        // this.notifications = WebUtils.getResponseEvents(event.detail.response);
+        this.searchActive = true;
         this.requestUpdate();
     }
 
@@ -285,6 +294,7 @@ export default class OpencgaBrowser extends LitElement {
                     active: this.activeView === view.id,
                     onClickRow: event => this.onClickRow(event),
                     onComponentUpdate: event => this.onComponentUpdate(event),
+                    onQueryComplete: event => this.onQueryComplete(event),
                 })}
             </div>
         `);
@@ -336,7 +346,7 @@ export default class OpencgaBrowser extends LitElement {
                     ${(this._config.views || []).map(view => html`
                         <button
                             class="${`btn ${this.activeView === view.id ? "active bg-primary text-white" : ""}`}"
-                            @click="${() => this.changeView(view.id)}">
+                            @click="${() => this.onChangeView(view.id)}">
                             <i class="fa ${view.icon} me-2"></i>
                             <strong>${view.name}</strong>
                         </button>
@@ -426,6 +436,7 @@ export default class OpencgaBrowser extends LitElement {
                 .executedQuery="${this.executedQuery}"
                 .resource="${this.resource}"
                 .opencgaSession="${this.opencgaSession}"
+                .searchActive="${this.searchActive}"
                 .config="${this._config.filter}"
                 @queryClear="${this.onFilterClear}"
                 @queryChange="${this.onFilterChange}"
