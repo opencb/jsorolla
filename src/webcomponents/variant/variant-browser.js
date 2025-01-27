@@ -95,7 +95,7 @@ export default class VariantBrowser extends LitElement {
         this.executedQuery = {};
         this.selectedFacet = {};
         this.preparedFacetQueryFormatted = {};
-        this.errorState = false;
+        // this.errorState = false;
         this.variant = null;
         this.notifications = [];
 
@@ -113,9 +113,9 @@ export default class VariantBrowser extends LitElement {
         if (changedProperties.has("query") || changedProperties.has("opencgaSession")) {
             this.queryObserver();
         }
-        if (changedProperties.has("selectedFacet")) {
-            this.facetQueryBuilder();
-        }
+        // if (changedProperties.has("selectedFacet")) {
+        //     this.facetQueryBuilder();
+        // }
 
         super.update(changedProperties);
     }
@@ -173,22 +173,22 @@ export default class VariantBrowser extends LitElement {
         }
     }
 
-    facetQueryBuilder() {
-        // facetQuery is the query object sent to the client in <opencb-facet-results>
-        if (Object.keys(this.selectedFacet).length) {
-            this.executedFacetQueryFormatted = {...this.preparedFacetQueryFormatted};
-
-            this.facetQuery = {
-                ...this.preparedQuery,
-                study: this.opencgaSession.study.fqn,
-                // FIXME rename fields to field
-                fields: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
-            };
-            this.changeView("facet-tab");
-        } else {
-            this.facetQuery = null;
-        }
-    }
+    // facetQueryBuilder() {
+    //     // facetQuery is the query object sent to the client in <opencb-facet-results>
+    //     if (Object.keys(this.selectedFacet).length) {
+    //         this.executedFacetQueryFormatted = {...this.preparedFacetQueryFormatted};
+    //
+    //         this.facetQuery = {
+    //             ...this.preparedQuery,
+    //             study: this.opencgaSession.study.fqn,
+    //             // FIXME rename fields to field
+    //             fields: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
+    //         };
+    //         this.changeView("aggregation-tab");
+    //     } else {
+    //         this.facetQuery = null;
+    //     }
+    // }
 
     notifySearch(query) {
         LitUtils.dispatchCustomEvent(this, "querySearch", null, {
@@ -196,17 +196,17 @@ export default class VariantBrowser extends LitElement {
         });
     }
 
-    onRun() {
-        this.executedQuery = {...this.preparedQuery};
-        this.searchActive = false;
-        this.notifications = [];
-        this.variant = null;
-        this.notifySearch(this.preparedQuery);
-
-        this.facetQueryBuilder();
-
-        this.requestUpdate();
-    }
+    // onRun() {
+    //     this.executedQuery = {...this.preparedQuery};
+    //     this.searchActive = false;
+    //     this.notifications = [];
+    //     this.variant = null;
+    //     this.notifySearch(this.preparedQuery);
+    //
+    //     this.facetQueryBuilder();
+    //
+    //     this.requestUpdate();
+    // }
 
     changeView(id) {
         this.activeTab = id;
@@ -292,7 +292,7 @@ export default class VariantBrowser extends LitElement {
     renderHeaderRightContent() {
         const viewButtons = [
             {name: "Table View", id: "table-tab", icon: "fa fa-table"},
-            {name: "Aggregation Stats", id: "facet-tab", icon: "fas fa-chart-bar"},
+            {name: "Aggregation Stats", id: "aggregation-tab", icon: "fas fa-chart-bar"},
             {name: "Genome Browser", id: "genome-tab", icon: "fas fa-dna"},
         ];
         return html`
@@ -415,24 +415,14 @@ export default class VariantBrowser extends LitElement {
                                 ` : nothing}
                             </div>
 
-                            <div id="facet-tab" class="${this.activeTab === "facet-tab" ? "d-block" : "d-none"}">
+                            <div id="aggregation-tab" class="${this.activeTab === "aggregation-tab" ? "d-block" : "d-none"}">
                                 <aggregation-stats
                                     resource="VARIANT"
+                                    .query="${this.executedQuery}"
+                                    .active="${this.activeTab === "aggregation-tab"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .active="${this.activeTab === "facet-tab"}"
-                                    .query="${this.facetQuery}"
-                                    .data="${this.facetResults}"
-                                    .error="${this.errorState}"
                                     .config="${this._config.aggregation}">
                                 </aggregation-stats>
-                                <opencb-facet-results
-                                    resource="VARIANT"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .active="${this.activeTab === "facet-tab"}"
-                                    .query="${this.facetQuery}"
-                                    .data="${this.facetResults}"
-                                    .error="${this.errorState}">
-                                </opencb-facet-results>
                             </div>
 
                             <div id="genome-tab" class="${this.activeTab === "genome-tab" ? "d-block" : "d-none"}">

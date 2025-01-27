@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/filters/consequence-type-select-filter.js";
 import "../commons/forms/select-field-filter.js";
+import LitUtils from "./utils/lit-utils";
 
 export default class FacetFilter extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -42,10 +44,12 @@ export default class FacetFilter extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.fns = {avg: "Average", min: "Minimum", max: "Maxiumum", unique: "Uniques values", hll: "Distributed cardinality estimate", percentile: "Percentile estimate", sumsq: "Sum of squares of fields or function"};
+        this.fns = {avg: "Average", min: "Minimum", max: "Maximum", unique: "Uniques values", hll: "Distributed cardinality estimate", percentile: "Percentile estimate", sumsq: "Sum of squares of fields or function"};
         this.selectFns = Object.entries({range: "Range", ...this.fns}).map(([k, v]) => ({id: k, name: v}));
+
+        this.selectedFacet = {};
 
         // copy of selectedFacet in JSON string, to avoid unnecessary refresh
         this._JsonSelectedFacet = null;
@@ -60,7 +64,6 @@ export default class FacetFilter extends LitElement {
     }
 
     selectedFacetObserver() {
-
         // Helper for formatting the list of facets to show in opencga-active-filters
         const _valueFormatter = (k, v) => {
             let str = "";
@@ -151,7 +154,7 @@ export default class FacetFilter extends LitElement {
     async onFacetFieldChange(e) {
         /**
          *  <select-field-filter> fires a filterChange event with all the selected values. Here we need just the new selected (deselected) item, so we compute the difference between the 2 sets.
-        */
+         */
 
         const currentSelectionNames = e.detail.value ? e.detail.value.split(",") : [];
         // compute the symmetric difference between this.selectedFacet and currentSelectionNames
@@ -392,26 +395,26 @@ export default class FacetFilter extends LitElement {
                         <div class="col-8">
                             <div class="row g-1">
                                 <div class="col">
-                                <input type="text" class="form-control" placeholder="Start"
-                                        id="${this._prefix}${facet.id}_range_start" .disabled="${facet.fn}"
-                                        data-id="${facet.id}" data-type="range_start" .value="${nstart || ""}"
-                                        @input="${this.onFacetRangeChange}" />
+                                    <input type="text" class="form-control" placeholder="Start"
+                                           id="${this._prefix}${facet.id}_range_start" .disabled="${facet.fn}"
+                                           data-id="${facet.id}" data-type="range_start" .value="${nstart || ""}"
+                                           @input="${this.onFacetRangeChange}" />
                                 </div>
                                 <div class="col">
                                     <input type="text" class="form-control" placeholder="Stop"
-                                            id="${this._prefix}${facet.id}_range_stop" .disabled="${facet.fn}"
-                                            data-id="${facet.id}" data-type="range_stop" .value="${nstop || ""}"
-                                            @input="${this.onFacetRangeChange}" />
+                                           id="${this._prefix}${facet.id}_range_stop" .disabled="${facet.fn}"
+                                           data-id="${facet.id}" data-type="range_stop" .value="${nstop || ""}"
+                                           @input="${this.onFacetRangeChange}" />
                                 </div>
                                 <div class="col">
                                     <input type="text" class="form-control" placeholder="Step"
-                                            id="${this._prefix}${facet.id}_range_step" .disabled="${facet.fn}"
-                                            data-id="${facet.id}" data-type="range_step" .value="${nstep || ""}"
-                                            @input="${this.onFacetRangeChange}" />
+                                           id="${this._prefix}${facet.id}_range_step" .disabled="${facet.fn}"
+                                           data-id="${facet.id}" data-type="range_step" .value="${nstep || ""}"
+                                           @input="${this.onFacetRangeChange}" />
                                 </div>
                             </div>
                         </div>
-                            <!-- this.fncs -->
+                        <!-- this.fncs -->
                         <div class="col-4">
                             <div class="col">
                                 <select-field-filter
@@ -458,7 +461,7 @@ export default class FacetFilter extends LitElement {
                             </fieldset>
                         </div>
                     </div>
-                    `;
+                `;
             default:
                 console.log("no type recognized", facet);
                 return html`<div class="alert alert-danger">Type not recognized: ${JSON.stringify(facet)}</div>`;
@@ -507,21 +510,21 @@ export default class FacetFilter extends LitElement {
                             <div class="row g-1">
                                 <div class="col-md-4">
                                     <input type="text" class="form-control" placeholder="Start" data-parent-facet="${parent}"
-                                        id="${this._prefix}${parent}_Nested_range_start" .disabled="${facet.fn}"
-                                        data-id="${facet.id}" data-type="range_start" .value="${nstart || ""}"
-                                        @input="${this.onNestedFacetRangeChange}" />
+                                           id="${this._prefix}${parent}_Nested_range_start" .disabled="${facet.fn}"
+                                           data-id="${facet.id}" data-type="range_start" .value="${nstart || ""}"
+                                           @input="${this.onNestedFacetRangeChange}" />
                                 </div>
                                 <div class="col-md-4">
                                     <input type="text" class="form-control" placeholder="Stop" data-parent-facet="${parent}"
-                                        id="${this._prefix}${parent}_Nested_range_stop" .disabled="${facet.fn}"
-                                        data-id="${facet.id}" data-type="range_stop" .value="${nstop || ""}"
-                                        @input="${this.onNestedFacetRangeChange}" />
+                                           id="${this._prefix}${parent}_Nested_range_stop" .disabled="${facet.fn}"
+                                           data-id="${facet.id}" data-type="range_stop" .value="${nstop || ""}"
+                                           @input="${this.onNestedFacetRangeChange}" />
                                 </div>
                                 <div class="col-md-4">
                                     <input type="text" class="form-control" placeholder="Step" data-parent-facet="${parent}"
-                                        id="${this._prefix}${parent}_Nested_range_step" .disabled="${facet.fn}"
-                                        data-id="${facet.id}" data-type="range_step" .value="${nstep || ""}"
-                                        @input="${this.onNestedFacetRangeChange}" />
+                                           id="${this._prefix}${parent}_Nested_range_step" .disabled="${facet.fn}"
+                                           data-id="${facet.id}" data-type="range_step" .value="${nstep || ""}"
+                                           @input="${this.onNestedFacetRangeChange}" />
                                 </div>
                             </div>
                             <!--<input type="text" class="form-control" placeholder="Include values or set range" data-parent-facet="\${parent}"
@@ -570,17 +573,21 @@ export default class FacetFilter extends LitElement {
                             </fieldset>
                         </div>
                     </div>
-                    `;
+                `;
             default:
                 return html`no type recognized`;
         }
     }
 
+    clear(e) {
+        LitUtils.dispatchCustomEvent(this, "aggregationClear");
+    }
+
     render() {
         return this.config ? html`
-            <div class="mb-3 cy-facet-selector">
+            <div class="my-3 cy-facet-selector">
                 <label class="form-label fw-bold">
-                    Select a Term or Range Facet
+                    Select an Aggregation Field
                 </label>
                 <select-field-filter
                     .data="${this.config.sections}"
@@ -598,10 +605,16 @@ export default class FacetFilter extends LitElement {
                 </div>
             </div>
 
-            <div class="pt-2 border-top">
-                <label class="form-label fw-bold">
-                    Selected facets
-                </label>
+            <div class="border-top">
+                <div class="d-flex justify-content-between align-items-center my-3">
+                    <label class="form-label fw-bold">
+                        Selected Aggregation Fields
+                    </label>
+                    <button type="button" class="btn btn-warning btn-sm" @click="${this.clear}">
+                        Clear All
+                    </button>
+                </div>
+
                 <div>
                     <!-- this.selectedFacet <pre>\${JSON.stringify(this.selectedFacet, null, "  ")}</pre> -->
                     ${Object.keys(this.selectedFacet).length > 0 ? Object.entries(this.selectedFacet).map(([, facet], i) => html `
@@ -613,7 +626,7 @@ export default class FacetFilter extends LitElement {
                                         <a tooltip-title="${facet.name}" tooltip-text="${facet.description}">
                                             <i class="fa fa-info-circle" aria-hidden="true"></i>
                                         </a>
-                                        ` : null}
+                                    ` : null}
                                 </label>
                                 <div class="container"  id="${this._prefix}${facet.id}" role="tabpanel" aria-labelledby="${this._prefix}Heading">
                                     ${this.renderField(facet)}

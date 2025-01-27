@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement, nothing} from "lit";
 import {RestResponse} from "../../core/clients/rest-response.js";
 import UtilsNew from "../../core/utils-new.js";
-import PolymerUtils from "../PolymerUtils.js";
+import NotificationUtils from "./utils/notification-utils.js";
 import "./opencga-facet-result-view.js";
 import "./facet-filter.js";
 import "../loading-spinner.js";
-import NotificationUtils from "./utils/notification-utils.js";
 
 class AggregationStats extends LitElement {
 
@@ -41,27 +40,17 @@ class AggregationStats extends LitElement {
             resource: {
                 type: String
             },
-            opencgaSession: {
+            facet: {
                 type: Object
             },
             query: {
                 type: Object
             },
-            cellbaseClient: {
-                type: Object
-            },
-            populationFrequencies: {
-                type: Object
-            },
             active: {
                 type: Boolean
             },
-            // Static data. Non currently used (query is being used instead)
-            data: {
+            opencgaSession: {
                 type: Object
-            },
-            loading: {
-                type: Boolean
             },
             config: {
                 type: Object
@@ -72,61 +61,113 @@ class AggregationStats extends LitElement {
     #init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this._showInitMessage = true;
-
-        this.facets = new Set();
-        this.facetActive = true;
+        this.facet = {};
+        this.preparedFacetQueryFormatted = {};
+        this.facetResults = [];
+        this.loading = false;
 
         this._config = this.getDefaultConfig();
-        this.selectedFacet = {};
-        this.facetResults = [];
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") && this.active) {
+    update(changedProperties) {
+        if (changedProperties.has("facet") && this.active) {
             this.queryObserver();
         }
-        if (changedProperties.has("query")) {
+        if (changedProperties.has("query") && this.active) {
+            this.queryObserver();
+        }
+        if (changedProperties.has("active") && this.active) {
+            this.queryObserver()
+        }
+        if (changedProperties.has("opencgaSession") && this.active) {
             this.queryObserver();
         }
         if (changedProperties.has("config")) {
             this.configObserver();
         }
-        if (changedProperties.has("active") && this.active) {
-            console.warn("fire http req"); // TODO check if query has changed before
-            // this.fetchDefaultData();
+        super.update(changedProperties);
+    }
+
+    configObserver() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    endpoint(resource) {
+        switch (resource) {
+            case "VARIANT":
+                return this.opencgaSession.opencgaClient.variants();
+            case "JOB":
+                return this.opencgaSession.opencgaClient.jobs();
+            case "FILE":
+                return this.opencgaSession.opencgaClient.files();
+            case "SAMPLE":
+                return this.opencgaSession.opencgaClient.samples();
+            case "INDIVIDUAL":
+                return this.opencgaSession.opencgaClient.individuals();
+            case "FAMILY":
+                return this.opencgaSession.opencgaClient.families();
+            case "COHORT":
+                return this.opencgaSession.opencgaClient.cohorts();
+            case "CLINICAL_ANALYSIS":
+                return this.opencgaSession.opencgaClient.clinical();
+            default:
+                throw new Error("Resource not recognized");
+        }
+    }
+
+    onAggregationFieldChange(e) {
+        this.preparedFacetQueryFormatted = e.detail.value;
+    }
+
+    /**
+     * This method creates the facetQuery object to be sent to the client in <opencb-facet-results>
+     */
+    facetQueryBuilder() {
+        if (Object.keys(this.preparedFacetQueryFormatted).length) {
+            this.executedFacetQueryFormatted = {...this.preparedFacetQueryFormatted};
+            // Build the facet query object
+            this.facetQuery = {
+                ...this.query,
+                study: this.opencgaSession.study.fqn,
+                field: Object.values(this.preparedFacetQueryFormatted)
+                    .map(v => v.formatted)
+                    .join(";")
+            };
+        } else {
+            this.facetQuery = null;
         }
     }
 
     queryObserver() {
+        // 1. Prepare the facet query object
         this.facetQueryBuilder();
 
-        debugger
-        // executedQuery in opencga-variant-browser has changed so, if requested,  we have to repeat the facet query
+        // 2. Execute the facet query
         this.facetResults = [];
-        this.requestUpdate();
-        // await this.updateComplete;
-        if (this.query) {
+        if (this.facetQuery) {
             this.loading = true;
-            this.errorState = false;
+            this.errorState = null;
             this.requestUpdate();
-            // await this.updateComplete;
-            this.endpoint(this.resource).aggregationStats(this.query, {})
-                .then(restResponse => {
-                    this.errorState = false;
 
-                    // Remove all categories with an empty 'value' (no id)
+            this.endpoint(this.resource)
+                .aggregationStats(this.facetQuery, {})
+                .then(restResponse => {
+                    this.errorState = null;
+
                     const results = restResponse.responses[0].results;
+                    // Remove all categories with an empty 'value' (no id)
                     for (const result of results) {
-                        result.buckets = result.buckets.filter(bucket => !!bucket.value);
+                        result.buckets = result.buckets
+                            .filter(bucket => !!bucket.value);
                     }
                     this.facetResults = results || [];
                 })
                 .catch(response => {
+                    // this.facetResults = [];
                     if (response instanceof RestResponse || response instanceof Error) {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     } else {
-                        this.errorState = [{name: "Generic Error", message: JSON.JSON.stringify(response)}];
+                        this.errorState = [{name: "Aggregation Error", message: JSON.stringify(response)}];
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                             title: this.errorState[0].name,
                             message: this.errorState[0].message,
@@ -140,86 +181,13 @@ class AggregationStats extends LitElement {
         }
     }
 
-    facetQueryBuilder() {
-        // facetQuery is the query object sent to the client in <opencb-facet-results>
-        debugger
-        if (Object.keys(this.selectedFacet).length) {
-            this.executedFacetQueryFormatted = {...this.preparedFacetQueryFormatted};
-
-            this.facetQuery = {
-                ...this.preparedQuery,
-                study: this.opencgaSession.study.fqn,
-                // FIXME rename fields to field
-                fields: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
-            };
-            this.changeView("facet-tab");
-        } else {
-            this.facetQuery = null;
-        }
-    }
-
-    configObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    endpoint(resource) {
-        switch (resource) {
-            case "VARIANT":
-                return this.opencgaSession.opencgaClient.variants();
-            case "FILE":
-                return this.opencgaSession.opencgaClient.files();
-            case "SAMPLE":
-                return this.opencgaSession.opencgaClient.samples();
-            case "INDIVIDUAL":
-                return this.opencgaSession.opencgaClient.individuals();
-            case "COHORT":
-                return this.opencgaSession.opencgaClient.cohorts();
-            case "FAMILY":
-                return this.opencgaSession.opencgaClient.families();
-            case "CLINICAL_ANALYSIS":
-                return this.opencgaSession.opencgaClient.clinical();
-            case "JOB":
-                return this.opencgaSession.opencgaClient.jobs();
-            default:
-                throw new Error("Resource not recognized");
-        }
-    }
-
-    clearPlots() {
-        if (UtilsNew.isNotUndefined(this.results) && this.results.length > 0) {
-            for (const result of this.results) {
-                PolymerUtils.removeElement(this._prefix + result.name + "Plot");
-            }
-        }
-        this.results = [];
-    }
-
-    clear() {
-        this.clearPlots();
-        this.chromosome = "";
-
-        this.facets = new Set();
-        this.facetFilters = [];
-
-        PolymerUtils.hide(this._prefix + "Warning");
-
-        this.facetFields = [];
-        this.facetRanges = [];
-        this.facetFieldsName = [];
-        this.facetRangeFields = [];
-        this._showInitMessage = true;
-
-        this.requestUpdate();
-    }
-
-    getDefaultConfig() {
-        return {
-        };
+    aggregationClear() {
+        this.facet = {};
+        this.facetResults = [];
+        this.preparedFacetQueryFormatted = {};
     }
 
     render() {
-        this._config;
-        debugger
         return html`
             <style>
                 #loading {
@@ -227,69 +195,44 @@ class AggregationStats extends LitElement {
                     margin-top: 40px;
                 }
             </style>
-            <div class="row">
 
+            <div class="row">
                 <div class="col-md-2">
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        @click="${this.queryObserver()}">
+                    <button type="button" class="btn btn-primary w-50 mx-auto d-block my-3" @click="${this.queryObserver}">
                         <strong>Run</strong>
                     </button>
                     <facet-filter
-                        .selectedFacet="${this.selectedFacet}"
+                        .selectedFacet="${this.facet}"
                         .config="${this._config}"
-                        @facetQueryChange="${this.onFacetQueryChange}">
+                        @facetQueryChange="${this.onAggregationFieldChange}"
+                        @aggregationClear="${this.aggregationClear}">
                     </facet-filter>
                 </div>
 
                 <div class="col-md-10">
-                    <div>
-                        ${this.loading ? html`
-                            <div id="loading">
-                                <loading-spinner></loading-spinner>
-                            </div>
-                        ` : null }
-                        ${this.errorState?.length ? html`
-                            <div id="error" class="alert alert-danger" role="alert">
-                                ${this.errorState.map(error => html`<p><strong>${error.name}</strong></p><p>${error.message}</p>`)}
-                            </div>
-                        ` : null}
+                    ${this.errorState?.length > 0 ? html`
+                        <div id="error" class="alert alert-danger mx-3 my-3" role="alert">
+                            ${this.errorState.map(error => html`<p><strong>${error.name}</strong></p><p>${error.message}</p>`)}
+                        </div>
+                    ` : nothing}
 
-                        ${this.facetResults.length ? this.facetResults.map(item => item.aggregationName && item.aggregationValues ? html`
-                            <div>
-                                <h3>${item.name}</h3>
-                                <div class="facet-result-single-value">
-                                    <span class="aggregation-name">${item.aggregationName}</span>
-                                    <span class="aggregation-values">${item.aggregationValues}</span>
-                                </div>
-                            </div>
-                        ` : html`
-                            <div>
-                                <h3>${item.name}</h3>
-                                <opencga-facet-result-view .facetResult="${item}"
-                                                           .config="${this.facetConfig}"
-                                                           ?active="${this.facetActive}">
-                                </opencga-facet-result-view>
-                            </div>
-                        `) : null}
-
-                        ${false && !this.facetResults.length && !this.loading && !this.errorState ?
-                            !this.query ? html`
-                                <div class="alert alert-info d-flex align-items-center" role="alert">
-                                    <i class="fas fa-3x fa-info-circle flex-shrink-0 me-2"></i>
-                                    <div>Please select the aggregation fields in the Aggregation Tab on the left and then click on <b>Search</b> button.</div>
-                                </div>
-                            ` : html`
-                                <div class="alert alert-warning d-flex align-items-center" role="alert">
-                                    <i class="fas fa-3x fa-exclamation-circle flex-shrink-0 me-2"></i>
-                                    <div>Empty results</div>
-                                </div>
-                            ` : null}
-                    </div>
+                    <!-- This is important to avoid the default no results message from 'aggregatation-stats-result' component-->
+                    ${this.loading ? html`
+                        <div id="loading">
+                            <loading-spinner></loading-spinner>
+                        </div>
+                    ` : html`
+                        <opencb-facet-results
+                            .data="${this.facetResults}">
+                        </opencb-facet-results>
+                    `}
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {};
     }
 
 }
