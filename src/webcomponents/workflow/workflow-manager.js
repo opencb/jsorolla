@@ -214,14 +214,14 @@ export default class WorkflowManager extends LitElement {
     renderViewModal() {
         return ModalUtils.create(this, `${this._prefix}ViewModal`, {
             display: {
-                modalTitle: `Workflow Execute: ${this.workflowUpdateId}`,
+                modalTitle: `Workflow View: ${this.workflowUpdateId}`,
                 modalDraggable: true,
-                modalCyDataName: "modal-execute",
+                modalCyDataName: "modal-view",
                 modalSize: "modal-lg"
             },
             render: () => html`
                 <workflow-view
-                    .workflow="${{id: this.workflowUpdateId}}"
+                    .workflowId="${this.workflowUpdateId}"
                     .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "bottom"}}"
                     .opencgaSession="${this.opencgaSession}">
                 </workflow-view>

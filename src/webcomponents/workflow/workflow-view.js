@@ -21,6 +21,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../loading-spinner.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter";
 
 export default class WorkflowView extends LitElement {
 
@@ -81,6 +82,7 @@ export default class WorkflowView extends LitElement {
         // if (changedProperties.has("workflow")) {
         //     this._config = this.getDefaultConfig();
         // }
+        debugger
         if (changedProperties.has("workflowId")) {
             this.workflowIdObserver();
         }
@@ -95,6 +97,7 @@ export default class WorkflowView extends LitElement {
     }
 
     workflowIdObserver() {
+        debugger
         if (this.workflowId && this.opencgaSession) {
             const params = {
                 study: this.opencgaSession.study.fqn,
@@ -105,6 +108,7 @@ export default class WorkflowView extends LitElement {
                 .info(this.workflowId, params)
                 .then(response => {
                     this.workflow = response.responses[0].results[0];
+                    debugger
                 })
                 .catch(reason => {
                     this.workflow = {};
@@ -177,7 +181,7 @@ export default class WorkflowView extends LitElement {
                     ],
                 },
                 {
-                    title: "General",
+                    title: "General Information",
                     collapsed: false,
                     display: {
                         visible: workflow => workflow?.id,
@@ -212,6 +216,34 @@ export default class WorkflowView extends LitElement {
                             field: "version",
                         },
                         {
+                            id: "type",
+                            title: "Type",
+                            field: "type",
+                        },
+                        {
+                            title: "Draft",
+                            field: "draft",
+                            type: "checkbox",
+                            display: {
+                                disabled: true,
+                            },
+                        },
+                        {
+                            title: "Minimum Requirements",
+                            field: "minimumRequirements",
+                            type: "object",
+                            elements: [
+                                {
+                                    title: "Min CPU cores",
+                                    field: "minimumRequirements.cpu",
+                                },
+                                {
+                                    title: "Min memory",
+                                    field: "minimumRequirements.memory",
+                                },
+                            ]
+                        },
+                        {
                             title: "Status",
                             type: "complex",
                             display: {
@@ -221,6 +253,10 @@ export default class WorkflowView extends LitElement {
                                     "internal.status.date": date => UtilsNew.dateFormatter(date)
                                 }
                             },
+                        },
+                        {
+                            title: "Description",
+                            field: "description",
                         },
                         {
                             title: "Creation Date",
@@ -241,6 +277,88 @@ export default class WorkflowView extends LitElement {
                         {
                             title: "Description",
                             field: "description",
+                        },
+                    ],
+                },
+                {
+                    title: "Input Variables",
+                    text: "Optional variables that can be used in the workflow, these are NOT necessary for the workflow to run. " +
+                        "The variables will be ONLY used to create automatic forms.",
+                    elements: [
+                        {
+                            title: "Variables",
+                            field: "variables",
+                            type: "object-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                // CAUTION 20231024 Vero: "collapsedUpdate" not considered in data-form.js. Perhaps "collapsed" (L1324 in data-form.js) ?
+                                // collapsedUpdate: true,
+                                view: variable => html`
+                                    <div>${variable.id}</div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "ID",
+                                    field: "variables[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add workflow file name...",
+                                    }
+                                },
+                                {
+                                    title: "Name",
+                                    field: "variables[].name",
+                                    type: "input-text",
+                                    display: {}
+                                },
+                                {
+                                    title: "Required",
+                                    field: "variables[].required",
+                                    type: "checkbox",
+                                    display: {
+                                        placeholder: "Add a content...",
+                                    },
+                                },
+                                {
+                                    title: "Default Value",
+                                    field: "variables[].defaultValue",
+                                    type: "input-text",
+                                    display: {}
+                                },
+                                {
+                                    title: "Description",
+                                    field: "variables[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 3,
+                                        placeholder: "Add a content...",
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+                {
+                    title: "Scripts",
+                    elements: [
+                        {
+                            title: "Scripts",
+                            field: "scripts",
+                            type: "list",
+                            display: {
+                                contentLayout: "vertical",
+                                format: script => {
+                                    return `
+                                        <h5 class="card-title">${script.fileName} ${script.main ? `(main)`: ``}</h5>
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <p class="card-text">${script.content}</p>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                            },
                         },
                     ],
                 },
