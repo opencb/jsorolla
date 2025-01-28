@@ -631,8 +631,10 @@ export default class VariantBrowser extends LitElement {
                 }
             },
             aggregation: {
-                title: "Aggregation",
                 default: ["chromosome", "type"],
+                display: {
+                    showNested: true
+                },
                 sections: [
                     {
                         name: "General",

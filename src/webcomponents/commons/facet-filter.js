@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/filters/consequence-type-select-filter.js";
 import "../commons/forms/select-field-filter.js";
@@ -34,13 +34,13 @@ export default class FacetFilter extends LitElement {
 
     static get properties() {
         return {
-            config: {
-                type: Object
-            },
             // selectedFacet is a prop to keep the chance in the future to preselect fields
             selectedFacet: {
                 type: Object
-            }
+            },
+            config: {
+                type: Object
+            },
         };
     }
 
@@ -382,7 +382,7 @@ export default class FacetFilter extends LitElement {
                             </select-field-filter>
                         </div>
                     </div>
-                    ${renderNestedFieldWrapper(facet)}
+                    ${this.config.display?.showNested ? renderNestedFieldWrapper(facet) : nothing}
                 `;
             case "number":
             case "integer":
@@ -427,7 +427,7 @@ export default class FacetFilter extends LitElement {
                             </div>
                         </div>
                     </div>
-                    ${renderNestedFieldWrapper(facet)}
+                    ${this.config.display?.showNested ? renderNestedFieldWrapper(facet) : nothing}
                 `;
             case "string":
                 const [, strvalue] = facet.value ? [...facet.value.matchAll(/\[([^\s]+)]/gim)][0] : "";
@@ -444,7 +444,7 @@ export default class FacetFilter extends LitElement {
                                 id="${facet.id}_NestedFnSelect"  />
                         </div>
                     </div>
-                    ${renderNestedFieldWrapper(facet)}
+                    ${this.config.display?.showNested ? renderNestedFieldWrapper(facet) : nothing}
                 `;
             case "boolean":
                 return html`

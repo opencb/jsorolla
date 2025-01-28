@@ -232,7 +232,11 @@ class AggregationStats extends LitElement {
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            filter: {
+                showNested: false
+            }
+        };
     }
 
 }

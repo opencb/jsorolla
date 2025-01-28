@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
@@ -22,10 +22,12 @@ import "../commons/facet-filter.js";
 import "./sample-grid.js";
 import "./sample-detail.js";
 
+
 export default class SampleBrowser extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -35,10 +37,10 @@ export default class SampleBrowser extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            query: {
                 type: Object
             },
-            query: {
+            opencgaSession: {
                 type: Object
             },
             settings: {
@@ -56,7 +58,6 @@ export default class SampleBrowser extends LitElement {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -144,16 +145,16 @@ export default class SampleBrowser extends LitElement {
                 },
                 {
                     id: "facet-tab",
-                    name: "Aggregation stats",
+                    name: "Aggregation Stats",
                     icon: "fas fa-chart-bar",
                     render: params => html `
-                        <opencb-facet-results
+                        <aggregation-stats
                             resource="${params.resource}"
-                            .opencgaSession="${params.opencgaSession}"
-                            .active="${params.active}"
                             .query="${params.facetQuery}"
-                            .data="${params.facetResults}">
-                        </opencb-facet-results>
+                            .active="${params.active}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.aggregation}">
+                        </aggregation-stats>
                     `,
                 }
             ],
@@ -294,16 +295,9 @@ export default class SampleBrowser extends LitElement {
                 }
             },
             aggregation: {
-                default: ["creationYear>>creationMonth", "status", "somatic"],
-                render: params => html `
-                    <facet-filter
-                        .config="${params.config.aggregation}"
-                        .selectedFacet="${params.selectedFacet}"
-                        @facetQueryChange="${params.onFacetQueryChange}">
-                    </facet-filter>
-                `,
-                result: {
-                    numColumns: 2
+                default: ["somatic", "status"],
+                display: {
+                    showNested: false
                 },
                 sections: [
                     {

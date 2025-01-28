@@ -32,6 +32,7 @@ export default class IndividualBrowser extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -41,10 +42,10 @@ export default class IndividualBrowser extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            query: {
                 type: Object
             },
-            query: {
+            opencgaSession: {
                 type: Object
             },
             settings: {
@@ -62,7 +63,6 @@ export default class IndividualBrowser extends LitElement {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -150,16 +150,17 @@ export default class IndividualBrowser extends LitElement {
                 },
                 {
                     id: "facet-tab",
-                    name: "Aggregation stats",
+                    name: "Aggregation Stats",
                     icon: "fas fa-chart-bar",
                     render: params => html`
-                        <opencb-facet-results
+                        <aggregation-stats
                             resource="${params.resource}"
-                            .opencgaSession="${params.opencgaSession}"
-                            .active="${params.active}"
                             .query="${params.facetQuery}"
-                            .data="${params.facetResults}">
-                        </opencb-facet-results>`
+                            .active="${params.active}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.aggregation}">
+                        </aggregation-stats>
+                    `,
                 }
             ],
             filter: {
@@ -331,15 +332,9 @@ export default class IndividualBrowser extends LitElement {
                 }
             },
             aggregation: {
-                default: ["creationYear>>creationMonth", "status", "ethnicity", "population", "lifeStatus", "phenotypes", "sex", "numSamples[0..10]:1"],
-                render: params => html `
-                    <facet-filter
-                        .config="${params.config.aggregation}"
-                        .selectedFacet="${params.selectedFacet}"
-                        @facetQueryChange="${params.onFacetQueryChange}">
-                    </facet-filter>`,
-                result: {
-                    numColumns: 2
+                default: ["disorders", "ethnicity", "population", "sex"],
+                display: {
+                    showNested: false
                 },
                 sections: [
                     {
