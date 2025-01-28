@@ -511,21 +511,21 @@ export class OpenCGAClient {
 
                                         // Fetch the Workflows for each Study
                                         console.log("Fetching Workflows");
-                                        // const workflowPromises = [];
-                                        // for (const study of studies) {
-                                        //     const promise = this.workflows()
-                                        //         .search({
-                                        //             study: study,
-                                        //             limit: 1000,
-                                        //         });
-                                        //     workflowPromises.push(promise);
-                                        // }
-                                        // const workflowResponses = await Promise.all(workflowPromises);
-                                        // for (let i = 0, t = 0; i < session.projects.length; i++) {
-                                        //     for (let x = 0; x < session.projects[i].studies.length; x++, t++) {
-                                        //         session.projects[i].studies[x].workflows = workflowResponses[t].getResults();
-                                        //     }
-                                        // }
+                                        const workflowPromises = [];
+                                        for (const study of studies) {
+                                            const promise = this.workflows()
+                                                .search({
+                                                    study: study,
+                                                    limit: 1000,
+                                                });
+                                            workflowPromises.push(promise);
+                                        }
+                                        const workflowResponses = await Promise.all(workflowPromises);
+                                        for (let i = 0, t = 0; i < session.projects.length; i++) {
+                                            for (let x = 0; x < session.projects[i].studies.length; x++, t++) {
+                                                session.projects[i].studies[x].workflows = workflowResponses[t].getResults();
+                                            }
+                                        }
                                     }
                                     resolve(session);
                                 } catch (e) {
