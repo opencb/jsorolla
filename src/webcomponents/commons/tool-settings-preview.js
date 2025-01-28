@@ -26,7 +26,7 @@ import "../job/job-browser.js";
 import "../variant/variant-browser.js";
 import "../disease-panel/disease-panel-browser.js";
 import "../clinical/clinical-analysis-browser.js";
-import "../clinical/clinical-analysis-portal.js";
+// import "../clinical/clinical-analysis-portal.js";
 import "../user/user-profile.js";
 import "../commons/view/detail-tabs.js";
 
@@ -169,17 +169,17 @@ export default class ToolSettingsPreview extends LitElement {
                     `;
                 },
             },
-            "CLINICAL_ANALYSIS_PORTAL_BROWSER": {
-                render: settings => {
-                    return html`
-                        <clinical-analysis-portal
-                            .opencgaSession="${this.opencgaSession}"
-                            .settings="${settings}"
-                            .config="${{componentId: "clinicalAnalysisBrowserPortal", showHeader: false}}">
-                        </clinical-analysis-portal>
-                    `;
-                }
-            },
+            // "CLINICAL_ANALYSIS_PORTAL_BROWSER": {
+            //     render: settings => {
+            //         return html`
+            //             <clinical-analysis-portal
+            //                 .opencgaSession="${this.opencgaSession}"
+            //                 .settings="${settings}"
+            //                 .config="${{componentId: "clinicalAnalysisBrowserPortal", showHeader: false}}">
+            //             </clinical-analysis-portal>
+            //         `;
+            //     }
+            // },
             /*
             "RGA_BROWSER": {
                 render: settings => {
