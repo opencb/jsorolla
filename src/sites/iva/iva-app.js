@@ -33,7 +33,7 @@ import NotificationUtils from "../../webcomponents/commons/utils/notification-ut
 import NotificationManager from "../../core/notification-manager.js";
 
 import "../../webcomponents/clinical/clinical-analysis-browser.js";
-import "../../webcomponents/clinical/clinical-analysis-portal.js";
+// import "../../webcomponents/clinical/clinical-analysis-portal.js";
 import "../../webcomponents/variant/variant-browser.js";
 import "../../webcomponents/variant/variant-beacon.js";
 import "../../webcomponents/opencga/opencga-gene-view.js";
@@ -958,18 +958,18 @@ class IvaApp extends LitElement {
                     </div>
                 `;
                 break;
-            case "clinical-analysis-portal":
-            case "clinicalAnalysisPortal":
-                content = html`
-                    <div class="content">
-                        <clinical-analysis-portal
-                            .opencgaSession="${this.opencgaSession}"
-                            .settings="${this.settings.CLINICAL_ANALYSIS_PORTAL_BROWSER}"
-                            @sessionPanelUpdate="${this.onSessionPanelUpdate}">
-                        </clinical-analysis-portal>
-                    </div>
-                `;
-                break;
+            // case "clinical-analysis-portal":
+            // case "clinicalAnalysisPortal":
+            //     content = html`
+            //         <div class="content">
+            //             <clinical-analysis-portal
+            //                 .opencgaSession="${this.opencgaSession}"
+            //                 .settings="${this.settings.CLINICAL_ANALYSIS_PORTAL_BROWSER}"
+            //                 @sessionPanelUpdate="${this.onSessionPanelUpdate}">
+            //             </clinical-analysis-portal>
+            //         </div>
+            //     `;
+            //     break;
             case "rga":
                 content = html`
                     <div class="content">
@@ -1271,17 +1271,17 @@ class IvaApp extends LitElement {
             case "clinical-analysis":
             case "clinicalAnalysis":
             case "clinical-analysis-browser":
+            case "clinical-analysis-portal":
+            case "clinicalAnalysisPortal":
                 content = html`
-                    <div class="content">
-                        <clinical-analysis-browser
-                            .opencgaSession="${this.opencgaSession}"
-                            .settings="${this.settings.CLINICAL_ANALYSIS_BROWSER}"
-                            .config="${{componentId: "clinicalAnalysisBrowserCatalog"}}"
-                            .query="${this.queries["clinical-analysis"]}"
-                            @querySearch="${e => this.onQueryFilterSearch(e, "clinical-analysis")}"
-                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "clinical-analysis")}">
-                        </clinical-analysis-browser>
-                    </div>
+                    <clinical-analysis-browser
+                        .opencgaSession="${this.opencgaSession}"
+                        .settings="${this.settings.CLINICAL_ANALYSIS_BROWSER}"
+                        .config="${{title: "Case Portal"}}"
+                        .query="${this.queries["clinical-analysis"]}"
+                        @querySearch="${e => this.onQueryFilterSearch(e, "clinical-analysis")}"
+                        @activeFilterChange="${e => this.onQueryFilterSearch(e, "clinical-analysis")}">
+                    </clinical-analysis-browser>
                 `;
                 break;
             case "job":
