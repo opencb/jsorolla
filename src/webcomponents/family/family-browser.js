@@ -148,7 +148,7 @@ export default class FamilyBrowser extends LitElement {
                     render: params => html`
                         <aggregation-stats
                             resource="${params.resource}"
-                            .query="${params.facetQuery}"
+                            .query="${params.executedQuery}"
                             .active="${params.active}"
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.aggregation}">
