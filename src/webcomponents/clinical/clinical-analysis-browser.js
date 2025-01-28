@@ -166,6 +166,21 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                         </clinical-analysis-group>
                     `,
                 },
+                {
+                    id: "aggregate",
+                    name: "Aggregation Stats",
+                    icon: "fa fa-chart-bar",
+                    active: false,
+                    render: params => html`
+                        <aggregation-stats
+                            resource="${params.resource}"
+                            .query="${params.executedQuery}"
+                            .active="${params.active}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.aggregation}">
+                        </aggregation-stats>
+                    `,
+                },
             ],
             filter: {
                 sections: [
