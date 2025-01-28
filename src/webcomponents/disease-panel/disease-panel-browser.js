@@ -164,21 +164,11 @@ export default class DiseasePanelBrowser extends LitElement {
                                 description: "",
                                 quick: true,
                             },
-                            // {
-                            //     id: "name",
-                            //     name: "Disease Panel Name",
-                            //     placeholder: "Amelogenesis...",
-                            //     description: "",
-                            //     multiple: true,
-                            //     freeTag: true,
-                            //     field: "name",
-                            //     resource: "DISEASE_PANEL"
-                            // },
                             {
                                 id: "source",
-                                title: "Panel Source Name",
+                                title: "Disease Panel Source",
                                 placeholder: "Amelogenesis...",
-                                description: "",
+                                description: "Search by source name",
                                 multiple: true,
                                 freeTag: true,
                                 field: "source.name",
@@ -196,16 +186,6 @@ export default class DiseasePanelBrowser extends LitElement {
                                 quick: true,
                             },
                             {
-                                id: "categories",
-                                title: "Categories",
-                                placeholder: "Cancer programme...",
-                                description: "",
-                                multiple: true,
-                                freeTag: true,
-                                field: "categories.name",
-                                resource: "DISEASE_PANEL"
-                            },
-                            {
                                 id: "genes",
                                 title: "Genes",
                                 placeholder: "Select genes...",
@@ -213,14 +193,26 @@ export default class DiseasePanelBrowser extends LitElement {
                                 multiple: true,
                                 freeTag: true,
                                 field: "genes.id",
-                                resource: "DISEASE_PANEL"
+                                resource: "DISEASE_PANEL",
+                                quick: true,
                             },
                             {
-                                id: "region",
-                                title: "Region",
-                                placeholder: "Comma-separated list of regions...",
-                                description: ""
+                                id: "categories",
+                                title: "Categories",
+                                placeholder: "Cancer programme...",
+                                description: "",
+                                multiple: true,
+                                freeTag: true,
+                                field: "categories.name",
+                                resource: "DISEASE_PANEL",
+                                quick: true,
                             },
+                            // {
+                            //     id: "region",
+                            //     title: "Region",
+                            //     placeholder: "Comma-separated list of regions...",
+                            //     description: ""
+                            // },
                             {
                                 id: "tags",
                                 title: "Tags",
@@ -229,7 +221,8 @@ export default class DiseasePanelBrowser extends LitElement {
                                 multiple: true,
                                 freeTag: true,
                                 field: "tags",
-                                resource: "DISEASE_PANEL"
+                                resource: "DISEASE_PANEL",
+                                quick: true,
                             },
                         ]
                     }
