@@ -33,9 +33,18 @@ export default class WelcomePage extends LitElement {
                     <div class="col-3">
                         <div class="d-block text-decoration-none text-body rounded-3">
                             <div class="d-flex mb-3">
-                                <a href="#${item.id}/home" class="text-decoration-none d-flex align-items-center justify-content-center bg-primary bg-gradient rounded-4" style="width:4.5rem;height:4.5rem;">
-                                    <i class="fas ${item.icon} fs-1 text-white"></i>
-                                </a>
+                                ${item.icon?.includes("fa-") ?
+                                    html`
+                                        <a href="#${item.id}/home"
+                                           class="text-decoration-none d-flex align-items-center justify-content-center bg-primary bg-gradient rounded-4" style="width:4.5rem;height:4.5rem;">
+                                            <i class="fas ${item.icon} fs-1 text-white"></i>
+                                        </a>`
+                                    : html`
+                                        <a href="#${item.id}/home"
+                                           class="text-decoration-none d-flex align-items-center justify-content-center rounded-4" style="width:4.5rem;height:4.5rem;">
+                                            <img src="${item.icon}">
+                                        </a>`
+                                }
                             </div>
                             <a href="#${item.id}/home" class="d-block text-decoration-none text-body fs-3 fw-bold mb-1">
                                 <span>${item.title || item.name}</span>
