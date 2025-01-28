@@ -466,25 +466,25 @@ export default class WorkflowManager extends LitElement {
                                 </button>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        <a class="dropdown-item" href="#" data-action="view">
+                                        <a class="dropdown-item" data-action="view">
                                         <i class="fas fa-copy pe-2" aria-hidden="true"></i>View</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="#" data-action="copy">
+                                        <a class="dropdown-item" data-action="copy">
                                         <i class="fas fa-copy pe-2" aria-hidden="true"></i>Copy JSON</a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item" href="#" data-action="execute">
+                                        <a class="dropdown-item" data-action="execute">
                                         <i class="fas fa-download pe-2" aria-hidden="true"></i>Execute ...</a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item" href="#" data-action="edit">
+                                        <a class="dropdown-item" data-action="edit">
                                         <i class="fas fa-eraser pe-2" aria-hidden="true"></i>Edit ...</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item disabled" href="#" data-action="delete">
+                                        <a class="dropdown-item disabled" data-action="delete">
                                         <i class="fas fa-trash pe-2" aria-hidden="true"></i>Delete</a>
                                     </li>
                                 </ul>
