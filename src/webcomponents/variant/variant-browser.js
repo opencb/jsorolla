@@ -173,40 +173,11 @@ export default class VariantBrowser extends LitElement {
         }
     }
 
-    // facetQueryBuilder() {
-    //     // facetQuery is the query object sent to the client in <opencb-facet-results>
-    //     if (Object.keys(this.selectedFacet).length) {
-    //         this.executedFacetQueryFormatted = {...this.preparedFacetQueryFormatted};
-    //
-    //         this.facetQuery = {
-    //             ...this.preparedQuery,
-    //             study: this.opencgaSession.study.fqn,
-    //             // FIXME rename fields to field
-    //             fields: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
-    //         };
-    //         this.changeView("aggregation-tab");
-    //     } else {
-    //         this.facetQuery = null;
-    //     }
-    // }
-
     notifySearch(query) {
         LitUtils.dispatchCustomEvent(this, "querySearch", null, {
             query: query
         });
     }
-
-    // onRun() {
-    //     this.executedQuery = {...this.preparedQuery};
-    //     this.searchActive = false;
-    //     this.notifications = [];
-    //     this.variant = null;
-    //     this.notifySearch(this.preparedQuery);
-    //
-    //     this.facetQueryBuilder();
-    //
-    //     this.requestUpdate();
-    // }
 
     changeView(id) {
         this.activeView = id;
@@ -235,51 +206,6 @@ export default class VariantBrowser extends LitElement {
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
-
-    // onActiveFilterChange(e) {
-    //     VariantUtils.validateQuery(e.detail);
-    //     this.preparedQuery = {...e.detail};
-    //     this.executedQuery = {...e.detail};
-    //     this.searchActive = false;
-    //     this.variant = null;
-    //     this.notifySearch(this.preparedQuery);
-    //     this.facetQueryBuilder();
-    //     this.requestUpdate();
-    // }
-
-    // onActiveFilterClear() {
-    //     this.preparedQuery = {};
-    //     this.executedQuery = {};
-    //     this.searchActive = false;
-    //     this.variant = null;
-    //     this.notifySearch(this.preparedQuery);
-    //     this.facetQueryBuilder();
-    //     this.requestUpdate();
-    // }
-
-    // onFacetQueryChange(e) {
-    //     this.preparedFacetQueryFormatted = e.detail.value;
-    //     this.requestUpdate();
-    // }
-
-    // onActiveFacetChange(e) {
-    //     this.selectedFacet = {...e.detail};
-    //     this.preparedFacetQueryFormatted = {...e.detail};
-    //     this.facetQueryBuilder();
-    //     this.requestUpdate();
-    // }
-
-    // onActiveFacetClear() {
-    //     this.selectedFacet = {};
-    //     this.onRun();
-    // }
-
-    // onSampleChange(e) {
-    //     this.samples = e.detail.samples;
-    //     LitUtils.dispatchCustomEvent(this, "sampleChange", undefined, {
-    //         samples: this.samples,
-    //     });
-    // }
 
     onQueryComplete(event) {
         this.notifications = WebUtils.getResponseEvents(event.detail.response);
@@ -338,7 +264,7 @@ export default class VariantBrowser extends LitElement {
 
         return html`
             <tool-header
-                .title="${this._config.title}"
+                .title="${this._config.title || ""}"
                 .rightContent="${this.renderHeaderRightContent()}">
             </tool-header>
 
