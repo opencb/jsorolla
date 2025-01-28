@@ -123,15 +123,13 @@ class VariantInterpreterLanding extends LitElement {
                         };
                         return html`
                             <div class="col-md-10 offset-md-1">
-                                <tool-header title="Case Manager - ${clinicalAnalysis?.id ?? ""}" class="bg-white pt-3"></tool-header>
-                                <div class="ps-3">
-                                    <clinical-analysis-update
-                                        .clinicalAnalysisId="${clinicalAnalysis?.id}"
-                                        .opencgaSession="${opencgaSession}"
-                                        .displayConfig="${displayConfig}"
-                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                                    </clinical-analysis-update>
-                                </div>
+                                <tool-header title="Case Manager - ${clinicalAnalysis?.id ?? ""}"></tool-header>
+                                <clinical-analysis-update
+                                    .clinicalAnalysisId="${clinicalAnalysis?.id}"
+                                    .opencgaSession="${opencgaSession}"
+                                    .displayConfig="${displayConfig}"
+                                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                </clinical-analysis-update>
                             </div>
                         `;
                     }
@@ -143,14 +141,12 @@ class VariantInterpreterLanding extends LitElement {
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 offset-md-1">
-                                <tool-header title="Interpretation Manager" class="bg-white"></tool-header>
-                                <div class="ps-3">
-                                    <clinical-interpretation-manager
-                                        .clinicalAnalysis="${clinicalAnalysis}"
-                                        .opencgaSession="${opencgaSession}"
-                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                                    </clinical-interpretation-manager>
-                                </div>
+                                <tool-header title="Interpretation Manager"></tool-header>
+                                <clinical-interpretation-manager
+                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .opencgaSession="${opencgaSession}"
+                                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                </clinical-interpretation-manager>
                             </div>
                         `;
                     }
@@ -162,13 +158,11 @@ class VariantInterpreterLanding extends LitElement {
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 offset-md-1">
-                                <tool-header title="Clinical Data" class="bg-white"></tool-header>
-                                <div class="ps-3">
-                                    <individual-view
-                                        .individual="${clinicalAnalysis.proband}"
-                                        .opencgaSession="${opencgaSession}">
-                                    </individual-view>
-                                </div>
+                                <tool-header title="Clinical Data"></tool-header>
+                                <individual-view
+                                    .individual="${clinicalAnalysis.proband}"
+                                    .opencgaSession="${opencgaSession}">
+                                </individual-view>
                             </div>
                         `;
                     }
@@ -180,13 +174,11 @@ class VariantInterpreterLanding extends LitElement {
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 offset-md-1">
-                                <tool-header title="CellBase Info" class="bg-white"></tool-header>
-                                <div class="ps-3">
-                                    <project-cellbase-info
-                                        .projects="${opencgaSession.project}"
-                                        .opencgaSession="${opencgaSession}">
-                                    </project-cellbase-info>
-                                </div>
+                                <tool-header title="CellBase Info"></tool-header>
+                                <project-cellbase-info
+                                    .projects="${opencgaSession.project}"
+                                    .opencgaSession="${opencgaSession}">
+                                </project-cellbase-info>
                             </div>
                         `;
                     }
@@ -198,13 +190,11 @@ class VariantInterpreterLanding extends LitElement {
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 offset-md-1">
-                                <tool-header title="Consent - ${clinicalAnalysis?.proband.id || ""}" class="bg-white"></tool-header>
-                                <div class="ps-3">
-                                    <clinical-analysis-consent-editor
-                                        .clinicalAnalysis="${clinicalAnalysis}"
-                                        .opencgaSession="${opencgaSession}">
-                                    </clinical-analysis-consent-editor>
-                                </div>
+                                <tool-header title="Consent - ${clinicalAnalysis?.proband.id || ""}"></tool-header>
+                                <clinical-analysis-consent-editor
+                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .opencgaSession="${opencgaSession}">
+                                </clinical-analysis-consent-editor>
                             </div>
                         `;
                     }
@@ -216,14 +206,12 @@ class VariantInterpreterLanding extends LitElement {
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 offset-md-1">
-                                <tool-header title="Audit Log" class="bg-white"></tool-header>
-                                <div class="ps-3">
-                                    <clinical-analysis-audit-browser
-                                        .clinicalAnalysis="${clinicalAnalysis}"
-                                        .opencgaSession="${opencgaSession}"
-                                        .active="${active}">
-                                    </clinical-analysis-audit-browser>
-                                </div>
+                                <tool-header title="Audit Log"></tool-header>
+                                <clinical-analysis-audit-browser
+                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .opencgaSession="${opencgaSession}"
+                                    .active="${active}">
+                                </clinical-analysis-audit-browser>
                             </div>
                         `;
                     }
@@ -235,14 +223,12 @@ class VariantInterpreterLanding extends LitElement {
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 offset-md-1">
-                                <tool-header title="Case Summary - ${clinicalAnalysis?.id || ""}" class="bg-white"></tool-header>
-                                <div class="ps-3">
-                                    <clinical-analysis-view
-                                        .settings="${this._config.items?.find(el => el.id === "overview")?.settings}"
-                                        .clinicalAnalysis="${clinicalAnalysis}"
-                                        .opencgaSession="${opencgaSession}">
-                                    </clinical-analysis-view>
-                                </div>
+                                <tool-header title="Case Summary - ${clinicalAnalysis?.id || ""}"></tool-header>
+                                <clinical-analysis-view
+                                    .settings="${this._config.items?.find(el => el.id === "overview")?.settings}"
+                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .opencgaSession="${opencgaSession}">
+                                </clinical-analysis-view>
                             </div>
                         `;
                     }

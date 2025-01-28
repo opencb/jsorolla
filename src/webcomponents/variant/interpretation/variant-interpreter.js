@@ -268,7 +268,6 @@ class VariantInterpreter extends LitElement {
             return html`
                 <div class="col-md-10 offset-md-1">
                     <tool-header
-                        class="bg-white"
                         title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
                     </tool-header>
                     <steiner-report
@@ -282,7 +281,6 @@ class VariantInterpreter extends LitElement {
             return html`
                 <div class="col-md-10 offset-md-1">
                     <tool-header
-                        class="bg-white"
                         title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
                     </tool-header>
                     <clinical-analysis-review
