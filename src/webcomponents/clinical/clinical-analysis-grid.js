@@ -216,11 +216,23 @@ export default class ClinicalAnalysisGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
+    getInterpreterLink(caseId) {
+        // Note: we have to maintain the URL structure, so if we are inside an app we have to maintain the app
+        // Example: '#clinical/portal/project/study' --> '#clinical/interpreter/project/study?id=case'
+        // Example: '#portal/project/study' --> '#interpreter/project/study?id=case'
+        const hashItems = [
+            ...window.location.hash.replace("#", "").split("/").slice(0, -3), // '#clinical/portal/project/study' --> ['clinical']
+            "interpreter",
+            this.opencgaSession.project.id,
+            this.opencgaSession.study.id,
+        ];
+
+        return `#${hashItems.join("/")}?id=${caseId}`;
+    }
+
     caseFormatter(value, row) {
         if (row?.id) {
-            // Note: we have to maintain the URL structure, so if we are inside an app we have to maintain the app
-            const hashItems = window.location.hash.replace("#", "").split("/");
-            const url = `#${[...hashItems.slice(0, -3), "interpreter", this.opencgaSession.project.id, this.opencgaSession.study.id].join("/")}?id=${row.id}`;
+            const url = this.getInterpreterLink(row.id);
             return `
                 <div class="mt-1 me-0">
                     <a class="text-decoration-none" title="Go to Case Interpreter" href="${url}" data-cy="case-id">
@@ -297,9 +309,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
             }
         }
 
-        const interpretationUrl = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`;
+        const url = this.getInterpreterLink(row.id);
         return `
-            <a class="text-decoration-none" data-action="interpreter" title="Go to Case Interpreter" href="${interpretationUrl}">
+            <a class="text-decoration-none" data-action="interpreter" title="Go to Case Interpreter" href="${url}">
                 ${html}
             </a>
         `;
