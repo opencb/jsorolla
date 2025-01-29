@@ -1,6 +1,5 @@
 import {html, LitElement, nothing} from "lit";
 import {classMap} from "lit/directives/class-map.js";
-import {styleMap} from "lit/directives/style-map.js";
 
 export default class LayoutSidebar extends LitElement {
 
@@ -52,13 +51,11 @@ export default class LayoutSidebar extends LitElement {
             "hover:bg-gray-100": !active,
             "text-gray-800": !active,
             "text-white": active,
-        });
-        const buttonStyle = styleMap({
-            backgroundColor: active ? (app.color || "") : "",
+            "bg-primary": active,
         });
 
         return html`
-            <a class="text-decoration-none d-flex align-items-center flex-column gap-2 p-2 rounded-2 cursor-pointer ${buttonClassName}" style="${buttonStyle}" href="#${app.id}">
+            <a class="text-decoration-none d-flex align-items-center flex-column gap-2 p-2 rounded-2 cursor-pointer ${buttonClassName}" href="#${app.id}">
                 <i class="fas ${app?.icon || "fa-screwdriver-wrench"} lh-1 fs-4"></i>
                 <div class="fw-bold lh-1 fs-8 text-center">${app?.name || "-"}</div>
             </a>
