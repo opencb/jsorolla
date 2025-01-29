@@ -32,18 +32,19 @@ export default class WelcomePage extends LitElement {
                 ${visibleApps.map(item => html`
                     <div class="col-3">
                         <div class="d-block text-decoration-none text-body rounded-3">
-                            <div class="d-flex mb-3">
-                                ${item.icon?.includes("fa-") ?
+                            <div class="mb-3">
+                                ${item.illustration ?
                                     html`
+                                        <a href="#${item.id}/home"
+                                           class="text-decoration-none rounded-4">
+                                            <img src="${item.illustration}" height="100px" width="100px">
+                                        </a>
+                                    ` : html`
                                         <a href="#${item.id}/home"
                                            class="text-decoration-none d-flex align-items-center justify-content-center bg-primary bg-gradient rounded-4" style="width:4.5rem;height:4.5rem;">
                                             <i class="fas ${item.icon} fs-1 text-white"></i>
-                                        </a>`
-                                    : html`
-                                        <a href="#${item.id}/home"
-                                           class="text-decoration-none d-flex align-items-center justify-content-center rounded-4" style="width:4.5rem;height:4.5rem;">
-                                            <img src="${item.icon}">
-                                        </a>`
+                                        </a>
+                                    `
                                 }
                             </div>
                             <a href="#${item.id}/home" class="d-block text-decoration-none text-body fs-3 fw-bold mb-1">
@@ -54,12 +55,29 @@ export default class WelcomePage extends LitElement {
                                     ${item.description}
                                 </div>
                             ` : nothing}
+                            <!--
                             <div class="">
                                 <a href="#${item.id}/home" class="d-flex align-items-center gap-2 icon-link cursor-pointer fs-5 text-decoration-none">
                                     <span class="">Open ${item.name || item.title} App</span>
                                     <i class="fas fa-chevron-right text-decoration-none"></i>
                                 </a>
                             </div>
+                            -->
+                            ${item.illustration ? html`
+                                <div class="d-flex">
+                                    <a class="btn border border-dark rounded-circle" href="#${item.id}/home">
+                                        <!--<i class="fas fa-arrow-right"></i>-->
+                                        <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                            `: html`
+                                <div class="">
+                                    <a href="#${item.id}/home" class="d-flex align-items-center gap-2 icon-link cursor-pointer fs-5 text-decoration-none">
+                                        <span class="">Open ${item.name || item.title} App</span>
+                                        <i class="fas fa-chevron-right text-decoration-none"></i>
+                                    </a>
+                                </div>
+                            `}
                         </div>
                     </div>
                 `)}
@@ -113,6 +131,7 @@ export default class WelcomePage extends LitElement {
 
         return html`
             <div class="container pt-5">
+                <div class="mb-5">
                 <!-- Welcome page logo -->
                 ${welcomePage?.logo ? html`
                     <div class="mb-3">
@@ -156,15 +175,16 @@ export default class WelcomePage extends LitElement {
                         </div>
                     </div>
                 ` : nothing}
+                </div>
 
                 <!-- Applications or tools -->
-                <div class="mt-5">
+                <div class="pt-5 pb-5 mb-5">
                     ${isWelcomeSuite ? this.renderApplications() : this.renderTools()}
                 </div>
 
                 <!-- Logo at the bottom of the content -->
                 ${welcomePage?.bottomLogo ? html`
-                    <div class="mt-5">
+                    <div class="mt-5 pt-5">
                         <img
                             src="${welcomePage.bottomLogo}"
                             width="${welcomePage.display?.bottomLogoWidth ?? ""}"
