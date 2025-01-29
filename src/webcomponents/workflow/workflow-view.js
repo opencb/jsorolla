@@ -282,15 +282,17 @@ export default class WorkflowView extends LitElement {
                 },
                 {
                     title: "Input Variables",
-                    text: "Optional variables that can be used in the workflow, these are NOT necessary for the workflow to run. " +
-                        "The variables will be ONLY used to create automatic forms.",
+                    text: `
+                        Optional variables that can be used in the workflow, these are NOT necessary for the workflow to run.
+                        The variables will be ONLY used to create automatic forms.
+                    `,
                     elements: [
                         {
                             title: "Variables",
                             field: "variables",
                             type: "table",
                             display: {
-                                defaultValue: "No input parameters configured",
+                                defaultValue: "No input parameters are currently configured.",
                                 columns: [
                                     {
                                         title: "ID",
@@ -325,6 +327,7 @@ export default class WorkflowView extends LitElement {
                             field: "scripts",
                             type: "list",
                             display: {
+                                defaultValue: "No scripts are currently available.",
                                 contentLayout: "vertical",
                                 format: script => {
                                     return `
