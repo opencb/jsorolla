@@ -209,7 +209,7 @@ export default class NoteBrowser extends LitElement {
                             },
                             {
                                 id: "noteType",
-                                name: "Note Type",
+                                title: "Note Type",
                                 allowedValues: [
                                     "VARIANT",
                                     "GENE",
@@ -230,6 +230,7 @@ export default class NoteBrowser extends LitElement {
                                 ],
                                 multiple: true,
                                 description: "",
+                                quick: true,
                             },
                             {
                                 id: "visibility",
@@ -241,7 +242,7 @@ export default class NoteBrowser extends LitElement {
                             },
                             {
                                 id: "tags",
-                                name: "Tags",
+                                title: "Tags",
                                 render: (onFilterChange, query, opencgaSession) => {
                                     const resource = (query?.scope === "ORGANIZATION" || query?.scope === "NOTE_ORGANIZATION") ? "NOTE_ORGANIZATION" : "NOTE_STUDY";
                                     const tagsFilterConfig = {
@@ -263,11 +264,13 @@ export default class NoteBrowser extends LitElement {
                                         </catalog-search-autocomplete>
                                     `;
                                 },
+                                quick: true,
                             },
                             {
                                 id: "date",
                                 title: "Creation Date",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                         ]
                     }
