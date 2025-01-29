@@ -25,8 +25,8 @@ export default class LayoutSecondaryBar extends LitElement {
         const active = this.currentUrl.startsWith(`#${this.app.id}/${tool.id}/`);
         return html`
             <li class="nav-item">
-                <a class="nav-link text-body ${active ? "active" : ""}" style="${active ? `border-color:${this.app.color || ""};border-width: 2px` : ""}" href="#${this.app.id}/${tool.id}">
-                    <div class="px-2 py-1 rounded ${active ? "bg-gray-100 fw-bolder" : "hover:bg-gray-100"}">
+                <a class="nav-link text-body border-0" href="#${this.app.id}/${tool.id}">
+                    <div class="px-2 py-1 rounded ${active ? "bg-gray-200 fw-bolder" : "hover:bg-gray-100"}">
                         ${tool.name || tool.id || "-"}
                     </div>
                 </a>
@@ -36,7 +36,7 @@ export default class LayoutSecondaryBar extends LitElement {
 
     render() {
         return html`
-            <div class="d-flex align-items-stretch w-full mb-3 px-1 border-bottom" style="border-color:${this.app.color || ""}!important;border-width: 2px!important">
+            <div class="d-flex align-items-stretch w-full mb-3 py-2 border-bottom">
                 <a class="d-flex align-items-center gap-2 me-5 user-select-none text-body text-decoration-none" href="#${this.app.id}/home">
                     <i class="fas ${this.app.icon || ""} fs-3"></i>
                     <span class="fs-3 fw-bold">${this.app.title || this.app.name || "-"}</span>
