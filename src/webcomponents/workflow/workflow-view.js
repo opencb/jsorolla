@@ -288,54 +288,32 @@ export default class WorkflowView extends LitElement {
                         {
                             title: "Variables",
                             field: "variables",
-                            type: "object-list",
+                            type: "table",
                             display: {
-                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                // CAUTION 20231024 Vero: "collapsedUpdate" not considered in data-form.js. Perhaps "collapsed" (L1324 in data-form.js) ?
-                                // collapsedUpdate: true,
-                                view: variable => html`
-                                    <div>${variable.id}</div>
-                                `,
+                                defaultValue: "No input parameters configured",
+                                columns: [
+                                    {
+                                        title: "ID",
+                                        field: "id",
+                                    },
+                                    {
+                                        title: "Name",
+                                        field: "name",
+                                    },
+                                    {
+                                        title: "Required",
+                                        field: "required",
+                                    },
+                                    {
+                                        title: "Default Value",
+                                        field: "defaultValue",
+                                    },
+                                    {
+                                        title: "Description",
+                                        field: "description",
+                                    },
+                                ],
                             },
-                            elements: [
-                                {
-                                    title: "ID",
-                                    field: "variables[].id",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add workflow file name...",
-                                    }
-                                },
-                                {
-                                    title: "Name",
-                                    field: "variables[].name",
-                                    type: "input-text",
-                                    display: {}
-                                },
-                                {
-                                    title: "Required",
-                                    field: "variables[].required",
-                                    type: "checkbox",
-                                    display: {
-                                        placeholder: "Add a content...",
-                                    },
-                                },
-                                {
-                                    title: "Default Value",
-                                    field: "variables[].defaultValue",
-                                    type: "input-text",
-                                    display: {}
-                                },
-                                {
-                                    title: "Description",
-                                    field: "variables[].description",
-                                    type: "input-text",
-                                    display: {
-                                        rows: 3,
-                                        placeholder: "Add a content...",
-                                    },
-                                },
-                            ],
                         },
                     ],
                 },
