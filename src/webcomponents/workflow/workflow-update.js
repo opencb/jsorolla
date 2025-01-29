@@ -159,13 +159,13 @@ export default class WorkflowUpdate extends LitElement {
                                 {
                                     title: "Min CPU cores",
                                     field: "minimumRequirements.cpu",
-                                    type: "input-num",
+                                    type: "input-text",
                                     display: {},
                                 },
                                 {
                                     title: "Min memory",
                                     field: "minimumRequirements.memory",
-                                    type: "input-num",
+                                    type: "input-text",
                                     display: {},
                                 },
                             ]
