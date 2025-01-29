@@ -106,7 +106,7 @@ context("Sample Browser Grid", () => {
     context("Modal Update", () => {
         beforeEach(() => {
             cy.get("@container")
-                .find(`table tbody tr td button.dropdown-toggle`)
+                .find(`table tbody tr td button[data-cy="actions-button"]`)
                 .first()
                 .click();
             cy.get("@container")
