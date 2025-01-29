@@ -204,15 +204,15 @@ export default class WorkflowCreate extends LitElement {
                             type: "object",
                             elements: [
                                 {
-                                    title: "Min CPU cores",
+                                    title: "Min. CPU cores",
                                     field: "minimumRequirements.cpu",
-                                    type: "input-num",
+                                    type: "input-text",
                                     display: {},
                                 },
                                 {
-                                    title: "Min memory",
+                                    title: "Min. memory",
                                     field: "minimumRequirements.memory",
-                                    type: "input-num",
+                                    type: "input-text",
                                     display: {},
                                 },
                             ]

@@ -491,23 +491,23 @@ export class OpenCGAClient {
                                         }
 
                                         // Fetch the Disease Panels for each Study
-                                        // console.log("Fetching disease panels");
-                                        // const panelPromises = [];
-                                        // for (const study of studies) {
-                                        //     const promise = this.panels()
-                                        //         .search({
-                                        //             study: study,
-                                        //             limit: 1000,
-                                        //             include: "id,name,stats,source,genes.id,genes.name,genes.modeOfInheritance,genes.confidence,regions.id"
-                                        //         });
-                                        //     panelPromises.push(promise);
-                                        // }
-                                        // const panelResponses = await Promise.all(panelPromises);
-                                        // for (let i = 0, t = 0; i < session.projects.length; i++) {
-                                        //     for (let x = 0; x < session.projects[i].studies.length; x++, t++) {
-                                        //         session.projects[i].studies[x].panels = panelResponses[t].getResults();
-                                        //     }
-                                        // }
+                                        console.log("Fetching disease panels");
+                                        const panelPromises = [];
+                                        for (const study of studies) {
+                                            const promise = this.panels()
+                                                .search({
+                                                    study: study,
+                                                    limit: 1000,
+                                                    include: "id,name,stats,source,genes.id,genes.name,genes.modeOfInheritance,genes.confidence,regions.id"
+                                                });
+                                            panelPromises.push(promise);
+                                        }
+                                        const panelResponses = await Promise.all(panelPromises);
+                                        for (let i = 0, t = 0; i < session.projects.length; i++) {
+                                            for (let x = 0; x < session.projects[i].studies.length; x++, t++) {
+                                                session.projects[i].studies[x].panels = panelResponses[t].getResults();
+                                            }
+                                        }
 
                                         // Fetch the Workflows for each Study
                                         console.log("Fetching Workflows");
