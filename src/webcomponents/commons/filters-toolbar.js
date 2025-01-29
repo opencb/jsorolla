@@ -62,6 +62,8 @@ export default class FiltersToolbar extends LitElement {
 
         this.queryList = [];
         this.quickFilters = [];
+        this.totalFiltersCount = 0; // to check if we have to hide the advanced filters button
+
         this.applicationFilters = [];
         this.userFilters = [];
         this.historyFilters = [];
@@ -176,8 +178,12 @@ export default class FiltersToolbar extends LitElement {
     configObserver() {
         this._config = {
             ...this.getDefaultConfig(),
-            ...this.config
+            ...this.config,
         };
+
+        // count the total number of filters
+        this.totalFiltersCount = (this._config?.sections || [])
+            .reduce((acc, section) => acc + (section?.filters || []).length, 0);
 
         // prepare list of quick and advanced filters
         this.quickFilters = (this._config?.sections || [])
@@ -659,17 +665,18 @@ export default class FiltersToolbar extends LitElement {
     render() {
         // used to disable clear or save buttons
         const emptyPreparedQuery = Object.keys(this.preparedQuery).length === 0;
+        const showAdvancedFiltersButton = this.totalFiltersCount !== this.quickFilters.length;
 
         return html`
             <div class="border p-1 rounded-3 mb-3">
                 <div class="d-flex align-items-stretch gap-2 mb-2">
                     ${this.renderQuickFilters()}
-                    <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="offcanvas" data-bs-target="#${this._prefix}AdvancedFilters">
-                        <div class="d-flex align-items-center gap-1">
+                    ${showAdvancedFiltersButton ? html`
+                        <button class="btn btn-light d-flex align-items-center gap-1" data-bs-toggle="offcanvas" data-bs-target="#${this._prefix}AdvancedFilters">
                             <i class="fas fa-filter"></i>
                             <span>Advanced Filters</span>
-                        </div>
-                    </button>
+                        </button>
+                    ` : nothing}
                     <div class="w-px bg-gray-200"></div>
                     <button class="btn btn-primary d-flex align-items-center gap-2 ${!this.searchActive ? "disabled" : ""}" @click="${this.onSearch}">
                         <i class="fas fa-search"></i>
