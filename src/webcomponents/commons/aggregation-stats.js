@@ -108,6 +108,8 @@ class AggregationStats extends LitElement {
                 return this.opencgaSession.opencgaClient.families();
             case "COHORT":
                 return this.opencgaSession.opencgaClient.cohorts();
+            case "DISEASE_PANEL":
+                return this.opencgaSession.opencgaClient.clinical();
             case "CLINICAL_ANALYSIS":
                 return this.opencgaSession.opencgaClient.clinical();
             default:

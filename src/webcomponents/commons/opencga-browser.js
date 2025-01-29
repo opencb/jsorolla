@@ -46,9 +46,9 @@ export default class OpencgaBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            cellbaseClient: {
-                type: Object
-            },
+            // cellbaseClient: {
+            //     type: Object
+            // },
             query: {
                 type: Object
             },
@@ -67,7 +67,7 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     #init() {
-        this._prefix = "facet" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
 
         this.query = {};

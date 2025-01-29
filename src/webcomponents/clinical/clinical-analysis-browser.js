@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "./clinical-analysis-view.js";
@@ -27,6 +27,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -36,10 +37,10 @@ export default class ClinicalAnalysisBrowser extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            query: {
                 type: Object,
             },
-            query: {
+            opencgaSession: {
                 type: Object,
             },
             settings: {
@@ -53,7 +54,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "clinical-analysis-browser";
-        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
     }
 
@@ -61,7 +61,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         if (changedProperties.has("settings") || changedProperties.has("config")) {
             this.settingsObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -153,7 +152,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                 },
                 {
                     id: "group",
-                    name: "Group by",
+                    name: "Group By",
                     icon: "fas fa-layer-group",
                     active: false,
                     render: params => html`
@@ -169,7 +168,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                 {
                     id: "aggregate",
                     name: "Aggregation Stats",
-                    icon: "fa fa-chart-bar",
+                    icon: "fas fa-chart-bar",
                     active: false,
                     render: params => html`
                         <aggregation-stats
@@ -278,6 +277,83 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                         }
                     ]
                 }
+            },
+            aggregation: {
+                default: ["disorders"],
+                display: {
+                    showNested: false
+                },
+                sections: [
+                    {
+                        name: "Sample Attributes",
+                        // collapsed: false,
+                        fields: [
+                            {
+                                id: "studyId",
+                                name: "Study id",
+                                type: "string",
+                                description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
+                            },
+                            {
+                                id: "creationYear",
+                                name: "Creation Year",
+                                type: "string",
+                                description: "Creation year"
+                            },
+                            {
+                                id: "creationMonth",
+                                name: "Creation Month",
+                                type: "category",
+                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
+                                description: "Creation month (JANUARY, FEBRUARY...)"
+                            },
+                            {
+                                id: "creationDay",
+                                name: "Creation Day",
+                                type: "category",
+                                allowedValues: [
+                                    "1", "2", "3", "4", "5",
+                                    "6", "7", "8", "9", "10",
+                                    "11", "12", "13", "14", "15",
+                                    "16", "17", "18", "19", "20",
+                                    "21", "22", "23", "24", "25",
+                                    "26", "27", "28", "29", "30", "31"],
+                                description: "Creation day"
+                            },
+                            {
+                                id: "creationDayOfWeek",
+                                name: "Creation Day Of Week",
+                                type: "category",
+                                allowedValues: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
+                                description: "Creation day of week (MONDAY, TUESDAY...)"
+                            },
+                            {
+                                id: "disorders",
+                                name: "Disorders",
+                                type: "string",
+                                description: "Disorders"
+                            },
+                            {
+                                id: "status",
+                                name: "Status",
+                                type: "category",
+                                allowedValues: ["READY", "DELETED"],
+                                description: "Status"
+                            },
+                        ]
+                    },
+                    {
+                        name: "Advanced",
+                        fields: [
+                            {
+                                id: "field",
+                                name: "Field",
+                                type: "string",
+                                description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
+                            }
+                        ]
+                    }
+                ]
             },
             // TODO recheck (they come from clinical-analysis-browser and used in opencga-clinical-analysis-filter and opencga-clinical-analysis-grid now they have been moved in config)
             analyses: [],

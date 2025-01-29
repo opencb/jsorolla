@@ -15,7 +15,7 @@
  */
 
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "./cohort-grid.js";
@@ -25,6 +25,7 @@ export default class CohortBrowser extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -34,10 +35,10 @@ export default class CohortBrowser extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            query: {
                 type: Object
             },
-            query: {
+            opencgaSession: {
                 type: Object
             },
             settings: {
@@ -55,7 +56,6 @@ export default class CohortBrowser extends LitElement {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -144,16 +144,17 @@ export default class CohortBrowser extends LitElement {
                 },
                 {
                     id: "facet-tab",
-                    name: "Aggregation stats",
+                    name: "Aggregation Stats",
                     icon: "fas fa-chart-bar",
                     render: params => html`
-                        <opencb-facet-results
+                        <aggregation-stats
                             resource="${params.resource}"
-                            .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
                             .active="${params.active}"
-                            .query="${params.facetQuery}"
-                            .data="${params.facetResults}">
-                        </opencb-facet-results>`
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.aggregation}">
+                        </aggregation-stats>
+                    `
                 }
             ],
             filter: {
@@ -256,14 +257,8 @@ export default class CohortBrowser extends LitElement {
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "status", "numSamples[0..10]:1"],
-                render: params => html `
-                    <facet-filter
-                        .config="${params.config.aggregation}"
-                        .selectedFacet="${params.selectedFacet}"
-                        @facetQueryChange="${params.onFacetQueryChange}">
-                    </facet-filter>`,
-                result: {
-                    numColumns: 2
+                display: {
+                    showNested: false
                 },
                 sections: [
                     {
