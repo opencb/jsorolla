@@ -205,7 +205,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         return html`
             <div class="d-flex gap-1">
                 <div class="dropdown d-flex" id="${this._previx}InclusionVariants">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                    <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <i class="fas fa-tasks pe-1"></i>
                         <strong>Inclusion Variants</strong>
                     </button>
@@ -233,8 +233,8 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                     </div>
                 </div>
                 <div class="dropdown d-flex" id="${this._previx}View">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                        <i class="fas fa-eye pe-1" aria-hidden="true"></i>
+                    <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                        <i class="fas fa-eye pe-1"></i>
                         <strong>View</strong>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end shadow" style="width:400px">
@@ -263,7 +263,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                     </div>
                 </div>
                 <div class="dropdown d-flex" id="${this._prefix}Save">
-                    <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"} ${!this.write ? "disabled" : ""} dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                    <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-light"} ${!this.write ? "disabled" : ""} dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <i class="fas fa-save pe-1"></i>
                         <strong>Save</strong>
                         ${hasVariantsToSave ? html`
