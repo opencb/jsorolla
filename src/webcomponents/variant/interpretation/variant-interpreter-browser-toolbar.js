@@ -200,91 +200,88 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         const primaryFindings = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
 
         return html`
-            <div class="d-flex justify-content-end mb-3">
-                <div class="btn-toolbar gap-1"  role="toolbar" aria-label="toolbar"  >
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true"
-                                aria-expanded="false" title="Show inclusion list of variants">
-                            <i class="fas fa-tasks pe-1" aria-hidden="true"></i>
-                            <strong>Inclusion Variants</strong>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}ResetMenu" style="width: 420px">
-                            <li class="my-1 mx-2">
-                                <div class="my-1 mx-0">
-                                    <span class="fw-bold">Variants Included</span>
-                                </div>
-                                <div>
-                                    ${this.variantInclusionState?.length > 0 ? html`
-                                        ${this.variantInclusionState.map(inclusion => this.renderInclusionVariant(inclusion))}
+            <div class="d-flex gap-1">
+                <div class="dropdown d-flex">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-tasks pe-1"></i>
+                        <strong>Inclusion Variants</strong>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}ResetMenu" style="width: 420px">
+                        <li class="my-1 mx-2">
+                            <div class="my-1 mx-0">
+                                <span class="fw-bold">Variants Included</span>
+                            </div>
+                            <div>
+                                ${this.variantInclusionState?.length > 0 ? html`
+                                    ${this.variantInclusionState.map(inclusion => this.renderInclusionVariant(inclusion))}
 
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li class="my-1 mx-2">
-                                            <div class="float-end">
-                                                <button
-                                                    type="button"
-                                                    class="btn btn-primary m-1"
-                                                    @click="${this.onFilterInclusionVariants}">Filter
-                                                </button>
-                                            </div>
-                                        </li>
-                                    ` : html`
-                                        <div class="m-1">Variant Inclusion list not def</div>
-                                    `}
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="dropdown" id="${this._previx}View">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" title="Show saved variants">
-                            <i class="fas fa-eye pe-1" aria-hidden="true"></i>
-                            <strong>View</strong>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" style="width:400px">
-                            <li class="my-1 mx-2">
-                                <div class="my-1 mx-0">
-                                    <span class="fw-bold">Primary Findings</span>
-                                </div>
-                                <div class="overflow-y-auto m-1" style="max-height:350px;">
-                                    ${primaryFindings?.length > 0 ? html`
-                                        ${primaryFindings.map(variant => this.renderVariant(variant))}
-                                    ` : html`
-                                        <div class="m-1">No primary findings found</div>
-                                    `}
-                                </div>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li class="my-1 mx-2">
-                                <div class="float-end">
-                                    <button class="btn btn-primary ${primaryFindings.length > 0 ? "" : "disabled"}" @click="${this.onFilterPrimaryFindingVariants}">
-                                        <i class="fas fa-filter me-1"></i> Filter
-                                    </button>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="dropdown" id="${this._prefix}Save">
-                        <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"} ${!this.write ? "disabled" : ""} dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" title="Save variants">
-                            <i class="fas fa-save pe-1"></i>
-                            <strong>Save</strong>
-                            ${hasVariantsToSave ? html`
-                                <span class="badge bg-white text-danger rounded-pill ms-1">
-                                    ${this.state.addedVariants.length + this.state.removedVariants.length + this.state.updatedVariants.length}
-                                </span>
-                            ` : nothing}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" style="width:500px;">
-                            <li>
-                                <variant-interpreter-browser-save
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .state="${this.state}"
-                                    @saveVariants="${e => this.onSaveInterpretation(e)}"
-                                    @discardVariants="${() => this.onResetModifiedVariants()}"
-                                    @filterVariants="${() => this.onFilterModifiedVariants()}">
-                                </variant-interpreter-browser-save>
-                            </li>
-                        </ul>
-                    </div>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li class="my-1 mx-2">
+                                        <div class="float-end">
+                                            <button
+                                                type="button"
+                                                class="btn btn-primary m-1"
+                                                @click="${this.onFilterInclusionVariants}">Filter
+                                            </button>
+                                        </div>
+                                    </li>
+                                ` : html`
+                                    <div class="m-1">Variant Inclusion list not def</div>
+                                `}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="dropdown d-flex" id="${this._previx}View">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" title="Show saved variants">
+                        <i class="fas fa-eye pe-1" aria-hidden="true"></i>
+                        <strong>View</strong>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" style="width:400px">
+                        <li class="my-1 mx-2">
+                            <div class="my-1 mx-0">
+                                <span class="fw-bold">Primary Findings</span>
+                            </div>
+                            <div class="overflow-y-auto m-1" style="max-height:350px;">
+                                ${primaryFindings?.length > 0 ? html`
+                                    ${primaryFindings.map(variant => this.renderVariant(variant))}
+                                ` : html`
+                                    <div class="m-1">No primary findings found</div>
+                                `}
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li class="my-1 mx-2">
+                            <div class="float-end">
+                                <button class="btn btn-primary ${primaryFindings.length > 0 ? "" : "disabled"}" @click="${this.onFilterPrimaryFindingVariants}">
+                                    <i class="fas fa-filter me-1"></i> Filter
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="dropdown d-flex" id="${this._prefix}Save">
+                    <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"} ${!this.write ? "disabled" : ""} dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" title="Save variants">
+                        <i class="fas fa-save pe-1"></i>
+                        <strong>Save</strong>
+                        ${hasVariantsToSave ? html`
+                            <span class="badge bg-white text-danger rounded-pill ms-1">
+                                ${this.state.addedVariants.length + this.state.removedVariants.length + this.state.updatedVariants.length}
+                            </span>
+                        ` : nothing}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" style="width:500px;">
+                        <li>
+                            <variant-interpreter-browser-save
+                                .opencgaSession="${this.opencgaSession}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .state="${this.state}"
+                                @saveVariants="${e => this.onSaveInterpretation(e)}"
+                                @discardVariants="${() => this.onResetModifiedVariants()}"
+                                @filterVariants="${() => this.onFilterModifiedVariants()}">
+                            </variant-interpreter-browser-save>
+                        </li>
+                    </ul>
                 </div>
             </div>
         `;

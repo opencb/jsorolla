@@ -349,10 +349,11 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             {name: "Table View", id: "table", icon: "fa fa-table", visible: true},
             {name: "Genome Browser", id: "genome-browser", icon: "fas fa-dna", visible: !this.settings?.hideGenomeBrowser},
         ];
+
         return html`
             <div class="d-flex gap-1 align-items-stretch">
                 <!-- View buttons -->
-                <div class="d-flex align-items-center gap-1 border bg-gray-100 rounded-3 p-1">
+                <div class="d-flex align-items-center border bg-gray-100 rounded-2">
                     ${viewButtons.map(button => html`
                         <button
                             class="${`btn ${this.activeView === button.id ? "active bg-primary text-white" : ""} ${!button.visible ? "d-none" : ""}`}"
@@ -362,6 +363,18 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                         </button>
                     `)}
                 </div>
+                <!-- Variant interpreter browser toolbar -->
+                <div class="w-px bg-gray-200 mx-1"></div>
+                <variant-interpreter-browser-toolbar
+                    class="d-flex"
+                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                    .state="${this.clinicalAnalysisManager.state}"
+                    .variantInclusionState="${this.variantInclusionState || []}"
+                    .write="${OpencgaCatalogUtils.getStudyEffectivePermission(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS", this.opencgaSession.organization?.configuration?.optimizations?.simplifyPermissions)}"
+                    @filterVariants="${this.onFilterVariants}"
+                    @resetVariants="${this.onResetVariants}"
+                    @saveInterpretation="${this.onSaveVariants}">
+                </variant-interpreter-browser-toolbar>
                 <!-- Separator and buttons -->
                 <div class="w-px bg-gray-200 mx-1"></div>
                 <grid-notifications
@@ -408,6 +421,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
                 <div id="table-view" class="${this.activeView === "table" ? "d-block" : "d-none"}">
                     <!-- Interpreter browser toolbar -->
+                    <!--
                     <variant-interpreter-browser-toolbar
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .state="${this.clinicalAnalysisManager.state}"
@@ -417,6 +431,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                         @resetVariants="${this.onResetVariants}"
                         @saveInterpretation="${this.onSaveVariants}">
                     </variant-interpreter-browser-toolbar>
+                    -->
 
                     ${!this._config.filter.result.grid.isRearrangement ? html`
                         <variant-interpreter-grid
