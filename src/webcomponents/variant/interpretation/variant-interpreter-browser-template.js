@@ -247,7 +247,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     onFilterVariants(e) {
-        const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id), "study"];
+        const lockedFields = [
+            ...(this._config?.filter?.activeFilters?.lockedFields || []).map(key => key.id),
+            "study"
+        ];
         const variantIds = new Set(e.detail.variants.map(v => v.id));
         this.query = {
             ...UtilsNew.filterKeys(this.executedQuery, lockedFields),
@@ -371,9 +374,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     .state="${this.clinicalAnalysisManager.state}"
                     .variantInclusionState="${this.variantInclusionState || []}"
                     .write="${OpencgaCatalogUtils.getStudyEffectivePermission(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS", this.opencgaSession.organization?.configuration?.optimizations?.simplifyPermissions)}"
-                    @filterVariants="${this.onFilterVariants}"
-                    @resetVariants="${this.onResetVariants}"
-                    @saveInterpretation="${this.onSaveVariants}">
+                    @filterVariants="${e => this.onFilterVariants(e)}"
+                    @resetVariants="${e => this.onResetVariants(e)}"
+                    @saveInterpretation="${e => this.onSaveVariants(e)}">
                 </variant-interpreter-browser-toolbar>
                 <!-- Separator and buttons -->
                 <div class="w-px bg-gray-200 mx-1"></div>
