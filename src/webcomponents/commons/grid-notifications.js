@@ -67,7 +67,7 @@ export default class GridNotifications extends LitElement {
                             ${this.notifications?.map(notification => this.renderNotification(notification))}
                         </div>
                     ` : html`
-                        <div class="d-flex flex-column align-items-center py-5 px-4 bg-gray-100 rounded">
+                        <div class="d-flex flex-column align-items-center py-4 px-4 bg-gray-100 rounded">
                             <div class="mb-2">
                                 <i class="fas fa-bell-slash fs-2"></i>
                             </div>
