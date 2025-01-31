@@ -502,7 +502,7 @@ export default class FiltersToolbar extends LitElement {
     renderQuickFilters() {
         return this.quickFilters.map((filter) => {
             return html`
-                <div class="d-flex align-items-stretch">
+                <div class="dropdown d-flex align-items-stretch">
                     <button class="btn btn-light d-flex align-items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <span>${filter.title}</span>
                     </button>
