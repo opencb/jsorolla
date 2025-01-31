@@ -821,7 +821,7 @@ debugger
         return {
             showQuery: true,
             title: "Data Manager",
-            subtitle: "This is a subtitle",
+            // subtitle: "",
             // icon: "img/tools/icons/file_explorer.svg",
             dataList: {
                 display: {
