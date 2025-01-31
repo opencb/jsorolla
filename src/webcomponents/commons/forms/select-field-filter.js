@@ -157,6 +157,15 @@ export default class SelectFieldFilter extends LitElement {
             this.select.val(null).trigger("change");
         }
 
+        // Disable scrolling block
+        // This is to avoid the select2 dropdown from being blocked by the parent element, for example when
+        // using it inside a modal or a dropdown
+        this.select.on("select2:open", event => {
+            // disable scrolling on parent elements
+            $(event.target).parents().off("scroll.select2");
+            // disable scrolling on window
+            $(window).off("scroll.select2");
+        });
     }
 
     customAdapter() {
