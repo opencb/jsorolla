@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import {guardPage} from "../commons/html-utils.js";
 import "./family-genotype-filter.js";
 
 export default class FamilyGenotypeModal extends LitElement {
@@ -24,7 +23,7 @@ export default class FamilyGenotypeModal extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,14 +47,10 @@ export default class FamilyGenotypeModal extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.errorState = false;
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._errorState = false;
+        this._config = this.getDefaultConfig();
     }
 
     firstUpdated() {
@@ -69,44 +64,38 @@ export default class FamilyGenotypeModal extends LitElement {
         });
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+        }
+        super.update(changedProperties);
+    }
+
     showModal() {
-        // $("#" + this._prefix + "SampleGenotypeFilterModal").modal("show");
         const sampleGenotypeFilterModal = new bootstrap.Modal("#" + this._prefix + "SampleGenotypeFilterModal");
         sampleGenotypeFilterModal.show();
     }
 
-    // forward the event and handle error state
+    // handle error state
     onFilterChange(e) {
-        this._genotype = e.detail.value;
-        this.errorState = e.detail.errorState;
-        console.log("onFilterChange", this._genotype);
+        this._errorState = e.detail.errorState;
         this.requestUpdate();
-    }
-
-    confirm() {
-        // Nacho: family-genotype-filter already notifies about the change
-        // this.dispatchEvent(new CustomEvent("filterChange", {
-        //     detail: {
-        //         value: this._genotype
-        //     }
-        // }));
-    }
-
-    getDefaultConfig() {
-        return {
-            text: "Select sample genotype filter (e.g recessive, compound heterozygous, ...):"
-        };
     }
 
     render() {
         // Check Project exists
-        if (!this.clinicalAnalysis) {
-            return guardPage("No Clinical Analysis selected.");
+        if (!this.clinicalAnalysis || !this.opencgaSession) {
+            return nothing;
         }
 
         return html`
             <div>
-                ${this._config.text ? html`<div style="padding: 5px 0px">${this._config.text}</div>` : null}
+                ${this._config.text ? html`
+                    <div class="mb-2">${this._config.text}</div>
+                ` : nothing}
                 <div class="text-center">
                     <button type="button" class="btn btn-light multi-line" @click="${this.showModal}">
                         Family Genotype Filter ...
@@ -130,12 +119,18 @@ export default class FamilyGenotypeModal extends LitElement {
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" .disabled=${this.errorState} @click="${this.confirm}">OK</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" .disabled=${!!this._errorState}>Save</button>
                         </div>
                     </div>
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            text: "Select sample genotype filter (e.g recessive, compound heterozygous, ...):"
+        };
     }
 
 }
