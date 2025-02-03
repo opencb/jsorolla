@@ -58,6 +58,17 @@ export default class FamilyGenotypeModal extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
+    firstUpdated() {
+        // Note: this is a workaround to show/hide the modal-backdrop when the modal is shown/hidden
+        // this is needed when this modal is rendered inside an offcanvas
+        this.querySelector(".modal").addEventListener("show.bs.modal", () => {
+            this.querySelector(".modal-backdrop").style.display = "block";
+        });
+        this.querySelector(".modal").addEventListener("hide.bs.modal", () => {
+            this.querySelector(".modal-backdrop").style.display = "none";
+        });
+    }
+
     showModal() {
         // $("#" + this._prefix + "SampleGenotypeFilterModal").modal("show");
         const sampleGenotypeFilterModal = new bootstrap.Modal("#" + this._prefix + "SampleGenotypeFilterModal");
@@ -102,9 +113,8 @@ export default class FamilyGenotypeModal extends LitElement {
                     </button>
                 </div>
             </div>
-
-            <div class="modal fade" id="${this._prefix}SampleGenotypeFilterModal" data-backdrop="static" data-keyboard="false"
-                tabindex="-1" role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
+            <div class="modal-backdrop show" style="display:none;"></div>
+            <div class="modal fade" id="${this._prefix}SampleGenotypeFilterModal" tabindex="-1" style="overflow-y:visible;" data-bs-backdrop="false">
                 <div class="modal-dialog" style="min-width: 1280px;max-width: 1280px;">
                     <div class="modal-content">
                         <div class="modal-header my-2 mx-1">
@@ -118,7 +128,6 @@ export default class FamilyGenotypeModal extends LitElement {
                                 @filterChange="${this.onFilterChange}">
                             </family-genotype-filter>
                         </div>
-
                         <div class="modal-footer">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                             <button type="button" class="btn btn-primary" data-bs-dismiss="modal" .disabled=${this.errorState} @click="${this.confirm}">OK</button>
