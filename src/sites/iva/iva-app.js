@@ -1605,7 +1605,7 @@ class IvaApp extends LitElement {
                     content = extensionTool.render(this.opencgaSession);
                 } else {
                     // check if there is a custom page with this tool ID
-                    const pageName = this.tool.replace("#", "");
+                    const pageName = (this.tool || "").replace("#", "");
                     const page = (this.config.pages || []).find(p => p.url === pageName);
 
                     if (page) {
