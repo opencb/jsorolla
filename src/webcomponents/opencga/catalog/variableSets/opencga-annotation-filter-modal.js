@@ -61,13 +61,25 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    firstUpdated() {
+        // Note: this is a workaround to show/hide the modal-backdrop when the modal is shown/hidden
+        // this is needed when this modal is rendered inside an offcanvas
+        this.querySelector(".modal").addEventListener("show.bs.modal", () => {
+            this.querySelector(".modal-backdrop").classList.remove("d-none");
+        });
+        this.querySelector(".modal").addEventListener("hide.bs.modal", () => {
+            this.querySelector(".modal-backdrop").classList.add("d-none");
+        });
+    }
+
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
         if (changedProperties.has("selectedVariablesText")) {
             this.selectedVariablesTextObserver();
         }
+        super.update(changedProperties);
     }
 
     /**
@@ -87,7 +99,6 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         }
         this.selectedVariables = {...this.selectedVariables};
         this.requestUpdate();
-
     }
 
     /**
@@ -469,8 +480,8 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
             ${this.variableSets?.length ? html`
                 <button type="button" class="btn btn-light" @click="${this.showModal}">Annotation</button>
 
-                <div class="modal fade annotation-modal" id="${this._prefix}annotation-modal" role="dialog"
-                    tabindex="-1" aria-labelledby="annotation-modal" data-keyboard="false">
+                <div class="modal-backdrop show d-none"></div>
+                <div class="modal fade annotation-modal" id="${this._prefix}annotation-modal" tabindex="-1" data-bs-backdrop="false">
                 <div class="modal-dialog modal-xl" role="document">
                     <div class="modal-content container">
                         <div class="modal-header">
