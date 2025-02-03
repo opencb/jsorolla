@@ -105,6 +105,7 @@ export default class LayoutPrimaryBar extends LitElement {
                         </div>
                     </div>
 
+                    <!-- 
                     <div class="d-flex align-items-stretch gap-2 ms-auto">
                         <div class="input-group">
                             <div class="input-group-text" id="btnGroupAddon">
@@ -120,6 +121,7 @@ export default class LayoutPrimaryBar extends LitElement {
                                 @input="${this.onSearch}">
                         </div>
                     </div>
+                    -->
 
                     <div class="d-flex align-items-stretch gap-2 ms-auto">
                         ${this.renderStudiesDropdown()}
