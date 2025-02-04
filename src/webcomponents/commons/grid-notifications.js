@@ -60,14 +60,14 @@ export default class GridNotifications extends LitElement {
                 </button>
                 <div class="dropdown-menu dropdown-menu-end shadow ${this._config?.display?.contentClass}" style="${this._config.display?.contentStyle}">
                     ${this._config.title ? html`
-                        <div class="fw-bold fs-5 mb-1">${this._config.title}</div>
+                        <div class="fw-bold my-1">${this._config.title}</div>
                     ` : nothing}
                     ${this.notifications?.length > 0 ? html`
                         <div class="d-flex flex-column gap-2 overflow-y-auto" style="max-height:320px;">
                             ${this.notifications?.map(notification => this.renderNotification(notification))}
                         </div>
                     ` : html`
-                        <div class="d-flex flex-column align-items-center py-5 px-4 bg-gray-100 rounded">
+                        <div class="d-flex flex-column align-items-center py-4 px-4 bg-gray-100 rounded">
                             <div class="mb-2">
                                 <i class="fas fa-bell-slash fs-2"></i>
                             </div>

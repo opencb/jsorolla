@@ -16,11 +16,9 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import {guardPage} from "../commons/html-utils.js";
 import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
-import "./job-timeline.js";
 import "./job-grid.js";
 import "./job-detail.js";
 import "./job-detail-log.js";
@@ -160,17 +158,6 @@ export default class JobBrowser extends LitElement {
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.aggregation}">
                         </aggregation-stats>
-                    `,
-                },
-                {
-                    id: "visual-browser-tab",
-                    name: "Visual browser",
-                    render: params => html `
-                        <jobs-timeline
-                            .opencgaSession="${params.opencgaSession}"
-                            .active="${params.active}"
-                            .query="${params.executedQuery}">
-                        </jobs-timeline>
                     `,
                 },
             ],

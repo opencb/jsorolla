@@ -72,6 +72,7 @@ export default class FileDataManager extends LitElement {
                 id: "folder-create",
                 tooltip: "New Folder",
                 icon: "fas fa-folder-plus",
+                title: "Create Folder",
                 modalTitle: "Create Folder",
                 modalId: `${this._prefix}FolderCreateModal`,
                 render: () => this.renderFolderCreate(),
@@ -79,34 +80,34 @@ export default class FileDataManager extends LitElement {
             },
             {
                 id: "file-create",
-                tooltip: "New File",
                 icon: "fas fa-file",
+                title: "Create File",
                 modalTitle: "Create File",
                 modalId: `${this._prefix}FileCreateModal`,
                 render: () => this.renderFileCreate(),
             },
-            // Note 20241211 Vero: Disabled for now. Endpoint not implemented.
-            {
-                id: "file-upload",
-                tooltip: "Upload File",
-                action: null,
-                icon: "fas fa-upload",
-                permission: "disabled",
-            },
             {
                 id: "file-fetch",
-                tooltip: "Fetch File",
                 icon: "fas fa-cloud-download-alt",
+                title: "Fetch File",
                 modalTitle: "Fetch File",
                 modalId: `${this._prefix}FileFetchModal`,
                 render: () => this.renderFileFetch(),
-            }
+            },
+            // CAUTION 20241211 Vero: Disabled for now. Endpoint not implemented.
+            {
+                id: "file-upload",
+                icon: "fas fa-upload",
+                title: "Upload File",
+                action: null,
+                permission: "disabled",
+            },
         ];
         const instanceActions = [
             {
                 id: "file-view",
-                title: "View",
                 icon: "fas fa-file-alt",
+                title: "View",
                 modalTitle: "View File",
                 modalId: `${this._prefix}FileViewModal`,
                 render: () => this.renderFileView(),
@@ -114,8 +115,8 @@ export default class FileDataManager extends LitElement {
             },
             {
                 id: "file-copy",
-                title: "Copy JSON",
                 icon: "fas fa-copy",
+                title: "Copy JSON",
                 render: () => this.renderFileCopy(),
             },
             /*
@@ -131,8 +132,8 @@ export default class FileDataManager extends LitElement {
             */
             {
                 id: "file-delete",
-                title: "Delete",
                 icon: "far fa-trash-alt",
+                title: "Delete...",
                 render: () => this.renderFileDelete(),
             },
 
@@ -596,30 +597,30 @@ export default class FileDataManager extends LitElement {
 
     renderEntityToolbar() {
         return html`
-            <div class="btn-toolbar d-flex" role="toolbar" aria-label="Toolbar with button groups">
-                <div class="m-2">
-                    ${
-                        this.actions["entity"].map(action => {
-                            return html`
+            <div class="d-flex gap-1 justify-content-end" data-cy="manager-toolbar-actions">
+                ${
+                    this.actions["entity"].map(action => {
+                        return html`
+                            <div class="btn-group">
                                 <button
                                     type="button"
-                                    class="btn btn-outline-dark ms-2 ${action.permission}"
+                                    class="btn btn-light ${action.permission}"
                                     data-action="${action.id}"
                                     data-type="entity"
                                     @click="${ (e, value, row) => this.onActionClick(e, value, row)}">
-                                        ${action.icon ? html`<span><i class="${action.icon} fa-lg"></i></span>` : nothing}
+                                        ${action.icon ? html`<span><i class="${action.icon} fa-lg pe-1"></i></span>` : nothing}
                                         ${action.title ? html`${action.title}` : nothing}
                                 </button>
-                            `;
-                        })
-                    }
-                </div>
+                            </div>
+                        `;
+                    })
+                }
+            </div>
                 <!--
                 <div class="m-2">
                     $this.addSearch(this.onSearch, "fa-search", "Search ...", "", "")}
                 </div>
                 -->
-            </div>
         `;
     }
 
@@ -715,7 +716,7 @@ export default class FileDataManager extends LitElement {
         if (!this.opencgaSession || !this.currentRoot) {
             return null;
         }
-debugger
+
         return html`
             ${this.renderStyles()}
             <tool-header
@@ -784,16 +785,14 @@ debugger
                         </div>
                         <!-- 1. Data list actions -->
                         ${UtilsNew.isNotEmpty(this.currentRoot) ? html`
-                            <div class="d-flex justify-content-between border-bottom border-black">
+                            <div class="d-flex align-items-center justify-content-between pb-2 border-bottom border-black" data-cy="manager-toolbar">
                                 <!-- BREADCRUMBS-->
                                 <div class="d-flex align-items-center flex-grow-1">
                                     <div class="me-2 fw-bold">CURRENT PATH:</div>
                                     ${this.renderBreadcrumb(this.currentRoot)}
                                 </div>
                                 <!-- ENTITY ACTIONS TOOLBAR -->
-                                <div>
-                                    ${this.renderEntityToolbar()}
-                                </div>
+                                ${this.renderEntityToolbar()}
                             </div>
                         ` : html `
                             <div class="d-flex align-items-center flex-grow-1">
@@ -821,7 +820,7 @@ debugger
         return {
             showQuery: true,
             title: "Data Manager",
-            subtitle: "This is a subtitle",
+            // subtitle: "",
             // icon: "img/tools/icons/file_explorer.svg",
             dataList: {
                 display: {
@@ -1017,6 +1016,7 @@ debugger
                                                         ${action.title ? `${action.title}` : ""}
                                                     </a>
                                                 </li>
+                                                ${action.divider ? `<li><hr class="dropdown-divider"></li>` : ""}
                                             `;
                                         }).join("")}
                                         </ul>

@@ -386,14 +386,14 @@ const SUITE = {
                     featured: true,
                     description: "Create, share and execute Jupyter Notebooks with Python.",
                 },
-                {
-                    id: "my-analysis",
-                    name: "My Analysis",
-                    icon: "fa-cog",
-                    visibility: "public",
-                    featured: true,
-                    description: "Explore and manage all your exceuted analysis.",
-                },
+                // {
+                //     id: "my-analysis",
+                //     name: "My Analysis",
+                //     icon: "fa-cog",
+                //     visibility: "public",
+                //     featured: true,
+                //     description: "Explore and manage all your exceuted analysis.",
+                // },
                 {
                     id: "cohort-browser",
                     name: "Cohort Manager",
@@ -479,22 +479,22 @@ const SUITE = {
                     `,
                     thumbnail: "interpretation_portal.png",
                 },
-                {
-                    id: "clinical-configuration",
-                    name: "Configuration",
-                    // icon: "img/tools/icons/interpretation_portal.svg",
-                    icon: "fa-cog",
-                    visibility: "public",
-                    featured: true,
-                    description: `
-                        <p>Explore and review Clinical Interpretations analysis</p>
-                        <ul>
-                            <li>Filter by gene, consequence, frequency and much more.</li>
-                            <li>Create clinical interpretations and reports.</li>
-                        </ul>
-                    `,
-                    thumbnail: "interpretation_portal.png",
-                },
+                // {
+                //     id: "clinical-configuration",
+                //     name: "Configuration",
+                //     // icon: "img/tools/icons/interpretation_portal.svg",
+                //     icon: "fa-cog",
+                //     visibility: "public",
+                //     featured: true,
+                //     description: `
+                //         <p>Explore and review Clinical Interpretations analysis</p>
+                //         <ul>
+                //             <li>Filter by gene, consequence, frequency and much more.</li>
+                //             <li>Create clinical interpretations and reports.</li>
+                //         </ul>
+                //     `,
+                //     thumbnail: "interpretation_portal.png",
+                // },
             ],
         },
         {

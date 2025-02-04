@@ -75,6 +75,9 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
             variants: variants
         });
+        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
+        // when user clicks the 'Filter' button in the View menu (primary findings).
+        this.querySelector(`div#${this._prefix}InclusionVariants div.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
     onFilterPrimaryFindingVariants() {
@@ -83,7 +86,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         });
         // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
         // when user clicks the 'Filter' button in the View menu (primary findings).
-        this.querySelector(`div#${this._prefix}View ul.dropdown-menu`)?.classList?.toggle?.("show");
+        this.querySelector(`div#${this._prefix}View div.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
     onFilterModifiedVariants() {
@@ -96,14 +99,14 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         });
         // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
         // when user clicks the 'Filter Variants' button in the Save menu.
-        this.querySelector(`div#${this._prefix}Save ul.dropdown-menu`)?.classList?.toggle?.("show");
+        this.querySelector(`div#${this._prefix}Save div.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
     onResetModifiedVariants() {
         LitUtils.dispatchCustomEvent(this, "resetVariants", null);
         // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
         // when user clicks the 'Discard Changes' button in the Save menu.
-        this.querySelector(`div#${this._prefix}Save ul.dropdown-menu`)?.classList?.toggle?.("show");
+        this.querySelector(`div#${this._prefix}Save div.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
     onSaveInterpretation(event) {
@@ -112,7 +115,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         });
         // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
         // when user clicks the 'Save' button in the Save menu.
-        this.querySelector(`div#${this._prefix}Save ul.dropdown-menu`)?.classList?.toggle?.("show");
+        this.querySelector(`div#${this._prefix}Save div.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
     onSaveFieldsChange(type, e) {
@@ -201,67 +204,66 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
         return html`
             <div class="d-flex gap-1">
-                <div class="dropdown d-flex">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                <div class="dropdown d-flex" id="${this._previx}InclusionVariants">
+                    <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <i class="fas fa-tasks pe-1"></i>
                         <strong>Inclusion Variants</strong>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}ResetMenu" style="width: 420px">
-                        <li class="my-1 mx-2">
-                            <div class="my-1 mx-0">
-                                <span class="fw-bold">Variants Included</span>
-                            </div>
-                            <div>
-                                ${this.variantInclusionState?.length > 0 ? html`
-                                    ${this.variantInclusionState.map(inclusion => this.renderInclusionVariant(inclusion))}
-
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li class="my-1 mx-2">
-                                        <div class="float-end">
-                                            <button
-                                                type="button"
-                                                class="btn btn-primary m-1"
-                                                @click="${this.onFilterInclusionVariants}">Filter
-                                            </button>
-                                        </div>
-                                    </li>
-                                ` : html`
-                                    <div class="m-1">Variant Inclusion list not def</div>
-                                `}
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="dropdown d-flex" id="${this._previx}View">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" title="Show saved variants">
-                        <i class="fas fa-eye pe-1" aria-hidden="true"></i>
-                        <strong>View</strong>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end" style="width:400px">
-                        <li class="my-1 mx-2">
-                            <div class="my-1 mx-0">
-                                <span class="fw-bold">Primary Findings</span>
-                            </div>
-                            <div class="overflow-y-auto m-1" style="max-height:350px;">
-                                ${primaryFindings?.length > 0 ? html`
-                                    ${primaryFindings.map(variant => this.renderVariant(variant))}
-                                ` : html`
-                                    <div class="m-1">No primary findings found</div>
-                                `}
-                            </div>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li class="my-1 mx-2">
-                            <div class="float-end">
-                                <button class="btn btn-primary ${primaryFindings.length > 0 ? "" : "disabled"}" @click="${this.onFilterPrimaryFindingVariants}">
-                                    <i class="fas fa-filter me-1"></i> Filter
+                    <div class="dropdown-menu dropdown-menu-end shadow" style="width:400px">
+                        <div class="my-1 mx-0">
+                            <span class="fw-bold">Variants Included</span>
+                        </div>
+                        ${this.variantInclusionState?.length > 0 ? html`
+                            ${this.variantInclusionState.map(inclusion => this.renderInclusionVariant(inclusion))}
+                            <hr class="dropdown-divider">
+                            <div class="d-flex justify-content-end">
+                                <button class="btn btn-primary" @click="${this.onFilterInclusionVariants}">
+                                    <i class="fas fa-filter me-1"></i>
+                                    <span>Filter Variants</span>
                                 </button>
                             </div>
-                        </li>
-                    </ul>
+                        ` : html`
+                            <div class="d-flex flex-column align-items-center py-4 px-4 bg-gray-100 rounded">
+                                <div class="mb-2">
+                                    <i class="fas fa-list fs-2"></i>
+                                </div>
+                                <div class="fw-bold lh-sm">Variant Inclusion list not defined.</div>
+                            </div>
+                        `}
+                    </div>
+                </div>
+                <div class="dropdown d-flex" id="${this._previx}View">
+                    <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                        <i class="fas fa-eye pe-1"></i>
+                        <strong>View</strong>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end shadow" style="width:400px">
+                        <div class="my-1 mx-0">
+                            <span class="fw-bold">Primary Findings</span>
+                        </div>
+                        ${primaryFindings?.length > 0 ? html`
+                            <div class="overflow-y-auto m-1" style="max-height:350px;">
+                                ${primaryFindings.map(variant => this.renderVariant(variant))}
+                            </div>
+                            <hr class="dropdown-divider">
+                            <div class="d-flex justify-content-end">
+                                <button class="btn btn-primary" @click="${this.onFilterPrimaryFindingVariants}">
+                                    <i class="fas fa-filter me-1"></i>
+                                    <span>Filter Variants</span>
+                                </button>
+                            </div>
+                        ` : html`
+                            <div class="d-flex flex-column align-items-center py-4 px-4 bg-gray-100 rounded">
+                                <div class="mb-2">
+                                    <i class="fas fa-list fs-2"></i>
+                                </div>
+                                <div class="fw-bold lh-sm">No primary findings saved.</div>
+                            </div>
+                        `}
+                    </div>
                 </div>
                 <div class="dropdown d-flex" id="${this._prefix}Save">
-                    <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"} ${!this.write ? "disabled" : ""} dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" title="Save variants">
+                    <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-light"} ${!this.write ? "disabled" : ""} dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <i class="fas fa-save pe-1"></i>
                         <strong>Save</strong>
                         ${hasVariantsToSave ? html`
@@ -270,18 +272,16 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             </span>
                         ` : nothing}
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end" style="width:500px;">
-                        <li>
-                            <variant-interpreter-browser-save
-                                .opencgaSession="${this.opencgaSession}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .state="${this.state}"
-                                @saveVariants="${e => this.onSaveInterpretation(e)}"
-                                @discardVariants="${() => this.onResetModifiedVariants()}"
-                                @filterVariants="${() => this.onFilterModifiedVariants()}">
-                            </variant-interpreter-browser-save>
-                        </li>
-                    </ul>
+                    <div class="dropdown-menu dropdown-menu-end shadow" style="width:500px;">
+                        <variant-interpreter-browser-save
+                            .opencgaSession="${this.opencgaSession}"
+                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                            .state="${this.state}"
+                            @saveVariants="${e => this.onSaveInterpretation(e)}"
+                            @discardVariants="${() => this.onResetModifiedVariants()}"
+                            @filterVariants="${() => this.onFilterModifiedVariants()}">
+                        </variant-interpreter-browser-save>
+                        </div>
                 </div>
             </div>
         `;

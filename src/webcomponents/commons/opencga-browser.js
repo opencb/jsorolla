@@ -223,7 +223,7 @@ export default class OpencgaBrowser extends LitElement {
         return html`
             <div class="d-flex gap-1 align-items-stretch">
                 <!-- View buttons -->
-                <div class="d-flex align-items-center gap-1 border bg-gray-100 rounded-3 p-1">
+                <div class="d-flex align-items-center border bg-gray-100 rounded-2">
                     ${(this._config.views || []).map(view => html`
                         <button
                             class="${`btn ${this.activeView === view.id ? "active bg-primary text-white" : ""}`}"

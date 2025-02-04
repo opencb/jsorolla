@@ -442,17 +442,17 @@ export default class FamilyGenotypeFilter extends LitElement {
                 </div>
 
                 ${this.noGtSamples.length ? html`
-                    <div class="col-md-12" style="padding: 10px 20px">
+                    <div class="col-md-12">
                         <div class="alert alert-info" role="alert">
-                            <i class="fas fa-info-circle align-middle icon-padding"></i>
+                            <i class="fas fa-info-circle pe-2"></i>
                             All genotypes for sample${this.noGtSamples.length > 1 ? "s" : ""} ${this.noGtSamples.join(", ")} will be included.
                         </div>
                     </div>
                 ` : null}
                 ${this.showModeOfInheritance && this.errorState ? html`
-                    <div class="col-md-12" style="padding: 10px 20px">
+                    <div class="col-md-12">
                         <div class="alert alert-danger" role="alert">
-                            <i class="fas fa-exclamation-triangle align-middle icon-padding"></i>
+                            <i class="fas fa-exclamation-triangle pe-2"></i>
                             ${this.errorState}
                         </div>
                     </div>

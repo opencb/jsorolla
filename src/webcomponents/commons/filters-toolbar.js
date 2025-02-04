@@ -502,7 +502,7 @@ export default class FiltersToolbar extends LitElement {
     renderQuickFilters() {
         return this.quickFilters.map((filter) => {
             return html`
-                <div class="d-flex align-items-stretch">
+                <div class="dropdown d-flex align-items-stretch">
                     <button class="btn btn-light d-flex align-items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <span>${filter.title}</span>
                     </button>
@@ -737,7 +737,7 @@ export default class FiltersToolbar extends LitElement {
                     </div>
                 </div>
                 <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}AdvancedFilters" style="width:500px;">
-                    <div class="offcanvas-header px-4">
+                    <div class="offcanvas-header p-4">
                         <h4 class="offcanvas-title fw-bold">Advanced Filters</h4>
                         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                     </div>
@@ -745,6 +745,15 @@ export default class FiltersToolbar extends LitElement {
                         <div class="accordion" id="${this._prefix}AdvancedFilters">
                             ${this.renderAdvancedFilters()}
                         </div>
+                    </div>
+                    <div class="offcanvas-footer p-4 d-grid">
+                        <button
+                            class="btn btn-primary d-flex align-items-center justify-content-center gap-2 ${!this.searchActive ? "disabled" : ""}"
+                            data-bs-dismiss="offcanvas"
+                            @click="${this.onSearch}">
+                            <i class="fas fa-search"></i>
+                            <span class="fw-bold">Search</span>
+                        </button>
                     </div>
                 </div>
                 <!-- Active filters -->
