@@ -382,29 +382,24 @@ export default class WorkflowManager extends LitElement {
 
     renderEntityToolbar() {
         return html`
-            <div class="btn-toolbar d-flex" role="toolbar" aria-label="Toolbar with button groups">
-                <div class="m-2">
-                    ${
-                        this.actions["entity"].map(action => {
-                            return html`
+            <div class="d-flex gap-1 justify-content-end" data-cy="manager-toolbar-actions">
+                ${
+                    this.actions["entity"].map(action => {
+                        return html`
+                            <div class="btn-group">
                                 <button
                                     type="button"
-                                    class="btn btn-outline-dark ms-2 ${action.permission}"
+                                    class="btn btn-light ${action.permission}"
                                     data-action="${action.id}"
                                     data-type="entity"
                                     @click="${ (e, value, row) => this.onActionClick(e, value, row)}">
-                                        ${action.icon ? html`<span><i class="${action.icon} fa-lg me-2"></i></span>` : nothing}
+                                        ${action.icon ? html`<span><i class="${action.icon} fa-lg pe-1"></i></span>` : nothing}
                                         ${action.title ? html`${action.title}` : nothing}
                                 </button>
-                            `;
-                        })
-                    }
-                </div>
-                <!--
-                <div class="m-2">
-                    $this.addSearch(this.onSearch, "fa-search", "Search ...", "", "")}
-                </div>
-                -->
+                            </div>
+                        `;
+                    })
+                }
             </div>
         `;
     }
@@ -415,7 +410,10 @@ export default class WorkflowManager extends LitElement {
             <div class="interpreter-content-tab">
                 <div class="row">
                     <!-- ENTITY ACTIONS TOOLBAR -->
-                    <div>
+                    <div class="d-flex align-items-center justify-content-between pb-2 border-bottom border-black" data-cy="manager-toolbar">
+                        <div class="d-flex align-items-center" data-cy="manager-toolbar-leftcontent">
+                            ${this._leftContent || nothing}
+                        </div>
                         ${this.renderEntityToolbar()}
                     </div>
                     ${this.workflows?.length === 0 ? html`
