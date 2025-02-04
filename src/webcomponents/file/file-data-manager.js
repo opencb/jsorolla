@@ -1017,6 +1017,7 @@ debugger
                                                         ${action.title ? `${action.title}` : ""}
                                                     </a>
                                                 </li>
+                                                ${action.divider ? `<li><hr class="dropdown-divider"></li>` : ""}
                                             `;
                                         }).join("")}
                                         </ul>
