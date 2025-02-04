@@ -293,38 +293,12 @@ export default class FileBrowser extends LitElement {
                         // collapsed: false,
                         fields: [
                             {
-                                id: "studyId",
-                                name: "Study id",
-                                type: "string",
-                                description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
-                            },
-                            {
-                                id: "creationYear",
-                                name: "Creation Year",
-                                type: "string",
-                                description: "Creation year"
-                            },
-                            {
-                                id: "creationMonth",
-                                name: "Creation Month",
-                                type: "category",
-                                multiple: true,
-                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
-                                description: "Creation month (JANUARY, FEBRUARY...)"
-                            },
-                            {
-                                id: "creationDay",
-                                name: "Creation Day",
-                                type: "category",
-                                allowedValues: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"],
-                                description: "Creation day"
-                            },
-                            {
-                                id: "creationDayOfWeek",
-                                name: "Creation Day Of Week",
-                                type: "category",
-                                allowedValues: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
-                                description: "Creation day of week (MONDAY, TUESDAY...)"
+                                id: "creationDate",
+                                name: "Creation Date",
+                                type: "date",
+                                allowedValues: ["YEAR", "MONTH", "DAY"],
+                                multiple: false,
+                                description: "Creation date, you can use 'day', 'month' or 'year' to group by"
                             },
                             {
                                 id: "status",
@@ -332,12 +306,6 @@ export default class FileBrowser extends LitElement {
                                 type: "category",
                                 allowedValues: ["READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED"],
                                 description: "Status"
-                            },
-                            {
-                                id: "release",
-                                name: "Release",
-                                type: "string",
-                                description: "Release"
                             },
                             {
                                 id: "name",
@@ -359,14 +327,6 @@ export default class FileBrowser extends LitElement {
                                 allowedValues: ["VCF", "BCF", "GVCF", "TBI", "BIGWIG", "SAM", "BAM", "BAI", "CRAM", "CRAI", "FASTQ", "FASTA", "PED", "TAB_SEPARATED_VALUES",
                                     "COMMA_SEPARATED_VALUES", "XML", "PROTOCOL_BUFFER", "JSON", "AVRO", "PARQUET", "IMAGE", "PLAIN", "BINARY", "EXECUTABLE", "GZIP", "NONE", "UNKNOWN"],
                                 description: "Format"
-                            },
-                            {
-                                id: "external",
-                                name: "External",
-                                type: "category",
-                                allowedValues: ["true", "false"],
-                                defaultValue: "false",
-                                description: "External"
                             },
                             {
                                 id: "size",
@@ -460,12 +420,12 @@ export default class FileBrowser extends LitElement {
                                 type: "string",
                                 description: "Number of related files"
                             },
-                            {
-                                id: "annotations",
-                                name: "Annotations",
-                                type: "string",
-                                description: "Annotations, e.g: key1=value(,key2=value)"
-                            }
+                            // {
+                            //     id: "annotations",
+                            //     name: "Annotations",
+                            //     type: "string",
+                            //     description: "Annotations, e.g: key1=value(,key2=value)"
+                            // }
                         ]
                     },
                     {

@@ -26,6 +26,7 @@ import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../variant-browser-filter.js";
 import "../../commons/tool-header.js";
+import "../../commons/interpreter-ai.js";
 import "../../commons/grid-notifications.js";
 import "../../commons/opencga-active-filters.js";
 import "../../visualization/genome-browser.js";
@@ -381,6 +382,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     class="d-flex align-items-stretch"
                     .notifications="${this.notifications || []}">
                 </grid-notifications>
+                <interpreter-ai
+                    class="d-flex align-items-stretch"
+                    .notifications="${this.notifications || []}">
+                </interpreter-ai>
             </div>
         `;
     }

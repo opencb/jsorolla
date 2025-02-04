@@ -141,8 +141,8 @@ export default class LayoutPrimaryBar extends LitElement {
                             </a>
                         </div>
                         <div class="d-flex">
-                            <a href="#research/jupyter-notebook" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
-                                <i class="fas fa-file-code lh-1"></i>
+                            <a href="#research/jupyter-notebook" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white" title="Jupyter Notebook">
+                                <img src="https://raw.githubusercontent.com/jupyter/design/refs/heads/main/logos/Logo%20Mark/logomark-whitebody-whitemoons/logomark-whitebody-whitemoons.svg" height="16px">
                             </a>
                         </div>
                         <div class="d-flex">

@@ -295,7 +295,7 @@ export default class SampleBrowser extends LitElement {
                 }
             },
             aggregation: {
-                default: ["somatic", "status"],
+                default: ["somatic", "creationYear[MONTH]"],
                 display: {
                     showNested: false
                 },
@@ -305,43 +305,12 @@ export default class SampleBrowser extends LitElement {
                         // collapsed: false,
                         fields: [
                             {
-                                id: "studyId",
-                                name: "Study id",
-                                type: "string",
-                                description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
-                            },
-                            {
-                                id: "creationYear",
-                                name: "Creation Year",
-                                type: "string",
-                                description: "Creation year"
-                            },
-                            {
-                                id: "creationMonth",
-                                name: "Creation Month",
-                                type: "category",
-                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
-                                description: "Creation month (JANUARY, FEBRUARY...)"
-                            },
-                            {
-                                id: "creationDay",
-                                name: "Creation Day",
-                                type: "category",
-                                allowedValues: [
-                                    "1", "2", "3", "4", "5",
-                                    "6", "7", "8", "9", "10",
-                                    "11", "12", "13", "14", "15",
-                                    "16", "17", "18", "19", "20",
-                                    "21", "22", "23", "24", "25",
-                                    "26", "27", "28", "29", "30", "31"],
-                                description: "Creation day"
-                            },
-                            {
-                                id: "creationDayOfWeek",
-                                name: "Creation Day Of Week",
-                                type: "category",
-                                allowedValues: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
-                                description: "Creation day of week (MONDAY, TUESDAY...)"
+                                id: "creationDate",
+                                name: "Creation Date",
+                                type: "date",
+                                allowedValues: ["YEAR", "MONTH", "DAY"],
+                                multiple: false,
+                                description: "Creation date, you can use 'day', 'month' or 'year' to group by"
                             },
                             {
                                 id: "status",
@@ -351,15 +320,10 @@ export default class SampleBrowser extends LitElement {
                                 description: "Status"
                             },
                             {
-                                id: "release",
-                                name: "Release",
-                                type: "string",
-                                description: "Release"
-                            },
-                            {
                                 id: "version",
                                 name: "Version",
                                 type: "string",
+                                sort: "key",
                                 description: "Version"
                             },
                             {
@@ -417,12 +381,12 @@ export default class SampleBrowser extends LitElement {
                                 type: "string",
                                 description: "Phenotypes"
                             },
-                            {
-                                id: "annotations",
-                                name: "Annotations",
-                                type: "string",
-                                description: "Annotations, e.g: key1=value(,key2=value)"
-                            }
+                            // {
+                            //     id: "annotations",
+                            //     name: "Annotations",
+                            //     type: "string",
+                            //     description: "Annotations, e.g: key1=value(,key2=value)"
+                            // }
                         ]
                     },
                     {

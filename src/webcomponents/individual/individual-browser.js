@@ -332,7 +332,7 @@ export default class IndividualBrowser extends LitElement {
                 }
             },
             aggregation: {
-                default: ["disorders", "ethnicity", "population", "sex"],
+                default: ["disorders", "creationYear[MONTH]"],
                 display: {
                     showNested: false
                 },
@@ -341,37 +341,12 @@ export default class IndividualBrowser extends LitElement {
                         name: "Individual Attributes",
                         fields: [
                             {
-                                id: "studyId",
-                                name: "Study id",
-                                type: "string",
-                                description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
-                            },
-                            {
-                                id: "creationYear",
-                                name: "Creation Year",
-                                type: "string",
-                                description: "Creation year"
-                            },
-                            {
-                                id: "creationMonth",
-                                name: "Creation Month",
-                                type: "category",
-                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
-                                description: "Creation month (JANUARY, FEBRUARY...)"
-                            },
-                            {
-                                id: "creationDay",
-                                name: "Creation Day",
-                                type: "category",
-                                allowedValues: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"],
-                                description: "Creation day"
-                            },
-                            {
-                                id: "creationDayOfWeek",
-                                name: "Creation Day Of Week",
-                                type: "category",
-                                allowedValues: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
-                                description: "Creation day of week (MONDAY, TUESDAY...)"
+                                id: "creationDate",
+                                name: "Creation Date",
+                                type: "date",
+                                allowedValues: ["YEAR", "MONTH", "DAY"],
+                                multiple: false,
+                                description: "Creation date, you can use 'day', 'month' or 'year' to group by"
                             },
                             {
                                 id: "status",
@@ -379,12 +354,6 @@ export default class IndividualBrowser extends LitElement {
                                 type: "category",
                                 allowedValues: ["READY", "DELETED"],
                                 description: "Status"
-                            },
-                            {
-                                id: "release",
-                                name: "Release",
-                                type: "string",
-                                description: "Release"
                             },
                             {
                                 id: "version",
@@ -406,43 +375,31 @@ export default class IndividualBrowser extends LitElement {
                                 allowedValues: ["true", "false"],
                                 description: "Has mother"
                             },
+                            // {
+                            //     id: "locationCity",
+                            //     name: "Location City",
+                            //     type: "string",
+                            //     description: "Location city"
+                            // },
+                            // {
+                            //     id: "locationState",
+                            //     name: "Location State",
+                            //     type: "string",
+                            //     description: "Location state"
+                            // },
+                            // {
+                            //     id: "locationCountry",
+                            //     name: "Location Country",
+                            //     type: "string",
+                            //     description: "Location country"
+                            // },
                             {
-                                id: "locationCity",
-                                name: "Location City",
-                                type: "string",
-                                description: "Location city"
-                            },
-                            {
-                                id: "locationState",
-                                name: "Location State",
-                                type: "string",
-                                description: "Location state"
-                            },
-                            {
-                                id: "locationCountry",
-                                name: "Location Country",
-                                type: "string",
-                                description: "Location country"
-                            },
-                            {
-                                id: "yearOfBirth",
-                                name: "Year Of Birth",
-                                type: "string",
-                                description: "Year of birth"
-                            },
-                            {
-                                id: "monthOfBirth",
-                                name: "Month Of Birth",
-                                type: "category",
-                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
-                                description: "Month of birth (JANUARY, FEBRUARY...)"
-                            },
-                            {
-                                id: "dayOfBirth",
-                                name: "Day Of Birth",
-                                type: "category",
-                                allowedValues: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"],
-                                description: "Day of birth"
+                                id: "dateOfBirth",
+                                name: "Date Of Birth",
+                                type: "date",
+                                allowedValues: ["YEAR", "MONTH", "DAY"],
+                                multiple: false,
+                                description: "Date of birth, you can use 'day', 'month' or 'year' to group by"
                             },
                             {
                                 id: "sex",
@@ -469,30 +426,23 @@ export default class IndividualBrowser extends LitElement {
                                 description: "Population"
                             },
                             {
-                                id: "lifeStatus",
-                                name: "Life Status",
-                                type: "category",
-                                allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
-                                description: "Life status"
-                            },
-                            {
                                 id: "phenotypes",
                                 name: "Phenotypes",
                                 type: "string",
                                 description: "Phenotypes"
                             },
                             {
-                                id: "disorders",
+                                id: "disorders.id",
                                 name: "Disorders",
                                 type: "string",
                                 description: "Disorders"
                             },
-                            {
-                                id: "numSamples",
-                                name: "Number Of Samples",
-                                type: "number",
-                                description: "Number Of Samples"
-                            },
+                            // {
+                            //     id: "numSamples",
+                            //     name: "Number Of Samples",
+                            //     type: "number",
+                            //     description: "Number Of Samples"
+                            // },
                             {
                                 id: "parentalConsanguinity",
                                 name: "Parental Consanguinity",
@@ -500,12 +450,12 @@ export default class IndividualBrowser extends LitElement {
                                 allowedValues: ["true", "false"],
                                 description: "Parental consanguinity"
                             },
-                            {
-                                id: "annotations",
-                                name: "Annotations",
-                                type: "string",
-                                description: "Annotations, e.g: key1=value(,key2=value)"
-                            }
+                            // {
+                            //     id: "annotations",
+                            //     name: "Annotations",
+                            //     type: "string",
+                            //     description: "Annotations, e.g: key1=value(,key2=value)"
+                            // }
                         ]
                     },
                     {

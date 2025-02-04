@@ -66,13 +66,20 @@ export default class FacetFilter extends LitElement {
     selectedFacetObserver() {
         // Helper for formatting the list of facets to show in opencga-active-filters
         const _valueFormatter = (k, v) => {
+            debugger
             let str = "";
             if (v.fn && v.fn in this.fns) {
                 str = v.fn + "(" + k + ")";
             } else {
-                // range type
-                // str = k + (v.value ? "[" + v.value + "]" : "");
-                str = k + (v.value ?? "");
+                if (v.type === "date") {
+                    // range type
+                    debugger
+                    str = k + (v.value ? v.value.toUpperCase() : "YEAR");
+                } else {
+                    // range type
+                    // str = k + (v.value ? "[" + v.value + "]" : "");
+                    str = k + (v.value ?? "");
+                }
             }
             if (v.nested) {
                 str += ">>" + ((v.nested.fn && v.nested.fn in this.fns) ? v.nested.fn + "(" + v.nested.facet + ")" : v.nested.facet + (v.nested.value ?? ""));
@@ -365,6 +372,7 @@ export default class FacetFilter extends LitElement {
                     </div>
                     ${renderNestedFieldWrapper(facet)}
                 `;
+            case "date":
             case "category":
                 const [, value] = facet.value ? [...facet.value.matchAll(/\[([^\s]+)]/gim)][0] : "";
                 return html`

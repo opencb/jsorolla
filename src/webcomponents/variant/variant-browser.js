@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import {guardPage} from "../commons/html-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
@@ -24,7 +24,6 @@ import "./variant-browser-grid.js";
 import "./variant-browser-detail.js";
 import "../commons/aggregation-stats.js";
 import "../commons/opencb-facet-results.js";
-// import "../commons/facet-filter.js";
 import "../commons/tool-header.js";
 import "../commons/grid-notifications.js";
 import "./annotation/cellbase-variant-annotation-summary.js";
@@ -371,7 +370,7 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "variant",
                                 title: "Variant ID",
-                                description: "Introduce a comma separated list of variant IDs. Example: 11:66923381:-:A",
+                                description: "Introduce a comma separated list of variant IDs. Accepted format is chrom:position:ref:alt, eg: 11:66923381:-:A",
                                 tooltip: tooltips.variant,
                                 quick: true,
                             },
@@ -399,7 +398,8 @@ export default class VariantBrowser extends LitElement {
                                 tooltip: tooltips.type,
                                 params: {
                                     types: VARIANT_TYPES,
-                                }
+                                },
+                                quick: true,
                             }
                         ]
                     },
@@ -446,7 +446,8 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "clinical-annotation",
                                 title: "Clinical Annotation",
-                                tooltip: tooltips.clinical
+                                tooltip: tooltips.clinical,
+                                quick: true,
                             },
                             {
                                 id: "role-in-cancer",

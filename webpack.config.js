@@ -158,7 +158,8 @@ module.exports = {
                     "node_modules/jwt-decode/build/jwt-decode.min.js",
                     "node_modules/clipboard/dist/clipboard.min.js",
                     "node_modules/swagger-ui/dist/swagger-ui-bundle.js",
-                    "node_modules/swagger-ui/dist/swagger-ui-standalone-preset.js"
+                    "node_modules/swagger-ui/dist/swagger-ui-standalone-preset.js",
+                    // "node_modules/ollama/dist/browser.mjs",
                     // "node_modules/pdfmake/build/pdfmake.min.js",
                     // "node_modules/pdfmake/build/vfs_fonts.js",
                     // "node_modules/html-to-pdfmake/browser.js",
