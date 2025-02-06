@@ -100,14 +100,18 @@ export default class FileTree extends LitElement {
         }
 
         return html`
-            <div class="d-flex flex-column">
+            <div class="d-flex flex-column overflow-y-auto" style="${this._config.display.containerStyle}">
                 ${this.renderTree(this._tree.children, 0)}
             </div>
         `;
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            display: {
+                containerStyle: "max-height:700px",
+            },
+        };
     }
 
 }
