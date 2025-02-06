@@ -1,19 +1,11 @@
 # Overview
 JSorolla is a JavaScript library for biological and genomic data visualization.
 
-### Documentation
-You can find JSorolla documentation and tutorials at: http://docs.opencb.org/display/jsorolla/JSorolla+Home.
-
 ### Issue Tracking
-You can report bugs or request new features at [GitHub issue tracking](https://github.com/opencb/jsorolla/issues).
+Found a bug or have an idea for a new feature? Let us know at https://zettagenomics.com/academic/
 
 ### Release Notes and Roadmap
-Releases notes are available at [GitHub releases](https://github.com/opencb/jsorolla/releases).
-
-Roadmap is available at [GitHub milestones](https://github.com/opencb/jsorolla/milestones). You can report bugs or request new features at [GitHub issue tracking](https://github.com/opencb/jsorolla/issues).
-
-### Versioning
-JSorolla is versioned following the rules from [Semantic versioning](http://semver.org/).
+Releases notes are available at [[GitHub releases](https://github.com/opencb/jsorolla/releases).](https://zettagenomics.com/release-notes/)
 
 ### Maintainers
 The main developers and maintainers are:
