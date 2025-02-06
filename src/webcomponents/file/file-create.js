@@ -248,9 +248,7 @@ export default class FileCreate extends LitElement {
                             type: "custom",
                             display: {
                                 render: (samples, dataFormFilterChange) => {
-                                    debugger
                                     const handleSampleFilterChange = e => {
-                                        debugger
                                         dataFormFilterChange(e.detail.value?.split(",") || []);
                                     };
                                     return html `

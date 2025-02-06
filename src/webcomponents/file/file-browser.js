@@ -24,6 +24,7 @@ import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
 import "./file-grid.js";
 import "./file-detail.js";
+import "./file-tree.js";
 
 export default class FileBrowser extends LitElement {
 
@@ -124,17 +125,26 @@ export default class FileBrowser extends LitElement {
                     icon: "fa fa-table",
                     active: true,
                     render: params => html`
-                        <file-grid
-                            .toolId="${this.COMPONENT_ID}"
-                            .opencgaSession="${params.opencgaSession}"
-                            .query="${params.executedQuery}"
-                            .config="${params.config.filter.result.grid}"
-                            .eventNotifyName="${params.eventNotifyName}"
-                            @queryComplete="${e => params.onQueryComplete(e)}"
-                            @selectrow="${e => params.onClickRow(e)}"
-                            @fileUpdate="${e => params.onComponentUpdate(e)}"
-                            @settingsUpdate="${() => this.onSettingsUpdate()}">
-                        </file-grid>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <file-tree
+                                    .opencgaSession="${params.opencgaSession}">
+                                </file-tree>
+                            </div>
+                            <div class="col-md-10">
+                                <file-grid
+                                    .toolId="${this.COMPONENT_ID}"
+                                    .opencgaSession="${params.opencgaSession}"
+                                    .query="${params.executedQuery}"
+                                    .config="${params.config.filter.result.grid}"
+                                    .eventNotifyName="${params.eventNotifyName}"
+                                    @queryComplete="${e => params.onQueryComplete(e)}"
+                                    @selectrow="${e => params.onClickRow(e)}"
+                                    @fileUpdate="${e => params.onComponentUpdate(e)}"
+                                    @settingsUpdate="${() => this.onSettingsUpdate()}">
+                                </file-grid>
+                            </div>
+                        </div>
                         ${params?.detail ? html`
                             <file-detail
                                 .opencgaSession="${params.opencgaSession}"
