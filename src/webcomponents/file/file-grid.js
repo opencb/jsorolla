@@ -167,7 +167,7 @@ export default class OpencgaFileGrid extends LitElement {
                     let filesResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
-                        type: "FILE",
+                        // type: "FILE",
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
@@ -175,9 +175,9 @@ export default class OpencgaFileGrid extends LitElement {
                         ...this.query
                     };
                     // When searching by directory we must also show directories
-                    if (this.filters.directory) {
-                        this.filters.type = "FILE,DIRECTORY";
-                    }
+                    // if (this.filters.directory) {
+                    //     this.filters.type = "FILE,DIRECTORY";
+                    // }
 
                     // Store the current filters
                     this.lastFilters = {...this.filters};
@@ -534,8 +534,17 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     renderToolbarLeftContent() {
+        const pathFragments = (this.query?.directory || (this.query?.path || "").slice(2)).split("/").filter(Boolean);
         return html`
-            <span id="${this.gridId + "PaginationInfo"}"></span>
+            <div class="breadcrumb mb-0">
+                <span class="breadcrumb-item">
+                    <i class="fas fa-hdd pe-1"></i>
+                    <span>DATA</span>
+                </span>
+                ${pathFragments.map((fragment, index) => html`
+                    <span class="breadcrumb-item ${index === pathFragments.length - 1 ? "active" : ""}">${fragment}</span>
+                `)}
+            </div>
         `;
     }
 
