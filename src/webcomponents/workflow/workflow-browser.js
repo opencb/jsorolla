@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "./workflow-view.js";
 import "./workflow-grid.js";
@@ -31,6 +31,7 @@ export default class WorkflowBrowser extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -40,10 +41,10 @@ export default class WorkflowBrowser extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            query: {
                 type: Object
             },
-            query: {
+            opencgaSession: {
                 type: Object
             },
             settings: {
@@ -129,33 +130,15 @@ export default class WorkflowBrowser extends LitElement {
                         <workflow-grid
                             .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
-                            .query="${params.executedQuery}"
-                            .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "workflow")}"
                             @workflowUpdate="${e => params.onComponentUpdate(e, "workflow")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </workflow-grid>
-                        <workflow-detail
-                            .workflowId="${params.detail?.id}"
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}">
-                        </workflow-detail>`
+                    `,
                 },
-                // {
-                //     id: "facet-tab",
-                //     name: "Aggregation stats",
-                //     icon: "fas fa-chart-bar",
-                //     render: params => html`
-                //         <opencb-facet-results
-                //             resource="${params.resource}"
-                //             .opencgaSession="${params.opencgaSession}"
-                //             .active="${params.active}"
-                //             .query="${params.facetQuery}"
-                //             .data="${params.facetResults}">
-                //         </opencb-facet-results>`
-                // }
             ],
             filter: {
                 searchButton: false,
@@ -208,11 +191,12 @@ export default class WorkflowBrowser extends LitElement {
                     grid: {
                         pageSize: 10,
                         pageList: [5, 10, 25],
-                        detailView: true,
+                        detailView: false,
                         multiSelection: false,
                         showSelectCheckbox: false
                     }
                 },
+                /*
                 detail: {
                     title: "Workflow",
                     showTitle: true,
@@ -263,6 +247,7 @@ export default class WorkflowBrowser extends LitElement {
                         }
                     ]
                 }
+                 */
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "status", "ethnicity", "population", "lifeStatus", "phenotypes", "sex", "numSamples[0..10]:1"],
