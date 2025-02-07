@@ -263,8 +263,8 @@ export default class WorkflowGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                classes: "table table-hover table-borderless",
-                theadClasses: "",
+                // classes: "table table-hover table-borderless",
+                classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
                 // rowStyle: "",
@@ -334,7 +334,6 @@ export default class WorkflowGrid extends LitElement {
             theadClasses: "table-light",
             buttonsClass: "light",
             columns: this._getDefaultColumns(),
-            classes: "table table-hover table-borderless",
             // data: this.workflows,
             sidePagination: "server",
             // Josemi Note 2024-01-18: we have added the ajax function for local workflows also to support executing async calls
@@ -798,11 +797,7 @@ export default class WorkflowGrid extends LitElement {
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="w-grid">
-                <table
-                    id="${this.gridId}"
-                    style="border-collapse: separate;
-                    border-spacing: 0 0.5rem;">
-                </table>
+                <table id="${this.gridId}"></table>
             </div>
             <!-- 3. On entity action click, render the respective modal -->
             ${UtilsNew.isNotEmpty(this.currentAction) ? this.currentAction["render"]() : nothing}
