@@ -134,7 +134,7 @@ export default class FileTree extends LitElement {
 
         return html`
             <div class="d-flex flex-column gap-1 overflow-y-auto" style="${this._config.display.containerStyle}">
-                ${this.renderDirectoryItem({name: "DATA"}, "fa-hdd", 0)}
+                ${this.renderDirectoryItem({name: this._config.rootDirectoryName}, "fa-hdd", 0)}
                 ${this.renderTree(":", 0)}
             </div>
         `;
@@ -145,6 +145,7 @@ export default class FileTree extends LitElement {
             display: {
                 containerStyle: "max-height:700px",
             },
+            rootDirectoryName: "DATA",
         };
     }
 
