@@ -57,6 +57,7 @@ export default class FileTree extends LitElement {
     }
 
     fetchDirectory(directoryId) {
+        this._directories.set(directoryId, []); // initialize directories map
         this.opencgaSession.opencgaClient.files()
             .tree(directoryId, {
                 study: this.opencgaSession.study.fqn,
@@ -89,26 +90,32 @@ export default class FileTree extends LitElement {
     }
 
     onClickDirectory(directory) {
-        if (directory.path) {
-            // if the directory.path exists, it means that we have clicked on a directory
-            LitUtils.dispatchCustomEvent(this, "pathChange", directory.path);
-        } else {
-            // if the directory.path does not exist, it means that we have clicked on the root directory
-            LitUtils.dispatchCustomEvent(this, "pathClear");
+        if (directory.path !== this.currentPath) {
+            if (directory.path) {
+                // if the directory.path exists, it means that we have clicked on a directory
+                LitUtils.dispatchCustomEvent(this, "pathChange", directory.path);
+            } else {
+                // if the directory.path does not exist, it means that we have clicked on the root directory
+                LitUtils.dispatchCustomEvent(this, "pathClear");
+            }
         }
     }
 
     renderDirectoryItem(directory, icon, indent = 0) {
         const active = this.currentPath === directory.path || (!directory.path && !this.currentPath);
         return html`
-            <div class="d-flex align-items-center p-2 rounded-2 ${active ? "bg-primary text-white" : "hover:bg-gray-200"}">
+            <div class="d-flex align-items-center p-2 rounded-2 user-select-none ${active ? "bg-primary text-white" : "hover:bg-gray-200"}">
                 <div class="flex-shrink-0" style="width: ${indent * 10}px"></div>
                 ${directory.id ? html`
                     <div class="flex-shrink-0 d-flex cursor-pointer px-2" @click="${() => this.onExpandCollapseDirectory(directory)}">
                         <i class="fas ${this._expandedDirectories.has(directory.id) ? "fa-angle-down" : "fa-angle-right"} fs-7"></i>
                     </div>
                 ` : nothing}
-                <div class="d-flex flex-shrink-1 align-items-center gap-2 cursor-pointer" style="min-width:0;" @click="${() => this.onClickDirectory(directory)}">
+                <div
+                    class="d-flex flex-shrink-1 align-items-center gap-2 cursor-pointer"
+                    style="min-width:0;"
+                    @click="${() => this.onClickDirectory(directory)}"
+                    @dblclick="${() => this.onExpandCollapseDirectory(directory)}">
                     <i class="fas ${icon} fs-5"></i>
                     <span class="lh-1 text-truncate" title="${directory.name}">
                         ${directory.name}
