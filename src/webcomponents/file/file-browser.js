@@ -110,6 +110,17 @@ export default class FileBrowser extends LitElement {
         });
     }
 
+    onTreePathClear(event, params) {
+        const query = {...params.executedQuery};
+        delete query.path;
+        delete query.directory;
+        params.onQuerySearch({
+            detail: {
+                query: query,
+            },
+        });
+    }
+
     render() {
         if (!this.opencgaSession) {
             return nothing;
@@ -141,7 +152,8 @@ export default class FileBrowser extends LitElement {
                                 <file-tree
                                     .opencgaSession="${params.opencgaSession}"
                                     .currentPath="${params.executedQuery?.directory || (params.executedQuery?.path || "").slice(2)}"
-                                    @pathChange="${event => this.onTreePathChange(event, params)}">
+                                    @pathChange="${event => this.onTreePathChange(event, params)}"
+                                    @pathClear="${event => this.onTreePathClear(event, params)}">
                                 </file-tree>
                             </div>
                             <div class="col-md-10">
