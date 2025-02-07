@@ -17,8 +17,8 @@ export default class FileTree extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            query: {
-                type: Object,
+            currentPath: {
+                type: String,
             },
             config: {
                 type: Object,
@@ -89,18 +89,12 @@ export default class FileTree extends LitElement {
     }
 
     onClickDirectory(directory) {
-        LitUtils.dispatchCustomEvent(this, "queryChange", null, {
-            query: {
-                ...this.query,
-                path: "~^" + directory.path,
-                // directory: directory.path,
-            },
-        });
+        LitUtils.dispatchCustomEvent(this, "pathChange", directory.path);
     }
 
     renderTree(directoryId, indent = 0) {
         return (this._directories.get(directoryId) || []).map(directory => {
-            const active = this.query?.directory === directory.path || (this.query?.path || "").slice(2) === directory.path;
+            const active = this.currentPath === directory.path;
             return html`
                 <div class="d-flex align-items-center p-2 rounded-2 ${active ? "bg-primary text-white" : "hover:bg-gray-200"}">
                     <div class="flex-shrink-0" style="width: ${indent * 10}px"></div>
@@ -125,7 +119,7 @@ export default class FileTree extends LitElement {
         }
 
         return html`
-            <div class="d-flex flex-column overflow-y-auto" style="${this._config.display.containerStyle}">
+            <div class="d-flex flex-column gap-1 overflow-y-auto" style="${this._config.display.containerStyle}">
                 ${this.renderTree(":", 0)}
             </div>
         `;
