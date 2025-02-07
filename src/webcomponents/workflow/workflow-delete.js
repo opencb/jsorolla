@@ -54,7 +54,6 @@ export default class WorkflowDelete extends LitElement {
     }
 
     update(changedProperties) {
-        debugger
         if (changedProperties.has("workflowId") || changedProperties.has("opencgaSession")) {
             this.workflowIdObserver();
         }
@@ -84,7 +83,6 @@ export default class WorkflowDelete extends LitElement {
             jobId: `${this.JOB_ID}-${UtilsNew.getDatetime()}`,
         };
 
-
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.workflows()
             .delete(this._workflow.id, params)
@@ -106,12 +104,11 @@ export default class WorkflowDelete extends LitElement {
     }
 
     render() {
-        debugger
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }
         if (this._workflow) {
-            // Caution 20241218 Vero: displaying a notification for now. Deleting is launching and endpoint, but
+            // Caution 20241218 Vero: displaying a notification for now. Deleting is launching an endpoint, but
             //  we are not seeing the job parameters in the meta endpoint. Waiting for Pedro's feedback.
             return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
                 title: `Delete Workflow: Workflow <b>${this._workflow.id}</b> in organization ${this.opencgaSession.organization.id}`,
