@@ -537,6 +537,10 @@ export default class OpencgaFileGrid extends LitElement {
         LitUtils.dispatchCustomEvent(this, "pathChange", path);
     }
 
+    onPathClear() {
+        LitUtils.dispatchCustomEvent(this, "pathClear");
+    }
+
     renderToolbarLeftContent() {
         const pathFragments = (this.query?.directory || (this.query?.path || "")
             .slice(2))
@@ -554,7 +558,7 @@ export default class OpencgaFileGrid extends LitElement {
 
         return html`
             <div class="breadcrumb mb-0">
-                <span class="breadcrumb-item">
+                <span class="breadcrumb-item ${pathFragments.length === 0 ? "active" : "cursor-pointer hover:text-decoration-underline"}" @click="${() => this.onPathClear()}">
                     <i class="fas fa-hdd pe-1"></i>
                     <span>DATA</span>
                 </span>

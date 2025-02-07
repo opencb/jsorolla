@@ -167,7 +167,8 @@ export default class FileBrowser extends LitElement {
                                     @selectrow="${e => params.onClickRow(e)}"
                                     @fileUpdate="${e => params.onComponentUpdate(e)}"
                                     @settingsUpdate="${() => this.onSettingsUpdate()}"
-                                    @pathChange="${e => this.onTreePathChange(e, params)}">
+                                    @pathChange="${e => this.onTreePathChange(e, params)}"
+                                    @pathClear="${e => this.onTreePathClear(e, params)}">
                                 </file-grid>
                             </div>
                         </div>
