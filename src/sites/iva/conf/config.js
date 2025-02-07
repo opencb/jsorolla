@@ -33,7 +33,7 @@ const hosts = [
 const opencga = {
     host: hosts[2].url,
     version: "v2",
-    organizations: ["test", "test2"],
+    // organizations: ["test", "test2"],
     cookie: {
         prefix: "iva-" + hosts[2].id,
         secure: true,
