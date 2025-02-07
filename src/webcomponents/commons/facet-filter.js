@@ -165,9 +165,10 @@ export default class FacetFilter extends LitElement {
 
         const currentSelectionNames = e.detail.value ? e.detail.value.split(",") : [];
         // compute the symmetric difference between this.selectedFacet and currentSelectionNames
+        debugger
         const differences = Object.keys(this.selectedFacet)
-            .filter(a => !currentSelectionNames.includes(a))
-            .concat(currentSelectionNames.filter(name => !Object.keys(this.selectedFacet).includes(name)));
+            ?.filter(a => !currentSelectionNames.includes(a))
+            .concat(currentSelectionNames?.filter(name => !Object.keys(this.selectedFacet).includes(name)));
 
         // the difference involves one item at a time
         if (differences.length > 1) console.error("Difference error!", this.selectedFacet, currentSelectionNames);

@@ -348,32 +348,18 @@ export default class IndividualBrowser extends LitElement {
                                 multiple: false,
                                 description: "Creation date, you can use 'day', 'month' or 'year' to group by"
                             },
-                            {
-                                id: "status",
-                                name: "Status",
-                                type: "category",
-                                allowedValues: ["READY", "DELETED"],
-                                description: "Status"
-                            },
+                            // {
+                            //     id: "status",
+                            //     name: "Status",
+                            //     type: "category",
+                            //     allowedValues: ["READY", "DELETED"],
+                            //     description: "Status"
+                            // },
                             {
                                 id: "version",
                                 name: "Version",
                                 type: "string",
                                 description: "Version"
-                            },
-                            {
-                                id: "hasFather",
-                                name: "Has Father",
-                                type: "category",
-                                allowedValues: ["true", "false"],
-                                description: "Has father"
-                            },
-                            {
-                                id: "hasMother",
-                                name: "Has Mother",
-                                type: "category",
-                                allowedValues: ["true", "false"],
-                                description: "Has mother"
                             },
                             // {
                             //     id: "locationCity",
@@ -402,31 +388,31 @@ export default class IndividualBrowser extends LitElement {
                                 description: "Date of birth, you can use 'day', 'month' or 'year' to group by"
                             },
                             {
-                                id: "sex",
+                                id: "sex.id",
                                 name: "Sex",
                                 type: "string",
                                 description: "Sex"
                             },
                             {
                                 id: "karyotypicSex",
-                                name: "Laryotypic Sex",
+                                name: "Karyotypic Sex",
                                 type: "string",
                                 description: "Karyotypic sex"
                             },
                             {
-                                id: "ethnicity",
+                                id: "ethnicity.id",
                                 name: "Ethnicity",
                                 type: "string",
                                 description: "Ethnicity"
                             },
                             {
-                                id: "population",
+                                id: "population.id",
                                 name: "Population",
                                 type: "string",
                                 description: "Population"
                             },
                             {
-                                id: "phenotypes",
+                                id: "phenotypes.id",
                                 name: "Phenotypes",
                                 type: "string",
                                 description: "Phenotypes"
@@ -437,17 +423,11 @@ export default class IndividualBrowser extends LitElement {
                                 type: "string",
                                 description: "Disorders"
                             },
-                            // {
-                            //     id: "numSamples",
-                            //     name: "Number Of Samples",
-                            //     type: "number",
-                            //     description: "Number Of Samples"
-                            // },
                             {
                                 id: "parentalConsanguinity",
                                 name: "Parental Consanguinity",
-                                type: "category",
-                                allowedValues: ["true", "false"],
+                                type: "string",
+                                // allowedValues: ["true", "false"],
                                 description: "Parental consanguinity"
                             },
                             // {
@@ -458,17 +438,17 @@ export default class IndividualBrowser extends LitElement {
                             // }
                         ]
                     },
-                    {
-                        name: "Advanced",
-                        fields: [
-                            {
-                                id: "field",
-                                name: "Field",
-                                type: "string",
-                                description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
-                            }
-                        ]
-                    }
+                    // {
+                    //     name: "Advanced",
+                    //     fields: [
+                    //         {
+                    //             id: "field",
+                    //             name: "Field",
+                    //             type: "string",
+                    //             description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
+                    //         }
+                    //     ]
+                    // }
                 ]
             },
             annotations: {}

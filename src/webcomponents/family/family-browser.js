@@ -280,13 +280,13 @@ export default class FamilyBrowser extends LitElement {
                                 multiple: false,
                                 description: "Creation date, you can use 'day', 'month' or 'year' to group by"
                             },
-                            {
-                                id: "status",
-                                name: "Status",
-                                type: "category",
-                                allowedValues: ["READY", "DELETED", "INCOMPLETE"],
-                                description: "Status"
-                            },
+                            // {
+                            //     id: "status",
+                            //     name: "Status",
+                            //     type: "category",
+                            //     allowedValues: ["READY", "DELETED", "INCOMPLETE"],
+                            //     description: "Status"
+                            // },
                             {
                                 id: "version",
                                 name: "Version",
@@ -294,23 +294,17 @@ export default class FamilyBrowser extends LitElement {
                                 description: "Version"
                             },
                             {
-                                id: "phenotypes",
+                                id: "phenotypes.id",
                                 name: "Phenotypes",
                                 type: "string",
                                 description: "Phenotypes"
                             },
                             {
-                                id: "disorders",
+                                id: "disorders.id",
                                 name: "Disorders",
                                 type: "string",
                                 description: "Disorders"
                             },
-                            // {
-                            //     id: "numMembers",
-                            //     name: "Number Of Members",
-                            //     type: "string",
-                            //     description: "Number of members"
-                            // },
                             // {
                             //     id: "annotations",
                             //     name: "Annotations",
@@ -319,17 +313,17 @@ export default class FamilyBrowser extends LitElement {
                             // }
                         ]
                     },
-                    {
-                        name: "Advanced",
-                        fields: [
-                            {
-                                id: "field",
-                                name: "Field",
-                                type: "string",
-                                description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
-                            }
-                        ]
-                    }
+                    // {
+                    //     name: "Advanced",
+                    //     fields: [
+                    //         {
+                    //             id: "field",
+                    //             name: "Field",
+                    //             type: "string",
+                    //             description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
+                    //         }
+                    //     ]
+                    // }
                 ]
             },
             annotations: {}

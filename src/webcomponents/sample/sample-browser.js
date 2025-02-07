@@ -312,75 +312,82 @@ export default class SampleBrowser extends LitElement {
                                 multiple: false,
                                 description: "Creation date, you can use 'day', 'month' or 'year' to group by"
                             },
+                            // {
+                            //     id: "status.id",
+                            //     name: "Status",
+                            //     type: "category",
+                            //     allowedValues: ["READY", "DELETED"],
+                            //     description: "Status"
+                            // },
                             {
-                                id: "status",
-                                name: "Status",
-                                type: "category",
-                                allowedValues: ["READY", "DELETED"],
-                                description: "Status"
+                                id: "internal.variant.index.status.id",
+                                name: "Variant Index Status",
+                                type: "string",
+                                // allowedValues: ["READY", "DELETED"],
+                                description: "Variant database index status"
                             },
                             {
                                 id: "version",
                                 name: "Version",
                                 type: "string",
-                                sort: "key",
+                                // sort: "key",
                                 description: "Version"
                             },
                             {
                                 id: "somatic",
                                 name: "Somatic",
-                                type: "category",
-                                allowedValues: ["true", "false"],
+                                type: "string",
+                                // allowedValues: ["true", "false"],
                                 description: "Somatic"
                             },
-                            {
-                                id: "product",
-                                name: "Product",
-                                type: "string",
-                                description: "Product"
-                            },
-                            {
-                                id: "preparationMethod",
-                                name: "Preparation Method",
-                                type: "string",
-                                description: "Preparation method"
-                            },
-                            {
-                                id: "extractionMethod",
-                                name: "Extraction Method",
-                                type: "string",
-                                description: "Extraction method"
-                            },
-                            {
-                                id: "labSampleId",
-                                name: "Lab Sample Id",
-                                type: "string",
-                                description: "Lab sample Id"
-                            },
-                            {
-                                id: "tissue",
-                                name: "Tissue",
-                                type: "string",
-                                description: "Tissue"
-                            },
-                            {
-                                id: "organ",
-                                name: "Organ",
-                                type: "string",
-                                description: "Organ"
-                            },
-                            {
-                                id: "method",
-                                name: "Method",
-                                type: "string",
-                                description: "Method"
-                            },
-                            {
-                                id: "phenotypes",
-                                name: "Phenotypes",
-                                type: "string",
-                                description: "Phenotypes"
-                            },
+                            // {
+                            //     id: "product",
+                            //     name: "Product",
+                            //     type: "string",
+                            //     description: "Product"
+                            // },
+                            // {
+                            //     id: "preparationMethod",
+                            //     name: "Preparation Method",
+                            //     type: "string",
+                            //     description: "Preparation method"
+                            // },
+                            // {
+                            //     id: "extractionMethod",
+                            //     name: "Extraction Method",
+                            //     type: "string",
+                            //     description: "Extraction method"
+                            // },
+                            // {
+                            //     id: "labSampleId",
+                            //     name: "Lab Sample Id",
+                            //     type: "string",
+                            //     description: "Lab sample Id"
+                            // },
+                            // {
+                            //     id: "tissue",
+                            //     name: "Tissue",
+                            //     type: "string",
+                            //     description: "Tissue"
+                            // },
+                            // {
+                            //     id: "organ",
+                            //     name: "Organ",
+                            //     type: "string",
+                            //     description: "Organ"
+                            // },
+                            // {
+                            //     id: "method",
+                            //     name: "Method",
+                            //     type: "string",
+                            //     description: "Method"
+                            // },
+                            // {
+                            //     id: "phenotypes",
+                            //     name: "Phenotypes",
+                            //     type: "string",
+                            //     description: "Phenotypes"
+                            // },
                             // {
                             //     id: "annotations",
                             //     name: "Annotations",
@@ -389,17 +396,17 @@ export default class SampleBrowser extends LitElement {
                             // }
                         ]
                     },
-                    {
-                        name: "Advanced",
-                        fields: [
-                            {
-                                id: "field",
-                                name: "Field",
-                                type: "string",
-                                description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
-                            }
-                        ]
-                    }
+                    // {
+                    //     name: "Advanced",
+                    //     fields: [
+                    //         {
+                    //             id: "field",
+                    //             name: "Field",
+                    //             type: "string",
+                    //             description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
+                    //         }
+                    //     ]
+                    // }
                 ]
             }
         };

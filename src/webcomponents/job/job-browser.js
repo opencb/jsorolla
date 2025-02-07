@@ -310,34 +310,34 @@ export default class JobBrowser extends LitElement {
                                 description: "Creation date, you can use 'day', 'month' or 'year' to group by"
                             },
                             {
-                                id: "internal.status",
+                                id: "internal.status.id",
                                 name: "Status",
                                 type: "category",
                                 allowedValues: ["PENDING", "QUEUED", "RUNNING", "DONE", "ERROR", "UNKNOWN", "ABORTED", "DELETED"],
                                 description: "Status",
                             },
                             {
-                                id: "toolId",
+                                id: "tool.id",
                                 name: "Tool Id",
                                 type: "string",
                                 description: "Tool id",
                             },
+                            // {
+                            //     id: "toolScope",
+                            //     name: "Tool Scope",
+                            //     type: "category",
+                            //     allowedValues: ["GLOBAL", "PROJECT", "STUDY"],
+                            //     description: "Tool scope",
+                            // },
                             {
-                                id: "toolScope",
-                                name: "Tool Scope",
-                                type: "category",
-                                allowedValues: ["GLOBAL", "PROJECT", "STUDY"],
-                                description: "Tool scope",
-                            },
-                            {
-                                id: "toolType",
+                                id: "tool.type",
                                 name: "Tool Type",
                                 type: "category",
                                 allowedValues: ["OPERATION", "ANALYSIS"],
                                 description: "Tool type",
                             },
                             {
-                                id: "toolResource",
+                                id: "tool.resource",
                                 name: "Tool Resource",
                                 type: "category",
                                 allowedValues: ["USER", "PROJECT", "STUDY", "FILE", "SAMPLE", "JOB", "INDIVIDUAL", "COHORT", "DISEASE_PANEL",
@@ -363,31 +363,31 @@ export default class JobBrowser extends LitElement {
                                 type: "string",
                                 description: "Tags",
                             },
-                            {
-                                id: "executorId",
-                                name: "Executor Id",
-                                type: "string",
-                                description: "Executor id",
-                            },
-                            {
-                                id: "executorFramework",
-                                name: "Executor Framework",
-                                type: "string",
-                                description: "Executor framework",
-                            },
+                            // {
+                            //     id: "executorId",
+                            //     name: "Executor Id",
+                            //     type: "string",
+                            //     description: "Executor id",
+                            // },
+                            // {
+                            //     id: "executorFramework",
+                            //     name: "Executor Framework",
+                            //     type: "string",
+                            //     description: "Executor framework",
+                            // },
                         ],
                     },
-                    {
-                        name: "Advanced",
-                        fields: [
-                            {
-                                id: "field",
-                                name: "Field",
-                                type: "string",
-                                description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1",
-                            },
-                        ],
-                    },
+                    // {
+                    //     name: "Advanced",
+                    //     fields: [
+                    //         {
+                    //             id: "field",
+                    //             name: "Field",
+                    //             type: "string",
+                    //             description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1",
+                    //         },
+                    //     ],
+                    // },
                 ],
             },
         };

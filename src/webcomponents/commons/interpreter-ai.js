@@ -1,6 +1,7 @@
 
 import {LitElement, html, nothing} from "lit";
-// import ollama from 'ollama';
+// import ollama from 'ollama/browser';
+import OpenAI from 'openai';
 
 
 export default class InterpreterAi extends LitElement {
@@ -29,6 +30,17 @@ export default class InterpreterAi extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    firstUpdated(_changedProperties) {
+        // this.ollama();
+
+        this.client = new OpenAI({
+            baseURL: 'http://localhost:11434/v1',
+            apiKey: "ollama", // This is the default and can be omitted
+            dangerouslyAllowBrowser: true
+        });
+        this.openai();
+    }
+
     update(changedProperties) {
         if (changedProperties.has("config")) {
             this._config = {
@@ -52,17 +64,27 @@ export default class InterpreterAi extends LitElement {
         `;
     }
 
-    async ollama() {
-        // const response = await ollama.chat({
-        //     model: 'deepseek-r1:7b',
-        //     messages: [{ role: 'user', content: 'Why is the sky blue?' }],
-        // })
-        // console.log(response.message.content)
+    // async ollama() {
+    //     this.response = await ollama.chat({
+    //         model: 'deepseek-r1:7b',
+    //         messages: [{ role: 'user', content: 'Which genes should I look at in the disease ' +  "'diabetes'"}],
+    //     })
+    //     console.log(this.response.message.content)
+    //     this.requestUpdate();
+    // }
+
+
+    async openai() {
+        const chatCompletion = await this.client.chat.completions.create({
+            messages: [{ role: 'user', content: 'Say this is a test' }],
+            model: 'deepseek-r1:7b',
+        });
+        console.log(chatCompletion)
+        console.log(chatCompletion.choices[0].message.content)
+        debugger
     }
 
     render() {
-        // this.ollama();
-
         return html`
             <div class="dropdown d-flex">
                 <button class="btn ${this._config.display?.buttonClass}" data-bs-toggle="dropdown" data-bs-auto-close="outside">
@@ -75,18 +97,9 @@ export default class InterpreterAi extends LitElement {
                     ${this._config.title ? html`
                         <div class="fw-bold fs-5 mb-1">${this._config.title}</div>
                     ` : nothing}
-                    ${this.notifications?.length > 0 ? html`
-                        <div class="d-flex flex-column gap-2 overflow-y-auto" style="max-height:320px;">
-                            ${this.notifications?.map(notification => this.renderNotification(notification))}
-                        </div>
-                    ` : html`
-                        <div class="d-flex flex-column align-items-center py-5 px-4 bg-gray-100 rounded">
-                            <div class="mb-2">
-                                <i class="fas fa-bell-slash fs-2"></i>
-                            </div>
-                            <div class="fw-bold lh-sm">You do not have any notification.</div>
-                        </div>
-                    `}
+                    <div class="d-flex flex-column gap-2 overflow-y-auto" style="max-height:320px;">
+                        ${this.response?.message?.content}
+                    </div>
                 </div>
             </div>
         `;
