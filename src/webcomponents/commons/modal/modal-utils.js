@@ -18,6 +18,8 @@ export default class ModalUtils {
     static create(self, id, config) {
         // Parse modal parameters, all of them must start with prefix 'modal'
         const modalWidth = config.display?.modalWidth || "auto";
+        const modalCustomFullscreen = config.display?.modalCustomFullscreen || "";
+        const modalStyle = config.display?.modalStyle || "";
         const modalSize = config.display?.modalSize || "";
         const modalTitle = config.display?.modalTitle || "";
         const modalTitleHeader = config.display?.modalTitleHeader || "h4";
@@ -29,7 +31,7 @@ export default class ModalUtils {
 
         return html`
             <div
-                class="modal fade"
+                class="modal fade ${modalCustomFullscreen}"
                 id="${id}"
                 data-draggable="${modalDraggable}"
                 tabindex="-1"
@@ -38,7 +40,7 @@ export default class ModalUtils {
                 aria-hidden="true"
                 data-cy="${modalCyDataName}"
             >
-                <div class="modal-dialog ${modalSize}" style="width: ${modalWidth}">
+                <div class="modal-dialog ${modalSize}" style="${modalStyle}">
                     <div class="modal-content">
                         <div class="modal-header">
                             ${ModalUtils.#getTitleHeader(modalTitleHeader, modalTitle, "modal-title " + modalTitleClassName, modalTitleStyle)}

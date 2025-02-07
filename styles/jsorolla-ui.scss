@@ -110,6 +110,24 @@ body {
     transform: rotate(90deg);
 }
 
+// override modal fullsize
+.modal.fullscreen-modal .modal-dialog {
+    position: fixed;
+    top: 40px; /* Adjust this to match your navbar height */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: none;
+    height: calc(100% - 40px); /* Adjust based on navbar height */
+    margin: 0;
+}
+.modal.fullscreen-modal .modal-content {
+    height: 100%;
+    width: 100%;
+    border-radius: 0;
+}
+
 // additional color utilities
 // Note: the $grays map is a Sass map that contains all the gray colors
 @each $shade,$color in $grays {
