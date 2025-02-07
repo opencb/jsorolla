@@ -542,8 +542,7 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     renderToolbarLeftContent() {
-        const pathFragments = (this.query?.directory || (this.query?.path || "")
-            .slice(2))
+        const pathFragments = (this.query?.directory || (this.query?.path || "").slice(2, -2))
             .split("/")
             .filter(Boolean)
             .map((fragment, index, array) => {

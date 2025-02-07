@@ -104,7 +104,7 @@ export default class FileBrowser extends LitElement {
             detail: {
                 query: {
                     ...params.executedQuery,
-                    path: "~^" + event.detail.value,
+                    path: "~^" + event.detail.value + ".+",
                 },
             },
         });
@@ -151,7 +151,7 @@ export default class FileBrowser extends LitElement {
                             <div class="col-md-2">
                                 <file-tree
                                     .opencgaSession="${params.opencgaSession}"
-                                    .currentPath="${params.executedQuery?.directory || (params.executedQuery?.path || "").slice(2)}"
+                                    .currentPath="${params.executedQuery?.directory || (params.executedQuery?.path || "").slice(2, -2)}"
                                     @pathChange="${event => this.onTreePathChange(event, params)}"
                                     @pathClear="${event => this.onTreePathClear(event, params)}">
                                 </file-tree>
