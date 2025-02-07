@@ -64,12 +64,14 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
     firstUpdated() {
         // Note: this is a workaround to show/hide the modal-backdrop when the modal is shown/hidden
         // this is needed when this modal is rendered inside an offcanvas
-        this.querySelector(".modal").addEventListener("show.bs.modal", () => {
-            this.querySelector(".modal-backdrop").classList.remove("d-none");
-        });
-        this.querySelector(".modal").addEventListener("hide.bs.modal", () => {
-            this.querySelector(".modal-backdrop").classList.add("d-none");
-        });
+        if (this.variableSets?.length) {
+            this.querySelector(".modal").addEventListener("show.bs.modal", () => {
+                this.querySelector(".modal-backdrop").classList.remove("d-none");
+            });
+            this.querySelector(".modal").addEventListener("hide.bs.modal", () => {
+                this.querySelector(".modal-backdrop").classList.add("d-none");
+            });
+        }
     }
 
     update(changedProperties) {

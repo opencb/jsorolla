@@ -156,12 +156,12 @@ export default class OpencgaBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    onQueryComplete(event) {
+    onQueryComplete() {
         this.searchActive = true;
         this.requestUpdate();
     }
 
-    onFilterSearch(e) {
+    onQuerySearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
         this.searchActive = false;
@@ -170,7 +170,7 @@ export default class OpencgaBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    onFilterClear() {
+    onQueryClear() {
         this.preparedQuery = {};
         this.executedQuery = {};
         this.searchActive = false;
@@ -179,7 +179,7 @@ export default class OpencgaBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    onFilterChange(e) {
+    onQueryChange(e) {
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
@@ -214,6 +214,7 @@ export default class OpencgaBrowser extends LitElement {
                     onClickRow: event => this.onClickRow(event),
                     onComponentUpdate: event => this.onComponentUpdate(event),
                     onQueryComplete: event => this.onQueryComplete(event),
+                    onQuerySearch: event => this.onQuerySearch(event),
                 })}
             </div>
         `);
@@ -255,11 +256,11 @@ export default class OpencgaBrowser extends LitElement {
                 .executedQuery="${this.executedQuery}"
                 .resource="${this.resource}"
                 .opencgaSession="${this.opencgaSession}"
-                .searchActive="${this.searchActive}"
+                .searchActive="${!!this.searchActive}"
                 .config="${this._config.filter}"
-                @queryClear="${this.onFilterClear}"
-                @queryChange="${this.onFilterChange}"
-                @querySearch="${this.onFilterSearch}">
+                @queryClear="${this.onQueryClear}"
+                @queryChange="${this.onQueryChange}"
+                @querySearch="${this.onQuerySearch}">
             </opencga-browser-filter>
 
             ${this.renderView()}

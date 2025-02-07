@@ -160,9 +160,10 @@ export default class UserLogin extends LitElement {
                                 <i class="fa fa-building fa-lg"></i>
                             </span>
                             <select class="form-select" id="organization">
-                                ${this.opencgaSession?.opencgaClient?._config?.organizations.map(organization => html`
-                                    <option value="${organization}">${organization}</option>
-                                `)}
+                                ${this.opencgaSession?.opencgaClient?._config?.organizations
+                                    .map(organization => html`
+                                        <option value="${organization}">${organization}</option>
+                                    `)}
                             </select>
                         </div>
                     </div>

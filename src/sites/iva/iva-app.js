@@ -1600,7 +1600,7 @@ class IvaApp extends LitElement {
                 // check if there is an extension with this tool ID
                 const extensionTool = ExtensionsManager.getTools()
                     .find(tool => tool.id === this.tool);
-                
+
                 if (extensionTool) {
                     content = extensionTool.render(this.opencgaSession);
                 } else {

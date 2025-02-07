@@ -27,6 +27,7 @@ import "./file-create.js";
 import "./file-fetch.js"
 import NotificationUtils from "../commons/utils/notification-utils";
 import LitUtils from "../commons/utils/lit-utils";
+import "../commons/forms/file-upload.js";
 
 export default class FileDataManager extends LitElement {
 
@@ -727,6 +728,10 @@ export default class FileDataManager extends LitElement {
             </tool-header>
 
             <div class="row w-full">
+
+                <file-upload .opencgaSession="${this.opencgaSession}">
+
+                </file-upload>
                 <!-- TREE -->
                 <!--
                 <div class="file-manager-tree left-menu col-md-3">

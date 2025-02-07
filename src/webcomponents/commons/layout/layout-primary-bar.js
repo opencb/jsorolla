@@ -64,26 +64,58 @@ export default class LayoutPrimaryBar extends LitElement {
                 .filter(project => {
                     return project?.studies?.length > 0;
                 });
+
+            // Check if there are federated projects
+            const [localProjects, federatedProjects] = visibleProjects.reduce((projects, itemProject) => {
+                if (!itemProject.internal.federated) {
+                    projects[0].push(itemProject);
+                } else {
+                    projects[1].push(itemProject);
+                }
+                return projects;
+            }, [[], []]);
+
             return html`
                 <div class="d-flex dropdown" title="Projects and Studies">
                     <button class="btn d-flex align-items-center gap-1 border border-gray-700 hover:bg-gray-800 text-white dropdown-toggle" data-bs-toggle="dropdown">
-                        <div class="project-name lh-1">${this.opencgaSession.project?.name}:</div>
-                        <div class="fw-bold lh-1">${this.opencgaSession.study.name}</div>
+                        <div class="project-name lh-1 fw-bold">${this.opencgaSession.project?.name}:</div>
+                        <div class="fw-bold lh-1">${this.opencgaSession.study?.name}</div>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-end">
-                        ${visibleProjects.map(project => html`
-                            <div class="dropdown-header user-select-none" title="${project.fqn}">
-                                <b>${project.name} [${project.fqn.split("@")[0]}]</b>
-                            </div>
-                            ${project.studies.map(study => html`
-                                <div
-                                    class="dropdown-item cursor-pointer ${study.fqn === this.opencgaSession?.study?.fqn ? "active" : ""}"
-                                    title="${study.fqn}"
-                                    @click="${e => this.onStudySelect(e, study)}">
-                                    <span>${study.name}</span>
+                    <div class="dropdown-menu dropdown-menu-end" style="min-width: 175px">
+                        ${localProjects.length > 0 ? html`
+                            <label class="fw-bold">Organisation '${localProjects[0].fqn.split("@")[0]}'</label>
+                            ${localProjects.map(project => html`
+                                <div class="dropdown-header user-select-none" title="${project.fqn}">
+                                    <b>${project.name}</b>
                                 </div>
+                                ${project.studies.map(study => html`
+                                    <div
+                                        class="dropdown-item cursor-pointer ${study.fqn === this.opencgaSession?.study?.fqn ? "active" : ""}"
+                                        title="${study.fqn}"
+                                        @click="${e => this.onStudySelect(e, study)}">
+                                        <span>${study.name}</span>
+                                    </div>
+                                `)}
                             `)}
-                        `)}
+                        `: nothing}
+
+                        ${federatedProjects.length > 0 ? html`
+                            <hr>
+                            <label class="fw-bold">Federated Organisations</label>
+                            ${federatedProjects.map(project => html`
+                                <div class="dropdown-header user-select-none" title="${project.fqn}">
+                                    <b>${project.name} [${project.fqn.split("@")[0]}]</b>
+                                </div>
+                                ${project.studies.map(study => html`
+                                    <div
+                                        class="dropdown-item cursor-pointer ${study.fqn === this.opencgaSession?.study?.fqn ? "active" : ""}"
+                                        title="${study.fqn}"
+                                        @click="${e => this.onStudySelect(e, study)}">
+                                        <span>${study.name}</span>
+                                    </div>
+                                `)}
+                            `)}
+                        `: nothing}
                     </div>
                 </div>
             `;
@@ -105,7 +137,7 @@ export default class LayoutPrimaryBar extends LitElement {
                         </div>
                     </div>
 
-                    <!-- 
+                    <!--
                     <div class="d-flex align-items-stretch gap-2 ms-auto">
                         <div class="input-group">
                             <div class="input-group-text" id="btnGroupAddon">
@@ -143,8 +175,8 @@ export default class LayoutPrimaryBar extends LitElement {
                             </a>
                         </div>
                         <div class="d-flex">
-                            <a href="#research/jupyter-notebook" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
-                                <i class="fas fa-file-code lh-1"></i>
+                            <a href="#research/jupyter-notebook" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white" title="Jupyter Notebook">
+                                <img src="https://raw.githubusercontent.com/jupyter/design/refs/heads/main/logos/Logo%20Mark/logomark-whitebody-whitemoons/logomark-whitebody-whitemoons.svg" height="16px">
                             </a>
                         </div>
                         <div class="d-flex">

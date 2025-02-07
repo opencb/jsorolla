@@ -128,6 +128,36 @@ body {
     border-radius: 0;
 }
 
+// table for grids styles
+.table-grid {
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+    // overwrite the default styles of thead cells
+    & thead .th-inner {
+        color: $gray-600;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        padding: 0 0.75rem!important;
+    }
+    // overwrite the default styles of tbody cells
+    & tbody tr {
+        background-color: $white;
+        border-radius: $border-radius;
+    }
+    & tbody tr td {
+        background-color: inherit;
+        padding: 0.5rem 0.75rem;
+        &:first-child {
+            border-top-left-radius: $border-radius;
+            border-bottom-left-radius: $border-radius;
+        }
+        &:last-child {
+            border-top-right-radius: $border-radius;
+            border-bottom-right-radius: $border-radius;
+        }
+    }
+}
+
 // additional color utilities
 // Note: the $grays map is a Sass map that contains all the gray colors
 @each $shade,$color in $grays {

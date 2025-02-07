@@ -37,7 +37,7 @@ export default class SwaggerUi extends LitElement {
 
     updated() {
         // var href = window.location.href;
-        // TODO Fix the URL once it is mereged.
+        // TODO Fix the URL once it is merged.
         const ui = SwaggerUIBundle({
             url: "https://test.app.zettagenomics.com/task-5914/opencga/webservices/rest/v2/meta/openapi?" + "&environment=/task-7100",
             dom_id: "#iva-swagger-ui",

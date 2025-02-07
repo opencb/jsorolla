@@ -115,7 +115,9 @@ export default class JupyterNotebook extends LitElement {
 
         return html`
             <tool-header
-                title="Jupyter Notebook">
+                title="Jupyter Lab"
+                icon="https://jupyter.org/assets/homepage/main-logo.svg"
+                iconSize="36">
             </tool-header>
             ${this._enter ? this.renderJupyterFrame() : this.renderWelcomeView()}
         `;

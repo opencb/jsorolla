@@ -143,7 +143,7 @@ export default class OpencgaFileGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                theadClasses: "table-light",
+                classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
@@ -167,7 +167,7 @@ export default class OpencgaFileGrid extends LitElement {
                     let filesResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
-                        type: "FILE",
+                        // type: "FILE",
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
@@ -175,9 +175,9 @@ export default class OpencgaFileGrid extends LitElement {
                         ...this.query
                     };
                     // When searching by directory we must also show directories
-                    if (this.filters.directory) {
-                        this.filters.type = "FILE,DIRECTORY";
-                    }
+                    // if (this.filters.directory) {
+                    //     this.filters.type = "FILE,DIRECTORY";
+                    // }
 
                     // Store the current filters
                     this.lastFilters = {...this.filters};
@@ -533,9 +533,36 @@ export default class OpencgaFileGrid extends LitElement {
             });
     }
 
+    onPathChange(path) {
+        LitUtils.dispatchCustomEvent(this, "pathChange", path);
+    }
+
+    onPathClear() {
+        LitUtils.dispatchCustomEvent(this, "pathClear");
+    }
+
     renderToolbarLeftContent() {
+        const pathFragments = (this.query?.directory || (this.query?.path || "").slice(2, -2))
+            .split("/")
+            .filter(Boolean)
+            .map((fragment, index, array) => {
+                const active = index === array.length - 1; // Last fragment is marked as active
+                const path = array.slice(0, index + 1).join("/") + "/"; // Build again the path
+                return html`
+                    <span class="breadcrumb-item ${active ? "active" : "cursor-pointer hover:text-decoration-underline"}" @click="${() => this.onPathChange(path)}">
+                        ${fragment}
+                    </span>
+                `;
+            });
+
         return html`
-            <span id="${this.gridId + "PaginationInfo"}"></span>
+            <div class="breadcrumb mb-0">
+                <span class="breadcrumb-item ${pathFragments.length === 0 ? "active" : "cursor-pointer hover:text-decoration-underline"}" @click="${() => this.onPathClear()}">
+                    <i class="fas fa-hdd pe-1"></i>
+                    <span>DATA</span>
+                </span>
+                ${pathFragments}
+            </div>
         `;
     }
 

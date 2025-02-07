@@ -22,7 +22,7 @@ export default class FileUpload extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -34,20 +34,14 @@ export default class FileUpload extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            cellbaseClient: {
-                type: Object
-            },
-            query: {
-                type: Object
-            },
             config: {
                 type: Object
             }
         };
     }
 
-    _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
+    #init() {
+        this._prefix = UtilsNew.randomString(8);
     }
 
     connectedCallback() {
@@ -62,18 +56,11 @@ export default class FileUpload extends LitElement {
         }
     }
 
-    readFile(e) {
-        const reader = new FileReader();
-        reader.onload = () => {
-            const plain = reader.result;
-            // it handles split on ",", ";", "CR", "LF" and "CRLF"
-            this.list.push(...plain.split(/\r\n|\r|\n|,|;/).filter(Boolean));
-            this.requestUpdate();
-            $(`#${this._prefix}file-form`).collapse("toggle");
-            this.onFilterChange();
-            // this.filterChange();
-        };
-        reader.readAsText(e.target.files[0] /* || e.dataTransfer.files[0]*/);
+    uploadFile(e) {
+        const fileInput = document.getElementById("formFile");
+        // check if the file exists!
+        this.opencgaSession.opencgaClient.files().upload({file: fileInput.files[0]})
+
     }
 
     onFilterChange() {
@@ -107,26 +94,10 @@ export default class FileUpload extends LitElement {
 
     render() {
         return html`
-            <!--<div class="btn-group columns-toggle-wrapper">
-                <button type="button" class="btn btn-light btn-small ripple btn-sm" aria-expanded="false" @click="\${this.toggleCollapse}">
-                    <i class="fas fa-upload icon-padding" aria-hidden="true" id=""></i> Upload list
-                </button>
-            </div>-->
-
-            <div class="collapse file-drop-area" id="${this._prefix}file-form">
-                <form action="" method="POST" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <div class="d-flex align-items-center justify-content-center mt-2 border border-light-subtle text-body-tertiary"
-                            style="cursor:pointer;border-style: dashed !important;border-width: 2px !important;height:100px;"
-                            @change="${this.readFile}" @drop="${this.readFile}" @dragover="${this.onDragOver}" @dragleave="${this.onDragLeave}">
-                            <div class="text-center">
-                                <i class="fas fa-upload"></i>
-                                <div>Choose an text file or drag it here.</div>
-                            </div>
-                            <input type="file" class="position-absolute opacity-0" />
-                        </div>
-                    </div>
-                </form>
+            <div class="mb-3">
+                <label for="formFile" class="form-label">Default file input example</label>
+                <input class="form-control" type="file" id="formFile">
+                <button type="button" class="btn btn-primary" @click="${this.uploadFile}">Upload</button>
             </div>
         `;
     }

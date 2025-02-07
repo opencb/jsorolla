@@ -295,7 +295,7 @@ export default class SampleBrowser extends LitElement {
                 }
             },
             aggregation: {
-                default: ["somatic", "status"],
+                default: ["somatic", "creationYear[MONTH]"],
                 display: {
                     showNested: false
                 },
@@ -305,137 +305,108 @@ export default class SampleBrowser extends LitElement {
                         // collapsed: false,
                         fields: [
                             {
-                                id: "studyId",
-                                name: "Study id",
+                                id: "creationDate",
+                                name: "Creation Date",
+                                type: "date",
+                                allowedValues: ["YEAR", "MONTH", "DAY"],
+                                multiple: false,
+                                description: "Creation date, you can use 'day', 'month' or 'year' to group by"
+                            },
+                            // {
+                            //     id: "status.id",
+                            //     name: "Status",
+                            //     type: "category",
+                            //     allowedValues: ["READY", "DELETED"],
+                            //     description: "Status"
+                            // },
+                            {
+                                id: "internal.variant.index.status.id",
+                                name: "Variant Index Status",
                                 type: "string",
-                                description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
-                            },
-                            {
-                                id: "creationYear",
-                                name: "Creation Year",
-                                type: "string",
-                                description: "Creation year"
-                            },
-                            {
-                                id: "creationMonth",
-                                name: "Creation Month",
-                                type: "category",
-                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
-                                description: "Creation month (JANUARY, FEBRUARY...)"
-                            },
-                            {
-                                id: "creationDay",
-                                name: "Creation Day",
-                                type: "category",
-                                allowedValues: [
-                                    "1", "2", "3", "4", "5",
-                                    "6", "7", "8", "9", "10",
-                                    "11", "12", "13", "14", "15",
-                                    "16", "17", "18", "19", "20",
-                                    "21", "22", "23", "24", "25",
-                                    "26", "27", "28", "29", "30", "31"],
-                                description: "Creation day"
-                            },
-                            {
-                                id: "creationDayOfWeek",
-                                name: "Creation Day Of Week",
-                                type: "category",
-                                allowedValues: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
-                                description: "Creation day of week (MONDAY, TUESDAY...)"
-                            },
-                            {
-                                id: "status",
-                                name: "Status",
-                                type: "category",
-                                allowedValues: ["READY", "DELETED"],
-                                description: "Status"
-                            },
-                            {
-                                id: "release",
-                                name: "Release",
-                                type: "string",
-                                description: "Release"
+                                // allowedValues: ["READY", "DELETED"],
+                                description: "Variant database index status"
                             },
                             {
                                 id: "version",
                                 name: "Version",
                                 type: "string",
+                                // sort: "key",
                                 description: "Version"
                             },
                             {
                                 id: "somatic",
                                 name: "Somatic",
-                                type: "category",
-                                allowedValues: ["true", "false"],
+                                type: "string",
+                                // allowedValues: ["true", "false"],
                                 description: "Somatic"
                             },
-                            {
-                                id: "product",
-                                name: "Product",
-                                type: "string",
-                                description: "Product"
-                            },
-                            {
-                                id: "preparationMethod",
-                                name: "Preparation Method",
-                                type: "string",
-                                description: "Preparation method"
-                            },
-                            {
-                                id: "extractionMethod",
-                                name: "Extraction Method",
-                                type: "string",
-                                description: "Extraction method"
-                            },
-                            {
-                                id: "labSampleId",
-                                name: "Lab Sample Id",
-                                type: "string",
-                                description: "Lab sample Id"
-                            },
-                            {
-                                id: "tissue",
-                                name: "Tissue",
-                                type: "string",
-                                description: "Tissue"
-                            },
-                            {
-                                id: "organ",
-                                name: "Organ",
-                                type: "string",
-                                description: "Organ"
-                            },
-                            {
-                                id: "method",
-                                name: "Method",
-                                type: "string",
-                                description: "Method"
-                            },
-                            {
-                                id: "phenotypes",
-                                name: "Phenotypes",
-                                type: "string",
-                                description: "Phenotypes"
-                            },
-                            {
-                                id: "annotations",
-                                name: "Annotations",
-                                type: "string",
-                                description: "Annotations, e.g: key1=value(,key2=value)"
-                            }
+                            // {
+                            //     id: "product",
+                            //     name: "Product",
+                            //     type: "string",
+                            //     description: "Product"
+                            // },
+                            // {
+                            //     id: "preparationMethod",
+                            //     name: "Preparation Method",
+                            //     type: "string",
+                            //     description: "Preparation method"
+                            // },
+                            // {
+                            //     id: "extractionMethod",
+                            //     name: "Extraction Method",
+                            //     type: "string",
+                            //     description: "Extraction method"
+                            // },
+                            // {
+                            //     id: "labSampleId",
+                            //     name: "Lab Sample Id",
+                            //     type: "string",
+                            //     description: "Lab sample Id"
+                            // },
+                            // {
+                            //     id: "tissue",
+                            //     name: "Tissue",
+                            //     type: "string",
+                            //     description: "Tissue"
+                            // },
+                            // {
+                            //     id: "organ",
+                            //     name: "Organ",
+                            //     type: "string",
+                            //     description: "Organ"
+                            // },
+                            // {
+                            //     id: "method",
+                            //     name: "Method",
+                            //     type: "string",
+                            //     description: "Method"
+                            // },
+                            // {
+                            //     id: "phenotypes",
+                            //     name: "Phenotypes",
+                            //     type: "string",
+                            //     description: "Phenotypes"
+                            // },
+                            // {
+                            //     id: "annotations",
+                            //     name: "Annotations",
+                            //     type: "string",
+                            //     description: "Annotations, e.g: key1=value(,key2=value)"
+                            // }
                         ]
                     },
-                    {
-                        name: "Advanced",
-                        fields: [
-                            {
-                                id: "field",
-                                name: "Field",
-                                type: "string",
-                                description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
-                            }
-                        ]
-                    }
+                    // {
+                    //     name: "Advanced",
+                    //     fields: [
+                    //         {
+                    //             id: "field",
+                    //             name: "Field",
+                    //             type: "string",
+                    //             description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
+                    //         }
+                    //     ]
+                    // }
                 ]
             }
         };

@@ -264,7 +264,7 @@ export default class FamilyBrowser extends LitElement {
                 }
             },
             aggregation: {
-                default: ["disorders", "expectedSize", "numMembers[0..10]:1"],
+                default: ["disorders", "creationYear[MONTH]"],
                 display: {
                     showNested: false
                 },
@@ -273,57 +273,20 @@ export default class FamilyBrowser extends LitElement {
                         name: "Family Attributes",
                         fields: [
                             {
-                                id: "studyId",
-                                name: "Study id",
-                                type: "string",
-                                description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
+                                id: "creationDate",
+                                name: "Creation Date",
+                                type: "date",
+                                allowedValues: ["YEAR", "MONTH", "DAY"],
+                                multiple: false,
+                                description: "Creation date, you can use 'day', 'month' or 'year' to group by"
                             },
-                            {
-                                id: "creationYear",
-                                name: "Creation Year",
-                                type: "string",
-                                description: "Creation year"
-                            },
-                            {
-                                id: "creationMonth",
-                                name: "Creation Month",
-                                type: "category",
-                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
-                                description: "Creation month (JANUARY, FEBRUARY...)"
-                            },
-                            {
-                                id: "creationDay",
-                                name: "Creation Day",
-                                type: "category",
-                                allowedValues: [
-                                    "1", "2", "3", "4", "5",
-                                    "6", "7", "8", "9", "10",
-                                    "11", "12", "13", "14", "15",
-                                    "16", "17", "18", "19", "20",
-                                    "21", "22", "23", "24", "25",
-                                    "26", "27", "28", "29", "30", "31"],
-                                description: "Creation day"
-                            },
-                            {
-                                id: "creationDayOfWeek",
-                                name: "Creation Day Of Week",
-                                type: "category",
-                                allowedValues: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
-                                description: "Creation day of week (MONDAY, TUESDAY...)"
-                            },
-                            {
-                                id: "status",
-                                name: "Status",
-                                type: "category",
-                                allowedValues: ["READY", "DELETED", "INCOMPLETE"],
-                                description: "Status"
-                            },
-                            {
-                                id: "release",
-                                name: "Release",
-                                type: "string",
-                                description: "Release"
-                            },
+                            // {
+                            //     id: "status",
+                            //     name: "Status",
+                            //     type: "category",
+                            //     allowedValues: ["READY", "DELETED", "INCOMPLETE"],
+                            //     description: "Status"
+                            // },
                             {
                                 id: "version",
                                 name: "Version",
@@ -331,48 +294,36 @@ export default class FamilyBrowser extends LitElement {
                                 description: "Version"
                             },
                             {
-                                id: "phenotypes",
+                                id: "phenotypes.id",
                                 name: "Phenotypes",
                                 type: "string",
                                 description: "Phenotypes"
                             },
                             {
-                                id: "disorders",
+                                id: "disorders.id",
                                 name: "Disorders",
                                 type: "string",
                                 description: "Disorders"
                             },
-                            {
-                                id: "numMembers",
-                                name: "Number Of Members",
-                                type: "string",
-                                description: "Number of members"
-                            },
-                            {
-                                id: "expectedSize",
-                                name: "Expected Size",
-                                type: "string",
-                                description: "Expected size"
-                            },
-                            {
-                                id: "annotations",
-                                name: "Annotations",
-                                type: "string",
-                                description: "Annotations, e.g: key1=value(,key2=value)"
-                            }
+                            // {
+                            //     id: "annotations",
+                            //     name: "Annotations",
+                            //     type: "string",
+                            //     description: "Annotations, e.g: key1=value(,key2=value)"
+                            // }
                         ]
                     },
-                    {
-                        name: "Advanced",
-                        fields: [
-                            {
-                                id: "field",
-                                name: "Field",
-                                type: "string",
-                                description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
-                            }
-                        ]
-                    }
+                    // {
+                    //     name: "Advanced",
+                    //     fields: [
+                    //         {
+                    //             id: "field",
+                    //             name: "Field",
+                    //             type: "string",
+                    //             description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
+                    //         }
+                    //     ]
+                    // }
                 ]
             },
             annotations: {}
