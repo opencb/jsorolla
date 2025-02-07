@@ -533,17 +533,32 @@ export default class OpencgaFileGrid extends LitElement {
             });
     }
 
+    onPathChange(path) {
+        LitUtils.dispatchCustomEvent(this, "pathChange", path);
+    }
+
     renderToolbarLeftContent() {
-        const pathFragments = (this.query?.directory || (this.query?.path || "").slice(2)).split("/").filter(Boolean);
+        const pathFragments = (this.query?.directory || (this.query?.path || "")
+            .slice(2))
+            .split("/")
+            .filter(Boolean)
+            .map((fragment, index, array) => {
+                const active = index === array.length - 1; // Last fragment is marked as active
+                const path = array.slice(0, index + 1).join("/") + "/"; // Build again the path
+                return html`
+                    <span class="breadcrumb-item ${active ? "active" : "cursor-pointer hover:text-decoration-underline"}" @click="${() => this.onPathChange(path)}">
+                        ${fragment}
+                    </span>
+                `;
+            });
+
         return html`
             <div class="breadcrumb mb-0">
                 <span class="breadcrumb-item">
                     <i class="fas fa-hdd pe-1"></i>
                     <span>DATA</span>
                 </span>
-                ${pathFragments.map((fragment, index) => html`
-                    <span class="breadcrumb-item ${index === pathFragments.length - 1 ? "active" : ""}">${fragment}</span>
-                `)}
+                ${pathFragments}
             </div>
         `;
     }
