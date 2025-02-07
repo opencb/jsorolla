@@ -62,7 +62,7 @@ export default class WorkflowManager extends LitElement {
         //     {id: "CLINICAL_INTERPRETATION_ANALYSIS", name: "Clinical Interpretation Analysis"},
         //     {id: "OTHER", name: "Other"},
         // ];
-        this.COMPONENT_ID = "file-manager";
+        this.COMPONENT_ID = "workflow-manager";
         this._prefix = UtilsNew.randomString(8);
         this.resource = "WORKFLOW";
 
@@ -103,12 +103,20 @@ export default class WorkflowManager extends LitElement {
                 modalId: `${this._prefix}WorkflowViewModal`,
                 render: () => this.renderWorkflowView(),
                 // permission: this.permissions["organization"](),
+                divider: true,
             },
             {
                 id: "workflow-copy",
                 title: "Copy JSON",
-                icon: "fas fa-copy",
+                icon: "fas fa-download",
                 render: () => this.renderWorkflowCopy(),
+                divider: true,
+            },
+            {
+                id: "workflow-download",
+                title: "Download JSON",
+                icon: "fas fa-copy",
+                render: () => this.renderWorkflowDownload(),
                 divider: true,
             },
             {
@@ -189,7 +197,6 @@ export default class WorkflowManager extends LitElement {
                     })
                     .catch(error => {
                         console.error(error);
-                        params.error(error);
                     }).finally(() => {
                     this.requestUpdate();
                 });
@@ -205,40 +212,6 @@ export default class WorkflowManager extends LitElement {
         this.requestUpdate();
         await this.updateComplete;
         ModalUtils.show(this.currentAction["modalId"]);
-    }
-
-    onActionClick2(e, value, workflow) {
-        e.preventDefault();
-
-        const action = e.currentTarget.dataset.action;
-        switch (action) {
-            case "view":
-                this.workflowUpdateId = workflow.id;
-                this.requestUpdate();
-                // await this.updateComplete;
-                ModalUtils.show(`${this._prefix}ViewModal`);
-                break;
-            case "copy":
-                UtilsNew.copyToClipboard(JSON.stringify(workflow, null, "\t"));
-                break;
-            case "execute":
-                this.workflowUpdateId = workflow.id;
-                this.requestUpdate();
-                // await this.updateComplete;
-                ModalUtils.show(`${this._prefix}ExecuteModal`);
-                break;
-            case "edit":
-                this.workflowUpdateId = workflow.id;
-                this.requestUpdate();
-                // await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
-                break;
-            case "delete":
-                this.workflowId = workflow.id;
-                debugger
-                this.renderWorkflowDelete();
-                break;
-        }
     }
 
     onWorkflowAction(e,id) {
@@ -368,6 +341,9 @@ export default class WorkflowManager extends LitElement {
         UtilsNew.copyToClipboard(JSON.stringify(this.workflow, null, "\t"));
     }
 
+    renderWorkflowDownload() {
+        UtilsNew.downloadData([JSON.stringify(this.workflow, null, "\t")], this.workflow.id + ".json");
+    }
 
     renderWorkflowDelete() {
         debugger
