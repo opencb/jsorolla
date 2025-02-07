@@ -99,6 +99,17 @@ export default class FileBrowser extends LitElement {
         this.requestUpdate();
     }
 
+    onTreePathChange(event, params) {
+        params.onQuerySearch({
+            detail: {
+                query: {
+                    ...params.executedQuery,
+                    path: "~^" + event.detail.value,
+                },
+            },
+        });
+    }
+
     render() {
         if (!this.opencgaSession) {
             return nothing;
@@ -109,7 +120,7 @@ export default class FileBrowser extends LitElement {
                 resource="FILE"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}"
+                .config="${this._config || {}}"
                 @fileUpdate="${this.onFileUpdate}">
             </opencga-browser>
         `;
@@ -128,12 +139,14 @@ export default class FileBrowser extends LitElement {
                         <div class="row">
                             <div class="col-md-2">
                                 <file-tree
-                                    .opencgaSession="${params.opencgaSession}">
+                                    .opencgaSession="${params.opencgaSession}"
+                                    .currentPath="${params.executedQuery?.directory || (params.executedQuery?.path || "").slice(2)}"
+                                    @pathChange="${event => this.onTreePathChange(event, params)}">
                                 </file-tree>
                             </div>
                             <div class="col-md-10">
                                 <file-grid
-                                    .toolId="${this.COMPONENT_ID}"
+                                    .toolId="${this.COMPONENT_ID || ""}"
                                     .opencgaSession="${params.opencgaSession}"
                                     .query="${params.executedQuery}"
                                     .config="${params.config.filter.result.grid}"
