@@ -319,6 +319,7 @@ export default class WorkflowView extends LitElement {
                         },
                     ],
                 },
+                /*
                 {
                     title: "Scripts",
                     elements: [
@@ -343,6 +344,7 @@ export default class WorkflowView extends LitElement {
                         },
                     ],
                 },
+                 */
             ],
         });
     }
