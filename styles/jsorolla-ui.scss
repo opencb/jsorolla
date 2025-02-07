@@ -119,7 +119,7 @@ body {
         color: $gray-600;
         font-size: $font-size-sm;
         font-weight: $font-weight-medium;
-        padding: 0!important;
+        padding: 0 0.75rem!important;
     }
     // overwrite the default styles of tbody cells
     & tbody tr {
@@ -128,6 +128,7 @@ body {
     }
     & tbody tr td {
         background-color: inherit;
+        padding: 0.5rem 0.75rem;
         &:first-child {
             border-top-left-radius: $border-radius;
             border-bottom-left-radius: $border-radius;
