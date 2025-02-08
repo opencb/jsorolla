@@ -1640,7 +1640,6 @@ class IvaApp extends LitElement {
         return html`
             <div class="d-flex flex-column flex-nowrap h-screen">
                 <layout-primary-bar
-                    .app="${this.app}"
                     .version="${this.version || ""}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.config}"

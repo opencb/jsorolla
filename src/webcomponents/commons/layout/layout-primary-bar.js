@@ -19,9 +19,6 @@ export default class LayoutPrimaryBar extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            app: {
-                type: Object
-            },
             version: {
                 type: String,
             },
@@ -38,7 +35,7 @@ export default class LayoutPrimaryBar extends LitElement {
             //
             // }
         }
-        debugger
+        // debugger
     }
 
     onStudySelect(e, study) {
@@ -159,9 +156,14 @@ export default class LayoutPrimaryBar extends LitElement {
                         ${this.renderStudiesDropdown()}
 
                         ${this.renderSeparator()}
-                        <div class="d-flex">
+                        <div class="d-flex" title="Variant Browser">
                             <a href="#research/variant-browser" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
                                 <i class="fas fa-dna lh-1"></i>
+                            </a>
+                        </div>
+                        <div class="d-flex" title="File Manager">
+                            <a href="#research/file-browser" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
+                                <i class="fas fa-folder lh-1"></i>
                             </a>
                         </div>
                         <div class="d-flex">
@@ -169,13 +171,13 @@ export default class LayoutPrimaryBar extends LitElement {
                                 <i class="fas fa-folder lh-1"></i>
                             </a>
                         </div>
-                        <div class="d-flex">
+                        <div class="d-flex" title="Nextflow Workflow Manager">
                             <a href="#research/workflow-manager" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
-                                <i class="fas fa-project-diagram lh-1"></i>
+                                <img src="https://raw.githubusercontent.com/nextflow-io/trademark/refs/heads/master/nextflow-icon.svg" height="16px">
                             </a>
                         </div>
-                        <div class="d-flex">
-                            <a href="#research/jupyter-notebook" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white" title="Jupyter Notebook">
+                        <div class="d-flex" title="Jupyter Lab Notebook">
+                            <a href="#research/jupyter-notebook" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
                                 <img src="https://raw.githubusercontent.com/jupyter/design/refs/heads/main/logos/Logo%20Mark/logomark-whitebody-whitemoons/logomark-whitebody-whitemoons.svg" height="16px">
                             </a>
                         </div>
@@ -184,7 +186,7 @@ export default class LayoutPrimaryBar extends LitElement {
                                 <i class="fas fa-code lh-1"></i>
                             </a>
                         </div>
-                        <div class="d-flex">
+                        <div class="d-flex" title="Swagger UI">
                             <a href="#swagger-ui" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
                                 <img src="https://raw.githubusercontent.com/swagger-api/swagger-ui/refs/heads/master/dist/favicon-16x16.png">
                             </a>
