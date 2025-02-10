@@ -154,12 +154,6 @@ export default class WorkflowGrid extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    #initOriginalObjects() {
-        this.currentAction = {};
-        this.workflowId = "";
-        this.workflow = {};
-    }
-
     update(changedProperties) {
         if (changedProperties.has("opencgaSession") ||
             changedProperties.has("toolId") ||
@@ -237,19 +231,17 @@ export default class WorkflowGrid extends LitElement {
             // }
         };
 
-
-        this.permissions = ["WRITE", "DELETE", "EXECUTE"].reduce((acc, operation) => {
-            const operationId =  WebUtils.getPermissionID(
-                operation === "EXECUTE" ? "JOB" : this.toolbarConfig.resource,
-                operation);
-            acc[operation] =  OpencgaCatalogUtils.getStudyEffectivePermission(
+        // Create a map with the allowed permissions for the authenticated user
+        this.permissions = Object.fromEntries(["WRITE", "DELETE", "EXECUTE"].map(operation => {
+            const operationId =  WebUtils.getPermissionID(operation === "EXECUTE" ? "JOB" : this.toolbarConfig.resource, operation);
+            const hasPermission =  OpencgaCatalogUtils.getStudyEffectivePermission(
                 this.opencgaSession.study,
                 this.opencgaSession.user.id,
                 operationId,
-                this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions) ? "" : "disabled";
-            return acc;
-        }, {});
-        console.log(this.permissions);
+                this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions
+            );
+            return [operation, hasPermission];
+        }));
     }
 
     changeActiveActionModal(action) {
@@ -516,7 +508,7 @@ export default class WorkflowGrid extends LitElement {
                 formatter: () => `
                     <div class="d-flex justify-content-center align-items-center">
                         <div class="d-flex justify-content-around">
-                            <a class="btn ${this.permissions[action.permissionLevelRequired] || ""}}" data-action="view">
+                            <a class="btn" data-action="view">
                                 <i class="fa fa-external-link"></i>
                             </a>
                         </div>
@@ -534,17 +526,17 @@ export default class WorkflowGrid extends LitElement {
                                     <span>Download JSON</span>
                                 </a>
                                 <hr class="dropdown-divider">
-                                <a class="dropdown-item cursor-pointer" data-action="execute">
+                                <a class="dropdown-item ${this.permissions.EXECUTE ? "cursor-pointer" : "disabled"}" data-action="execute">
                                     <i class="fas fa-play me-1"></i>
                                     <span>Execute...</span>
                                 </a>
                                 <hr class="dropdown-divider">
-                                <a class="dropdown-item cursor-pointer" data-action="update">
+                                <a class="dropdown-item ${this.permissions.WRITE ? "cursor-pointer" : "disabled"}" data-action="update">
                                     <i class="fas fa-edit me-1"></i>
                                     <span>Edit...</span>
                                 </a>
                                 <hr class="dropdown-divider">
-                                <a class="dropdown-item cursor-pointer" data-action="delete">
+                                <a class="dropdown-item ${this.permissions.DELETE ? "cursor-pointer" : "disabled"}" data-action="delete">
                                     <i class="fas fa-trash me-1"></i>
                                     <span>Delete...</span>
                                 </a>
