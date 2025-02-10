@@ -648,23 +648,20 @@ export default class WorkflowGrid extends LitElement {
             });
     }
 
-    onWorkflowImport(e) {
+    onWorkflowImport() {
         this.opencgaSession.opencgaClient.workflows()
-            .search(
-                {
-                    study: this.opencgaSession.study.fqn,
-                    limit: 100,
-                    count: true
-                })
+            .search({
+                study: this.opencgaSession.study.fqn,
+                limit: 100,
+                count: true
+            })
             .then(response => {
                 this.workflows = response.getResults();
+                this.requestUpdate();
             })
             .catch(error => {
                 console.error(error);
-                params.error(error);
-            }).finally(() => {
-            this.requestUpdate();
-        });
+            });
     }
 
     getRightToolbar() {
