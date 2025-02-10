@@ -302,7 +302,7 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     async onActionClick(e, _, row) {
-        event.preventDefault();
+        // e.preventDefault();
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
             /*
@@ -427,17 +427,6 @@ export default class OpencgaFileGrid extends LitElement {
         }
 
         if (this.opencgaSession && this._config.showActions) {
-            const downloadUrl = this.opencgaSession?.server? [
-                this.opencgaSession?.server.host,
-                "/webservices/rest/",
-                this.opencgaSession?.server.version,
-                "/files/",
-                "FILE_ID",
-                "/download?study=",
-                this.opencgaSession?.study.fqn,
-                "&sid=",
-                this.opencgaSession?.token,
-            ]:[];
             this._columns.push({
                 id: "actions",
                 field: "actions",
@@ -448,16 +437,16 @@ export default class OpencgaFileGrid extends LitElement {
                         this.opencgaSession.user.id,
                         this.permissionID,
                         this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+                    const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
+
                     return `
                         <div class="d-inline-block dropdown">
                             <button class="btn" type="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
-                                <a data-action="download"
-                                    class="dropdown-item ${downloadUrl.length === 0 ? "disabled" : ""}"
-                                    href="${downloadUrl.join("").replace("FILE_ID", row.id)}">
-                                        <i class="fas fa-download me-1"></i> Download
+                                <a data-action="download" target="_blank" class="dropdown-item ${row.id ? "cursor-pointer" : "disabled"}" href="${downloadUrl}">
+                                    <i class="fas fa-download me-1"></i> Download
                                 </a>
                                 <hr class="dropdown-divider">
                                 <a data-action="copy-json" class="dropdown-item cursor-pointer">
