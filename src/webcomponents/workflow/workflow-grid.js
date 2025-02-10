@@ -23,6 +23,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 import ModalUtils from "../commons/modal/modal-utils";
 import "../commons/opencb-grid-toolbar.js";
+import WebUtils from "../commons/utils/web-utils";
 
 export default class WorkflowGrid extends LitElement {
 
@@ -65,13 +66,6 @@ export default class WorkflowGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
 
-        this.WORKFLOW_TYPES_COLOR_MAP = {
-            SECONDARY_ANALYSIS: "blue",
-            RESEARCH_ANALYSIS: "orange",
-            CLINICAL_INTERPRETATION_ANALYSIS: "red",
-            OTHER: "black",
-        };
-
         const entityActions = [
             {
                 id: "workflow-create",
@@ -80,7 +74,7 @@ export default class WorkflowGrid extends LitElement {
                 title: "Create Workflow",
                 modalId: `${this._prefix}WorkflowCreateModal`,
                 render: () => this.renderWorkflowCreate(),
-                // permission: this.permissions["organization"](),
+                permissionLevelRequired: "WRITE",
             },
             {
                 id: "workflow-import",
@@ -89,7 +83,8 @@ export default class WorkflowGrid extends LitElement {
                 title: "Import workflow",
                 modalId: `${this._prefix}WorkflowImportModal`,
                 render: () => this.renderWorkflowImport(),
-                // permission: this.permissions["organization"](),
+                // CAUTION 20250209 Vero: No execute permission needed?
+                permissionLevelRequired: "WRITE",
             },
         ];
 
@@ -103,7 +98,6 @@ export default class WorkflowGrid extends LitElement {
                 modalTitle: "View Workflow",
                 modalId: `${this._prefix}WorkflowViewModal`,
                 render: () => this.renderWorkflowView(),
-                // permission: this.permissions["organization"](),
                 divider: true,
             },
             {
@@ -126,7 +120,8 @@ export default class WorkflowGrid extends LitElement {
                 modalTitle: "Execute",
                 modalId: `${this._prefix}WorkflowExecuteModal`,
                 render: () => this.renderWorkflowExecute(),
-                // permission: this.permissions["organization"](),
+                // CAUTION 20250209 Vero: Job execution permission
+                permissionLevelRequired: "EXECUTE",
                 divider: true,
             },
             {
@@ -136,7 +131,7 @@ export default class WorkflowGrid extends LitElement {
                 modalTitle: "Update",
                 modalId: `${this._prefix}WorkflowUpdateModal`,
                 render: () => this.renderWorkflowUpdate(),
-                // permission: this.permissions["organization"](),
+                permissionLevelRequired: "WRITE",
                 divider: true,
             },
             {
@@ -144,9 +139,8 @@ export default class WorkflowGrid extends LitElement {
                 title: "Delete...",
                 icon: "far fa-trash-alt",
                 classes: "btn-outline-danger",
-                render: () => this.renderWorkflowDelete(),
+                permissionLevelRequired: "DELETE",
             },
-
         ];
 
         this.actions = {
@@ -192,7 +186,6 @@ export default class WorkflowGrid extends LitElement {
 
         // settings for the grid toolbar
         this.toolbarSetting = {
-            // buttons: ["columns", "download"],
             ...this._config,
         };
 
@@ -201,20 +194,20 @@ export default class WorkflowGrid extends LitElement {
             toolId: this.toolId,
             resource: "WORKFLOW",
             columns: this._getDefaultColumns(),
-            create: {
-                display: {
-                    modalTitle: "Workflow Create",
-                    modalDraggable: true,
-                    modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
-                },
-                render: () => html`
-                    <workflow-create
-                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                            .opencgaSession="${this.opencgaSession}">
-                    </workflow-create>
-                `
-            },
+            // create: {
+            //     display: {
+            //         modalTitle: "Workflow Create",
+            //         modalDraggable: true,
+            //         modalCyDataName: "modal-create",
+            //         modalSize: "modal-lg"
+            //     },
+            //     render: () => html`
+            //         <workflow-create
+            //                 .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+            //                 .opencgaSession="${this.opencgaSession}">
+            //         </workflow-create>
+            //     `
+            // },
             // Uncomment in case we need to change defaults
             // export: {
             //     display: {
@@ -242,6 +235,20 @@ export default class WorkflowGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
+
+
+        this.permissions = ["WRITE", "DELETE", "EXECUTE"].reduce((acc, operation) => {
+            const operationId =  WebUtils.getPermissionID(
+                operation === "EXECUTE" ? "JOB" : this.toolbarConfig.resource,
+                operation);
+            acc[operation] =  OpencgaCatalogUtils.getStudyEffectivePermission(
+                this.opencgaSession.study,
+                this.opencgaSession.user.id,
+                operationId,
+                this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions) ? "" : "disabled";
+            return acc;
+        }, {});
+        console.log(this.permissions);
     }
 
     renderTable() {
@@ -267,7 +274,6 @@ export default class WorkflowGrid extends LitElement {
                 classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
-                // rowStyle: "",
                 method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -282,10 +288,10 @@ export default class WorkflowGrid extends LitElement {
                     return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
                 },
                 showExport: this._config.showExport,
-                detailView: this._config.detailView && this.detailFormatter,
+                detailView: !!this.detailFormatter,
                 gridContext: this,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
-                rowStyle: () => ({css: {"background-color": "white",}}),
+                // rowStyle: () => ({css: {"background-color": "white",}}),
                 ajax: params => {
                     let workflowResponse = null;
                     this.filters = {
@@ -517,7 +523,7 @@ export default class WorkflowGrid extends LitElement {
                                     .map(action => {
                                         return`
                                             <button
-                                                class="btn ${action.classes}  ${action.permission} quick-action"
+                                                class="btn ${action.classes} ${this.permissions[action.permissionLevelRequired] || ""}} quick-action"
                                                 data-action="${action.id}"
                                                 data-type="instance"
                                                 style="border: 0; cursor:pointer;">
@@ -537,27 +543,25 @@ export default class WorkflowGrid extends LitElement {
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
                                 <ul class="dropdown-menu">
-                            ${this.actions["instance"]
-                                .filter(action => !action.quick)
-                                .map(action => {
-                                    return`
-                                        <li>
-                                            <a
-                                            class="dropdown-item ${action.permission}"
-                                            data-action="${action.id}"
-                                            data-type="instance"
-                                            style="cursor:pointer;">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="me-2">${action.icon ? `<span><i class="${action.icon} pe-2"></i></span>` : ""}</div>
-                                                    <div class="me-4">${action.title ? `${action.title}` : ""}</div>
-                                                </div>
-                                            </a>
-                                        </li>
-                                        ${action.divider ? `<li><hr class="dropdown-divider"></li>` : ""}
-                                    `;
-                                }).join("")
-                            }
-                        </ul>
+                                    ${this.actions["instance"]
+                                        .filter(action => !action.quick)
+                                        .map(action => `
+                                            <li>
+                                                <a
+                                                class="dropdown-item ${this.permissions[action.permissionLevelRequired] || ""}"
+                                                data-action="${action.id}"
+                                                data-type="instance"
+                                                style="cursor:pointer;">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="me-2">${action.icon ? `<span><i class="${action.icon} pe-2"></i></span>` : ""}</div>
+                                                        <div class="me-4">${action.title ? `${action.title}` : ""}</div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            ${action.divider ? `<li><hr class="dropdown-divider"></li>` : ""}
+                                        `).join("")
+                                    }
+                                </ul>
                             </div>
                         </div>
                 `,
@@ -697,7 +701,7 @@ export default class WorkflowGrid extends LitElement {
                 modalTitle: `Workflow ${this.workflowId}`,
                 modalDraggable: false,
                 modalCyDataName: `modal-${this.currentAction["id"]}`,
-                modalCustomFullscreen: "fullscreen-modal",
+                modalContainerClass: "fullscreen-modal",
                 modalTitleHeader: "h4",
             },
             render: () => html`

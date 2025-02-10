@@ -16,16 +16,16 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import "./workflow-view.js";
+// import "./workflow-view.js";
 import "./workflow-grid.js";
-import "./workflow-detail.js";
-import "./workflow-scripts-view.js";
-import "./workflow-jobs.js";
-import "../clinical/clinical-analysis-grid.js";
-import "../commons/opencga-browser.js";
-import "../commons/json-viewer.js";
+// import "./workflow-detail.js";
+// import "./workflow-scripts-view.js";
+// import "./workflow-jobs.js";
+// import "../clinical/clinical-analysis-grid.js";
+// import "../commons/opencga-browser.js";
+// import "../commons/json-viewer.js";
 import "../commons/facet-filter.js";
-import "../commons/opencb-facet-results.js";
+// import "../commons/opencb-facet-results.js";
 
 export default class WorkflowBrowser extends LitElement {
 

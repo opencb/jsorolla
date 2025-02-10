@@ -18,7 +18,7 @@ export default class ModalUtils {
     static create(self, id, config) {
         // Parse modal parameters, all of them must start with prefix 'modal'
         const modalWidth = config.display?.modalWidth || "auto";
-        const modalCustomFullscreen = config.display?.modalCustomFullscreen || "";
+        const modalContainerClass = config.display?.modalContainerClass || "";
         const modalStyle = config.display?.modalStyle || "";
         const modalSize = config.display?.modalSize || "";
         const modalTitle = config.display?.modalTitle || "";
@@ -31,7 +31,7 @@ export default class ModalUtils {
 
         return html`
             <div
-                class="modal fade ${modalCustomFullscreen}"
+                class="modal fade ${modalContainerClass}"
                 id="${id}"
                 data-draggable="${modalDraggable}"
                 tabindex="-1"
