@@ -171,7 +171,7 @@ export default class OpencgaFileGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        include: "id,name,path,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal,annotationSets",
+                        include: "id,name,path,type,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal,annotationSets",
                         ...this.query
                     };
                     // When searching by directory we must also show directories
@@ -326,6 +326,17 @@ export default class OpencgaFileGrid extends LitElement {
 
     _getDefaultColumns() {
         this._columns = [
+            {
+                id: "icon",
+                title: "",
+                field: "type",
+                formatter: value => {
+                    return `<i class="fs-5 fas ${value === "DIRECTORY" ? "fa-folder" : "fa-file-alt"}"></i>`;
+                },
+                align: "center",
+                width: 40,
+                excludeFromSettings: true,
+            },
             {
                 id: "name",
                 title: "Name",
