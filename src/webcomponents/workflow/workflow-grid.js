@@ -627,27 +627,6 @@ export default class WorkflowGrid extends LitElement {
             });
     }
 
-    getRightToolbar() {
-        return [];
-        // return this.actions["entity"].map(action => {
-        //     return {
-        //         render: () => html`
-        //             <div class="btn-group">
-        //                 <button
-        //                         type="button"
-        //                         class="btn btn-light ${action.permission}"
-        //                         data-action="${action.id}"
-        //                         data-type="entity"
-        //                         @click="${(e, value, row) => this.onActionClick(e, value, row)}">
-        //                     ${action.icon ? html`<span><i class="${action.icon} fa-lg pe-1"></i></span>` : nothing}
-        //                     ${action.title ? html`${action.title}` : nothing}
-        //                 </button>
-        //             </div>
-        //         `,
-        //     }
-        // })
-    }
-
     onWorkflowImport(e) {
         this.opencgaSession.opencgaClient.workflows()
             .search(
@@ -665,6 +644,23 @@ export default class WorkflowGrid extends LitElement {
             }).finally(() => {
             this.requestUpdate();
         });
+    }
+
+    getRightToolbar() {
+        return [
+            {
+                className: this.permissions.WRITE ? "" : "disabled",
+                icon: "plus",
+                title: "Create Workflow",
+                onClick: () => this.changeActiveActionModal("create"),
+            },
+            {
+                className: this.permissions.WRITE ? "" : "disabled",
+                icon: "file-import",
+                title: "Import Workflow",
+                onClick: () => this.changeActiveActionModal("import"),
+            },
+        ];
     }
 
     renderWorkflowDelete() {
@@ -776,6 +772,7 @@ export default class WorkflowGrid extends LitElement {
                 };
                 break;
         }
+
         // render a modal with the provided configuration
         return config ? ModalUtils.create(this, `${this._prefix}Modal${this.activeActionModal}`, config) : nothing;
     }
