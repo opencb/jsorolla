@@ -291,4 +291,16 @@ export default class OpencgaCatalogUtils {
         };
     }
 
+    static getDownloadFileUrl(opencgaSession, fileId) {
+        const downloadUrl = [
+            opencgaSession.server.host,
+            "webservices/rest",
+            opencgaSession.server.version,
+            "files",
+            fileId,
+            `download?study=${opencgaSession.study.fqn}&sid=${opencgaSession.token}`,
+        ];
+        return downloadUrl.join("/");
+    }
+
 }
