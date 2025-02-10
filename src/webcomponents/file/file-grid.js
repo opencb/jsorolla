@@ -438,9 +438,8 @@ export default class OpencgaFileGrid extends LitElement {
             ]:[];
             this._columns.push({
                 id: "actions",
-                title: "Actions",
                 field: "actions",
-                align: "center",
+                align: "right",
                 formatter: (value, row) => {
                     const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
                         this.opencgaSession.study,
@@ -449,9 +448,8 @@ export default class OpencgaFileGrid extends LitElement {
                         this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
                     return `
                         <div class="d-inline-block dropdown">
-                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
-                                <span>Actions</span>
+                            <button class="btn" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
@@ -498,6 +496,7 @@ export default class OpencgaFileGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
+                excludeFromSettings: true,
                 visible: this.gridCommons.isColumnVisible("actions")
             });
         }
