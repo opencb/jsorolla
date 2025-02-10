@@ -65,90 +65,91 @@ export default class WorkflowGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
+        this.activeActionModal = "";
 
-        const entityActions = [
-            {
-                id: "workflow-create",
-                tooltip: "New Workflow",
-                icon: "fas fa-plus",
-                title: "Create Workflow",
-                modalId: `${this._prefix}WorkflowCreateModal`,
-                render: () => this.renderWorkflowCreate(),
-                permissionLevelRequired: "WRITE",
-            },
-            {
-                id: "workflow-import",
-                tooltip: "Import Workflow",
-                icon: "fas fa-file-import",
-                title: "Import workflow",
-                modalId: `${this._prefix}WorkflowImportModal`,
-                render: () => this.renderWorkflowImport(),
-                // CAUTION 20250209 Vero: No execute permission needed?
-                permissionLevelRequired: "WRITE",
-            },
-        ];
+        // const entityActions = [
+        //     {
+        //         id: "workflow-create",
+        //         tooltip: "New Workflow",
+        //         icon: "fas fa-plus",
+        //         title: "Create Workflow",
+        //         modalId: `${this._prefix}WorkflowCreateModal`,
+        //         render: () => this.renderWorkflowCreate(),
+        //         permissionLevelRequired: "WRITE",
+        //     },
+        //     {
+        //         id: "workflow-import",
+        //         tooltip: "Import Workflow",
+        //         icon: "fas fa-file-import",
+        //         title: "Import workflow",
+        //         modalId: `${this._prefix}WorkflowImportModal`,
+        //         render: () => this.renderWorkflowImport(),
+        //         // CAUTION 20250209 Vero: No execute permission needed?
+        //         permissionLevelRequired: "WRITE",
+        //     },
+        // ];
 
-        const instanceActions = [
-            {
-                id: "workflow-view",
-                title: "View",
-                icon: "fas fa-external-link-alt",
-                classes: "btn-outline-primary",
-                quick: true,
-                modalTitle: "View Workflow",
-                modalId: `${this._prefix}WorkflowViewModal`,
-                render: () => this.renderWorkflowView(),
-                divider: true,
-            },
-            {
-                id: "workflow-copy",
-                title: "Copy JSON",
-                icon: "fas fa-copy",
-                render: () => this.renderWorkflowCopy(),
-            },
-            {
-                id: "workflow-download",
-                title: "Download JSON",
-                icon: "fas fa-download",
-                render: () => this.renderWorkflowDownload(),
-                divider: true,
-            },
-            {
-                id: "workflow-execute",
-                title: "Execute...",
-                icon: "fas fa-play",
-                modalTitle: "Execute",
-                modalId: `${this._prefix}WorkflowExecuteModal`,
-                render: () => this.renderWorkflowExecute(),
-                // CAUTION 20250209 Vero: Job execution permission
-                permissionLevelRequired: "EXECUTE",
-                divider: true,
-            },
-            {
-                id: "workflow-update",
-                title: "Edit...",
-                icon: "fas fa-edit",
-                modalTitle: "Update",
-                modalId: `${this._prefix}WorkflowUpdateModal`,
-                render: () => this.renderWorkflowUpdate(),
-                permissionLevelRequired: "WRITE",
-                divider: true,
-            },
-            {
-                id: "workflow-delete",
-                title: "Delete...",
-                icon: "far fa-trash-alt",
-                classes: "btn-outline-danger",
-                permissionLevelRequired: "DELETE",
-            },
-        ];
+        // const instanceActions = [
+        //     {
+        //         id: "workflow-view",
+        //         title: "View",
+        //         icon: "fas fa-external-link-alt",
+        //         classes: "btn-outline-primary",
+        //         quick: true,
+        //         modalTitle: "View Workflow",
+        //         modalId: `${this._prefix}WorkflowViewModal`,
+        //         render: () => this.renderWorkflowView(),
+        //         divider: true,
+        //     },
+        //     {
+        //         id: "workflow-copy",
+        //         title: "Copy JSON",
+        //         icon: "fas fa-copy",
+        //         render: () => this.renderWorkflowCopy(),
+        //     },
+        //     {
+        //         id: "workflow-download",
+        //         title: "Download JSON",
+        //         icon: "fas fa-download",
+        //         render: () => this.renderWorkflowDownload(),
+        //         divider: true,
+        //     },
+        //     {
+        //         id: "workflow-execute",
+        //         title: "Execute...",
+        //         icon: "fas fa-play",
+        //         modalTitle: "Execute",
+        //         modalId: `${this._prefix}WorkflowExecuteModal`,
+        //         render: () => this.renderWorkflowExecute(),
+        //         // CAUTION 20250209 Vero: Job execution permission
+        //         permissionLevelRequired: "EXECUTE",
+        //         divider: true,
+        //     },
+        //     {
+        //         id: "workflow-update",
+        //         title: "Edit...",
+        //         icon: "fas fa-edit",
+        //         modalTitle: "Update",
+        //         modalId: `${this._prefix}WorkflowUpdateModal`,
+        //         render: () => this.renderWorkflowUpdate(),
+        //         permissionLevelRequired: "WRITE",
+        //         divider: true,
+        //     },
+        //     {
+        //         id: "workflow-delete",
+        //         title: "Delete...",
+        //         icon: "far fa-trash-alt",
+        //         classes: "btn-outline-danger",
+        //         permissionLevelRequired: "DELETE",
+        //     },
+        // ];
 
-        this.actions = {
-            "entity": entityActions,
-            "instance": instanceActions,
-        };
+        // this.actions = {
+        //     "entity": entityActions,
+        //     "instance": instanceActions,
+        // };
 
-        this.currentAction = {};
+        // this.currentAction = {};
 
         this._config = this.getDefaultConfig();
     }
@@ -249,6 +250,16 @@ export default class WorkflowGrid extends LitElement {
             return acc;
         }, {});
         console.log(this.permissions);
+    }
+
+    changeActiveActionModal(action) {
+        this.activeActionModal = action;
+        this.requestUpdate();
+        this.updateComplete.then(() => {
+            if (this.activeActionModal) {
+                ModalUtils.show(`${this._prefix}Modal${this.activeActionModal}`);
+            }
+        });
     }
 
     renderTable() {
@@ -382,19 +393,6 @@ export default class WorkflowGrid extends LitElement {
         });
     }
 
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
-
-    async onActionClick(e, value, workflow) {
-        this.currentAction = this.actions[e.currentTarget.dataset.type].find(action => action.id === e.currentTarget.dataset.action);
-        this.workflowId = workflow?.id ?? "";
-        this.workflow = workflow ?? {};
-        this.requestUpdate();
-        await this.updateComplete;
-        ModalUtils.show(this.currentAction["modalId"]);
-    }
-
     _getDefaultColumns() {
         this._columns = [
             {
@@ -517,56 +515,45 @@ export default class WorkflowGrid extends LitElement {
                 align: "center",
                 formatter: () => `
                     <div class="d-flex justify-content-center align-items-center">
-                            <div id="" class="d-flex justify-content-around">
-                                ${this.actions["instance"]
-                                    .filter(action => !!action.quick)
-                                    .map(action => {
-                                        return`
-                                            <button
-                                                class="btn ${action.classes} ${this.permissions[action.permissionLevelRequired] || ""}} quick-action"
-                                                data-action="${action.id}"
-                                                data-type="instance"
-                                                style="border: 0; cursor:pointer;">
-                                                    <i class="${action.icon}"></i>
-                                            </button>
-                                        `;
-                                    }).join("")
-                                }
-                            </div>
-                            <div class="dropdown d-flex justify-content-end">
-                                <button
-                                    type="button"
-                                    class="btn"
-                                    style="border: 0"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    ${this.actions["instance"]
-                                        .filter(action => !action.quick)
-                                        .map(action => `
-                                            <li>
-                                                <a
-                                                class="dropdown-item ${this.permissions[action.permissionLevelRequired] || ""}"
-                                                data-action="${action.id}"
-                                                data-type="instance"
-                                                style="cursor:pointer;">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="me-2">${action.icon ? `<span><i class="${action.icon} pe-2"></i></span>` : ""}</div>
-                                                        <div class="me-4">${action.title ? `${action.title}` : ""}</div>
-                                                    </div>
-                                                </a>
-                                            </li>
-                                            ${action.divider ? `<li><hr class="dropdown-divider"></li>` : ""}
-                                        `).join("")
-                                    }
-                                </ul>
+                        <div class="d-flex justify-content-around">
+                            <a class="btn ${this.permissions[action.permissionLevelRequired] || ""}}" data-action="view">
+                                <i class="fa fa-external-link"></i>
+                            </a>
+                        </div>
+                        <div class="dropdown d-flex justify-content-end">
+                            <button class="btn" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item cursor-pointer" data-action="copy-json">
+                                    <i class="fas fa-copy me-1"></i>
+                                    <span>Copy JSON</span>
+                                </a>
+                                <a class="dropdown-item cursor-pointer" data-action="download-json">
+                                    <i class="fas fa-download me-1"></i>
+                                    <span>Download JSON</span>
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a class="dropdown-item cursor-pointer" data-action="execute">
+                                    <i class="fas fa-play me-1"></i>
+                                    <span>Execute...</span>
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a class="dropdown-item cursor-pointer" data-action="update">
+                                    <i class="fas fa-edit me-1"></i>
+                                    <span>Edit...</span>
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a class="dropdown-item cursor-pointer" data-action="delete">
+                                    <i class="fas fa-trash me-1"></i>
+                                    <span>Delete...</span>
+                                </a>
                             </div>
                         </div>
+                    </div>
                 `,
                 events: {
-                    "click a, button.quick-action": (e, value, workflow) => this.onActionClick(e, value, workflow),
+                    "click a": (e, value, workflow) => this.onActionClick(e, value, workflow),
                 },
                 visible: this.gridCommons.isColumnVisible("actions"),
             });
@@ -574,6 +561,38 @@ export default class WorkflowGrid extends LitElement {
 
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
+    }
+
+    onColumnChange(e) {
+        this.gridCommons.onColumnChange(e);
+    }
+
+    onActionClick(event, value, workflow) {
+        const action = event.currentTarget.dataset.action;
+        switch (action) {
+            case "view":
+                this.workflowId = workflow.id;
+                this.changeActiveActionModal("view");
+                break;
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(workflow, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(workflow, null, "\t")], workflow.id + ".json");
+                break;
+            case "execute":
+                this.workflowId = workflow.id;
+                this.changeActiveActionModal("execute");
+                break;
+            case "update":
+                this.workflowId = workflow.id;
+                this.changeActiveActionModal("update");
+                break;
+            case "delete":
+                this.workflowId = workflow.id;
+                // TODO
+                break;
+        }
     }
 
     async onDownload(e) {
@@ -617,46 +636,24 @@ export default class WorkflowGrid extends LitElement {
     }
 
     getRightToolbar() {
-        return this.actions["entity"].map(action => {
-            return {
-                render: () => html`
-                    <div class="btn-group">
-                        <button
-                                type="button"
-                                class="btn btn-light ${action.permission}"
-                                data-action="${action.id}"
-                                data-type="entity"
-                                @click="${(e, value, row) => this.onActionClick(e, value, row)}">
-                            ${action.icon ? html`<span><i class="${action.icon} fa-lg pe-1"></i></span>` : nothing}
-                            ${action.title ? html`${action.title}` : nothing}
-                        </button>
-                    </div>
-                `,
-            }
-        })
-    }
-
-    renderWorkflowCreate() {
-        return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
-            display: {
-                modalTitle: this.currentAction["modalTitle"],
-                modalDraggable: true,
-                modalCyDataName: "modal-workflow-create",
-                modalSize: "modal-lg",
-            },
-            render: () => html`
-                <workflow-create
-                        .opencgaSession="${this.opencgaSession}"
-                        .displayConfig="${{
-                            buttonClearText: "Cancel",
-                            type: "tabs",
-                            buttonsLayout: "upper"
-                        }}"
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        @workflowCreate="${e => this.onWorkflowAction(e, `${this.currentAction["modalId"]}`)}">
-                </workflow-create>
-            `,
-        });
+        return [];
+        // return this.actions["entity"].map(action => {
+        //     return {
+        //         render: () => html`
+        //             <div class="btn-group">
+        //                 <button
+        //                         type="button"
+        //                         class="btn btn-light ${action.permission}"
+        //                         data-action="${action.id}"
+        //                         data-type="entity"
+        //                         @click="${(e, value, row) => this.onActionClick(e, value, row)}">
+        //                     ${action.icon ? html`<span><i class="${action.icon} fa-lg pe-1"></i></span>` : nothing}
+        //                     ${action.title ? html`${action.title}` : nothing}
+        //                 </button>
+        //             </div>
+        //         `,
+        //     }
+        // })
     }
 
     onWorkflowImport(e) {
@@ -678,94 +675,6 @@ export default class WorkflowGrid extends LitElement {
         });
     }
 
-    renderWorkflowImport() {
-        return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
-            display: {
-                modalTitle: this.currentAction["modalTitle"],
-                modalDraggable: true,
-                modalCyDataName: `modal-${this.currentAction["id"]}`,
-                modalSize: "modal-lg",
-            },
-            render: () => html`
-                <workflow-import
-                        .opencgaSession="${this.opencgaSession}"
-                        @workflowImport="${this.onWorkflowImport}">
-                </workflow-import>
-            `,
-        });
-    }
-
-    renderWorkflowView() {
-        return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
-            display: {
-                modalTitle: `Workflow ${this.workflowId}`,
-                modalDraggable: false,
-                modalCyDataName: `modal-${this.currentAction["id"]}`,
-                modalContainerClass: "fullscreen-modal",
-                modalTitleHeader: "h4",
-            },
-            render: () => html`
-                <!--
-                <workflow-view
-                    .workflowId="${this.workflowId}"
-                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "bottom"}}"
-                    .opencgaSession="${this.opencgaSession}">
-                </workflow-view>
-                -->
-                <workflow-detail
-                    .workflowId="${this.workflowId}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.view}">
-                </workflow-detail>
-            `,
-        });
-    }
-
-    renderWorkflowExecute() {
-        return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
-            display: {
-                modalTitle: this.currentAction["modalTitle"],
-                modalDraggable: true,
-                modalCyDataName: `modal-${this.currentAction["id"]}`,
-                modalSize: "modal-lg",
-            },
-            render: () => html`
-                <workflow-analysis
-                    .toolParams="${{id: this.workflowId}}"
-                    .search="${false}"
-                    .opencgaSession="${this.opencgaSession}">
-                </workflow-analysis>
-            `,
-        });
-    }
-
-    renderWorkflowUpdate() {
-        return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
-            display: {
-                modalTitle: this.currentAction["modalTitle"],
-                modalDraggable: true,
-                modalCyDataName: `modal-${this.currentAction["id"]}`,
-                modalSize: "modal-lg",
-            },
-            render: active => html`
-                <workflow-update
-                        .workflowId="${this.workflowId}"
-                        .active="${active}"
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                </workflow-update>
-            `,
-        });
-    }
-
-    renderWorkflowCopy() {
-        UtilsNew.copyToClipboard(JSON.stringify(this.workflow, null, "\t"));
-    }
-
-    renderWorkflowDownload() {
-        UtilsNew.downloadData([JSON.stringify(this.workflow, null, "\t")], this.workflow.id + ".json");
-    }
-
     renderWorkflowDelete() {
         return html`
             <workflow-delete
@@ -774,6 +683,109 @@ export default class WorkflowGrid extends LitElement {
                 @closeNotification="${e => this.onCloseNotification(e)}">
             </workflow-delete>
         `;
+    }
+
+    renderActionModal() {
+        let config = null;
+
+        switch (this.activeActionModal) {
+            case "create":
+                config = {
+                    display: {
+                        modalTitle: "Create Workflow",
+                        modalDraggable: true,
+                        modalCyDataName: "modal-workflow-create",
+                        modalSize: "modal-lg",
+                    },
+                    render: () => html`
+                        <workflow-create
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig="${{
+                                buttonClearText: "Cancel",
+                                type: "tabs",
+                                buttonsLayout: "upper"
+                            }}"
+                            @workflowCreate="${e => this.onWorkflowAction(e, `${this.currentAction["modalId"]}`)}">
+                        </workflow-create>
+                    `,
+                };
+                break;
+            case "import":
+                config = {
+                    display: {
+                        modalTitle: "Import Workflow",
+                        modalDraggable: true,
+                        modalCyDataName: "modal-workflow-import",
+                        modalSize: "modal-lg",
+                    },
+                    render: () => html`
+                        <workflow-import
+                            .opencgaSession="${this.opencgaSession}"
+                            @workflowImport="${this.onWorkflowImport}">
+                        </workflow-import>
+                    `,
+                };
+                break;
+            case "view":
+                config = {
+                    display: {
+                        modalTitle: `Workflow ${this.workflowId}`,
+                        modalDraggable: false,
+                        modalCyDataName: `modal-workflow-view`,
+                        modalContainerClass: "fullscreen-modal",
+                        modalTitleHeader: "h4",
+                    },
+                    render: () => html`
+                        <workflow-detail
+                            .workflowId="${this.workflowId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this._config.view}">
+                        </workflow-detail>
+                    `,
+                };
+                break;
+            case "execute":
+                config = {
+                    display: {
+                        modalTitle: "Execute Workflow",
+                        modalDraggable: true,
+                        modalCyDataName: "modal-workflow-execute",
+                        modalSize: "modal-lg",
+                    },
+                    render: () => html`
+                        <workflow-analysis
+                            .toolParams="${{id: this.workflowId}}"
+                            .search="${false}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </workflow-analysis>
+                    `,
+                };
+                break;
+            case "update":
+                config = {
+                    display: {
+                        modalTitle: `Update Workflow ${this.workflowId}`,
+                        modalDraggable: true,
+                        modalCyDataName: "modal-workflow-update",
+                        modalSize: "modal-lg",
+                    },
+                    render: active => html`
+                        <workflow-update
+                            .workflowId="${this.workflowId}"
+                            .active="${active}"
+                            .displayConfig="${{
+                                buttonClearText: "Cancel",
+                                type: "tabs",
+                                buttonsLayout: "upper"
+                            }}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </workflow-update>
+                    `,
+                };
+                break;
+        }
+        // render a modal with the provided configuration
+        return config ? ModalUtils.create(this, `${this._prefix}Modal${this.activeActionModal}`, config) : nothing;
     }
 
     renderToolbarLeftContent() {
@@ -803,8 +815,8 @@ export default class WorkflowGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="w-grid">
                 <table id="${this.gridId}"></table>
             </div>
-            <!-- 3. On entity action click, render the respective modal -->
-            ${UtilsNew.isNotEmpty(this.currentAction) ? this.currentAction["render"]() : nothing}
+
+            ${this.renderActionModal()}
         `;
     }
 
