@@ -15,15 +15,15 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import "./workflow-create.js";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 import ModalUtils from "../commons/modal/modal-utils";
-import "../commons/opencb-grid-toolbar.js";
 import WebUtils from "../commons/utils/web-utils";
+import "../commons/opencb-grid-toolbar.js";
+import "./workflow-create.js";
 
 export default class WorkflowGrid extends LitElement {
 
@@ -582,7 +582,11 @@ export default class WorkflowGrid extends LitElement {
                 break;
             case "delete":
                 this.workflowId = workflow.id;
-                // TODO
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                    title: `Delete Workflow: Workflow <b>${this.workflowId}</b> in organization ${this.opencgaSession.organization.id}`,
+                    message: `Are you sure you want to delete this workflow ${this.workflowId}?`,
+                    ok: () => this.onWorkflowDelete(),
+                });
                 break;
         }
     }
@@ -627,6 +631,23 @@ export default class WorkflowGrid extends LitElement {
             });
     }
 
+    onWorkflowDelete() {
+        this.opencgaSession.opencgaClient.workflows()
+            .delete(this.workflowId, {
+                study: this.opencgaSession.study.fqn,
+                jobId: `workflow-delete-${UtilsNew.getDatetime()}`,
+            })
+            .then(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Delete Workflow: Job launched",
+                    message: `Job ${response.params.jobId} has been launched successfully`,
+                });
+            })
+            .catch(error => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            });
+    }
+
     onWorkflowImport(e) {
         this.opencgaSession.opencgaClient.workflows()
             .search(
@@ -661,16 +682,6 @@ export default class WorkflowGrid extends LitElement {
                 onClick: () => this.changeActiveActionModal("import"),
             },
         ];
-    }
-
-    renderWorkflowDelete() {
-        return html`
-            <workflow-delete
-                .opencgaSession="${this.opencgaSession}"
-                .workflowId="${this.workflowId}"
-                @closeNotification="${e => this.onCloseNotification(e)}">
-            </workflow-delete>
-        `;
     }
 
     renderActionModal() {
