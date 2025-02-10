@@ -509,7 +509,7 @@ export default class WorkflowGrid extends LitElement {
                     <div class="d-flex justify-content-center align-items-center">
                         <div class="d-flex justify-content-around">
                             <a class="btn" data-action="view">
-                                <i class="fa fa-external-link"></i>
+                                <i class="fa fa-external-link-alt"></i>
                             </a>
                         </div>
                         <div class="dropdown d-flex justify-content-end">
