@@ -302,6 +302,7 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     async onActionClick(e, _, row) {
+        event.preventDefault();
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
             /*
@@ -346,7 +347,8 @@ export default class OpencgaFileGrid extends LitElement {
                         <div>
                             <span class="fw-bold" style="margin: 5px 0">${fileName}</span>
                             <span class="d-block text-secondary" style="margin: 5px 0">/${row.path.replace(row.name, "").replace("//", "/")}</span>
-                        </div>`;
+                        </div>
+                    `;
                 },
                 visible: this.gridCommons.isColumnVisible("name")
             },
@@ -451,45 +453,33 @@ export default class OpencgaFileGrid extends LitElement {
                             <button class="btn" type="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a data-action="download"
-                                       class="dropdown-item ${downloadUrl.length === 0 ? "disabled" : ""}"
-                                       href="${downloadUrl.join("").replace("FILE_ID", row.id)}">
-                                            <i class="fas fa-download me-1"></i> Download
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a data-action="copy-json" class="dropdown-item" href="javascript: void 0">
-                                        <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
-                                    </a>
-                                </li>
-                                <li>
-                                    <a data-action="download-json" class="dropdown-item" href="javascript: void 0" >
-                                        <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a data-action="quality-control"
-                                       class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
-                                       title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                           <i class="fas fa-rocket me-1" aria-hidden="true"></i> Calculate Quality Control
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a data-action="edit" class="dropdown-item disabled ${hasWritePermission ? "" : "disabled"}" href="javascript: void 0">
-                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                                    </a>
-                                </li>
-                                <li>
-                                    <a data-action="delete" class="dropdown-item disabled" href="javascript: void 0">
-                                        <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
-                                    </a>
-                                </li>
-                            </ul>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a data-action="download"
+                                    class="dropdown-item ${downloadUrl.length === 0 ? "disabled" : ""}"
+                                    href="${downloadUrl.join("").replace("FILE_ID", row.id)}">
+                                        <i class="fas fa-download me-1"></i> Download
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a data-action="copy-json" class="dropdown-item cursor-pointer">
+                                    <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
+                                </a>
+                                <a data-action="download-json" class="dropdown-item cursor-pointer">
+                                    <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a data-action="quality-control"
+                                    class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "cursor-pointer" : "disabled"}"
+                                    title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
+                                        <i class="fas fa-rocket me-1" aria-hidden="true"></i> Calculate Quality Control
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a data-action="edit" class="dropdown-item disabled ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                                    <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
+                                </a>
+                                <a data-action="delete" class="dropdown-item disabled">
+                                    <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
+                                </a>
+                            </div>
                         </div>
                     `;
                 },
