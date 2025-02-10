@@ -171,7 +171,7 @@ export default class OpencgaFileGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        include: "id,name,path,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal,annotationSets",
+                        include: "id,name,path,type,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal,annotationSets",
                         ...this.query
                     };
                     // When searching by directory we must also show directories
@@ -327,6 +327,17 @@ export default class OpencgaFileGrid extends LitElement {
     _getDefaultColumns() {
         this._columns = [
             {
+                id: "icon",
+                title: "",
+                field: "type",
+                formatter: value => {
+                    return `<i class="fs-5 fas ${value === "DIRECTORY" ? "fa-folder" : "fa-file-alt"}"></i>`;
+                },
+                align: "center",
+                width: 40,
+                excludeFromSettings: true,
+            },
+            {
                 id: "name",
                 title: "Name",
                 field: "name",
@@ -427,9 +438,8 @@ export default class OpencgaFileGrid extends LitElement {
             ]:[];
             this._columns.push({
                 id: "actions",
-                title: "Actions",
                 field: "actions",
-                align: "center",
+                align: "right",
                 formatter: (value, row) => {
                     const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
                         this.opencgaSession.study,
@@ -438,9 +448,8 @@ export default class OpencgaFileGrid extends LitElement {
                         this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
                     return `
                         <div class="d-inline-block dropdown">
-                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
-                                <span>Actions</span>
+                            <button class="btn" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
@@ -487,6 +496,7 @@ export default class OpencgaFileGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
+                excludeFromSettings: true,
                 visible: this.gridCommons.isColumnVisible("actions")
             });
         }
