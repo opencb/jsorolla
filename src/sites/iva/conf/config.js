@@ -188,26 +188,10 @@ const SUITE = {
         // {id: "file-manager", name: "File Manager", url: "#file-manager", icon: "fas fa-folder-open", visibility: "private"}
     ],
     footer: {
-        display: {
-            backgroundColor: "",
-        },
-        organisation: {
-            logo: {img: "img/opencb-logo.png", height: "20px", link: "https://github.com/opencb/"},
-            text: "",
-            textStyle: "",
-        },
-        project: {
-            logo: {img: "", height: "3rem", link: ""},
-        },
-        opencb: {
-            display: {
-                textColor: "",
-            },
-            logo: {img: "", height: "", link: ""},
-            text: "Powered by OpenCB",
-            link: "https://github.com/opencb/",
-        },
-        custom: "", // Optionally, a custom footer can be added.
+        // display: {
+        //     contentClass: "",
+        // },
+        // content: "",
     },
     sidebar: {
         organisation: {
