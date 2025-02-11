@@ -112,13 +112,22 @@ export default class OpencbGridToolbar extends LitElement {
         LitUtils.dispatchCustomEvent(this, toolbar + UtilsNew.capitalize(action));
     }
 
-    render() {
-        const rightButtons = [];
-        if (this.rightToolbar?.length > 0) {
-            for (const rightButton of this.rightToolbar) {
-                rightButtons.push(rightButton.render());
+    renderRightButtons() {
+        return (this.rightToolbar || []).map(button => {
+            if (typeof button.render === "function") {
+                return button.render();
+            } else {
+                return html`
+                    <button class="btn btn-light ${button.className || ""}" @click="${button.onClick}">
+                        ${button.icon ? html`<i class="fas fa-${button.icon} me-1"></i>` : nothing}
+                        ${button.title}
+                    </button>
+                `;
             }
-        }
+        });
+    }
+
+    render() {
         // Button create text
         const buttonCreateText = this._settings?.buttonCreateText || "New...";
 
@@ -148,11 +157,7 @@ export default class OpencbGridToolbar extends LitElement {
                 </div>
                 <div class="d-flex gap-1 justify-content-end" data-cy="toolbar-wrapper">
                     <!-- First, display custom elements passed as 'rightToolbar' parameter, this must be the first ones displayed -->
-                    ${rightButtons?.length > 0 ? rightButtons.map(rightButton => html`
-                        <div class="btn-group">
-                            ${rightButton}
-                        </div>
-                    `) : nothing}
+                    ${this.rightToolbar?.length > 0 ? this.renderRightButtons() : nothing}
 
                     <!-- Second, display elements configured -->
                     ${this._config?.create && (this._settings.showCreate || this._settings.showNew) ? html`

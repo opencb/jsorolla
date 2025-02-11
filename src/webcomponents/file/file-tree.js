@@ -127,9 +127,10 @@ export default class FileTree extends LitElement {
 
     renderTree(directoryId, indent = 0) {
         return (this._directories.get(directoryId) || []).map(directory => {
+            const isExpanded = this._expandedDirectories.has(directory.id);
             return html`
-                ${this.renderDirectoryItem(directory, "fa-folder", indent)}
-                ${this._expandedDirectories.has(directory.id) ? this.renderTree(directory.id, indent + 1) : nothing}
+                ${this.renderDirectoryItem(directory, isExpanded ? "fa-folder-open" : "fa-folder", indent)}
+                ${isExpanded ? this.renderTree(directory.id, indent + 1) : nothing}
             `;
         });
     }
