@@ -1679,6 +1679,7 @@ class IvaApp extends LitElement {
                         </div>
 
                         <layout-footer
+                            .opencgaSession="${this.opencgaSession}"
                             .version="${this.version || ""}"
                             .host="${this.host}"
                             .config="${this.config}">
