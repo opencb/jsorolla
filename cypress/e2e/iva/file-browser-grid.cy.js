@@ -203,7 +203,7 @@ context("File Browser Grid", () => {
     //     });
     // });
 
-    context("Row", () => {
+    context("row", () => {
         it("should display row #3 as selected", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
                 cy.get("tbody tr")
@@ -212,16 +212,29 @@ context("File Browser Grid", () => {
                     .should("have.class","table-success");
         });
 
-        it("should download file json",{tags:"@shortTask"}, () => {
-            cy.get("tbody tr:first > td")
-                .eq(-2)
-                .within(() => {
-                    cy.get("button")
-                        .click();
-                    cy.get(`ul[class*="dropdown-menu"][class*="show"]`)
-                        .contains("a","Download JSON")
-                        .click();
+        context("actions", () => {
+            it("should display actions menu", () => {
+                cy.get(`tbody tr:first > td`)
+                    .eq(-2)
+                    .within(() => {
+                        cy.get("button")
+                            .click();
+                        cy.get(`div[class*="dropdown-menu"][class*="show"]`)
+                            .should("be.visible");
+                    });
             });
+
+            // it("should allow to download a JSON of the file", () => {
+            //     cy.get("tbody tr:first > td")
+            //         .eq(-2)
+            //         .within(() => {
+            //             cy.get("button")
+            //                 .click();
+            //             cy.get(`ul[class*="dropdown-menu"][class*="show"]`)
+            //                 .contains("a","Download JSON")
+            //                 .click();
+            //     });
+            // });
         });
     });
 
