@@ -26,6 +26,7 @@ import ModalUtils from "../commons/modal/modal-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import "./file-create.js";
+import "./folder-create.js";
 
 export default class OpencgaFileGrid extends LitElement {
 
@@ -544,7 +545,12 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 icon: "fa-file-medical",
                 title: "Create File",
-                onClick: () => this.changeActiveActionModal("create"),
+                onClick: () => this.changeActiveActionModal("create-file"),
+            },
+            {
+                icon: "fa-folder-plus",
+                title: "Create Folder",
+                onClick: () => this.changeActiveActionModal("create-folder"),
             },
         ];
     }
@@ -578,7 +584,7 @@ export default class OpencgaFileGrid extends LitElement {
         let config = null;
 
         switch (this.activeActionModal) {
-            case "create":
+            case "create-file":
                 config = {
                     display: {
                         modalTitle: "Create File",
@@ -592,6 +598,23 @@ export default class OpencgaFileGrid extends LitElement {
                             .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
                             @fileCreate="${() => this.changeActiveActionModal("")}">
                         </file-create>
+                    `,
+                };
+                break;
+            case "create-folder":
+                config = {
+                    display: {
+                        modalTitle: "Create Folder",
+                        modalCyDataName: "modal-create",
+                        modalSize: "modal-lg"
+                    },
+                    render: () => html`
+                        <folder-create
+                            .opencgaSession="${this.opencgaSession}"
+                            .path="${this.getCurrentPath()}"
+                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                            @folderCreate="${() => this.changeActiveActionModal("")}">
+                        </folder-create>
                     `,
                 };
                 break;
