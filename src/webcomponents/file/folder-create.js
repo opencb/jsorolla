@@ -178,7 +178,7 @@ export default class FolderCreate extends LitElement {
                     ],
                 },
             ],
-        }
+        };
     }
 }
 
