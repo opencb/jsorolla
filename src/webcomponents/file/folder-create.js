@@ -19,8 +19,6 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
-const FILE_TYPE = "DIRECTORY";
-
 export default class FolderCreate extends LitElement {
 
     constructor() {
@@ -35,14 +33,14 @@ export default class FolderCreate extends LitElement {
 
     static get properties() {
         return {
-            path: {
-                type: String,
-            },
             opencgaSession: {
                 type: Object
             },
+            path: {
+                type: String,
+            },
             displayConfig: {
-                type: Object
+                type: Object,
             },
         };
     }
@@ -55,15 +53,12 @@ export default class FolderCreate extends LitElement {
             defaultLayout: "horizontal",
             buttonOkText: "Create Folder",
             buttonClearText: "Discard Changes",
-
         };
         this.#initOriginalObjects();
     }
 
     #initOriginalObjects() {
-        this._folder = {
-            type: FILE_TYPE,
-        };
+        this._folder = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -73,16 +68,13 @@ export default class FolderCreate extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("path")) {
-            this._folder.path = `/${this.path}`;
-        }
+        // if (changedProperties.has("path")) {
+        //     this._folder.path = `/${this.path}`;
+        // }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig
-            };
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -103,24 +95,24 @@ export default class FolderCreate extends LitElement {
     }
 
     onSubmit() {
+        const name = this._folder.name;
         const data = {
-            path: `${this._folder.path}${this._folder.name}`,
-            type: this._folder.type,
-        }
-        const params = {
-            study: this.opencgaSession.study.fqn,
+            path: `${this.path || "/"}${name}`,
+            type: "DIRECTORY",
         };
-        let error;
+
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.files()
-            .create(data, params)
+            .create(data, {
+                study: this.opencgaSession.study.fqn,
+            })
             .then(() => {
                 this.#initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Folder Create",
-                    message: "Folder created correctly",
+                    message: `Folder ${name} created correctly`,
                 });
-                LitUtils.dispatchCustomEvent(this, "folderCreate", this._folder);
+                LitUtils.dispatchCustomEvent(this, "folderCreate");
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -132,7 +124,9 @@ export default class FolderCreate extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
         }
 
         return html`
@@ -142,15 +136,18 @@ export default class FolderCreate extends LitElement {
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
-            </data-form>`;
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
         return {
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                ...this.displayConfigDefault,
+                ...this.displayConfig,
+            },
             sections: [
                 {
-                    title: "General Information",
                     elements: [
                         {
                             title: "Type",
@@ -177,12 +174,6 @@ export default class FolderCreate extends LitElement {
                             field: "name",
                             required: true,
                             type: "input-text",
-                            /*
-                            validation:
-                                validate: () => null,
-                                message: "",
-                            }
-                             */
                         },
                     ],
                 },
