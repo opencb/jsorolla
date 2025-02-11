@@ -332,7 +332,9 @@ export default class OpencgaFileGrid extends LitElement {
                 title: "",
                 field: "type",
                 formatter: value => {
-                    return `<i class="fs-5 fas ${value === "DIRECTORY" ? "fa-folder" : "fa-file-alt"}"></i>`;
+                    return `
+                        <i class="fs-5 fas ${value === "DIRECTORY" ? "fa-folder" : "fa-file-alt"}"></i>
+                    `;
                 },
                 align: "center",
                 width: 40,
@@ -344,10 +346,8 @@ export default class OpencgaFileGrid extends LitElement {
                 field: "name",
                 formatter: (fileName, row) => {
                     return `
-                        <div>
-                            <span class="fw-bold" style="margin: 5px 0">${fileName}</span>
-                            <span class="d-block text-secondary" style="margin: 5px 0">/${row.path.replace(row.name, "").replace("//", "/")}</span>
-                        </div>
+                        <div class="fw-bold mb-1">${fileName}</div>
+                        <div class="text-secondary">${("/" + row.path.replace(row.name, "")).replace("//", "/")}</div>
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("name")
