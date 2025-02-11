@@ -17,7 +17,6 @@
 import {html, LitElement} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class FileCreate extends LitElement {
 
@@ -73,44 +72,12 @@ export default class FileCreate extends LitElement {
     }
 
     update(changedProperties) {
-        // if (changedProperties.has("opencgaSession")) {
-        //     this.opencgaSessionObserver();
-        // }
-
-        // if (changedProperties.has("path")) {
-        //     this._file.path = `/${this.path}`;
-        // }
-
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
     }
-
-    // opencgaSessionObserver() {
-    //     this._formats = {
-    //         "formats": {
-    //             endpoint: this.opencgaSession.opencgaClient.files().formats(),
-    //             values: [],
-    //         },
-    //         "bioformats": {
-    //             endpoint: this.opencgaSession.opencgaClient.files().bioformats(),
-    //             values: [],
-    //         },
-    //     };
-    //     // Retrieve from OpenCGA the list of defined formats and bioformats
-    //     const promiseList = Object.keys(this._formats).map(promise => {
-    //         return this._formats[promise]["endpoint"]
-    //             .then(response => this._formats[promise]["values"] = response.getResponse().results)
-    //             .catch( error => NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error))
-    //     });
-    //     Promise.all(promiseList)
-    //         .then(() => {
-    //             this._config = this.getDefaultConfig();
-    //             this.requestUpdate();
-    //         });
-    // }
 
     onFieldChange(e) {
         this._file = {...e.detail.data}; // force to refresh the object-list
@@ -214,49 +181,6 @@ export default class FileCreate extends LitElement {
                             field: "description",
                             type: "input-text",
                         },
-                        // {
-                        //     title: "Format",
-                        //     field: "format",
-                        //     type: "select",
-                        //     allowedValues: this._formats["formats"]?.values,
-                        //     display: {
-                        //         helpMessage: "Please select a format",
-                        //     },
-                        // },
-                        // {
-                        //     title: "Bioformat",
-                        //     field: "bioformat",
-                        //     type: "select",
-                        //     allowedValues: this._formats["bioformats"]?.values,
-                        //     display: {
-                        //         helpMessage: "Please select a bioformat",
-                        //     },
-                        // },
-                        // {
-                        //     title: "Job ID",
-                        //     field: "jobId",
-                        //     type: "input-text",
-                        // },
-                        // {
-                        //     title: "Sample IDs",
-                        //     field: "sampleIds",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: (samples, dataFormFilterChange) => {
-                        //             const handleSampleFilterChange = e => {
-                        //                 dataFormFilterChange(e.detail.value?.split(",") || []);
-                        //             };
-                        //             return html `
-                        //                 <catalog-search-autocomplete
-                        //                     .value="${samples?.join()}"
-                        //                     .resource="${"SAMPLE"}"
-                        //                     .opencgaSession="${this.opencgaSession}"
-                        //                     @filterChange="${e => handleSampleFilterChange(e)}">
-                        //                 </catalog-search-autocomplete>
-                        //             `;
-                        //         }
-                        //     },
-                        // },
                         {
                             title: "Content",
                             field: "content",
