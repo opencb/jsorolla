@@ -164,9 +164,9 @@ export default class OpencbGridToolbar extends LitElement {
                 <div class="d-flex gap-1 justify-content-end" data-cy="toolbar-wrapper">
                     <!-- First, display custom elements passed as 'rightToolbar' parameter, this must be the first ones displayed -->
                     ${this.rightToolbar?.length > 0 ? html`
-                        <div class="d-flex align-items-center gap-1">
+                        <div class="d-flex align-items-stretch gap-1">
                             ${this.renderRightButtons()}
-                            <div class="w-px bg-gray-200"></div>
+                            <div class="w-px bg-gray-200 mx-1"></div>
                         </div>
                     ` : nothing}
 
