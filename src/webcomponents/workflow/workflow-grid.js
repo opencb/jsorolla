@@ -26,8 +26,11 @@ import "../commons/opencb-grid-toolbar.js";
 import "./workflow-create.js";
 import "./workflow-import.js";
 import "./workflow-detail.js";
+import "./workflow-scripts-view.js";
+import "./workflow-jobs.js";
 import "./workflow-update.js";
 import "./analysis/workflow-analysis.js";
+import LitUtils from "../commons/utils/lit-utils";
 
 export default class WorkflowGrid extends LitElement {
 
@@ -642,10 +645,8 @@ export default class WorkflowGrid extends LitElement {
                 jobId: `workflow-delete-${UtilsNew.getDatetime()}`,
             })
             .then(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Delete Workflow: Job launched",
-                    message: `Job ${response.params.jobId} has been launched successfully`,
-                });
+                // CAUTION 20250211 Vero: to discuss
+                // LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this._workflow.id, {});
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -705,7 +706,7 @@ export default class WorkflowGrid extends LitElement {
                                 type: "tabs",
                                 buttonsLayout: "upper"
                             }}"
-                            @workflowCreate="${e => this.onWorkflowAction(e, `${this.currentAction["modalId"]}`)}">
+                            @workflowCreate="${e => this.changeActiveActionModal("")}">
                         </workflow-create>
                     `,
                 };
@@ -778,7 +779,8 @@ export default class WorkflowGrid extends LitElement {
                                 type: "tabs",
                                 buttonsLayout: "upper"
                             }}"
-                            .opencgaSession="${this.opencgaSession}">
+                            .opencgaSession="${this.opencgaSession}"
+                            @workflowUpdate="${e => this.changeActiveActionModal("")}">
                         </workflow-update>
                     `,
                 };
