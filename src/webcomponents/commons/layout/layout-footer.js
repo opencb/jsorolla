@@ -1,4 +1,5 @@
 import {html, LitElement, nothing} from "lit";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class LayoutFooter extends LitElement {
 
@@ -12,6 +13,9 @@ export default class LayoutFooter extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object,
+            },
             version: {
                 type: String,
             },
@@ -19,8 +23,8 @@ export default class LayoutFooter extends LitElement {
                 type: Object,
             },
             config: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
@@ -35,7 +39,13 @@ export default class LayoutFooter extends LitElement {
     render() {
         return html`
             <div class="d-flex justify-content-between border-top py-4 mx-4">
-                <div class=""></div>
+                <div class="d-flex align-items-center gap-2">
+                    ${this.config?.footer?.content ? html`
+                        <div class="${this.config?.footer?.display?.contentClass || ""}">
+                            ${UtilsNew.renderHTML(typeof this.config.footer.content === "function" ? this.config.footer.content(this.opencgaSession) : this.config.footer.content)}
+                        </div>    
+                    ` : nothing}
+                </div>
                 <div class="d-flex gap-3">
                     ${this.renderVersion("IVA (JSorolla)", "v" + this.version, "https://github.com/opencb/jsorolla")}
                     ${this.host?.opencga ? this.renderVersion("OpenCGA", this.host.opencga, "https://github.com/opencb/opencga") : nothing}
