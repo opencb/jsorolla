@@ -72,16 +72,16 @@ export default class JupyterNotebook extends LitElement {
                             <img src="${this._config.logo}" class="${this._config?.display?.logoClass || ""}" style="${this._config?.display?.logoStyle || ""}">
                         </div>
                     ` : nothing}
-                    <div class="d-flex flex-column text-center fs-5 text-gray-700 mb-4" style="max-width:560px;">
-                        <p class="mb-4"><span class="highlight">Create and execute Jupyter Notebooks</span> directly within this OpenCGA instance to analyze your data efficiently.</p>
-                        <p class="fw-bold mb-2">Please note that this may involve additional costs.</p>
+                    <div class="d-flex flex-column text-center text-gray-700 mb-4" style="max-width:560px;">
+                        <p class="mb-4 fs-4"><span class="highlight">Create and execute Jupyter Notebooks</span> directly within this XetaBase instance to analyze your data efficiently.</p>
+                        <p> <span class="fw-bold mb-2 fs-6">Please note that using Jupyter Lab may incur additional costs, estimated at around $1 per hour.</span></p>
                     </div>
-                    <div class="d-flex align-items-start fs-7 text-gray-700 mb-4">
-                        <h5>Key Features:</h5>
+                    <div class="d-flex flex-column fs-7 text-gray-700 mb-4">
+                        <h5>Key features:</h5>
                             <ul>
-                                <li><span class="fw-bold">Specs:</span> 2 cores, 4GB RAM</li>
-                                <li><span class="fw-bold">Private Session:</span> Your work remains confidential!</li>
-                                <li><span class="fw-bold">Potential Costs:</span> <em>$1 per hour (please verify on the platform)</em></li>
+                                <li><span class="fw-bold">Specs:</span> Each instance is allocated 2 cores, 4 GB memory, and 10 GB disk storage.</li>
+                                <li><span class="fw-bold">Preconfigured environment:</span>The Jupyter Notebook image used is the Scientific Python, with PyOpenCGA already installed.</li>
+                                <li><span class="fw-bold">Privacy and Security:</span> Each user operates in a separate session and instance, completely isolated from the others.</li>
                             </ul>
                     </div>
                     <div class="d-flex">
