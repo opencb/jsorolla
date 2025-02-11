@@ -26,6 +26,7 @@ import ModalUtils from "../commons/modal/modal-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import "./file-create.js";
+import "./file-upload.js";
 import "./folder-create.js";
 
 export default class OpencgaFileGrid extends LitElement {
@@ -548,6 +549,11 @@ export default class OpencgaFileGrid extends LitElement {
                 onClick: () => this.changeActiveActionModal("create-file"),
             },
             {
+                icon: "fa-file-upload",
+                title: "Upload File",
+                onClick: () => this.changeActiveActionModal("upload-file"),
+            },
+            {
                 icon: "fa-folder-plus",
                 title: "Create Folder",
                 onClick: () => this.changeActiveActionModal("create-folder"),
@@ -598,6 +604,23 @@ export default class OpencgaFileGrid extends LitElement {
                             .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
                             @fileCreate="${() => this.changeActiveActionModal("")}">
                         </file-create>
+                    `,
+                };
+                break;
+            case "upload-file":
+                config = {
+                    display: {
+                        modalTitle: "Upload File",
+                        modalCyDataName: "modal-upload",
+                        modalSize: "modal-lg"
+                    },
+                    render: () => html`
+                        <file-upload
+                            .opencgaSession="${this.opencgaSession}"
+                            .path="${this.getCurrentPath()}"
+                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                            @fileUpload="${() => this.changeActiveActionModal("")}">
+                        </file-upload>
                     `,
                 };
                 break;
