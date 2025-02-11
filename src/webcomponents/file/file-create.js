@@ -19,8 +19,6 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
-const FILE_TYPE = "FILE";
-
 export default class FileCreate extends LitElement {
 
     constructor() {
@@ -35,11 +33,11 @@ export default class FileCreate extends LitElement {
 
     static get properties() {
         return {
-            path: {
-                type: String,
-            },
             opencgaSession: {
                 type: Object
+            },
+            path: {
+                type: String,
             },
             displayConfig: {
                 type: Object
@@ -57,14 +55,14 @@ export default class FileCreate extends LitElement {
             buttonClearText: "Discard Changes",
         };
 
-        this._formats = [];
+        // this._formats = [];
 
         this.#initOriginalObjects();
     }
 
     #initOriginalObjects() {
         this._file = {
-            type: FILE_TYPE,
+            type: "FILE",
         };
         this._config = this.getDefaultConfig();
     }
@@ -75,46 +73,44 @@ export default class FileCreate extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
-        if (changedProperties.has("path")) {
-            this._file.path = `/${this.path}`;
-        }
+        // if (changedProperties.has("opencgaSession")) {
+        //     this.opencgaSessionObserver();
+        // }
+
+        // if (changedProperties.has("path")) {
+        //     this._file.path = `/${this.path}`;
+        // }
+
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig,
-            };
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
-    opencgaSessionObserver() {
-        this._formats = {
-            "formats": {
-                endpoint: this.opencgaSession.opencgaClient.files().formats(),
-                values: [],
-            },
-            "bioformats": {
-                endpoint: this.opencgaSession.opencgaClient.files().bioformats(),
-                values: [],
-            },
-        };
-        // Retrieve from OpenCGA the list of defined formats and bioformats
-        const promiseList = Object.keys(this._formats).map(promise => {
-            return this._formats[promise]["endpoint"]
-                .then(response => this._formats[promise]["values"] = response.getResponse().results)
-                .catch( error => NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error))
-        });
-        Promise.all(promiseList)
-            .then(() => {
-                this._config = this.getDefaultConfig();
-                this.requestUpdate();
-            });
-    }
-
+    // opencgaSessionObserver() {
+    //     this._formats = {
+    //         "formats": {
+    //             endpoint: this.opencgaSession.opencgaClient.files().formats(),
+    //             values: [],
+    //         },
+    //         "bioformats": {
+    //             endpoint: this.opencgaSession.opencgaClient.files().bioformats(),
+    //             values: [],
+    //         },
+    //     };
+    //     // Retrieve from OpenCGA the list of defined formats and bioformats
+    //     const promiseList = Object.keys(this._formats).map(promise => {
+    //         return this._formats[promise]["endpoint"]
+    //             .then(response => this._formats[promise]["values"] = response.getResponse().results)
+    //             .catch( error => NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error))
+    //     });
+    //     Promise.all(promiseList)
+    //         .then(() => {
+    //             this._config = this.getDefaultConfig();
+    //             this.requestUpdate();
+    //         });
+    // }
 
     onFieldChange(e) {
         this._file = {...e.detail.data}; // force to refresh the object-list
@@ -133,24 +129,24 @@ export default class FileCreate extends LitElement {
     }
 
     onSubmit() {
-        let {name, ...rest} = this._file;
-        let data = {
-            ...rest,
-            path: `${this._file.path}${name}`,
-        }
-        let params = {
-            study: this.opencgaSession.study.fqn,
+        const {name, ...otherFileData} = this._file;
+        const data = {
+            ...otherFileData,
+            path: `${this.path || "/"}${name}`,
         };
+
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.files()
-            .create(data, params)
+            .create(data, {
+                study: this.opencgaSession.study.fqn,
+            })
             .then(() => {
                 this.#initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "File Create",
-                    message: "File created correctly",
+                    message: `File ${name} created correctly`,
                 });
-                LitUtils.dispatchCustomEvent(this, "fileCreate", this._file);
+                LitUtils.dispatchCustomEvent(this, "fileCreate");
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -162,7 +158,9 @@ export default class FileCreate extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
         }
 
         return html`
@@ -172,15 +170,18 @@ export default class FileCreate extends LitElement {
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
-            </data-form>`;
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
         return {
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                ...this.displayConfigDefault,
+                ...this.displayConfig,
+            },
             sections: [
                 {
-                    title: "General Information",
                     elements: [
                         {
                             title: "Type",
@@ -207,61 +208,55 @@ export default class FileCreate extends LitElement {
                             field: "name",
                             required: true,
                             type: "input-text",
-                            /*
-                            validation:
-                                validate: () => null,
-                                message: "",
-                            }
-                             */
                         },
                         {
                             title: "Description",
                             field: "description",
                             type: "input-text",
                         },
-                        {
-                            title: "Format",
-                            field: "format",
-                            type: "select",
-                            allowedValues: this._formats["formats"]?.values,
-                            display: {
-                                helpMessage: "Please select a format",
-                            },
-                        },
-                        {
-                            title: "Bioformat",
-                            field: "bioformat",
-                            type: "select",
-                            allowedValues: this._formats["bioformats"]?.values,
-                            display: {
-                                helpMessage: "Please select a bioformat",
-                            },
-                        },
-                        {
-                            title: "Job ID",
-                            field: "jobId",
-                            type: "input-text",
-                        },
-                        {
-                            title: "Sample IDs",
-                            field: "sampleIds",
-                            type: "custom",
-                            display: {
-                                render: (samples, dataFormFilterChange) => {
-                                    const handleSampleFilterChange = e => {
-                                        dataFormFilterChange(e.detail.value?.split(",") || []);
-                                    };
-                                    return html `
-                                        <catalog-search-autocomplete
-                                            .value="${samples?.join()}"
-                                            .resource="${"SAMPLE"}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            @filterChange="${e => handleSampleFilterChange(e)}">
-                                        </catalog-search-autocomplete>
-                                    `;
-                                }
-                            },
-                        },
+                        // {
+                        //     title: "Format",
+                        //     field: "format",
+                        //     type: "select",
+                        //     allowedValues: this._formats["formats"]?.values,
+                        //     display: {
+                        //         helpMessage: "Please select a format",
+                        //     },
+                        // },
+                        // {
+                        //     title: "Bioformat",
+                        //     field: "bioformat",
+                        //     type: "select",
+                        //     allowedValues: this._formats["bioformats"]?.values,
+                        //     display: {
+                        //         helpMessage: "Please select a bioformat",
+                        //     },
+                        // },
+                        // {
+                        //     title: "Job ID",
+                        //     field: "jobId",
+                        //     type: "input-text",
+                        // },
+                        // {
+                        //     title: "Sample IDs",
+                        //     field: "sampleIds",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: (samples, dataFormFilterChange) => {
+                        //             const handleSampleFilterChange = e => {
+                        //                 dataFormFilterChange(e.detail.value?.split(",") || []);
+                        //             };
+                        //             return html `
+                        //                 <catalog-search-autocomplete
+                        //                     .value="${samples?.join()}"
+                        //                     .resource="${"SAMPLE"}"
+                        //                     .opencgaSession="${this.opencgaSession}"
+                        //                     @filterChange="${e => handleSampleFilterChange(e)}">
+                        //                 </catalog-search-autocomplete>
+                        //             `;
+                        //         }
+                        //     },
+                        // },
                         {
                             title: "Content",
                             field: "content",
