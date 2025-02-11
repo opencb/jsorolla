@@ -19,11 +19,15 @@ import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
-import ModalUtils from "../commons/modal/modal-utils";
-import WebUtils from "../commons/utils/web-utils";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import ModalUtils from "../commons/modal/modal-utils.js";
+import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "./workflow-create.js";
+import "./workflow-import.js";
+import "./workflow-detail.js";
+import "./workflow-update.js";
+import "./analysis/workflow-analysis.js";
 
 export default class WorkflowGrid extends LitElement {
 

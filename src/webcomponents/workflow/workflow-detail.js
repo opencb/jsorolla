@@ -60,7 +60,7 @@ export default class WorkflowDetail extends LitElement {
         }
 
         if (changedProperties.has("workflow")) {
-            this.individualObserver();
+            this.workflowObserver();
         }
 
         if (changedProperties.has("config")) {
@@ -90,7 +90,7 @@ export default class WorkflowDetail extends LitElement {
         }
     }
 
-    individualObserver() {
+    workflowObserver() {
         this._workflow = {...this.workflow};
         this.requestUpdate();
     }
