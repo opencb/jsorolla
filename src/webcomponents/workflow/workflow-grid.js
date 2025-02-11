@@ -251,7 +251,24 @@ export default class WorkflowGrid extends LitElement {
         }));
     }
 
-    changeActiveActionModal(action) {
+    changeActiveActionModal(actionModal) {
+        // 1. check if there is a modal rendered
+        if (this.activeActionModal) {
+            ModalUtils.close(`${this._prefix}Modal${this.activeActionModal}`);
+        }
+
+        // 2. set the new active action modal
+        this.activeActionModal = actionModal;
+        this.requestUpdate();
+
+        // 3. show the new active action modal (if provided)
+        this.updateComplete.then(() => {
+            if (this.activeActionModal) {
+                ModalUtils.show(`${this._prefix}Modal${this.activeActionModal}`);
+            }
+        });
+
+        /*
         this.activeActionModal = action;
         this.requestUpdate();
         this.updateComplete.then(() => {
@@ -259,6 +276,7 @@ export default class WorkflowGrid extends LitElement {
                 ModalUtils.show(`${this._prefix}Modal${this.activeActionModal}`);
             }
         });
+         */
     }
 
     renderTable() {
@@ -673,13 +691,13 @@ export default class WorkflowGrid extends LitElement {
         return [
             {
                 className: this.permissions.WRITE ? "" : "disabled",
-                icon: "plus",
+                icon: "fas fa-plus",
                 title: "Create Workflow",
                 onClick: () => this.changeActiveActionModal("create"),
             },
             {
                 className: this.permissions.WRITE ? "" : "disabled",
-                icon: "file-import",
+                icon: "fas fa-file-import",
                 title: "Import Workflow",
                 onClick: () => this.changeActiveActionModal("import"),
             },
