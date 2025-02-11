@@ -17,6 +17,7 @@
 import {html, LitElement} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import "../commons/forms/data-form.js";
 
 export default class FileCreate extends LitElement {
 
