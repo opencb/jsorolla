@@ -80,7 +80,7 @@ export default class JupyterNotebook extends LitElement {
                         <h5>Key features:</h5>
                             <ul>
                                 <li><span class="fw-bold">Specs:</span> Each instance is allocated 2 cores, 4 GB memory, and 10 GB disk storage.</li>
-                                <li><span class="fw-bold">Preconfigured environment:</span>The Jupyter Notebook image used is the Scientific Python, with PyOpenCGA already installed.</li>
+                                <li><span class="fw-bold">Preconfigured environment:</span>The Jupyter Notebook image used is Scientific Python, with PyOpenCGA already installed.</li>
                                 <li><span class="fw-bold">Privacy and Security:</span> Each user operates in a separate session and instance, completely isolated from the others.</li>
                             </ul>
                     </div>
