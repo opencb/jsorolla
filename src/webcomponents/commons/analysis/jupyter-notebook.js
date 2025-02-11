@@ -66,17 +66,25 @@ export default class JupyterNotebook extends LitElement {
     renderWelcomeView() {
         return html`
             <div class="card">
-                <div class="card-body d-flex flex-column align-items-center justify-content-center py-5 my-5">
+                <div class="card-body d-flex flex-column align-items-center justify-content-between py-5 my-5">
                     ${this._config?.logo ? html`
                         <div class="d-flex text-gray-600 mb-4">
                             <img src="${this._config.logo}" class="${this._config?.display?.logoClass || ""}" style="${this._config?.display?.logoStyle || ""}">
                         </div>
                     ` : nothing}
-                    <div class="text-center fs-5 text-gray-700 mb-4" style="max-width:560px;">
-                        <span>Create and execute Jupyter Notebooks to analyze your data on this OpenCGA instance. </span>
-                        <span class="fw-bold">Please note that this may involve additional costs.</span>
+                    <div class="d-flex flex-column text-center fs-5 text-gray-700 mb-4" style="max-width:560px;">
+                        <p class="mb-4"><span class="highlight">Create and execute Jupyter Notebooks</span> directly within this OpenCGA instance to analyze your data efficiently.</p>
+                        <p class="fw-bold mb-2">Please note that this may involve additional costs.</p>
                     </div>
-                    <div class="">
+                    <div class="d-flex align-items-start fs-7 text-gray-700 mb-4">
+                        <h5>Key Features:</h5>
+                            <ul>
+                                <li><span class="fw-bold">Specs:</span> 2 cores, 4GB RAM</li>
+                                <li><span class="fw-bold">Private Session:</span> Your work remains confidential!</li>
+                                <li><span class="fw-bold">Potential Costs:</span> <em>$1 per hour (please verify on the platform)</em></li>
+                            </ul>
+                    </div>
+                    <div class="d-flex">
                         <button type="button" class="btn btn-lg btn-primary" @click="${this.onEnterClick}">
                             <span>Run Jupyter Notebook</span>
                         </button>
