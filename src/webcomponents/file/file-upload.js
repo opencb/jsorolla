@@ -63,18 +63,12 @@ export default class FileUpload extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("property")) {
-            this.propertyObserver();
+        if (changedProperties.has("displayConfig") || changedProperties.has("path")) {
+            this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
     }
-
-    // uploadFile(e) {
-    //     const fileInput = document.getElementById("formFile");
-    //     // check if the file exists!
-    //     this.opencgaSession.opencgaClient.files().upload({file: fileInput.files[0]})
-    // }
 
     onFieldChange(e) {
         this._file = {...e.detail.data}; // force to refresh the object-list
@@ -93,10 +87,29 @@ export default class FileUpload extends LitElement {
     }
 
     onSubmit() {
-        const data = {
-            file: this.querySelector(`#${this._prefix}FileInput`).files[0],
-        };
-
+        this.#setLoading(true);
+        this.opencgaSession.opencgaClient.files()
+            .upload({
+                study: this.opencgaSession.study.fqn,
+                file: this._file.file,
+                fileName: this._file.fileName || this._file.file.name, // get the name from the uploaded file
+                relativeFilePath: this.path,
+                description: this._file.description || "",
+            })
+            .then(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Upload File",
+                    message: `File ${this._file.fileName || this._file.file.name} uploaded correctly.`,
+                });
+                this._file = {}; // reset the file data
+                LitUtils.dispatchCustomEvent(this, "fileUpload");
+            })
+            .catch(error => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            })
+            .finally(() => {
+                this.#setLoading(false);
+            });
     }
 
     render() {
@@ -127,18 +140,8 @@ export default class FileUpload extends LitElement {
                 {
                     elements: [
                         {
-                            title: "Type",
-                            field: "type",
-                            type: "input-text",
-                            required: true,
-                            display: {
-                                defaultValue: "FILE",
-                                disabled: true,
-                            },
-                        },
-                        {
                             title: "Path",
-                            field: "path",
+                            field: "relativeFilePath",
                             type: "input-text",
                             required: true,
                             display: {
@@ -148,8 +151,7 @@ export default class FileUpload extends LitElement {
                         },
                         {
                             title: "File Name",
-                            field: "name",
-                            required: true,
+                            field: "fileName",
                             type: "input-text",
                         },
                         {
@@ -163,8 +165,8 @@ export default class FileUpload extends LitElement {
                             type: "custom",
                             required: true,
                             display: {
-                                render: () => html`
-                                    <input class="form-control" type="file" id="${this._prefix}FileInput">
+                                render: (_, onFilterChange) => html`
+                                    <input class="form-control" type="file" @change="${e => onFilterChange(e.target.files[0])}">
                                 `,
                             }
                         },
