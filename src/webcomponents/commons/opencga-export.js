@@ -36,6 +36,9 @@ export default class OpencgaExport extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            resource: {
+                type: String,
+            },
             endpoint: {
                 type: Object
             },
@@ -67,7 +70,8 @@ export default class OpencgaExport extends LitElement {
             "FAMILY": "families",
             "CLINICAL_ANALYSIS": "clinical",
             "JOB": "jobs",
-            "DISEASE_PANEL": "panels"
+            "DISEASE_PANEL": "panels",
+            "WORKFLOW": "workflows",
         };
         this.rClients = {
             "VARIANT": "variantClient",
@@ -79,7 +83,8 @@ export default class OpencgaExport extends LitElement {
             "FAMILY": "familyClient",
             "CLINICAL_ANALYSIS": "clinicalAnalysisClient",
             "JOB": "jobClient",
-            "DISEASE_PANEL": "panelClient"
+            "DISEASE_PANEL": "panelClient",
+            "WORKFLOW": "workflowClient",
         };
 
         this.outputFileFormats = {
@@ -113,8 +118,9 @@ export default class OpencgaExport extends LitElement {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
+            const resource = this.resource || this.config?.resource;
 
-            if (this.config?.resource) {
+            if (resource) {
                 new ClipboardJS(".clipboard-button");
             }
             if (this.config.gridColumns) {
@@ -123,7 +129,7 @@ export default class OpencgaExport extends LitElement {
             if (this.config.exportTabs?.length > 0) {
                 this.tabs = this.config.exportTabs;
             } else {
-                if (this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") {
+                if (resource === "VARIANT" || resource === "CLINICAL_VARIANT") {
                     this.tabs = ["download", "export", "link", "code"];
                 } else {
                     this.tabs = ["download", "link", "code"];
@@ -229,8 +235,9 @@ export default class OpencgaExport extends LitElement {
     }
 
     generateCode(language) {
+        const resource = this.resource || this.config?.resource;
 
-        if (!this.config?.resource) {
+        if (!resource) {
             return "Resource not defined";
         }
 
@@ -238,25 +245,30 @@ export default class OpencgaExport extends LitElement {
             return "OpencgaSession not available";
         }
 
-        let q = {...this.query, study: this.opencgaSession.study.fqn, sid: this.opencgaSession.token, limit: this.limit};
+        let q = {
+            ...this.query,
+            study: this.opencgaSession.study.fqn,
+            sid: this.opencgaSession.token,
+            limit: this.limit,
+        };
 
-        if (this.config.resource === "FILE") {
-            q = {...q, type: this.config.resource};
+        if (resource === "FILE") {
+            q.type = resource;
         }
 
-        let ws = `${this.resourceMap[this.config.resource]}/${this.method}`;
+        let ws = `${this.resourceMap[resource]}/${this.method}`;
 
-        if (this.config.resource === "VARIANT") {
+        if (resource === "VARIANT") {
             this.method = "query";
             ws = "analysis/variant/query";
-        } else if (this.config.resource === "CLINICAL_VARIANT") {
+        } else if (resource === "CLINICAL_VARIANT") {
             this.method = "query_variant";
             ws = "analysis/clinical/variant/query";
         } else {
             this.method = "search";
         }
         // Temporal code for export in rest-api
-        if (this.config?.resource === "API") {
+        if (resource === "API") {
             switch (language) {
                 case "url":
                     return `${this.buildUrl()}`;
@@ -265,9 +277,9 @@ export default class OpencgaExport extends LitElement {
                 case "wget":
                     return `${this.buildWget()}`;
                 case "cli":
-                    let client = this.resourceMap[this.config.resource];
+                    let client = this.resourceMap[resource];
                     let method = this.method;
-                    if (this.config.resource === "CLINICAL_VARIANT") {
+                    if (resource === "CLINICAL_VARIANT") {
                         client = "clinical";
                         method = "variant-query";
                     }
@@ -291,12 +303,12 @@ export default class OpencgaExport extends LitElement {
                     return `curl -X GET --header "Accept: application/json" --header "Authorization: \
                 Bearer ${this.opencgaSession.token}" "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn})}"`;
                 case "wget":
-                    return `wget -O ${this.resourceMap[this.config.resource]}.txt "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}"`;
+                    return `wget -O ${this.resourceMap[resource]}.txt "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}"`;
                 case "cli":
                 // cli 2.1.1 doesn't support `sid` param (while Rest http requests don't support `token` in opencga 2.2.0-rc2)
-                    let client = this.resourceMap[this.config.resource];
+                    let client = this.resourceMap[resource];
                     let method = this.method;
-                    if (this.config.resource === "CLINICAL_VARIANT") {
+                    if (resource === "CLINICAL_VARIANT") {
                         client = "clinical";
                         method = "variant-query";
                     }
@@ -315,16 +327,18 @@ export default class OpencgaExport extends LitElement {
     }
 
     generateR() {
+        const resource = this.resource || this.config?.resource;
         const q = {...this.query, study: this.opencgaSession.study.fqn, limit: this.limit};
         const str = `library(opencgaR)
 con <- initOpencgaR(host = "${this.opencgaSession.server.host}", version = "v2")
 con <- opencgaLogin(opencga = con, userid = "", passwd = "")
-${this.resourceMap[this.config.resource]} = \
-${this.rClients[this.config.resource]}(OpencgaR = con, endpointName = "${this.toCamelCase(this.method)}", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, include="id"))`;
+${this.resourceMap[resource]} = \
+${this.rClients[resource]}(OpencgaR = con, endpointName = "${this.toCamelCase(this.method)}", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, include="id"))`;
         return this.lineSplitter(str);
     }
 
     generatePython() {
+        const resource = this.resource || this.config?.resource;
         const q = {...this.query, study: this.opencgaSession.study.fqn, limit: this.limit};
         const str = `
 from pyopencga.opencga_config import ClientConfiguration
@@ -332,12 +346,13 @@ from pyopencga.opencga_client import OpencgaClient
 
 config = ClientConfiguration({"rest": {"host": "${this.opencgaSession.server.host}"}})
 oc = OpencgaClient(config, token="${this.opencgaSession.token}")
-${this.resourceMap[this.config.resource]} = oc.${this.resourceMap[this.config.resource]}.${this.method}(include='id', ${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")})
-print(${this.resourceMap[this.config.resource]}.get_responses())`;
+${this.resourceMap[resource]} = oc.${this.resourceMap[resource]}.${this.method}(include='id', ${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")})
+print(${this.resourceMap[resource]}.get_responses())`;
         return this.lineSplitter(str);
     }
 
     generateJs() {
+        const resource = this.resource || this.config?.resource;
         const q = {...this.query, study: this.opencgaSession.study.fqn, limit: this.limit};
         const str = `
 import {OpenCGAClient} from "./opencga-client.js";
@@ -352,7 +367,7 @@ const client = new OpenCGAClient({
     try {
         await client.login(username, password)
         const session = await client.createSession();
-        const restResponse = await session.opencgaClient.${this.resourceMap[this.config.resource]}().${this.toCamelCase(this.method)}(${JSON.stringify(q)});
+        const restResponse = await session.opencgaClient.${this.resourceMap[resource]}().${this.toCamelCase(this.method)}(${JSON.stringify(q)});
         console.log(restResponse.getResults());
     } catch (e) {
         console.error(e);
@@ -362,7 +377,9 @@ const client = new OpenCGAClient({
     }
 
     async launchJob() {
-        if (this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") {
+        const resource = this.resource || this.config?.resource;
+
+        if (resource === "VARIANT" || resource === "CLINICAL_VARIANT") {
             try {
                 const data = {
                     ...this.query,
@@ -477,6 +494,7 @@ const client = new OpenCGAClient({
     }
 
     render() {
+        const resource = this.resource || this.config?.resource;
         // TODO: Refactor this code
         return html`
             <ul class="nav nav-tabs mb-3" role="tablist">
@@ -580,10 +598,10 @@ const client = new OpenCGAClient({
                                 <button class="btn btn-light px-5 py-4 ${classMap({active: this.format === "tab"})}" type="button" data-format="tab" @click="${this.changeFormat}">
                                     <i class="fas fa-table fa-2x"></i>
                                     <div>
-                                        ${(this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") ? "VCF" : "CSV"}
+                                        ${(resource === "VARIANT" || resource === "CLINICAL_VARIANT") ? "VCF" : "CSV"}
                                     </div>
                                 </button>
-                                ${(this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") ? html`
+                                ${(resource === "VARIANT" || resource === "CLINICAL_VARIANT") ? html`
                                     <button class="btn btn-light px-5 py-4 ${classMap({active: this.format === "vep"})}" type="button" data-format="vep" @click="${this.changeFormat}">
                                         <i class="fas fa-file-code fa-2x"></i>
                                         <div>Ensembl VEP</div>
@@ -602,7 +620,7 @@ const client = new OpenCGAClient({
                                 </label>
                                 <div class="col-md-10">
                                     <input type="text" class="form-control" placeholder="Enter Job ID, leave empty for default."
-                                            value="${this.config.resource?.toLowerCase()}_export_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}" @input="${this.changeJobId}">
+                                            value="${resource?.toLowerCase()}_export_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}" @input="${this.changeJobId}">
                                 </div>
                             </div>
                         </div>

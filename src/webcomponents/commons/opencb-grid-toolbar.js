@@ -243,6 +243,7 @@ export default class OpencbGridToolbar extends LitElement {
                 },
                 render: () => html`
                     <opencga-export
+                        .resource="${this.resource || this.config?.resource}"
                         .config="${this._config}"
                         .query=${this.query}
                         .opencgaSession="${this.opencgaSession}"
