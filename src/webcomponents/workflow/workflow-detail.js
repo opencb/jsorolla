@@ -16,8 +16,11 @@
 
 import {LitElement, html} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
+import "../commons/view/detail-tabs.js";
+import "../commons/json-viewer.js";
+import "./workflow-scripts-view.js";
+import "./workflow-jobs.js";
 import "./workflow-view.js";
-import "./../commons/view/detail-tabs.js";
 
 export default class WorkflowDetail extends LitElement {
 
@@ -120,7 +123,48 @@ export default class WorkflowDetail extends LitElement {
 
     getDefaultConfig() {
         return {
-            items: [],
+            items: [
+                {
+                    id: "workflow-view",
+                    name: "Overview",
+                    active: true,
+                    render: (workflow, active, opencgaSession) => html`
+                        <workflow-view
+                            .workflow="${workflow}"
+                            .opencgaSession="${opencgaSession}">
+                        </workflow-view>
+                    `,
+                },
+                {
+                    id: "workflow-scripts",
+                    name: "Scripts",
+                    render: workflow => html`
+                        <workflow-scripts-view
+                            .workflow="${workflow}">
+                        </workflow-scripts-view>
+                    `,
+                },
+                {
+                    id: "workflow-jobs",
+                    name: "Jobs",
+                    render: (workflow, active, opencgaSession) => html`
+                        <workflow-jobs
+                            .workflow="${workflow}"
+                            .opencgaSession="${opencgaSession}">
+                        </workflow-jobs>
+                    `,
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (workflow, active) => html`
+                        <json-viewer
+                            .data="${workflow}"
+                            .active="${active}">
+                        </json-viewer>
+                    `,
+                }
+            ],
         };
     }
 

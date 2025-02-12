@@ -21,7 +21,6 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../loading-spinner.js";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter";
 
 export default class WorkflowView extends LitElement {
 
@@ -82,7 +81,6 @@ export default class WorkflowView extends LitElement {
         // if (changedProperties.has("workflow")) {
         //     this._config = this.getDefaultConfig();
         // }
-        debugger
         if (changedProperties.has("workflowId")) {
             this.workflowIdObserver();
         }
@@ -97,7 +95,6 @@ export default class WorkflowView extends LitElement {
     }
 
     workflowIdObserver() {
-        debugger
         if (this.workflowId && this.opencgaSession) {
             const params = {
                 study: this.opencgaSession.study.fqn,
@@ -108,7 +105,6 @@ export default class WorkflowView extends LitElement {
                 .info(this.workflowId, params)
                 .then(response => {
                     this.workflow = response.responses[0].results[0];
-                    debugger
                 })
                 .catch(reason => {
                     this.workflow = {};

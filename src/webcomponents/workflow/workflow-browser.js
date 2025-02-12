@@ -16,16 +16,9 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-// import "./workflow-view.js";
 import "./workflow-grid.js";
-// import "./workflow-detail.js";
-// import "./workflow-scripts-view.js";
-// import "./workflow-jobs.js";
-// import "../clinical/clinical-analysis-grid.js";
-// import "../commons/opencga-browser.js";
-// import "../commons/json-viewer.js";
+import "../commons/opencga-browser.js";
 import "../commons/facet-filter.js";
-// import "../commons/opencb-facet-results.js";
 
 export default class WorkflowBrowser extends LitElement {
 
@@ -196,58 +189,6 @@ export default class WorkflowBrowser extends LitElement {
                         showSelectCheckbox: false
                     }
                 },
-                /*
-                detail: {
-                    title: "Workflow",
-                    showTitle: true,
-                    display: {
-                        titleClass: "mt-4",
-                        contentClass: "p-3"
-                    },
-                    items: [
-                        {
-                            id: "workflow-view",
-                            name: "Overview",
-                            active: true,
-                            render: (workflow, active, opencgaSession) => html`
-                                <workflow-view
-                                    .workflow="${workflow}"
-                                    .opencgaSession="${opencgaSession}">
-                                </workflow-view>
-                            `,
-                        },
-                        {
-                            id: "workflow-scripts",
-                            name: "Scripts",
-                            render: workflow => html`
-                                <workflow-scripts-view
-                                    .workflow="${workflow}">
-                                </workflow-scripts-view>
-                            `,
-                        },
-                        {
-                            id: "workflow-jobs",
-                            name: "Jobs",
-                            render: (workflow, active, opencgaSession) => html`
-                                <workflow-jobs
-                                    .workflow="${workflow}"
-                                    .opencgaSession="${opencgaSession}">
-                                </workflow-jobs>
-                            `,
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (workflow, active) => html`
-                                <json-viewer
-                                    .data="${workflow}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        }
-                    ]
-                }
-                 */
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "status", "ethnicity", "population", "lifeStatus", "phenotypes", "sex", "numSamples[0..10]:1"],

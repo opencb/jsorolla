@@ -26,8 +26,6 @@ import "../commons/opencb-grid-toolbar.js";
 import "./workflow-create.js";
 import "./workflow-import.js";
 import "./workflow-detail.js";
-import "./workflow-scripts-view.js";
-import "./workflow-jobs.js";
 import "./workflow-update.js";
 import "./analysis/workflow-analysis.js";
 
@@ -686,8 +684,7 @@ export default class WorkflowGrid extends LitElement {
                     render: () => html`
                         <workflow-detail
                             .workflowId="${this.workflowId}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this._config.view}">
+                            .opencgaSession="${this.opencgaSession}">
                         </workflow-detail>
                     `,
                 };
@@ -715,10 +712,9 @@ export default class WorkflowGrid extends LitElement {
                         modalCyDataName: "modal-workflow-update",
                         modalSize: "modal-lg",
                     },
-                    render: active => html`
+                    render: () => html`
                         <workflow-update
                             .workflowId="${this.workflowId}"
-                            .active="${active}"
                             .displayConfig="${{
                                 buttonClearText: "Cancel",
                                 type: "tabs",
@@ -783,52 +779,6 @@ export default class WorkflowGrid extends LitElement {
             showSettings: true,
             exportTabs: ["download", "link", "code"],
 
-            view: {
-                title: "",
-                showTitle: false,
-                items: [
-                    {
-                        id: "workflow-view",
-                        name: "Overview",
-                        active: true,
-                        render: (workflow, active, opencgaSession) => html`
-                            <workflow-view
-                                    .workflow="${workflow}"
-                                    .opencgaSession="${opencgaSession}">
-                            </workflow-view>
-                        `,
-                    },
-                    {
-                        id: "workflow-scripts",
-                        name: "Scripts",
-                        render: workflow => html`
-                            <workflow-scripts-view
-                                    .workflow="${workflow}">
-                            </workflow-scripts-view>
-                        `,
-                    },
-                    {
-                        id: "workflow-jobs",
-                        name: "Jobs",
-                        render: (workflow, active, opencgaSession) => html`
-                            <workflow-jobs
-                                    .workflow="${workflow}"
-                                    .opencgaSession="${opencgaSession}">
-                            </workflow-jobs>
-                        `,
-                    },
-                    {
-                        id: "json-view",
-                        name: "JSON Data",
-                        render: (workflow, active) => html`
-                            <json-viewer
-                                    .data="${workflow}"
-                                    .active="${active}">
-                            </json-viewer>
-                        `,
-                    }
-                ]
-            },
             workflowType: [
                 {
                     id: "SECONDARY_ANALYSIS",
