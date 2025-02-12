@@ -316,7 +316,7 @@ class IvaApp extends LitElement {
                 // }
 
                 // 1.3. Save the default settings if the settings has changed and the user is admin/owner
-                if (modified && OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id)) {
+                if (modified && OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id) && !study.internal.federated) {
                     this.#saveInitSettings(study);
                 }
             }

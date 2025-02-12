@@ -436,14 +436,18 @@ export class OpenCGAClient {
                                                     // We need to store the user permission for the all the studies fetched
                                                     console.log("Fetching user permissions");
 
-                                                    let acl = null;
-                                                    const admins = study.groups.find(g => g.id === "@admins");
-                                                    if (admins.userIds?.includes(session.user.id)) {
-                                                        acl = await this.studies().acl(study.fqn, {});
-                                                    } else {
-                                                        acl = await this.studies().acl(study.fqn, {member: session.user.id});
+                                                    study.acl = [];
+                                                    if (!study.internal.federated) {
+                                                        let acl = null;
+                                                        const admins = study.groups.find(g => g.id === "@admins");
+                                                        if (admins.userIds?.includes(session.user.id)) {
+                                                            acl = await this.studies().acl(study.fqn, {});
+                                                        } else {
+                                                            acl = await this.studies().acl(study.fqn, {member: session.user.id});
+                                                        }
+                                                        study.acl = acl.getResult(0)?.acl || [];
                                                     }
-                                                    study.acl = acl.getResult(0)?.acl || [];
+
 
                                                     // Fetch all the cohort
                                                     console.log("Fetching cohorts");
