@@ -132,7 +132,6 @@ export default class LoginPage extends LitElement {
 
     renderOrganisationSection() {
         const config = this.config?.loginPage?.organisation || {};
-        const ukcaSection = this.config?.loginPage?.organisation?.ukca || {};
 
         return html`
             <div class="w-full h-full d-flex flex-column justify-content-center text-white p-5">
@@ -152,24 +151,32 @@ export default class LoginPage extends LitElement {
                     ` : nothing}
                 </div>
 
-                <!-- Landing ukca margin section -->
-                ${ukcaSection?.enabled ? html`
+                <!-- landing regulatory section -->
+                ${(config.regulatory || []).length > 0 ? html`
                     <div class="d-flex gap-4">
-                        ${ukcaSection?.logo ? html`
-                            <div class="d-flex align-items-center ${ukcaSection.display?.logoClass}" style="${ukcaSection.display?.logoStyle}">
-                                <img height="${ukcaSection.display?.logoHeight || "100px"}" src="${ukcaSection.logo}">
+                        ${config.regulatory.map(item => html`
+                            <div class="d-flex gap-4">
+                                ${item?.logo ? html`
+                                    <div class="d-flex align-items-center ${item.display?.logoClass}" style="${item.display?.logoStyle}">
+                                        <img height="${item.display?.logoHeight || "100px"}" src="${item.logo}">
+                                    </div>
+                                ` : nothing}
+                                ${(item.title || item.description) ? html`
+                                    <div class="d-flex flex-column gap-2 justify-content-center">
+                                        ${item.title ? html`
+                                            <div class="${item.display?.titleClass}" style="${item.display?.titleStyle}">
+                                                <span>${item.title}</span>
+                                            </div>
+                                        ` : nothing}
+                                        ${item.description ? html`
+                                            <div class="${item.display?.descriptionClass}" style="${item.display?.descriptionStyle}">
+                                                <span>${item.description}</span>
+                                            </div>
+                                        ` : nothing}
+                                    </div>
+                                ` : nothing}
                             </div>
-                        ` : nothing}
-                        <div class="d-flex flex-column gap-2 justify-content-center">
-                            <div class="${ukcaSection?.display?.titleClass}" style="${ukcaSection?.display?.titleStyle}">
-                                <span>${ukcaSection?.title}</span>
-                            </div>
-                            ${ukcaSection?.subtitle ? html`
-                                <div class="${ukcaSection?.display?.subtitleClass}" style="${ukcaSection?.display?.subtitleStyle}">
-                                    <span>${ukcaSection?.subtitle}</span>
-                                </div>
-                            ` : nothing}
-                        </div>
+                        `)}
                     </div>
                 ` : nothing}
             </div>
