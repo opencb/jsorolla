@@ -109,7 +109,7 @@ export default class FolderCreate extends LitElement {
             .then(() => {
                 this.#initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Folder Create",
+                    title: "Create Folder",
                     message: `Folder ${name} created correctly`,
                 });
                 LitUtils.dispatchCustomEvent(this, "folderCreate");
