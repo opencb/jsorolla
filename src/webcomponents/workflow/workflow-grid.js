@@ -290,6 +290,11 @@ export default class WorkflowGrid extends LitElement {
                         .catch(e => {
                             console.error(e);
                             params.error(e);
+                        })
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: workflowResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
