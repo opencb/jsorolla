@@ -108,7 +108,7 @@ export default class WorkflowBrowser extends LitElement {
 
         return html`
             <opencga-browser
-                resource="WORKFLOW"
+                .resource="${"WORKFLOW"}"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
                 .config="${this._config}"
@@ -122,7 +122,7 @@ export default class WorkflowBrowser extends LitElement {
             title: "Workflow Browser",
             views: [
                 {
-                    id: "table-tab",
+                    id: "table",
                     name: "Table",
                     icon: "fa fa-table",
                     active: true,

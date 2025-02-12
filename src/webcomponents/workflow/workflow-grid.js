@@ -30,7 +30,6 @@ import "./workflow-scripts-view.js";
 import "./workflow-jobs.js";
 import "./workflow-update.js";
 import "./analysis/workflow-analysis.js";
-import LitUtils from "../commons/utils/lit-utils";
 
 export default class WorkflowGrid extends LitElement {
 
@@ -73,6 +72,7 @@ export default class WorkflowGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this.activeActionModal = "";
+        this.lastFilters = null;
 
         // const entityActions = [
         //     {
@@ -193,58 +193,15 @@ export default class WorkflowGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: this.toolId,
-            resource: "WORKFLOW",
             columns: this._getDefaultColumns(),
-            // create: {
-            //     display: {
-            //         modalTitle: "Workflow Create",
-            //         modalDraggable: true,
-            //         modalCyDataName: "modal-create",
-            //         modalSize: "modal-lg"
-            //     },
-            //     render: () => html`
-            //         <workflow-create
-            //                 .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-            //                 .opencgaSession="${this.opencgaSession}">
-            //         </workflow-create>
-            //     `
-            // },
-            // Uncomment in case we need to change defaults
-            // export: {
-            //     display: {
-            //         modalTitle: "Workflow Export",
-            //     },
-            //     render: () => html`
-            //         <opencga-export
-            //             .config="${this._config}"
-            //             .query=${this.query}
-            //             .opencgaSession="${this.opencgaSession}"
-            //             @export="${this.onExport}"
-            //             @changeExportField="${this.onChangeExportField}">
-            //         </opencga-export>`
-            // },
-            // settings: {
-            //     display: {
-            //         modalTitle: "Workflow Settings",
-            //     },
-            //     render: () => html `
-            //         <catalog-browser-grid-config
-            //             .opencgaSession="${this.opencgaSession}"
-            //             .gridColumns="${this._columns}"
-            //             .config="${this._config}"
-            //             @configChange="${this.onGridConfigChange}">
-            //         </catalog-browser-grid-config>`
-            // }
         };
 
         // Create a map with the allowed permissions for the authenticated user
         this.permissions = Object.fromEntries(["WRITE", "DELETE", "EXECUTE"].map(operation => {
-            const operationId =  WebUtils.getPermissionID(operation === "EXECUTE" ? "JOB" : this.toolbarConfig.resource, operation);
             const hasPermission =  OpencgaCatalogUtils.getStudyEffectivePermission(
                 this.opencgaSession.study,
                 this.opencgaSession.user.id,
-                operationId,
+                WebUtils.getPermissionID(operation === "EXECUTE" ? "JOB" : "WORKFLOW", operation),
                 this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions
             );
             return [operation, hasPermission];
@@ -267,16 +224,11 @@ export default class WorkflowGrid extends LitElement {
                 ModalUtils.show(`${this._prefix}Modal${this.activeActionModal}`);
             }
         });
+    }
 
-        /*
-        this.activeActionModal = action;
-        this.requestUpdate();
-        this.updateComplete.then(() => {
-            if (this.activeActionModal) {
-                ModalUtils.show(`${this._prefix}Modal${this.activeActionModal}`);
-            }
-        });
-         */
+    forceTableRefresh() {
+        this.lastFilters = null; // reset last filters to force a refresh of the table
+        this.renderTable();
     }
 
     renderTable() {
@@ -298,11 +250,9 @@ export default class WorkflowGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                // classes: "table table-hover table-borderless",
                 classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
-                method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
@@ -315,14 +265,12 @@ export default class WorkflowGrid extends LitElement {
                 formatShowingRows: (pageFrom, pageTo, totalRows) => {
                     return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
                 },
-                showExport: this._config.showExport,
                 detailView: !!this.detailFormatter,
                 gridContext: this,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
-                // rowStyle: () => ({css: {"background-color": "white",}}),
                 ajax: params => {
                     let workflowResponse = null;
-                    this.filters = {
+                    const filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
@@ -331,14 +279,14 @@ export default class WorkflowGrid extends LitElement {
                     };
 
                     // Store the current filters
-                    this.lastFilters = {...this.filters};
+                    this.lastFilters = filters;
                     this.opencgaSession.opencgaClient.workflows()
-                        .search(this.filters)
+                        .search(filters)
                         .then(response => {
                             workflowResponse = response;
                             // Prepare data for columns extensions
                             const rows = workflowResponse.responses?.[0]?.results || [];
-                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, filters, rows);
                         })
                         .then(() => params.success(workflowResponse))
                         .catch(e => {
@@ -397,7 +345,6 @@ export default class WorkflowGrid extends LitElement {
             paginationVAlign: "bottom",
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
-            showExport: this._config.showExport,
             detailView: this._config.detailView && this.detailFormatter,
             gridContext: this,
             // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
@@ -439,7 +386,8 @@ export default class WorkflowGrid extends LitElement {
                         <div class="m-1">
                             <span style="font-weight: bold; margin: 5px 0">${name}</span>
                             <span class="d-block text-secondary" style="margin: 5px 0">${workflow.description}</span>
-                        </div>`;
+                        </div>
+                    `;
                 },
                 visible: this.gridCommons.isColumnVisible("name")
             },
@@ -452,10 +400,8 @@ export default class WorkflowGrid extends LitElement {
                 formatter: type => {
                     const typeConfig = this._config.workflowType.find(t => t.id === type);
                     return`
-                        <span
-                            class="badge"
-                            style="background-color: ${typeConfig.displayColor}">
-                                ${typeConfig.displayLabel}
+                        <span class="badge" style="background-color: ${typeConfig.displayColor}">
+                            ${typeConfig.displayLabel}
                         </span>
                     `;
                 },
@@ -498,7 +444,8 @@ export default class WorkflowGrid extends LitElement {
                             <div style="margin: 5px 0">
                                 <span class="px-1">Memory:</span><span>${minimumRequirements?.memory.split(".")[0] || "-"} GB</span>
                             </div>
-                        </div>`;
+                        </div>
+                    `;
                 },
                 visible: this.gridCommons.isColumnVisible("minumumRequirements")
             },
@@ -520,10 +467,7 @@ export default class WorkflowGrid extends LitElement {
                 formatter: CatalogGridFormatter.modifiedAndCreateDateFormatter,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
-        ];
-
-        if (this.opencgaSession && this._config.showActions) {
-            this._columns.push({
+            {
                 id: "actions",
                 title: "",
                 field: "actions",
@@ -541,7 +485,7 @@ export default class WorkflowGrid extends LitElement {
                             <button class="btn" data-bs-toggle="dropdown">
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
-                            <div class="dropdown-menu">
+                            <div class="dropdown-menu dropdown-menu-end">
                                 <a class="dropdown-item cursor-pointer" data-action="copy-json">
                                     <i class="fas fa-copy me-1"></i>
                                     <span>Copy JSON</span>
@@ -572,9 +516,10 @@ export default class WorkflowGrid extends LitElement {
                 events: {
                     "click a": (e, value, workflow) => this.onActionClick(e, value, workflow),
                 },
-                visible: this.gridCommons.isColumnVisible("actions"),
-            });
-        }
+                excludeFromSettings: true,
+                visible: this._config.showActions, // this.gridCommons.isColumnVisible("actions"),
+            },
+        ];
 
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
@@ -610,7 +555,19 @@ export default class WorkflowGrid extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
                     title: `Delete Workflow: Workflow <b>${this.workflowId}</b> in organization ${this.opencgaSession.organization.id}`,
                     message: `Are you sure you want to delete this workflow ${this.workflowId}?`,
-                    ok: () => this.onWorkflowDelete(),
+                    ok: () => {
+                        this.opencgaSession.opencgaClient.workflows()
+                            .delete(this.workflowId, {
+                                study: this.opencgaSession.study.fqn,
+                                jobId: `workflow-delete-${UtilsNew.getDatetime()}`,
+                            })
+                            .then(() => {
+                                this.forceTableRefresh();
+                            })
+                            .catch(error => {
+                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                            });
+                    },
                 });
                 break;
         }
@@ -622,7 +579,7 @@ export default class WorkflowGrid extends LitElement {
         await this.updateComplete;
 
         const filters = {
-            ...this.filters,
+            ...this.lastFilters,
             skip: 0,
             limit: 1000,
             count: false
@@ -656,37 +613,6 @@ export default class WorkflowGrid extends LitElement {
             });
     }
 
-    onWorkflowDelete() {
-        this.opencgaSession.opencgaClient.workflows()
-            .delete(this.workflowId, {
-                study: this.opencgaSession.study.fqn,
-                jobId: `workflow-delete-${UtilsNew.getDatetime()}`,
-            })
-            .then(response => {
-                // CAUTION 20250211 Vero: to discuss
-                // LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this._workflow.id, {});
-            })
-            .catch(error => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-            });
-    }
-
-    onWorkflowImport() {
-        this.opencgaSession.opencgaClient.workflows()
-            .search({
-                study: this.opencgaSession.study.fqn,
-                limit: 100,
-                count: true
-            })
-            .then(response => {
-                this.workflows = response.getResults();
-                this.requestUpdate();
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    }
-
     getRightToolbar() {
         return [
             {
@@ -712,7 +638,6 @@ export default class WorkflowGrid extends LitElement {
                 config = {
                     display: {
                         modalTitle: "Create Workflow",
-                        modalDraggable: true,
                         modalCyDataName: "modal-workflow-create",
                         modalSize: "modal-lg",
                     },
@@ -724,7 +649,10 @@ export default class WorkflowGrid extends LitElement {
                                 type: "tabs",
                                 buttonsLayout: "upper"
                             }}"
-                            @workflowCreate="${e => this.changeActiveActionModal("")}">
+                            @workflowCreate="${() => {
+                                this.changeActiveActionModal("");
+                                this.forceTableRefresh();
+                            }}">
                         </workflow-create>
                     `,
                 };
@@ -733,14 +661,16 @@ export default class WorkflowGrid extends LitElement {
                 config = {
                     display: {
                         modalTitle: "Import Workflow",
-                        modalDraggable: true,
                         modalCyDataName: "modal-workflow-import",
                         modalSize: "modal-lg",
                     },
                     render: () => html`
                         <workflow-import
                             .opencgaSession="${this.opencgaSession}"
-                            @workflowImport="${this.onWorkflowImport}">
+                            @workflowImport="${() => {
+                                // this.changeActiveActionModal("");
+                                this.forceTableRefresh();
+                            }}">
                         </workflow-import>
                     `,
                 };
@@ -749,7 +679,6 @@ export default class WorkflowGrid extends LitElement {
                 config = {
                     display: {
                         modalTitle: `Workflow ${this.workflowId}`,
-                        modalDraggable: false,
                         modalCyDataName: `modal-workflow-view`,
                         modalContainerClass: "fullscreen-modal",
                         modalTitleHeader: "h4",
@@ -767,7 +696,6 @@ export default class WorkflowGrid extends LitElement {
                 config = {
                     display: {
                         modalTitle: "Execute Workflow",
-                        modalDraggable: true,
                         modalCyDataName: "modal-workflow-execute",
                         modalSize: "modal-lg",
                     },
@@ -784,7 +712,6 @@ export default class WorkflowGrid extends LitElement {
                 config = {
                     display: {
                         modalTitle: `Update Workflow ${this.workflowId}`,
-                        modalDraggable: true,
                         modalCyDataName: "modal-workflow-update",
                         modalSize: "modal-lg",
                     },
@@ -798,7 +725,10 @@ export default class WorkflowGrid extends LitElement {
                                 buttonsLayout: "upper"
                             }}"
                             .opencgaSession="${this.opencgaSession}"
-                            @workflowUpdate="${e => this.changeActiveActionModal("")}">
+                            @workflowUpdate="${() => {
+                                this.changeActiveActionModal("");
+                                this.forceTableRefresh();
+                            }}">
                         </workflow-update>
                     `,
                 };
@@ -819,7 +749,9 @@ export default class WorkflowGrid extends LitElement {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
-                    .query="${this.filters}"
+                    .resource="${"WORKFLOW"}"
+                    .toolId="${this.toolId}"
+                    .query="${this.query}"
                     .leftContent="${this.renderToolbarLeftContent()}"
                     .rightToolbar="${this.getRightToolbar()}"
                     .opencgaSession="${this.opencgaSession}"
@@ -828,12 +760,11 @@ export default class WorkflowGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @individualCreate="${this.renderTable}">
+                    @actionClick="${e => this.onActionClick(e)}">
                 </opencb-grid-toolbar>
             ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="w-grid">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
 
@@ -846,15 +777,10 @@ export default class WorkflowGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            multiSelection: false,
-            showSelectCheckbox: false,
-            detailView: false,
             showToolbar: true,
             showActions: true,
-
-            showCreate: false,
-            showExport: false,
-            showSettings: false,
+            showExport: true,
+            showSettings: true,
             exportTabs: ["download", "link", "code"],
 
             view: {
@@ -903,7 +829,6 @@ export default class WorkflowGrid extends LitElement {
                     }
                 ]
             },
-
             workflowType: [
                 {
                     id: "SECONDARY_ANALYSIS",
@@ -934,7 +859,7 @@ export default class WorkflowGrid extends LitElement {
                     description: "",
                 }
             ],
-        }
+        };
     }
 }
 
