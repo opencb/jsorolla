@@ -158,6 +158,11 @@ body {
     }
 }
 
+// fix the dropdown hidden in a bootstrap table
+.force-overflow .fixed-table-body {
+    overflow: visible !important;
+}
+
 // additional color utilities
 // Note: the $grays map is a Sass map that contains all the gray colors
 @each $shade,$color in $grays {
