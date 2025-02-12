@@ -225,7 +225,7 @@ export default class VariantBrowser extends LitElement {
 
     renderHeaderRightContent() {
         const viewButtons = [
-            {name: "Table View", id: "table", icon: "fa fa-table"},
+            {name: "Table", id: "table", icon: "fa fa-table"},
             {name: "Aggregation Stats", id: "aggregation", icon: "fas fa-chart-bar"},
             {name: "Genome Browser", id: "genome", icon: "fas fa-dna"},
         ];
