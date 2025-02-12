@@ -70,45 +70,21 @@ export default class OpenCGAParentClass {
             _options.sid = this._config.token;
             _options.token = this._config.token;
         }
-        const _params = {...params, body: body}; // body as param?
+        // const _params = {...params, body: body}; // body as param?
         let url = this._createRestUrl(host, version, category1, ids1, category2, ids2, action);
-        url = this._addQueryParams(url, _params);
-        _options.data = _params.body;
+
         if (action === "upload") {
+            _options.data = params;
             _options["post-method"] = "form";
-            this._uploadFile(_params, options);
+        } else {
+            url = this._addQueryParams(url, params);
+            _options.data = body;
         }
 
         // Enable credentials
         _options.includeCredentials = !!this._config?.sso?.active;
 
         return this.restClient.call(url, _options, k);
-    }
-
-    async _uploadFile(params) {
-        const formData = new FormData();
-        formData.append("file", params.file);
-        formData.append("study", "test@germline:platinum");
-        // formData.append("fileName", "ole.pdf");
-        // formData.append("relativeFilePath", "platinum");
-
-        try {
-            const response = await fetch(this._config.host + "/webservices/rest/v2/files/upload", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${this._config.token}`
-                },
-                body: formData,
-            });
-            if (response.ok) {
-                const result = await response.json();
-                console.log("File uploaded successfully:", result);
-            } else {
-                console.error("Upload failed:", await response.text());
-            }
-        } catch (error) {
-            console.error("Error uploading file:", error);
-        }
     }
 
     // recheck

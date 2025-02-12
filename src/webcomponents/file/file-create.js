@@ -111,7 +111,7 @@ export default class FileCreate extends LitElement {
             .then(() => {
                 this.#initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "File Create",
+                    title: "Create File",
                     message: `File ${name} created correctly`,
                 });
                 LitUtils.dispatchCustomEvent(this, "fileCreate");

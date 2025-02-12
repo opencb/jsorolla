@@ -119,7 +119,7 @@ export default class SampleBrowser extends LitElement {
             views: [
                 {
                     id: "table-tab",
-                    name: "Table View",
+                    name: "Table",
                     icon: "fa fa-table",
                     active: true,
                     render: params => html`

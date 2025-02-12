@@ -350,7 +350,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
     renderHeaderRightContent() {
         const viewButtons = [
-            {name: "Table View", id: "table", icon: "fa fa-table", visible: true},
+            {name: "Table", id: "table", icon: "fa fa-table", visible: true},
             {name: "Genome Browser", id: "genome-browser", icon: "fas fa-dna", visible: !this.settings?.hideGenomeBrowser},
         ];
 

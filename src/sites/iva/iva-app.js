@@ -33,7 +33,6 @@ import NotificationUtils from "../../webcomponents/commons/utils/notification-ut
 import NotificationManager from "../../core/notification-manager.js";
 
 import "../../webcomponents/clinical/clinical-analysis-browser.js";
-// import "../../webcomponents/clinical/clinical-analysis-portal.js";
 import "../../webcomponents/variant/variant-browser.js";
 import "../../webcomponents/variant/variant-beacon.js";
 import "../../webcomponents/opencga/opencga-gene-view.js";
@@ -55,10 +54,7 @@ import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/job-view.js";
 import "../../webcomponents/workflow/workflow-browser.js";
-import "../../webcomponents/workflow/workflow-manager.js";
 import "../../webcomponents/clinical/clinical-analysis-create.js";
-import "../../webcomponents/file/file-manager.js";
-import "../../webcomponents/file/file-data-manager.js";
 import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/job/analysis/tool-analysis.js";
 import "../../webcomponents/loading-spinner.js";
@@ -1075,45 +1071,16 @@ class IvaApp extends LitElement {
                 break;
             case "file":
             case "file-browser":
+            case "file-manager":
+            case "file-data-manager":
                 content = html`
-                    <div class="content">
-                        <file-browser
-                            .opencgaSession="${this.opencgaSession}"
-                            .query="${this.queries.file}"
-                            .settings="${this.settings.FILE_BROWSER}"
-                            @querySearch="${e => this.onQueryFilterSearch(e, "file")}"
-                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "file")}">
-                        </file-browser>
-                    </div>
-                `;
-                break;
-            case "fileUpdate":
-            case "file-update":
-                content = html`
-                    <tool-header
-                        title="${`File <span class="inverse"> ${this.fileId} </span>` }"
-                        icon="fas fa-vial icon-padding">
-                    </tool-header>
-                    <div class="content">
-                        <file-update
-                            .fileId="${this.fileId}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .displayConfig=${
-                                {
-                                    showBtnSampleBrowser: true,
-                                    width: "10",
-                                    style: "margin: 10px",
-                                    labelWidth: 3,
-                                    labelAlign: "right",
-                                    defaultLayout: "horizontal",
-                                    defaultValue: "",
-                                    help: {
-                                        mode: "block" // icon
-                                    }
-                                }
-                            }>
-                        </file-update>
-                    </div>
+                    <file-browser
+                        .opencgaSession="${this.opencgaSession}"
+                        .query="${this.queries.file}"
+                        .settings="${this.settings.FILE_BROWSER}"
+                        @querySearch="${e => this.onQueryFilterSearch(e, "file")}"
+                        @activeFilterChange="${e => this.onQueryFilterSearch(e, "file")}">
+                    </file-browser>
                 `;
                 break;
             case "individual":
@@ -1311,6 +1278,7 @@ class IvaApp extends LitElement {
                 `;
                 break;
             case "workflow-browser":
+            case "workflow-manager":
                 content = html`
                     <div class="content">
                         <workflow-browser
@@ -1321,14 +1289,6 @@ class IvaApp extends LitElement {
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "workflow")}">
                         </workflow-browser>
                     </div>
-                `;
-                break;
-            case "workflow-manager":
-                content = html`
-                    <tool-header title="Workflow Manager"></tool-header>
-                    <workflow-manager
-                        .opencgaSession="${this.opencgaSession}">
-                    </workflow-manager>
                 `;
                 break;
             case "cat-browser":
@@ -1435,24 +1395,6 @@ class IvaApp extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .settings="${this.settings.USER_PROFILE_SETTINGS}">
                         </user-profile>
-                    </div>
-                `;
-                break;
-            case "file-manager":
-                content = html`
-                    <div class="content">
-                        <file-manager
-                            .opencgaSession="${this.opencgaSession}">
-                        </file-manager>
-                    </div>
-                `;
-                break;
-            case "file-data-manager":
-                content = html`
-                    <div class="content">
-                        <file-data-manager
-                            .opencgaSession="${this.opencgaSession}">
-                        </file-data-manager>
                     </div>
                 `;
                 break;

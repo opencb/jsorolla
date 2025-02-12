@@ -143,7 +143,7 @@ export default class FileBrowser extends LitElement {
             views: [
                 {
                     id: "table-tab-file",
-                    name: "Table View",
+                    name: "Table",
                     icon: "fa fa-table",
                     active: true,
                     render: params => html`

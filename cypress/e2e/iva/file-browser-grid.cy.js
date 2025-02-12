@@ -23,34 +23,26 @@ context("File Browser Grid", () => {
 
     beforeEach(() => {
         cy.visit("#file-browser-grid");
+        cy.get("file-grid")
+            .as("fileGrid");
         cy.waitUntil(() => {
-            return cy.get(browserGrid)
+            return cy.get("@fileGrid")
                 .should("be.visible");
         });
     });
 
-    // TOOLBAR
-    context("File Toolbar", () => {
-        const toolbarComponent = "";
-
-        beforeEach(() => {
-            cy.get(browserGrid)
+    context("toolbar", () => {
+        it("should render", () => {
+            cy.get("@fileGrid")
                 .find(`div[data-cy="toolbar"]`)
-                .as("toolbar");
+                .should("be.visible");
         });
 
-        //1. Render the toolbar
-        context("render", () => {
-            // 1.1. It should render a div with the toolbar
-            it("should render toolbar", () => {
-                cy.get(browserGrid)
-                    .find(`div[data-cy="toolbar-wrapper"]`)
-                    .should("be.visible");
-            });
-            // 1.1. If configured, it should render a New button
-            it("should render New button", () => {
-                cy.get(browserGrid)
-                    .find(`button[data-action="create"]`)
+        it("should render create buttons", () => {
+            ["File", "Folder"].forEach(type => {
+                cy.get("@fileGrid")
+                    .find(`div[data-cy="toolbar"] button`)
+                    .contains(`Create ${type}`)
                     .should("be.visible");
             });
         });

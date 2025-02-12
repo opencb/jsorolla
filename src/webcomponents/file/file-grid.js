@@ -130,6 +130,11 @@ export default class OpencgaFileGrid extends LitElement {
         });
     }
 
+    forceTableRefresh() {
+        this.lastFilters = null; // reset last filters to force a refresh of the table
+        this.renderTable();
+    }
+
     renderTable() {
         // If this.files is provided as property we render the array directly
         if (this.files?.length > 0) {
@@ -602,7 +607,10 @@ export default class OpencgaFileGrid extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .path="${this.getCurrentPath()}"
                             .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
-                            @folderCreate="${() => this.changeActiveActionModal("")}">
+                            @folderCreate="${() => {
+                                this.changeActiveActionModal("");
+                                this.forceTableRefresh();
+                            }}">
                         </folder-create>
                     `,
                 };
@@ -619,7 +627,10 @@ export default class OpencgaFileGrid extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .path="${this.getCurrentPath()}"
                             .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
-                            @fileCreate="${() => this.changeActiveActionModal("")}">
+                            @fileCreate="${() => {
+                                this.changeActiveActionModal("");
+                                this.forceTableRefresh();
+                            }}">
                         </file-create>
                     `,
                 };
@@ -636,7 +647,10 @@ export default class OpencgaFileGrid extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .path="${this.getCurrentPath()}"
                             .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
-                            @fileUpload="${() => this.changeActiveActionModal("")}">
+                            @fileUpload="${() => {
+                                this.changeActiveActionModal("");
+                                this.forceTableRefresh();
+                            }}">
                         </file-upload>
                     `,
                 };
@@ -659,13 +673,12 @@ export default class OpencgaFileGrid extends LitElement {
                         @columnChange="${this.onColumnChange}"
                         @download="${this.onDownload}"
                         @export="${this.onDownload}"
-                        @actionClick="${e => this.onActionClick(e)}"
-                        @fileCreate="${this.renderTable}">
+                        @actionClick="${e => this.onActionClick(e)}">
                     </opencb-grid-toolbar>
                 </div>
             ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
+            <div id="${this._prefix}GridTableDiv" class="">
                 <table id="${this.gridId}"></table>
             </div>
 
