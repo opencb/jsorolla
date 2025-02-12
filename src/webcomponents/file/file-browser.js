@@ -128,7 +128,7 @@ export default class FileBrowser extends LitElement {
 
         return html`
             <opencga-browser
-                resource="FILE"
+                .resource="${"FILE"}"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
                 .config="${this._config || {}}"
