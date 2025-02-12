@@ -70,6 +70,7 @@ export default class OpencgaFileGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this.activeActionModal = "";
+        this.lastFilters = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -177,7 +178,7 @@ export default class OpencgaFileGrid extends LitElement {
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let filesResponse = null;
-                    this.filters = {
+                    const filters = {
                         study: this.opencgaSession.study.fqn,
                         // type: "FILE",
                         limit: params.data.limit,
@@ -192,14 +193,14 @@ export default class OpencgaFileGrid extends LitElement {
                     // }
 
                     // Store the current filters
-                    this.lastFilters = {...this.filters};
+                    this.lastFilters = filters;
                     this.opencgaSession.opencgaClient.files()
-                        .search(this.filters)
+                        .search(filters)
                         .then(response => {
                             filesResponse = response;
                             // Prepare data for columns extensions
                             const rows = filesResponse.responses?.[0]?.results || [];
-                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, filters, rows);
                         })
                         .then(() => params.success(filesResponse))
                         .catch(error => {
@@ -507,7 +508,7 @@ export default class OpencgaFileGrid extends LitElement {
         await this.updateComplete;
 
         const filters = {
-            ...this.filters,
+            ...this.lastFilters,
             skip: 0,
             limit: 1000,
             count: false
@@ -664,7 +665,7 @@ export default class OpencgaFileGrid extends LitElement {
             ${this._config.showToolbar ? html`
                 <div class="my-2">
                     <opencb-grid-toolbar
-                        .query="${this.filters}"
+                        .query="${this.query}"
                         .opencgaSession="${this.opencgaSession}"
                         .leftContent="${this.renderToolbarLeftContent()}"
                         .rightToolbar="${this.getRightToolbar()}"
