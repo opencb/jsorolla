@@ -134,7 +134,7 @@ export default class LayoutPrimaryBar extends LitElement {
                         </div>
                     </div>
 
-                    <!--
+                        <!--
                     <div class="d-flex align-items-stretch gap-2 ms-auto">
                         <div class="input-group">
                             <div class="input-group-text" id="btnGroupAddon">
@@ -163,11 +163,6 @@ export default class LayoutPrimaryBar extends LitElement {
                         </div>
                         <div class="d-flex" title="File Manager">
                             <a href="#research/file-browser" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
-                                <i class="fas fa-folder lh-1"></i>
-                            </a>
-                        </div>
-                        <div class="d-flex">
-                            <a href="#research/file-data-manager" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
                                 <i class="fas fa-folder lh-1"></i>
                             </a>
                         </div>

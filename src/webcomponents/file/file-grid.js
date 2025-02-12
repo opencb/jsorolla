@@ -544,6 +544,11 @@ export default class OpencgaFileGrid extends LitElement {
     getRightToolbar() {
         return [
             {
+                icon: "fa-folder-plus",
+                title: "Create Folder",
+                onClick: () => this.changeActiveActionModal("create-folder"),
+            },
+            {
                 icon: "fa-file-medical",
                 title: "Create File",
                 onClick: () => this.changeActiveActionModal("create-file"),
@@ -552,11 +557,6 @@ export default class OpencgaFileGrid extends LitElement {
                 icon: "fa-file-upload",
                 title: "Upload File",
                 onClick: () => this.changeActiveActionModal("upload-file"),
-            },
-            {
-                icon: "fa-folder-plus",
-                title: "Create Folder",
-                onClick: () => this.changeActiveActionModal("create-folder"),
             },
         ];
     }
@@ -590,6 +590,23 @@ export default class OpencgaFileGrid extends LitElement {
         let config = null;
 
         switch (this.activeActionModal) {
+            case "create-folder":
+                config = {
+                    display: {
+                        modalTitle: "Create Folder",
+                        modalCyDataName: "modal-create",
+                        modalSize: "modal-lg"
+                    },
+                    render: () => html`
+                        <folder-create
+                            .opencgaSession="${this.opencgaSession}"
+                            .path="${this.getCurrentPath()}"
+                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                            @folderCreate="${() => this.changeActiveActionModal("")}">
+                        </folder-create>
+                    `,
+                };
+                break;
             case "create-file":
                 config = {
                     display: {
@@ -624,23 +641,6 @@ export default class OpencgaFileGrid extends LitElement {
                     `,
                 };
                 break;
-            case "create-folder":
-                config = {
-                    display: {
-                        modalTitle: "Create Folder",
-                        modalCyDataName: "modal-create",
-                        modalSize: "modal-lg"
-                    },
-                    render: () => html`
-                        <folder-create
-                            .opencgaSession="${this.opencgaSession}"
-                            .path="${this.getCurrentPath()}"
-                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
-                            @folderCreate="${() => this.changeActiveActionModal("")}">
-                        </folder-create>
-                    `,
-                };
-                break;
         }
         return config ? ModalUtils.create(this, `${this._prefix}Modal${this.activeActionModal}`, config) : nothing;
     }
@@ -648,19 +648,21 @@ export default class OpencgaFileGrid extends LitElement {
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
-                    .query="${this.filters}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .leftContent="${this.renderToolbarLeftContent()}"
-                    .rightToolbar="${this.getRightToolbar()}"
-                    .settings="${this.toolbarSetting}"
-                    .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
-                    @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @fileCreate="${this.renderTable}">
-                </opencb-grid-toolbar>
+                <div class="my-2">
+                    <opencb-grid-toolbar
+                        .query="${this.filters}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .leftContent="${this.renderToolbarLeftContent()}"
+                        .rightToolbar="${this.getRightToolbar()}"
+                        .settings="${this.toolbarSetting}"
+                        .config="${this.toolbarConfig}"
+                        @columnChange="${this.onColumnChange}"
+                        @download="${this.onDownload}"
+                        @export="${this.onDownload}"
+                        @actionClick="${e => this.onActionClick(e)}"
+                        @fileCreate="${this.renderTable}">
+                    </opencb-grid-toolbar>
+                </div>
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">

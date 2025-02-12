@@ -139,7 +139,7 @@ export default class FileBrowser extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "File Browser",
+            title: "File Manager",
             views: [
                 {
                     id: "table-tab-file",
@@ -148,7 +148,7 @@ export default class FileBrowser extends LitElement {
                     active: true,
                     render: params => html`
                         <div class="row">
-                            <div class="col-md-2">
+                            <div class="col-md-2 my-2">
                                 <file-tree
                                     .opencgaSession="${params.opencgaSession}"
                                     .currentPath="${params.executedQuery?.directory || (params.executedQuery?.path || "").slice(2, -2)}"
@@ -211,6 +211,22 @@ export default class FileBrowser extends LitElement {
                                 quick: true,
                             },
                             {
+                                id: "directory",
+                                title: "Directory",
+                                type: "string",
+                                placeholder: "genomes/resources/files/...",
+                                description: "",
+                                quick: true,
+                            },
+                            {
+                                id: "format",
+                                title: "Format",
+                                type: "string",
+                                placeholder: "Format ...",
+                                description: "",
+                                quick: true,
+                            },
+                            {
                                 id: "sampleIds",
                                 title: "Sample ID",
                                 type: "string",
@@ -224,20 +240,6 @@ export default class FileBrowser extends LitElement {
                                 type: "string",
                                 placeholder: "Job ID ...",
                                 description: "",
-                            },
-                            {
-                                id: "directory",
-                                title: "Directory",
-                                type: "string",
-                                placeholder: "genomes/resources/files/...",
-                                description: "",
-                            },
-                            {
-                                id: "format",
-                                title: "Format",
-                                type: "string",
-                                placeholder: "Format ...",
-                                description: "",
                                 quick: true,
                             },
                             {
@@ -248,18 +250,21 @@ export default class FileBrowser extends LitElement {
                                 // "READY", "DELETED", "NONE", "TRANSFORMED", "TRANSFORMING", "LOADING", "INDEXING"
                                 // But the DELETED status gets mapped in opencga to NONE (Jacobo)
                                 allowedValues: ["READY", "NONE", "TRANSFORMED", "TRANSFORMING", "LOADING", "INDEXING"],
-                                type: "category"
+                                type: "category",
+                                quick: true,
                             },
                             {
                                 id: "date",
                                 title: "Date",
                                 type: "date",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "annotations",
                                 title: "File Annotations",
                                 description: "",
+                                quick: true,
                             }
                         ]
                     }
