@@ -281,7 +281,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                         .config="${{
                             multiple: subsection?.multiple
                         }}"
-                        @filterChange="${e => this.onFilterChange("type", e.detail.value)}">
+                        @filterChange="${e => onFilterChange("type", e.detail.value)}">
                     </select-field-filter>
                 `;
                 break;
