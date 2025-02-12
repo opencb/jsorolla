@@ -22,8 +22,12 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import ModalUtils from "../commons/modal/modal-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
+import "./file-create.js";
+import "./file-upload.js";
+import "./folder-create.js";
 
 export default class OpencgaFileGrid extends LitElement {
 
@@ -65,6 +69,7 @@ export default class OpencgaFileGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
+        this.activeActionModal = "";
         this._config = this.getDefaultConfig();
     }
 
@@ -102,25 +107,27 @@ export default class OpencgaFileGrid extends LitElement {
             toolId: this.toolId,
             resource: "FILE",
             columns: this._getDefaultColumns(),
-            create: {
-                display: {
-                    modalTitle: "File Create",
-                    modalDraggable: true,
-                    disabled: true,
-                    disabledTooltip: "This operation will be implemented soon. Thanks for your patience.",
-                    modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
-                },
-                render: () => html `
-                    <file-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </file-create>
-                `,
-            },
         };
 
         this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
+    }
+
+    changeActiveActionModal(actionModal) {
+        // 1. check if there is a modal rendered
+        if (this.activeActionModal) {
+            ModalUtils.close(`${this._prefix}Modal${this.activeActionModal}`);
+        }
+
+        // 2. set the new active action modal
+        this.activeActionModal = actionModal;
+        this.requestUpdate();
+
+        // 3. show the new active action modal (if provided)
+        this.updateComplete.then(() => {
+            if (this.activeActionModal) {
+                ModalUtils.show(`${this._prefix}Modal${this.activeActionModal}`);
+            }
+        });
     }
 
     renderTable() {
@@ -325,6 +332,10 @@ export default class OpencgaFileGrid extends LitElement {
         }
     }
 
+    getCurrentPath() {
+        return this.query?.directory || (this.query?.path || "").slice(2, -2);
+    }
+
     _getDefaultColumns() {
         this._columns = [
             {
@@ -332,7 +343,9 @@ export default class OpencgaFileGrid extends LitElement {
                 title: "",
                 field: "type",
                 formatter: value => {
-                    return `<i class="fs-5 fas ${value === "DIRECTORY" ? "fa-folder" : "fa-file-alt"}"></i>`;
+                    return `
+                        <i class="fs-5 fas ${value === "DIRECTORY" ? "fa-folder" : "fa-file-alt"}"></i>
+                    `;
                 },
                 align: "center",
                 width: 40,
@@ -344,10 +357,8 @@ export default class OpencgaFileGrid extends LitElement {
                 field: "name",
                 formatter: (fileName, row) => {
                     return `
-                        <div>
-                            <span class="fw-bold" style="margin: 5px 0">${fileName}</span>
-                            <span class="d-block text-secondary" style="margin: 5px 0">/${row.path.replace(row.name, "").replace("//", "/")}</span>
-                        </div>
+                        <div class="fw-bold mb-1">${fileName}</div>
+                        <div class="text-secondary">${("/" + row.path.replace(row.name, "")).replace("//", "/")}</div>
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("name")
@@ -530,8 +541,28 @@ export default class OpencgaFileGrid extends LitElement {
         LitUtils.dispatchCustomEvent(this, "pathClear");
     }
 
+    getRightToolbar() {
+        return [
+            {
+                icon: "fa-file-medical",
+                title: "Create File",
+                onClick: () => this.changeActiveActionModal("create-file"),
+            },
+            {
+                icon: "fa-file-upload",
+                title: "Upload File",
+                onClick: () => this.changeActiveActionModal("upload-file"),
+            },
+            {
+                icon: "fa-folder-plus",
+                title: "Create Folder",
+                onClick: () => this.changeActiveActionModal("create-folder"),
+            },
+        ];
+    }
+
     renderToolbarLeftContent() {
-        const pathFragments = (this.query?.directory || (this.query?.path || "").slice(2, -2))
+        const pathFragments = this.getCurrentPath()
             .split("/")
             .filter(Boolean)
             .map((fragment, index, array) => {
@@ -555,6 +586,65 @@ export default class OpencgaFileGrid extends LitElement {
         `;
     }
 
+    renderActionModal() {
+        let config = null;
+
+        switch (this.activeActionModal) {
+            case "create-file":
+                config = {
+                    display: {
+                        modalTitle: "Create File",
+                        modalCyDataName: "modal-create",
+                        modalSize: "modal-lg"
+                    },
+                    render: () => html`
+                        <file-create
+                            .opencgaSession="${this.opencgaSession}"
+                            .path="${this.getCurrentPath()}"
+                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                            @fileCreate="${() => this.changeActiveActionModal("")}">
+                        </file-create>
+                    `,
+                };
+                break;
+            case "upload-file":
+                config = {
+                    display: {
+                        modalTitle: "Upload File",
+                        modalCyDataName: "modal-upload",
+                        modalSize: "modal-lg"
+                    },
+                    render: () => html`
+                        <file-upload
+                            .opencgaSession="${this.opencgaSession}"
+                            .path="${this.getCurrentPath()}"
+                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                            @fileUpload="${() => this.changeActiveActionModal("")}">
+                        </file-upload>
+                    `,
+                };
+                break;
+            case "create-folder":
+                config = {
+                    display: {
+                        modalTitle: "Create Folder",
+                        modalCyDataName: "modal-create",
+                        modalSize: "modal-lg"
+                    },
+                    render: () => html`
+                        <folder-create
+                            .opencgaSession="${this.opencgaSession}"
+                            .path="${this.getCurrentPath()}"
+                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                            @folderCreate="${() => this.changeActiveActionModal("")}">
+                        </folder-create>
+                    `,
+                };
+                break;
+        }
+        return config ? ModalUtils.create(this, `${this._prefix}Modal${this.activeActionModal}`, config) : nothing;
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
@@ -562,6 +652,7 @@ export default class OpencgaFileGrid extends LitElement {
                     .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
                     .leftContent="${this.renderToolbarLeftContent()}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
@@ -575,6 +666,8 @@ export default class OpencgaFileGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
+
+            ${this.renderActionModal()}
         `;
     }
 
@@ -590,7 +683,7 @@ export default class OpencgaFileGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
+            showCreate: false,
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],

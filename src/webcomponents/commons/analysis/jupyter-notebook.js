@@ -66,17 +66,25 @@ export default class JupyterNotebook extends LitElement {
     renderWelcomeView() {
         return html`
             <div class="card">
-                <div class="card-body d-flex flex-column align-items-center justify-content-center py-5 my-5">
+                <div class="card-body d-flex flex-column align-items-center justify-content-between py-5 my-5">
                     ${this._config?.logo ? html`
                         <div class="d-flex text-gray-600 mb-4">
                             <img src="${this._config.logo}" class="${this._config?.display?.logoClass || ""}" style="${this._config?.display?.logoStyle || ""}">
                         </div>
                     ` : nothing}
-                    <div class="text-center fs-5 text-gray-700 mb-4" style="max-width:560px;">
-                        <span>Create and execute Jupyter Notebooks to analyze your data on this OpenCGA instance. </span>
-                        <span class="fw-bold">Please note that this may involve additional costs.</span>
+                    <div class="d-flex flex-column text-center text-gray-700 mb-4" style="max-width:560px;">
+                        <p class="mb-4 fs-4"><span class="highlight">Create and execute Jupyter Notebooks</span> directly within this XetaBase instance to analyze your data efficiently.</p>
+                        <p> <span class="fw-bold mb-2 fs-6">Please note that using Jupyter Lab may incur additional costs, estimated at around $1 per hour.</span></p>
                     </div>
-                    <div class="">
+                    <div class="d-flex flex-column fs-7 text-gray-700 mb-4">
+                        <h5>Key features:</h5>
+                            <ul>
+                                <li><span class="fw-bold">Specs:</span> Each instance is allocated 2 cores, 4 GB memory, and 10 GB disk storage.</li>
+                                <li><span class="fw-bold">Preconfigured environment:</span>The Jupyter Notebook image used is Scientific Python, with PyOpenCGA already installed.</li>
+                                <li><span class="fw-bold">Privacy and Security:</span> Each user operates in a separate session and instance, completely isolated from the others.</li>
+                            </ul>
+                    </div>
+                    <div class="d-flex">
                         <button type="button" class="btn btn-lg btn-primary" @click="${this.onEnterClick}">
                             <span>Run Jupyter Notebook</span>
                         </button>

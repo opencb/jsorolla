@@ -27,7 +27,7 @@ import "./file-create.js";
 import "./file-fetch.js"
 import NotificationUtils from "../commons/utils/notification-utils";
 import LitUtils from "../commons/utils/lit-utils";
-import "../commons/forms/file-upload.js";
+import "./file-upload.js";
 
 export default class FileDataManager extends LitElement {
 

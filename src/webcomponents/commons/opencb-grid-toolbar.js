@@ -40,6 +40,12 @@ export default class OpencbGridToolbar extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            toolId: {
+                type: String,
+            },
+            resource: {
+                type: String,
+            },
             rightToolbar: {
                 type: Array
             },
@@ -73,13 +79,13 @@ export default class OpencbGridToolbar extends LitElement {
             };
         }
 
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("config") || changedProperties.has("resource")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
 
-            this.permissionID = WebUtils.getPermissionID(this._config.resource, "WRITE");
+            this.permissionID = WebUtils.getPermissionID(this.resource || this._config.resource, "WRITE");
         }
 
         super.update(changedProperties);
@@ -119,7 +125,7 @@ export default class OpencbGridToolbar extends LitElement {
             } else {
                 return html`
                     <button class="btn btn-light ${button.className || ""}" @click="${button.onClick}">
-                        ${button.icon ? html`<i class="fas fa-${button.icon} me-1"></i>` : nothing}
+                        ${button.icon ? html`<i class="fas ${button.icon} me-1"></i>` : nothing}
                         ${button.title}
                     </button>
                 `;
@@ -157,7 +163,12 @@ export default class OpencbGridToolbar extends LitElement {
                 </div>
                 <div class="d-flex gap-1 justify-content-end" data-cy="toolbar-wrapper">
                     <!-- First, display custom elements passed as 'rightToolbar' parameter, this must be the first ones displayed -->
-                    ${this.rightToolbar?.length > 0 ? this.renderRightButtons() : nothing}
+                    ${this.rightToolbar?.length > 0 ? html`
+                        <div class="d-flex align-items-stretch gap-1">
+                            ${this.renderRightButtons()}
+                            <div class="w-px bg-gray-200 mx-1"></div>
+                        </div>
+                    ` : nothing}
 
                     <!-- Second, display elements configured -->
                     ${this._config?.create && (this._settings.showCreate || this._settings.showNew) ? html`
@@ -227,7 +238,7 @@ export default class OpencbGridToolbar extends LitElement {
             export: {
                 display: {
                     modalDraggable: true,
-                    modalTitle: this.config?.resource + " Export",
+                    modalTitle: (this.resource || this.config?.resource) + " Export",
                     modalSize: "modal-lg",
                 },
                 render: () => html`
@@ -243,14 +254,14 @@ export default class OpencbGridToolbar extends LitElement {
             settings: {
                 display: {
                     modalDraggable: true,
-                    modalTitle: this.config?.resource + " Settings",
+                    modalTitle: (this.resource || this.config?.resource) + " Settings",
                     modalSize: "modal-lg"
                 },
                 render: () => !this._config?.showInterpreterConfig ? html `
                     <catalog-browser-grid-config
                         .opencgaSession="${this.opencgaSession}"
                         .gridColumns="${this._config.columns}"
-                        .toolId="${this._config?.toolId}"
+                        .toolId="${this.toolId || this._config?.toolId}"
                         .config="${this._settings}"
                         @settingsUpdate="${this.onCloseSetting}">
                     </catalog-browser-grid-config>` : html `
@@ -258,7 +269,7 @@ export default class OpencbGridToolbar extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .gridColumns="${this._config.columns}"
                         .config="${this._settings}"
-                        .toolId="${this._config?.toolId}"
+                        .toolId="${this.toolId || this._config?.toolId}"
                         @settingsUpdate="${this.onCloseSetting}">
                     </variant-interpreter-grid-config>
                 `,

@@ -1546,11 +1546,13 @@ class IvaApp extends LitElement {
                         title="REST API"
                         icon="fas fa-rocket">
                     </tool-header>
-                    <div class="content">
-                        <rest-api
-                            .opencgaSession="${this.opencgaSession}">
-                        </rest-api>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        <span>The <b>REST API</b> tool has been deprecated and will be removed in future releases. Please use the new <a href="#swagger-ui" class="alert-link">Swagger</a> tool instead.</span>
                     </div>
+                    <rest-api
+                        .opencgaSession="${this.opencgaSession}">
+                    </rest-api>
                 `;
                 break;
             case "swagger-ui":
@@ -1676,6 +1678,7 @@ class IvaApp extends LitElement {
                         </div>
 
                         <layout-footer
+                            .opencgaSession="${this.opencgaSession}"
                             .version="${this.version || ""}"
                             .host="${this.host}"
                             .config="${this.config}">

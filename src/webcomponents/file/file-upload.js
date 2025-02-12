@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2024 OpenCB
+ * Copyright 2015-2019 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {LitElement, html} from "lit";
+import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/forms/data-form.js";
+import "../loading-spinner.js";
 
-export default class FolderCreate extends LitElement {
+export default class FileUpload extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -46,84 +47,60 @@ export default class FolderCreate extends LitElement {
     }
 
     #init() {
-        this.isLoading = false;
-        this.displayConfigDefault = {
-            style: "margin: 10px",
-            titleWidth: 3,
-            defaultLayout: "horizontal",
-            buttonOkText: "Create Folder",
+        this._prefix = UtilsNew.randomString(8);
+        this._displayConfigDefault = {
+            buttonOkText: "Upload File",
             buttonClearText: "Discard Changes",
         };
-        this.#initOriginalObjects();
-    }
-
-    #initOriginalObjects() {
-        this._folder = {};
+        this._file = {};
         this._config = this.getDefaultConfig();
+        this._isLoading = false;
     }
 
     #setLoading(value) {
-        this.isLoading = value;
+        this._isLoading = value;
         this.requestUpdate();
     }
 
     update(changedProperties) {
-        // if (changedProperties.has("path")) {
-        //     this._folder.path = `/${this.path}`;
-        // }
-        if (changedProperties.has("displayConfig")) {
-            this._config = this.getDefaultConfig();
+        if (changedProperties.has("property")) {
+            this.propertyObserver();
         }
 
         super.update(changedProperties);
     }
 
+    // uploadFile(e) {
+    //     const fileInput = document.getElementById("formFile");
+    //     // check if the file exists!
+    //     this.opencgaSession.opencgaClient.files().upload({file: fileInput.files[0]})
+    // }
+
     onFieldChange(e) {
-        this._folder = {...e.detail.data}; // force to refresh the object-list
+        this._file = {...e.detail.data}; // force to refresh the object-list
         this.requestUpdate();
     }
 
     onClear() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Clear Folder",
+            title: "Clear File Upload",
             message: "Are you sure to clear?",
             ok: () => {
-                this.#initOriginalObjects();
+                this._file = {};
                 this.requestUpdate();
             },
         });
     }
 
     onSubmit() {
-        const name = this._folder.name;
         const data = {
-            path: `${this.path || "/"}${name}`,
-            type: "DIRECTORY",
+            file: this.querySelector(`#${this._prefix}FileInput`).files[0],
         };
 
-        this.#setLoading(true);
-        this.opencgaSession.opencgaClient.files()
-            .create(data, {
-                study: this.opencgaSession.study.fqn,
-            })
-            .then(() => {
-                this.#initOriginalObjects();
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Folder Create",
-                    message: `Folder ${name} created correctly`,
-                });
-                LitUtils.dispatchCustomEvent(this, "folderCreate");
-            })
-            .catch(error => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-            })
-            .finally(() => {
-                this.#setLoading(false);
-            });
     }
 
     render() {
-        if (this.isLoading) {
+        if (this._isLoading) {
             return html`
                 <loading-spinner></loading-spinner>
             `;
@@ -131,7 +108,7 @@ export default class FolderCreate extends LitElement {
 
         return html`
             <data-form
-                .data="${this._folder}"
+                .data="${this._file}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
@@ -143,7 +120,7 @@ export default class FolderCreate extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                ...this.displayConfigDefault,
+                ...this._displayConfigDefault,
                 ...this.displayConfig,
             },
             sections: [
@@ -155,7 +132,7 @@ export default class FolderCreate extends LitElement {
                             type: "input-text",
                             required: true,
                             display: {
-                                defaultValue: "DIRECTORY",
+                                defaultValue: "FILE",
                                 disabled: true,
                             },
                         },
@@ -165,21 +142,39 @@ export default class FolderCreate extends LitElement {
                             type: "input-text",
                             required: true,
                             display: {
-                                defaultValue: `/${this.path}`,
+                                defaultValue: `/${this.path || ""}`,
                                 disabled: true,
                             },
                         },
                         {
-                            title: "Folder Name",
+                            title: "File Name",
                             field: "name",
                             required: true,
                             type: "input-text",
                         },
+                        {
+                            title: "Description",
+                            field: "description",
+                            type: "input-text",
+                        },
+                        {
+                            title: "Select File to upload",
+                            field: "file",
+                            type: "custom",
+                            required: true,
+                            display: {
+                                render: () => html`
+                                    <input class="form-control" type="file" id="${this._prefix}FileInput">
+                                `,
+                            }
+                        },
                     ],
                 },
             ],
+
         };
     }
+
 }
 
-customElements.define("folder-create", FolderCreate);
+customElements.define("file-upload", FileUpload);
