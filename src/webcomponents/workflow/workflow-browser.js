@@ -126,6 +126,7 @@ export default class WorkflowBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
+                            @queryComplete="${e => params.onQueryComplete(e)}"
                             @selectrow="${e => params.onClickRow(e, "workflow")}"
                             @workflowUpdate="${e => params.onComponentUpdate(e, "workflow")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
@@ -134,43 +135,41 @@ export default class WorkflowBrowser extends LitElement {
                 },
             ],
             filter: {
-                searchButton: false,
                 sections: [
                     {
-                        title: "Section title",
-                        collapsed: false,
+                        title: "General",
                         filters: [
                             {
                                 id: "id",
-                                name: "Workflow ID",
+                                title: "Workflow ID",
                                 type: "string",
                                 placeholder: "eg. wf1, wf2, ...",
                                 description: ""
                             },
                             {
                                 id: "name",
-                                name: "Name",
+                                title: "Name",
                                 type: "string",
                                 placeholder: "eg. alignment, variant calling, ...",
                                 description: ""
                             },
                             {
                                 id: "type",
-                                name: "Type",
+                                title: "Type",
                                 type: "string",
                                 placeholder: "eg. RESEARCH_ANALYSIS,...",
                                 description: ""
                             },
                             {
                                 id: "tags",
-                                name: "Tags",
+                                title: "Tags",
                                 placeholder: "eg. tag1, tag2, tag3",
                                 allowedValues: "",
                                 description: "",
                             },
                             {
                                 id: "date",
-                                name: "Date",
+                                title: "Date",
                                 description: ""
                             },
                         ]
