@@ -154,18 +154,15 @@ export default class UserLogin extends LitElement {
                     <input id="password" class="form-control border-start-0 px-2 lh-1" type="password" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
                 </div>
                 ${(this.opencgaSession?.opencgaClient?._config?.organizations?.length > 1) ? html`
-                    <div class="form-group">
-                        <div class="input-group mb-3">
-                            <span class="input-group-text">
-                                <i class="fa fa-building fa-lg"></i>
-                            </span>
-                            <select class="form-select" id="organization">
-                                ${this.opencgaSession?.opencgaClient?._config?.organizations
-                                    .map(organization => html`
-                                        <option value="${organization}">${organization}</option>
-                                    `)}
-                            </select>
-                        </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text bg-white pe-2">
+                            <i class="fa fa-building text-gray-700 py-1 fs-5"></i>
+                        </span>
+                        <select class="form-select border-start-0 px-2 lh-1" id="organization">
+                            ${this.opencgaSession.opencgaClient._config.organizations.map(organization => html`
+                                <option value="${organization}">${organization}</option>
+                            `)}
+                        </select>
                     </div>
                 ` : nothing}
                 <div class="d-grid gap-2">
