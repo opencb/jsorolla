@@ -105,12 +105,10 @@ export default class OpencgaFileGrid extends LitElement {
         };
 
         this.toolbarConfig = {
-            toolId: this.toolId,
-            resource: "FILE",
             columns: this._getDefaultColumns(),
         };
 
-        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
+        this.permissionID = WebUtils.getPermissionID("FILE", "WRITE");
     }
 
     changeActiveActionModal(actionModal) {
@@ -310,34 +308,6 @@ export default class OpencgaFileGrid extends LitElement {
         });
     }
 
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
-
-    async onActionClick(e, _, row) {
-        // e.preventDefault();
-        const action = e.target.dataset.action?.toLowerCase();
-        switch (action) {
-            /*
-            case "edit":
-                this.fileUpdateId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
-                break;
-             */
-            case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
-                break;
-            case "download-json":
-                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
-                break;
-            case "quality-control":
-                alert("Not implemented yet");
-                break;
-        }
-    }
-
     getCurrentPath() {
         return this.query?.directory || (this.query?.path || "").slice(2, -2);
     }
@@ -437,14 +407,7 @@ export default class OpencgaFileGrid extends LitElement {
                 formatter: date => CatalogGridFormatter.dateFormatter(date),
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
-        ];
-
-        if (this._config.annotations?.length > 0) {
-            this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
-        }
-
-        if (this.opencgaSession && this._config.showActions) {
-            this._columns.push({
+            {
                 id: "actions",
                 field: "actions",
                 align: "right",
@@ -493,13 +456,36 @@ export default class OpencgaFileGrid extends LitElement {
                     "click a": this.onActionClick.bind(this)
                 },
                 excludeFromSettings: true,
-                visible: this.gridCommons.isColumnVisible("actions")
-            });
+                visible: this._config.showActions, // this.gridCommons.isColumnVisible("actions")
+            },
+        ];
+
+        if (this._config.annotations?.length > 0) {
+            this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
 
         // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         this._columns = this.gridCommons.addColumnsFromExtensions(this._columns);
         return this._columns;
+    }
+
+    onColumnChange(e) {
+        this.gridCommons.onColumnChange(e);
+    }
+
+    onActionClick(e, _, row) {
+        const action = e.target.dataset.action?.toLowerCase();
+        switch (action) {
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
+            case "quality-control":
+                // alert("Not implemented yet");
+                break;
+        }
     }
 
     async onDownload(e) {
@@ -665,6 +651,8 @@ export default class OpencgaFileGrid extends LitElement {
             ${this._config.showToolbar ? html`
                 <div class="my-2">
                     <opencb-grid-toolbar
+                        .resource="${"FILE"}"
+                        .toolId="${this.toolId}"
                         .query="${this.query}"
                         .opencgaSession="${this.opencgaSession}"
                         .leftContent="${this.renderToolbarLeftContent()}"
@@ -679,7 +667,7 @@ export default class OpencgaFileGrid extends LitElement {
                 </div>
             ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv" class="">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
 
