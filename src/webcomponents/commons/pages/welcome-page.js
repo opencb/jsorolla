@@ -159,7 +159,7 @@ export default class WelcomePage extends LitElement {
                         </div>
                         ${welcomePage?.subtitle ? html`
                             <div class="mb-4">
-                                <div class="${welcomePage.display?.subtitleClass || "display-6 text-gray-700 fw-medium"}" style="${welcomePage.display?.subtitleStyle}">
+                                <div class="${welcomePage.display?.subtitleClass || "fs-1 text-gray-700 fw-medium"}" style="${welcomePage.display?.subtitleStyle}">
                                     ${welcomePage.subtitle}
                                 </div>
                             </div>
