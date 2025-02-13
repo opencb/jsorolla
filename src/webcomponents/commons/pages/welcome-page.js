@@ -93,20 +93,22 @@ export default class WelcomePage extends LitElement {
         return html`
             <div class="row">
                 ${visibleTools.map(item => html`
-                    <div class="col-3 mb-5" data-cy-welcome-card-id="${item.id}">
+                    <div class="col-3 mb-5 d-flex flex-column justify-content-between gap-3" data-cy-welcome-card-id="${item.id}">
                         <div class="d-none mb-3">
                             <div class="d-flex align-items-center justify-content-center bg-gray-200 rounded-4" style="width:3rem;height:3rem;">
                                 <i class="fas ${item.icon} fs-2"></i>
                             </div>
                         </div>
-                        <a href="#${this.app.id}/${item.id}" class="d-block fs-3 fw-bold mb-1 text-decoration-none text-body">
-                            <span>${item.title || item.name}</span>
-                        </a>
-                        ${item.description ? html`
-                            <div class="fs-5 mb-3 text-gray-700">
-                                ${UtilsNew.renderHTML(item.description)}
-                            </div>
-                        ` : nothing}
+                        <div class="d-flex flex-column gap-1">
+                            <a href="#${this.app.id}/${item.id}" class="d-block fs-3 fw-bold text-decoration-none text-body">
+                                <span>${item.title || item.name}</span>
+                            </a>
+                            ${item.description ? html`
+                                <div class="fs-5 text-gray-700">
+                                    ${UtilsNew.renderHTML(item.description)}
+                                </div>
+                            ` : nothing}
+                        </div>
                         <div class="d-flex">
                             <a class="d-inline-flex align-items-center gap-2 btn btn-primary text-white" href="#${this.app.id}/${item.id}">
                                 <span class="fw-bold">Enter tool</span>
