@@ -157,8 +157,13 @@ export default class LoginPage extends LitElement {
                         ${config.regulatory.map(item => html`
                             <div class="d-flex gap-4">
                                 ${item?.logo ? html`
-                                    <div class="d-flex align-items-center ${item.display?.logoClass}" style="${item.display?.logoStyle}">
+                                    <div class="d-flex flex-column ${item.display?.logoClass}" style="${item.display?.logoStyle}">
                                         <img height="${item.display?.logoHeight || "100px"}" src="${item.logo}">
+                                        ${item?.caption ? html`
+                                            <div class="${item.display?.captionClass}" style="${item.display?.captionStyle}">
+                                                ${item.caption}
+                                            </div>
+                                        ` : nothing}
                                     </div>
                                 ` : nothing}
                                 ${(item.title || item.description) ? html`
