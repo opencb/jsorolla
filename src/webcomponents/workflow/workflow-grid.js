@@ -283,8 +283,6 @@ export default class WorkflowGrid extends LitElement {
                 id: "id",
                 title: "Workflow ID",
                 field: "id",
-                rowspan: 1,
-                colspan: 1,
                 formatter: (workflowId, workflow) => {
                     return`
                         <div class="m-1">
@@ -299,8 +297,6 @@ export default class WorkflowGrid extends LitElement {
                 id: "name",
                 title: "Name",
                 field: "name",
-                rowspan: 1,
-                colspan: 1,
                 formatter: (name, workflow) => {
                     return `
                         <div class="m-1">
@@ -315,8 +311,6 @@ export default class WorkflowGrid extends LitElement {
                 id: "type",
                 title: "Type",
                 field: "type",
-                rowspan: 1,
-                colspan: 1,
                 formatter: type => {
                     const typeConfig = this._config.workflowType.find(t => t.id === type);
                     return`
@@ -326,6 +320,13 @@ export default class WorkflowGrid extends LitElement {
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("type")
+            },
+            {
+                id: "tags",
+                title: "Tags",
+                field: "tags",
+                formatter: tags => tags?.join(",") || "-",
+                visible: this.gridCommons.isColumnVisible("tags")
             },
             {
                 id: "scripts",
@@ -341,20 +342,9 @@ export default class WorkflowGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("scripts")
             },
             {
-                id: "tags",
-                title: "Tags",
-                field: "tags",
-                rowspan: 1,
-                colspan: 1,
-                formatter: tags => tags?.join(",") || "-",
-                visible: this.gridCommons.isColumnVisible("tags")
-            },
-            {
                 id: "minimumRequirements",
                 title: "Minimum Requirements",
                 field: "minimumRequirements",
-                rowspan: 1,
-                colspan: 1,
                 formatter: minimumRequirements => {
                     return `
                         <div class="m-1">
@@ -367,14 +357,12 @@ export default class WorkflowGrid extends LitElement {
                         </div>
                     `;
                 },
-                visible: this.gridCommons.isColumnVisible("minumumRequirements")
+                visible: this.gridCommons.isColumnVisible("minimumRequirements")
             },
             {
                 id: "ownerId",
                 title: "Owner ID",
                 field: "internal.registrationUserId",
-                rowspan: 1,
-                colspan: 1,
                 formatter: ownerId => ownerId || "-",
                 visible: this.gridCommons.isColumnVisible("ownerId")
             },
@@ -382,8 +370,6 @@ export default class WorkflowGrid extends LitElement {
                 id: "creationDate",
                 title: "Modified / Created",
                 field: "creationDate",
-                rowspan: 1,
-                colspan: 1,
                 formatter: CatalogGridFormatter.modifiedAndCreateDateFormatter,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
@@ -391,14 +377,12 @@ export default class WorkflowGrid extends LitElement {
                 id: "actions",
                 title: "",
                 field: "actions",
-                rowspan: 1,
-                colspan: 1,
                 align: "center",
                 formatter: () => `
                     <div class="d-flex justify-content-center align-items-center">
                         <div class="d-flex justify-content-around">
                             <a class="btn" data-action="view">
-                                <i class="fa fa-external-link-alt"></i>
+                                <i class="fas fa-eye"></i>
                             </a>
                         </div>
                         <div class="dropdown d-flex justify-content-end">
@@ -406,6 +390,10 @@ export default class WorkflowGrid extends LitElement {
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item cursor-pointer" data-action="view">
+                                    <i class="fas fa-eye me-1"></i>
+                                    <span>View</span>
+                                </a>
                                 <a class="dropdown-item cursor-pointer" data-action="copy-json">
                                     <i class="fas fa-copy me-1"></i>
                                     <span>Copy JSON</span>
@@ -533,6 +521,12 @@ export default class WorkflowGrid extends LitElement {
             });
     }
 
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "PaginationInfo"}"></span>
+        `;
+    }
+
     getRightToolbar() {
         return [
             {
@@ -600,8 +594,9 @@ export default class WorkflowGrid extends LitElement {
                     display: {
                         modalTitle: `Workflow ${this.workflowId}`,
                         modalCyDataName: `modal-workflow-view`,
-                        modalContainerClass: "fullscreen-modal",
-                        modalTitleHeader: "h4",
+                        // modalContainerClass: "fullscreen-modal",
+                        // modalTitleHeader: "h4",
+                        modalSize: "modal-lg",
                     },
                     render: () => html`
                         <workflow-detail
@@ -657,29 +652,25 @@ export default class WorkflowGrid extends LitElement {
         return config ? ModalUtils.create(this, `${this._prefix}Modal${this.activeActionModal}`, config) : nothing;
     }
 
-    renderToolbarLeftContent() {
-        return html`
-            <span id="${this.gridId + "PaginationInfo"}"></span>
-        `;
-    }
-
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
-                    .resource="${"WORKFLOW"}"
-                    .toolId="${this.toolId}"
-                    .query="${this.query}"
-                    .leftContent="${this.renderToolbarLeftContent()}"
-                    .rightToolbar="${this.getRightToolbar()}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.toolbarSetting}"
-                    .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
-                    @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}">
-                </opencb-grid-toolbar>
+                <div class="mx-1 my-2">
+                    <opencb-grid-toolbar
+                        .resource="${"WORKFLOW"}"
+                        .toolId="${this.toolId}"
+                        .query="${this.query}"
+                        .leftContent="${this.renderToolbarLeftContent()}"
+                        .rightToolbar="${this.getRightToolbar()}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .settings="${this.toolbarSetting}"
+                        .config="${this.toolbarConfig}"
+                        @columnChange="${this.onColumnChange}"
+                        @download="${this.onDownload}"
+                        @export="${this.onDownload}"
+                        @actionClick="${e => this.onActionClick(e)}">
+                    </opencb-grid-toolbar>
+                </div>
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">

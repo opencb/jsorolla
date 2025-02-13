@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "./workflow-grid.js";
 import "../commons/opencga-browser.js";
@@ -55,7 +55,6 @@ export default class WorkflowBrowser extends LitElement {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -144,21 +143,24 @@ export default class WorkflowBrowser extends LitElement {
                                 title: "Workflow ID",
                                 type: "string",
                                 placeholder: "eg. wf1, wf2, ...",
-                                description: ""
+                                description: "",
+                                quick: true
                             },
                             {
                                 id: "name",
                                 title: "Name",
                                 type: "string",
                                 placeholder: "eg. alignment, variant calling, ...",
-                                description: ""
+                                description: "",
+                                quick: true
                             },
                             {
                                 id: "type",
                                 title: "Type",
                                 type: "string",
                                 placeholder: "eg. RESEARCH_ANALYSIS,...",
-                                description: ""
+                                description: "",
+                                quick: true
                             },
                             {
                                 id: "tags",
@@ -166,11 +168,13 @@ export default class WorkflowBrowser extends LitElement {
                                 placeholder: "eg. tag1, tag2, tag3",
                                 allowedValues: "",
                                 description: "",
+                                quick: true
                             },
                             {
                                 id: "date",
                                 title: "Date",
-                                description: ""
+                                description: "",
+                                quick: true
                             },
                         ]
                     }

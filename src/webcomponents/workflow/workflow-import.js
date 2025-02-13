@@ -16,10 +16,11 @@
 
 import {html, LitElement} from "lit";
 import LitUtils from "../commons/utils/lit-utils";
-import "../commons/filters/catalog-search-autocomplete.js";
 import GridCommons from "../commons/grid-commons";
 import NotificationUtils from "../commons/utils/notification-utils";
 import UtilsNew from "../../core/utils-new";
+import "../commons/filters/catalog-search-autocomplete.js";
+import "../commons/data-list.js";
 
 export default class WorkflowImport extends LitElement {
 
@@ -35,6 +36,9 @@ export default class WorkflowImport extends LitElement {
 
     static get properties() {
         return {
+            repositories: {
+                type: Array
+            },
             opencgaSession: {
                 type: Object
             },
@@ -96,7 +100,6 @@ export default class WorkflowImport extends LitElement {
 
         this.repositories = [];
         let page = 1;
-
         try {
             while (true) {
                 const response = await fetch(`${url}?page=${page}&per_page=100`, {headers});

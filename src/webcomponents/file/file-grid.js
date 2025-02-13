@@ -443,40 +443,51 @@ export default class OpencgaFileGrid extends LitElement {
                     const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
 
                     return `
-                        <div class="d-inline-block dropdown">
-                            <button class="btn" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a data-action="download" target="_blank" class="dropdown-item ${row.id ? "cursor-pointer" : "disabled"}" href="${downloadUrl}">
-                                    <i class="fas fa-download me-1"></i> Download
+                        <div class="d-flex justify-content-center align-items-center">
+                            <div class="d-flex justify-content-around">
+                                <a class="btn" style="${row.type === "DIRECTORY" ? "color: grey" : ""}" data-action="view">
+                                    <i class="fas fa-eye"></i>
                                 </a>
-                                <hr class="dropdown-divider">
-                                <a data-action="copy-json" class="dropdown-item cursor-pointer">
-                                    <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
-                                </a>
-                                <a data-action="download-json" class="dropdown-item cursor-pointer">
-                                    <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a data-action="quality-control"
-                                    class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "cursor-pointer" : "disabled"}"
-                                    title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                        <i class="fas fa-rocket me-1" aria-hidden="true"></i> Calculate Quality Control
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a data-action="edit" class="dropdown-item disabled ${hasWritePermission ? "cursor-pointer" : "disabled"}">
-                                    <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                                </a>
-                                <a data-action="delete" class="dropdown-item disabled">
-                                    <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
-                                </a>
+                            </div>
+                            <div class="d-inline-block dropdown">
+                                <button class="btn" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <a class="dropdown-item cursor-pointer ${row.type === "DIRECTORY" ? "disabled" : ""}" data-action="view">
+                                        <i class="fas fa-eye me-1"></i>
+                                        <span>View</span>
+                                    </a>
+                                    <a data-action="download" target="_blank" class="dropdown-item cursor-pointer ${row.type === "DIRECTORY" ? "disabled" : ""}" href="${downloadUrl}">
+                                        <i class="fas fa-download me-1"></i> Download
+                                    </a>
+                                    <hr class="dropdown-divider">
+                                    <a data-action="copy-json" class="dropdown-item cursor-pointer">
+                                        <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
+                                    </a>
+                                    <a data-action="download-json" class="dropdown-item cursor-pointer">
+                                        <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
+                                    </a>
+                                    <hr class="dropdown-divider">
+                                    <a data-action="quality-control"
+                                        class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "cursor-pointer" : "disabled"}"
+                                        title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
+                                            <i class="fas fa-rocket me-1" aria-hidden="true"></i> Calculate Quality Control
+                                    </a>
+                                    <hr class="dropdown-divider">
+                                    <a data-action="edit" class="dropdown-item disabled ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
+                                    </a>
+                                    <a data-action="delete" class="dropdown-item disabled">
+                                        <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     `;
                 },
                 events: {
-                    "click a": this.onActionClick.bind(this)
+                    "click a": (e, value, file) => this.onActionClick(e, value, file),
                 },
                 excludeFromSettings: true,
                 visible: this._config.showActions, // this.gridCommons.isColumnVisible("actions")
@@ -496,14 +507,18 @@ export default class OpencgaFileGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    onActionClick(e, _, row) {
+    onActionClick(e, _, file) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "view":
+                this.fileId = file.id;
+                this.changeActiveActionModal("view");
+                break;
             case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                UtilsNew.copyToClipboard(JSON.stringify(file, null, "\t"));
                 break;
             case "download-json":
-                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                UtilsNew.downloadData([JSON.stringify(file, null, "\t")], file.id + ".json");
                 break;
             case "quality-control":
                 // alert("Not implemented yet");
@@ -556,31 +571,6 @@ export default class OpencgaFileGrid extends LitElement {
         LitUtils.dispatchCustomEvent(this, "pathClear");
     }
 
-    getRightToolbar() {
-        return [
-            {
-                icon: "fa-folder-plus",
-                title: "Create Folder",
-                onClick: () => this.changeActiveActionModal("create-folder"),
-            },
-            {
-                icon: "fa-file-medical",
-                title: "Create File",
-                onClick: () => this.changeActiveActionModal("create-file"),
-            },
-            {
-                icon: "fa-file-upload",
-                title: "Upload File",
-                onClick: () => this.changeActiveActionModal("upload-file"),
-            },
-            {
-                icon: "fas fa-cloud-download-alt",
-                title: "Fetch File",
-                onClick: () => this.changeActiveActionModal("fetch-file"),
-            },
-        ];
-    }
-
     renderToolbarLeftContent() {
         const pathFragments = this.getCurrentPath()
             .split("/")
@@ -608,10 +598,50 @@ export default class OpencgaFileGrid extends LitElement {
         `;
     }
 
+    getRightToolbar() {
+        return [
+            {
+                icon: "fa-folder-plus",
+                title: "Create Folder",
+                onClick: () => this.changeActiveActionModal("create-folder"),
+            },
+            {
+                icon: "fa-file-medical",
+                title: "Create File",
+                onClick: () => this.changeActiveActionModal("create-file"),
+            },
+            {
+                icon: "fa-file-upload",
+                title: "Upload File",
+                onClick: () => this.changeActiveActionModal("upload-file"),
+            },
+            {
+                icon: "fas fa-cloud-download-alt",
+                title: "Fetch File",
+                onClick: () => this.changeActiveActionModal("fetch-file"),
+            },
+        ];
+    }
+
     renderActionModal() {
         let config = null;
 
         switch (this.activeActionModal) {
+            case "view":
+                config = {
+                    display: {
+                        modalTitle: `File ${this.fileId}`,
+                        modalCyDataName: `modal-file-view`,
+                        modalSize: "modal-lg",
+                    },
+                    render: () => html`
+                        <file-detail
+                            .fileId="${this.fileId}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </file-detail>
+                    `,
+                };
+                break;
             case "create-folder":
                 config = {
                     display: {

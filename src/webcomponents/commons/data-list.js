@@ -96,6 +96,7 @@ export default class DataList extends LitElement {
 
     dataObserver() {
         this._data = JSON.parse(JSON.stringify(this.data));
+        // this.requestUpdate();
     }
 
     modeObserver(e, mode) {
