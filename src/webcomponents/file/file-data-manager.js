@@ -22,7 +22,7 @@ import "../commons/data-list.js";
 import "../loading-spinner.js";
 import "./file-view.js";
 import "./file-delete.js";
-import "./folder-create.js";
+import "./file-folder-create.js";
 import "./file-create.js";
 import "./file-fetch.js"
 import NotificationUtils from "../commons/utils/notification-utils";

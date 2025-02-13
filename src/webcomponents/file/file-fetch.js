@@ -73,12 +73,9 @@ export default class FileFetch extends LitElement {
     update(changedProperties) {
         if (changedProperties.has("path")) {
             this._data.path = `/${this.path}`;
+            this._config = this.getDefaultConfig();
         }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig
-            };
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -106,9 +103,7 @@ export default class FileFetch extends LitElement {
             study: this.opencgaSession.study.fqn,
             jobId: jobId ?? `${this.JOB_ID}-${UtilsNew.getDatetime()}`,
         };
-        debugger
         this.#setLoading(true);
-        debugger
         this.opencgaSession.opencgaClient.files()
             .fetch(data, params)
             .then(() => {
@@ -145,39 +140,46 @@ export default class FileFetch extends LitElement {
 
     getDefaultConfig() {
         return {
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                ...this._displayConfigDefault,
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General Information",
                     elements: [
                         {
+                            title: "Path",
+                            field: "path",
+                            type: "input-text",
+                            // required: true,
+                            display: {
+                                defaultValue: `/${this.path}`,
+                                disabled: true,
+                                help: {
+                                    text: "Path where the file be downloaded."
+                                }
+                            },
+                        },
+                        {
                             title: "URL",
                             field: "url",
                             type: "input-text",
                             required: true,
-                        },
-                        {
-                            title: "Path",
-                            field: "path",
-                            type: "input-text",
-                            required: true,
                             display: {
-                                defaultValue: `/${this.path}`,
-                                disabled: true,
+                                placeholder: "https://",
+                                help: {
+                                    text: "URL where the file is located."
+                                }
                             },
                         },
-                    ],
-                },
-                /*
-                Note 20241210 Vero: It has been discussed and decided not to utilise the analysis-utils component for
-                populating the job parameters. It has issues, such as invoking the onClear() method after submitting
-                the query or using the button name "Run Analysis".
-                If the analysis-tools component is intended to be reusable for endpoints that execute jobs but are not
-                true analysis tools, it will need to be refactored.
-                */
-                {
-                    title: "Job Info",
-                    elements: [
+                        /*
+                        Note 20241210 Vero: It has been discussed and decided not to utilise the analysis-utils component for
+                        populating the job parameters. It has issues, such as invoking the onClear() method after submitting
+                        the query or using the button name "Run Analysis".
+                        If the analysis-tools component is intended to be reusable for endpoints that execute jobs but are not
+                        true analysis tools, it will need to be refactored.
+                        */
                         {
                             title: "Job ID",
                             field: "jobId",
@@ -190,7 +192,7 @@ export default class FileFetch extends LitElement {
                             },
                         },
                     ],
-                }
+                },
             ],
         };
     }

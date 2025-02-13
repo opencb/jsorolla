@@ -25,9 +25,10 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
+import "./file-folder-create.js";
 import "./file-create.js";
 import "./file-upload.js";
-import "./folder-create.js";
+import "./file-fetch.js";
 
 export default class OpencgaFileGrid extends LitElement {
 
@@ -182,7 +183,7 @@ export default class OpencgaFileGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        include: "id,name,path,type,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal,annotationSets",
+                        include: "id,name,path,type,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal,annotationSets,attributes.variantFileMetadata.header.version",
                         ...this.query
                     };
                     // When searching by directory we must also show directories
@@ -340,6 +341,39 @@ export default class OpencgaFileGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("name")
             },
             {
+                id: "format",
+                title: "Format",
+                field: "format",
+                formatter: (format, file) => {
+                    let result = "-";
+                    if (file.type === "FILE") {
+                        switch (file.format) {
+                            case "VCF":
+                                debugger
+                                result = `
+                                    <div class="mb-1">${format}</div>
+                                    <div class="text-secondary">${file.attributes?.variantFileMetadata?.header?.version?.replace("VCF", "") || ""}</div>
+                                `;
+                                break;
+                            case "BAM":
+                                result = format;
+                                break;
+                        }
+                    }
+                    return result;
+                },
+                visible: this.gridCommons.isColumnVisible("format")
+            },
+            {
+                id: "size",
+                title: "Size",
+                field: "size",
+                formatter: (size, file) => {
+                    return file.type === "DIRECTORY" ? "-" : UtilsNew.getDiskUsage(size);
+                },
+                visible: this.gridCommons.isColumnVisible("size")
+            },
+            {
                 id: "sampleIds",
                 title: "Samples",
                 field: "sampleIds",
@@ -348,9 +382,9 @@ export default class OpencgaFileGrid extends LitElement {
                     if (sampleIds?.length > 0) {
                         html = `<div class="text-nowrap">`;
                         for (let i = 0; i < sampleIds.length; i++) {
-                            // Display first 3 files
+                            // Display first 3 samples
                             if (i < 3) {
-                                html += `<div style="margin: 2px 0"><span class="fw-bold">${sampleIds[i]}</span></div>`;
+                                html += `<div style="margin: 2px 0"><span class="">${sampleIds[i]}</span></div>`;
                             } else {
                                 html += `<a tooltip-title="Samples" tooltip-text='${sampleIds.join("<br>")}'>... view all samples (${sampleIds.length})</a>`;
                                 break;
@@ -370,35 +404,24 @@ export default class OpencgaFileGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("jobId")
             },
             {
-                id: "size",
-                title: "Size",
-                field: "size",
-                formatter: size => UtilsNew.getDiskUsage(size),
-                visible: this.gridCommons.isColumnVisible("size")
-            },
-            {
-                id: "format",
-                title: "Format",
-                field: "format",
-                visible: this.gridCommons.isColumnVisible("format")
-            },
-            {
                 id: "index",
                 title: "Variant Index Status",
                 field: "internal.variant.index.status.id",
+                formatter: (status, file) => {
+                    let result = "-";
+                    if (file.type === "FILE") {
+                        switch (file.format) {
+                            case "VCF":
+                                result = file.internal.variant.index.status.id;
+                                break;
+                            case "BAM":
+                                result = file.internal.alignment.index.status.id;
+                                break;
+                        }
+                    }
+                    return result;
+                },
                 visible: this.gridCommons.isColumnVisible("index"),
-                // NOTE 20230310 Vero: Formatter for displaying in the future information
-                // about annotation and secondary index in the column
-                // formatter: (value, row) => {
-                //     if (row.format === "VCF") {
-                //         return `
-                //             <div>${row.internal.variant.index?.status?.id}</div>
-                //             <div>${row.internal.variant.annotationIndex?.status?.id}</div>
-                //         `;
-                //     } else {
-                //         return `<div>NA</div>`;
-                //     }
-                // }
             },
             {
                 id: "creationDate",
@@ -550,6 +573,11 @@ export default class OpencgaFileGrid extends LitElement {
                 title: "Upload File",
                 onClick: () => this.changeActiveActionModal("upload-file"),
             },
+            {
+                icon: "fas fa-cloud-download-alt",
+                title: "Fetch File",
+                onClick: () => this.changeActiveActionModal("fetch-file"),
+            },
         ];
     }
 
@@ -561,7 +589,8 @@ export default class OpencgaFileGrid extends LitElement {
                 const active = index === array.length - 1; // Last fragment is marked as active
                 const path = array.slice(0, index + 1).join("/") + "/"; // Build again the path
                 return html`
-                    <span class="breadcrumb-item ${active ? "active" : "cursor-pointer hover:text-decoration-underline"}" @click="${() => this.onPathChange(path)}">
+                    <span class="breadcrumb-item ${active ? "active" : "cursor-pointer hover:text-decoration-underline"}"
+                          @click="${() => this.onPathChange(path)}">
                         ${fragment}
                     </span>
                 `;
@@ -569,7 +598,8 @@ export default class OpencgaFileGrid extends LitElement {
 
         return html`
             <div class="breadcrumb mb-0">
-                <span class="breadcrumb-item ${pathFragments.length === 0 ? "active" : "cursor-pointer hover:text-decoration-underline"}" @click="${() => this.onPathClear()}">
+                <span class="breadcrumb-item ${pathFragments.length === 0 ? "active" : "cursor-pointer hover:text-decoration-underline"}"
+                      @click="${() => this.onPathClear()}">
                     <i class="fas fa-hdd pe-1"></i>
                     <span>DATA</span>
                 </span>
@@ -590,7 +620,7 @@ export default class OpencgaFileGrid extends LitElement {
                         modalSize: "modal-lg"
                     },
                     render: () => html`
-                        <folder-create
+                        <file-folder-create
                             .opencgaSession="${this.opencgaSession}"
                             .path="${this.getCurrentPath()}"
                             .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
@@ -598,7 +628,7 @@ export default class OpencgaFileGrid extends LitElement {
                                 this.changeActiveActionModal("");
                                 this.forceTableRefresh();
                             }}">
-                        </folder-create>
+                        </file-folder-create>
                     `,
                 };
                 break;
@@ -639,6 +669,26 @@ export default class OpencgaFileGrid extends LitElement {
                                 this.forceTableRefresh();
                             }}">
                         </file-upload>
+                    `,
+                };
+                break;
+            case "fetch-file":
+                config = {
+                    display: {
+                        modalTitle: "Fetch File",
+                        modalCyDataName: "modal-fectch",
+                        modalSize: "modal-lg"
+                    },
+                    render: () => html`
+                        <file-fetch
+                            .opencgaSession="${this.opencgaSession}"
+                            .path="${this.getCurrentPath()}"
+                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                            @fileUpload="${() => {
+                                this.changeActiveActionModal("");
+                                this.forceTableRefresh();
+                            }}">
+                        </file-fetch>
                     `,
                 };
                 break;

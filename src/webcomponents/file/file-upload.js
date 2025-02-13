@@ -47,7 +47,6 @@ export default class FileUpload extends LitElement {
     }
 
     #init() {
-        this._prefix = UtilsNew.randomString(8);
         this._displayConfigDefault = {
             buttonOkText: "Upload File",
             buttonClearText: "Discard Changes",
@@ -66,7 +65,6 @@ export default class FileUpload extends LitElement {
         if (changedProperties.has("displayConfig") || changedProperties.has("path")) {
             this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
@@ -143,24 +141,37 @@ export default class FileUpload extends LitElement {
                             title: "Path",
                             field: "relativeFilePath",
                             type: "input-text",
-                            required: true,
+                            // required: true,
                             display: {
                                 defaultValue: `/${this.path || ""}`,
                                 disabled: true,
+                                help: {
+                                    text: "Path where the file will be uploaded.",
+                                }
                             },
                         },
                         {
                             title: "File Name",
                             field: "fileName",
                             type: "input-text",
+                            display: {
+                                help: {
+                                    text: "Name of the file to be uploaded. If not provided, the name of the uploaded file will be used.",
+                                },
+                            }
                         },
                         {
                             title: "Description",
                             field: "description",
                             type: "input-text",
+                            display: {
+                                help: {
+                                    text: "Description of the file to be uploaded.",
+                                },
+                            }
                         },
                         {
-                            title: "Select File to upload",
+                            title: "Select File",
                             field: "file",
                             type: "custom",
                             required: true,
@@ -168,12 +179,14 @@ export default class FileUpload extends LitElement {
                                 render: (_, onFilterChange) => html`
                                     <input class="form-control" type="file" @change="${e => onFilterChange(e.target.files[0])}">
                                 `,
+                                help: {
+                                    text: "Select the file to be uploaded. Maximum file size: 5GB",
+                                },
                             }
                         },
                     ],
                 },
             ],
-
         };
     }
 

@@ -19,7 +19,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/forms/data-form.js";
 
-export default class FolderCreate extends LitElement {
+export default class FileFolderCreate extends LitElement {
 
     constructor() {
         super();
@@ -58,7 +58,9 @@ export default class FolderCreate extends LitElement {
     }
 
     #initOriginalObjects() {
-        this._folder = {};
+        this._folder = {
+            type: "DIRECTORY",
+        };
         this._config = this.getDefaultConfig();
     }
 
@@ -68,13 +70,9 @@ export default class FolderCreate extends LitElement {
     }
 
     update(changedProperties) {
-        // if (changedProperties.has("path")) {
-        //     this._folder.path = `/${this.path}`;
-        // }
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
@@ -95,10 +93,10 @@ export default class FolderCreate extends LitElement {
     }
 
     onSubmit() {
-        const name = this._folder.name;
+        const {name, ...otherFileData} = this._folder;
         const data = {
+            ...otherFileData,
             path: `${this.path || "/"}${name}`,
-            type: "DIRECTORY",
         };
 
         this.#setLoading(true);
@@ -149,24 +147,27 @@ export default class FolderCreate extends LitElement {
             sections: [
                 {
                     elements: [
-                        {
-                            title: "Type",
-                            field: "type",
-                            type: "input-text",
-                            required: true,
-                            display: {
-                                defaultValue: "DIRECTORY",
-                                disabled: true,
-                            },
-                        },
+                        // {
+                        //     title: "Type",
+                        //     field: "type",
+                        //     type: "input-text",
+                        //     required: true,
+                        //     display: {
+                        //         defaultValue: "DIRECTORY",
+                        //         disabled: true,
+                        //     },
+                        // },
                         {
                             title: "Path",
                             field: "path",
                             type: "input-text",
-                            required: true,
+                            // required: true,
                             display: {
                                 defaultValue: `/${this.path}`,
                                 disabled: true,
+                                help: {
+                                    text: "Path where the folder will be created.",
+                                }
                             },
                         },
                         {
@@ -174,6 +175,11 @@ export default class FolderCreate extends LitElement {
                             field: "name",
                             required: true,
                             type: "input-text",
+                            display: {
+                                help: {
+                                    text: "Name of the folder to be created.",
+                                },
+                            }
                         },
                     ],
                 },
@@ -182,4 +188,4 @@ export default class FolderCreate extends LitElement {
     }
 }
 
-customElements.define("folder-create", FolderCreate);
+customElements.define("file-folder-create", FileFolderCreate);

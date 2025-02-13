@@ -55,8 +55,6 @@ export default class FileCreate extends LitElement {
             buttonClearText: "Discard Changes",
         };
 
-        // this._formats = [];
-
         this.#initOriginalObjects();
     }
 
@@ -76,7 +74,6 @@ export default class FileCreate extends LitElement {
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
@@ -151,24 +148,27 @@ export default class FileCreate extends LitElement {
             sections: [
                 {
                     elements: [
-                        {
-                            title: "Type",
-                            field: "type",
-                            type: "input-text",
-                            required: true,
-                            display: {
-                                defaultValue: "FILE",
-                                disabled: true,
-                            },
-                        },
+                        // {
+                        //     title: "Type",
+                        //     field: "type",
+                        //     type: "input-text",
+                        //     required: true,
+                        //     display: {
+                        //         defaultValue: "FILE",
+                        //         disabled: true,
+                        //     },
+                        // },
                         {
                             title: "Path",
                             field: "path",
                             type: "input-text",
-                            required: true,
+                            // required: true,
                             display: {
                                 defaultValue: `/${this.path}`,
                                 disabled: true,
+                                help: {
+                                    text: "Path where the file will be uploaded.",
+                                }
                             },
                         },
                         {
@@ -176,11 +176,21 @@ export default class FileCreate extends LitElement {
                             field: "name",
                             required: true,
                             type: "input-text",
+                            display: {
+                                help: {
+                                    text: "Name of the file to be uploaded.",
+                                },
+                            }
                         },
                         {
                             title: "Description",
                             field: "description",
                             type: "input-text",
+                            display: {
+                                help: {
+                                    text: "Description of the file to be uploaded.",
+                                },
+                            }
                         },
                         {
                             title: "Content",
@@ -188,7 +198,10 @@ export default class FileCreate extends LitElement {
                             type: "input-text",
                             required: true,
                             display: {
-                                rows: 5,
+                                rows: 20,
+                                help: {
+                                    text: "Content of the file to be uploaded. Maximum size is 1MB.",
+                                },
                             }
                         },
                     ],
