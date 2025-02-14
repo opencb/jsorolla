@@ -507,8 +507,8 @@ export default class OpencgaFileGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    onActionClick(e, _, file) {
-        const action = e.target.dataset.action?.toLowerCase();
+    onActionClick(event, value, file) {
+        const action = (event.currentTarget?.dataset?.action || "").toLowerCase();
         switch (action) {
             case "view":
                 this.fileId = file.id;
