@@ -16,6 +16,7 @@ import "../../variant/analysis/mendelian-error-analysis.js";
 import "../../variant/analysis/sample-qc-analysis.js";
 import "../../variant/analysis/individual-qc-analysis.js";
 import "../../variant/analysis/family-qc-analysis.js";
+import "../../variant/analysis/liftover-analysis.js";
 import "../../variant/analysis/knockout-analysis.js";
 import "../../variant/analysis/opencga-plink-analysis.js";
 import "../../variant/analysis/opencga-gatk-analysis.js";
@@ -292,6 +293,15 @@ export default class AnalysisTools extends LitElement {
                         //         </beacon-analysis>
                         //     `,
                         // },
+                        {
+                            id: "liftover",
+                            name: "LiftOver",
+                            render: opencgaSession => html`
+                                <liftover-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </liftover-analysis>
+                            `,
+                        },
                         {
                             id: "plink",
                             name: "Plink",
