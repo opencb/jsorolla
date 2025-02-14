@@ -283,16 +283,6 @@ export default class AnalysisTools extends LitElement {
                     id: "external-tools",
                     name: "External Tools",
                     submenu: [
-                        // {
-                        //     id: "beacon",
-                        //     name: "GA4GH Beacon",
-                        //     description: "Find databases that have information about specific variants.",
-                        //     render: opencgaSession => html`
-                        //         <beacon-analysis
-                        //             .opencgaSession="${opencgaSession}">
-                        //         </beacon-analysis>
-                        //     `,
-                        // },
                         {
                             id: "liftover",
                             name: "LiftOver",
@@ -319,11 +309,6 @@ export default class AnalysisTools extends LitElement {
                                     .opencgaSession="${opencgaSession}">
                                 </opencga-gatk-analysis>
                             `,
-                        },
-                        {
-                            id: "bcftools",
-                            name: "BCFtools",
-                            render: opencgaSession => html``,
                         },
                     ],
                 },
