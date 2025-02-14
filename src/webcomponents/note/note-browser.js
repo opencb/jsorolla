@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/opencga-browser.js";
@@ -50,14 +50,22 @@ export default class NoteBrowser extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "note-browser";
+        this._query = {scope: "STUDY"};
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("query")) {
+            this.queryObserver();
+        }
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
         super.update(changedProperties);
+    }
+
+    queryObserver() {
+        this._query = {scope: "STUDY", ...this.query};
     }
 
     settingsObserver() {
@@ -84,7 +92,6 @@ export default class NoteBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
-
     }
 
     onSettingsUpdate() {
@@ -106,7 +113,7 @@ export default class NoteBrowser extends LitElement {
             <opencga-browser
                 resource="NOTE"
                 .opencgaSession="${this.opencgaSession}"
-                .query="${this.query}"
+                .query="${this._query}"
                 .config="${this._config}"
                 @noteUpdate="${this.onNoteUpdate}">
             </opencga-browser>
@@ -174,7 +181,7 @@ export default class NoteBrowser extends LitElement {
                                             ` : nothing}
                                             ${value === "organization" && !CatalogUtils.isOrganizationAdmin(opencgaSession.organization, opencgaSession.user.id) ? html`
                                                 <div class="alert alert-warning">
-                                                    <span>You are allowd to see only <b>PUBLIC</b> notes fron current organization.</span>
+                                                    <span>You are allowed to see only <b>PUBLIC</b> notes from current organization.</span>
                                                 </div>
                                             ` : nothing}
                                             <div class="row">
