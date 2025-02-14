@@ -433,7 +433,6 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 id: "actions",
                 field: "actions",
-                align: "right",
                 formatter: (value, row) => {
                     const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
                         this.opencgaSession.study,
@@ -443,12 +442,10 @@ export default class OpencgaFileGrid extends LitElement {
                     const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
 
                     return `
-                        <div class="d-flex justify-content-center align-items-center">
-                            <div class="d-flex justify-content-around">
-                                <a class="btn" style="${row.type === "DIRECTORY" ? "color: grey" : ""}" data-action="view">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </div>
+                        <div class="d-flex justify-content-end align-items-center gap-1">
+                            <a class="btn" style="${row.type === "DIRECTORY" ? "color: grey" : ""}" data-action="view">
+                                <i class="fas fa-eye"></i>
+                            </a>
                             <div class="d-inline-block dropdown">
                                 <button class="btn" type="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-ellipsis-v"></i>
