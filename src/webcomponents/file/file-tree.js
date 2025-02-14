@@ -37,6 +37,10 @@ export default class FileTree extends LitElement {
             this.opencgaSessionObserver();
         }
 
+        if (changedProperties.has("currentPath")) {
+            this.currentPathObserver();
+        }
+
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
@@ -52,13 +56,35 @@ export default class FileTree extends LitElement {
         this._expandedDirectories = new Set();
 
         if (this.opencgaSession) {
-            this.fetchDirectory(":");
+            this.fetchDirectory(":").then(() => {
+                this.requestUpdate();
+            });
+        }
+    }
+
+    currentPathObserver() {
+        // if the current path have changed, make sure to fetch all the parent directories
+        // and to include them in the directories map and the expanded directories set
+        if (this.currentPath && this.currentPath !== ":" && !this._directories.has(this.currentPath)) {
+            const paths = this.currentPath.split("/").filter(Boolean);
+            const directoriesPromises = [];
+            for (let i = 0; i < paths.length - 1; i++) {
+                const directoryId = paths.slice(0, i + 1).join(":") + ":";
+                if (!this._directories.has(directoryId)) {
+                    directoriesPromises.push(this.fetchDirectory(directoryId));
+                }
+                this._expandedDirectories.add(directoryId);
+            }
+            // when all promises are complited, perform a requestUpdate
+            Promise.all(directoriesPromises).then(() => {
+                this.requestUpdate();
+            });
         }
     }
 
     fetchDirectory(directoryId) {
         this._directories.set(directoryId, []); // initialize directories map
-        this.opencgaSession.opencgaClient.files()
+        return this.opencgaSession.opencgaClient.files()
             .tree(directoryId, {
                 study: this.opencgaSession.study.fqn,
                 maxDepth: 1,
@@ -69,7 +95,6 @@ export default class FileTree extends LitElement {
                     .filter(child => child.file.type.toUpperCase() === "DIRECTORY")
                     .map(child => child.file);
                 this._directories.set(directoryId, subDirectories);
-                this.requestUpdate();
             })
             .catch(error => {
                 console.error(error);
@@ -84,7 +109,9 @@ export default class FileTree extends LitElement {
         }
         // check if we have to fetch this directory
         if (!this._directories.has(directory.id)) {
-            this.fetchDirectory(directory.id);
+            this.fetchDirectory(directory.id).then(() => {
+                this.requestUpdate();
+            });
         }
         this.requestUpdate();
     }
