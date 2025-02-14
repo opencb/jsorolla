@@ -17,13 +17,10 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import "./file-preview.js";
-import "./file-view.js";
 import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
 import "./file-grid.js";
-import "./file-detail.js";
 import "./file-tree.js";
 
 export default class FileBrowser extends LitElement {
@@ -172,13 +169,6 @@ export default class FileBrowser extends LitElement {
                                 </file-grid>
                             </div>
                         </div>
-                        ${params?.detail ? html`
-                            <file-detail
-                                .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}"
-                                .fileId="${params.detail?.id}">
-                            </file-detail>
-                        ` : nothing}
                     `,
                 },
                 {

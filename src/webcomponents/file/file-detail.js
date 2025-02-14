@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
+import ExtensionsManager from "../extensions-manager.js";
+import "../commons/json-viewer.js";
 import "./file-view.js";
 import "./file-preview.js";
-import ExtensionsManager from "../extensions-manager.js";
 
 export default class OpencgaFileDetail extends LitElement {
 
@@ -104,7 +105,7 @@ export default class OpencgaFileDetail extends LitElement {
 
     render() {
         if (!this.opencgaSession) {
-            return "";
+            return nothing;
         }
 
         return html`
@@ -118,12 +119,7 @@ export default class OpencgaFileDetail extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "File",
-            showTitle: true,
-            display: {
-                titleClass: "mt-4",
-                contentClass: "p-3"
-            },
+            showTitle: false,
             items: [
                 {
                     id: "file-view",
@@ -132,7 +128,7 @@ export default class OpencgaFileDetail extends LitElement {
                     render: (file, active, opencgaSession) => html`
                         <file-view
                             .opencgaSession="${opencgaSession}"
-                            .preview="${true}"
+                            .active="${active}"
                             .file="${file}">
                         </file-view>
                     `,
@@ -147,8 +143,18 @@ export default class OpencgaFileDetail extends LitElement {
                             .file="${file}">
                         </file-preview>
                     `,
-                }
-            ]
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (file, active) => html`
+                        <json-viewer
+                            .data="${file}"
+                            .active="${active}">
+                        </json-viewer>
+                    `,
+                },
+            ],
         };
     }
 
