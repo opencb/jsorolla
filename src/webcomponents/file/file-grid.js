@@ -443,7 +443,7 @@ export default class OpencgaFileGrid extends LitElement {
 
                     return `
                         <div class="d-flex justify-content-end align-items-center gap-1">
-                            <a class="btn" style="${row.type === "DIRECTORY" ? "color: grey" : ""}" data-action="view">
+                            <a class="btn border-0 ${row.type === "DIRECTORY" ? "disabled" : "cursor-pointer"}" data-action="view">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <div class="d-inline-block dropdown">
@@ -451,11 +451,11 @@ export default class OpencgaFileGrid extends LitElement {
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-end">
-                                    <a class="dropdown-item cursor-pointer ${row.type === "DIRECTORY" ? "disabled" : ""}" data-action="view">
+                                    <a class="dropdown-item ${row.type === "DIRECTORY" ? "disabled" : "cursor-pointer"}" data-action="view">
                                         <i class="fas fa-eye me-1"></i>
                                         <span>View</span>
                                     </a>
-                                    <a data-action="download" target="_blank" class="dropdown-item cursor-pointer ${row.type === "DIRECTORY" ? "disabled" : ""}" href="${downloadUrl}">
+                                    <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
                                         <i class="fas fa-download me-1"></i> Download
                                     </a>
                                     <hr class="dropdown-divider">
