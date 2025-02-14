@@ -67,6 +67,7 @@ import "../../webcomponents/variant/analysis/mendelian-error-analysis.js";
 import "../../webcomponents/variant/analysis/sample-qc-analysis.js";
 import "../../webcomponents/variant/analysis/individual-qc-analysis.js";
 import "../../webcomponents/variant/analysis/family-qc-analysis.js";
+import "../../webcomponents/variant/analysis/liftover-analysis.js";
 import "../../webcomponents/variant/analysis/knockout-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-plink-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-gatk-analysis.js";
@@ -210,6 +211,7 @@ class IvaApp extends LitElement {
             "mendelian-error",
             "plink",
             "gatk",
+            "liftover",
             "variant-export",
             "variant-stats-exporter",
             // Quality Control
@@ -1875,6 +1877,14 @@ class IvaApp extends LitElement {
                     ${this.config.enabledComponents["gatk"] ? html`
                         <div class="content" id="opencga-gatk-analysis">
                             <opencga-gatk-analysis .opencgaSession="${this.opencgaSession}"></opencga-gatk-analysis>
+                        </div>
+                    ` : nothing}
+
+                    ${this.config.enabledComponents["liftover"] ? html`
+                        <div class="container py-3" id="liftover-analysis">
+                            <liftover-analysis
+                                .opencgaSession="${this.opencgaSession}">
+                            </liftover-analysis>
                         </div>
                     ` : nothing}
 
