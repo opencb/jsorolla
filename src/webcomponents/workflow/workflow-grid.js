@@ -377,14 +377,11 @@ export default class WorkflowGrid extends LitElement {
                 id: "actions",
                 title: "",
                 field: "actions",
-                align: "center",
                 formatter: () => `
-                    <div class="d-flex justify-content-center align-items-center">
-                        <div class="d-flex justify-content-around">
-                            <a class="btn" data-action="view">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </div>
+                    <div class="d-flex justify-content-end align-items-center">
+                        <a class="btn" data-action="view">
+                            <i class="fas fa-eye"></i>
+                        </a>
                         <div class="dropdown d-flex justify-content-end">
                             <button class="btn" data-bs-toggle="dropdown">
                                 <i class="fas fa-ellipsis-v"></i>
@@ -438,7 +435,7 @@ export default class WorkflowGrid extends LitElement {
     }
 
     onActionClick(event, value, workflow) {
-        const action = event.currentTarget.dataset.action;
+        const action = (event.currentTarget?.dataset?.action || "").toLowerCase();
         switch (action) {
             case "view":
                 this.workflowId = workflow.id;
