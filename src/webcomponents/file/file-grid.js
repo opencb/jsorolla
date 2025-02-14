@@ -29,6 +29,7 @@ import "./file-folder-create.js";
 import "./file-create.js";
 import "./file-upload.js";
 import "./file-fetch.js";
+import "./file-detail.js";
 
 export default class OpencgaFileGrid extends LitElement {
 
@@ -216,7 +217,7 @@ export default class OpencgaFileGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onDblClickRow: (_, element) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
@@ -240,9 +241,9 @@ export default class OpencgaFileGrid extends LitElement {
                 onUncheckAll: rows => {
                     this.gridCommons.onUncheckAll(rows);
                 },
-                onLoadSuccess: data => {
-                    this.gridCommons.onLoadSuccess(data, 1);
-                },
+                // onLoadSuccess: data => {
+                //     this.gridCommons.onLoadSuccess(data, 1);
+                // },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
             });
         }
@@ -256,7 +257,7 @@ export default class OpencgaFileGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            theadClasses: "table-light",
+            classes: "table table-borderless table-hover table-grid",
             buttonsClass: "light",
             columns: this._getDefaultColumns(),
             // data: this.files,
@@ -296,16 +297,16 @@ export default class OpencgaFileGrid extends LitElement {
             gridContext: this,
             // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPageChange: (page, size) => {
                 const result = this.gridCommons.onPageChange(page, size);
                 this.from = result.from || this.from;
                 this.to = result.to || this.to;
             },
-            onPostBody: data => {
-                // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-            },
+            // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            // onPostBody: data => {
+            //     // We call onLoadSuccess to select first row
+            //     this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
+            // },
         });
     }
 
