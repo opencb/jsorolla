@@ -26,7 +26,7 @@ const hosts = [
     },
     {
         id: "reference",
-        url: "https://test.app.zettagenomics.com/reference/opencga"
+        url: "https://test.app.zettagenomics.com/task-7049/opencga"
     },
 ];
 
@@ -554,6 +554,11 @@ const SUITE = {
                             acronym: "GT",
                             description: "",
                             icon: "",
+                            visibility: "public"
+                        },
+                        {
+                            id: "liftover",
+                            name: "LiftOver",
                             visibility: "public"
                         },
                     ]
