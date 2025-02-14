@@ -174,7 +174,6 @@ export default class OpencgaFileGrid extends LitElement {
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 gridContext: this,
-                // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let filesResponse = null;
@@ -218,16 +217,8 @@ export default class OpencgaFileGrid extends LitElement {
                     return result.response;
                 },
                 // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (_, element) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
+                onDblClickRow: row => {
+                    this.onPathChange(row.path);
                 },
                 onCheck: row => {
                     this.gridCommons.onCheck(row.id, row);
@@ -295,7 +286,6 @@ export default class OpencgaFileGrid extends LitElement {
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             gridContext: this,
-            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             loadingTemplate: () => GridCommons.loadingFormatter(),
             onPageChange: (page, size) => {
                 const result = this.gridCommons.onPageChange(page, size);
