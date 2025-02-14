@@ -26,6 +26,8 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/catalog-browser-grid-config.js";
 import "../commons/opencb-grid-toolbar.js";
+import "./disease-panel-update.js";
+import "./disease-panel-create.js";
 
 export default class DiseasePanelGrid extends LitElement {
 
