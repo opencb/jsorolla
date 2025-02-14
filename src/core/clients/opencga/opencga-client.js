@@ -235,6 +235,8 @@ export class OpenCGAClient {
      */
     getClient(entity) {
         switch (entity?.toUpperCase()) {
+            case "ORGANIZATION":
+                return this.organization();
             case "USER":
                 return this.users();
             case "PROJECT":
