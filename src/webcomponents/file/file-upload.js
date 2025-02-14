@@ -63,6 +63,7 @@ export default class FileUpload extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig") || changedProperties.has("path")) {
+            this._file.relativeFilePath = "/" + this.path;
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -85,15 +86,17 @@ export default class FileUpload extends LitElement {
     }
 
     onSubmit() {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            file: this._file.file,
+            fileName: this._file.fileName || this._file.file.name, // get the name from the uploaded file
+            relativeFilePath: this._file.relativeFilePath.substring(1) || this.path,
+            description: this._file.description || "",
+        };
+
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.files()
-            .upload({
-                study: this.opencgaSession.study.fqn,
-                file: this._file.file,
-                fileName: this._file.fileName || this._file.file.name, // get the name from the uploaded file
-                relativeFilePath: this.path,
-                description: this._file.description || "",
-            })
+            .upload(params)
             .then(response => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Upload File",
@@ -143,8 +146,8 @@ export default class FileUpload extends LitElement {
                             type: "input-text",
                             // required: true,
                             display: {
-                                defaultValue: `/${this.path || ""}`,
-                                disabled: true,
+                                defaultValue: `/${this._file.relativeFilePath || ""}`,
+                                // disabled: true,
                                 help: {
                                     text: "Path where the file will be uploaded.",
                                 }
