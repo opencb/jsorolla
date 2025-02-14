@@ -164,7 +164,10 @@ const SUITE = {
         }
     },
     welcomePage: {
-        title: "OpenCB Suite",
+        display: {
+            logoClass: "mb-4",
+            contentClass: "fs-3",
+        },
         logo: "img/iva.svg",
         content: `
             Welcome to the OpenCB Suite for whole genome variant analysis.
@@ -219,16 +222,13 @@ const SUITE = {
             logoAlt: "img/tools/icons/variant_browser.svg",
             visibility: "public",
             welcomePage: {
-                display: {
-                    logoWidth: "100px",
-                },
                 title: "Research Environment",
-                // subtitle: "Explore variants in real-time and execute analysis.",
-                content: `
-                    Variant Research Environment App implements different tools to focus on the analysis and interpretation of genomic variants
-                    to understand their role in diseases, traits, and biological processes. It involves the use of our aggregated variant database,
-                    bioinformatics tools, workflows, notebooks, and computational methods to identify, classify, and study variants for personalized medicine and genetic research.
-                `,
+                subtitle: "Explore and understand the genetic diversity of a population.",
+                // content: `
+                //     Variant Research Environment App implements different tools to focus on the analysis and interpretation of genomic variants
+                //     to understand their role in diseases, traits, and biological processes. It involves the use of our aggregated variant database,
+                //     bioinformatics tools, workflows, notebooks, and computational methods to identify, classify, and study variants for personalized medicine and genetic research.
+                // `,
             },
             menu: [
                 {
@@ -236,7 +236,6 @@ const SUITE = {
                     name: "Variant Browser",
                     icon: "fa-dna",
                     visibility: "public",
-                    featured: true,
                     description: "Explore our high-performance and scalable aggregated variant database in real-time.",
                 },
                 {
@@ -244,7 +243,6 @@ const SUITE = {
                     name: "Analysis Tools",
                     icon: "fa-tools",
                     visibility: "public",
-                    featured: true,
                     description: "Execute analysis tools using data of the current study.",
                 },
                 {
@@ -252,7 +250,6 @@ const SUITE = {
                     name: "Workflow Manager",
                     icon: "fa-stream",
                     visibility: "public",
-                    featured: true,
                     description: "Build, import and execute NextFlow workflows.",
                 },
                 {
@@ -260,7 +257,6 @@ const SUITE = {
                     name: "Custom Tool",
                     icon: "fa-rocket",
                     visibility: "public",
-                    featured: true,
                     description: "Execute your own custom tools easily in the cloud.",
                 },
                 {
@@ -268,7 +264,6 @@ const SUITE = {
                     name: "Jupyter Notebooks",
                     icon: "fa-book",
                     visibility: "public",
-                    featured: true,
                     description: "Create, share and execute Jupyter Notebooks with Python.",
                 },
                 // {
@@ -276,7 +271,6 @@ const SUITE = {
                 //     name: "My Analysis",
                 //     icon: "fa-cog",
                 //     visibility: "public",
-                //     featured: true,
                 //     description: "Explore and manage all your exceuted analysis.",
                 // },
                 {
@@ -284,15 +278,13 @@ const SUITE = {
                     name: "Cohort Manager",
                     icon: "fa-search",
                     visibility: "public",
-                    featured: true,
                     description: "Explore and manage all cohorts in the current study.",
                 },
                 {
-                    id: "file-data-manager",
-                    name: "Data Manager",
+                    id: "file-manager",
+                    name: "File Manager",
                     icon: "fa-folder",
                     visibility: "public",
-                    featured: true,
                     description: "Manage your data in the cloud",
                 },
             ],
@@ -309,77 +301,34 @@ const SUITE = {
             visibility: "public",
             welcomePage: {
                 title: "Clinical Analysis",
-                // subtitle: "Interactive Case Interpreter",
-                content: `
-                    Welcome to the OpenCB Clinical Analysis Application.
-                    This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
-                `,
+                subtitle: "Combine genetic and clinical data to interpret a case and gain insights for a diagnosis.",
+                // content: `
+                //     Welcome to the OpenCB Clinical Analysis Application.
+                //     This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
+                // `,
             },
             menu: [
                 {
                     id: "clinical-analysis-portal",
                     name: "Case Interpreter Portal",
-                    // icon: "img/tools/icons/interpretation_portal.svg",
                     icon: "fa-file-medical",
                     visibility: "public",
-                    featured: true,
-                    description: `
-                        <p>Explore and review Clinical Interpretations analysis</p>
-                        <ul>
-                            <li>Filter by gene, consequence, frequency and much more.</li>
-                            <li>Create clinical interpretations and reports.</li>
-                        </ul>
-                    `,
-                    thumbnail: "interpretation_portal.png",
+                    description: "Explore and review Clinical Interpretations: Filter by gene, consequence, frequency, and create clinical interpretations and reports.",
                 },
                 {
                     id: "disease-panel-browser",
                     name: "Disease Panels",
-                    // icon: "img/tools/icons/interpretation_portal.svg",
                     icon: "fa-th-list",
                     visibility: "public",
-                    featured: true,
-                    description: `
-                        <p>Explore and review Clinical Interpretations analysis</p>
-                        <ul>
-                            <li>Filter by gene, consequence, frequency and much more.</li>
-                            <li>Create clinical interpretations and reports.</li>
-                        </ul>
-                    `,
-                    thumbnail: "interpretation_portal.png",
+                    description: "Explore, manage and create any Disease Panel associated with the active Study.",
                 },
                 {
                     id: "cvdb-browser",
                     name: "Clinical Variant DB",
-                    // icon: "img/tools/icons/interpretation_portal.svg",
                     icon: "fa-database",
-                    visibility: "public",
-                    featured: true,
-                    description: `
-                        <p>Explore and review Clinical Interpretations analysis</p>
-                        <ul>
-                            <li>Filter by gene, consequence, frequency and much more.</li>
-                            <li>Create clinical interpretations and reports.</li>
-                        </ul>
-                    `,
-                    thumbnail: "interpretation_portal.png",
+                    visibility: "none",
+                    description: "Explore and review relevant information from your clinical analysis: interpretations, variants and variant evidence.",
                 },
-                // {
-                //     id: "clinical-configuration",
-                //     name: "Configuration",
-                //     // icon: "img/tools/icons/interpretation_portal.svg",
-                //     icon: "fa-cog",
-                //     visibility: "public",
-                //     featured: true,
-                //     description: `
-                //         <p>Explore and review Clinical Interpretations analysis</p>
-                //         <ul>
-                //             <li>Filter by gene, consequence, frequency and much more.</li>
-                //             <li>Create clinical interpretations and reports.</li>
-                //         </ul>
-                //     `,
-                //     thumbnail: "interpretation_portal.png",
-                // },
             ],
         },
         {
@@ -394,11 +343,11 @@ const SUITE = {
             visibility: "public",
             welcomePage: {
                 title: "Data Catalog",
-                // subtitle: "",
-                content: `
-                    Welcome to the Data Catalog Application.
-                    This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
-                `,
+                subtitle: "Explore and manage all relevant metadata and clinical information.",
+                // content: `
+                //     Welcome to the Data Catalog Application.
+                //     This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
+                // `,
             },
             menu: [
                 {
@@ -406,7 +355,6 @@ const SUITE = {
                     name: "Sample Browser",
                     icon: "fa-vial",
                     visibility: "public",
-                    featured: true,
                     description: "Explore and manage all samples in the current study.",
                 },
                 {
@@ -414,7 +362,6 @@ const SUITE = {
                     name: "Individual Browser",
                     icon: "fa-user",
                     visibility: "public",
-                    featured: true,
                     description: "Explore and manage all individuals in the current study.",
                 },
                 {
@@ -422,7 +369,6 @@ const SUITE = {
                     name: "Family Browser",
                     icon: "fa-users",
                     visibility: "public",
-                    featured: true,
                     description: "Explore and manage all families in the current study.",
                 },
                 {
@@ -430,7 +376,6 @@ const SUITE = {
                     name: "File Browser",
                     icon: "fa-file",
                     visibility: "public",
-                    featured: true,
                     description: "Explore and manage all files in the current study.",
                 },
                 {
@@ -438,7 +383,6 @@ const SUITE = {
                     name: "Note Browser",
                     icon: "fa-sticky-note",
                     visibility: "public",
-                    featured: true,
                     description: "Explore and manage all notes in the current study.",
                 },
                 {
@@ -446,23 +390,15 @@ const SUITE = {
                     name: "Job Browser",
                     icon: "fa-rocket",
                     visibility: "public",
-                    featured: true,
                     description: "Explore and manage all jobs in the current study.",
                 },
-                // {
-                //     id: "workflow-manager",
-                //     name: "Workflow Manager",
-                //     icon: "img/tools/icons/variant_browser.svg",
-                //     visibility: "public",
-                //     featured: true,
-                //     description: `
-                //         <p>Explore all variants identified by the current study.</p>
-                //         <ul>
-                //             <li>Rich annotation and links to leading reference databases</li>
-                //             <li>Filter by gene, consequence, frequency and much more</li>
-                //         </ul>
-                //     `,
-                // },
+                {
+                    id: "workflow-browser",
+                    name: "Workflow Browser",
+                    icon: "fa-stream",
+                    visibility: "public",
+                    description: "Build, import and execute NextFlow workflows.",
+                },
                 // {
                 //     id: "cohort-browser",
                 //     name: "Cohort Builder",
@@ -504,8 +440,8 @@ const SUITE = {
             visibility: "public",
             welcomePage: {
                 title: "Admin",
-                // subtitle: "",
-                content: "Administration tools for managing users, projects, and studies.",
+                subtitle: "Perform all the administrative tasks for your Organization or Study.",
+                // content: "Administration tools for managing users, projects, and studies.",
             },
             menu: [
                 {
