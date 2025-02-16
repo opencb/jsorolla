@@ -218,7 +218,12 @@ export default class OpencgaFileGrid extends LitElement {
                 },
                 // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onDblClickRow: row => {
-                    this.onPathChange(row.path);
+                    if (row.type === "DIRECTORY") {
+                        this.onPathChange(row.path);
+                    } else {
+                        this.fileId = row.id;
+                        this.changeActiveActionModal("view");
+                    }
                 },
                 onCheck: row => {
                     this.gridCommons.onCheck(row.id, row);
