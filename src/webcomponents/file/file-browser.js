@@ -187,6 +187,9 @@ export default class FileBrowser extends LitElement {
                 }
             ],
             filter: {
+                activeFilters: {
+                    lockedFields: [{id: "path"}]
+                },
                 sections: [
                     {
                         title: "Section title",
@@ -194,7 +197,7 @@ export default class FileBrowser extends LitElement {
                         filters: [
                             {
                                 id: "name",
-                                title: "Name",
+                                title: "File Name",
                                 type: "string",
                                 placeholder: "accepted_hits.bam, phenotypes.vcf...",
                                 description: "",
