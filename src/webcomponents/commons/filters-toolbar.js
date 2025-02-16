@@ -404,7 +404,7 @@ export default class FiltersToolbar extends LitElement {
             }
 
             // remove value from filterFields
-            filterFields = filterFields.filter(field => field !== value); 
+            filterFields = filterFields.filter(field => field !== value);
 
             // restore the query field
             if (complexField) {
@@ -508,7 +508,7 @@ export default class FiltersToolbar extends LitElement {
                     </button>
                     <div class="dropdown-menu dropdown-menu-start shadow p-2" style="width:280px;">
                         ${filter.description ? html`
-                            <div class="mb-2">${filter.description}</div>    
+                            <div class="mb-2">${filter.description}</div>
                         ` : nothing}
                         ${this.renderFilterContent(filter)}
                     </div>
@@ -678,7 +678,7 @@ export default class FiltersToolbar extends LitElement {
                         </button>
                     ` : nothing}
                     <div class="w-px bg-gray-200"></div>
-                    <button class="btn btn-primary d-flex align-items-center gap-2 ${!this.searchActive ? "disabled" : ""}" @click="${this.onSearch}">
+                    <button class="btn ${UtilsNew.objectCompare(this.preparedQuery, this.executedQuery) ? "btn-primary" : "btn-danger"} d-flex align-items-center gap-2 ${!this.searchActive ? "disabled" : ""}" @click="${this.onSearch}">
                         <i class="fas fa-search"></i>
                         <span class="fw-bold">Search</span>
                     </button>
