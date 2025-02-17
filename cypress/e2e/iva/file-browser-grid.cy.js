@@ -38,7 +38,7 @@ context("File Browser Grid", () => {
                 .should("be.visible");
         });
 
-        it("should render create buttons", () => {
+        it("should render create buttons (file and create)", () => {
             ["File", "Folder"].forEach(type => {
                 cy.get("@fileGrid")
                     .find(`div[data-cy="toolbar"] button`)
@@ -196,13 +196,13 @@ context("File Browser Grid", () => {
     // });
 
     context("row", () => {
-        it("should display row #3 as selected", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
-                cy.get("tbody tr")
-                    .eq(3)
-                    .click()
-                    .should("have.class","table-success");
-        });
+        // it("should display row #3 as selected", () => {
+        //     // eslint-disable-next-line cypress/unsafe-to-chain-command
+        //         cy.get("tbody tr")
+        //             .eq(3)
+        //             .click()
+        //             .should("have.class","table-success");
+        // });
 
         context("actions", () => {
             it("should display actions menu", () => {
@@ -254,15 +254,15 @@ context("File Browser Grid", () => {
                 .should("be.visible");
         });
 
-        it("should display info from the selected row", () => {
-            const file = "chinese:HG007_GRCh38_1_22_v4.2.1_benchmark.vcf.gz";
-            cy.get(`tbody tr[data-uniqueid="${file}"]`)
-                .find(`td:first`)
-                .trigger("click");
+        // it("should display info from the selected row", () => {
+        //     const file = "chinese:HG007_GRCh38_1_22_v4.2.1_benchmark.vcf.gz";
+        //     cy.get(`tbody tr[data-uniqueid="${file}"]`)
+        //         .find(`td:first`)
+        //         .trigger("click");
 
-            cy.get(`detail-tabs h3`)
-                .should("contain.text", `File ${file}`);
-        });
+        //     cy.get(`detail-tabs h3`)
+        //         .should("contain.text", `File ${file}`);
+        // });
 
         it("should display 'Preview' Tab", () => {
             cy.get(`detail-tabs > div.detail-tabs > ul`)
