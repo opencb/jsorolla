@@ -97,17 +97,7 @@ export default class FiltersToolbar extends LitElement {
     opencgaSessionObserver() {
         this.userFilters = [];
         if (this.opencgaSession && this.resource) {
-            this.opencgaSession.opencgaClient.users()
-                .filters(this.opencgaSession.user.id)
-                .then(response => {
-                    this.userFilters = (response.responses?.[0]?.results || []).filter(filter => {
-                        return filter.resource === this.resource;
-                    });
-                    this.requestUpdate();
-                })
-                .catch(response => {
-                    console.error(response);
-                });
+            this.updateUserFilters();
         }
     }
 
@@ -247,8 +237,18 @@ export default class FiltersToolbar extends LitElement {
         this.historyFilters = history.slice(0, 10);
     }
 
-    updateQueryList() {
-        return null;
+    updateUserFilters() {
+        this.opencgaSession.opencgaClient.users()
+            .filters(this.opencgaSession.user.id)
+            .then(response => {
+                this.userFilters = (response.responses?.[0]?.results || []).filter(filter => {
+                    return filter.resource === this.resource;
+                });
+                this.requestUpdate();
+            })
+            .catch(response => {
+                console.error(response);
+            });
     }
 
     saveFilter() {
