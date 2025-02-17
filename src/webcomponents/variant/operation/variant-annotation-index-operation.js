@@ -118,6 +118,7 @@ export default class VariantAnnotationIndexOperation extends LitElement {
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            project: this.toolParams.project || "",
         };
         this.config = this.getDefaultConfig();
     }
