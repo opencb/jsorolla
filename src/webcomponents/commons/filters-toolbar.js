@@ -254,7 +254,7 @@ export default class FiltersToolbar extends LitElement {
     saveFilter() {
         const filterName = this.querySelector(`#${this._prefix}SaveFilterName`).value;
         const filterDescription = this.querySelector(`#${this._prefix}SaveFilterDescription`).value;
-        const query = UtilsNew.objectClone(this.query); // generate a clone of the current query
+        const query = UtilsNew.objectClone(this.preparedQuery || {}); // generate a clone of the current query
 
         // 1. filter out the current active study
         if (query.study) {
