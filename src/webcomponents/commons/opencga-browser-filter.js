@@ -147,7 +147,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                         resource="DIRECTORY"
                         .opencgaSession="${opencgaSession}"
                         .config="${subsection}"
-                        @filterChange="${e => onFilterChange(subsection.id, e.detail.value)}">
+                        @filterChange="${e => onFilterChange("path", "~^" + e.detail.value + ".+")}">
                     </catalog-search-autocomplete>
                 `;
                 break;
