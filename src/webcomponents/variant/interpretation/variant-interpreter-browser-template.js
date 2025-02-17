@@ -385,10 +385,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     class="d-flex align-items-stretch"
                     .notifications="${this.notifications || []}">
                 </grid-notifications>
-                <interpreter-ai
-                    class="d-flex align-items-stretch"
-                    .notifications="${this.notifications || []}">
-                </interpreter-ai>
             </div>
         `;
     }
