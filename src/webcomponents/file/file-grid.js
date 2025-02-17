@@ -564,6 +564,10 @@ export default class OpencgaFileGrid extends LitElement {
         LitUtils.dispatchCustomEvent(this, "pathClear");
     }
 
+    onPathCreate(newPath) {
+        LitUtils.dispatchCustomEvent(this, "pathCreate", newPath);
+    }
+
     renderToolbarLeftContent() {
         const pathFragments = this.getCurrentPath()
             .split("/")
@@ -647,9 +651,10 @@ export default class OpencgaFileGrid extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .path="${this.getCurrentPath()}"
                             .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
-                            @folderCreate="${() => {
+                            @folderCreate="${event => {
                                 this.changeActiveActionModal("");
                                 this.forceTableRefresh();
+                                this.onPathCreate(event.detail.value);
                             }}">
                         </file-folder-create>
                     `,

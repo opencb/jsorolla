@@ -51,6 +51,7 @@ export default class FileBrowser extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "file-browser";
+        this._lastCreatedPath = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -118,6 +119,11 @@ export default class FileBrowser extends LitElement {
         });
     }
 
+    onTreePathCreate(event) {
+        this._lastCreatedPath = event.detail.value;
+        this.requestUpdate();
+    }
+
     render() {
         if (!this.opencgaSession) {
             return nothing;
@@ -149,6 +155,7 @@ export default class FileBrowser extends LitElement {
                                 <file-tree
                                     .opencgaSession="${params.opencgaSession}"
                                     .currentPath="${params.executedQuery?.directory || (params.executedQuery?.path || "").slice(2, -2)}"
+                                    .lastCreatedPath="${this._lastCreatedPath}"
                                     @pathChange="${event => this.onTreePathChange(event, params)}"
                                     @pathClear="${event => this.onTreePathClear(event, params)}">
                                 </file-tree>
@@ -165,7 +172,8 @@ export default class FileBrowser extends LitElement {
                                     @fileUpdate="${e => params.onComponentUpdate(e)}"
                                     @settingsUpdate="${() => this.onSettingsUpdate()}"
                                     @pathChange="${e => this.onTreePathChange(e, params)}"
-                                    @pathClear="${e => this.onTreePathClear(e, params)}">
+                                    @pathClear="${e => this.onTreePathClear(e, params)}"
+                                    @pathCreate="${e => this.onTreePathCreate(e)}">
                                 </file-grid>
                             </div>
                         </div>

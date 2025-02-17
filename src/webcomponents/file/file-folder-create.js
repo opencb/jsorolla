@@ -110,7 +110,7 @@ export default class FileFolderCreate extends LitElement {
                     title: "Create Folder",
                     message: `Folder ${name} created correctly`,
                 });
-                LitUtils.dispatchCustomEvent(this, "folderCreate");
+                LitUtils.dispatchCustomEvent(this, "folderCreate", data.path);
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);

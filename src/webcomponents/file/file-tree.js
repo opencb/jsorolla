@@ -20,6 +20,9 @@ export default class FileTree extends LitElement {
             currentPath: {
                 type: String,
             },
+            lastCreatedPath: {
+                type: String,
+            },
             config: {
                 type: Object,
             },
@@ -39,6 +42,10 @@ export default class FileTree extends LitElement {
 
         if (changedProperties.has("currentPath")) {
             this.currentPathObserver();
+        }
+
+        if (changedProperties.has("lastCreatedPath")) {
+            this.lastCreatedPathObserver();
         }
 
         if (changedProperties.has("config")) {
@@ -79,6 +86,21 @@ export default class FileTree extends LitElement {
             Promise.all(directoriesPromises).then(() => {
                 this.requestUpdate();
             });
+        }
+    }
+
+    lastCreatedPathObserver() {
+        if (this.lastCreatedPath) {
+            const parentDirectoryId = this.lastCreatedPath.split("/")
+                .filter(Boolean)
+                .slice(0, -1)
+                .join(":") + ":";
+            // check if the parent directory is already in the directories map, so we have to fetch it again
+            if (this._directories.has(parentDirectoryId)) {
+                this.fetchDirectory(parentDirectoryId).then(() => {
+                    this.requestUpdate();
+                });
+            }
         }
     }
 

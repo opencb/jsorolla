@@ -334,12 +334,12 @@ export default class GridCommons {
         }
     }
 
-    addColumnsFromExtensions(columns, componentId) {
+    addColumnsFromExtensions(columns, componentId, opencgaSession) {
         if (!this.context?._config?.skipExtensions) {
             const id = componentId || this.context?.COMPONENT_ID;
             const isVisible = columnId => this.isColumnVisible(columnId);
             const getData = () => this.extensionsData || {};
-            return ExtensionsManager.injectColumns(columns, id, isVisible, getData);
+            return ExtensionsManager.injectColumns(columns, id, isVisible, getData, opencgaSession);
         }
         // No extensions to inject, just return the original columns list
         return columns;
