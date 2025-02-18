@@ -36,10 +36,15 @@ export default class SwaggerUi extends LitElement {
     }
 
     updated() {
-        // var href = window.location.href;
-        // TODO Fix the URL once it is merged.
+        // 1. Get the OpenAPI URL. We need to append the environment to the URL ONLY if it is a task environment.
+        // Task environment name format supported are like task-0001, TASK-0002f, etc.
+        const match = this.opencgaSession.server.host.match(/task-\d{4}[a-zA-Z]?/i);
+        const environment = match ? "/" + match[0] : "";
+        const serverUrl = this.opencgaSession.server.host + "/webservices/rest/v2/meta/openapi" + "?environment=" + environment;
+
+        // 2. Create an instance of the SwaggerUIBundle
         const ui = SwaggerUIBundle({
-            url: "https://test.app.zettagenomics.com/task-5914/opencga/webservices/rest/v2/meta/openapi?" + "&environment=/task-7100",
+            url: serverUrl,
             dom_id: "#iva-swagger-ui",
             presets: [
                 SwaggerUIBundle.presets.apis,
@@ -50,11 +55,6 @@ export default class SwaggerUi extends LitElement {
             filter: true,
             operationsSorter: "method",
             tryItOutEnabled: true,
-            // syntaxHighlight: false,
-            // syntaxHighlight: {
-            //     activated: true,
-            //     theme: "arta"
-            // },
             onComplete: () => {
                 // Default Bearer token
                 ui.preauthorizeApiKey("BearerAuth", "Bearer " + this.opencgaSession.token);
