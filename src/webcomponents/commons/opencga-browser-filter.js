@@ -71,12 +71,6 @@ export default class OpencgaBrowserFilter extends LitElement {
     }
 
     #init() {
-        this.annotationFilterConfig = {
-            class: "small",
-            buttonClass: "btn-sm",
-            inputClass: "input-sm"
-        };
-
         // Make sure some filters point the right RESOURCE
         this.filterToResource = {
             "fileIds": "FILE",
@@ -212,7 +206,6 @@ export default class OpencgaBrowserFilter extends LitElement {
                         .opencgaSession="${opencgaSession}"
                         .opencgaClient="${opencgaSession.opencgaClient}"
                         .resource="${this.resource}"
-                        .config="${this.annotationFilterConfig || {}}"
                         .selectedVariablesText="${preparedQuery.annotation}"
                         @annotationChange="${e => onFilterChange("annotation", e.detail.value)}">
                     </opencga-annotation-filter-modal>

@@ -103,17 +103,13 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     loadData() {
-        if (!this.data || this.data.length === 0) {
-            return;
-        }
-
         this.select.empty();
 
         // Force to unbind 'select2:select' and 'select2:unselect' listeners
         this.select.off("select2:select");
         this.select.off("select2:unselect");
 
-        const options = this.data.map(item => this.getOptions(item));
+        const options = (this.data || []).map(item => this.getOptions(item));
 
         const selectConfig = {
             ...this._config,
@@ -366,7 +362,6 @@ export default class SelectFieldFilter extends LitElement {
                 .select-field-filter .select2-results__options {
                     max-height: 600px !important;
                 }
-
                 .select-field-filter .select2-results__option--selected {
                     background-color: #fff !important;
                     color: #000 !important;
@@ -388,7 +383,7 @@ export default class SelectFieldFilter extends LitElement {
     render() {
         return html`
             ${this.renderStyle()}
-            <div class="input-group mb-1 select-field-filter">
+            <div class="input-group select-field-filter">
                 <select
                     class="form-select"
                     id="${this._prefix}"

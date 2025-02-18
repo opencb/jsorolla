@@ -41,7 +41,6 @@ import "../../webcomponents/opencga/opencga-protein-view.js";
 import "../../webcomponents/sample/sample-browser.js";
 import "../../webcomponents/sample/sample-view.js";
 import "../../webcomponents/sample/sample-variant-stats-browser.js";
-import "../../webcomponents/sample/sample-cancer-variant-stats-browser.js";
 import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/disease-panel/disease-panel-browser.js";
 import "../../webcomponents/disease-panel/disease-panel-update.js";
@@ -469,6 +468,9 @@ class IvaApp extends LitElement {
             .catch(e => {
                 console.error(e);
                 this.notificationManager.error("Error creating session", e.message);
+                // clear cookies and reset opencgaSession
+                this.opencgaClient.logout();
+                this._createOpencgaSessionFromConfig();
             })
             .finally(() => {
                 this.isCreatingSession = false;
@@ -562,9 +564,6 @@ class IvaApp extends LitElement {
         // 3. Check if sso is active and logged user is not local
         // In this case, we will redirect to 'meta/sso/logout' endpoint
         if (this.opencgaClient?._config?.sso?.active && !isLocalUser) {
-            // eslint-disable-next-line no-undef
-            Cookies.expire(this.opencgaClient._config.sso.cookie);
-
             const config = this.opencgaClient._config;
             const ivaUrl = window.location;
             window.location = `${config.host}/webservices/rest/${config.version}/meta/sso/logout?url=${ivaUrl}`;

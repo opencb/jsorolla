@@ -17,7 +17,7 @@ export default class ModalUtils {
 
     static create(self, id, config) {
         // Parse modal parameters, all of them must start with prefix 'modal'
-        const modalWidth = config.display?.modalWidth || "auto";
+        // const modalWidth = config.display?.modalWidth || "auto";
         const modalContainerClass = config.display?.modalContainerClass || "";
         const modalStyle = config.display?.modalStyle || "";
         const modalSize = config.display?.modalSize || "";
@@ -26,7 +26,9 @@ export default class ModalUtils {
         const modalTitleClassName = config.display?.modalTitleClassName || "";
         const modalTitleStyle = config.display?.modalTitleStyle || "";
         const btnsVisible = config.display?.modalbtnsVisible;
-        const modalDraggable = config.display?.modalDraggable || false;
+        const btnCancelVisible = config.display?.btnCancelVisible ?? true;
+        const btnSaveVisible = config.display?.btnSaveVisible ?? true;
+        const modalDraggable = config.display?.modalDraggable ?? false;
         const modalCyDataName = config.display?.modalCyDataName || "";
 
         return html`
@@ -55,22 +57,26 @@ export default class ModalUtils {
                         </div>
                         ${btnsVisible? html`
                             <div class="modal-footer">
-                                <button
-                                    type="button"
-                                    class="btn btn-light"
-                                    data-bs-dismiss="modal"
-                                    @click="${e => config?.onCancel ? config.onCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}"
-                                >
-                                    ${config?.display?.cancelButtonText || "Cancel"}
-                                </button>
-                                <button
-                                    type="button"
-                                    class="btn btn-primary"
-                                    data-bs-dismiss="modal"
-                                    @click="${e => config?.onOk ? config.onOk(e) : LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}"
-                                >
-                                    ${config?.display?.okButtonText || "Save"}
-                                </button>
+                                ${btnCancelVisible ? html`
+                                    <button
+                                        type="button"
+                                        class="btn btn-light"
+                                        data-bs-dismiss="modal"
+                                        @click="${e => config?.onCancel ? config.onCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}"
+                                    >
+                                        ${config?.display?.cancelButtonText || "Cancel"}
+                                    </button>
+                                ` : nothing}
+                                ${btnSaveVisible ? html`
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary"
+                                        data-bs-dismiss="modal"
+                                        @click="${e => config?.onOk ? config.onOk(e) : LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}"
+                                    >
+                                        ${config?.display?.okButtonText || "Save"}
+                                    </button>
+                                ` : nothing}
                             </div>
                         `: nothing}
                     </div>

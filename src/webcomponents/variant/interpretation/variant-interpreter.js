@@ -30,8 +30,6 @@ import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
 import "./variant-interpreter-methods.js";
-import "../custom/steiner-variant-interpreter-analysis.js";
-import "../custom/steiner-report.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
@@ -241,58 +239,6 @@ class VariantInterpreter extends LitElement {
             });
     }
 
-    renderCustomAnalysisTab() {
-        const analysisSettings = (this.settings?.tools || []).find(tool => tool?.id === "custom-analysis");
-        if (analysisSettings?.component === "steiner-analysis") {
-            return html`
-                <steiner-variant-interpreter-analysis
-                    .opencgaSession="${this.opencgaSession}"
-                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                </steiner-variant-interpreter-analysis>
-            `;
-        }
-
-        // No custom anaysis content available
-        return html`
-            <div class="col-md-6 offset-md-3 p-4">
-                <div class="alert alert-warning" role="alert">
-                    No custom analysis available at this time.
-                </div>
-            </div>
-        `;
-    }
-
-    renderReportTab() {
-        const settingReporter = this.settings?.tools?.filter(tool => tool?.id === "report")[0];
-        if (settingReporter && settingReporter?.component === "steiner-report") {
-            return html`
-                <div class="col-md-10 offset-md-1">
-                    <tool-header
-                        title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
-                    </tool-header>
-                    <steiner-report
-                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                        .opencgaSession="${this.opencgaSession}"
-                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                    </steiner-report>
-                </div>
-            `;
-        } else {
-            return html`
-                <div class="col-md-10 offset-md-1">
-                    <tool-header
-                        title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
-                    </tool-header>
-                    <clinical-analysis-review
-                        @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
-                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </clinical-analysis-review>
-                </div>
-            `;
-        }
-    }
-
     renderToolStep(item) {
         if (typeof item.visible === "undefined" || !!item.visible) {
             const isDisabled = !this.clinicalAnalysis && item.id !== "select" || item.disabled;
@@ -348,7 +294,11 @@ class VariantInterpreter extends LitElement {
                 case "custom-analysis":
                     return html`
                         <div id="${this._prefix}customAnalysis" class="clinical-portal-content">
-                            ${this.renderCustomAnalysisTab()}
+                            <div class="col-md-6 offset-md-3 p-4">
+                                <div class="alert alert-warning" role="alert">
+                                    No custom analysis available at this time.
+                                </div>
+                            </div>
                         </div>
                     `;
                 case "methods":
@@ -383,7 +333,7 @@ class VariantInterpreter extends LitElement {
                                 .populationFrequencies="${this._config.populationFrequencies}"
                                 .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
                                 .consequenceTypes="${this._config.consequenceTypes}"
-                                .settings="${this._config?.tools?.find(t => t.id === "variant-browser")}"
+                                .settings="${this._config?.tools?.find(t => t.id === "variant-browser") || {}}"
                                 @gene="${this.geneSelected}"
                                 @samplechange="${this.onSampleChange}"
                                 @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
@@ -393,7 +343,16 @@ class VariantInterpreter extends LitElement {
                 case "report":
                     return html`
                         <div id="${this._prefix}report" >
-                            ${this.renderReportTab()}
+                            <div class="col-md-10 offset-md-1">
+                                <tool-header
+                                    title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
+                                </tool-header>
+                                <clinical-analysis-review
+                                    @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </clinical-analysis-review>
+                            </div>
                         </div>
                     `;
                 default:

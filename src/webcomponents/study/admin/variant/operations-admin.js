@@ -95,7 +95,7 @@ export default class OperationsAdmin extends LitElement {
                                 }
                                 return html`
                                     <variant-annotation-index-operation
-                                        .toolParams="${{project: opencgaSession.project.id}}"
+                                        .toolParams="${{project: opencgaSession.project.fqn}}"
                                         .opencgaSession="${opencgaSession}">
                                     </variant-annotation-index-operation>
                                 `;
@@ -116,7 +116,7 @@ export default class OperationsAdmin extends LitElement {
                                 }
                                 return html`
                                     <variant-secondary-annotation-index-operation
-                                        .toolParams="${{project: opencgaSession.project.id}}"
+                                        .toolParams="${{project: opencgaSession.project.fqn}}"
                                         .opencgaSession="${opencgaSession}">
                                     </variant-secondary-annotation-index-operation>
                                 `;
@@ -151,8 +151,7 @@ export default class OperationsAdmin extends LitElement {
                         {
                             id: "variant-secondary-sample-index",
                             name: "Variant Secondary Sample Index",
-                            render: (opencgaSession, study) => {
-                                // CAUTION: no .fqn? in toolParams property?
+                            render: opencgaSession=> {
                                 return html`
                                     <variant-secondary-sample-index-operation
                                         .toolParams="${{study: opencgaSession.study.id}}"

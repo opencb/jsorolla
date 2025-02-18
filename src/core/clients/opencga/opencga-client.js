@@ -356,6 +356,11 @@ export class OpenCGAClient {
             Cookies.expire(this._config.cookies.prefix + "_userId");
             // eslint-disable-next-line no-undef
             Cookies.expire(this._config.cookies.prefix + "_sid");
+            // Remove sso token only if sso mode is enabled
+            if (this._config?.sso?.active && this._config?.sso?.cookie) {
+                // eslint-disable-next-line no-undef
+                Cookies.expire(this._config.sso.cookie);
+            }
         }
     }
 
