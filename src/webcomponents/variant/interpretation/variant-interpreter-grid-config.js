@@ -149,6 +149,11 @@ export default class VariantInterpreterGridConfig extends LitElement {
         LitUtils.dispatchCustomEvent(this, "configChange", this.config);
     }
 
+    onClear() {
+        this.onConfigObserver();
+        this.requestUpdate();
+    }
+
     async onSubmit() {
         // const newGridConfig = {...this.config};
         //
@@ -192,6 +197,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 .data="${this.config}"
                 .config="${this.getConfigForm()}"
                 @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${e=>this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>
         `;
@@ -221,7 +227,8 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 titleAlign: "left",
                 titleWidth: 4,
                 defaultLayout: "vertical",
-                buttonsVisible: true
+                buttonsVisible: true,
+                buttonClearText: "Discard",
             },
             sections: [
                 {

@@ -44,7 +44,6 @@ import "../../webcomponents/opencga/opencga-protein-view.js";
 import "../../webcomponents/sample/sample-browser.js";
 import "../../webcomponents/sample/sample-view.js";
 import "../../webcomponents/sample/sample-variant-stats-browser.js";
-import "../../webcomponents/sample/sample-cancer-variant-stats-browser.js";
 import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/disease-panel/disease-panel-browser.js";
 import "../../webcomponents/disease-panel/disease-panel-update.js";
@@ -61,7 +60,6 @@ import "../../webcomponents/job/analysis/custom-tool-builder.js";
 import "../../webcomponents/workflow/workflow-browser.js";
 import "../../webcomponents/workflow/workflow-manager.js";
 import "../../webcomponents/workflow/analysis/workflow-analysis.js";
-import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
 import "../../webcomponents/variant/analysis/gwas-analysis.js";
 import "../../webcomponents/variant/analysis/sample-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/cohort-variant-stats-analysis.js";
@@ -83,7 +81,8 @@ import "../../webcomponents/variant/interpretation/variant-interpreter-browser-c
 import "../../webcomponents/variant/interpretation/variant-interpreter-browser-rearrangement.js";
 import "../../webcomponents/variant/interpretation/variant-interpreter.js";
 import "../../webcomponents/clinical/analysis/rd-tiering-analysis.js";
-import "../../webcomponents/clinical/analysis/hrdetect-analysis.js";
+import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
+import "../../webcomponents/clinical/analysis/mutational-signature-view.js";
 import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/file/file-manager.js";
 import "../../webcomponents/file/file-data-manager.js";
@@ -182,7 +181,6 @@ class IvaApp extends LitElement {
             "sample",
             "sample-view",
             "sampleVariantStatsBrowser",
-            "sampleCancerVariantStatsBrowser",
             "sampleUpdate",
             "sample-variant-stats",
             "individual",
@@ -617,6 +615,9 @@ class IvaApp extends LitElement {
             .catch(e => {
                 console.error(e);
                 this.notificationManager.error("Error creating session", e.message);
+                // clear cookies and reset opencgaSession
+                this.opencgaClient.logout();
+                this._createOpencgaSessionFromConfig();
             })
             .finally(() => {
                 this.isCreatingSession = false;
@@ -710,9 +711,6 @@ class IvaApp extends LitElement {
         // 3. Check if sso is active and logged user is not local
         // In this case, we will redirect to 'meta/sso/logout' endpoint
         if (this.opencgaClient?._config?.sso?.active && !isLocalUser) {
-            // eslint-disable-next-line no-undef
-            Cookies.expire(this.opencgaClient._config.sso.cookie);
-
             const config = this.opencgaClient._config;
             const ivaUrl = window.location;
             window.location = `${config.host}/webservices/rest/${config.version}/meta/sso/logout?url=${ivaUrl}`;
@@ -917,7 +915,6 @@ class IvaApp extends LitElement {
                     }
                     break;
                 case "#sampleVariantStatsBrowser":
-                case "#sampleCancerVariantStatsBrowser":
                 case "#sampleUpdate":
                     this.sampleId = hashQuery;
                     break;
@@ -1827,20 +1824,13 @@ class IvaApp extends LitElement {
                         </div>
                     ` : nothing}
 
-                    ${this.config.enabledComponents["sampleCancerVariantStatsBrowser"] ? html`
-                        <div class="content" id="sampleCancerVariantStatsBrowser">
-                            <sample-cancer-variant-stats-browser .opencgaSession="${this.opencgaSession}" .sampleId="${this.sampleId}" .active="${true}"></sample-cancer-variant-stats-browser>
+                    ${this.config.enabledComponents["sample-variant-stats"] ? html`
+                        <div class="container py-3" id="sample-variant-stats-analysis">
+                            <sample-variant-stats-analysis
+                                .opencgaSession="${this.opencgaSession}">
+                            </sample-variant-stats-analysis>
                         </div>
                     ` : nothing}
-
-                ${this.config.enabledComponents["sample-variant-stats"] ? html`
-                    <tool-header title="Sample Variant Stats Analysis" icon="fas fa-stream"></tool-header>
-                    <div class="container py-3" id="sample-variant-stats-analysis">
-                        <sample-variant-stats-analysis
-                            .opencgaSession="${this.opencgaSession}">
-                        </sample-variant-stats-analysis>
-                    </div>
-                ` : nothing}
 
                 ${this.config.enabledComponents["cohort-variant-stats"] ? html`
                     <tool-header title="Cohort Variant Stats Analysis" icon="fas fa-stream"></tool-header>
