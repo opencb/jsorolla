@@ -122,6 +122,7 @@ export default class VariantIndexOperation extends LitElement {
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            study: this.toolParams.study || "",
         };
         this.config = this.getDefaultConfig();
     }
