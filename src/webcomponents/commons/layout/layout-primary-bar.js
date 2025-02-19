@@ -192,7 +192,7 @@ export default class LayoutPrimaryBar extends LitElement {
                             <button class="d-flex gap-1 align-items-center btn border border-gray-700 hover:bg-gray-800 text-white" data-bs-toggle="dropdown">
                                 <i class="fas fa-rocket lh-1"></i>
                             </button>
-                            <div class="dropdown-menu dropdown-menu-end" style="width:350px;">
+                            <div class="dropdown-menu dropdown-menu-end" style="width:320px;">
                                 <job-monitor
                                     .opencgaSession="${this.opencgaSession}">
                                 </job-monitor>
