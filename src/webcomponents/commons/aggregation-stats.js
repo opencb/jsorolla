@@ -119,7 +119,6 @@ class AggregationStats extends LitElement {
 
     onAggregationFieldChange(e) {
         this.preparedFacetQueryFormatted = e.detail.value;
-        debugger
     }
 
     /**
