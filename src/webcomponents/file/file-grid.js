@@ -345,7 +345,6 @@ export default class OpencgaFileGrid extends LitElement {
                     if (file.type === "FILE") {
                         switch (file.format) {
                             case "VCF":
-                                debugger
                                 result = `
                                     <div class="mb-1">${format}</div>
                                     <div class="text-secondary">${file.attributes?.variantFileMetadata?.header?.version?.replace("VCF", "") || ""}</div>

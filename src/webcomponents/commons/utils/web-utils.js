@@ -71,11 +71,9 @@ export default class WebUtils {
     }
 
     static getInterpreterLink(opencgaSession, caseId = "") {
-        // Note: we have to maintain the URL structure, so if we are inside an app we have to maintain the app
-        // Example: '#clinical/portal/project/study' --> '#clinical/interpreter/project/study?id=case'
-        // Example: '#portal/project/study' --> '#interpreter/project/study?id=case'
         const hashItems = [
-            ...window.location.hash.replace("#", "").split("/").slice(0, -3), // '#clinical/portal/project/study' --> ['clinical']
+            // ...window.location.hash.replace("#", "").split("/").slice(0, -3), // '#clinical/portal/project/study' --> ['clinical']
+            "clinical",
             "interpreter",
             opencgaSession?.project?.id || "",
             opencgaSession?.study?.id || "",
