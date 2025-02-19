@@ -37,9 +37,17 @@ export default class SwaggerUi extends LitElement {
 
     updated() {
         // 1. Get the OpenAPI URL. We need to append the environment to the URL ONLY if it is a task environment.
-        // Task environment name format supported are like task-0001, TASK-0002f, etc.
-        const match = this.opencgaSession.server.host.match(/task-\d{4}[a-zA-Z]?/i);
-        const environment = match ? "/" + match[0] : "";
+        // Task environment name format supported are like task-0001, TASK-0002f, xeta-24os, etc.
+        const taskMatch = this.opencgaSession.server.host.match(/task-\d{4}[a-zA-Z]?/i);
+        const xetaMatch = this.opencgaSession.server.host.match(/xeta-\d{2}[a-zA-Z]{0,2}/i);
+        let environment = "";
+        if (taskMatch) {
+            environment = "/" + taskMatch[0];
+        } else {
+            if (xetaMatch) {
+                environment = "/" + xetaMatch[0];
+            }
+        }
         const serverUrl = this.opencgaSession.server.host + "/webservices/rest/v2/meta/openapi" + "?environment=" + environment;
 
         // 2. Create an instance of the SwaggerUIBundle
