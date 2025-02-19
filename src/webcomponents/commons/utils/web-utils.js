@@ -70,6 +70,20 @@ export default class WebUtils {
         return `${baseUrl}#${tool}/${opencgaSession.project.id}/${opencgaSession.study.id}${queryStr}`;
     }
 
+    static getInterpreterLink(opencgaSession, caseId = "") {
+        // Note: we have to maintain the URL structure, so if we are inside an app we have to maintain the app
+        // Example: '#clinical/portal/project/study' --> '#clinical/interpreter/project/study?id=case'
+        // Example: '#portal/project/study' --> '#interpreter/project/study?id=case'
+        const hashItems = [
+            ...window.location.hash.replace("#", "").split("/").slice(0, -3), // '#clinical/portal/project/study' --> ['clinical']
+            "interpreter",
+            opencgaSession?.project?.id || "",
+            opencgaSession?.study?.id || "",
+        ];
+
+        return `#${hashItems.filter(Boolean).join("/")}${!!caseId ? "?id=" + caseId : ""}`;
+    }
+
     static jobStatusFormatter(status, appendDescription = false) {
         const description = appendDescription && status?.description ? `<br>${status.description}` : "";
         const statusId = status.id;
