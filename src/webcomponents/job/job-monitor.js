@@ -182,7 +182,7 @@ export class JobMonitor extends LitElement {
 
     renderJobsButtons() {
         return Object.keys(this.JOBS_TYPES).map(type => html`
-            <button class="btn btn-light ${type === this._visibleJobsType ? "active" : ""} flex-fill" @click="${e => this.onJobTypeChange(e, type)}">
+            <button class="flex-fill btn ${type === this._visibleJobsType ? "btn-primary" : ""}" @click="${e => this.onJobTypeChange(e, type)}">
                 <strong>${this.JOBS_TYPES[type].title}</strong>
             </button>
         `);
@@ -234,8 +234,8 @@ export class JobMonitor extends LitElement {
 
     render() {
         return html`
-            <div class="d-flex justify-content-around mx-1 mb-2 gap-2">
-                <div class="btn-group w-100">
+            <div class="d-flex align-items-stretch mb-2 gap-2">
+                <div class="shrink-0 w-full d-flex align-items-center rounded-2 bg-gray-100 border">
                     ${this.renderJobsButtons()}
                 </div>
                 <button @click="${e => this.onRefresh(e)}" class="btn btn-light" title="Force immediate refresh">
