@@ -112,7 +112,7 @@ export default class CohortBrowser extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Cohort Browser",
+            title: "Cohort Manager",
             views: [
                 {
                     id: "table-tab",

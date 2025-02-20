@@ -111,7 +111,7 @@ export default class WorkflowBrowser extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Workflow Browser",
+            title: "Workflow Manager",
             views: [
                 {
                     id: "table",
