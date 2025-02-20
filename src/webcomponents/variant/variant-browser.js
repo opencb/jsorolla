@@ -248,9 +248,11 @@ export default class VariantBrowser extends LitElement {
                     class="d-flex align-items-stretch"
                     .notifications="${this.notifications || []}">
                 </grid-notifications>
+                <!--
                 <button class="btn btn-light">
                     <i class="fa fa-question-circle"></i>
                 </button>
+                -->
             </div>
         `;
     }
