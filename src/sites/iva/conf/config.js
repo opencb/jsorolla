@@ -26,7 +26,7 @@ const hosts = [
     },
     {
         id: "reference",
-        url: "https://test.app.zettagenomics.com/TASK-5610f/opencga"
+        url: "https://test.app.zettagenomics.com/TASK-7100/opencga"
     },
 ];
 
@@ -260,8 +260,8 @@ const SUITE = {
                     description: "Execute your own custom tools easily in the cloud.",
                 },
                 {
-                    id: "jupyter-notebook",
-                    name: "Jupyter Notebooks",
+                    id: "jupyter-lab",
+                    name: "Jupyter Lab",
                     icon: "fa-book",
                     visibility: "public",
                     description: "Create, share and execute Jupyter Notebooks with Python.",
@@ -317,7 +317,7 @@ const SUITE = {
                 },
                 {
                     id: "disease-panel-browser",
-                    name: "Disease Panels",
+                    name: "Disease Panel Browser",
                     icon: "fa-th-list",
                     visibility: "public",
                     description: "Explore, manage and create any Disease Panel associated with the active Study.",
@@ -372,13 +372,6 @@ const SUITE = {
                     description: "Explore and manage all families in the current study.",
                 },
                 {
-                    id: "file-browser",
-                    name: "File Browser",
-                    icon: "fa-file",
-                    visibility: "public",
-                    description: "Explore and manage all files in the current study.",
-                },
-                {
                     id: "note-browser",
                     name: "Note Browser",
                     icon: "fa-sticky-note",
@@ -392,41 +385,6 @@ const SUITE = {
                     visibility: "public",
                     description: "Explore and manage all jobs in the current study.",
                 },
-                {
-                    id: "workflow-browser",
-                    name: "Workflow Browser",
-                    icon: "fa-stream",
-                    visibility: "public",
-                    description: "Build, import and execute NextFlow workflows.",
-                },
-                // {
-                //     id: "cohort-browser",
-                //     name: "Cohort Builder",
-                //     icon: "img/tools/icons/variant_browser.svg",
-                //     visibility: "public",
-                //     featured: true,
-                //     description: `
-                //         <p>Explore all variants identified by the current study.</p>
-                //         <ul>
-                //             <li>Rich annotation and links to leading reference databases</li>
-                //             <li>Filter by gene, consequence, frequency and much more</li>
-                //         </ul>
-                //     `,
-                // },
-                // {
-                //     id: "variable-set-browser",
-                //     name: "Custom Annotations",
-                //     icon: "img/tools/icons/variant_browser.svg",
-                //     visibility: "public",
-                //     featured: true,
-                //     description: `
-                //         <p>Explore all variants identified by the current study.</p>
-                //         <ul>
-                //             <li>Rich annotation and links to leading reference databases</li>
-                //             <li>Filter by gene, consequence, frequency and much more</li>
-                //         </ul>
-                //     `,
-                // },
             ],
         },
         {
