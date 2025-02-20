@@ -86,7 +86,7 @@ export default class JupyterNotebook extends LitElement {
                     </div>
                     <div class="d-flex">
                         <button type="button" class="btn btn-lg btn-primary" @click="${this.onEnterClick}">
-                            <span>Run Jupyter Notebook</span>
+                            <span>Run Jupyter Lab</span>
                         </button>
                     </div>
                 </div>
