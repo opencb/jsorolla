@@ -129,7 +129,7 @@ export default class LayoutSidebar extends LitElement {
     getDefaultConfig() {
         return {
             favourites: [
-                {id: "file-data-manager", name: "File Data Manager"},
+                {id: "file-manager", name: "File Manager"},
                 {id: "workflow-manager", name: "Workflow Manager"},
             ],
         };
