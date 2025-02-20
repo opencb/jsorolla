@@ -120,7 +120,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Clinical Analysis Browser",
+            title: "Case Interpreter Portal",
             views: [
                 {
                     id: "table-tab",
