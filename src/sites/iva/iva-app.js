@@ -1222,6 +1222,7 @@ class IvaApp extends LitElement {
                 break;
             case "cohort":
             case "cohort-browser":
+            case "cohort-manager":
                 content = html`
                     <div class="content">
                         <cohort-browser
@@ -1526,6 +1527,7 @@ class IvaApp extends LitElement {
                 `;
                 break;
             case "jupyter-notebook":
+            case "jupyter-lab":
                 content = html`
                     <jupyter-notebook
                         .opencgaSession="${this.opencgaSession}">
