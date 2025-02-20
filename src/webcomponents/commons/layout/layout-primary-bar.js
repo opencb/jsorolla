@@ -176,16 +176,16 @@ export default class LayoutPrimaryBar extends LitElement {
                                 <img src="https://raw.githubusercontent.com/jupyter/design/refs/heads/main/logos/Logo%20Mark/logomark-whitebody-whitemoons/logomark-whitebody-whitemoons.svg" height="16px">
                             </a>
                         </div>
-                        <div class="d-flex">
+                        <div class="d-flex" title="Swagger UI - REST API">
                             <a href="#swagger-ui" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
                                 <img src="https://raw.githubusercontent.com/swagger-api/swagger-ui/refs/heads/master/dist/favicon-16x16.png">
                             </a>
                         </div>
-                        <div class="d-flex">
-                            <a href="#rest-api" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
-                                <i class="fas fa-code lh-1"></i>
-                            </a>
-                        </div>
+<!--                        <div class="d-flex">-->
+<!--                            <a href="#rest-api" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">-->
+<!--                                <i class="fas fa-code lh-1"></i>-->
+<!--                            </a>-->
+<!--                        </div>-->
 
                         ${this.renderSeparator()}
                         <div class="d-flex dropdown">

@@ -65,7 +65,7 @@ import "../../webcomponents/study/admin/catalog-admin.js";
 import "../../webcomponents/study/admin/variant/operations-admin.js";
 import "../../webcomponents/study/study-dashboard.js";
 import "../../webcomponents/user/user-profile.js";
-import "../../webcomponents/api/rest-api.js";
+// import "../../webcomponents/api/rest-api.js";
 import "../../webcomponents/api/swagger-ui.js";
 import "../../webcomponents/note/note-browser.js";
 import "../../webcomponents/commons/analysis/analysis-tools.js";
@@ -1481,21 +1481,21 @@ class IvaApp extends LitElement {
                     </operations-admin>
                 `;
                 break;
-            case "rest-api":
-                content = html`
-                    <tool-header
-                        title="REST API"
-                        icon="fas fa-rocket">
-                    </tool-header>
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-1"></i>
-                        <span>The <b>REST API</b> tool has been deprecated and will be removed in future releases. Please use the new <a href="#swagger-ui" class="alert-link">Swagger</a> tool instead.</span>
-                    </div>
-                    <rest-api
-                        .opencgaSession="${this.opencgaSession}">
-                    </rest-api>
-                `;
-                break;
+            // case "rest-api":
+            //     content = html`
+            //         <tool-header
+            //             title="REST API"
+            //             icon="fas fa-rocket">
+            //         </tool-header>
+            //         <div class="alert alert-warning">
+            //             <i class="fas fa-exclamation-triangle me-1"></i>
+            //             <span>The <b>REST API</b> tool has been deprecated and will be removed in future releases. Please use the new <a href="#swagger-ui" class="alert-link">Swagger</a> tool instead.</span>
+            //         </div>
+            //         <rest-api
+            //             .opencgaSession="${this.opencgaSession}">
+            //         </rest-api>
+            //     `;
+            //     break;
             case "swagger-ui":
                 content = html`
                     <tool-header
