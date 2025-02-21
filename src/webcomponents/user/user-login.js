@@ -99,9 +99,17 @@ export default class UserLogin extends LitElement {
                                 token: token
                             }, null);
 
-                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                                message: `Welcome back, <b>${user}</b>. Your session is valid until ${validTimeSessionId}`,
-                            });
+                            // Check if there are any non-info events such as warnings or errors, ewg. password expiring soon
+                            const nonInfoEvents = response.responses[0].events?.filter(ev => ev.type === "WARNING" || ev.type === "ERROR");
+                            if (nonInfoEvents?.length > 0) {
+                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
+                                    message: nonInfoEvents.map(event => event.message).join("<br>"),
+                                });
+                            } else {
+                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                    message: `Welcome back, <b>${user}</b>. Your session is valid until ${validTimeSessionId}`,
+                                });
+                            }
                         }
                     } else if (response) {
                         // Sometimes response is an instance of an Error, for example when the connection is lost before submitting the login.
