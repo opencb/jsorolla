@@ -86,7 +86,7 @@ export default class JupyterNotebook extends LitElement {
                     </div>
                     <div class="d-flex">
                         <button type="button" class="btn btn-lg btn-primary" @click="${this.onEnterClick}">
-                            <span>Run Jupyter Lab</span>
+                            <span>Run Jupyter Lab Notebooks</span>
                         </button>
                     </div>
                 </div>
@@ -123,7 +123,7 @@ export default class JupyterNotebook extends LitElement {
 
         return html`
             <tool-header
-                title="Jupyter Lab"
+                title="Jupyter Lab Notebooks"
                 icon="https://jupyter.org/assets/homepage/main-logo.svg"
                 iconSize="36">
             </tool-header>
