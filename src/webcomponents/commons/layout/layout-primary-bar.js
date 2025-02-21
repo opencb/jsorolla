@@ -170,7 +170,7 @@ export default class LayoutPrimaryBar extends LitElement {
                                 <img src="https://raw.githubusercontent.com/nextflow-io/trademark/refs/heads/master/nextflow-icon.svg" height="16px">
                             </a>
                         </div>
-                        <div class="d-flex" title="Jupyter Lab">
+                        <div class="d-flex" title="Jupyter Lab Notebooks">
                             <a href="#research/jupyter-lab" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
                                 <img src="https://raw.githubusercontent.com/jupyter/design/refs/heads/main/logos/Logo%20Mark/logomark-whitebody-whitemoons/logomark-whitebody-whitemoons.svg" height="16px">
                             </a>
