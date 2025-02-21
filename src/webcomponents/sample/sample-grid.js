@@ -105,7 +105,7 @@ export default class SampleGrid extends LitElement {
             columns: this._getDefaultColumns(),
             create: {
                 display: {
-                    modalTitle: "Sample Create",
+                    modalTitle: "Create Sample",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"
@@ -616,7 +616,7 @@ export default class SampleGrid extends LitElement {
             .then(() => {
                 this.createCohortSampleIds = [];
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Cohort Create",
+                    // title: "Cohort Create",
                     message: "Cohort created correctly"
                 });
             })
@@ -640,7 +640,7 @@ export default class SampleGrid extends LitElement {
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
-                modalTitle: `Sample Update: ${this.sampleUpdateId}`,
+                modalTitle: `Update Sample: ${this.sampleUpdateId}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg",

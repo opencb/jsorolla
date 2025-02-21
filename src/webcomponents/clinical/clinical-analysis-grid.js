@@ -104,7 +104,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             columns: this._getDefaultColumns(),
             create: {
                 display: {
-                    modalTitle: "Clinical Analysis Create",
+                    modalTitle: "Create Clinical Analysis",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"

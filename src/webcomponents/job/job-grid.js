@@ -704,7 +704,7 @@ export default class JobGrid extends LitElement {
             .retry({job: this.jobRetryObj?.id}, params)
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Job Retry",
+                    // title: "Job Retry",
                     message: "Job executed correctly"
                 });
             })
@@ -721,7 +721,7 @@ export default class JobGrid extends LitElement {
             .kill(this.jobKillObj?.id, params)
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Job Kill",
+                    // title: "Kill Job",
                     message: "Job killed correctly"
                 });
             })
@@ -745,7 +745,7 @@ export default class JobGrid extends LitElement {
     renderModalRetry() {
         return ModalUtils.create(this, `${this._prefix}RetryModal`, {
             display: {
-                modalTitle: "Job Retry",
+                modalTitle: "Retry Job",
                 modalDraggable: true,
                 modalbtnsVisible: true,
                 modalSize: "modal-lg",
@@ -765,7 +765,7 @@ export default class JobGrid extends LitElement {
     renderModalKill() {
         return ModalUtils.create(this, `${this._prefix}KillModal`, {
             display: {
-                modalTitle: "Job Kill",
+                modalTitle: "Kill Job",
                 modalDraggable: true,
                 modalbtnsVisible: true,
                 modalSize: "modal-lg",
@@ -783,7 +783,7 @@ export default class JobGrid extends LitElement {
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
-                modalTitle: "Job Update",
+                modalTitle: "Update Job",
                 modalDraggable: true,
                 modalSize: "modal-lg",
             },

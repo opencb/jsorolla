@@ -103,7 +103,7 @@ export default class NoteGrid extends LitElement {
             columns: this._getDefaultColumns(),
             create: {
                 display: {
-                    modalTitle: "Note Create",
+                    modalTitle: "Create Note",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"
@@ -494,7 +494,7 @@ export default class NoteGrid extends LitElement {
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
-                modalTitle: `Note Update: ${this.noteUpdate?.id}`,
+                modalTitle: `Update Note: ${this.noteUpdate?.id}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"

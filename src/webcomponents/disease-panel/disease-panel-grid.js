@@ -107,7 +107,7 @@ export default class DiseasePanelGrid extends LitElement {
             columns: this._getDefaultColumns(),
             create: {
                 display: {
-                    modalTitle: "Disease Panel Create",
+                    modalTitle: "Create Disease Panel",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"
@@ -579,7 +579,7 @@ export default class DiseasePanelGrid extends LitElement {
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
-                modalTitle: `Disease Panel Update: ${this.diseasePanelUpdateId}`,
+                modalTitle: `Update Disease Panel: ${this.diseasePanelUpdateId}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"
