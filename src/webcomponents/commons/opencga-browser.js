@@ -17,6 +17,7 @@
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
+import WebUtils from "./utils/web-utils.js";
 import {guardPage} from "./html-utils.js";
 import "./opencga-browser-filter.js";
 import "../commons/aggregation-stats.js";
@@ -25,6 +26,7 @@ import "./opencb-facet-results.js";
 import "./facet-filter.js";
 import "../loading-spinner.js";
 import "./tool-header.js";
+import "./grid-notifications.js";
 
 export default class OpencgaBrowser extends LitElement {
 
@@ -74,6 +76,7 @@ export default class OpencgaBrowser extends LitElement {
         this.preparedQuery = {};
         this.executedQuery = {};
         this.searchActive = true;
+        this.notifications = [];
 
         this.activeView = "";
 
@@ -156,7 +159,8 @@ export default class OpencgaBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    onQueryComplete() {
+    onQueryComplete(event) {
+        this.notifications = WebUtils.getResponseEvents(event.detail.response);
         this.searchActive = true;
         this.requestUpdate();
     }
@@ -234,6 +238,11 @@ export default class OpencgaBrowser extends LitElement {
                         </button>
                     `)}
                 </div>
+                <div class="w-px bg-gray-200 mx-1"></div>
+                <grid-notifications
+                    class="d-flex align-items-stretch"
+                    .notifications="${this.notifications || []}">
+                </grid-notifications>
             </div>
         `;
     }
