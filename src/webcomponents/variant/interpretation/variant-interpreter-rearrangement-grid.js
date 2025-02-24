@@ -320,12 +320,12 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
                     this.opencgaSession.opencgaClient.clinical()
                         .queryVariant(this.filters)
-                        .then(res => {
-                            this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
-                            rearrangementResponse = res;
+                        .then(response => {
+                            this.isApproximateCount = response.responses[0].attributes?.approximateCount ?? false;
+                            rearrangementResponse = response;
 
                             // Generate map of genes to variants
-                            return this.generateGenesMapFromVariants(res.responses[0].results);
+                            return this.generateGenesMapFromVariants(response.responses[0].results);
                         })
                         .then(() => {
                             // pairs will have the following format: [[v1, v2], [v3, v4], [v5, v6]];
@@ -341,7 +341,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                             params.error(error);
                         })
                         .finally(() => {
-                            LitUtils.dispatchCustomEvent(this, "queryComplete", null);
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: rearrangementResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
