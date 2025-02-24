@@ -151,7 +151,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 // formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
-                    let response = null;
+                    let clinicalAnalysisResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
@@ -165,21 +165,23 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.fetchData(this.filters)
-                        .then(res => {
-                            response = res;
+                        .then(response => {
+                            clinicalAnalysisResponse = response;
                             // Prepare data for columns extensions
-                            const rows = response.responses?.[0]?.results || [];
+                            const rows = clinicalAnalysisResponse.responses?.[0]?.results || [];
                             return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
                         })
                         .then(() => {
-                            params.success(response);
+                            params.success(clinicalAnalysisResponse);
                         })
                         .catch(error => {
-                            response = error;
+                            console.error(error);
                             params.error(error);
                         })
                         .finally(() => {
-                            LitUtils.dispatchCustomEvent(this, "queryComplete", response);
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: clinicalAnalysisResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
