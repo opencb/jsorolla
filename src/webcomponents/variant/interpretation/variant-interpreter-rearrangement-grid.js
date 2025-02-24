@@ -297,7 +297,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 variantGrid: this,
 
                 ajax: params => {
-                    this.gridCommons.clearResponseWarningEvents();
                     let rearrangementResponse = null;
 
                     // Make a deep clone object to manipulate the query sent to OpenCGA
