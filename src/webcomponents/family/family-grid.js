@@ -102,7 +102,7 @@ export default class FamilyGrid extends LitElement {
             columns: this._getDefaultColumns(),
             create: {
                 display: {
-                    modalTitle: "Family Create",
+                    modalTitle: "Create Family",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"
@@ -648,7 +648,7 @@ export default class FamilyGrid extends LitElement {
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
-                modalTitle: `Family Update: ${this.familyUpdateId}`,
+                modalTitle: `Update Family: ${this.familyUpdateId}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"

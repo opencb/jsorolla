@@ -345,65 +345,6 @@ export default class GridCommons {
         return columns;
     }
 
-    displayResponseWarningEvents(response) {
-        const eventsContainer = this.context.querySelector(`div#${this.gridId}WarningEvents`);
-        if (eventsContainer && (response?.events?.length > 0 || response?.responses?.[0]?.events?.length > 0)) {
-            const events = [...(response?.events || []), ...(response?.responses?.[0]?.events || [])]
-                .filter(event => event && event.type === "WARNING" && !!event.message);
-            // If there is only one event message, just display it
-            if (events.length === 1) {
-                const eventsContent = UtilsNew.renderHTML(`
-                    <div class="alert alert-warning mb-2">
-                        <i class="fas fa-exclamation-triangle pe-1"></i>
-                        <span>${events[0].message}</span>
-                    </div>
-                `).querySelector("div");
-                eventsContainer.replaceChildren(eventsContent);
-            } else if (events.length > 1) {
-                const eventsContent = UtilsNew.renderHTML(`
-                    <div>
-                        <div class="alert alert-warning mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="fas fa-exclamation-triangle pe-2"></i>
-                                <span>There are warning events (<b>${events.length}</b>).</span>
-                                <span data-role="show-events" style="cursor:pointer;text-decoration:underline">Show all events.</span>
-                                <span data-role="hide-events" style="display:none;cursor:pointer;text-decoration:underline;">Hide all events.</span>
-                            </div>
-                            <div data-role="events" class="mt-1" style="display:none;">
-                                <ul class="mb-0">
-                                    ${events.map(event => `<li>${event.message}</li>`).join("")}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                `).querySelector("div");
-                eventsContainer.replaceChildren(eventsContent);
-                const eventsElement = eventsContent.querySelector(`div[data-role="events"]`);
-                const showEventsElement = eventsContent.querySelector(`span[data-role="show-events"]`);
-                const hideEventsElement = eventsContent.querySelector(`span[data-role="hide-events"]`);
-                // Show events click
-                showEventsElement.addEventListener("click", () => {
-                    eventsElement.style.display = "";
-                    hideEventsElement.style.display = "";
-                    showEventsElement.style.display = "none";
-                });
-                // Hide events click
-                hideEventsElement.addEventListener("click", () => {
-                    eventsElement.style.display = "none";
-                    hideEventsElement.style.display = "none";
-                    showEventsElement.style.display = "";
-                });
-            }
-        }
-    }
-
-    clearResponseWarningEvents() {
-        const eventsContainer = this.context.querySelector(`div#${this.gridId}WarningEvents`);
-        if (eventsContainer) {
-            eventsContainer.replaceChildren();
-        }
-    }
-
     hideHeader(hide = false) {
         const header = this.context.querySelector(`#${this.gridId} thead`);
         if (header) {

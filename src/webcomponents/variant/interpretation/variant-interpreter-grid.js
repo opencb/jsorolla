@@ -224,7 +224,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: this,
                 ajax: params => {
-                    this.gridCommons.clearResponseWarningEvents();
                     // Make a deep clone object to manipulate the query sent to OpenCGA
                     const internalQuery = JSON.parse(JSON.stringify(this.query));
 
@@ -309,7 +308,9 @@ export default class VariantInterpreterGrid extends LitElement {
                         .then(() => params.success(variantResponse))
                         .catch(e => params.error(e))
                         .finally(() => {
-                            LitUtils.dispatchCustomEvent(this, "queryComplete", null);
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: variantResponse,
+                            });
                         });
                 },
                 responseHandler: response => {

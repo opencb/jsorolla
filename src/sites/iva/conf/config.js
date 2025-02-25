@@ -261,7 +261,7 @@ const SUITE = {
                 },
                 {
                     id: "jupyter-lab",
-                    name: "Jupyter Lab",
+                    name: "Jupyter Lab Notebooks",
                     icon: "fa-book",
                     visibility: "public",
                     description: "Create, share, and execute Jupyter Notebooks with Python.",

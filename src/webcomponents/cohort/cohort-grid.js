@@ -107,7 +107,7 @@ export default class CohortGrid extends LitElement {
             columns: this._getDefaultColumns(),
             create: {
                 display: {
-                    modalTitle: "Cohort Create",
+                    modalTitle: "Create Cohort",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"

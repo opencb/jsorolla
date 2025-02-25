@@ -106,7 +106,7 @@ export default class IndividualGrid extends LitElement {
             columns: this._getDefaultColumns(),
             create: {
                 display: {
-                    modalTitle: "Individual Create",
+                    modalTitle: "Create Individual",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"
@@ -753,7 +753,7 @@ export default class IndividualGrid extends LitElement {
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
-                modalTitle: `Individual Update: ${this.individualUpdateId}`,
+                modalTitle: `Update Individual: ${this.individualUpdateId}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"
