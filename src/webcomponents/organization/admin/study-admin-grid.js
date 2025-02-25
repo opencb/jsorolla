@@ -45,9 +45,6 @@ export default class StudyAdminGrid extends LitElement {
             project: {
                 type: Object,
             },
-            organization: {
-                type: Object,
-            },
             opencgaSession: {
                 type: Object
             },
@@ -130,7 +127,7 @@ export default class StudyAdminGrid extends LitElement {
         };
 
         this.permissions = {
-            "organization": () => OpencgaCatalogUtils.isOrganizationAdmin(this.organization, this.opencgaSession.user.id) ? "" : "disabled",
+            "organization": () => OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, this.opencgaSession.user.id) ? "" : "disabled",
             "study": () => OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) ? "" : "disabled",
         };
 
@@ -463,7 +460,7 @@ export default class StudyAdminGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            buttonCreateText: "New Study...",
+            buttonCreateText: "Create Study",
             showCreate: true,
             showExport: false,
             showSettings: false,

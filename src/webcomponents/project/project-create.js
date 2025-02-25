@@ -200,11 +200,7 @@ export default class ProjectCreate extends LitElement {
                                     title: "Version",
                                     field: "cellbase.version",
                                     type: "select",
-                                    // FIXME Vero 20240712: Waiting for Nacho's advise
-                                    //  Can they be queried? In cellbase more versions are responding:
-                                    //  5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.8
-                                    //  https://ws.zettagenomics.com/cellbase/webservices/#!/Gene/getInfo_1
-                                    allowedValues: ["v5.0", "v5.1", "v5.2", "v5.8"],
+                                    allowedValues: ["v5.2", "v5.8"],
                                     defaultValue: "v5.8",
                                     display: {
                                         // placeholder: "Add version"

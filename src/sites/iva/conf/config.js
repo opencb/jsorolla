@@ -404,7 +404,7 @@ const SUITE = {
             menu: [
                 {
                     id: "organization-admin",
-                    name: "Organizations Admin",
+                    name: "Organization Admin",
                     icon: "fa-building",
                     description: "Manage the configuration of the current organization.",
                     visibility: "public",

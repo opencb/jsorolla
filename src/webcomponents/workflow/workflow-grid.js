@@ -352,7 +352,7 @@ export default class WorkflowGrid extends LitElement {
                                 <span class="px-1">CPU:</span><span>${minimumRequirements?.cpu || "-"} core(s)</span>
                             </div>
                             <div style="margin: 5px 0">
-                                <span class="px-1">Memory:</span><span>${minimumRequirements?.memory.split(".")[0] || "-"} GB</span>
+                                <span class="px-1">Memory:</span><span>${minimumRequirements?.memory?.split(".")[0] || "-"} GB</span>
                             </div>
                         </div>
                     `;

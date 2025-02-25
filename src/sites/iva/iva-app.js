@@ -842,10 +842,11 @@ class IvaApp extends LitElement {
     }
 
     onSessionUpdateRequest() {
-        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-            title: "Refresh Session: Session Update Request",
-            message: "Session updated correctly",
-        });
+        // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+        //     title: "Refresh Session: Session Update Request",
+        //     message: "Session updated correctly",
+        // });
+        console.log("Session updated correctly");
         this._createOpenCGASession();
     }
 

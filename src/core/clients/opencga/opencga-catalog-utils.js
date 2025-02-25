@@ -166,6 +166,7 @@ export default class OpencgaCatalogUtils {
                 return true;
             }
         }
+        debugger
         // Other case, user is not admin of the organization
         return false;
     }

@@ -227,11 +227,11 @@ export default class ProjectUpdate extends LitElement {
                             name: "Project ID",
                             field: "id",
                             type: "input-text",
-                            required: true,
                             display: {
-                                placeholder: "Add a short ID...",
                                 disabled: true,
-                                helpMessage: this.project?.creationDate? "Created on " + UtilsNew.dateFormatter(this.project?.creationDate):"No creation date",
+                                help: {
+                                    text: this.project?.creationDate ? "Created on " + UtilsNew.dateFormatter(this.project?.creationDate) : "No creation date"
+                                },
                             },
                         },
                         {
@@ -246,8 +246,9 @@ export default class ProjectUpdate extends LitElement {
                             name: "Species",
                             field: "organism.scientificName",
                             type: "input-text",
-                            required: true,
+                            required: false,
                             display: {
+                                disabled: true,
                                 placeholder: "e.g. Homo sapiens, ...",
                             }
                         },

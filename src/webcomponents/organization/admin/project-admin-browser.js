@@ -125,7 +125,7 @@ export default class ProjectAdminBrowser extends LitElement {
     renderProjectUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateProjectModal`, {
             display: {
-                modalTitle: `Update Project: Project ${this.projectId} in organization ${this.organization.id}`,
+                modalTitle: `Update Project: Project ${this.projectId} in organization ${this.opencgaSession.organization.id}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-project-update",
                 modalSize: "modal-lg"
@@ -182,7 +182,7 @@ export default class ProjectAdminBrowser extends LitElement {
                             ${project.organism?.scientificName.toUpperCase() || "-"} (${project.organism?.assembly || "-"})
                         </div>
                         <div class="fs-6 me-4">
-                            Cellbase: ${project.cellbase?.version || "-"}
+                            CellBase: ${project.cellbase?.version || "-"}
                         </div>
                         <div class="fs-6 me-4">
                             Data Release: ${project.cellbase?.dataRelease || "-"}
@@ -240,7 +240,7 @@ export default class ProjectAdminBrowser extends LitElement {
             showExport: false,
             showSettings: false,
             showCreate: true,
-            buttonCreateText: "New Project...",
+            buttonCreateText: "Create Project",
             showGraphicFilters: false,
             showProjectToolbar: true,
         };
