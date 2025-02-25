@@ -353,30 +353,31 @@ export default class StudyAdminUsers extends LitElement {
     }
 
     onUserAdd(e) {
-        if (this.groupsMap.get("@members").includes(this.addUserId)) {
-            console.log("User already exists in the study");
-            return;
-        }
-        const params = {
-            study: this.study.fqn,
-            template: "",
-            permissions: "",
+        let error;
+        const params= {
+            includeResult: true,
+            action: "ADD",
         };
-
-        this.opencgaSession.opencgaClient.studies()
-            // .updateUsers(this.study.fqn, "@members", {users: [this.addUserId]}, {action: "ADD"})
-            .updateAcl(this.addUserId, {action: "ADD"}, params)
+        const data = {
+            users: [this.addUserId],
+        };
+        return this.opencgaSession.opencgaClient.studies()
+            .updateGroupsUsers(this.study.fqn, "@members" , data, params)
             .then(() => {
                 this.addUserId = "";
-                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
+                const studyId = this.study.fqn.split(":").pop();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: "User added.",
+                    title: `Add user to study`,
+                    message: `
+                        ${this.addUserId} "added to study ${studyId} correctly.
+                    `,
                 });
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
             })
-            .catch(err => {
-                console.error(err);
-                params.error(err);
-            });
+            .catch(reason => {
+                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            })
     }
 
     onUserRemoveFieldChange(e, isCancelled) {
@@ -412,9 +413,6 @@ export default class StudyAdminUsers extends LitElement {
                     .updateGroupsUsers(this.study.fqn, "@members", data, params)
                     .then(() => {
                         LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                            message: "User removed",
-                        });
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             title: `User in Group Update`,
                             message: `User ${row.id} REMOVED from @members in study ${this.study.id} correctly`,
