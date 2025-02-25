@@ -678,7 +678,7 @@ class IvaApp extends LitElement {
 
         // 4. parse project and study
         if (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
-            this.changeActiveStudy(`${this.opencgaSession.user.id}@${hashProject}:${hashStudy}`);
+            this.changeActiveStudy(`${this.opencgaSession.organization.id}@${hashProject}:${hashStudy}`);
         }
 
         // 5. save app and tool
