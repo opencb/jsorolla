@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/forms/data-form.js";
@@ -103,7 +102,7 @@ export default class FileUpload extends LitElement {
                     message: `File ${this._file.fileName || this._file.file.name} uploaded correctly.`,
                 });
                 this._file = {}; // reset the file data
-                LitUtils.dispatchCustomEvent(this, "fileUpload");
+                LitUtils.dispatchCustomEvent(this, "fileUpload", null, params);
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);

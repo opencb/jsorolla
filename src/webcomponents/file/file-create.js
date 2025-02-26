@@ -97,7 +97,7 @@ export default class FileCreate extends LitElement {
         const {name, ...otherFileData} = this._file;
         const data = {
             ...otherFileData,
-            path: `${this.path || "/"}${name}`,
+            path: `${this.path || ""}${name}`,
         };
 
         this.#setLoading(true);
@@ -111,7 +111,7 @@ export default class FileCreate extends LitElement {
                     title: "Create File",
                     message: `File ${name} created correctly`,
                 });
-                LitUtils.dispatchCustomEvent(this, "fileCreate");
+                LitUtils.dispatchCustomEvent(this, "fileCreate", null, data);
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
