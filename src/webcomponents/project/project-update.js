@@ -256,8 +256,9 @@ export default class ProjectUpdate extends LitElement {
                             name: "Species Assembly",
                             field: "organism.assembly",
                             type: "input-text",
-                            required: true,
+                            required: false,
                             display: {
+                                disabled: true,
                                 placeholder: "e.g. GRCh38",
                             }
                         },
