@@ -513,10 +513,39 @@ export default class OpencgaFileGrid extends LitElement {
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(file, null, "\t")], file.id + ".json");
                 break;
-            case "quality-control":
-                // alert("Not implemented yet");
+            // case "quality-control":
+            //     break;
+            case "delete":
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                    title: `Delete <b>${file.name}</b>`,
+                    message: `Do you want to delete the ${file.type === "DIRECTORY" ? "directory" : "file"} <b>${file.name}</b>? This action can not be undone.`,
+                    ok: () => this.onDelete(file),
+                });
                 break;
         }
+    }
+
+    onDelete(file) {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+        };
+
+        // FIXME 20241217 VERO: When trying to delete a file fetched from an external source in the root path:
+        //  - If delete is used, opencga returns error "Use unlink". This is happening because the field "external" in this case is set to true in opencga.
+        //  - If unlink is used, opencga returns error "[...] Could not unlink [...] Could not delete file: No documents could be found to be updated".
+        //  Bug created:  https://app.clickup.com/t/36631768/TASK-7291
+        const endpoint = file.external ?
+            this.opencgaSession.opencgaClient.files().unlink(file.id, params) :
+            this.opencgaSession.opencgaClient.files().delete(file.id, params);
+        endpoint
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `A new job has been launched to delete the ${file.type === "DIRECTORY" ? "directory" : "file"} ${file.name}.`,
+                });
+            })
+            .catch(error => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            });
     }
 
     async onDownload(e) {
