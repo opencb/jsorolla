@@ -168,13 +168,12 @@ export default class VariantIndexOperation extends LitElement {
                     {
                         title: "File",
                         field: "file",
-                        // type: "input-text",
                         type: "custom",
                         required: true,
                         display: {
-                            render: toolParams => html`
+                            render: file => html`
                                 <catalog-search-autocomplete
-                                    .value="${toolParams?.file}"
+                                    .value="${file}"
                                     .resource="${"FILE"}"
                                     .query="${
                                     {
