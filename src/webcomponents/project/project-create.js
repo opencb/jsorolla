@@ -161,6 +161,7 @@ export default class ProjectCreate extends LitElement {
                             name: "Name",
                             field: "name",
                             type: "input-text",
+                            required: true,
                             display: {
                                 placeholder: "Project name...",
                             }
