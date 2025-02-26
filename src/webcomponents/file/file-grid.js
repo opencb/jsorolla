@@ -30,6 +30,7 @@ import "./file-create.js";
 import "./file-upload.js";
 import "./file-fetch.js";
 import "./file-detail.js";
+import "../variant/operation/variant-index-operation.js";
 
 export default class OpencgaFileGrid extends LitElement {
 
@@ -437,8 +438,9 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "actions",
                 field: "actions",
                 formatter: (value, row) => {
-                    const hasWritePermission = this.hasPermission("WRITE");
+                    // const hasWritePermission = this.hasPermission("WRITE");
                     const hasDeletePermission = this.hasPermission("DELETE");
+                    const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
                     const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
 
                     return `
@@ -466,10 +468,8 @@ export default class OpencgaFileGrid extends LitElement {
                                         <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
                                     </a>
                                     <hr class="dropdown-divider">
-                                    <a data-action="quality-control"
-                                        class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "cursor-pointer" : "disabled"}"
-                                        title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                            <i class="fas fa-rocket me-1" aria-hidden="true"></i> Calculate Quality Control
+                                    <a data-action="variant-index" class="dropdown-item ${row.format === "VCF" && isStudyAdmin ? "cursor-pointer" : "disabled"}">
+                                        <i class="fas fa-rocket me-1"></i> Run Variant Index
                                     </a>
                                     <hr class="dropdown-divider">
                                     <a data-action="delete" class="dropdown-item ${hasDeletePermission ? "cursor-pointer" : "disabled"}">
@@ -513,8 +513,10 @@ export default class OpencgaFileGrid extends LitElement {
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(file, null, "\t")], file.id + ".json");
                 break;
-            // case "quality-control":
-            //     break;
+            case "variant-index":
+                this.fileId = file.id;
+                this.changeActiveActionModal("variant-index");
+                break;
             case "delete":
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
                     title: `Delete <b>${file.name}</b>`,
@@ -751,6 +753,24 @@ export default class OpencgaFileGrid extends LitElement {
                                 this.forceTableRefresh();
                             }}">
                         </file-fetch>
+                    `,
+                };
+                break;
+            case "variant-index":
+                config = {
+                    display: {
+                        modalTitle: "Run Variant Index",
+                        modalCyDataName: "modal-variant-index",
+                        modalSize: "modal-lg"
+                    },
+                    render: () => html`
+                        <variant-index-operation
+                            .opencgaSession="${this.opencgaSession}"
+                            .toolParams="${{
+                                file: this.fileId,
+                                study: this.opencgaSession.study.fqn,
+                            }}">
+                        </variant-index-operation>
                     `,
                 };
                 break;
