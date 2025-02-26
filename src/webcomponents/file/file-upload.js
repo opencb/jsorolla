@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/forms/data-form.js";
@@ -69,8 +68,14 @@ export default class FileUpload extends LitElement {
         super.update(changedProperties);
     }
 
-    onFieldChange(e) {
-        this._file = {...e.detail.data}; // force to refresh the object-list
+    onFieldChange(event) {
+        this._file = {...event.detail.data};
+
+        // if user selects a local file and the fileName is not set, then set the fileName with the name of the file
+        if (event.detail.param === "file" && event.detail.value?.name && !event.detail.data.fileName) {
+            this._file.fileName = event.detail.value.name;
+        }
+
         this.requestUpdate();
     }
 
@@ -97,13 +102,13 @@ export default class FileUpload extends LitElement {
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.files()
             .upload(params)
-            .then(response => {
+            .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Upload File",
                     message: `File ${this._file.fileName || this._file.file.name} uploaded correctly.`,
                 });
                 this._file = {}; // reset the file data
-                LitUtils.dispatchCustomEvent(this, "fileUpload");
+                LitUtils.dispatchCustomEvent(this, "fileUpload", null, params);
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -144,14 +149,26 @@ export default class FileUpload extends LitElement {
                             title: "Path",
                             field: "relativeFilePath",
                             type: "input-text",
-                            // required: true,
                             display: {
                                 defaultValue: `/${this._file.relativeFilePath || ""}`,
-                                // disabled: true,
                                 help: {
                                     text: "Path where the file will be uploaded.",
                                 }
                             },
+                        },
+                        {
+                            title: "Select File",
+                            field: "file",
+                            type: "custom",
+                            required: true,
+                            display: {
+                                render: (file, onFilterChange) => html`
+                                    <input class="form-control" type="file" @change="${e => onFilterChange(e.target.files[0])}">
+                                `,
+                                help: {
+                                    text: "Select the file to be uploaded. Maximum file size: 5GB",
+                                },
+                            }
                         },
                         {
                             title: "File Name",
@@ -170,20 +187,6 @@ export default class FileUpload extends LitElement {
                             display: {
                                 help: {
                                     text: "Description of the file to be uploaded.",
-                                },
-                            }
-                        },
-                        {
-                            title: "Select File",
-                            field: "file",
-                            type: "custom",
-                            required: true,
-                            display: {
-                                render: (_, onFilterChange) => html`
-                                    <input class="form-control" type="file" @change="${e => onFilterChange(e.target.files[0])}">
-                                `,
-                                help: {
-                                    text: "Select the file to be uploaded. Maximum file size: 5GB",
                                 },
                             }
                         },

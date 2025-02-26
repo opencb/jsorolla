@@ -82,7 +82,7 @@ export default class FileTree extends LitElement {
                 }
                 this._expandedDirectories.add(directoryId);
             }
-            // when all promises are complited, perform a requestUpdate
+            // when all promises are completed, perform a requestUpdate
             Promise.all(directoriesPromises).then(() => {
                 this.requestUpdate();
             });
@@ -91,13 +91,17 @@ export default class FileTree extends LitElement {
 
     lastCreatedPathObserver() {
         if (this.lastCreatedPath) {
-            const parentDirectoryId = this.lastCreatedPath.split("/")
-                .filter(Boolean)
-                .slice(0, -1)
-                .join(":") + ":";
-            // check if the parent directory is already in the directories map, so we have to fetch it again
-            if (this._directories.has(parentDirectoryId)) {
-                this.fetchDirectory(parentDirectoryId).then(() => {
+            const paths = this.lastCreatedPath.split("/").filter(Boolean);
+            const directoriesPromises = [];
+            for (let i = 0; i < paths.length - 1; i++) {
+                const directoryId = paths.slice(0, i + 1).join(":") + ":";
+                if (this._directories.has(directoryId)) {
+                    directoriesPromises.push(this.fetchDirectory(directoryId));
+                }
+            }
+            // when all promises are completed, perform a requestUpdate
+            if (directoriesPromises.length > 0) {
+                Promise.all(directoriesPromises).then(() => {
                     this.requestUpdate();
                 });
             }

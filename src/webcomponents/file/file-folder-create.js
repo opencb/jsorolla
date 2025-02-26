@@ -96,7 +96,7 @@ export default class FileFolderCreate extends LitElement {
         const {name, ...otherFileData} = this._folder;
         const data = {
             ...otherFileData,
-            path: `${this.path || "/"}${name}`,
+            path: `${this.path || ""}${name}`,
         };
 
         this.#setLoading(true);
@@ -110,7 +110,7 @@ export default class FileFolderCreate extends LitElement {
                     title: "Create Folder",
                     message: `Folder ${name} created correctly`,
                 });
-                LitUtils.dispatchCustomEvent(this, "folderCreate", data.path);
+                LitUtils.dispatchCustomEvent(this, "folderCreate", null, data);
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);

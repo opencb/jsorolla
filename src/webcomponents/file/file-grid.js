@@ -30,6 +30,7 @@ import "./file-create.js";
 import "./file-upload.js";
 import "./file-fetch.js";
 import "./file-detail.js";
+import "../variant/operation/variant-index-operation.js";
 
 export default class OpencgaFileGrid extends LitElement {
 
@@ -110,7 +111,7 @@ export default class OpencgaFileGrid extends LitElement {
             columns: this._getDefaultColumns(),
         };
 
-        this.permissionID = WebUtils.getPermissionID("FILE", "WRITE");
+        // this.permissionID = WebUtils.getPermissionID("FILE", "WRITE");
     }
 
     changeActiveActionModal(actionModal) {
@@ -129,6 +130,14 @@ export default class OpencgaFileGrid extends LitElement {
                 ModalUtils.show(`${this._prefix}Modal${this.activeActionModal}`);
             }
         });
+    }
+
+    hasPermission(mode) {
+        return OpencgaCatalogUtils.getStudyEffectivePermission(
+            this.opencgaSession.study,
+            this.opencgaSession.user.id,
+            WebUtils.getPermissionID("FILE", mode),
+            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
     }
 
     forceTableRefresh() {
@@ -429,11 +438,9 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "actions",
                 field: "actions",
                 formatter: (value, row) => {
-                    const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
-                        this.opencgaSession.study,
-                        this.opencgaSession.user.id,
-                        this.permissionID,
-                        this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+                    // const hasWritePermission = this.hasPermission("WRITE");
+                    const hasDeletePermission = this.hasPermission("DELETE");
+                    const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
                     const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
 
                     return `
@@ -461,16 +468,11 @@ export default class OpencgaFileGrid extends LitElement {
                                         <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
                                     </a>
                                     <hr class="dropdown-divider">
-                                    <a data-action="quality-control"
-                                        class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "cursor-pointer" : "disabled"}"
-                                        title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                            <i class="fas fa-rocket me-1" aria-hidden="true"></i> Calculate Quality Control
+                                    <a data-action="variant-index" class="dropdown-item ${row.format === "VCF" && isStudyAdmin ? "cursor-pointer" : "disabled"}">
+                                        <i class="fas fa-rocket me-1"></i> Run Variant Index
                                     </a>
                                     <hr class="dropdown-divider">
-                                    <a data-action="edit" class="dropdown-item disabled ${hasWritePermission ? "cursor-pointer" : "disabled"}">
-                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                                    </a>
-                                    <a data-action="delete" class="dropdown-item disabled">
+                                    <a data-action="delete" class="dropdown-item ${hasDeletePermission ? "cursor-pointer" : "disabled"}">
                                         <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
                                     </a>
                                 </div>
@@ -511,10 +513,41 @@ export default class OpencgaFileGrid extends LitElement {
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(file, null, "\t")], file.id + ".json");
                 break;
-            case "quality-control":
-                // alert("Not implemented yet");
+            case "variant-index":
+                this.fileId = file.id;
+                this.changeActiveActionModal("variant-index");
+                break;
+            case "delete":
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                    title: `Delete <b>${file.name}</b>`,
+                    message: `Do you want to delete the ${file.type === "DIRECTORY" ? "directory" : "file"} <b>${file.name}</b>? This action can not be undone.`,
+                    ok: () => this.onDelete(file),
+                });
                 break;
         }
+    }
+
+    onDelete(file) {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+        };
+
+        // FIXME 20241217 VERO: When trying to delete a file fetched from an external source in the root path:
+        //  - If delete is used, opencga returns error "Use unlink". This is happening because the field "external" in this case is set to true in opencga.
+        //  - If unlink is used, opencga returns error "[...] Could not unlink [...] Could not delete file: No documents could be found to be updated".
+        //  Bug created:  https://app.clickup.com/t/36631768/TASK-7291
+        const endpoint = file.external ?
+            this.opencgaSession.opencgaClient.files().unlink(file.id, params) :
+            this.opencgaSession.opencgaClient.files().delete(file.id, params);
+        endpoint
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `A new job has been launched to delete the ${file.type === "DIRECTORY" ? "directory" : "file"} ${file.name}.`,
+                });
+            })
+            .catch(error => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            });
     }
 
     async onDownload(e) {
@@ -594,25 +627,30 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     getRightToolbar() {
+        const hasWritePermission = this.hasPermission("WRITE");
         return [
             {
                 icon: "fa-folder-plus",
                 title: "Create Folder",
+                disabled: !hasWritePermission,
                 onClick: () => this.changeActiveActionModal("create-folder"),
             },
             {
                 icon: "fa-file-medical",
                 title: "Create File",
+                disabled: !hasWritePermission,
                 onClick: () => this.changeActiveActionModal("create-file"),
             },
             {
                 icon: "fa-file-upload",
                 title: "Upload File",
+                disabled: !hasWritePermission,
                 onClick: () => this.changeActiveActionModal("upload-file"),
             },
             {
                 icon: "fas fa-cloud-download-alt",
                 title: "Fetch File",
+                disabled: !hasWritePermission,
                 onClick: () => this.changeActiveActionModal("fetch-file"),
             },
         ];
@@ -652,7 +690,7 @@ export default class OpencgaFileGrid extends LitElement {
                             @folderCreate="${event => {
                                 this.changeActiveActionModal("");
                                 this.forceTableRefresh();
-                                this.onPathCreate(event.detail.value);
+                                this.onPathCreate(event.detail.path);
                             }}">
                         </file-folder-create>
                     `,
@@ -670,9 +708,10 @@ export default class OpencgaFileGrid extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .path="${this.getCurrentPath()}"
                             .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
-                            @fileCreate="${() => {
+                            @fileCreate="${event => {
                                 this.changeActiveActionModal("");
                                 this.forceTableRefresh();
+                                this.onPathCreate(event.detail.path);
                             }}">
                         </file-create>
                     `,
@@ -690,9 +729,10 @@ export default class OpencgaFileGrid extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .path="${this.getCurrentPath()}"
                             .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
-                            @fileUpload="${() => {
+                            @fileUpload="${event => {
                                 this.changeActiveActionModal("");
                                 this.forceTableRefresh();
+                                this.onPathCreate(event.detail.relativeFilePath + event.detail.fileName);
                             }}">
                         </file-upload>
                     `,
@@ -715,6 +755,24 @@ export default class OpencgaFileGrid extends LitElement {
                                 this.forceTableRefresh();
                             }}">
                         </file-fetch>
+                    `,
+                };
+                break;
+            case "variant-index":
+                config = {
+                    display: {
+                        modalTitle: "Run Variant Index",
+                        modalCyDataName: "modal-variant-index",
+                        modalSize: "modal-lg"
+                    },
+                    render: () => html`
+                        <variant-index-operation
+                            .opencgaSession="${this.opencgaSession}"
+                            .toolParams="${{
+                                file: this.fileId,
+                                study: this.opencgaSession.study.fqn,
+                            }}">
+                        </variant-index-operation>
                     `,
                 };
                 break;
