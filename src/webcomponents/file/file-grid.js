@@ -690,7 +690,7 @@ export default class OpencgaFileGrid extends LitElement {
                             @folderCreate="${event => {
                                 this.changeActiveActionModal("");
                                 this.forceTableRefresh();
-                                this.onPathCreate(event.detail.value);
+                                this.onPathCreate(event.detail.path);
                             }}">
                         </file-folder-create>
                     `,
@@ -708,9 +708,10 @@ export default class OpencgaFileGrid extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .path="${this.getCurrentPath()}"
                             .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
-                            @fileCreate="${() => {
+                            @fileCreate="${event => {
                                 this.changeActiveActionModal("");
                                 this.forceTableRefresh();
+                                this.onPathCreate(event.detail.path);
                             }}">
                         </file-create>
                     `,
@@ -728,9 +729,10 @@ export default class OpencgaFileGrid extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .path="${this.getCurrentPath()}"
                             .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
-                            @fileUpload="${() => {
+                            @fileUpload="${event => {
                                 this.changeActiveActionModal("");
                                 this.forceTableRefresh();
+                                this.onPathCreate(event.detail.relativeFilePath + event.detail.fileName);
                             }}">
                         </file-upload>
                     `,
