@@ -121,6 +121,11 @@ export default class ProjectAdminBrowser extends LitElement {
         ModalUtils.close(this.toolbarConfig.create.modalId);
     }
 
+    onProjectEvent(event, id) {
+        this.action = "";
+        ModalUtils.close(id);
+    }
+
     // *** RENDER ***
     renderProjectUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateProjectModal`, {
@@ -130,14 +135,14 @@ export default class ProjectAdminBrowser extends LitElement {
                 modalCyDataName: "modal-project-update",
                 modalSize: "modal-lg"
             },
-            // @projectUpdate="${e => this.onProjectUpdate(e, `${this._prefix}UpdateDetailsModal`)}"
             render: () => {
                 return html`
                     <project-update
                         .projectId="${this.projectId}"
                         .organization="${this.organization}"
                         .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
-                        .opencgaSession="${this.opencgaSession}">
+                        .opencgaSession="${this.opencgaSession}"
+                        @projectUpdate="${e => this.onProjectEvent(e, `${this._prefix}UpdateProjectModal`)}">
                     </project-update>
                 `;
             },
