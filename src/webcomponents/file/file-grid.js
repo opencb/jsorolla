@@ -110,7 +110,7 @@ export default class OpencgaFileGrid extends LitElement {
             columns: this._getDefaultColumns(),
         };
 
-        this.permissionID = WebUtils.getPermissionID("FILE", "WRITE");
+        // this.permissionID = WebUtils.getPermissionID("FILE", "WRITE");
     }
 
     changeActiveActionModal(actionModal) {
@@ -129,6 +129,14 @@ export default class OpencgaFileGrid extends LitElement {
                 ModalUtils.show(`${this._prefix}Modal${this.activeActionModal}`);
             }
         });
+    }
+
+    hasPermission(mode) {
+        return OpencgaCatalogUtils.getStudyEffectivePermission(
+            this.opencgaSession.study,
+            this.opencgaSession.user.id,
+            WebUtils.getPermissionID("FILE", mode),
+            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
     }
 
     forceTableRefresh() {
@@ -429,11 +437,8 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "actions",
                 field: "actions",
                 formatter: (value, row) => {
-                    const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
-                        this.opencgaSession.study,
-                        this.opencgaSession.user.id,
-                        this.permissionID,
-                        this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+                    const hasWritePermission = this.hasPermission("WRITE");
+                    const hasDeletePermission = this.hasPermission("DELETE");
                     const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
 
                     return `
@@ -467,10 +472,7 @@ export default class OpencgaFileGrid extends LitElement {
                                             <i class="fas fa-rocket me-1" aria-hidden="true"></i> Calculate Quality Control
                                     </a>
                                     <hr class="dropdown-divider">
-                                    <a data-action="edit" class="dropdown-item disabled ${hasWritePermission ? "cursor-pointer" : "disabled"}">
-                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                                    </a>
-                                    <a data-action="delete" class="dropdown-item disabled">
+                                    <a data-action="delete" class="dropdown-item ${hasDeletePermission ? "cursor-pointer" : "disabled"}">
                                         <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
                                     </a>
                                 </div>
