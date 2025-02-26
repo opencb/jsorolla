@@ -150,7 +150,7 @@ export default class StudyAdminUsers extends LitElement {
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
@@ -173,7 +173,7 @@ export default class StudyAdminUsers extends LitElement {
                 // return `<input type="checkbox" ${checked ? "checked" : ""} ${!isOwner ? "disabled" : ""}>`;
                 return `<input type="checkbox" ${checked ? "checked" : ""} ${isOrganizationAdmin ? "disabled" : ""}>`;
             } else {
-                return `<input type="checkbox" ${checked ? "checked" : ""} disabled}>`;
+                return `<input type="checkbox" ${checked ? "checked" : ""} disabled>`;
             }
         } else {
             // return `<input type="checkbox" ${checked ? "checked" : ""} ${row.id === this.field.owner ? "disabled" : ""}>`;
@@ -458,17 +458,12 @@ export default class StudyAdminUsers extends LitElement {
         this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, {id: this.addGroupId}, {action: "ADD"})
             .then(res => {
                 this.addGroupId = "";
-                // this.requestUpdate();
                 LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
-
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: "Group created",
                 });
             })
             .catch(error => {
-                console.error(error);
-                params.error(error);
-
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                     message: `Error creating group: ${error.message || error}`,
                 });
@@ -514,8 +509,64 @@ export default class StudyAdminUsers extends LitElement {
             message: messageAlert,
         });
         LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
-        // this.requestUpdate();
     }
+
+
+    renderAddUser() {
+        const studyGroups = this.opencgaSession?.study?.groups.filter(group => ["@members", "@admins"].includes(group.id)) || [];
+        const isOrgAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, this.opencgaSession.user.id);
+        return html`
+            <div class="dropdown">
+                <button
+                    class="btn btn-light dropdown-toggle"
+                    type="button"
+                    id="${this._prefix}AddUserMenu"
+                    data-bs-toggle="dropdown"
+                    data-bs-auto-close="outside"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    title="Add new user to ${this.study?.name} study">
+                        <i class="fas fa-user me-1" aria-hidden="true"></i> Add User
+                </button>
+                <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="${this._prefix}AddUserMenu" style="width: 500px">
+                ${isOrgAdmin ?
+                    html `
+                        <study-users-manage
+                            .studyFqn="${this.study.fqn}"
+                            .groups="${studyGroups}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}">
+                        </study-users-manage>
+                    ` : html `
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">User ID</label>
+                                <text-field-filter
+                                    .value="${this.addUserId}"
+                                    placeholder="new user ID..."
+                                    @filterChange="${e => this.onUserAddFieldChange(e)}">
+                                </text-field-filter>
+                            </div>
+                            <div class="d-flex justify-content-end gap-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-primary ${this.addUserId?.length > 0 ? "" : "disabled"}"
+                                    @click="${this.onUserAdd}">
+                                        Add
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary ${this.addUserId?.length > 0 ? "" : "disabled"}"
+                                    @click="${e => this.onUserAddFieldChange(e, true)}">
+                                        Cancel
+                                </button>
+                            </div>
+                    `
+                }
+                </div>
+            </div>
+        `;
+    }
+
 
     render() {
 
@@ -551,44 +602,7 @@ export default class StudyAdminUsers extends LitElement {
                 <div class="ms-auto p-2">
                     <div class="row row-cols-lg-auto g-3 align-items-center">
                         <!-- ADD USER -->
-                        <div class="dropdown">
-                            <button
-                                class="btn btn-light dropdown-toggle"
-                                type="button"
-                                id="${this._prefix}AddUserMenu"
-                                data-bs-toggle="dropdown"
-                                data-bs-auto-close="outside"
-                                aria-haspopup="true"
-                                aria-expanded="false"
-                                title="Add new user to ${this.study?.name} study">
-                                    <i class="fas fa-user me-1" aria-hidden="true"></i> Add User
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="${this._prefix}AddUserMenu" style="width: 320px">
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">User ID</label>
-                                    <text-field-filter
-                                        .value="${this.addUserId}"
-                                        placeholder="new user ID..."
-                                        @filterChange="${e => this.onUserAddFieldChange(e)}">
-                                    </text-field-filter>
-                                </div>
-                                <div class="d-flex justify-content-end gap-1">
-                                    <button
-                                        type="button"
-                                        class="btn btn-primary ${this.addUserId?.length > 0 ? "" : "disabled"}"
-                                        @click="${this.onUserAdd}">
-                                            Add
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="btn btn-secondary ${this.addUserId?.length > 0 ? "" : "disabled"}"
-                                        @click="${e => this.onUserAddFieldChange(e, true)}">
-                                            Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
+                        ${this.renderAddUser()}
                         <!-- ADD GROUP -->
                         <div class="dropdown">
                             <button
