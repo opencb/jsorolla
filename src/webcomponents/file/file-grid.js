@@ -625,25 +625,30 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     getRightToolbar() {
+        const hasWritePermission = this.hasPermission("WRITE");
         return [
             {
                 icon: "fa-folder-plus",
                 title: "Create Folder",
+                disabled: !hasWritePermission,
                 onClick: () => this.changeActiveActionModal("create-folder"),
             },
             {
                 icon: "fa-file-medical",
                 title: "Create File",
+                disabled: !hasWritePermission,
                 onClick: () => this.changeActiveActionModal("create-file"),
             },
             {
                 icon: "fa-file-upload",
                 title: "Upload File",
+                disabled: !hasWritePermission,
                 onClick: () => this.changeActiveActionModal("upload-file"),
             },
             {
                 icon: "fas fa-cloud-download-alt",
                 title: "Fetch File",
+                disabled: !hasWritePermission,
                 onClick: () => this.changeActiveActionModal("fetch-file"),
             },
         ];
