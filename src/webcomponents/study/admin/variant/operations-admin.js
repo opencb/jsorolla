@@ -77,12 +77,50 @@ export default class OperationsAdmin extends LitElement {
             },
             menu: [
                 {
-                    id: "organization-operations",
-                    name: "Organization Operations",
+                    id: "variant-operations",
+                    name: "Study Operations",
                     submenu: [
                         {
-                            id: "variant-annotation-index",
-                            name: "Variant Annotation Index",
+                            id: "variant-index",
+                            name: "Variant Index",
+                            render: opencgaSession => html`
+                                <variant-index-operation
+                                    .toolParams="${{study: opencgaSession.study.fqn}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-index-operation>
+                            `,
+                        },
+                        {
+                            id: "variant-cohort-stats",
+                            name: "Variant Cohort Stats",
+                            render: opencgaSession => html`
+                                <variant-stats-index-operation
+                                    .toolParams="${{study: opencgaSession.study.fqn}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-stats-index-operation>
+                            `,
+                        },
+                        {
+                            id: "variant-secondary-sample-index",
+                            name: "Variant Secondary Sample Index",
+                            render: opencgaSession=> {
+                                return html`
+                                    <variant-secondary-sample-index-operation
+                                        .toolParams="${{study: opencgaSession.study.id}}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </variant-secondary-sample-index-operation>
+                                `;
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: "project-operations",
+                    name: "Project Operations",
+                    submenu: [
+                        {
+                            id: "variant-annotation",
+                            name: "Variant Annotation",
                             render: opencgaSession => {
                                 if (!OpencgaCatalogUtils.isOrganizationAdmin(opencgaSession.organization, opencgaSession.user.id)) {
                                     return html`
@@ -121,44 +159,6 @@ export default class OperationsAdmin extends LitElement {
                                     </variant-secondary-annotation-index-operation>
                                 `;
                             }
-                        },
-                    ],
-                },
-                {
-                    id: "variant-operations",
-                    name: "Study Operations",
-                    submenu: [
-                        {
-                            id: "variant-index",
-                            name: "Variant Index",
-                            render: opencgaSession => html`
-                                <variant-index-operation
-                                    .toolParams="${{study: opencgaSession.study.fqn}}"
-                                    .opencgaSession="${opencgaSession}">
-                                </variant-index-operation>
-                            `,
-                        },
-                        {
-                            id: "variant-stats-index",
-                            name: "Variant Stats Index",
-                            render: opencgaSession => html`
-                                <variant-stats-index-operation
-                                    .toolParams="${{study: opencgaSession.study.fqn}}"
-                                    .opencgaSession="${opencgaSession}">
-                                </variant-stats-index-operation>
-                            `,
-                        },
-                        {
-                            id: "variant-secondary-sample-index",
-                            name: "Variant Secondary Sample Index",
-                            render: opencgaSession=> {
-                                return html`
-                                    <variant-secondary-sample-index-operation
-                                        .toolParams="${{study: opencgaSession.study.id}}"
-                                        .opencgaSession="${opencgaSession}">
-                                    </variant-secondary-sample-index-operation>
-                                `;
-                            },
                         },
                     ],
                 },

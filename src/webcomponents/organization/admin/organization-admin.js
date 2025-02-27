@@ -98,7 +98,7 @@ export default class OrganizationAdmin extends LitElement {
                 // },
                 {
                     id: "manage",
-                    name: "Manage",
+                    name: "Manage Organization",
                     submenu: [
                         /* Vero Note: Maintained for future use in Organization Admin
                         {
