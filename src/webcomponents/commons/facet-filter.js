@@ -66,14 +66,12 @@ export default class FacetFilter extends LitElement {
     selectedFacetObserver() {
         // Helper for formatting the list of facets to show in opencga-active-filters
         const _valueFormatter = (k, v) => {
-            debugger
             let str = "";
             if (v.fn && v.fn in this.fns) {
                 str = v.fn + "(" + k + ")";
             } else {
                 if (v.type === "date") {
                     // range type
-                    debugger
                     str = k + (v.value ? v.value.toUpperCase() : "YEAR");
                 } else {
                     // range type
@@ -165,7 +163,6 @@ export default class FacetFilter extends LitElement {
 
         const currentSelectionNames = e.detail.value ? e.detail.value.split(",") : [];
         // compute the symmetric difference between this.selectedFacet and currentSelectionNames
-        debugger
         const differences = Object.keys(this.selectedFacet)
             ?.filter(a => !currentSelectionNames.includes(a))
             .concat(currentSelectionNames?.filter(name => !Object.keys(this.selectedFacet).includes(name)));
@@ -643,11 +640,14 @@ export default class FacetFilter extends LitElement {
                             </div>
                         </div>
                     `) : html`
-                        <div class="alert alert-info text-center" role="alert"><i class="fas fa-3x fa-info-circle"></i><br><small>No aggregation field has been selected yet.</small></div>
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle pe-1"></i>
+                            <span>No aggregation field has been selected.</span>
+                        </div>
                     `}
                 </div>
             </div>
-        ` : "no config";
+        ` : nothing;
     }
 
 }
