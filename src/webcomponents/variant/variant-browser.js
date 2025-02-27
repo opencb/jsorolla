@@ -23,7 +23,6 @@ import "./variant-browser-filter.js";
 import "./variant-browser-grid.js";
 import "./variant-browser-detail.js";
 import "../commons/aggregation-stats.js";
-import "../commons/opencb-facet-results.js";
 import "../commons/tool-header.js";
 import "../commons/grid-notifications.js";
 import "./annotation/cellbase-variant-annotation-summary.js";
