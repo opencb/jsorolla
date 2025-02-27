@@ -17,11 +17,9 @@
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
-import "../commons/opencb-facet-results.js";
-import "../commons/facet-filter.js";
+import "../commons/aggregation-stats.js";
 import "./sample-grid.js";
 import "./sample-detail.js";
-
 
 export default class SampleBrowser extends LitElement {
 
