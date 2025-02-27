@@ -18,7 +18,7 @@ import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "./opencga-facet-result-view.js";
 
-class OpencbFacetResults extends LitElement {
+class FacetResults extends LitElement {
 
     constructor() {
         super();
@@ -103,4 +103,4 @@ class OpencbFacetResults extends LitElement {
 
 }
 
-customElements.define("opencb-facet-results", OpencbFacetResults);
+customElements.define("facet-results", FacetResults);
