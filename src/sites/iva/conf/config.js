@@ -427,7 +427,7 @@ const SUITE = {
                     id: "operations-admin",
                     name: "Variant Operations",
                     icon: "fa-server",
-                    description: "Execute variant operations in the current study.",
+                    description: "Execute variant operations in the current organization or study.",
                     visibility: "public",
                 },
             ],
