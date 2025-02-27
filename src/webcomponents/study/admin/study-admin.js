@@ -79,26 +79,8 @@ export default class StudyAdmin extends LitElement {
             },
             menu: [
                 {
-                    id: "general",
-                    name: "General",
-                    description: "",
-                    submenu: [
-                        {
-                            id: "audit",
-                            name: "Audit",
-                            icon: "fas fa-book",
-                            render: opencgaSession => html`
-                                <study-admin-audit
-                                    .opencgaSession="${opencgaSession}"
-                                    .study="${opencgaSession.study}">
-                                </study-admin-audit>
-                            `,
-                        },
-                    ],
-                },
-                {
-                    id: "configuration",
-                    name: "Configuration",
+                    id: "manage",
+                    name: "Manage Study",
                     description: "",
                     submenu: [
                         {
@@ -177,6 +159,24 @@ export default class StudyAdmin extends LitElement {
                                     .toolParams="${{study: opencgaSession.study.id}}"
                                     .opencgaSession="${opencgaSession}">
                                 </variant-secondary-sample-index-configure-operation>
+                            `,
+                        },
+                    ],
+                },
+                {
+                    id: "general",
+                    name: "General",
+                    description: "",
+                    submenu: [
+                        {
+                            id: "audit",
+                            name: "Audit",
+                            icon: "fas fa-book",
+                            render: opencgaSession => html`
+                                <study-admin-audit
+                                    .opencgaSession="${opencgaSession}"
+                                    .study="${opencgaSession.study}">
+                                </study-admin-audit>
                             `,
                         },
                     ],

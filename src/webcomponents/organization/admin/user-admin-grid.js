@@ -734,6 +734,7 @@ export default class UserAdminGrid extends LitElement {
                 };
                 break;
             case "change-admin":
+                const isAdmin = this.opencgaSession.organization.admins.includes(this.userId);
                 config = {
                     display: {
                         modalTitle: `Update Organization Admins: User ${this.userId} in organization ${this.organization.id}`,
@@ -745,7 +746,7 @@ export default class UserAdminGrid extends LitElement {
                         <user-admin-admins-change
                             .userId="${this.userId}"
                             .organization="${this.organization}"
-                            .action="${action}"
+                            .action="${isAdmin ? "REMOVE" : "ADD"}"
                             .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top", buttonClearText: ""}}"
                             .opencgaSession="${this.opencgaSession}"
                             @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ChangeAdminModal`)}">

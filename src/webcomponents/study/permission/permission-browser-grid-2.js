@@ -24,7 +24,8 @@ export default class PermissionBrowserGrid2 extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -33,6 +34,7 @@ export default class PermissionBrowserGrid2 extends LitElement {
 
     static get properties() {
         return {
+            // FIXME study is not needed, we should use opencgaSession.study
             study: {
                 type: Object
             },
@@ -45,7 +47,7 @@ export default class PermissionBrowserGrid2 extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "PermissionBrowserGrid";
         this.permissionString = [
@@ -101,7 +103,6 @@ export default class PermissionBrowserGrid2 extends LitElement {
         if (changedProperties.has("study")) {
             this.studyObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -128,11 +129,6 @@ export default class PermissionBrowserGrid2 extends LitElement {
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPostBody: data => {
-                // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            }
         });
     }
 
@@ -150,9 +146,8 @@ export default class PermissionBrowserGrid2 extends LitElement {
         }
     }
 
-    userFormatter(permission, userId) {
-        if (OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, userId) ||
-            OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, userId)) {
+    userFormatter(permission, userId, groups = []) {
+        if (OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, userId)) {
             return `<input type="checkbox" checked disabled>`;
         } else {
             const userFound = this.study.acl.find(element => element.member === userId) || false;
@@ -166,7 +161,7 @@ export default class PermissionBrowserGrid2 extends LitElement {
         const messageAlert = isChecked ?
             `Added permission:${row.id} to the group:${group} correctly`:
             `Removed permission:${row.id} to the group:${group} correctly `;
-        // row.id == Permission Id
+        // row.id == Permission ID
         const paramsAction = {
             action: isChecked ? "ADD" : "REMOVE"
         };
@@ -178,10 +173,14 @@ export default class PermissionBrowserGrid2 extends LitElement {
             // updateACL has bad documentation
             const resp = await this.opencgaSession.opencgaClient.studies()
                 .updateAcl(group, paramsAction, params);
+            const acl = this.opencgaSession.study.acl
+                .find(acl => acl.member === resp.responses[0].results[0].acl[0].member)
+            acl.permissions = resp.responses[0].results[0].acl[0].permissions;
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 message: messageAlert,
             });
-            this.requestUpdate();
+            this.renderPermissionGrid();
+            // this.requestUpdate();
         } catch (error) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         }
@@ -189,15 +188,15 @@ export default class PermissionBrowserGrid2 extends LitElement {
 
     _getDefaultColumns() {
         const groupColumns = [];
-        if (this.study.groups) {
+        if (this.opencgaSession.study.groups) {
             // Make sure @members and @admins are the last groups
-            const groups = this.study.groups.filter(g => g.id !== "@members" && g.id !== "@admins").map(g => g.id);
+            const groups = this.opencgaSession.study.groups.filter(g => g.id !== "@members" && g.id !== "@admins").map(g => g.id);
             // groups.push("@members");
             groups.push("@admins");
             for (const group of groups) {
                 groupColumns.push(
                     {
-                        title: group === "@members" ? "Default Member Permission" : group,
+                        title: group === "@members" ? "Default" : group,
                         field: {
                             groupId: group,
                             acl: this.study.acl
@@ -206,7 +205,7 @@ export default class PermissionBrowserGrid2 extends LitElement {
                         colspan: 1,
                         formatter: this.groupFormatter,
                         events: {
-                            "click input": (e, value, row) => this.onCheck(e, value, row, group, this)
+                            "click input": (e, value, row) => this.onCheck(e, value, row, group)
                         }
                     }
                 );
@@ -214,21 +213,46 @@ export default class PermissionBrowserGrid2 extends LitElement {
         }
 
         const userColums = [];
-        const userIds = this.study.groups.find(g => g.id ==="@members").userIds;
+        const userIds = this.study.groups.find(g => g.id === "@members").userIds;
         for (const user of userIds) {
+            // Get groups for the user
+            const groups = this.opencgaSession?.study?.groups
+                .filter(group => group.id !== "@members")
+                .filter(group => group.userIds.includes(user));
+
             userColums.push(
                 {
-                    title: user,
+                    title: `${user} ${groups.length > 0 ?
+                        `<div class="text-secondary fst-italic">(${groups.map(group => group.id).join(",")})</div>` : ""}`,
                     rowspan: 1,
                     colspan: 1,
-                    formatter: (e, permission) => this.userFormatter(permission, user),
+                    formatter: (e, permission) => this.userFormatter(permission, user, groups),
+                    cellStyle: (value, row)  => {
+                        let isInherited;
+
+                        // Check if the permission is inherited from a group
+                        if (groups.findIndex(group => group.id === "@admins") !== -1) {
+                            isInherited = true;
+                        } else {
+                            isInherited = groups.some(group => {
+                                const acl = this.opencgaSession.study.acl
+                                    .find(acl => acl.member === group.id);
+                                return acl?.permissions.includes(row.id);
+                            });
+                        }
+
+                        // 2. If the permission is inherited, we apply a background color
+                        if (isInherited) {
+                            return {css: {"background-color": "rgba(230, 247, 230, 0.5)"}}
+                        }
+                        return "";
+                    },
                     events: {
                         "click input": (e, value, row) => this.onCheck(e, value, row, user, this)
                     }
                 }
             );
         }
-
 
         const _columns = [
             [
@@ -237,10 +261,10 @@ export default class PermissionBrowserGrid2 extends LitElement {
                     field: "id",
                     rowspan: 2,
                     colspan: 1,
-                    sortable: true
+                    sortable: false
                 },
                 {
-                    title: "Default Permission",
+                    title: "Default",
                     field: {
                         groupId: "@members",
                         acl: this.study.acl
@@ -250,41 +274,27 @@ export default class PermissionBrowserGrid2 extends LitElement {
                     formatter: this.groupFormatter
                 },
                 {
+                    title: `Users <div class="text-secondary fst-italic">(@groups)</div>`,
+                    // field: "",
+                    rowspan: 1,
+                    colspan: userColums.length,
+                    align: "center",
+                },
+                {
                     title: "Groups",
-                    field: "",
+                    // field: "",
                     rowspan: 1,
                     colspan: groupColumns.length,
                     align: "center"
                 },
-                {
-                    title: "Users",
-                    field: "",
-                    rowspan: 1,
-                    colspan: userColums.length,
-                    align: "center"
-                },
             ],
             [
-                ...groupColumns,
-                ...userColums
+                ...userColums,
+                ...groupColumns
             ]
         ];
 
         return _columns;
-    }
-
-    getDefaultConfig() {
-        return {
-            pagination: false,
-            pageSize: 25,
-            pageList: [25, 50],
-            showExport: false,
-            detailView: false,
-            multiSelection: false,
-            showSelectCheckbox: true,
-            showToolbar: true,
-            showActions: true,
-        };
     }
 
     onPermissionFieldChange(e) {
@@ -302,18 +312,18 @@ export default class PermissionBrowserGrid2 extends LitElement {
             this.studyPermissions = this.permissions;
         }
         this.renderPermissionGrid();
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
-    renderPermission() {
+    render() {
         return html`
             <!-- SEARCH Permission -->
             <div class="d-flex my-2">
                 <div class="row row-cols-lg-auto g-3 align-items-center">
                     <div class="col-12">
                         <input class="form-control" type="text" .value="${this.searchPermission || ""}"
-                            list="${this._prefix}Permissions" placeholder="Search by Permission ..."
-                            @change="${this.onPermissionFieldChange}">
+                               list="${this._prefix}Permissions" placeholder="Search by Permission ..."
+                               @change="${this.onPermissionFieldChange}">
                     </div>
                     <div class="col-12">
                         <button type="button" id="${this._prefix}ClearPermissionMenu" class="btn btn-light btn-xs"
@@ -342,10 +352,18 @@ export default class PermissionBrowserGrid2 extends LitElement {
         `;
     }
 
-    render() {
-        return html`
-            ${this.renderPermission()}
-        `;
+    getDefaultConfig() {
+        return {
+            pagination: false,
+            pageSize: 25,
+            pageList: [25, 50],
+            showExport: false,
+            detailView: false,
+            multiSelection: false,
+            showSelectCheckbox: false,
+            showToolbar: true,
+            showActions: true,
+        };
     }
 
 }
