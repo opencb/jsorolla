@@ -665,6 +665,7 @@ export default class FiltersToolbar extends LitElement {
     render() {
         // used to disable clear or save buttons
         const emptyPreparedQuery = Object.keys(this.preparedQuery).length === 0;
+        const hasPendingChanges = UtilsNew.objectCompare(this.preparedQuery, this.executedQuery);
         const showAdvancedFiltersButton = this.totalFiltersCount !== this.quickFilters.length;
 
         return html`
@@ -678,7 +679,7 @@ export default class FiltersToolbar extends LitElement {
                         </button>
                     ` : nothing}
                     <div class="w-px bg-gray-200"></div>
-                    <button class="btn ${UtilsNew.objectCompare(this.preparedQuery, this.executedQuery) ? "btn-primary" : "btn-danger"} d-flex align-items-center gap-2 ${!this.searchActive ? "disabled" : ""}" @click="${this.onSearch}">
+                    <button class="btn ${hasPendingChanges ? "btn-primary" : "btn-danger"} d-flex align-items-center gap-2 ${!this.searchActive ? "disabled" : ""}" @click="${this.onSearch}">
                         <i class="fas fa-search"></i>
                         <span class="fw-bold">Search</span>
                     </button>
@@ -748,7 +749,7 @@ export default class FiltersToolbar extends LitElement {
                     </div>
                     <div class="offcanvas-footer p-4 d-grid">
                         <button
-                            class="btn btn-primary d-flex align-items-center justify-content-center gap-2 ${!this.searchActive ? "disabled" : ""}"
+                            class="btn ${hasPendingChanges ? "btn-primary" : "btn-danger"} d-flex align-items-center justify-content-center gap-2 ${!this.searchActive ? "disabled" : ""}"
                             data-bs-dismiss="offcanvas"
                             @click="${this.onSearch}">
                             <i class="fas fa-search"></i>
