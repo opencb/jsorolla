@@ -71,7 +71,7 @@ export default class OperationsAdmin extends LitElement {
 
     getDefaultConfig() {
         return {
-            name: "Operations Admin",
+            name: "Variant Operations",
             display: {
                 menuStyle: "width:240px;",
             },
