@@ -68,7 +68,7 @@ class FacetResults extends LitElement {
                 <div class="alert alert-info d-flex align-items-center" role="alert">
                     <i class="fas fa-info-circle flex-shrink-0 me-2"></i>
                     <div>
-                        Please select the aggregation fields in the Aggregation Tab on the left and then click on <b>Run</b> button.
+                        Please select the aggregation fields on the left and then click on <b>Run</b> button.
                     </div>
                 </div>
             `;
