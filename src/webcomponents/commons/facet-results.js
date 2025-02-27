@@ -16,15 +16,15 @@
 
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import "./opencga-facet-result-view.js";
+import "./facet-results-view.js";
 
-class OpencbFacetResults extends LitElement {
+class FacetResults extends LitElement {
 
     constructor() {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -42,9 +42,8 @@ class OpencbFacetResults extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-
         this.data = [];
         this._config = this.getDefaultConfig();
     }
@@ -57,24 +56,27 @@ class OpencbFacetResults extends LitElement {
     }
 
     configObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
     }
 
     render() {
         if (!this.data || this.data.length === 0) {
             return html`
                 <div class="alert alert-info d-flex align-items-center" role="alert">
-                    <i class="fas fa-3x fa-info-circle flex-shrink-0 me-2"></i>
+                    <i class="fas fa-info-circle flex-shrink-0 me-2"></i>
                     <div>
-                        Please select the aggregation fields in the Aggregation Tab on the left and then click on <b>Search</b> button.
+                        Please select the aggregation fields in the Aggregation Tab on the left and then click on <b>Run</b> button.
                     </div>
                 </div>
-            `
+            `;
         }
 
-        return html`
-            <div>
-                ${this.data.map(item => item.aggregationName && item.aggregationValues ? html`
+        return this.data.map(item => {
+            if (item.aggregationName && item.aggregationValues) {
+                return html`
                     <div>
                         <h3>${item.name}</h3>
                         <div class="facet-result-single-value">
@@ -82,19 +84,20 @@ class OpencbFacetResults extends LitElement {
                             <span class="aggregation-values">${item.aggregationValues}</span>
                         </div>
                     </div>
-                ` : html`
+                `;
+            } else {
+                return html`
                     <div>
                         <h3>${item.name}</h3>
-                        <opencga-facet-result-view
+                        <facet-results-view
                             .facetResult="${item}"
                             .config="${this.facetConfig}"
                             ?active="${this.facetActive}">
-                        </opencga-facet-result-view>
+                        </facet-results-view>
                     </div>
-                `)
-                }
-            </div>
-        `;
+                `;
+            }
+        });
     }
 
     getDefaultConfig() {
@@ -103,4 +106,4 @@ class OpencbFacetResults extends LitElement {
 
 }
 
-customElements.define("opencb-facet-results", OpencbFacetResults);
+customElements.define("facet-results", FacetResults);

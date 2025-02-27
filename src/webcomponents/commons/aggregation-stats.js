@@ -18,8 +18,8 @@ import {html, LitElement, nothing} from "lit";
 import {RestResponse} from "../../core/clients/rest-response.js";
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "./utils/notification-utils.js";
-import "./opencga-facet-result-view.js";
 import "./facet-filter.js";
+import "./facet-results.js";
 import "../loading-spinner.js";
 
 class AggregationStats extends LitElement {
@@ -224,9 +224,9 @@ class AggregationStats extends LitElement {
                             <loading-spinner></loading-spinner>
                         </div>
                     ` : html`
-                        <opencb-facet-results
+                        <facet-results
                             .data="${this.facetResults}">
-                        </opencb-facet-results>
+                        </facet-results>
                     `}
                 </div>
             </div>
