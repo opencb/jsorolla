@@ -141,7 +141,7 @@ export default class UserAdminAdminsChange extends LitElement {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }
-
+debugger
         return html`
             <data-form
                 .data="${this.userId}"
@@ -168,8 +168,8 @@ export default class UserAdminAdminsChange extends LitElement {
                             text: this.displayText,
                             display: {
                                 visible: true,
-                                icon: "fas fa-exclamation-triangle",
-                                notificationType: "warning",
+                                icon: "fas fa-info-circle",
+                                notificationType: "info",
                             },
                         },
                     ],
