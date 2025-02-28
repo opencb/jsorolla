@@ -280,13 +280,13 @@ export default class UserAdminGrid extends LitElement {
                 title: "User ID",
                 field: "id",
                 visible: this.gridCommons.isColumnVisible("id"),
-                formatter: (value, row) => this.userIdFormatter(value, row),
             },
             {
                 id: "name",
                 title: "Name",
                 field: "name",
                 visible: this.gridCommons.isColumnVisible("name"),
+                formatter: (value, row) => this.userNameFormatter(value, row),
             },
             {
                 id: "email",
@@ -467,15 +467,23 @@ export default class UserAdminGrid extends LitElement {
         return this._columns;
     }
 
-    userIdFormatter(value, user) {
+    userNameFormatter(name, user) {
         // Note 20240620 vero: Viz and change owner will be implemented in following release
         // const organizationOwner = this.organization.owner;
-        return this.organization.admins.includes(user.id) ? `
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-user-shield me-2"></i>
-                     ${value}
-                </div>
-            ` : value;
+
+        // Note 20250228 Vero: To review viz and implementation.
+        // The organization owner is not included in the array of organization admins. Why not?
+
+        const adminType = this.opencgaSession.organization.owner === user.id ? "OWNER"
+            : this.opencgaSession.organization.admins.includes(user.id) ? "ORGANIZATION ADMIN"
+            : "";
+
+        return adminType ? `
+            <div class="d-flex flex-column">
+                <div>${name}</div>
+                <div class="fs-8 text-muted">${adminType}</div>
+            </div>
+        ` : name;
     }
 
     datesFormatter(value, user) {
