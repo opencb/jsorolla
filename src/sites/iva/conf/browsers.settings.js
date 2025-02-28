@@ -296,66 +296,6 @@ const CATALOG_SETTINGS = {
         details: ["annotationSummary", "annotationConsType", "annotationPropFreq", "annotationClinical", "annotationPharmacogenomics", "cohortStats", "samples", "beacon", "json-view"]
         // hiddenDetails: ["json-view"]
     },
-    DISEASE_PANEL_BROWSER: {
-        /**
-         *  Full settings
-         */
-        menu: {
-            // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
-            sections: [
-                {
-                    filters: ["id", "disorders", "genes", "region", "source", "categories", "tags", "date"]
-                }
-            ],
-            // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.
-            examples: []
-        },
-        table: {
-            // Merge criteria: spread operator
-            toolbar: {
-                showSettings: true,
-                showColumns: false,
-                showDownload: false,
-                showExport: true,
-                exportTabs: ["download", "link", "code"]
-                // columns list for the dropdown will be added in grid components based on settings.table.columns
-            },
-            // Merge criteria: uses this array as filter for internal 1D/2D array. It handles row/col span
-            // It is supported either columns[] or hiddenColumns[].
-            columns: ["id", "name", "stats", "source", "actions"]
-        },
-        // merge criterium: uses this array as filter for internal 1D array.
-        details: ["disease-panel-view", "disease-panel-genes", "disease-panel-regions", "disease-panel-variants", "json-view"]
-    },
-    CLINICAL_ANALYSIS_BROWSER: {
-        menu: {
-            // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
-            sections: [
-                {
-                    filters: ["id", "family", "proband", "sample", "status", "priority", "type", "creationDate", "dueDate"]
-                }
-            ],
-            // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.
-            examples: []
-        },
-        table: {
-            // merge criterium: spread operator
-            toolbar: {
-                showSettings: true,
-                showColumns: false,
-                showDownload: false,
-                showExport: true,
-                exportTabs: ["download", "link", "code"]
-                // columns list for the dropdown will be added in grid components based on settings.table.columns
-            },
-            // Merge criteria: uses this array as filter for internal 1D/2D array. It handles row/col span.
-            // It is supported either columns[] or hiddenColumns[].
-            // TODO NOTE this refers to clinical-analysis-grid (same list in review-cases.settings)
-            // columns: ["caseId", "probandId", "familyId", "disorderId", "interpretation", "action"]
-        },
-        // merge criterium: uses this array as filter for internal 1D array.
-        details: ["clinical-analysis-view", "json-view"]
-    },
     // RGA_BROWSER: {},
     // CLINICAL_ANALYSIS_VIEW: {
     //     /** clinical-analysis-view settings
@@ -678,6 +618,66 @@ const QC_OVERVIEW_SETTINGS = {
 // const VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS = {};
 
 const INTERPRETER_SETTINGS = {
+    DISEASE_PANEL_BROWSER: {
+        /**
+         *  Full settings
+         */
+        menu: {
+            // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
+            sections: [
+                {
+                    filters: ["id", "disorders", "genes", "region", "source", "categories", "tags", "date"]
+                }
+            ],
+            // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.
+            examples: []
+        },
+        table: {
+            // Merge criteria: spread operator
+            toolbar: {
+                showSettings: true,
+                showColumns: false,
+                showDownload: false,
+                showExport: true,
+                exportTabs: ["download", "link", "code"]
+                // columns list for the dropdown will be added in grid components based on settings.table.columns
+            },
+            // Merge criteria: uses this array as filter for internal 1D/2D array. It handles row/col span
+            // It is supported either columns[] or hiddenColumns[].
+            columns: ["id", "name", "stats", "source", "actions"]
+        },
+        // merge criterium: uses this array as filter for internal 1D array.
+        details: ["disease-panel-view", "disease-panel-genes", "disease-panel-regions", "disease-panel-variants", "json-view"]
+    },
+    CLINICAL_ANALYSIS_BROWSER: {
+        menu: {
+            // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
+            sections: [
+                {
+                    filters: ["id", "family", "proband", "sample", "status", "priority", "type", "creationDate", "dueDate"]
+                }
+            ],
+            // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.
+            examples: []
+        },
+        table: {
+            // merge criterium: spread operator
+            toolbar: {
+                showSettings: true,
+                showColumns: false,
+                showDownload: false,
+                showExport: true,
+                exportTabs: ["download", "link", "code"]
+                // columns list for the dropdown will be added in grid components based on settings.table.columns
+            },
+            // Merge criteria: uses this array as filter for internal 1D/2D array. It handles row/col span.
+            // It is supported either columns[] or hiddenColumns[].
+            // TODO NOTE this refers to clinical-analysis-grid (same list in review-cases.settings)
+            // columns: ["caseId", "probandId", "familyId", "disorderId", "interpretation", "action"]
+        },
+        // merge criterium: uses this array as filter for internal 1D array.
+        details: ["clinical-analysis-view", "json-view"]
+    },
     VARIANT_INTERPRETER_SETTINGS: {
         tools: [
             {
