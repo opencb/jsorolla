@@ -272,18 +272,16 @@ export default class ProjectUpdate extends LitElement {
                                     title: "URL",
                                     field: "cellbase.url",
                                     type: "input-text",
-                                    display: {
-                                        placeholder: "Add an URL",
-
-                                    }
                                 },
                                 {
                                     title: "Version",
                                     field: "cellbase.version",
                                     type: "input-text",
-                                    display: {
-                                        placeholder: "Add version",
-                                    }
+                                },
+                                {
+                                    title: "Data Release",
+                                    field: "cellbase.dataRelease",
+                                    type: "input-text",
                                 },
                             ]
                         },

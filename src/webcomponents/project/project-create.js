@@ -54,17 +54,17 @@ export default class ProjectCreate extends LitElement {
     }
 
     #initOriginalObject() {
-        this.project = {
+        this._project = {
             organism: {
                 scientificName: "Homo sapiens",
                 assembly: "GRCh38",
             },
             cellbase: {
                 url: "https://ws.zettagenomics.com/cellbase",
-                version: "v5.8"
+                version: "v5.8",
+                dataRelease: "8"
             }
         };
-        this._project = UtilsNew.objectClone(this.project);
     }
 
     #setLoading(value) {
@@ -194,7 +194,7 @@ export default class ProjectCreate extends LitElement {
                                     field: "cellbase.url",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add an URL",
+                                        placeholder: "Add CellBase server URL",
                                     }
                                 },
                                 {
@@ -205,6 +205,13 @@ export default class ProjectCreate extends LitElement {
                                     defaultValue: "v5.8",
                                     display: {
                                         // placeholder: "Add version"
+                                    }
+                                },
+                                {
+                                    title: "Data Release",
+                                    field: "cellbase.dataRelease",
+                                    type: "input-text",
+                                    display: {
                                     }
                                 },
                             ]
