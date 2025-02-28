@@ -21,6 +21,7 @@ import "./study-admin-permissions.js";
 import "./study-admin-variable.js";
 import "./study-admin-audit.js";
 import "./study-admin-configuration.js";
+import "../../variant/operation/variant-setup-operation.js";
 import "../../variant/operation/clinical-analysis-configuration-update.js";
 import "../../variant/operation/variant-secondary-sample-index-configure-operation.js";
 import "../../commons/view/vertical-menu.js";
@@ -139,6 +140,17 @@ export default class StudyAdmin extends LitElement {
                     name: "Variant Configuration",
                     description: "",
                     submenu: [
+                        {
+                            id: "variant-setup",
+                            name: "Variant Setup",
+                            icon: "fas fa-cog",
+                            render: opencgaSession => html`
+                                <variant-setup-operation
+                                    .toolParams="${{study: opencgaSession.study.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-setup-operation>
+                            `,
+                        },
                         {
                             id: "clinical-analysis-configuration-operation",
                             name: "Clinical Analysis Configuration",
