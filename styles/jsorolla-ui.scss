@@ -299,3 +299,10 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
 // .bootstrap-table .pagination-info {
 //     font-size: 12px;
 // }
+
+// Terrible hack to remove the fixed max-width of 280px of the qtip tooltip
+@supports selector(:has(*)) {
+    .qtip:has(.population-freq-tooltip) {
+        max-width: 500px !important;
+    }
+}

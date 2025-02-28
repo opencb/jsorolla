@@ -514,14 +514,13 @@ export default class UserAdminGrid extends LitElement {
         }
     }
 
-    onUserUpdate(e, id) {
-        ModalUtils.close(id);
+    onUserUpdate() {
+        this.changeActiveActionModal("");
         this.renderRemoteTable();
     }
 
     onUserCreate() {
-        // Close modal
-        ModalUtils.close(this.toolbarConfig.create.modalId);
+        this.changeActiveActionModal("");
     }
 
     onCloseNotification() {
@@ -669,10 +668,7 @@ export default class UserAdminGrid extends LitElement {
                         modalDraggable: true,
                         modalCyDataName: "modal-create",
                         modalSize: "modal-lg"
-                        // disabled: true,
-                        // disabledTooltip: "...",
                     },
-                    // modalId: `${this._prefix}CreateUserModal`,
                     render: () => html `
                         <user-admin-create
                             .organization="${this.organization}"
@@ -697,7 +693,7 @@ export default class UserAdminGrid extends LitElement {
                                 .organization="${this.organization}"
                                 .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
                                 .opencgaSession="${this.opencgaSession}"
-                                @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}UpdateDetailsModal`)}">
+                                @userUpdate="${e => this.onUserUpdate(e)}">
                             </user-admin-details-update>
                         `;
                     }
@@ -728,7 +724,7 @@ export default class UserAdminGrid extends LitElement {
                             .organization="${this.organization}"
                             .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top", userStatus: this._config.userStatus}}"
                             .opencgaSession="${this.opencgaSession}"
-                            @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ChangeStatusModal`)}">
+                            @userUpdate="${e => this.onUserUpdate(e)}">
                         </user-admin-status-update>
                     `,
                 };
@@ -749,7 +745,7 @@ export default class UserAdminGrid extends LitElement {
                             .action="${isAdmin ? "REMOVE" : "ADD"}"
                             .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top", buttonClearText: ""}}"
                             .opencgaSession="${this.opencgaSession}"
-                            @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ChangeAdminModal`)}">
+                            @userUpdate="${e => this.onUserUpdate(e)}">
                         </user-admin-admins-change>
                     `,
                 };
