@@ -59,6 +59,25 @@ export default class StudyAdminIva extends LitElement {
         super.update(changedProperties);
     }
 
+    formatToolTitle(str) {
+        if (typeof str !== "string") {
+            return "";
+        }
+
+        let title = str
+            .trim()
+            .toLowerCase()
+            .split("_")
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+
+        // CAUTION 20250228 Vero: The code was designed for formatting the tool names
+        //  from the tool keys in browser.settings.js for consistency. We have planned a discussion for unifying tool names.
+        //  I am pretty sure that a change on the name in settings, won't affect the application,
+        //  but since it is a delicate tool, I prefer to go for this awful workaround and do it properly in 3.1
+        return (title === "Clinical Analysis Browser") ? "Clinical Analysis Portal" : title;
+    }
+
     render() {
         const isOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, this.opencgaSession?.user?.id);
         const isAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
@@ -137,7 +156,7 @@ export default class StudyAdminIva extends LitElement {
                         const toolSettings = this.settings[toolName];
                         return {
                             id: toolGroup.id + "-" + toolName.toLowerCase(),
-                            name: UtilsNew.capitalize(toolName.toLowerCase().replace(/_/g, " ")),
+                            name: this.formatToolTitle(toolName),
                             render: opencgaSession => html`
                                 <tool-settings-update
                                     .opencgaSession="${opencgaSession}"
