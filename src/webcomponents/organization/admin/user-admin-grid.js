@@ -333,7 +333,7 @@ export default class UserAdminGrid extends LitElement {
                 id: "actions",
                 title: "",
                 field: "actions",
-                formatter: () => `
+                formatter: (value, row) => `
                     <div class="d-flex justify-content-end align-items-center">
                         <div class="dropdown d-flex justify-content-end">
                             <button class="btn" data-bs-toggle="dropdown">
@@ -354,9 +354,26 @@ export default class UserAdminGrid extends LitElement {
                                     <i class="fas fa-sign-in-alt me-1"></i>
                                     <span>Change Status</span>
                                 </a>
+                                <!--
                                 <a data-action="change-admin" class="dropdown-item ${OpencgaCatalogUtils.isOrganizationAdmin(this.organization, this.opencgaSession.user.id) ? "cursor-pointer" : "disabled"}">
                                     <i class="fas fa-user-plus me-1"></i>
                                     <span>Add as Admin</span>
+                                </a>
+                                -->
+                                <a data-action="change-admin"
+                                   class="dropdown-item ${OpencgaCatalogUtils.isOrganizationAdmin(this.organization, this.opencgaSession.user.id) ? "" : "disabled"}}"
+                                   style="cursor:pointer;">
+                                   <div class="d-flex align-items-center">
+                                        ${this.opencgaSession.organization.admins.includes(row.id) ? `
+                                            <!-- If the user is admin, enable action REMOVE -->
+                                            <div class="" style="margin-right: 10px"><i class="fas fa-user-minus" aria-hidden="true"></i></div>
+                                            <div class="me-4">Remove as Admin...</div>
+                                        ` : `
+                                            <!-- If the user is admin, enable action ADD -->
+                                            <div class="" style="margin-right: 10px"><i class="fas fa-user-plus" aria-hidden="true"></i></div>
+                                            <div class="me-4">Add as Admin...</div>
+                                        `}
+                                   </div>
                                 </a>
                                 <hr class="dropdown-divider">
                                 <a data-action="delete" class="dropdown-item disabled" style="color: darkred">
