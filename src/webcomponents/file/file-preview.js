@@ -155,7 +155,11 @@ export default class FilePreview extends LitElement {
                     break;
                 case "JSON":
                     fileWithContent.contentType = "json";
-                    this.opencgaSession.opencgaClient.files().head(fileWithContent.id, params)
+                    this.opencgaSession.opencgaClient.files()
+                        .head(fileWithContent.id, {
+                            study: this.opencgaSession.study.fqn,
+                            lines: 1000,
+                        })
                         .then(response => {
                             const {content} = response.getResult(0);
                             try {
