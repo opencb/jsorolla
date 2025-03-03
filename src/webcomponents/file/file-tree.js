@@ -155,7 +155,7 @@ export default class FileTree extends LitElement {
         if (item.path !== this.currentPath) {
             if (item.path) {
                 // if the directory.path exists, it means that we have clicked on a directory
-                LitUtils.dispatchCustomEvent(this, "pathChange", item.path);
+                LitUtils.dispatchCustomEvent(this, "pathChange", item.path, item);
             } else {
                 // if the directory.path does not exist, it means that we have clicked on the root directory
                 LitUtils.dispatchCustomEvent(this, "pathClear");
