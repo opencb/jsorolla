@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/image-viewer.js";
 import "../commons/json-viewer.js";
+import "../commons/html-viewer.js";
 
 export default class FilePreview extends LitElement {
 
@@ -115,12 +116,6 @@ export default class FilePreview extends LitElement {
     }
 
     filesObserver() {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            includeIndividual: true,
-            lines: 200,
-        };
-
         this.filesWithContent = this.files.map(file => {
             return {...file};
         });
@@ -128,7 +123,9 @@ export default class FilePreview extends LitElement {
         for (const fileWithContent of this.filesWithContent) {
             let format = fileWithContent.format;
             if (format === "UNKNOWN") {
-                // split
+                if (fileWithContent.name.endsWith(".html")) {
+                    format = "HTML";
+                }
             }
 
             switch (format) {
@@ -137,7 +134,11 @@ export default class FilePreview extends LitElement {
                 case "UNKNOWN":
                 case "TAB_SEPARATED_VALUES":
                     fileWithContent.contentType = "text";
-                    this.opencgaSession.opencgaClient.files().head(fileWithContent.id, params)
+                    this.opencgaSession.opencgaClient.files()
+                        .head(fileWithContent.id, {
+                            study: this.opencgaSession.study.fqn,
+                            lines: 200,
+                        })
                         .then(response => {
                             const {format, content} = response.getResult(0);
                             this.format = format;
@@ -152,7 +153,11 @@ export default class FilePreview extends LitElement {
                     break;
                 case "JSON":
                     fileWithContent.contentType = "json";
-                    this.opencgaSession.opencgaClient.files().head(fileWithContent.id, params)
+                    this.opencgaSession.opencgaClient.files()
+                        .head(fileWithContent.id, {
+                            study: this.opencgaSession.study.fqn,
+                            lines: 1000,
+                        })
                         .then(response => {
                             const {content} = response.getResult(0);
                             try {
@@ -170,7 +175,10 @@ export default class FilePreview extends LitElement {
                     break;
                 case "BAM":
                     fileWithContent.contentType = "json";
-                    this.opencgaSession.opencgaClient.files().info(fileWithContent.id, {study: this.opencgaSession.study.fqn})
+                    this.opencgaSession.opencgaClient.files()
+                        .info(fileWithContent.id, {
+                            study: this.opencgaSession.study.fqn,
+                        })
                         .then(response => {
                             const {attributes} = response.getResult(0);
                             fileWithContent.content = attributes?.alignmentHeader ?? {content: "No content"};
@@ -179,9 +187,27 @@ export default class FilePreview extends LitElement {
                     break;
                 case "IMAGE":
                     fileWithContent.contentType = "image";
-                    this.opencgaSession.opencgaClient.files().image(fileWithContent.id, {study: this.opencgaSession.study.fqn})
+                    this.opencgaSession.opencgaClient.files()
+                        .image(fileWithContent.id, {
+                            study: this.opencgaSession.study.fqn,
+                        })
                         .then(response => {
                             fileWithContent.content = response.responses[0].results[0].content;
+                            this.requestUpdate();
+                        })
+                        .catch(response => {
+                            console.error(response);
+                        });
+                    break;
+                case "HTML":
+                    fileWithContent.contentType = "html";
+                    this.opencgaSession.opencgaClient.files()
+                        .download(fileWithContent.id, {
+                            study: this.opencgaSession.study.fqn,
+                        })
+                        .then(response => {
+                            // NOTE: this endpoint just returns the file content as a response string
+                            fileWithContent.content = response;
                             this.requestUpdate();
                         })
                         .catch(response => {
@@ -196,16 +222,12 @@ export default class FilePreview extends LitElement {
     }
 
     render() {
+        if (!this.filesWithContent || this.filesWithContent?.length === 0) {
+            return nothing;
+        }
+
         return html`
             <style>
-                .section-title {
-                    border-bottom: 2px solid #eee;
-                }
-                .label-title {
-                    text-align: left;
-                    padding-left: 5px;
-                    padding-right: 10px;
-                }
                 pre.cmd {
                     background: black;
                     font-family: "Courier New", monospace;
@@ -216,39 +238,43 @@ export default class FilePreview extends LitElement {
                 }
             </style>
 
-            <div class="row">
-                <div class="col-md-12">
-                    ${this.filesWithContent?.length > 0 ? this.filesWithContent.map(fileWithContent => html`
+            <div class="d-flex flex-column gap-4">
+                ${this.filesWithContent.map(fileWithContent => html`
+                    <div>
                         ${this._config.showFileTitle ? html `
-                            <div style="margin: 25px 0 5px 0">
-                                <label>
-                                    <span style="padding-right:20px;">${fileWithContent.name}</span>
-                                    ${this._config.showFileSize ? html`
-                                        <span>${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
-                                    ` : null}
-                                </label>
+                            <div class="fw-bold mb-2">
+                                <span class="pe-3">${fileWithContent.name}</span>
+                                ${this._config.showFileSize ? html`
+                                    <span>${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
+                                ` : nothing}
                             </div>
-                        ` : null}
+                        ` : nothing}
 
                         ${fileWithContent.contentType === "unsupported" ? html`
                             <p class="alert alert-warning">${fileWithContent.content}</p>
-                        ` : null}
+                        ` : nothing}
                         ${fileWithContent.contentType === "text" ? html`
                             <pre class="cmd">${fileWithContent.content}</pre>
-                        ` : null}
+                        ` : nothing}
                         ${fileWithContent.contentType === "image" ? html`
                             <image-viewer
                                 .data="${fileWithContent.content}">
                             </image-viewer>
-                        ` : null}
+                        ` : nothing}
                         ${fileWithContent.contentType === "json" ? html`
                             <json-viewer
                                 .active="${this.active}"
                                 .data="${fileWithContent.content || {}}">
                             </json-viewer>
-                        ` : null}
-                    `) : null}
-                </div>
+                        ` : nothing}
+                        ${fileWithContent.contentType === "html" ? html`
+                            <html-viewer
+                                .active="${this.active}"
+                                .data="${fileWithContent.content}">
+                            </html-viewer>
+                        ` : nothing}
+                    </div>
+                `)}
             </div>
         `;
     }

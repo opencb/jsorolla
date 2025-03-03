@@ -163,7 +163,6 @@ export default class FileCreate extends LitElement {
                         {
                             title: "File Name",
                             field: "name",
-                            required: true,
                             type: "input-text",
                             required: true,
                             display: {
