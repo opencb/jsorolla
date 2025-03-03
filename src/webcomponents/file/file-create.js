@@ -148,21 +148,10 @@ export default class FileCreate extends LitElement {
             sections: [
                 {
                     elements: [
-                        // {
-                        //     title: "Type",
-                        //     field: "type",
-                        //     type: "input-text",
-                        //     required: true,
-                        //     display: {
-                        //         defaultValue: "FILE",
-                        //         disabled: true,
-                        //     },
-                        // },
                         {
                             title: "Path",
                             field: "path",
                             type: "input-text",
-                            // required: true,
                             display: {
                                 defaultValue: `/${this.path}`,
                                 disabled: true,
@@ -176,9 +165,10 @@ export default class FileCreate extends LitElement {
                             field: "name",
                             required: true,
                             type: "input-text",
+                            required: true,
                             display: {
                                 help: {
-                                    text: "Name of the file to be uploaded.",
+                                    text: "Name of the file to be uploaded (including extension).",
                                 },
                             }
                         },
