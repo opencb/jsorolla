@@ -178,10 +178,20 @@ export default class ProjectCreate extends LitElement {
                         {
                             name: "Species Assembly",
                             field: "organism.assembly",
-                            type: "input-text",
+                            type: "select",
                             required: true,
+                            allowedValues: data => {
+                                switch (data.organism.scientificName.toUpperCase()) {
+                                    case "HOMO SAPIENS":
+                                        return ["GRCh37", "GRCh38"];
+                                    case "MUS MUSCULUS":
+                                        return ["GRCm39"];
+                                    default:
+                                        return [];
+                                }
+                            },
                             display: {
-                                placeholder: "e.g. GRCh38",
+                                // placeholder: "e.g. GRCh38",
                             }
                         },
                         {
