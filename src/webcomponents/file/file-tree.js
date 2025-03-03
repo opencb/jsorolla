@@ -17,7 +17,7 @@ export default class FileTree extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            rootPath: {
+            rootDirectoryId: {
                 type: String,
             },
             currentPath: {
@@ -46,7 +46,7 @@ export default class FileTree extends LitElement {
             };
         }
 
-        if (changedProperties.has("opencgaSession") || changedProperties.has("rootPath")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("rootDirectoryId")) {
             this.opencgaSessionObserver();
         }
 
@@ -66,17 +66,17 @@ export default class FileTree extends LitElement {
         this._expandedDirectories = new Set();
 
         if (this.opencgaSession) {
-            this.fetchDirectory(this.rootPath || ":").then(() => {
+            this.fetchDirectory(this.rootDirectoryId || ":").then(() => {
                 this.requestUpdate();
             });
         }
     }
 
     currentPathObserver() {
-        const rootPath = this.rootPath || ":";
+        const rootDirectory = this.rootDirectoryId || ":";
         // if the current path have changed, make sure to fetch all the parent directories
         // and to include them in the directories map and the expanded directories set
-        if (this.currentPath && this.currentPath !== rootPath && !this._directories.has(this.currentPath)) {
+        if (this.currentPath && this.currentPath !== rootDirectory && !this._directories.has(this.currentPath)) {
             const paths = this.currentPath.split("/").filter(Boolean);
             const directoriesPromises = [];
             for (let i = 0; i < paths.length - 1; i++) {
@@ -215,14 +215,14 @@ export default class FileTree extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession || !this._directories.has(":")) {
+        if (!this.opencgaSession || this._directories.size === 0) {
             return nothing;
         }
 
         return html`
             <div class="d-flex flex-column gap-1 overflow-y-auto" style="${this._config.display.containerStyle}">
                 ${this.renderItem({name: this._config.rootDirectoryName}, this._config.rootDirectoryIcon, 0)}
-                ${this.renderTree(":", 0)}
+                ${this.renderTree(this.rootDirectoryId || ":", 0)}
             </div>
         `;
     }
