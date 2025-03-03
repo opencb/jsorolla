@@ -76,9 +76,8 @@ export default class JobResult extends LitElement {
     }
 
     jobIdObserver() {
-        this.job = null;
-
         if (this.jobId && this.opencgaSession) {
+            this.job = null;
             this.#setLoading(true);
             this.opencgaSession.opencgaClient.jobs()
                 .info(this.jobId, {
