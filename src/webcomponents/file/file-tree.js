@@ -17,6 +17,9 @@ export default class FileTree extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            rootPath: {
+                type: String,
+            },
             currentPath: {
                 type: String,
             },
@@ -43,7 +46,7 @@ export default class FileTree extends LitElement {
             };
         }
 
-        if (changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("rootPath")) {
             this.opencgaSessionObserver();
         }
 
@@ -63,16 +66,17 @@ export default class FileTree extends LitElement {
         this._expandedDirectories = new Set();
 
         if (this.opencgaSession) {
-            this.fetchDirectory(":").then(() => {
+            this.fetchDirectory(this.rootPath || ":").then(() => {
                 this.requestUpdate();
             });
         }
     }
 
     currentPathObserver() {
+        const rootPath = this.rootPath || ":";
         // if the current path have changed, make sure to fetch all the parent directories
         // and to include them in the directories map and the expanded directories set
-        if (this.currentPath && this.currentPath !== ":" && !this._directories.has(this.currentPath)) {
+        if (this.currentPath && this.currentPath !== rootPath && !this._directories.has(this.currentPath)) {
             const paths = this.currentPath.split("/").filter(Boolean);
             const directoriesPromises = [];
             for (let i = 0; i < paths.length - 1; i++) {
