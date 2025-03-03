@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/image-viewer.js";
 import "../commons/json-viewer.js";
+import "../commons/html-viewer.js";
 
 export default class FilePreview extends LitElement {
 
@@ -128,7 +129,9 @@ export default class FilePreview extends LitElement {
         for (const fileWithContent of this.filesWithContent) {
             let format = fileWithContent.format;
             if (format === "UNKNOWN") {
-                // split
+                if (fileWithContent.name.endsWith(".html")) {
+                    format = "HTML";
+                }
             }
 
             switch (format) {
@@ -182,6 +185,21 @@ export default class FilePreview extends LitElement {
                     this.opencgaSession.opencgaClient.files().image(fileWithContent.id, {study: this.opencgaSession.study.fqn})
                         .then(response => {
                             fileWithContent.content = response.responses[0].results[0].content;
+                            this.requestUpdate();
+                        })
+                        .catch(response => {
+                            console.error(response);
+                        });
+                    break;
+                case "HTML":
+                    fileWithContent.contentType = "html";
+                    this.opencgaSession.opencgaClient.files()
+                        .download(fileWithContent.id, {
+                            study: this.opencgaSession.study.fqn,
+                        })
+                        .then(response => {
+                            // NOTE: this endpoint just returns the file content as a response string
+                            fileWithContent.content = response;
                             this.requestUpdate();
                         })
                         .catch(response => {
@@ -247,6 +265,12 @@ export default class FilePreview extends LitElement {
                                 .data="${fileWithContent.content || {}}">
                             </json-viewer>
                         ` : null}
+                        ${fileWithContent.contentType === "html" ? html`
+                            <html-viewer
+                                .active="${this.active}"
+                                .data="${fileWithContent.content}">
+                            </html-viewer>
+                        ` : nothing}
                     `) : null}
                 </div>
             </div>
