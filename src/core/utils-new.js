@@ -627,7 +627,7 @@ export default class UtilsNew {
         // merge detail tab
         // it doesn't check for external.details.length and external.hiddenDetails.length because it supports empty array
         if (detail?.items) {
-            if (external?.details || external?.hiddenDetails) {
+            if (external?.details?.length > 0 || external?.hiddenDetails) {
                 detail.items = UtilsNew.mergeArray(internal.detail.items, external.details || external.hiddenDetails, !!external.hiddenDetails);
             }
         }

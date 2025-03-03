@@ -108,6 +108,7 @@ export default class DataForm extends LitElement {
 
     getValue(field, object = this.data, defaultValue, display) {
         let value;
+        debugger
         if (field) {
             // If field contains [] means the element type is object-list,
             // we need to get the value from the array, information is encoded as:
@@ -363,7 +364,7 @@ export default class DataForm extends LitElement {
 
     _getVisibleSections() {
         return this.config.sections
-            .filter(section => section.elements[0].type !== "notification" || section.elements.length > 1)
+            .filter(section => section.elements[0]?.type !== "notification" || section.elements.length > 1)
             .filter(section => this._getBooleanValue(section?.display?.visible, true));
     }
 
@@ -1195,8 +1196,7 @@ export default class DataForm extends LitElement {
         switch (contentLayout) {
             case "horizontal":
                 content = `
-                    ${values
-                    .map((elem, index) => `
+                    ${values.map((elem, index) => `
                         <span style="${styles[elem]}">${elem}</span>
                         <span>${index < values.length - 1 ? separators[index] ?? ", " : ""}</span>
                     `)
@@ -1205,9 +1205,8 @@ export default class DataForm extends LitElement {
                 break;
             case "vertical":
                 content = `
-                    ${values
-                    .map((elem, index) => `
-                        <div><span style="${styles[elem]}">${elem}</span></div>
+                    ${values.map((elem, index) => `
+                        <div><span style="${styles[elem] || ""}">${elem}</span></div>
                         ${separators[index] ? `<div>${separators[index]}</div>` : ""}
                     `)
                     .join("")
@@ -1561,7 +1560,7 @@ export default class DataForm extends LitElement {
         }
     }
 
-    _createDownloadElement(element) {
+     _createDownloadElement(element) {
         const content = html`
             <download-button
                 .json="${this.data}"

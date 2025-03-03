@@ -126,7 +126,12 @@ export default class FilePreview extends LitElement {
         });
 
         for (const fileWithContent of this.filesWithContent) {
-            switch (fileWithContent?.format) {
+            let format = fileWithContent.format;
+            if (format === "UNKNOWN") {
+                // split
+            }
+
+            switch (format) {
                 case "PLAIN":
                 case "VCF":
                 case "UNKNOWN":
