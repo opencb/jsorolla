@@ -36,6 +36,13 @@ export default class FileTree extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+        }
+
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
@@ -46,13 +53,6 @@ export default class FileTree extends LitElement {
 
         if (changedProperties.has("lastCreatedPath")) {
             this.lastCreatedPathObserver();
-        }
-
-        if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
         }
 
         super.update(changedProperties);
@@ -114,13 +114,16 @@ export default class FileTree extends LitElement {
             .tree(directoryId, {
                 study: this.opencgaSession.study.fqn,
                 maxDepth: 1,
-                include: "id,name,path",
+                include: "id,name,path,type",
             })
             .then(response => {
-                const subDirectories = (response.responses?.[0]?.results?.[0]?.children || [])
-                    .filter(child => child.file.type.toUpperCase() === "DIRECTORY")
-                    .map(child => child.file);
-                this._directories.set(directoryId, subDirectories);
+                const content = (response.responses?.[0]?.results?.[0]?.children || [])
+                    .filter(child => {
+                        // if config.showFiles is false, we only show directories
+                        return this._config.showFiles || child.file.type.toUpperCase() === "DIRECTORY";
+                    });
+                    // .map(child => child.file);
+                this._directories.set(directoryId, content);
             })
             .catch(error => {
                 console.error(error);
@@ -128,25 +131,27 @@ export default class FileTree extends LitElement {
     }
 
     onExpandCollapseDirectory(directory) {
-        if (this._expandedDirectories.has(directory.id)) {
-            this._expandedDirectories.delete(directory.id);
-        } else {
-            this._expandedDirectories.add(directory.id);
+        if (directory.type === "DIRECTORY") {
+            if (this._expandedDirectories.has(directory.id)) {
+                this._expandedDirectories.delete(directory.id);
+            } else {
+                this._expandedDirectories.add(directory.id);
+            }
+            // check if we have to fetch this directory
+            if (!this._directories.has(directory.id)) {
+                this.fetchDirectory(directory.id).then(() => {
+                    this.requestUpdate();
+                });
+            }
+            this.requestUpdate();
         }
-        // check if we have to fetch this directory
-        if (!this._directories.has(directory.id)) {
-            this.fetchDirectory(directory.id).then(() => {
-                this.requestUpdate();
-            });
-        }
-        this.requestUpdate();
     }
 
-    onClickDirectory(directory) {
-        if (directory.path !== this.currentPath) {
-            if (directory.path) {
+    onClickItem(item) {
+        if (item.path !== this.currentPath) {
+            if (item.path) {
                 // if the directory.path exists, it means that we have clicked on a directory
-                LitUtils.dispatchCustomEvent(this, "pathChange", directory.path);
+                LitUtils.dispatchCustomEvent(this, "pathChange", item.path);
             } else {
                 // if the directory.path does not exist, it means that we have clicked on the root directory
                 LitUtils.dispatchCustomEvent(this, "pathClear");
@@ -154,38 +159,55 @@ export default class FileTree extends LitElement {
         }
     }
 
-    renderDirectoryItem(directory, icon, indent = 0) {
-        const active = this.currentPath === directory.path || (!directory.path && !this.currentPath);
+    renderItem(item, icon, indent = 0) {
+        const active = this.currentPath === item.path || (!item.path && !this.currentPath);
+        const style = `opacity: ${item.type === "DIRECTORY" ? "1" : "0"};`; // terrible hack to keep the same width for all the items
         return html`
             <div class="d-flex align-items-center p-2 rounded-2 user-select-none ${active ? "bg-primary text-white" : "hover:bg-gray-200"}">
                 <div class="flex-shrink-0" style="width: ${indent * 10}px"></div>
-                ${directory.id ? html`
-                    <div class="flex-shrink-0 d-flex cursor-pointer px-2" @click="${() => this.onExpandCollapseDirectory(directory)}">
-                        <i class="fas ${this._expandedDirectories.has(directory.id) ? "fa-angle-down" : "fa-angle-right"} fs-7"></i>
+                ${item.id ? html`
+                    <div class="flex-shrink-0 d-flex cursor-pointer px-2" style="${style}" @click="${() => this.onExpandCollapseDirectory(item)}">
+                        <i class="fas ${this._expandedDirectories.has(item.id) ? "fa-angle-down" : "fa-angle-right"} fs-7"></i>
                     </div>
                 ` : nothing}
                 <div
                     class="d-flex flex-shrink-1 align-items-center gap-2 cursor-pointer"
                     style="min-width:0;"
-                    @click="${() => this.onClickDirectory(directory)}"
-                    @dblclick="${() => this.onExpandCollapseDirectory(directory)}">
+                    @click="${() => this.onClickItem(item)}"
+                    @dblclick="${() => this.onExpandCollapseDirectory(item)}">
                     <i class="fas ${icon} fs-5"></i>
-                    <span class="lh-1 text-truncate" title="${directory.name}">
-                        ${directory.name}
+                    <span class="lh-1 text-truncate" title="${item.name}">
+                        ${item.name}
                     </span>
                 </div>
             </div>
         `;
     }
 
-    renderTree(directoryId, indent = 0) {
-        return (this._directories.get(directoryId) || []).map(directory => {
-            const isExpanded = this._expandedDirectories.has(directory.id);
+    renderDirectories(directoriesList, indent) {
+        return directoriesList.map(item => {
+            const isExpanded = this._expandedDirectories.has(item.file.id);
             return html`
-                ${this.renderDirectoryItem(directory, isExpanded ? "fa-folder-open" : "fa-folder", indent)}
-                ${isExpanded ? this.renderTree(directory.id, indent + 1) : nothing}
+                ${this.renderItem(item.file, isExpanded ? "fa-folder-open" : "fa-folder", indent)}
+                ${isExpanded ? this.renderTree(item.file.id, indent + 1) : nothing}
             `;
         });
+    }
+
+    renderFiles(filesList, indent) {
+        return filesList.map(item => {
+            return this.renderItem(item.file, "fa-file", indent);
+        });
+    }
+
+    renderTree(directoryId, indent = 0) {
+        const content = this._directories.get(directoryId) || [];
+        const filesList = content.filter(child => child.file.type.toUpperCase() === "FILE");
+        const directoriesList = content.filter(child => child.file.type.toUpperCase() === "DIRECTORY");
+        return html`
+            ${this.renderDirectories(directoriesList, indent)}
+            ${this.renderFiles(filesList, indent)}
+        `;
     }
 
     render() {
@@ -195,7 +217,7 @@ export default class FileTree extends LitElement {
 
         return html`
             <div class="d-flex flex-column gap-1 overflow-y-auto" style="${this._config.display.containerStyle}">
-                ${this.renderDirectoryItem({name: this._config.rootDirectoryName}, "fa-hdd", 0)}
+                ${this.renderItem({name: this._config.rootDirectoryName}, this._config.rootDirectoryIcon, 0)}
                 ${this.renderTree(":", 0)}
             </div>
         `;
@@ -207,6 +229,8 @@ export default class FileTree extends LitElement {
                 containerStyle: "max-height:700px",
             },
             rootDirectoryName: "DATA",
+            rootDirectoryIcon: "fa-hdd",
+            showFiles: false,
         };
     }
 
