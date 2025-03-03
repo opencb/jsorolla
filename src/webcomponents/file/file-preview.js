@@ -154,23 +154,22 @@ export default class FilePreview extends LitElement {
                 case "JSON":
                     fileWithContent.contentType = "json";
                     this.opencgaSession.opencgaClient.files()
-                        .head(fileWithContent.id, {
+                        .download(fileWithContent.id, {
                             study: this.opencgaSession.study.fqn,
-                            lines: 1000,
                         })
                         .then(response => {
-                            const {content} = response.getResult(0);
                             try {
-                                fileWithContent.content = JSON.parse(content);
-                            } catch (e) {
-                                fileWithContent.content = {content: "Error parsing data from the Server"};
+                                fileWithContent.content = JSON.parse(response);
+                            } catch (error) {
+                                console.error(error);
+                                fileWithContent.content = {
+                                    content: "Error parsing data from the Server",
+                                };
                             }
                             this.requestUpdate();
                         })
                         .catch(response => {
                             console.error(response);
-                            this.content = response.getEvents("ERROR").map(_ => _.message).join("\n");
-                            this.requestUpdate();
                         });
                     break;
                 case "BAM":
