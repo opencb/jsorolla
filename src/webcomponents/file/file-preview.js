@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/image-viewer.js";
 import "../commons/json-viewer.js";
@@ -243,35 +243,35 @@ export default class FilePreview extends LitElement {
                                     <span style="padding-right:20px;">${fileWithContent.name}</span>
                                     ${this._config.showFileSize ? html`
                                         <span>${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
-                                    ` : null}
+                                    ` : nothing}
                                 </label>
                             </div>
-                        ` : null}
+                        ` : nothing}
 
                         ${fileWithContent.contentType === "unsupported" ? html`
                             <p class="alert alert-warning">${fileWithContent.content}</p>
-                        ` : null}
+                        ` : nothing}
                         ${fileWithContent.contentType === "text" ? html`
                             <pre class="cmd">${fileWithContent.content}</pre>
-                        ` : null}
+                        ` : nothing}
                         ${fileWithContent.contentType === "image" ? html`
                             <image-viewer
                                 .data="${fileWithContent.content}">
                             </image-viewer>
-                        ` : null}
+                        ` : nothing}
                         ${fileWithContent.contentType === "json" ? html`
                             <json-viewer
                                 .active="${this.active}"
                                 .data="${fileWithContent.content || {}}">
                             </json-viewer>
-                        ` : null}
+                        ` : nothing}
                         ${fileWithContent.contentType === "html" ? html`
                             <html-viewer
                                 .active="${this.active}"
                                 .data="${fileWithContent.content}">
                             </html-viewer>
                         ` : nothing}
-                    `) : null}
+                    `) : nothing}
                 </div>
             </div>
         `;
