@@ -43,7 +43,7 @@ export default class HtmlViewer extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("data") || changedProperties.has("active")) {
-            if (this.active) {
+            if (this.active && this.data) {
                 const iframeElement = this.querySelector("iframe");
                 iframeElement.contentWindow.document.open();
                 iframeElement.contentWindow.document.write(this.data || "");
