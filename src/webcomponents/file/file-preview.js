@@ -116,12 +116,6 @@ export default class FilePreview extends LitElement {
     }
 
     filesObserver() {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            includeIndividual: true,
-            lines: 200,
-        };
-
         this.filesWithContent = this.files.map(file => {
             return {...file};
         });
@@ -140,7 +134,11 @@ export default class FilePreview extends LitElement {
                 case "UNKNOWN":
                 case "TAB_SEPARATED_VALUES":
                     fileWithContent.contentType = "text";
-                    this.opencgaSession.opencgaClient.files().head(fileWithContent.id, params)
+                    this.opencgaSession.opencgaClient.files()
+                        .head(fileWithContent.id, {
+                            study: this.opencgaSession.study.fqn,
+                            lines: 200,
+                        })
                         .then(response => {
                             const {format, content} = response.getResult(0);
                             this.format = format;
@@ -177,7 +175,10 @@ export default class FilePreview extends LitElement {
                     break;
                 case "BAM":
                     fileWithContent.contentType = "json";
-                    this.opencgaSession.opencgaClient.files().info(fileWithContent.id, {study: this.opencgaSession.study.fqn})
+                    this.opencgaSession.opencgaClient.files()
+                        .info(fileWithContent.id, {
+                            study: this.opencgaSession.study.fqn,
+                        })
                         .then(response => {
                             const {attributes} = response.getResult(0);
                             fileWithContent.content = attributes?.alignmentHeader ?? {content: "No content"};
@@ -186,7 +187,10 @@ export default class FilePreview extends LitElement {
                     break;
                 case "IMAGE":
                     fileWithContent.contentType = "image";
-                    this.opencgaSession.opencgaClient.files().image(fileWithContent.id, {study: this.opencgaSession.study.fqn})
+                    this.opencgaSession.opencgaClient.files()
+                        .image(fileWithContent.id, {
+                            study: this.opencgaSession.study.fqn,
+                        })
                         .then(response => {
                             fileWithContent.content = response.responses[0].results[0].content;
                             this.requestUpdate();
