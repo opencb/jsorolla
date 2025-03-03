@@ -214,16 +214,12 @@ export default class FilePreview extends LitElement {
     }
 
     render() {
+        if (!this.filesWithContent || this.filesWithContent?.length === 0) {
+            return nothing;
+        }
+
         return html`
             <style>
-                .section-title {
-                    border-bottom: 2px solid #eee;
-                }
-                .label-title {
-                    text-align: left;
-                    padding-left: 5px;
-                    padding-right: 10px;
-                }
                 pre.cmd {
                     background: black;
                     font-family: "Courier New", monospace;
@@ -234,17 +230,15 @@ export default class FilePreview extends LitElement {
                 }
             </style>
 
-            <div class="row">
-                <div class="col-md-12">
-                    ${this.filesWithContent?.length > 0 ? this.filesWithContent.map(fileWithContent => html`
+            <div class="d-flex flex-column gap-4">
+                ${this.filesWithContent.map(fileWithContent => html`
+                    <div>
                         ${this._config.showFileTitle ? html `
-                            <div style="margin: 25px 0 5px 0">
-                                <label>
-                                    <span style="padding-right:20px;">${fileWithContent.name}</span>
-                                    ${this._config.showFileSize ? html`
-                                        <span>${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
-                                    ` : nothing}
-                                </label>
+                            <div class="fw-bold mb-2">
+                                <span class="pe-3">${fileWithContent.name}</span>
+                                ${this._config.showFileSize ? html`
+                                    <span>${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
+                                ` : nothing}
                             </div>
                         ` : nothing}
 
@@ -271,8 +265,8 @@ export default class FilePreview extends LitElement {
                                 .data="${fileWithContent.content}">
                             </html-viewer>
                         ` : nothing}
-                    `) : nothing}
-                </div>
+                    </div>
+                `)}
             </div>
         `;
     }
