@@ -108,7 +108,6 @@ export default class DataForm extends LitElement {
 
     getValue(field, object = this.data, defaultValue, display) {
         let value;
-        debugger
         if (field) {
             // If field contains [] means the element type is object-list,
             // we need to get the value from the array, information is encoded as:
