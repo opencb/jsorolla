@@ -3,6 +3,7 @@ import NotificationUtils from "../utils/notification-utils";
 import UtilsNew from "../../../core/utils-new";
 import "../filters/feature-filter.js";
 import "../filters/disease-panel-filter.js";
+import "../filters/catalog-search-autocomplete.js";
 import LitUtils from "../utils/lit-utils";
 
 export default class AnalysisUtils {
@@ -167,6 +168,22 @@ export default class AnalysisUtils {
                                 }
                             },
                         },
+                        // {
+                        //     title: "Depends on",
+                        //     field: "jobDependsOn",
+                        //     type: "custom",
+                        //     display: {
+                        //         placeholder: "Add job tags...",
+                        //         render: () => html`
+                        //             <catalog-search-autocomplete
+                        //                 .resource="${"JOB"}"
+                        //                 .opencgaSession="${this.opencgaSession}"
+                        //                 .config="${{multiple: false}}"
+                        //                 @filterChange="${e => this.onFilterChange(e)}">
+                        //             </catalog-search-autocomplete>
+                        //         `
+                        //     },
+                        // },
                         {
                             title: "Tags",
                             field: "jobTags",

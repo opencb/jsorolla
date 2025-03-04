@@ -22,6 +22,7 @@ import "../../variant/analysis/opencga-gatk-analysis.js";
 import "../../variant/analysis/bcftools-analysis.js";
 import "../../variant/analysis/variant-export-analysis.js";
 import "../../variant/analysis/opencga-variant-stats-exporter-analysis.js";
+import "../../variant/analysis/bcftools-analysis.js";
 import "../../variant/interpretation/variant-interpreter.js";
 import "../../workflow/analysis/workflow-analysis.js";
 
@@ -307,6 +308,15 @@ export default class AnalysisTools extends LitElement {
                                 <opencga-gatk-analysis
                                     .opencgaSession="${opencgaSession}">
                                 </opencga-gatk-analysis>
+                            `,
+                        },
+                        {
+                            id: "bcftools",
+                            name: "BCFtools",
+                            render: opencgaSession => html`
+                                <bcftools-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </bcftools-analysis>
                             `,
                         },
                     ],

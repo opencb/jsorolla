@@ -106,6 +106,7 @@ export default class VariantIndexOperation extends LitElement {
             calculateStats: this.toolParams.calculateStats || false,
             annotate: this.toolParams.annotate || false,
             resume: this.toolParams.resume || false,
+            loadMultiFileData: this.toolParams.loadMultiFileData || true,
         };
         const params = {
             study: this.toolParams.study || this.opencgaSession.study.fqn,
@@ -216,6 +217,16 @@ export default class VariantIndexOperation extends LitElement {
                         display: {
                             help: {
                                 text: "Continue a variant file index that has failed"
+                            }
+                        }
+                    },
+                    {
+                        title: "Load MultiFile Data",
+                        field: "loadMultiFileData",
+                        type: "checkbox",
+                        display: {
+                            help: {
+                                text: "Load variants from multiple files"
                             }
                         }
                     },

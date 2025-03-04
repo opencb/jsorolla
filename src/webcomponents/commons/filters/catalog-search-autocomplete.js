@@ -300,7 +300,12 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 };
 
                 this.RESOURCES[this.resource].fetch(filters)
-                    .then(response => success(response))
+                    .then(response => {
+                        if (this._config.additionalValues?.length > 0) {
+                            this._config.additionalValues.forEach(v => response.responses[0].results.unshift(v));
+                        }
+                        success(response)
+                    })
                     .catch(error => failure(error));
             },
             preprocessResults(results) {
