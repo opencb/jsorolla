@@ -122,10 +122,11 @@ export default class FileFetch extends LitElement {
             });
     }
 
-
     render() {
         if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
         }
 
         return html`
@@ -135,7 +136,8 @@ export default class FileFetch extends LitElement {
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
-            </data-form>`;
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {

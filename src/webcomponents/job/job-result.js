@@ -116,7 +116,7 @@ export default class JobResult extends LitElement {
 
         return html`
             <div class="row">
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <file-tree
                         .opencgaSession="${this.opencgaSession}"
                         .rootDirectoryId="${this.job.outDir.id}"
@@ -129,7 +129,7 @@ export default class JobResult extends LitElement {
                         @pathChange="${event => this.onSelectFile(event)}">
                     </file-tree>
                 </div>
-                <div class="col-md-10">
+                <div class="col-md-9 ps-5">
                     ${this._selectedFile ? html`
                         <file-preview
                             .fileId="${this._selectedFile.id}"
