@@ -178,7 +178,7 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
                                     .value="${toolParams?.sample}"
                                     .resource="${"SAMPLE"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: true}}"
+                                    .config="${{multiple: true, additionalValues: [{id: "ALL"}]}}"
                                     @filterChange="${e => this.onFieldChange(e, "sample")}">
                                 </catalog-search-autocomplete>
                             `,
