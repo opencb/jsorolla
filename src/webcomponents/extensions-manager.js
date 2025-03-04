@@ -87,8 +87,9 @@ export default {
     },
 
     // Returns a list of custom columns for the specified component
-    // @param {array} columns - An array of columns where new columns will be injected
     // @param {string} componentId - ID of the component where this new column will be injected
+    // @param {object} opencgaSession - OpenCGA session object
+    // @param {array} columns - An array of columns where new columns will be injected
     // @param {function} checkColumnVisible: function to determine if column is visible or not
     // @param {function} getData: function to obtain custom data for columns
     // @return {array} columns - a list of columns configurations
