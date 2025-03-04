@@ -170,7 +170,7 @@ export default class FileTree extends LitElement {
             <div class="d-flex align-items-center p-2 rounded-2 user-select-none ${active ? "bg-primary text-white" : "hover:bg-gray-200"}">
                 <div class="flex-shrink-0" style="width: ${indent * 10}px"></div>
                 ${item.id ? html`
-                    <div class="flex-shrink-0 d-flex cursor-pointer px-2" style="${style}" @click="${() => this.onExpandCollapseDirectory(item)}">
+                    <div class="flex-shrink-0 d-flex px-2" style="${style}" @click="${() => this.onExpandCollapseDirectory(item)}">
                         <i class="fas ${this._expandedDirectories.has(item.id) ? "fa-angle-down" : "fa-angle-right"} fs-7"></i>
                     </div>
                 ` : nothing}
