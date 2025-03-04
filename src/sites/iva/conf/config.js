@@ -280,13 +280,6 @@ const SUITE = {
                     visibility: "public",
                     description: "Explore and manage all cohorts in the current study.",
                 },
-                {
-                    id: "file-manager",
-                    name: "File Manager",
-                    icon: "fa-folder",
-                    visibility: "public",
-                    description: "Manage your data in the cloud.",
-                },
             ],
         },
         {
@@ -384,6 +377,13 @@ const SUITE = {
                     icon: "fa-rocket",
                     visibility: "public",
                     description: "Explore and manage all jobs in the current study.",
+                },
+                {
+                    id: "file-manager",
+                    name: "File Manager",
+                    icon: "fa-folder",
+                    visibility: "public",
+                    description: "Manage your data in the cloud.",
                 },
             ],
         },

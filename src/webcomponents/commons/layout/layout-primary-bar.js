@@ -161,7 +161,7 @@ export default class LayoutPrimaryBar extends LitElement {
                             </a>
                         </div>
                         <div class="d-flex" title="File Manager">
-                            <a href="#research/file-manager" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
+                            <a href="#catalog/file-manager" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
                                 <i class="fas fa-folder lh-1"></i>
                             </a>
                         </div>
