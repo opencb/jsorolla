@@ -16,9 +16,11 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/image-viewer.js";
 import "../commons/json-viewer.js";
 import "../commons/html-viewer.js";
+import "../commons/pdf-viewer.js";
 
 export default class FilePreview extends LitElement {
 
@@ -125,6 +127,8 @@ export default class FilePreview extends LitElement {
             if (format === "UNKNOWN") {
                 if (fileWithContent.name.endsWith(".html")) {
                     format = "HTML";
+                } else if (fileWithContent.name.endsWith(".pdf")) {
+                    format = "PDF";
                 }
             }
 
@@ -213,6 +217,13 @@ export default class FilePreview extends LitElement {
                             console.error(response);
                         });
                     break;
+                case "PDF":
+                    // Josemi 20250304 NOTE: we can not fetch the content of the PDF file, as it is binary
+                    // we have to provide the fileId to the pdf-viewer component, so this component will use the pdf.js
+                    // library to fetch the file content and render it
+                    fileWithContent.contentType = "pdf";
+                    this.requestUpdate();
+                    break;
                 default:
                     fileWithContent.contentType = "unsupported";
                     fileWithContent.content = "Format not recognized: " + fileWithContent.format;
@@ -271,6 +282,13 @@ export default class FilePreview extends LitElement {
                                 .active="${this.active}"
                                 .data="${fileWithContent.content}">
                             </html-viewer>
+                        ` : nothing}
+                        ${fileWithContent.contentType === "pdf" ? html`
+                            <pdf-viewer
+                                .fileId="${fileWithContent.id}"
+                                .data="${fileWithContent.content}"
+                                .opencgaSession="${this.opencgaSession}">
+                            </pdf-viewer>
                         ` : nothing}
                     </div>
                 `)}
