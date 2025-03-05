@@ -251,14 +251,28 @@ export default class FilePreview extends LitElement {
             <div class="d-flex flex-column gap-4">
                 ${this.filesWithContent.map(fileWithContent => html`
                     <div>
-                        ${this._config.showFileTitle ? html `
-                            <div class="fw-bold mb-2">
-                                <span class="pe-3">${fileWithContent.name}</span>
-                                ${this._config.showFileSize ? html`
-                                    <span>${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
+                        <div class="d-flex align-items-center mb-2">
+                            <div>
+                                ${this._config.showFileTitle ? html `
+                                    <div class="">
+                                        <span class="fw-bold">${fileWithContent.name}</span>
+                                        ${this._config.showFileSize ? html`
+                                            <span>(${UtilsNew.getDiskUsage(fileWithContent.size)})</span>
+                                        ` : nothing}
+                                    </div>
+                                ` : nothing}
+                                ${this._config.showFilePath ? html`
+                                    <div class="text-muted">${fileWithContent.path}</div>
                                 ` : nothing}
                             </div>
-                        ` : nothing}
+                            ${this._config.showDownload ? html`
+                                <div class="ms-auto">
+                                    <a href="${OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, fileWithContent.id)}" target="_blank" class="btn btn-light">
+                                        <i class="fas fa-download pe-2"></i> Download
+                                    </a>
+                                </div>
+                            ` : nothing}
+                        </div>
 
                         ${fileWithContent.contentType === "unsupported" ? html`
                             <p class="alert alert-warning">${fileWithContent.content}</p>
@@ -300,6 +314,8 @@ export default class FilePreview extends LitElement {
         return {
             showFileTitle: true,
             showFileSize: true,
+            showFilePath: false,
+            showDownload: false,
         };
     }
 
