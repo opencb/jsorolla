@@ -59,6 +59,10 @@ module.exports = {
     entry: {
         "iva": "./src/sites/iva/iva-app.js",
         "test-app": "./src/sites/test-app/test-app.js",
+        "pdf-worker": {
+            import: path.join(__dirname, "node_modules/pdfjs-dist/build/pdf.worker.mjs"),
+            filename: "iva/js/pdf.worker.js",
+        },
     },
     output: {
         path: path.join(process.cwd(), "build"),
