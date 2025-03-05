@@ -115,6 +115,7 @@ export default class JobResult extends LitElement {
         }
 
         return html`
+            <h3 class="mb-3">Job Results Explorer</h3>
             <div class="row">
                 <div class="col-md-3">
                     <file-tree
@@ -134,7 +135,11 @@ export default class JobResult extends LitElement {
                         <file-preview
                             .fileId="${this._selectedFile.id}"
                             .active="${true}"
-                            .opencgaSession="${this.opencgaSession}">
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${{
+                                showFilePath: true,
+                                showDownload: true,
+                            }}">
                         </file-preview>
                     ` : html`
                         <div class="alert alert-info">
