@@ -137,11 +137,11 @@ export default class NoteBrowser extends LitElement {
                                 @noteUpdate="${e => params.onComponentUpdate(e, "note")}"
                                 @settingsUpdate="${() => this.onSettingsUpdate()}">
                             </note-grid>
-                            ${params?.detail?.note ? html`
+                            ${params?.detail ? html`
                                 <note-detail
+                                    .noteId="${params.detail?.id}"
+                                    .noteScope="${params?.detail?.scope}"
                                     .opencgaSession="${params.opencgaSession}"
-                                    .noteId="${params.detail?.note?.id}"
-                                    .noteScope="${params?.detail?.note?.scope}"
                                     .config="${params.config.filter.detail}">
                                 </note-detail>
                             ` : nothing}
@@ -175,7 +175,7 @@ export default class NoteBrowser extends LitElement {
                                             ${value === "organization" && !CatalogUtils.isOrganizationAdmin(opencgaSession.organization, opencgaSession.user.id) ? html`
                                                 <div class="alert alert-warning">
                                                     <span>You are allowd to see only <b>PUBLIC</b> notes fron current organization.</span>
-                                                </div>    
+                                                </div>
                                             ` : nothing}
                                             <div class="row">
                                                 <toggle-radio
@@ -193,7 +193,7 @@ export default class NoteBrowser extends LitElement {
                                 name: "Note ID",
                                 type: "string",
                                 render: (onFilterChange, query, opencgaSession) => {
-                                    const resource = query?.scope === "ORGANIZATION" ? "NOTE_ORGANIZATION" : "NOTE_STUDY";
+                                    const resource = query?.scope === "ORGANIZATION" || query?.scope === "NOTE_ORGANIZATION" ? "NOTE_ORGANIZATION" : "NOTE_STUDY";
                                     return html`
                                         <catalog-search-autocomplete
                                             .resource="${resource}"
@@ -205,11 +205,60 @@ export default class NoteBrowser extends LitElement {
                                 },
                             },
                             {
+                                id: "noteType",
+                                name: "Note Type",
+                                allowedValues: [
+                                    "VARIANT",
+                                    "GENE",
+                                    "TRANSCRIPT",
+                                    "PROTEIN",
+                                    "JOB",
+                                    "FILE",
+                                    "SAMPLE",
+                                    "INDIVIDUAL",
+                                    "FAMILY",
+                                    "COHORT",
+                                    "DISEASE_PANEL",
+                                    "CLINICAL_ANALYSIS",
+                                    "WORKFLOW",
+                                    "ORGANIZATION",
+                                    "OTHER",
+                                    "UNKNOWN",
+                                ],
+                                multiple: true,
+                                description: "",
+                            },
+                            {
                                 id: "visibility",
                                 name: "Visibility",
                                 allowedValues: ["PUBLIC", "PRIVATE"],
                                 multiple: true,
                                 description: ""
+                            },
+                            {
+                                id: "tags",
+                                name: "Tags",
+                                render: (onFilterChange, query, opencgaSession) => {
+                                    const resource = (query?.scope === "ORGANIZATION" || query?.scope === "NOTE_ORGANIZATION") ? "NOTE_ORGANIZATION" : "NOTE_STUDY";
+                                    const tagsFilterConfig = {
+                                        preprocessResults: results => {
+                                            return results.map(result => result.tags)
+                                                .flat()
+                                                .map(tag => ({id: tag}));
+                                        },
+                                    };
+                                    return html`
+                                        <catalog-search-autocomplete
+                                            .resource="${resource}"
+                                            .value="${query?.tags}"
+                                            .searchField="${"tags"}"
+                                            .query="${{include: "tags"}}"
+                                            .opencgaSession="${opencgaSession}"
+                                            .config="${tagsFilterConfig}"
+                                            @filterChange="${e => onFilterChange("tags", e.detail.value)}">
+                                        </catalog-search-autocomplete>
+                                    `;
+                                },
                             },
                             {
                                 id: "date",

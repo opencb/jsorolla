@@ -457,10 +457,10 @@ export default class DataForm extends LitElement {
                 <div class="${layoutClassName} ${className}" style="${style}">
                     ${this._getVisibleSections()
                         .map((section, index) => html`
-                        <div class="d-${this.activeSection === index ? "block": "none"}">
-                            ${this._createSection(section)}
-                        </div>
-                    `)}
+                            <div class="d-${this.activeSection === index ? "block": "none"}">
+                                ${this._createSection(section)}
+                            </div>
+                        `)}
                 </div>
             `;
         } else {
@@ -848,11 +848,15 @@ export default class DataForm extends LitElement {
 
     // Josemi 20220202 NOTE: this function was prev called _createInputTextElement
     _createInputElement(element, type, section) {
-        const value = this.getValue(element.field) || this._getDefaultValue(element, section);
+        let value = this.getValue(element.field) || this._getDefaultValue(element, section);
         const disabled = this._getBooleanValue(element.display?.disabled, false, element);
         const [min = undefined, max = undefined] = element.allowedValues || [];
         const step = element.step || "1";
         const rows = element.display && element.display.rows ? element.display.rows : 1;
+
+        // if (Array.isArray(value)) {
+        //     value = value.join(",");
+        // }
 
         const content = html`
             <text-field-filter
@@ -1216,8 +1220,8 @@ export default class DataForm extends LitElement {
                             <li><span style="${styles[elem]}">${elem}</span></li>
                              ${separators[index] ? `<div>${separators[index]}</div>` : ""}
                         `)
-                        .join("")
-                        }
+                    .join("")
+                }
                     </ul>
                 `;
                 break;
@@ -1587,7 +1591,7 @@ export default class DataForm extends LitElement {
                     <!-- 2. Todo: Render an icon -->
                     <!-- 3. Render -->
                     <div>
-                    ${element.display.search.render(data, object => this.onObjectChange(element, object, {action: "AUTOCOMPLETE"}))}
+                        ${element.display.search.render(data, object => this.onObjectChange(element, object, {action: "AUTOCOMPLETE"}))}
                     </div>
                 </div>
             `;
@@ -1679,14 +1683,26 @@ export default class DataForm extends LitElement {
             // border-warning is similar to darkorange
             const view = html`
                 <div class="pb-1 ${isUpdated? "pb-1 ps-3 mb-4 border-start border-2 border-updated" :""}">
-                    <span>No items found.</span>
+                    <span>${element.display?.itemsNotFoundText || "No items found."}</span>
                 </div>
             `;
             contents.push(view);
         } else {
             if (maxNumItems > 0) {
                 const view = html`
+                    ${element.display?.summary && items[0][element.display.itemId || "id"] ? html`
+                        <div>
+                            ${element.display.summary(this.data, items)}
+                        </div>
+                    ` : nothing}
+
                     <div class="pb-1 ${isUpdated? "pb-1 ps-3 mb-4 border-start border-2 border-updated" :""}">
+                        ${element.display?.itemsTitle && items[0][element.display.itemId || "id"] ? html`
+                            <div>
+                                <span class="fw-bold">${element.display?.itemsTitle || ""}</span>
+                            </div>
+                        ` : nothing}
+
                         ${items?.slice(0, maxNumItems)
                             .map((item, index) => {
                                 const _element = JSON.parse(JSON.stringify(element));
@@ -1727,14 +1743,14 @@ export default class DataForm extends LitElement {
                                             ${element.display.view(item)}
                                         </div>
                                         <div>
-                                            ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
+                                            ${this._getBooleanValue(element.display.showEditItemListButton, true) && items[0][element.display.itemId || "id"] ? html`
                                                 <button type="button" title="Edit item" class="btn btn-sm btn-primary"
                                                         ?disabled="${isDisabled}"
                                                         @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
                                                     <i aria-hidden="true" class="fas fa-edit"></i>
                                                 </button>` : nothing
                                             }
-                                            ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
+                                            ${this._getBooleanValue(element.display.showDeleteItemListButton, true) && items[0][element.display.itemId || "id"] ? html`
                                                 <button type="button" title="Remove item from list" class="btn btn-sm btn-danger"
                                                         ?disabled="${isDisabled}"
                                                         @click="${e => this.#removeFromObjectList(e, item, index, element)}">
@@ -1745,7 +1761,7 @@ export default class DataForm extends LitElement {
                                     </div>
                                     <!--FORM-->
                                     <div id="${element?.field}_${index}"
-                                        class="ms-2 ps-3 border-start border-2 border-new d-${index === this.editOpen ? "block" : "none"}">
+                                         class="ms-2 ps-3 border-start border-2 border-new d-${index === this.editOpen ? "block" : "none"}">
                                         ${this._createObjectElement(_element)}
                                         <div class="d-flex flex-row-reverse mb-1">
                                             <button type="button" class="btn btn-sm btn-primary"
@@ -1754,7 +1770,7 @@ export default class DataForm extends LitElement {
                                             </button>
                                         </div>
                                     </div>`;
-                    })
+                            })
                         }
                     </div>
 
@@ -1793,10 +1809,10 @@ export default class DataForm extends LitElement {
                                     ?disabled="${isDisabled}"
                                     @click="${e => this.#addToObjectList(e, element)}">
                                 <i aria-hidden="true" class="fas fa-plus pe-1"></i>
-                                Add Item
+                                ${element.display?.itemAddText || "Add Item"}
                             </button>`: nothing
                         }
-                        ${this._getBooleanValue(element.display.showAddBatchListButton, true) ? html`
+                        ${this._getBooleanValue(element.display.showAddBatchListButton, false) ? html`
                             <button type="button" class="btn btn-sm btn-primary"
                                     ?disabled="${isDisabled}"
                                     @click="${e => this.#toggleAddBatchToObjectList(e, element)}">
@@ -2287,7 +2303,7 @@ export default class DataForm extends LitElement {
 
             <!-- PREVIEW modal -->
             <div class="modal fade" id="${this._prefix}PreviewDataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}PreviewDataModalLabel"
-                aria-hidden="true">
+                 aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -2329,16 +2345,16 @@ export default class DataForm extends LitElement {
             <div>
                 <ul class="nav nav-tabs">
                     ${this._getVisibleSections()
-            .map((section, index) => {
-                const active = index === this.activeSection;
-                return html`
+                        .map((section, index) => {
+                            const active = index === this.activeSection;
+                            return html`
                                 <li class="nav-item ${active ? "show" : ""}" role="presentation">
                                     <a class="nav-link fw-bold" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
                                         ${section.title || ""}
                                     </a>
                                 </li>
                             `;
-            })}
+                        })}
                 </ul>
             </div>
             <!-- Render buttons at the TOP -->
@@ -2466,7 +2482,7 @@ export default class DataForm extends LitElement {
                 ` : nothing
                 }
                 <div class="modal fade" id="${modalId}" tabindex="-1" role="dialog"
-                    aria-labelledby="${this._prefix}DataModalLabel" aria-hidden="true">
+                     aria-labelledby="${this._prefix}DataModalLabel" aria-hidden="true">
                     <div class="modal-dialog ${modalSize}" style="width: ${modalWidth}">
                         <div class="modal-content">
                             <div class="modal-header">

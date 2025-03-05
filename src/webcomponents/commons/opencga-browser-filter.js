@@ -84,6 +84,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             "members": "INDIVIDUAL",
             "family": "FAMILY",
             "jobId": "JOB",
+            "workflow": "WORKFLOW",
             "input": "FILE",
             "output": "FILE",
         };
@@ -194,6 +195,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "family":
                 case "input":
                 case "jobId":
+                case "workflow":
                 case "output":
                     content = html`
                         <catalog-search-autocomplete
@@ -333,6 +335,20 @@ export default class OpencgaBrowserFilter extends LitElement {
                             .filterDate="${this.preparedQuery.dueDate}"
                             @filterChange="${e => this.onFilterChange("dueDate", e.detail.value)}">
                         </date-picker>
+                    `;
+                    break;
+                case "noteType":
+                    // Josemi Note 2024-12-11: the 'type' id is associated with the cohort's type and uses catalog-distinct-autocomplete
+                    // but for the note's type, we need to use select-field-filter as we have a fixed set of values
+                    content = html`
+                        <select-field-filter
+                            .value="${this.preparedQuery.type}"
+                            .data="${subsection.allowedValues || []}"
+                            .config="${{
+                                multiple: subsection?.multiple
+                            }}"
+                            @filterChange="${e => this.onFilterChange("type", e.detail.value)}">
+                        </select-field-filter>
                     `;
                     break;
                 default:

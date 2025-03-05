@@ -33,6 +33,7 @@ import "./annotation/variant-annotation-clinical-view.js";
 import "./annotation/variant-annotation-pharmacogenomics-view.js";
 import "./variant-cohort-stats.js";
 import "./variant-samples.js";
+import "./variant-notes.js";
 
 import "../visualization/genome-browser.js";
 
@@ -448,7 +449,6 @@ export default class VariantBrowser extends LitElement {
     }
 
     getDefaultConfig() {
-        // return BrowserConf.config;
         return {
             title: "Variant Browser",
             icon: "img/tools/icons/variant_browser.svg",
@@ -708,6 +708,17 @@ export default class VariantBrowser extends LitElement {
                                     .variantId="${variant.id}"
                                     .active="${active}">
                                 </variant-samples>
+                            `,
+                        },
+                        {
+                            id: "notes",
+                            name: "Notes",
+                            render: (variant, active, opencgaSession) => html`
+                                <variant-notes
+                                    .opencgaSession="${opencgaSession}"
+                                    .variant="${variant}"
+                                    .active="${active}">
+                                </variant-notes>
                             `,
                         },
                         {

@@ -299,6 +299,24 @@ export default class GwasAnalysis extends LitElement {
                                 text: "You must use this ID when filtering variants by GWAS scores"
                             }
                         },
+                    },
+                    {
+                        title: "Mode",
+                        field: "mode",
+                        type: "custom",
+                        defaultValue: "ADD",
+                        allowedValues: ["ADD", "SET"],
+                        display: {
+                            help: {
+                                text: "If 'ADD', the new scores will be added to the existing ones. If 'SET', the new scores will replace the existing ones"
+                            },
+                            render: (mode, dataFormFilterChange) => {
+                                return html`
+                                    <iframe src="https://samtools.github.io/bcftools/bcftools.html" width="100%" height="100px">
+                                    </iframe>
+                                `;
+                            }
+                        },
                     }
                 ]
             }

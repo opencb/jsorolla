@@ -26,7 +26,7 @@ const hosts = [
     },
     {
         id: "reference",
-        url: "https://test.app.zettagenomics.com/reference/opencga"
+        url: "https://test.app.zettagenomics.com/TASK-6445/opencga"
     },
 ];
 
@@ -100,9 +100,8 @@ const CATALOG_NAVBAR_MENU = {
         //     name: "Projects",
         //     visibility: "public"
         // },
-
         {
-            name: "Browsers",
+            name: "Metadata",
             category: true,
             id: "cat-catalog",
             visibility: "public"
@@ -151,8 +150,9 @@ const CATALOG_NAVBAR_MENU = {
             visibility: "public"
         },
         {
-            id: "clinicalAnalysis",
-            name: "Clinical Analysis Browser",
+            name: "Clinical",
+            category: true,
+            id: "cat-clinical",
             visibility: "public"
         },
         {
@@ -161,7 +161,23 @@ const CATALOG_NAVBAR_MENU = {
             visibility: "public"
         },
         {
+            id: "clinicalAnalysis",
+            name: "Clinical Analysis Browser",
+            visibility: "public"
+        },
+        {
             separator: true,
+            visibility: "public"
+        },
+        {
+            name: "Analysis",
+            category: true,
+            id: "cat-analysis",
+            visibility: "public"
+        },
+        {
+            id: "workflow",
+            name: "Workflow Browser",
             visibility: "public"
         },
         {
@@ -199,10 +215,16 @@ const SUITE = {
             {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
         ]
     },
-    jobMonitor: {
+    fileExplorer: {
         visibility: "private"
     },
-    fileExplorer: {
+    workflowManager: {
+        visibility: "private"
+    },
+    customToolAnalysisExecutor: {
+        visibility: "private"
+    },
+    jobMonitor: {
         visibility: "private"
     },
     restApi: {
@@ -347,6 +369,36 @@ const SUITE = {
                     icon: "img/tools/icons/aggregation.svg",
                     visibility: "public",
                     submenu: [
+                        {
+                            name: "Analysis Execution",
+                            category: true,
+                            visibility: "public"
+                        },
+                        {
+                            id: "tool-analysis",
+                            name: "Tool Executor",
+                            description: "",
+                            icon: "",
+                            visibility: "public"
+                        },
+                        {
+                            id: "custom-tool-builder",
+                            name: "Custom Tool Builder",
+                            description: "",
+                            icon: "",
+                            visibility: "public"
+                        },
+                        {
+                            id: "workflow-analysis",
+                            name: "Workflow Executor",
+                            description: "",
+                            icon: "",
+                            visibility: "public"
+                        },
+                        {
+                            separator: true,
+                            visibility: "public"
+                        },
                         {
                             name: "Summary Stats",
                             category: true,
@@ -551,6 +603,14 @@ const SUITE = {
                         {
                             id: "gatk",
                             name: "GATK",
+                            acronym: "GT",
+                            description: "",
+                            icon: "",
+                            visibility: "public"
+                        },
+                        {
+                            id: "bcftools",
+                            name: "BCFtools",
                             acronym: "GT",
                             description: "",
                             icon: "",
