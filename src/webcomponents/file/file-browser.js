@@ -97,20 +97,20 @@ export default class FileBrowser extends LitElement {
     }
 
     onTreePathChange(event, params) {
-        params.onQuerySearch({
-            detail: {
-                query: {
-                    ...params.executedQuery,
-                    path: "~^" + event.detail.value + ".+",
-                },
-            },
-        });
-    }
+        const query = {
+            ...params.executedQuery,
+        };
 
-    onTreePathClear(event, params) {
-        const query = {...params.executedQuery};
-        delete query.path;
-        delete query.directory;
+        // check if the path is empty --> in that case we have clicked in the root folder
+        // so we should remove the path from the query
+        if (!event.detail.value) {
+            delete query.path;
+            delete query.directory;
+        } else {
+            query.path = "~^" + event.detail.value + ".+";
+        }
+
+        // execute the onQuerySearch method of OpencgaBrowser
         params.onQuerySearch({
             detail: {
                 query: query,
@@ -153,10 +153,14 @@ export default class FileBrowser extends LitElement {
                             <div class="col-md-2 my-2">
                                 <file-tree
                                     .opencgaSession="${params.opencgaSession}"
+                                    .rootDirectoryId="${":"}"
                                     .currentPath="${params.executedQuery?.directory || (params.executedQuery?.path || "").slice(2, -2)}"
                                     .lastCreatedPath="${this._lastCreatedPath}"
-                                    @pathChange="${event => this.onTreePathChange(event, params)}"
-                                    @pathClear="${event => this.onTreePathClear(event, params)}">
+                                    .config="${{
+                                        rootDirectoryName: "DATA",
+                                        rootDirectoryIcon: "fa-hdd",
+                                    }}"
+                                    @pathChange="${event => this.onTreePathChange(event, params)}">
                                 </file-tree>
                             </div>
                             <div class="col-md-10">
