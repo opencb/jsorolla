@@ -33,6 +33,9 @@ export default class FileTree extends LitElement {
     }
 
     #init() {
+        this.rootDirectoryId = ":";
+
+        this._rootDirectory = null;
         this._directories = new Map();
         this._expandedDirectories = new Set();
         this._config = this.getDefaultConfig();
@@ -62,18 +65,19 @@ export default class FileTree extends LitElement {
     }
 
     opencgaSessionObserver() {
+        this._rootDirectory = null;
         this._directories = new Map();
         this._expandedDirectories = new Set();
 
-        if (this.opencgaSession) {
-            this.fetchDirectory(this.rootDirectoryId || ":").then(() => {
+        if (this.opencgaSession && this.rootDirectoryId) {
+            this.fetchDirectory(this.rootDirectoryId).then(() => {
                 this.requestUpdate();
             });
         }
     }
 
     currentPathObserver() {
-        const rootDirectory = this.rootDirectoryId || ":";
+        const rootDirectory = this.rootDirectoryId;
         // if the current path have changed, make sure to fetch all the parent directories
         // and to include them in the directories map and the expanded directories set
         if (this.currentPath && this.currentPath !== rootDirectory && !this._directories.has(this.currentPath)) {
@@ -128,6 +132,11 @@ export default class FileTree extends LitElement {
                     });
                     // .map(child => child.file);
                 this._directories.set(directoryId, content);
+
+                // make sure to save the root directory info
+                if (directoryId === this.rootDirectoryId) {
+                    this._rootDirectory = response.responses[0].results[0].file;
+                }
             })
             .catch(error => {
                 console.error(error);
@@ -153,25 +162,22 @@ export default class FileTree extends LitElement {
 
     onClickItem(item) {
         if (item.path !== this.currentPath) {
-            if (item.path) {
-                // if the directory.path exists, it means that we have clicked on a directory
-                LitUtils.dispatchCustomEvent(this, "pathChange", item.path, item);
-            } else {
-                // if the directory.path does not exist, it means that we have clicked on the root directory
-                LitUtils.dispatchCustomEvent(this, "pathClear");
-            }
+            LitUtils.dispatchCustomEvent(this, "pathChange", item.path, item);
         }
     }
 
     renderItem(item, icon, indent = 0) {
+        const isRootDirectory = !item.id || item.id === this.rootDirectoryId;
         const active = this.currentPath === item.path || (!item.path && !this.currentPath);
+        const name = (isRootDirectory && !!this._config.rootDirectoryName) ? this._config.rootDirectoryName : item.name;
         const style = `opacity: ${item.type === "DIRECTORY" ? "1" : "0"};`; // terrible hack to keep the same width for all the items
+
         return html`
             <div class="d-flex align-items-center p-2 rounded-2 user-select-none ${active ? "bg-primary text-white" : "hover:bg-gray-200"}">
                 <div class="flex-shrink-0" style="width: ${indent * 10}px"></div>
-                ${item.id ? html`
+                ${!isRootDirectory ? html`
                     <div class="flex-shrink-0 d-flex px-2" style="${style}" @click="${() => this.onExpandCollapseDirectory(item)}">
-                        <i class="fas ${this._expandedDirectories.has(item.id) ? "fa-angle-down" : "fa-angle-right"} fs-7"></i>
+                        <i class="fas ${this._expandedDirectories.has(item.id) ? "fa-angle-down" : "fa-angle-right"} fs-6"></i>
                     </div>
                 ` : nothing}
                 <div
@@ -180,8 +186,8 @@ export default class FileTree extends LitElement {
                     @click="${() => this.onClickItem(item)}"
                     @dblclick="${() => this.onExpandCollapseDirectory(item)}">
                     <i class="fas ${icon} fs-5"></i>
-                    <span class="lh-1 text-truncate" title="${item.name}">
-                        ${item.name}
+                    <span class="lh-1 text-truncate" title="${name}">
+                        ${name}
                     </span>
                 </div>
             </div>
@@ -208,6 +214,7 @@ export default class FileTree extends LitElement {
         const content = this._directories.get(directoryId) || [];
         const filesList = content.filter(child => child.file.type.toUpperCase() === "FILE");
         const directoriesList = content.filter(child => child.file.type.toUpperCase() === "DIRECTORY");
+
         return html`
             ${this.renderDirectories(directoriesList, indent)}
             ${this.renderFiles(filesList, indent)}
@@ -215,14 +222,14 @@ export default class FileTree extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession || this._directories.size === 0) {
+        if (!this.opencgaSession || this._directories.size === 0 || !this._rootDirectory) {
             return nothing;
         }
 
         return html`
             <div class="d-flex flex-column gap-1 overflow-y-auto" style="${this._config.display.containerStyle}">
-                ${this.renderItem({name: this._config.rootDirectoryName}, this._config.rootDirectoryIcon, 0)}
-                ${this.renderTree(this.rootDirectoryId || ":", 0)}
+                ${this.renderItem(this._rootDirectory, this._config.rootDirectoryIcon || "fa-folder-open", 0)}
+                ${this.renderTree(this.rootDirectoryId, 0)}
             </div>
         `;
     }
@@ -232,8 +239,8 @@ export default class FileTree extends LitElement {
             display: {
                 containerStyle: "max-height:700px",
             },
-            rootDirectoryName: "DATA",
-            rootDirectoryIcon: "fa-hdd",
+            rootDirectoryName: "",
+            rootDirectoryIcon: "",
             showFiles: false,
         };
     }
