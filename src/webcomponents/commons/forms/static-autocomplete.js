@@ -91,7 +91,7 @@ export default class StaticAutocomplete extends LitElement {
         return this._filteredValues.map(item => {
             return html`
                 <div class="dropdown-item cursor-pointer" @mousedown="${() => this.onSelect(item)}">
-                    ${item.name || item.id || item}
+                    ${typeof this._config.renderItem === "function" ? this._config.renderItem(item) : item}
                 </div>
             `;
         });
@@ -125,6 +125,7 @@ export default class StaticAutocomplete extends LitElement {
             icon: "fa-search",
             placeholder: "Type to search...",
             filter: null,
+            renderItem: null,
         };
     }
 
