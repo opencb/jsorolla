@@ -307,7 +307,7 @@ export default class FilePreview extends LitElement {
                 }
             </style>
 
-            <div class="d-flex flex-column gap-4">
+            <div class="d-flex flex-column gap-5">
                 ${this.filesWithContent.map(fileWithContent => html`
                     <div class="mx-2">
                         <!-- File information -->
@@ -315,7 +315,7 @@ export default class FilePreview extends LitElement {
                             <div>
                                 ${this._config.showFileName ? html`
                                     <div class="">
-                                        <span class="fw-bold">${fileWithContent.name}</span>
+                                        <span class="fw-bold fs-5">${fileWithContent.name}</span>
                                         ${this._config.showFileSize ? html`
                                             <span class="p-2">(${UtilsNew.getDiskUsage(fileWithContent.size)})</span>
                                         ` : nothing}
