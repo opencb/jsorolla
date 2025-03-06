@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html, nothing} from "lit";
+import "../commons/forms/static-autocomplete.js";
 import "../file/file-preview.js";
 import "../file/file-tree.js";
 import "../loading-spinner.js";
@@ -82,7 +83,7 @@ export default class JobResult extends LitElement {
             this.opencgaSession.opencgaClient.jobs()
                 .info(this.jobId, {
                     study: this.opencgaSession.study.fqn,
-                    include: "outDir",
+                    include: "outDir,output",
                 })
                 .then(response => {
                     this.job = response.responses[0].results[0];
@@ -162,9 +163,18 @@ export default class JobResult extends LitElement {
         }
 
         return html`
-            <h3 class="mb-3">Job Result Explorer</h3>
-            <div class="row">
+            ${this._config.title ? html`
+                <h3 class="mb-3">${this._config.title}</h3>
+            ` : nothing}
+            <div class="row" style="min-height:400px;">
                 <div class="col-md-3">
+                    <div class="mb-2">
+                        <static-autocomplete
+                            .values="${this.job.output.filter(file => file.type === "FILE")}"
+                            .config="${this._config.search}"
+                            @filterChange="${event => this.onSelectFile({detail: event.detail.value})}">
+                        </static-autocomplete>
+                    </div>
                     <file-tree
                         .opencgaSession="${this.opencgaSession}"
                         .rootDirectoryId="${this.job.outDir.id}"
@@ -186,7 +196,17 @@ export default class JobResult extends LitElement {
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            title: "Execution Result Explorer",
+            search: {
+                filter: (file, value) => {
+                    return file.name.toLowerCase().includes(value.toLowerCase());
+                },
+                renderItem: file => {
+                    return file.name;
+                },
+            },
+        };
     }
 
 }
