@@ -242,11 +242,17 @@ export default class UtilsNew {
         if (bytes === 0) {
             return "0 Byte";
         }
-        const k = useInternationalSystem ? 1000 : 1024;
-        const dm = numDecimals ? numDecimals : 2;
+        // 1. International System of Units (SI) - 1000
         const sizes = [" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB"];
         const sizesBinary = [" Bytes", " KiB", " MiB", " GiB", " TiB", " PiB", " EiB", " ZiB", " YiB"];
+
+        // 2. Calculate the size
+        const k = useInternationalSystem ? 1000 : 1024;
         const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+        // 3. Calculate number of decimals.
+        // Note: if the result is in Bytes we don't want decimals
+        const dm = (i === 0) ? 0 : numDecimals;
         return (bytes / Math.pow(k, i)).toFixed(dm) + (useInternationalSystem ? sizes[i] : sizesBinary[i]);
     }
 

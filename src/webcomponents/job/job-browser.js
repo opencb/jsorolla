@@ -269,7 +269,7 @@ export default class JobBrowser extends LitElement {
                         },
                         {
                             id: "job-result",
-                            name: "Result",
+                            name: "Execution Result",
                             render: (job, active, opencgaSession) => html`
                                 <job-result
                                     .job="${job}"

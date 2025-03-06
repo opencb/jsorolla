@@ -97,11 +97,12 @@ export default class FilePreview extends LitElement {
     }
 
     fileIdsObserver() {
-        if (this.opencgaSession && this.fileIds) {
+        if (this.fileIds && this.opencgaSession ) {
             const ids = this.fileIds.map(fileId => fileId.replaceAll("/", ":")).join(",");
-            this.opencgaSession.opencgaClient.files().info(ids, {
-                study: this.opencgaSession.study.fqn,
-            })
+            this.opencgaSession.opencgaClient.files()
+                .info(ids, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
                     this.files = response.responses[0].results;
                 })
@@ -118,10 +119,12 @@ export default class FilePreview extends LitElement {
     }
 
     filesObserver() {
+        // 1. We deeply clone the files array to avoid modifying the original array
         this.filesWithContent = this.files.map(file => {
             return {...file};
         });
 
+        // 2. Fetch the content of each file and extend the file object with the format and content
         for (const fileWithContent of this.filesWithContent) {
             let format = fileWithContent.format;
             if (format === "UNKNOWN") {
@@ -133,15 +136,20 @@ export default class FilePreview extends LitElement {
             }
 
             switch (format) {
-                case "PLAIN":
-                case "VCF":
                 case "UNKNOWN":
+                case "PLAIN":
+                case "FASTA":
+                case "VCF":
+                case "GVCF":
+                case "PED":
+                case "XML":
                 case "TAB_SEPARATED_VALUES":
+                case "COMMA_SEPARATED_VALUES":
                     fileWithContent.contentType = "text";
                     this.opencgaSession.opencgaClient.files()
                         .head(fileWithContent.id, {
                             study: this.opencgaSession.study.fqn,
-                            lines: 200,
+                            lines: 1000,
                         })
                         .then(response => {
                             const {format, content} = response.getResult(0);
@@ -231,8 +239,51 @@ export default class FilePreview extends LitElement {
         }
     }
 
+    renderFilePreview(fileWithContent) {
+        switch (fileWithContent.contentType) {
+            case "unsupported":
+                return html`
+                    <p class="alert alert-warning">${fileWithContent.content}</p>
+                `;
+            case "text":
+                return html`
+                    <pre class="cmd">${fileWithContent.content}</pre>
+                `;
+            case "image":
+                return html`
+                    <image-viewer
+                        .data="${fileWithContent.content}">
+                    </image-viewer>
+                `;
+            case "json":
+                return html`
+                    <json-viewer
+                        .active="${this.active}"
+                        .data="${fileWithContent.content || {}}">
+                    </json-viewer>
+                `;
+            case "html":
+                return html`
+                    <html-viewer
+                        .active="${this.active}"
+                        .data="${fileWithContent.content}">
+                    </html-viewer>
+                `;
+            case "pdf":
+                return html`
+                    <pdf-viewer
+                        .fileId="${fileWithContent.id}"
+                        .data="${fileWithContent.content}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </pdf-viewer>
+                `;
+            default:
+                return nothing;
+        }
+    }
+
     render() {
-        if (!this.filesWithContent || this.filesWithContent?.length === 0) {
+        if ( this.filesWithContent?.length === 0) {
             return nothing;
         }
 
@@ -250,19 +301,20 @@ export default class FilePreview extends LitElement {
 
             <div class="d-flex flex-column gap-4">
                 ${this.filesWithContent.map(fileWithContent => html`
-                    <div>
+                    <div class="mx-2">
+                        <!-- File information -->
                         <div class="d-flex align-items-center mb-2">
                             <div>
-                                ${this._config.showFileTitle ? html `
+                                ${this._config.showFileName ? html `
                                     <div class="">
                                         <span class="fw-bold">${fileWithContent.name}</span>
                                         ${this._config.showFileSize ? html`
-                                            <span>(${UtilsNew.getDiskUsage(fileWithContent.size)})</span>
+                                            <span class="p-2">(${UtilsNew.getDiskUsage(fileWithContent.size)})</span>
                                         ` : nothing}
                                     </div>
                                 ` : nothing}
                                 ${this._config.showFilePath ? html`
-                                    <div class="text-muted">${fileWithContent.path}</div>
+                                    <div class="text-muted">/${fileWithContent.path}</div>
                                 ` : nothing}
                             </div>
                             ${this._config.showDownload ? html`
@@ -274,36 +326,10 @@ export default class FilePreview extends LitElement {
                             ` : nothing}
                         </div>
 
-                        ${fileWithContent.contentType === "unsupported" ? html`
-                            <p class="alert alert-warning">${fileWithContent.content}</p>
-                        ` : nothing}
-                        ${fileWithContent.contentType === "text" ? html`
-                            <pre class="cmd">${fileWithContent.content}</pre>
-                        ` : nothing}
-                        ${fileWithContent.contentType === "image" ? html`
-                            <image-viewer
-                                .data="${fileWithContent.content}">
-                            </image-viewer>
-                        ` : nothing}
-                        ${fileWithContent.contentType === "json" ? html`
-                            <json-viewer
-                                .active="${this.active}"
-                                .data="${fileWithContent.content || {}}">
-                            </json-viewer>
-                        ` : nothing}
-                        ${fileWithContent.contentType === "html" ? html`
-                            <html-viewer
-                                .active="${this.active}"
-                                .data="${fileWithContent.content}">
-                            </html-viewer>
-                        ` : nothing}
-                        ${fileWithContent.contentType === "pdf" ? html`
-                            <pdf-viewer
-                                .fileId="${fileWithContent.id}"
-                                .data="${fileWithContent.content}"
-                                .opencgaSession="${this.opencgaSession}">
-                            </pdf-viewer>
-                        ` : nothing}
+                        <!-- File preview -->
+                        <div class="">
+                            ${this.renderFilePreview(fileWithContent)}
+                        </div>
                     </div>
                 `)}
             </div>
@@ -312,10 +338,10 @@ export default class FilePreview extends LitElement {
 
     getDefaultConfig() {
         return {
-            showFileTitle: true,
+            showFileName: true,
             showFileSize: true,
-            showFilePath: false,
-            showDownload: false,
+            showFilePath: true,
+            showDownload: true,
         };
     }
 
