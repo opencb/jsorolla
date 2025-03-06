@@ -144,7 +144,7 @@ export default class FileTree extends LitElement {
     }
 
     onExpandCollapseDirectory(directory) {
-        if (directory.type === "DIRECTORY") {
+        if (directory.type === "DIRECTORY" && (!!directory.id && directory.id !== this.rootDirectoryId)) {
             if (this._expandedDirectories.has(directory.id)) {
                 this._expandedDirectories.delete(directory.id);
             } else {
