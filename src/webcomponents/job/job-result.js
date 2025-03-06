@@ -52,6 +52,7 @@ export default class JobResult extends LitElement {
     #init() {
         this._loading = false;
         this._selectedFile = null;
+        this._selectedDirectory = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -74,6 +75,7 @@ export default class JobResult extends LitElement {
 
     jobObserver() {
         this._selectedFile = null; // clear selected file
+        this._selectedDirectory = this.job.outDir; // select by default the output directory
     }
 
     jobIdObserver() {
@@ -97,19 +99,24 @@ export default class JobResult extends LitElement {
         }
     }
 
+    getFilesInDirectory(directory) {
+        return (this.job.output || [])
+            .filter(file => file.path.startsWith(directory.path))
+            .filter(file => file.type === "FILE" && !file.id.replace(directory.id, "").includes(":"))
+            .map(file => file.id);
+    }
+
     onSelectFile(event) {
+        this._selectedFile = null;
+        this._selectedDirectory = null;
+
         if (event.detail?.type === "FILE") {
             this._selectedFile = event.detail;
             this.requestUpdate();
         }
 
         if (event.detail?.type === "DIRECTORY") {
-            const files = this.job.output
-                .filter(file => file.path.startsWith(event.detail.path))
-                .filter(file => file.type === "FILE")
-                .filter(file => !file.id.replace(event.detail.id, "").includes(":"))
-                .map(file => file.id);
-            this._selectedFiles = files;
+            this._selectedDirectory = event.detail;
             this.requestUpdate();
         }
     }
@@ -128,10 +135,11 @@ export default class JobResult extends LitElement {
                 </file-preview>
             `;
         } else {
-            if (this._selectedFiles?.length > 0) {
+            if (this._selectedDirectory) {
+                const files = this.getFilesInDirectory(this._selectedDirectory);
                 return html`
                     <file-preview
-                        .fileIds="${this._selectedFiles}"
+                        .fileIds="${files}"
                         .active="${true}"
                         .opencgaSession="${this.opencgaSession}"
                         .config="${{
@@ -178,10 +186,10 @@ export default class JobResult extends LitElement {
                     <file-tree
                         .opencgaSession="${this.opencgaSession}"
                         .rootDirectoryId="${this.job.outDir.id}"
-                        .currentPath="${this._selectedFile?.path || null}"
+                        .currentPath="${this._selectedFile?.path || this._selectedDirectory?.path || null}"
                         .config="${{
                             rootDirectoryName: this.job.outDir.name,
-                            rootDirectoryIcon: "fa-folder",
+                            rootDirectoryIcon: "fa-folder-open",
                             showFiles: true,
                         }}"
                         @pathChange="${event => this.onSelectFile(event)}">
