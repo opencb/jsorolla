@@ -313,7 +313,7 @@ export default class FilePreview extends LitElement {
                         <!-- File information -->
                         <div class="d-flex align-items-center mb-2">
                             <div>
-                                ${this._config.showFileName ? html `
+                                ${this._config.showFileName ? html`
                                     <div class="">
                                         <span class="fw-bold">${fileWithContent.name}</span>
                                         ${this._config.showFileSize ? html`
