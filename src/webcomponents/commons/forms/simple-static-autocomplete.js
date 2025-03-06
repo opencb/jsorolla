@@ -54,6 +54,13 @@ export default class SimpleStaticAutocomplete extends LitElement {
         this.requestUpdate();
     }
 
+    onClear(event) {
+        event.target.value = "";
+        this._value = "";
+        this._filteredValues = [];
+        this.requestUpdate();
+    }
+
     onSelect(item) {
         LitUtils.dispatchCustomEvent(this, "filterChange", item);
     }
@@ -73,16 +80,16 @@ export default class SimpleStaticAutocomplete extends LitElement {
             `;
         }
 
-        // render a maximum of 'config.limit' items
-        return this._filteredValues
-            .slice(0, this._config.limit)
-            .map(item => {
-                return html`
-                    <div class="dropdown-item cursor-pointer" @click="${() => this.onSelect(item)}">
-                        ${item.name || item.id || item}
-                    </div>
-                `;
-            });
+        // note: using mousedown instead of click event as the click event is not fired when the input loses focus
+        // the order of events are: onMouseDown -> onMouseUp -> onBlur -> onClick
+        // see https://developer.mozilla.org/en-US/docs/Web/API/Element/click_event
+        return this._filteredValues.map(item => {
+            return html`
+                <div class="dropdown-item cursor-pointer" @mousedown="${() => this.onSelect(item)}">
+                    ${item.name || item.id || item}
+                </div>
+            `;
+        });
     }
 
     render() {
@@ -96,8 +103,8 @@ export default class SimpleStaticAutocomplete extends LitElement {
                         type="text"
                         class="form-control border-start-0 px-2 lh-1"
                         placeholder="${this._config.placeholder}"
-                        @input="${event => this.onSearch(event)}"
-                    >
+                        @blur="${event => this.onClear(event)}"
+                        @input="${event => this.onSearch(event)}">
                 </div>
                 ${this._value ? html`
                     <div class="dropdown-menu show w-full">
@@ -112,7 +119,6 @@ export default class SimpleStaticAutocomplete extends LitElement {
         return {
             icon: "fa-search",
             placeholder: "Type to search...",
-            limit: 10,
         };
     }
 
