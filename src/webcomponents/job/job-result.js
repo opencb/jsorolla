@@ -101,6 +101,53 @@ export default class JobResult extends LitElement {
             this._selectedFile = event.detail;
             this.requestUpdate();
         }
+
+        if (event.detail?.type === "DIRECTORY") {
+            const files = this.job.output
+                .filter(file => file.path.startsWith(event.detail.path))
+                .filter(file => file.type === "FILE")
+                .filter(file => !file.id.replace(event.detail.id, "").includes(":"))
+                .map(file => file.id);
+            this._selectedFiles = files;
+            this.requestUpdate();
+        }
+    }
+
+    renderFilePreview() {
+        if (this._selectedFile) {
+            return html`
+                <file-preview
+                    .fileId="${this._selectedFile.id}"
+                    .active="${true}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${{
+                        showFilePath: true,
+                        showDownload: true,
+                    }}">
+                </file-preview>
+            `;
+        } else {
+            if (this._selectedFiles?.length > 0) {
+                return html`
+                    <file-preview
+                        .fileIds="${this._selectedFiles}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${{
+                            showFilePath: true,
+                            showDownload: true,
+                        }}">
+                    </file-preview>
+                `;
+            } else {
+                return html`
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle pe-2"></i>
+                        <span>Please select a file on the tree to display the content here.</span>
+                    </div>
+                `;
+            }
+        }
     }
 
     render() {
@@ -115,7 +162,7 @@ export default class JobResult extends LitElement {
         }
 
         return html`
-            <h3 class="mb-3">Job Results Explorer</h3>
+            <h3 class="mb-3">Job Result Explorer</h3>
             <div class="row">
                 <div class="col-md-3">
                     <file-tree
@@ -130,23 +177,9 @@ export default class JobResult extends LitElement {
                         @pathChange="${event => this.onSelectFile(event)}">
                     </file-tree>
                 </div>
+
                 <div class="col-md-9 ps-5">
-                    ${this._selectedFile ? html`
-                        <file-preview
-                            .fileId="${this._selectedFile.id}"
-                            .active="${true}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${{
-                                showFilePath: true,
-                                showDownload: true,
-                            }}">
-                        </file-preview>
-                    ` : html`
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle pe-2"></i>
-                            <span>Please select a file on the tree to display the content here.</span>
-                        </div>
-                    `}
+                    ${this.renderFilePreview()}
                 </div>
             </div>
         `;

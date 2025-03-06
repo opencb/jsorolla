@@ -97,7 +97,7 @@ export default class FilePreview extends LitElement {
     }
 
     fileIdsObserver() {
-        if (this.fileIds && this.opencgaSession ) {
+        if (this.fileIds?.length > 0 && this.opencgaSession ) {
             const ids = this.fileIds.map(fileId => fileId.replaceAll("/", ":")).join(",");
             this.opencgaSession.opencgaClient.files()
                 .info(ids, {
@@ -109,6 +109,8 @@ export default class FilePreview extends LitElement {
                 .catch(response => {
                     console.error(response);
                 });
+        } else {
+            this.files = [];
         }
     }
 
@@ -119,6 +121,11 @@ export default class FilePreview extends LitElement {
     }
 
     filesObserver() {
+        if (this.files?.length === 0) {
+            this.filesWithContent = [];
+            this.requestUpdate();
+        }
+
         // 1. We deeply clone the files array to avoid modifying the original array
         this.filesWithContent = this.files.map(file => {
             return {...file};
@@ -139,6 +146,7 @@ export default class FilePreview extends LitElement {
                 case "UNKNOWN":
                 case "PLAIN":
                 case "FASTA":
+                case "FASTQ":
                 case "VCF":
                 case "GVCF":
                 case "PED":
@@ -149,7 +157,7 @@ export default class FilePreview extends LitElement {
                     this.opencgaSession.opencgaClient.files()
                         .head(fileWithContent.id, {
                             study: this.opencgaSession.study.fqn,
-                            lines: 1000,
+                            lines: 500,
                         })
                         .then(response => {
                             const {format, content} = response.getResult(0);
@@ -283,7 +291,7 @@ export default class FilePreview extends LitElement {
     }
 
     render() {
-        if ( this.filesWithContent?.length === 0) {
+        if (this.filesWithContent?.length === 0) {
             return nothing;
         }
 
