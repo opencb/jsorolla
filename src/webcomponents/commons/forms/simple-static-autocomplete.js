@@ -105,7 +105,7 @@ export default class SimpleStaticAutocomplete extends LitElement {
                         @input="${event => this.onSearch(event)}">
                 </div>
                 ${this._value ? html`
-                    <div class="dropdown-menu show w-full">
+                    <div class="dropdown-menu show w-full overflow-y-auto" style="max-height:320px;">
                         ${this.renderValues()}
                     </div>
                 ` : nothing}
