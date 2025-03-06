@@ -1,6 +1,5 @@
 import {LitElement, html, nothing} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import UtilsNew from "../../../core/utils-new.js";
 
 export default class SimpleStaticAutocomplete extends LitElement {
 
@@ -19,13 +18,12 @@ export default class SimpleStaticAutocomplete extends LitElement {
                 type: Array,
             },
             config: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
     #init() {
-        this._prefix = UtilsNew.randomString(8);
         this._value = "";
         this._filteredValues = [];
         this._config = this.getDefaultConfig();
