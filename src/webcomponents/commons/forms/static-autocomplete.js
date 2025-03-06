@@ -1,7 +1,7 @@
 import {LitElement, html, nothing} from "lit";
-import LitUtils from "../../commons/utils/lit-utils.js";
+import LitUtils from "../utils/lit-utils.js";
 
-export default class SimpleStaticAutocomplete extends LitElement {
+export default class StaticAutocomplete extends LitElement {
 
     constructor() {
         super();
@@ -122,4 +122,4 @@ export default class SimpleStaticAutocomplete extends LitElement {
 
 }
 
-customElements.define("simple-static-autocomplete", SimpleStaticAutocomplete);
+customElements.define("static-autocomplete", StaticAutocomplete);
