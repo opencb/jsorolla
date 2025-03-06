@@ -166,7 +166,7 @@ export default class JobResult extends LitElement {
             ${this._config.title ? html`
                 <h3 class="mb-3">${this._config.title}</h3>
             ` : nothing}
-            <div class="row" style="min-height:400px;">
+            <div class="row" style="min-height:480px;">
                 <div class="col-md-3">
                     <div class="mb-2">
                         <static-autocomplete

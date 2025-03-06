@@ -88,10 +88,10 @@ export default class StaticAutocomplete extends LitElement {
         // note: using mousedown instead of click event as the click event is not fired when the input loses focus
         // the order of events are: onMouseDown -> onMouseUp -> onBlur -> onClick
         // see https://developer.mozilla.org/en-US/docs/Web/API/Element/click_event
-        return this._filteredValues.map(item => {
+        return this._filteredValues.map((item, index) => {
             return html`
                 <div class="dropdown-item cursor-pointer" @mousedown="${() => this.onSelect(item)}">
-                    ${typeof this._config.renderItem === "function" ? this._config.renderItem(item) : item}
+                    ${typeof this._config.renderItem === "function" ? this._config.renderItem(item, index) : item}
                 </div>
             `;
         });
