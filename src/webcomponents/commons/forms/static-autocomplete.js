@@ -45,7 +45,14 @@ export default class StaticAutocomplete extends LitElement {
 
         if (this._value) {
             this._filteredValues = this.values.filter(item => {
-                return item.name.toLowerCase().includes(this._value.toLowerCase());
+                // check if there is a custom filter function
+                if (typeof this._config.filter === "function") {
+                    return this._config.filter(item, this._value);
+                } else {
+                    // fallback: use a basic filter that checks if the value is included in the item
+                    // note that this assumes that the item is a string
+                    return (item || "").toLowerCase().includes(this._value.toLowerCase());
+                }
             });
         }
 
@@ -117,6 +124,7 @@ export default class StaticAutocomplete extends LitElement {
         return {
             icon: "fa-search",
             placeholder: "Type to search...",
+            filter: null,
         };
     }
 
