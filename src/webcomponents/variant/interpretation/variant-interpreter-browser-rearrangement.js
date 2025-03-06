@@ -401,6 +401,28 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                     showTitle: true,
                     items: [
                         {
+                            id: "notes-variant1",
+                            name: "Variant 1 Notes",
+                            render: (variants, active, opencgaSession) => html`
+                                <variant-notes
+                                    .opencgaSession="${opencgaSession}"
+                                    .variant="${variants?.[0]}"
+                                    .active="${active}">
+                                </variant-notes>
+                            `,
+                        },
+                        {
+                            id: "notes-variant2",
+                            name: "Variant 2 Notes",
+                            render: (variants, active, opencgaSession) => html`
+                                <variant-notes
+                                    .opencgaSession="${opencgaSession}"
+                                    .variant="${variants?.[1]}"
+                                    .active="${active}">
+                                </variant-notes>
+                            `,
+                        },
+                        {
                             id: "json-view-variant1",
                             name: "Variant 1 JSON Data",
                             render: (variants, active) => html`

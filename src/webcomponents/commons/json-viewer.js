@@ -36,6 +36,9 @@ export default class JsonViewer extends LitElement {
             data: {
                 type: Object
             },
+            simple: {
+                type: Boolean
+            },
             active: {
                 type: Boolean
             },
@@ -49,6 +52,7 @@ export default class JsonViewer extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.active = true;
         this.jsonView = null;
+        this.simple = false;
         this._config = this.getDefaultConfig();
     }
 
@@ -64,26 +68,28 @@ export default class JsonViewer extends LitElement {
 
     updated(changedProperties) {
         if ((changedProperties.has("data") || changedProperties.has("active") || changedProperties.has("config")) && this.active) {
-            if (!this.jsonView) {
-                this.initJsonView();
-            } else {
-                this.jsonView.update({json: this.data || {}});
-            }
+            this.initJsonView();
         }
     }
 
     initJsonView() {
-        this.jsonView = new JSONEditor({
-            target: this.querySelector(`#${this._prefix}JsonView`),
-            props: {
-                content: {
-                    json: this.data || {},
-                },
-                mode: this._config?.mode || "tree",
-                indentation: this._config?.indentation || 4,
-                readOnly: true,
+        if (!this.simple) {
+            if (!this.jsonView) {
+                this.jsonView = new JSONEditor({
+                    target: this.querySelector(`#${this._prefix}JsonView`),
+                    props: {
+                        content: {
+                            json: this.data || {},
+                        },
+                        mode: this._config?.mode || "tree",
+                        indentation: this._config?.indentation || 4,
+                        readOnly: true,
+                    }
+                });
+            } else {
+                this.jsonView.update({json: this.data || {}});
             }
-        });
+        }
     }
 
     render() {
@@ -92,13 +98,16 @@ export default class JsonViewer extends LitElement {
         }
 
         return html`
-            ${this.showDownloadButton ? html`
-                <div class="d-flex justify-content-end">
-                    <download-button .json="${this.data}"></download-button>
-                </div>
-            ` : nothing}
-
-            <div id="${this._prefix}JsonView" class="pt-2"></div>
+            ${this.simple ? html`
+                <pre>${JSON.stringify(this.data || {}, null, "    ")}</pre>
+            ` : html`
+                ${this.showDownloadButton ? html`
+                    <div class="d-flex justify-content-end">
+                        <download-button .json="${this.data}"></download-button>
+                    </div>
+                ` : nothing}
+                <div id="${this._prefix}JsonView" class="pt-2"></div>
+            `}
         `;
     }
 

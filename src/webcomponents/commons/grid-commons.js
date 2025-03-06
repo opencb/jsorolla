@@ -328,12 +328,12 @@ export default class GridCommons {
         }
     }
 
-    addColumnsFromExtensions(columns, componentId) {
+    addColumnsFromExtensions(componentId, opencgaSession, columns) {
         if (!this.context?._config?.skipExtensions) {
             const id = componentId || this.context?.COMPONENT_ID;
             const isVisible = columnId => this.isColumnVisible(columnId);
             const getData = () => this.extensionsData || {};
-            return ExtensionsManager.injectColumns(columns, id, isVisible, getData);
+            return ExtensionsManager.injectColumns(id, opencgaSession, columns, isVisible, getData);
         }
         // No extensions to inject, just return the original columns list
         return columns;
@@ -395,6 +395,18 @@ export default class GridCommons {
         const eventsContainer = this.context.querySelector(`div#${this.gridId}WarningEvents`);
         if (eventsContainer) {
             eventsContainer.replaceChildren();
+        }
+    }
+
+    hideHeader(hide = false) {
+        const header = this.context.querySelector(`#${this.gridId} thead`);
+        if (header) {
+            if (hide) {
+                header.style.display = "none";
+                // this.context.querySelector(`#${this.gridId} tbody tr:first-child`).style.borderTopWidth = "1px";
+            } else {
+                header.style.display = "";
+            }
         }
     }
 

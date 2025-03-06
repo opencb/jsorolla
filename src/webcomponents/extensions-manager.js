@@ -87,12 +87,13 @@ export default {
     },
 
     // Returns a list of custom columns for the specified component
-    // @param {array} columns - An array of columns where new columns will be injected
     // @param {string} componentId - ID of the component where this new column will be injected
+    // @param {object} opencgaSession - OpenCGA session object
+    // @param {array} columns - An array of columns where new columns will be injected
     // @param {function} checkColumnVisible: function to determine if column is visible or not
     // @param {function} getData: function to obtain custom data for columns
     // @return {array} columns - a list of columns configurations
-    injectColumns(columns, componentId, checkColumnVisible, getData) {
+    injectColumns(componentId, opencgaSession, columns, checkColumnVisible, getData) {
         // We need to check if we are in a single or multiple row levels
         const hasGroupedRows = columns.length === 2 && (Array.isArray(columns[0]) && Array.isArray(columns[1]));
         this.getByType(this.TYPES.COLUMN)
@@ -107,7 +108,7 @@ export default {
                             // We need to overwrite the formatter to provide custom data of this columns
                             formatter: (value, row, index) => {
                                 const data = typeof getData === "function" ? getData() : {};
-                                return newColumn.config.formatter(value, row, index, data?.[extension.id]);
+                                return newColumn.config.formatter(value, row, index, opencgaSession, data?.[extension.id]);
                             },
                         };
                         // check if we have provided a function to check if column is visible

@@ -285,6 +285,12 @@ export default class NoteGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
+                id: "type",
+                title: "Note Type",
+                field: "type",
+                visible: this.gridCommons.isColumnVisible("type"),
+            },
+            {
                 id: "userId",
                 title: "User ID",
                 field: "userId",
@@ -352,7 +358,7 @@ export default class NoteGrid extends LitElement {
                 // visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
-        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
     }
 

@@ -235,6 +235,7 @@ export default class CohortGrid extends LitElement {
                         include: "id,creationDate,status,type,numSamples,annotationSets",
                         ...this.query
                     };
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.cohorts()
@@ -390,7 +391,7 @@ export default class CohortGrid extends LitElement {
         }
 
         // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
     }
 

@@ -14,6 +14,13 @@ export default class AnalysisUtils {
     //     };
     // }
 
+    static extToolsDocker(opencgaSession) {
+        return {
+            id: "opencb/opencga-ext-tools",
+            version: opencgaSession.opencga.version
+        };
+    }
+
     static submit(id, promise, context) {
         return promise
             .then(response => {
@@ -145,6 +152,7 @@ export default class AnalysisUtils {
                 {
                     title: "Job Info",
                     display: {
+                        className: "p-2",
                         visible: config.isJob !== undefined ? config.isJob : true,
                     },
                     elements: [
