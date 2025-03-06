@@ -611,6 +611,14 @@ const SUITE = {
                         {
                             id: "bcftools",
                             name: "BCFtools",
+                            acronym: "BC",
+                            description: "",
+                            icon: "",
+                            visibility: "public"
+                        },
+                        {
+                            id: "liftover",
+                            name: "LiftOver",
                             acronym: "GT",
                             description: "",
                             icon: "",
