@@ -65,6 +65,9 @@ export default class FilePreview extends LitElement {
         this.files = [];
         this.filesWithContent = [];
 
+        // list with the known binary extensions that we can not fetch the content
+        this._binaryExtensions = new Set(["tbi", "bai", "zip"]);
+
         this._config = this.getDefaultConfig();
     }
 
@@ -139,6 +142,8 @@ export default class FilePreview extends LitElement {
                     format = "HTML";
                 } else if (fileWithContent.name.endsWith(".pdf")) {
                     format = "PDF";
+                } else if (this._binaryExtensions.has(fileWithContent.name.split(".").pop())) {
+                    format = "BINARY";
                 }
             }
 
@@ -238,7 +243,9 @@ export default class FilePreview extends LitElement {
                     // we have to provide the fileId to the pdf-viewer component, so this component will use the pdf.js
                     // library to fetch the file content and render it
                     fileWithContent.contentType = "pdf";
-                    this.requestUpdate();
+                    break;
+                case "BINARY":
+                    fileWithContent.contentType = "binary";
                     break;
                 default:
                     fileWithContent.contentType = "unsupported";
@@ -284,6 +291,16 @@ export default class FilePreview extends LitElement {
                         .data="${fileWithContent.content}"
                         .opencgaSession="${this.opencgaSession}">
                     </pdf-viewer>
+                `;
+            case "binary":
+                return html`
+                    <div class="alert alert-warning d-flex flex-column align-items-center justify-content-center py-4">
+                        <i class="fas fa-file-archive me-2 fs-1 mb-2"></i>
+                        <div class="fw-bold fs-5 text-center mb-1">Binary files can not be displayed.</div>
+                        <div class="text-center">
+                            Sorry but we can not display the content of the file <b>${fileWithContent.name}</b>.<br>Please download it to view its content.
+                        </div>
+                    </div>
                 `;
             default:
                 return nothing;
