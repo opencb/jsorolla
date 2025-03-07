@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html, nothing} from "lit";
+import "../commons/empty-state.js";
 import "../commons/forms/static-autocomplete.js";
 import "../file/file-preview.js";
 import "../file/file-tree.js";
@@ -168,6 +169,18 @@ export default class JobResult extends LitElement {
 
         if (!this.opencgaSession || !this.job?.id) {
             return nothing;
+        }
+
+        // if the job does not have any output files, for example when it is on queue or pending,
+        // we will display an empty state
+        if (!this.job.output || this.job.output.length === 0) {
+            return html`
+                <empty-state
+                    .icon="${"fa-folder-open"}"
+                    .title="${"No output files available"}"
+                    .description="${"This job does not have any output files yet. Maybe the job is still running or it did not produce any output files."}">
+                </empty-state>
+            `;
         }
 
         return html`
