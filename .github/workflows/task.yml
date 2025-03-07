@@ -14,7 +14,8 @@ jobs:
     needs: build
     with:
       test_profile: runShortTests
-    secrets: inherit
+    secrets:
+      SONAR_TOKEN: {{secrets.SONAR_TOKEN}}
 
   deploy-docker:
     uses: ./.github/workflows/deploy-docker-jsorolla.yml
