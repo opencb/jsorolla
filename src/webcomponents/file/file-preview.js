@@ -246,10 +246,17 @@ export default class FilePreview extends LitElement {
                     break;
                 case "BINARY":
                     fileWithContent.contentType = "binary";
+                    fileWithContent.content = {
+                        icon: "fa-file-archive",
+                        message: "Binary files can not be displayed.",
+                    };
                     break;
                 default:
                     fileWithContent.contentType = "unsupported";
-                    fileWithContent.content = "Format not recognized: " + fileWithContent.format;
+                    fileWithContent.content = {
+                        icon: "fa-exclamation-triangle",
+                        message: `Format not recognized: ${fileWithContent.format || "UNKNOWN"}.`,
+                    };
             }
         }
     }
@@ -257,8 +264,15 @@ export default class FilePreview extends LitElement {
     renderFilePreview(fileWithContent) {
         switch (fileWithContent.contentType) {
             case "unsupported":
+            case "binary":
                 return html`
-                    <p class="alert alert-warning">${fileWithContent.content}</p>
+                    <div class="alert alert-warning d-flex flex-column align-items-center justify-content-center py-4">
+                        <i class="fas ${fileWithContent.content?.icon || "fa-exclamation-triangle"} me-2 fs-1 mb-2"></i>
+                        <div class="fw-bold fs-5 text-center mb-1">${fileWithContent.content?.message || "Format not recognized."}</div>
+                        <div class="text-center">
+                            Sorry but we can not display the content of the file <b>${fileWithContent.name}</b>.<br>Please download it to view its content.
+                        </div>
+                    </div>
                 `;
             case "text":
                 return html`
@@ -292,16 +306,6 @@ export default class FilePreview extends LitElement {
                         .opencgaSession="${this.opencgaSession}">
                     </pdf-viewer>
                 `;
-            case "binary":
-                return html`
-                    <div class="alert alert-warning d-flex flex-column align-items-center justify-content-center py-4">
-                        <i class="fas fa-file-archive me-2 fs-1 mb-2"></i>
-                        <div class="fw-bold fs-5 text-center mb-1">Binary files can not be displayed.</div>
-                        <div class="text-center">
-                            Sorry but we can not display the content of the file <b>${fileWithContent.name}</b>.<br>Please download it to view its content.
-                        </div>
-                    </div>
-                `;
             default:
                 return nothing;
         }
@@ -328,7 +332,7 @@ export default class FilePreview extends LitElement {
                 ${this.filesWithContent.map(fileWithContent => html`
                     <div class="mx-2">
                         <!-- File information -->
-                        <div class="d-flex align-items-center mb-2">
+                        <div class="d-flex align-items-center mb-3">
                             <div>
                                 ${this._config.showFileName ? html`
                                     <div class="">
