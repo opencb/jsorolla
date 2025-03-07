@@ -14,6 +14,9 @@ jobs:
     needs: build
     with:
       test_profile: runShortTests
+    # secrets: inherit
+    # Note 20250307 Vero: Workaround while github solves issue with inherit reported in
+    #   https://github.com/actions/runner/issues/2709#issuecomment-2706001239
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
