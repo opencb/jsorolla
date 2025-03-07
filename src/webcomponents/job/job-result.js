@@ -65,11 +65,9 @@ export default class JobResult extends LitElement {
         if (changedProperties.has("job") || changedProperties.has("opencgaSession")) {
             this.jobObserver();
         }
-
         if (changedProperties.has("jobId")) {
             this.jobIdObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -99,7 +97,7 @@ export default class JobResult extends LitElement {
         }
     }
 
-    getFilesInDirectory(directory) {
+    #getFilesInDirectory(directory) {
         return (this.job.output || [])
             .filter(file => file.path.startsWith(directory.path))
             .filter(file => file.type === "FILE" && !file.id.replace(directory.id, "").includes(":"))
@@ -136,7 +134,7 @@ export default class JobResult extends LitElement {
             `;
         } else {
             if (this._selectedDirectory) {
-                const files = this.getFilesInDirectory(this._selectedDirectory);
+                const files = this.#getFilesInDirectory(this._selectedDirectory);
                 return html`
                     <file-preview
                         .fileIds="${files}"
@@ -160,20 +158,22 @@ export default class JobResult extends LitElement {
     }
 
     render() {
+        if (!this.opencgaSession || !this.job?.id) {
+            return nothing;
+        }
+
         if (this._loading) {
             return html`
                 <loading-spinner></loading-spinner>
             `;
         }
 
-        if (!this.opencgaSession || !this.job?.id) {
-            return nothing;
-        }
-
         return html`
             ${this._config.title ? html`
                 <h3 class="mb-3">${this._config.title}</h3>
-            ` : nothing}
+            ` : nothing
+            }
+
             <div class="row" style="min-height:480px;">
                 <div class="col-md-3">
                     <div class="mb-2">
@@ -196,7 +196,7 @@ export default class JobResult extends LitElement {
                     </file-tree>
                 </div>
 
-                <div class="col-md-9 ps-5">
+                <div class="col-md-9 ps-4">
                     ${this.renderFilePreview()}
                 </div>
             </div>

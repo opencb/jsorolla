@@ -65,7 +65,7 @@ export default class HtmlViewer extends LitElement {
     getDefaultConfig() {
         return {
             width: "100%",
-            height: "720px",
+            height: "1024px",
         };
     }
 
