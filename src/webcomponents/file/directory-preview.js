@@ -1,6 +1,8 @@
 import {LitElement, html, nothing} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/image-viewer.js";
+import "../commons/empty-state.js";
+import "../loading-spinner.js";
 
 export default class DirectoryPreview extends LitElement {
 
@@ -34,6 +36,7 @@ export default class DirectoryPreview extends LitElement {
     #init() {
         this._directories = [];
         this._files = [];
+        this._loading = false;
         this._config = this.getDefaultConfig();
     }
 
@@ -57,11 +60,11 @@ export default class DirectoryPreview extends LitElement {
         this._files = [];
 
         if (this.directoryId && this.opencgaSession && this.active) {
+            this._loading = true;
             this.opencgaSession.opencgaClient.files()
                 .tree(this.directoryId, {
                     study: this.opencgaSession.study.fqn,
                     maxDepth: 1,
-                    // include: "id,name,path,type,format",
                 })
                 .then(response => {
                     const content = response.responses?.[0]?.results?.[0]?.children || [];
@@ -71,10 +74,13 @@ export default class DirectoryPreview extends LitElement {
                     this._files = content
                         .filter(child => child.file.type.toUpperCase() === "FILE")
                         .map(child => child.file);
-                    this.requestUpdate();
                 })
                 .catch(error => {
                     console.error(error);
+                })
+                .finally(() => {
+                    this._loading = false;
+                    this.requestUpdate();
                 });
         }
     }
@@ -114,6 +120,22 @@ export default class DirectoryPreview extends LitElement {
     render() {
         if (!this.directoryId || !this.opencgaSession || !this.active) {
             return nothing;
+        }
+
+        if (this._loading) {
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
+        }
+
+        if (this._directories.length === 0 && this._files.length === 0) {
+            return html`
+                <empty-state
+                    .icon="${"fa-folder-open"}"
+                    .title="${"Empty directory"}"
+                    .description="${"This directory is empty."}">
+                </empty-state>
+            `;
         }
 
         return html`
