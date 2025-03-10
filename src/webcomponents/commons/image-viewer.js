@@ -15,9 +15,13 @@
  */
 
 import {LitElement, html} from "lit";
-// import "../download-button.js";
 
 export default class ImageViewer extends LitElement {
+
+    constructor() {
+        super();
+        this.#init();
+    }
 
     createRenderRoot() {
         return this;
@@ -25,13 +29,28 @@ export default class ImageViewer extends LitElement {
 
     static get properties() {
         return {
-            title: {
-                type: String
-            },
             data: {
-                type: String
-            }
+                type: String,
+            },
+            config: {
+                type: Object,
+            },
         };
+    }
+
+    #init() {
+        this._config = this.getDefaultConfig();
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+        }
+
+        super.update(changedProperties);
     }
 
     render() {
@@ -39,14 +58,19 @@ export default class ImageViewer extends LitElement {
             return html`<div>No base64 data provided</div>`;
         }
 
-        // TODO: add the download button and the optional title
         return html`
             <img
-                class="img-thumbnail"
-                id="thumbnail"
-                src="data:image/png;base64, ${this.data}"
-            />
+                class="${this._config.className}"
+                src="data:image/png;base64,${this.data}"
+                style="${this._config.style}" />
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            style: "",
+            className: "img-thumbnail",
+        };
     }
 
 }
