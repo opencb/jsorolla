@@ -217,6 +217,7 @@ export default class FilePreview extends LitElement {
                         })
                         .then(response => {
                             fileWithContent.content = response.responses[0].results[0].content;
+                            fileWithContent.imageType = UtilsNew.getMimeType(fileWithContent.name.split(".").pop());
                             this.requestUpdate();
                         })
                         .catch(response => {
@@ -281,6 +282,7 @@ export default class FilePreview extends LitElement {
             case "image":
                 return html`
                     <image-viewer
+                        .type="${fileWithContent.imageType}"
                         .data="${fileWithContent.content}">
                     </image-viewer>
                 `;

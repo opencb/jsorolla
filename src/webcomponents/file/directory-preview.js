@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../commons/image-viewer.js";
 import "../commons/empty-state.js";
 import "../loading-spinner.js";
@@ -95,6 +96,7 @@ export default class DirectoryPreview extends LitElement {
                     })
                     .then(response => {
                         file.content = response.responses[0].results[0].content;
+                        file.imageType = UtilsNew.getMimeType(file.name.split(".").pop());
                         this.requestUpdate();
                     })
                     .catch(error => {
@@ -130,6 +132,7 @@ export default class DirectoryPreview extends LitElement {
                             ${file.format === "IMAGE" && !!file.content ? html`
                                 <image-viewer
                                     class="d-flex align-items-center justify-content-center w-full h-full"
+                                    type="${file.imageType}"
                                     .data="${file.content}"
                                     .config="${{
                                         style: "height:100%;",
