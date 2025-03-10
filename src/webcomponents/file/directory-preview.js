@@ -74,6 +74,7 @@ export default class DirectoryPreview extends LitElement {
                     this._files = content
                         .filter(child => child.file.type.toUpperCase() === "FILE")
                         .map(child => child.file);
+                    this.fetchImagesFiles();
                 })
                 .catch(error => {
                     console.error(error);
@@ -83,6 +84,24 @@ export default class DirectoryPreview extends LitElement {
                     this.requestUpdate();
                 });
         }
+    }
+
+    fetchImagesFiles() {
+        this._files.forEach(file => {
+            if (file.format === "IMAGE") {
+                this.opencgaSession.opencgaClient.files()
+                    .image(file.id, {
+                        study: this.opencgaSession.study.fqn,
+                    })
+                    .then(response => {
+                        file.content = response.responses[0].results[0].content;
+                        this.requestUpdate();
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+            }
+        });
     }
 
     onClickFile(file) {
@@ -108,7 +127,17 @@ export default class DirectoryPreview extends LitElement {
                 <div class="col-3" @click="${() => this.onClickFile(file)}">
                     <div class="d-flex flex-column p-3 bg-white hover:bg-gray-100 cursor-pointer rounded-2 border">
                         <div class="d-flex justify-content-center align-items-center bg-gray-200 rounded-1" style="height: 160px;">
-                            <i class="fas fa-file-alt fs-2 text-gray-500"></i>
+                            ${file.format === "IMAGE" && !!file.content ? html`
+                                <image-viewer
+                                    class="d-flex align-items-center justify-content-center w-full h-full"
+                                    .data="${file.content}"
+                                    .config="${{
+                                        style: "height:100%;",
+                                    }}">
+                                </image-viewer>
+                            ` : html`
+                                <i class="fas fa-file-alt fs-1 text-gray-500"></i>
+                            `}
                         </div>
                         <div class="mt-2">${file.name}</div>
                     </div>
