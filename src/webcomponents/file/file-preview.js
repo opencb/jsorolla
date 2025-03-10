@@ -277,7 +277,7 @@ export default class FilePreview extends LitElement {
                 `;
             case "text":
                 return html`
-                    <pre class="cmd">${fileWithContent.content}</pre>
+                    <pre class="${this._config?.display?.textContentClass}" style="${this._config?.display?.textContentStyle}">${fileWithContent.content}</pre>
                 `;
             case "image":
                 return html`
@@ -319,17 +319,6 @@ export default class FilePreview extends LitElement {
         }
 
         return html`
-            <style>
-                pre.cmd {
-                    background: black;
-                    font-family: "Courier New", monospace;
-                    padding: 15px;
-                    color: #a5a5a5;
-                    font-size: .9em;
-                    min-height: 150px;
-                }
-            </style>
-
             <div class="d-flex flex-column gap-5">
                 ${this.filesWithContent.map(fileWithContent => html`
                     <div class="mx-2">
@@ -369,6 +358,10 @@ export default class FilePreview extends LitElement {
 
     getDefaultConfig() {
         return {
+            display: {
+                textContentStyle: "min-height:160px;max-height:640px;",
+                textContentClass: "bg-gray-900 text-gray-100 p-4 rounded-2",
+            },
             showFileName: true,
             showFileSize: true,
             showFilePath: true,
