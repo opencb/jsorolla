@@ -29,6 +29,9 @@ export default class ImageViewer extends LitElement {
 
     static get properties() {
         return {
+            type: {
+                type: String,
+            },
             data: {
                 type: String,
             },
@@ -61,7 +64,7 @@ export default class ImageViewer extends LitElement {
         return html`
             <img
                 class="${this._config.className}"
-                src="data:image/png;base64,${this.data}"
+                src="data:${this.type || "image/png"};base64,${this.data}"
                 style="${this._config.style}" />
         `;
     }
