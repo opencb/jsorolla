@@ -33,6 +33,10 @@ export default class PdfViewer extends LitElement {
 
     #init() {
         this.active = true;
+
+        // note: the internal copy of the fileId is used to avoid unnecessary rendering
+        // when the active property is toggled
+        this._fileId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -53,14 +57,18 @@ export default class PdfViewer extends LitElement {
     }
 
     fileIdObserver() {
-        if (this.active && this.fileId) {
+        if (this.active && this.fileId && this.fileId !== this._fileId) {
+            this._fileId = this.fileId;
+
             // setting worker path to worker bundle
             pdfjsLib.GlobalWorkerOptions.workerSrc = "js/pdf.worker.js";
 
             const canvas = this.querySelector("canvas");
             const ctx = canvas.getContext("2d");
-            const pdfUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, this.fileId);
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // clear the canvas before rendering again
 
+            // load the PDF file and render the first page
+            const pdfUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, this.fileId);
             pdfjsLib.getDocument(pdfUrl).promise
                 .then(pdf => pdf.getPage(1))
                 .then(page => {
