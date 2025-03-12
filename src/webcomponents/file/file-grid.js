@@ -416,10 +416,10 @@ export default class OpencgaFileGrid extends LitElement {
                     if (file.type === "FILE") {
                         switch (file.format) {
                             case "VCF":
-                                result = file.internal.variant.index.status.id;
+                                result = file.internal?.variant?.index?.status?.id || "-";
                                 break;
                             case "BAM":
-                                result = file.internal.alignment.index.status.id;
+                                result = file.internal?.alignment?.index?.status?.id || "-";
                                 break;
                         }
                     }
