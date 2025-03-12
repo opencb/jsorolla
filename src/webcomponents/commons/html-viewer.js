@@ -58,7 +58,7 @@ export default class HtmlViewer extends LitElement {
         }
 
         return html`
-            <iframe width="${this._config.width}" height="${this._config.height}"></iframe>
+            <iframe class="border rounded-2" width="${this._config.width}" height="${this._config.height}"></iframe>
         `;
     }
 

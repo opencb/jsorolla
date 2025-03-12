@@ -87,7 +87,7 @@ export default class PdfViewer extends LitElement {
 
     render() {
         return html`
-            <div class="w-full" data-role="container">
+            <div class="w-full border rounded-2" data-role="container">
                 <canvas></canvas>
             </div>
         `;

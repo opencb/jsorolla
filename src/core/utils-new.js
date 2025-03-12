@@ -1093,4 +1093,24 @@ export default class UtilsNew {
         }, {});
     }
 
+    // get the corresponding mime type for the given file extension
+    static getMimeType(extension) {
+        switch (extension) {
+            case "json":
+                return "application/json";
+            case "png":
+                return "image/png";
+            case "jpg":
+            case "jpeg":
+                return "image/jpeg";
+            case "svg":
+                return "image/svg+xml";
+            case "pdf":
+                return "application/pdf";
+            case "txt":
+            default:
+                return "text/plain";
+        }
+    }
+
 }

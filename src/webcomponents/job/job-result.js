@@ -15,7 +15,9 @@
  */
 
 import {LitElement, html, nothing} from "lit";
+import "../commons/empty-state.js";
 import "../commons/forms/static-autocomplete.js";
+import "../file/directory-preview.js";
 import "../file/file-preview.js";
 import "../file/file-tree.js";
 import "../loading-spinner.js";
@@ -97,7 +99,7 @@ export default class JobResult extends LitElement {
         }
     }
 
-    #getFilesInDirectory(directory) {
+    getFilesInDirectory(directory) {
         return (this.job.output || [])
             .filter(file => file.path.startsWith(directory.path))
             .filter(file => file.type === "FILE" && !file.id.replace(directory.id, "").includes(":"))
@@ -132,28 +134,17 @@ export default class JobResult extends LitElement {
                     }}">
                 </file-preview>
             `;
+        } else if (this._selectedDirectory) {
+            return html`
+                <directory-preview
+                    .directoryId="${this._selectedDirectory.id}"
+                    .active="${true}"
+                    .opencgaSession="${this.opencgaSession}"
+                    @fileClick="${event => this.onSelectFile(event)}">
+                </directory-preview>
+            `;
         } else {
-            if (this._selectedDirectory) {
-                const files = this.#getFilesInDirectory(this._selectedDirectory);
-                return html`
-                    <file-preview
-                        .fileIds="${files}"
-                        .active="${true}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .config="${{
-                            showFilePath: true,
-                            showDownload: true,
-                        }}">
-                    </file-preview>
-                `;
-            } else {
-                return html`
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle pe-2"></i>
-                        <span>Please select a file on the tree to display the content here.</span>
-                    </div>
-                `;
-            }
+            return nothing;
         }
     }
 
@@ -165,6 +156,22 @@ export default class JobResult extends LitElement {
         if (this._loading) {
             return html`
                 <loading-spinner></loading-spinner>
+            `;
+        }
+
+        if (!this.opencgaSession || !this.job?.id) {
+            return nothing;
+        }
+
+        // if the job does not have any output files, for example when it is on queue or pending,
+        // we will display an empty state
+        if (!this.job.output || this.job.output.length === 0) {
+            return html`
+                <empty-state
+                    .icon="${"fa-folder-open"}"
+                    .title="${"No output files available"}"
+                    .description="${"This job does not have any output files yet. Maybe the job is still running or it did not produce any output files."}">
+                </empty-state>
             `;
         }
 

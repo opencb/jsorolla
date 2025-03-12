@@ -65,6 +65,9 @@ export default class FilePreview extends LitElement {
         this.files = [];
         this.filesWithContent = [];
 
+        // list with the known binary extensions that we can not fetch the content
+        this._binaryExtensions = new Set(["tbi", "bai", "zip"]);
+
         this._config = this.getDefaultConfig();
     }
 
@@ -139,6 +142,8 @@ export default class FilePreview extends LitElement {
                     format = "HTML";
                 } else if (fileWithContent.name.endsWith(".pdf")) {
                     format = "PDF";
+                } else if (this._binaryExtensions.has(fileWithContent.name.split(".").pop())) {
+                    format = "BINARY";
                 }
             }
 
@@ -212,6 +217,7 @@ export default class FilePreview extends LitElement {
                         })
                         .then(response => {
                             fileWithContent.content = response.responses[0].results[0].content;
+                            fileWithContent.imageType = UtilsNew.getMimeType(fileWithContent.name.split(".").pop());
                             this.requestUpdate();
                         })
                         .catch(response => {
@@ -238,11 +244,20 @@ export default class FilePreview extends LitElement {
                     // we have to provide the fileId to the pdf-viewer component, so this component will use the pdf.js
                     // library to fetch the file content and render it
                     fileWithContent.contentType = "pdf";
-                    this.requestUpdate();
+                    break;
+                case "BINARY":
+                    fileWithContent.contentType = "binary";
+                    fileWithContent.content = {
+                        icon: "fa-file-archive",
+                        message: "Binary files can not be displayed.",
+                    };
                     break;
                 default:
                     fileWithContent.contentType = "unsupported";
-                    fileWithContent.content = "Format not recognized: " + fileWithContent.format;
+                    fileWithContent.content = {
+                        icon: "fa-exclamation-triangle",
+                        message: `Format not recognized: ${fileWithContent.format || "UNKNOWN"}.`,
+                    };
             }
         }
     }
@@ -250,16 +265,24 @@ export default class FilePreview extends LitElement {
     renderFilePreview(fileWithContent) {
         switch (fileWithContent.contentType) {
             case "unsupported":
+            case "binary":
                 return html`
-                    <p class="alert alert-warning">${fileWithContent.content}</p>
+                    <div class="alert alert-warning d-flex flex-column align-items-center justify-content-center py-4">
+                        <i class="fas ${fileWithContent.content?.icon || "fa-exclamation-triangle"} me-2 fs-1 mb-2"></i>
+                        <div class="fw-bold fs-5 text-center mb-1">${fileWithContent.content?.message || "Format not recognized."}</div>
+                        <div class="text-center">
+                            Sorry but we can not display the content of the file <b>${fileWithContent.name}</b>.<br>Please download it to view its content.
+                        </div>
+                    </div>
                 `;
             case "text":
                 return html`
-                    <pre class="cmd">${fileWithContent.content}</pre>
+                    <pre class="${this._config?.display?.textContentClass}" style="${this._config?.display?.textContentStyle}">${fileWithContent.content}</pre>
                 `;
             case "image":
                 return html`
                     <image-viewer
+                        .type="${fileWithContent.imageType}"
                         .data="${fileWithContent.content}">
                     </image-viewer>
                 `;
@@ -296,22 +319,11 @@ export default class FilePreview extends LitElement {
         }
 
         return html`
-            <style>
-                pre.cmd {
-                    background: black;
-                    font-family: "Courier New", monospace;
-                    padding: 15px;
-                    color: #a5a5a5;
-                    font-size: .9em;
-                    min-height: 150px;
-                }
-            </style>
-
             <div class="d-flex flex-column gap-5">
                 ${this.filesWithContent.map(fileWithContent => html`
                     <div class="mx-2">
                         <!-- File information -->
-                        <div class="d-flex align-items-center mb-2">
+                        <div class="d-flex align-items-center mb-3">
                             <div>
                                 ${this._config.showFileName ? html`
                                     <div class="">
@@ -346,6 +358,10 @@ export default class FilePreview extends LitElement {
 
     getDefaultConfig() {
         return {
+            display: {
+                textContentStyle: "min-height:160px;max-height:640px;",
+                textContentClass: "bg-gray-900 text-gray-100 p-4 rounded-2",
+            },
             showFileName: true,
             showFileSize: true,
             showFilePath: true,

@@ -274,7 +274,9 @@ export default class SampleBrowser extends LitElement {
                                 <file-grid
                                     .query="${{sampleIds: sample.id, type: "FILE,VIRTUAL"}}"
                                     .active="${active}"
-                                    .config="${{downloadFile: this.config?.downloadFile}}"
+                                    .config="${{
+                                        showToolbar: false,
+                                    }}"
                                     .opencgaSession="${opencgaSession}">
                                 </file-grid>
                             `,
