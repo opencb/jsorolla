@@ -305,6 +305,7 @@ export default class FilePreview extends LitElement {
                 return html`
                     <pdf-viewer
                         .fileId="${fileWithContent.id}"
+                        .active="${this.active}"
                         .data="${fileWithContent.content}"
                         .opencgaSession="${this.opencgaSession}">
                     </pdf-viewer>
