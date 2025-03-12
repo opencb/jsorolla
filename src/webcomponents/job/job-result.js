@@ -178,8 +178,7 @@ export default class JobResult extends LitElement {
         return html`
             ${this._config.title ? html`
                 <h3 class="mb-3">${this._config.title}</h3>
-            ` : nothing
-            }
+            ` : nothing}
 
             <div class="row" style="min-height:480px;">
                 <div class="col-md-3">
