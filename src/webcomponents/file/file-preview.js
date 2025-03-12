@@ -66,7 +66,7 @@ export default class FilePreview extends LitElement {
         this.filesWithContent = [];
 
         // list with the known binary extensions that we can not fetch the content
-        this._binaryExtensions = new Set(["tbi", "bai", "zip"]);
+        this._binaryExtensions = new Set(["tbi", "bai", "zip", "bigWig", "pbi"]);
 
         this._config = this.getDefaultConfig();
     }
@@ -137,7 +137,8 @@ export default class FilePreview extends LitElement {
         // 2. Fetch the content of each file and extend the file object with the format and content
         for (const fileWithContent of this.filesWithContent) {
             let format = fileWithContent.format;
-            if (format === "UNKNOWN") {
+            // Note: the PLAIN format has been included also as bigWig files are being returned as PLAIN
+            if (format === "UNKNOWN" || format === "PLAIN") {
                 if (fileWithContent.name.endsWith(".html")) {
                     format = "HTML";
                 } else if (fileWithContent.name.endsWith(".pdf")) {
