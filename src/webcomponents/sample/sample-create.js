@@ -100,7 +100,7 @@ export default class SampleCreate extends LitElement {
                 this.sample = {};
                 this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Sample Create",
+                    title: "New Sample",
                     message: "Sample created correctly"
                 });
             })

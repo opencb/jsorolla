@@ -166,7 +166,6 @@ export default class OpencgaCatalogUtils {
                 return true;
             }
         }
-        debugger
         // Other case, user is not admin of the organization
         return false;
     }
@@ -174,7 +173,7 @@ export default class OpencgaCatalogUtils {
     // Find study object in opencgaSession
     static getStudyInSession(opencgaSession, studyId) {
         let study = {};
-        for (const p of opencgaSession?.projects) {
+        for (const p of (opencgaSession?.projects || [])) {
             for (const s of p.studies) {
                 if (s.id === studyId || s.fqn === studyId) {
                     study = s;
