@@ -462,8 +462,9 @@ export default class SampleGrid extends LitElement {
                         this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
                     return `
                         <div class="d-inline-block dropdown">
-                            <button class="btn" type="button" data-bs-toggle="dropdown" data-cy="actions-button">
-                                <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                            <button class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" data-cy="actions-button">
+                                <i class="fas fa-toolbox me-1"></i>
+                                <span>Actions</span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
