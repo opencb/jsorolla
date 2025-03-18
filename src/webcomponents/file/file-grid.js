@@ -338,9 +338,10 @@ export default class OpencgaFileGrid extends LitElement {
                 title: "Name",
                 field: "name",
                 formatter: (fileName, row) => {
+                    const parentPath = "/" + row.path.split("/").slice(0, -1).join("/").replace(/\/\//g, "/");
                     return `
                         <div class="fw-bold mb-1">${fileName}</div>
-                        <div class="text-secondary">${("/" + row.path.replace(row.name, "")).replace("//", "/")}</div>
+                        <div class="text-secondary">${parentPath}</div>
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("name")
