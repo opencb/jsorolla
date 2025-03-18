@@ -99,10 +99,10 @@ export default class FileTree extends LitElement {
 
     lastCreatedPathObserver() {
         if (this.lastCreatedPath) {
-            const paths = this.lastCreatedPath.split("/").filter(Boolean);
+            const paths = ["", ...this.lastCreatedPath.split("/").filter(Boolean)];
             const directoriesPromises = [];
             for (let i = 0; i < paths.length - 1; i++) {
-                const directoryId = paths.slice(0, i + 1).join(":") + ":";
+                const directoryId = paths.slice(0, i + 1).filter(Boolean).join(":") + ":";
                 if (this._directories.has(directoryId)) {
                     directoriesPromises.push(this.fetchDirectory(directoryId));
                 }
