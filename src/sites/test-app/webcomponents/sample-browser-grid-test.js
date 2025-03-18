@@ -19,7 +19,6 @@ import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 
 import "../../../webcomponents/sample/sample-grid.js";
-import "../../../webcomponents/sample/sample-detail.js";
 import "../../../webcomponents/sample/sample-update.js";
 import "../../../webcomponents/sample/sample-create.js";
 
@@ -134,11 +133,6 @@ class SampleBrowserGridTest extends LitElement {
                     @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${e => this.onSelectRow(e)}">
                 </sample-grid>
-                <sample-detail
-                    .sample="${this._selectedRow}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config?.detail}">
-                </sample-detail>
             </div>
         `;
     }
