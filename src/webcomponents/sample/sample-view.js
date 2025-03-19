@@ -16,7 +16,6 @@
 
 import {html, LitElement, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
-import "../commons/view/detail-tabs.js";
 import "../commons/forms/data-form.js";
 import "./sample-summary.js";
 import "./sample-variant-stats-view.js";

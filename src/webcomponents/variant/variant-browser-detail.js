@@ -24,6 +24,7 @@ import "./variant-cohort-stats.js";
 import "./variant-samples.js";
 
 
+// DEPRECATED - This component is not used anymore
 export default class VariantBrowserDetail extends LitElement {
 
     constructor() {
