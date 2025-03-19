@@ -27,6 +27,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 import WebUtils from "../commons/utils/web-utils.js";
+import ModalUtils from "../commons/modal/modal-utils";
 
 export default class VariantBrowserGrid extends LitElement {
 
@@ -729,6 +730,11 @@ export default class VariantBrowserGrid extends LitElement {
                                     <span class="caret" style="margin-left: 5px"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="btn force-text-left" data-action="view">
+                                            <i class="fas fa-eye me-1"></i> Variant View
+                                        </a>
+                                    </li>
                                     <li class="dropdown-header">External Links</li>
                                     <li>
                                         <a target="_blank" class="dropdown-item" ${row.type !== "SNV" ? "disabled" : ""} title="${row.type !== "SNV" ? "Only SNV are accepted" : ""}"
@@ -745,12 +751,12 @@ export default class VariantBrowserGrid extends LitElement {
 
                                     <li class="dropdown-header">CellBase Links</li>
                                     ${["v5.2", "v5.8"].map(v => `
-                                    <li>
-                                        <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`)}">
-                                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i>
-                                            CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}
-                                        </a>
-                                    </li>
+                                        <li>
+                                            <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`)}">
+                                                <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i>
+                                                CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}
+                                            </a>
+                                        </li>
                                     `).join("")}
                                     <li class="dropdown-header">External Genome Browsers</li>
                                     <li>
@@ -961,9 +967,15 @@ export default class VariantBrowserGrid extends LitElement {
         return this._columns;
     }
 
-    onActionClick(e, value, row) {
+    async onActionClick(e, value, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "view":
+                this.selectedVariantId = row.id;
+                this.requestUpdate();
+                await this.updateComplete;
+                ModalUtils.show(`${this._prefix}ViewModal`);
+                break;
             case "copy-link":
                 // 1. Generate the URL to this variant
                 const link = WebUtils.getIVALink(this.opencgaSession, this.toolId, {id: row.id});
@@ -1039,6 +1051,23 @@ export default class VariantBrowserGrid extends LitElement {
         `;
     }
 
+    renderViewModal() {
+        return ModalUtils.create(this, `${this._prefix}ViewModal`, {
+            display: {
+                modalTitle: `Variant: ${this.selectedVariantId}`,
+                modalDraggable: true,
+                modalCyDataName: "modal-update",
+                modalSize: "modal-xl",
+            },
+            render: () => html`
+                <variant-view
+                    .variantId="${this.selectedVariantId}"
+                    .opencgaSession="${this.opencgaSession}">
+                </variant-view>
+            `,
+        });
+    }
+
     render() {
         return html`
             ${this._config?.showToolbar ? html`
@@ -1058,6 +1087,8 @@ export default class VariantBrowserGrid extends LitElement {
             <div data-cy="vb-grid">
                 <table id="${this.gridId}"></table>
             </div>
+
+            ${this.renderViewModal()}
         `;
     }
 

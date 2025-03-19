@@ -73,14 +73,14 @@ export default class VariantView extends LitElement {
 
     variantObserver() {
         this._variant = {...this.variant};
-        // debugger
         this.requestUpdate();
     }
 
     variantIdObserver() {
         if (this.opencgaSession && this.variantId) {
-            this.opencgaSession.opencgaClient.samples()
-                .info(this.variantId, {
+            this.opencgaSession.opencgaClient.variants()
+                .query({
+                    id: this.variantId,
                     study: this.opencgaSession.study.fqn,
                 })
                 .then(response => {
