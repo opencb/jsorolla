@@ -440,7 +440,7 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "actions",
                 field: "actions",
                 formatter: (value, row) => {
-                    // const hasWritePermission = this.hasPermission("WRITE");
+                    const hasDownloadPermission = this.hasPermission("FILE", "DOWNLOAD");
                     const hasDeletePermission = this.hasPermission("FILE", "DELETE");
                     const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
                     const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
@@ -459,7 +459,7 @@ export default class OpencgaFileGrid extends LitElement {
                                         <i class="fas fa-eye me-1"></i>
                                         <span>View</span>
                                     </a>
-                                    <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
+                                    <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" || !hasDownloadPermission ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
                                         <i class="fas fa-download me-1"></i> Download
                                     </a>
                                     <hr class="dropdown-divider">
