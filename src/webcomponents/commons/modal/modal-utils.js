@@ -28,28 +28,25 @@ export default class ModalUtils {
         const btnCancelVisible = config.display?.btnCancelVisible ?? true;
         const btnSaveVisible = config.display?.btnSaveVisible ?? true;
         const modalDraggable = config.display?.modalDraggable ?? false;
-        const modalCyDataName = config.display?.modalCyDataName || "";
+        const modalCyName = config.display?.modalCyDataName || "";
+
+        // handle modal events (cancel, and submit aka ok)
+        const handleCancel = event => {
+            config?.onCancel ? config.onCancel(event) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, event);
+        };
+        const handleOk = event => {
+            config?.onOk ? config.onOk(event) : LitUtils.dispatchCustomEvent(self, "modalOk", null, event);
+        };
 
         return html`
-            <div
-                class="modal fade ${modalContainerClass}"
-                id="${id}"
-                data-draggable="${modalDraggable}"
-                tabindex="-1"
-                role="dialog"
-                aria-labelledby="DataModalLabel"
-                aria-hidden="true"
-                data-cy="${modalCyDataName}"
-            >
+            <div class="modal fade ${modalContainerClass}" id="${id}" tabindex="-1" data-draggable="${modalDraggable}" data-cy="${modalCyName}">
                 <div class="modal-dialog ${modalSize}" style="${modalStyle}">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h4 class="modal-title text-truncate ${modalTitleClassName}" style="${modalTitleStyle}">
                                 ${modalTitle}
                             </h4>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                                    @click="${e => config?.onCancel ? config.onCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}">
-                            </button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" @click="${handleCancel}"></button>
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
@@ -59,22 +56,12 @@ export default class ModalUtils {
                         ${btnsVisible? html`
                             <div class="modal-footer">
                                 ${btnCancelVisible ? html`
-                                    <button
-                                        type="button"
-                                        class="btn btn-light"
-                                        data-bs-dismiss="modal"
-                                        @click="${e => config?.onCancel ? config.onCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}"
-                                    >
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" @click="${handleCancel}">
                                         ${config?.display?.cancelButtonText || "Cancel"}
                                     </button>
                                 ` : nothing}
                                 ${btnSaveVisible ? html`
-                                    <button
-                                        type="button"
-                                        class="btn btn-primary"
-                                        data-bs-dismiss="modal"
-                                        @click="${e => config?.onOk ? config.onOk(e) : LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}"
-                                    >
+                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${handleOk}">
                                         ${config?.display?.okButtonText || "Save"}
                                     </button>
                                 ` : nothing}
