@@ -173,9 +173,13 @@ export default class PermissionBrowserGrid2 extends LitElement {
             // updateACL has bad documentation
             const resp = await this.opencgaSession.opencgaClient.studies()
                 .updateAcl(group, paramsAction, params);
+            // TODO: double-check why this is needed, as this acl does not exist it is the first time
+            // that we are setting the individual permission for the user
             const acl = this.opencgaSession.study.acl
                 .find(acl => acl.member === resp.responses[0].results[0].acl[0].member)
-            acl.permissions = resp.responses[0].results[0].acl[0].permissions;
+            if (acl) {
+                acl.permissions = resp.responses[0].results[0].acl[0].permissions;
+            }
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 message: messageAlert,
             });
