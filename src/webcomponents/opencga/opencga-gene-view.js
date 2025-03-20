@@ -137,7 +137,7 @@ export default class OpencgaGeneView extends LitElement {
 
         return `
             <div style='padding: 5px'>
-                <a href="${transcriptUrl}">Transcript View</a>
+                <a href='${transcriptUrl}'>Transcript View</a>
             </div>
             <div style='padding: 5px'>
                 <a target='_blank' href='${ensemblUrl}'>Ensembl</a>
@@ -217,7 +217,7 @@ export default class OpencgaGeneView extends LitElement {
                                 ${(this._gene?.transcripts || []).map(transcript => html`
                                     <tr>
                                         <td>
-                                            <a tooltip-title="Transcript" tooltip-text='${this.transcriptTooltip(transcript)}'>
+                                            <a class="text-primary" tooltip-title="Transcript" tooltip-text="${this.transcriptTooltip(transcript)}">
                                                 ${transcript.id}
                                             </a>
                                         </td>
