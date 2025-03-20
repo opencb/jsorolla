@@ -133,11 +133,11 @@ export default class OpencgaFileGrid extends LitElement {
         });
     }
 
-    hasPermission(mode) {
+    hasPermission(resource = "FILE", mode = "VIEW") {
         return OpencgaCatalogUtils.getStudyEffectivePermission(
             this.opencgaSession.study,
             this.opencgaSession.user.id,
-            WebUtils.getPermissionID("FILE", mode),
+            WebUtils.getPermissionID(resource, mode),
             this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
     }
 
@@ -441,7 +441,7 @@ export default class OpencgaFileGrid extends LitElement {
                 field: "actions",
                 formatter: (value, row) => {
                     // const hasWritePermission = this.hasPermission("WRITE");
-                    const hasDeletePermission = this.hasPermission("DELETE");
+                    const hasDeletePermission = this.hasPermission("FILE", "DELETE");
                     const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
                     const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
 
@@ -629,7 +629,10 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     getRightToolbar() {
-        const hasWritePermission = this.hasPermission("WRITE");
+        const hasWritePermission = this.hasPermission("FILE", "WRITE");
+        const hasUploadPermission = this.hasPermission("FILE", "UPLOAD");
+        const hasJobExecutionPermission = this.hasPermission("JOB", "EXECUTE");
+
         return [
             {
                 icon: "fa-folder-plus",
@@ -646,13 +649,13 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 icon: "fa-file-upload",
                 title: "Upload File",
-                disabled: !hasWritePermission,
+                disabled: !hasWritePermission || !hasUploadPermission,
                 onClick: () => this.changeActiveActionModal("upload-file"),
             },
             {
                 icon: "fas fa-cloud-download-alt",
                 title: "Fetch File",
-                disabled: !hasWritePermission,
+                disabled: !hasWritePermission || !hasJobExecutionPermission,
                 onClick: () => this.changeActiveActionModal("fetch-file"),
             },
         ];
