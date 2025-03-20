@@ -179,7 +179,7 @@ export default class PermissionBrowserGrid2 extends LitElement {
             if (acl) {
                 acl.permissions = response.responses[0].results[0].acl[0].permissions;
             } else {
-                // if the use does not contain this user (for example because we have just added it to the study)
+                // if the study.acl array does not contain this user (for example because we have just added it to the study)
                 // we add it to the study.acl using the same acl response that OpenCGA returns
                 this.opencgaSession.study.acl.push(response.responses[0].results[0].acl[0]);
             }
