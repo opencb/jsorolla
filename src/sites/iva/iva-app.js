@@ -935,7 +935,6 @@ class IvaApp extends LitElement {
                             .consequenceTypes="${this.config.consequenceTypes}"
                             .populationFrequencies="${this.config.populationFrequencies}"
                             .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                            @onGene="${this.geneSelected}"
                             @onSamplechange="${this.onSampleChange}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "variant-browser")}"
                             onqueryChange="${e => this.onQueryChange(e, "variant")}"
@@ -1164,14 +1163,12 @@ class IvaApp extends LitElement {
                     <div class="content">
                         <opencga-gene-view
                             .opencgaSession="${this.opencgaSession}"
-                            .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
-                            .geneId="${this.gene}"
+                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                            .geneId="${this.queries["gene"]?.id || ""}"
                             .populationFrequencies="${this.config.populationFrequencies}"
                             .consequenceTypes="${this.config.consequenceTypes}"
                             .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}"
-                            .summary="${this.config.opencga.summary}"
-                            @querySearch="${e => this.onQueryFilterSearch(e, "variant")}">
+                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
                         </opencga-gene-view>
                     </div>
                 `;
