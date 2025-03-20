@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/view/detail-tabs.js";
 import "../variant/variant-browser-grid.js";
 import "../variant/variant-protein-view.js";
-import "../variant/variant-browser-detail.js";
 import "../visualization/protein-lollipop.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
-import LitUtils from "../commons/utils/lit-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils";
 import ProteinLollipopViz from "../../core/visualisation/protein-lollipop.js";
-
 
 export default class OpencgaGeneView extends LitElement {
 
@@ -61,9 +57,6 @@ export default class OpencgaGeneView extends LitElement {
             variant: {
                 type: String
             },
-            summary: {
-                type: Boolean
-            },
             settings: {
                 type: Object
             },
@@ -72,10 +65,10 @@ export default class OpencgaGeneView extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.variantId = "";
-        this.gene = null;
-        this.query = {};
-        this.config = this.getDefaultConfig();
+        this._gene = null;
+        this._selectedConsequenceType = "all";
+        this._query = {};
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
@@ -84,7 +77,7 @@ export default class OpencgaGeneView extends LitElement {
         }
 
         if (changedProperties.has("settings")) {
-            this.config = {
+            this._config = {
                 ...this.getDefaultConfig(),
                 ...this.settings,
             };
@@ -93,9 +86,14 @@ export default class OpencgaGeneView extends LitElement {
         super.update(changedProperties);
     }
 
+    updated() {
+        UtilsNew.initTooltip(this);
+    }
+
     geneIdObserver() {
         if (this.opencgaSession && this.geneId) {
-            this.query = {
+            this._selectedConsequenceType = "all";
+            this._query = {
                 gene: this.geneId,
                 study: this.opencgaSession.study.fqn,
             };
@@ -104,78 +102,38 @@ export default class OpencgaGeneView extends LitElement {
                 assembly: this.opencgaSession.project.organism.assembly,
             })
                 .then(response => {
-                    this.gene = response.getResult(0);
+                    this._gene = response?.responses?.[0]?.results?.[0];
+                    this.requestUpdate();
                 })
                 .catch(response => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                })
-                .finally(async () => {
-                    this.requestUpdate();
-                    await this.updateComplete;
-                    UtilsNew.initTooltip(this);
+                    console.error(response);
                 });
         }
     }
 
-    updateQuery(e) {
-        // Set the actuve tab to the clicked tab
-        Array.from(e.target.parentNode.querySelectorAll("button")).forEach(element => {
-            element.classList.remove("active");
-            if (element.dataset.value === e.target.dataset.value) {
-                element.classList.add("active");
-            }
-        });
-        const query = this.query || {};
-        switch (e.target.dataset.value) {
+    updateQuery(value) {
+        switch (value) {
             case "missense":
-                query.ct = "missense_variant";
+                this._query.ct = "missense_variant";
                 break;
             case "lof":
-                query.ct = this.consequenceTypes.alias
+                this._query.ct = this.consequenceTypes.alias
                     .find(alias => alias.name === "Loss-of-Function (LoF)")
                     .terms.join(",");
                 break;
             default:
-                delete query.ct;
+                delete this._query.ct;
                 break;
         }
-        this.query = {
-            ...query,
-        };
-        // Terrible hack to force detail-tabs to update tabs content
-        this.gene = {
-            ...this.gene,
-        };
-        this.requestUpdate();
-    }
 
-    checkVariant(variant) {
-        return variant?.split(":").length > 2;
-    }
-
-    showBrowser() {
-        this.notifySearch({
-            xref: this.geneId,
-        });
-        const hash = window.location.hash.split("/");
-        const newHash = "#browser/" + hash[1] + "/" + hash[2];
-        window.location.hash = newHash;
-    }
-
-    notifySearch(query) {
-        LitUtils.dispatchCustomEvent(this, "querySearch", null, {
-            query: query,
-        });
-    }
-
-    onSelectVariant(e) {
-        this.variantId = e.detail.id;
+        this._gene = {...this._gene}; // Terrible hack to force detail-tabs to update tabs content
+        this._selectedConsequenceType = value; // to update the active button
         this.requestUpdate();
     }
 
     transcriptTooltip(transcript) {
         const transcriptUrl = `#transcript/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${transcript.id}`;
-        const ensemblUrl = BioinfoUtils.getEnsemblLink(this.gene.name, "TRANSCRIPT", this.opencgaSession.project.organism.assembly);
+        const ensemblUrl = BioinfoUtils.getEnsemblLink(this._gene.name, "TRANSCRIPT", this.opencgaSession.project.organism.assembly);
 
         return `
             <div style='padding: 5px'>
@@ -187,8 +145,12 @@ export default class OpencgaGeneView extends LitElement {
         `;
     }
 
-    getGenomeMapsUrl(feature) {
-        return `http://genomemaps.org/?region=${feature.chromosome}:${feature.start}-${feature.end}`;
+    renderRightContent() {
+        return html`
+            <a href="#research/variant-browser" class="btn btn-light">
+                <i class="fas fa-dna me-1"></i> Variant Browser
+            </a>
+        `;
     }
 
     render() {
@@ -198,7 +160,7 @@ export default class OpencgaGeneView extends LitElement {
                     <div class="row">
                         <div class="col-md-10 offset-md-1">
                             <div class="alert alert-danger">
-                                <i class="fas fa-exclamation-triangle icon-padding"></i> No gene provided.
+                                <i class="fas fa-exclamation-triangle me-2"></i> No gene provided.
                             </div>
                         </div>
                     </div>
@@ -206,114 +168,88 @@ export default class OpencgaGeneView extends LitElement {
             `;
         }
 
-        if (!this.gene) {
-            return "";
+        if (!this._gene) {
+            return nothing;
         }
 
         return html`
             <tool-header
-                .title="${`Gene <span class="inverse">${this.gene.name}</span>`}"
-                .icon="${this.config?.icon}"
-                .rhs="${html`
-                    <button type="button" class="btn btn-light" @click="${() => this.showBrowser()}">
-                        <i class="fas fa-dna icon-padding"></i> Variant Browser
-                    </button>
-                `}">
+                .title="${`Gene ${this._gene.name}`}"
+                .rightContent="${this.renderRightContent()}">
             </tool-header>
+
             <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-10 offset-md-1">
-                        <div class="row" style="padding: 5px 0px 25px 0px">
-                            <div class="col-md-4">
-                                <h3 class="section-title">Summary</h3>
-                                <table class="table row">
+                <div class="row mb-5">
+                    <div class="col-md-4">
+                        <h3 class="section-title">Summary</h3>
+                        <table class="table">
+                            <tr>
+                                <th class="gene-summary-title col-sm-4">Name</th>
+                                <td>${this._gene.name} (${this._gene.id})</td>
+                            </tr>
+                            <tr>
+                                <th class="gene-summary-title col-sm-4">Biotype</th>
+                                <td>${this._gene.biotype || "-"}</td>
+                            </tr>
+                            <tr>
+                                <th class="gene-summary-title col-sm-4">Description</th>
+                                <td>${this._gene.description || "-"}</td>
+                            </tr>
+                            <tr>
+                                <th class="gene-summary-title col-sm-4">Location</th>
+                                <td>${this._gene.chromosome}:${this._gene.start}-${this._gene.end} (${this._gene.strand})</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-8">
+                        <h3 class="section-title">Transcripts</h3>
+                        <table class="table table-bordered table-striped" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Ensembl ID</th>
+                                    <th>Name</th>
+                                    <th>Location</th>
+                                    <th>Biotype</th>
+                                    <th>Flags</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${(this._gene?.transcripts || []).map(transcript => html`
                                     <tr>
-                                        <th class="gene-summary-title col-sm-4">Name</th>
-                                        <td>${this.gene.name} (${this.gene.id})</td>
+                                        <td>
+                                            <a tooltip-title="Transcript" tooltip-text='${this.transcriptTooltip(transcript)}'>
+                                                ${transcript.id}
+                                            </a>
+                                        </td>
+                                        <td>${transcript.name}</td>
+                                        <td>
+                                            <span>${transcript.chromosome}:${transcript.start}-${transcript.end}</span>
+                                        </td>
+                                        <td>${transcript.biotype}</td>
+                                        <td>${transcript.annotationFlags?.join(", ") || "-"}</td>
                                     </tr>
-                                    <tr>
-                                        <th class="gene-summary-title col-sm-4">Biotype</th>
-                                        <td>${this.gene.biotype}</td>
-                                    </tr>
-                                    <tr>
-                                        <th class="gene-summary-title col-sm-4">Description</th>
-                                        <td>${this.gene.description}</td>
-                                    </tr>
-                                    <tr>
-                                        <th class="gene-summary-title col-sm-4">Location</th>
-                                        <td>${this.gene.chromosome}:${this.gene.start}-${this.gene.end} (${this.gene.strand})</td>
-                                    </tr>
-                                    ${this.config.externalLinks ? html`
-                                        <tr>
-                                            <th class="gene-summary-title col-sm-4">Genome Browser</th>
-                                            <td>
-                                                <a target="_blank" href="${this.getGenomeMapsUrl(this.gene)}">
-                                                    ${this.gene.chromosome}:${this.gene.start}-${this.gene.end}
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    ` : ""}
-                                </table>
-                            </div>
-
-                            <div class="col-md-8">
-                                <h3 class="section-title">Transcripts</h3>
-                                <table class="table table-bordered" width="100%">
-                                    <thead style="background-color: #eeeeee">
-                                    <tr>
-                                        <th>Ensembl ID</th>
-                                        <th>Name</th>
-                                        <th>Location</th>
-                                        <th>Biotype</th>
-                                        <!--<th>Coding</th>-->
-                                        <!--<th>cDNA</th>-->
-                                        <!--<th>CDS Length</th>-->
-                                        <th>Flags</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    ${(this.gene.transcripts && this.gene.transcripts.length) ? this.gene.transcripts.map(transcript => html`
-                                        <tr>
-                                            <td>
-                                                <a tooltip-title="Transcript" tooltip-text='${this.transcriptTooltip(transcript)}'>
-                                                    ${transcript.id}
-                                                </a>
-                                            </td>
-                                            <td>${transcript.name}</td>
-                                            <td>
-                                                ${this.config.externalLinks ? html`
-                                                    <a target="_blank" href="${this.getGenomeMapsUrl(transcript)}">
-                                                        ${transcript.chromosome}:${transcript.start}-${transcript.end}
-                                                    </a>
-                                                ` : html`
-                                                    <span>${transcript.chromosome}:${transcript.start}-${transcript.end}</span>
-                                                `}
-                                            </td>
-                                            <td>${transcript.biotype}</td>
-
-                                            <!--\${transcript.cdnaCodingStart}-\${transcript.cdnaCodingEnd}-->
-                                            <!--</td>-->
-                                            <!--<td>\${transcript.cdsLength}</td>-->
-                                            <td>${transcript.annotationFlags?.join(", ")}</td>
-                                        </tr>
-                                    `) : null }
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <detail-tabs
-                            .opencgaSession="${this.opencgaSession}"
-                            .data="${this.gene}"
-                            .config="${this.config.tabs}">
-                        </detail-tabs>
+                                `)}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+
+                <detail-tabs
+                    .opencgaSession="${this.opencgaSession}"
+                    .data="${this._gene}"
+                    .config="${this._config?.tabs || []}">
+                </detail-tabs>
             </div>
         `;
     }
 
     getDefaultConfig() {
+        const availableConsequenceTypesButtons = [
+            {name: "All", value: "all"},
+            {name: "Missense", value: "missense"},
+            {name: "LoF", value: "lof"},
+        ];
+
         const proteinLollipopTracks = [
             {
                 title: "Clinvar",
@@ -345,48 +281,27 @@ export default class OpencgaGeneView extends LitElement {
                         name: "Variants",
                         active: true,
                         render: (gene, active, opencgaSession) => html`
-                            <div class="btn-group" role="group" style="padding-top:16px;">
-                                <button type="button" class="btn btn-primary active" data-value="all" @click="${e => this.updateQuery(e)}">
-                                    All
-                                </button>
-                                <button type="button" class="btn btn-primary" data-value="missense" @click="${e => this.updateQuery(e)}">
-                                    Missense
-                                </button>
-                                <button type="button" class="btn btn-primary" data-value="lof" @click="${e => this.updateQuery(e)}">
-                                    LoF
-                                </button>
+                            <div class="btn-group mb-3">
+                                ${availableConsequenceTypesButtons.map(item => {
+                                    const active = this._selectedConsequenceType === item.value;
+                                    return html`
+                                        <button type="button" class="btn btn-primary ${active ? "active" : ""}" @click="${() => this.updateQuery(item.value)}">
+                                            <span>${item.name}</span>
+                                        </button>
+                                    `;
+                                })}
                             </div>
-                            <br>
                             <variant-browser-grid
                                 .opencgaSession="${opencgaSession}"
-                                .query="${this.query}"
+                                .active="${active}"
+                                .query="${this._query || {}}"
                                 .populationFrequencies="${this.populationFrequencies}"
                                 .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                 .consequenceTypes="${this.consequenceTypes}"
-                                .summary="${this.summary}"
-                                .config="${this.config}"
-                                @selectrow="${this.onSelectVariant}">
+                                .config="${{
+                                    showToolbar: false,
+                                }}">
                             </variant-browser-grid>
-                            ${this.checkVariant(this.variantId) ? html`
-                                <!-- Bottom tabs with specific variant information -->
-                                    <opencga-variant-detail-view
-                                        .opencgaSession="${opencgaSession}"
-                                        .cellbaseClient="${this.cellbaseClient}"
-                                        .variantId="${this.variantId}"
-                                        .config="${this.config?.filter?.detail}">
-                                    </opencga-variant-detail-view>
-                                    <!--
-                                    <h3 class="break-word">Advanced Annotation for Variant: \${this.variantId}</h3>
-                                    <cellbase-variantannotation-view
-                                        .data="\${this.variantId}"
-                                        .cellbaseClient="$\{this.cellbaseClient}"
-                                        .assembly=\${this.opencgaSession.project.organism.assembly}
-                                        .hashFragmentCredentials="\${this.hashFragmentCredentials}"
-                                        .populationFrequencies="\${this.populationFrequencies}"
-                                        .proteinSubstitutionScores="\${this.proteinSubstitutionScores}"
-                                        .consequenceTypes="\${this.consequenceTypes}">
-                                    </cellbase-variantannotation-view> -->
-                            ` : ""}
                         `,
                     },
                     {
