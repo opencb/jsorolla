@@ -132,7 +132,7 @@ export default class OpencgaGeneView extends LitElement {
     }
 
     transcriptTooltip(transcript) {
-        const transcriptUrl = `#transcript/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${transcript.id}`;
+        const transcriptUrl = `#transcript/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}?gene=${this.geneId}&transcript=${transcript.id}`;
         const ensemblUrl = BioinfoUtils.getEnsemblLink(this._gene.name, "TRANSCRIPT", this.opencgaSession.project.organism.assembly);
 
         return `
