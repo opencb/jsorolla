@@ -171,14 +171,17 @@ export default class PermissionBrowserGrid2 extends LitElement {
         };
         try {
             // updateACL has bad documentation
-            const resp = await this.opencgaSession.opencgaClient.studies()
+            const response = await this.opencgaSession.opencgaClient.studies()
                 .updateAcl(group, paramsAction, params);
-            // TODO: double-check why this is needed, as this acl does not exist it is the first time
-            // that we are setting the individual permission for the user
+            // update ACL in the study object
             const acl = this.opencgaSession.study.acl
-                .find(acl => acl.member === resp.responses[0].results[0].acl[0].member)
+                .find(acl => acl.member === response.responses[0].results[0].acl[0].member)
             if (acl) {
-                acl.permissions = resp.responses[0].results[0].acl[0].permissions;
+                acl.permissions = response.responses[0].results[0].acl[0].permissions;
+            } else {
+                // if the use does not contain this user (for example because we have just added it to the study)
+                // we add it to the study.acl using the same acl response that OpenCGA returns
+                this.opencgaSession.study.acl.push(response.responses[0].results[0].acl[0]);
             }
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 message: messageAlert,
