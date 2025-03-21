@@ -72,7 +72,7 @@ export default class FacetFilter extends LitElement {
             } else {
                 if (v.type === "date") {
                     // range type
-                    str = k + (v.value ? v.value.toUpperCase() : "YEAR");
+                    str = k + (v.value ? v.value.toUpperCase() : "[YEAR]");
                 } else {
                     // range type
                     // str = k + (v.value ? "[" + v.value + "]" : "");
@@ -372,7 +372,12 @@ export default class FacetFilter extends LitElement {
                 `;
             case "date":
             case "category":
-                const [, value] = facet.value ? [...facet.value.matchAll(/\[([^\s]+)]/gim)][0] : "";
+                let [, value] = facet.value ? [...facet.value.matchAll(/\[([^\s]+)]/gim)][0] : "";
+                // this is a hack to set the default value to YEAR if the facet type is date,
+                // as we have set the default value to YEAR in the selectedFacetObserver method
+                if (facet.type === "date" && !value) {
+                    value = "YEAR";
+                }
                 return html`
                     <div class="row">
                         <div class="col-md-12">
