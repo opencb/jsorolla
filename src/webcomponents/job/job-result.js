@@ -99,13 +99,6 @@ export default class JobResult extends LitElement {
         }
     }
 
-    // getFilesInDirectory(directory) {
-    //     return (this.job.output || [])
-    //         .filter(file => file.path.startsWith(directory.path))
-    //         .filter(file => file.type === "FILE" && !file.id.replace(directory.id, "").includes(":"))
-    //         .map(file => file.id);
-    // }
-
     onSelectFile(event) {
         this._selectedFile = null;
         this._selectedDirectory = null;
@@ -159,13 +152,9 @@ export default class JobResult extends LitElement {
             `;
         }
 
-        if (!this.opencgaSession || !this.job?.id) {
-            return nothing;
-        }
-
         // if the job does not have any output files, for example when it is on queue or pending,
         // we will display an empty state
-        if (this.job.output?.length === 0 && !this.job.stdout && !this.job.stderr) {
+        if (this.job?.output?.length === 0 && !this.job?.stdout && !this.job?.stderr) {
             return html`
                 <empty-state
                     .icon="${"fa-folder-open"}"
@@ -184,7 +173,7 @@ export default class JobResult extends LitElement {
                 <div class="col-md-3">
                     <div class="mb-2">
                         <static-autocomplete
-                            .values="${[...this.job.output, this.job.stdout, this.job.stderr].filter(file => file.type === "FILE")}"
+                            .values="${[...this.job.output, this.job.stdout, this.job.stderr].filter(file => !!file && file?.type === "FILE")}"
                             .config="${this._config.search}"
                             @filterChange="${event => this.onSelectFile({detail: event.detail.value})}">
                         </static-autocomplete>
