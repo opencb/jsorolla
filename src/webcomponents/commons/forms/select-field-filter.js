@@ -350,8 +350,8 @@ export default class SelectFieldFilter extends LitElement {
     renderShowSelectAll() {
         return html`
             <span class="input-group-text rounded-start-0">
-                <input class="form-check-input mt-0" id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." @click=${this.selectAll}>
-                <span class="fw-bold ms-1">All</span>
+                <input class="form-check-input mt-0 me-2" id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." @click=${this.selectAll}>
+                <span class="fw-bold">All</span>
             </span>
         `;
     }
@@ -386,10 +386,10 @@ export default class SelectFieldFilter extends LitElement {
             <div class="input-group select-field-filter">
                 <select
                     class="form-select"
-                    id="${this._prefix}"
+                    id="${this._prefix || ""}"
                     @change="${this.filterChange}">
                 </select>
-                ${this.all ? this.renderShowSelectAll() : nothing}
+                ${this._config?.all ? this.renderShowSelectAll() : nothing}
             </div>
         `;
     }
