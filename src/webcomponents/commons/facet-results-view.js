@@ -228,9 +228,8 @@ export default class FacetResultsView extends LitElement {
     }
 
     _getHistogramData() {
-
         let params;
-        if (!this.facetResult?.start) {
+        if (this.facetResult?.buckets || !this.facetResult?.start) {
             const field = this.facetResult;
             const obj = {
                 title: field.name,
@@ -281,7 +280,7 @@ export default class FacetResultsView extends LitElement {
             const range = this.facetResult;
             const obj = {
                 name: range.name,
-                title: this.fieldNamesMap[range.name] || range.name,
+                title: this.fieldNamesMap?.[range.name] || range.name,
                 categories: [],
                 series: []
             };
