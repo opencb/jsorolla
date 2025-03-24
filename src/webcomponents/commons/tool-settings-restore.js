@@ -46,13 +46,11 @@ export default class ToolSettingsRestore extends LitElement {
 
     #init() {
         this.isLoading = false;
+        this._data = {};
         this._study = {};
-        this._studyFqnList = [];
-        this._activeTab = {
-            0: "default",
-            1: "backup",
-        };
-        this._config = {};
+        this._availableStudies = [];
+        this._availableTabs = ["default", "backup"];
+        this._config = this.getDefaultConfig();
     }
 
     #setLoading(value) {
@@ -82,24 +80,24 @@ export default class ToolSettingsRestore extends LitElement {
             ],
         };
         // Read Projects and Study to prepare the Study select dropdown
-        this.allowedValues = [];
+        this._availableStudies = [];
         if (this.opencgaSession?.projects) {
             // Prepare allowedValues for the select options menu
             this.opencgaSession.projects.forEach(project => {
-                const fields = [];
+                const studies = [];
                 (project.studies || []).forEach(study => {
                     if (OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id)) {
-                        fields.push({
+                        studies.push({
                             id: study.fqn,
                             name: study.fqn,
                             disabled: study.fqn === this.opencgaSession.study.fqn
                         });
                     }
                 });
-                if (fields.length > 0) {
-                    this.allowedValues.push({
+                if (studies.length > 0) {
+                    this._availableStudies.push({
                         name: `Project '${project.name}'`,
-                        fields: fields,
+                        fields: studies,
                     });
                 }
             });
@@ -127,7 +125,7 @@ export default class ToolSettingsRestore extends LitElement {
 
     onSubmit(e) {
         // 1. Prepare query params
-        const activeTab = this._activeTab[e.detail.value];
+        const activeTab = this._availableTabs[e.detail.value];
         // 2. Query
         this.#setLoading(true);
         const toolSettingsRestorePromises = this._data.listStudies.map(studyFqn => {
@@ -214,7 +212,7 @@ export default class ToolSettingsRestore extends LitElement {
                             required: true,
                             save: value => value?.split(",") || [], // Array when select and multiple
                             defaultValue: this._study.fqn,
-                            allowedValues: this.allowedValues,
+                            allowedValues: this._availableStudies,
                             display: {
                                 placeholder: "Select study or studies..."
                             },
@@ -264,7 +262,7 @@ export default class ToolSettingsRestore extends LitElement {
                             required: true,
                             save: value => value?.split(",") || [], 
                             defaultValue: this._study.fqn,
-                            allowedValues: this.allowedValues,
+                            allowedValues: this._availableStudies,
                             display: {
                                 visible: !!this._study?.attributes?.[SETTINGS_NAME + "_BACKUP"]?.settings,
                                 placeholder: "Select study or studies..."
