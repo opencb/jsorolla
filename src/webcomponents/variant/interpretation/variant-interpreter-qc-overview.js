@@ -131,6 +131,7 @@ class VariantInterpreterQcOverview extends LitElement {
                                 this.alignmentStats.push(annotSet.annotations);
                             }
                         }
+                        this.requestUpdate();
                     })
                     .catch(response => {
                         console.error("An error occurred fetching clinicalAnalysis: ", response);
