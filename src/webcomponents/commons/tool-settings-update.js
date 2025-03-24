@@ -53,13 +53,10 @@ export default class ToolSettingsUpdate extends LitElement {
 
     #init() {
         this.isLoading = false;
+        this._data = {};
         this._study = {};
-        this._studyFqnList = [];
-        this._activeTab = {
-            0: "default",
-            1: "backup",
-        };
-        this._config = {};
+        this._availableStudies = [];
+        this._config = this.getDefaultConfig();
     }
 
     #setLoading(value) {
@@ -80,28 +77,30 @@ export default class ToolSettingsUpdate extends LitElement {
     #initOriginalObjects() {
         this._study = this.study || this.opencgaSession.study;
         this._data = {
-            listStudies: [this._study.fqn],
-            toolSettings: {},
+            listStudies: [
+                this._study.fqn,
+            ],
+            toolSettings: UtilsNew.objectClone(this.toolSettings || {}),
         };
-        this.allowedValues = [];
+        this._availableStudies = [];
         // Read Projects and Study to prepare the allowed values in the Study select menu
         if (this.opencgaSession?.projects) {
             // Prepare allowedValues for the select options menu
             this.opencgaSession.projects.forEach(project => {
-                const fields = [];
+                const studies = [];
                 (project.studies || []).forEach(study => {
                     if (OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id)) {
-                        fields.push({
+                        studies.push({
                             id: study.fqn,
                             name: study.fqn,
                             disabled: study.fqn === this.opencgaSession.study.fqn,
                         });
                     }
                 });
-                if (fields.length > 0) {
-                    this.allowedValues.push({
+                if (studies.length > 0) {
+                    this._availableStudies.push({
                         name: `Project '${project.name}'`,
-                        fields: fields,
+                        fields: studies,
                     });
                 }
             });
@@ -221,7 +220,7 @@ export default class ToolSettingsUpdate extends LitElement {
                             required: true,
                             save: value => value?.split(",") || [],
                             defaultValue: this._study.fqn,
-                            allowedValues: this.allowedValues,
+                            allowedValues: this._availableStudies,
                             display: {
                                 placeholder: "Select study or studies..."
                             },
