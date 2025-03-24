@@ -110,8 +110,9 @@ export default class WorkflowImport extends LitElement {
                 let data = await response.json();
                 data = data
                     .filter(repo => repo.name !== "tools")
-                    .filter(repo => !repo.archived)
-                    .filter(repo => repo.topics.includes("nf-core") && repo.topics.includes("workflow"));
+                    .filter(repo => !repo.archived);
+                    // Note (Nacho 21/03/25): filter commented to show PacVar repository
+                    // .filter(repo => repo.topics.includes("nf-core") && repo.topics.includes("workflow"));
                 if (data.length === 0) {
                     break;
                 } // No more repositories

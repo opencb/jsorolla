@@ -1027,6 +1027,7 @@ export default class DataForm extends LitElement {
                         allowedValues = values;
                     }
                 } else {
+                    // FIXME This needs to be reviewed
                     if (typeof element.allowedValues === "function") {
                         let item;
                         if (element.field?.includes("[]")) {

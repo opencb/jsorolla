@@ -108,7 +108,7 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
         const toolParams = {
             sample: this.toolParams.sample?.split(",") || [],
             familyIndex: this.toolParams.familyIndex || false,
-            overwrite: this.toolParams.index || false,
+            overwrite: this.toolParams.overwrite || false,
         };
         const params = {
             study: this.toolParams.study || this.opencgaSession.study.fqn,

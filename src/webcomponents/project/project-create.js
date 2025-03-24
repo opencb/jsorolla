@@ -45,6 +45,7 @@ export default class ProjectCreate extends LitElement {
     #init() {
         this.#initOriginalObject();
         this.isLoading = false;
+        this.apiKeyProject = null;
         this.displayConfigDefault = {
             style: "margin: 10px",
             titleWidth: 3,
@@ -62,7 +63,8 @@ export default class ProjectCreate extends LitElement {
             cellbase: {
                 url: "https://ws.zettagenomics.com/cellbase",
                 version: "v5.8",
-                dataRelease: "8"
+                dataRelease: "8",
+                apiKey: ""
             }
         };
     }
@@ -79,6 +81,10 @@ export default class ProjectCreate extends LitElement {
                 ...this.displayConfig,
             };
             this._config = this.getDefaultConfig();
+        }
+        if (changedProperties.has("opencgaSession")) {
+            this.apiKeyProject = this.opencgaSession.projects.find(p => !!p.cellbase.apiKey);
+            this._project.cellbase.apiKey = this.apiKeyProject?.cellbase?.apiKey || "";
         }
         super.update(changedProperties);
     }
@@ -169,7 +175,8 @@ export default class ProjectCreate extends LitElement {
                         {
                             name: "Species",
                             field: "organism.scientificName",
-                            type: "input-text",
+                            type: "select",
+                            allowedValues: ["Homo sapiens", "Mus musculus"],
                             required: true,
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
@@ -190,9 +197,7 @@ export default class ProjectCreate extends LitElement {
                                         return [];
                                 }
                             },
-                            display: {
-                                // placeholder: "e.g. GRCh38",
-                            }
+                            display: {}
                         },
                         {
                             title: "Cellbase",
@@ -213,15 +218,26 @@ export default class ProjectCreate extends LitElement {
                                     type: "select",
                                     allowedValues: ["v5.2", "v5.8"],
                                     defaultValue: "v5.8",
-                                    display: {
-                                        // placeholder: "Add version"
-                                    }
+                                    display: {}
                                 },
                                 {
                                     title: "Data Release",
                                     field: "cellbase.dataRelease",
                                     type: "input-text",
+                                    display: {}
+                                },
+                                {
+                                    title: "API Key",
+                                    field: "cellbase.apiKey",
+                                    type: "input-text",
                                     display: {
+                                        helpMessage: () => {
+                                            if (this.apiKeyProject) {
+                                                return `This API Key has been taken from the project: '${this.apiKeyProject.id}'`;
+                                            } else {
+                                                return "Add your CellBase API key (optional)"
+                                            }
+                                        },
                                     }
                                 },
                             ]
