@@ -23,7 +23,6 @@ import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 // import PdfBuilder, {stylePdf} from "../../core/pdf-builder.js";
 import "./clinical-analysis-summary.js";
-import "../variant/interpretation/variant-interpreter-grid.js";
 import "../variant/interpretation/variant-interpreter-review.js";
 import "../disease-panel/disease-panel-grid.js";
 import "./interpretation/clinical-interpretation-view.js";
