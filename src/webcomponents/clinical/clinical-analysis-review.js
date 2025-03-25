@@ -506,26 +506,6 @@ export default class ClinicalAnalysisReview extends LitElement {
                                             }}">
                                         </variant-interpreter-review>
                                     `;
-                                    // const variantsReported = data?.interpretation?.primaryFindings?.filter(
-                                    //     variant => variant?.status === "REPORTED");
-                                    // return UtilsNew.isNotEmptyArray(variantsReported) ?
-                                    //     html`
-                                    //         <variant-interpreter-grid
-                                    //             review
-                                    //             .clinicalAnalysis=${this.clinicalAnalysis}
-                                    //             .clinicalVariants="${variantsReported}"
-                                    //             .opencgaSession="${this.opencgaSession}"
-                                    //             .config=${
-                                    //                 {
-                                    //                     showExport: true,
-                                    //                     showSettings: false,
-                                    //                     showActions: false,
-                                    //                     showEditReview: false,
-                                    //                 }
-                                    //             }>
-                                    //         </variant-interpreter-grid>
-                                    //     `:
-                                    //     "No reported variants to display";
                                 }
                             }
                         }
