@@ -493,6 +493,14 @@ export default class ClinicalAnalysisReview extends LitElement {
                                     const reportedVariants = data?.interpretation?.primaryFindings?.filter(variant => {
                                         return variant?.status === "REPORTED";
                                     });
+                                    if (reportedVariants?.length === 0) {
+                                        return html`
+                                            <div class="alert alert-warning">
+                                                <i class="fas fa-exclamation-circle me-2"></i>
+                                                <span>No <b>Reported Variants</b> to display.</span>
+                                            </div>
+                                        `;
+                                    }
                                     return html`
                                         <variant-interpreter-review
                                             .opencgaSession="${this.opencgaSession}"
