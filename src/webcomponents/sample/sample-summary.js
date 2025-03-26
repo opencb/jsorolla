@@ -17,7 +17,6 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utils-new.js";
-import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../study/annotationset/annotation-set-view.js";
@@ -61,14 +60,6 @@ export default class SampleSummary extends LitElement {
         this.search = false;
         this.isLoading = false;
 
-        this.displayConfigDefault = {
-            buttonsVisible: false,
-            collapsable: true,
-            titleVisible: false,
-            titleWidth: 2,
-            defaultValue: "-",
-            pdf: false,
-        };
         this._config = this.getDefaultConfig();
     }
 
@@ -81,10 +72,11 @@ export default class SampleSummary extends LitElement {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
+
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -136,17 +128,20 @@ export default class SampleSummary extends LitElement {
 
         return html`
             <data-form
-                .data="${this.sample}"
-                .config="${this._config}">
+                .data="${this.sample || {}}"
+                .config="${this._config || {}}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
+        return {
             title: "Summary",
-            icon: "",
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                titleVisible: false,
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "Search",
@@ -260,7 +255,7 @@ export default class SampleSummary extends LitElement {
                     ],
                 },
             ],
-        });
+        };
     }
 
 }
