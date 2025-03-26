@@ -229,15 +229,15 @@ export default class FamilyBrowser extends LitElement {
                     },
                     items: [
                         {
-                            id: "family-view",
+                            id: "family-summary",
                             name: "Overview",
                             active: true,
                             render: (family, active, opencgaSession) => html`
-                                <family-view
+                                <family-summary
                                     .opencgaSession="${opencgaSession}"
                                     .family="${family}"
                                     .settings="${OPENCGA_FAMILY_VIEW_SETTINGS}">
-                                </family-view>
+                                </family-summary>
                             `,
                         },
                         {

@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
-import "./family-view.js";
+import "./family-summary.js";
 import "../commons/view/detail-tabs.js";
 
 export default class FamilyDetail extends LitElement {
