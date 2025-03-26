@@ -157,11 +157,14 @@ export default class SampleView extends LitElement {
                     `,
                 },
                 {
-                    id: "file-view",
+                    id: "files",
                     name: "Files",
                     render: (sample, active) => html`
                         <file-grid
-                            .query="${{sampleIds: sample.id, type: "FILE,VIRTUAL"}}"
+                            .query="${{
+                                sampleIds: sample.id,
+                                type: "FILE,VIRTUAL",
+                            }}"
                             .active="${active}"
                             .config="${{
                                 showToolbar: false,
