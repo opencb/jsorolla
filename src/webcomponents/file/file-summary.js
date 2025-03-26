@@ -16,12 +16,12 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import LitUtils from "../commons/utils/lit-utils";
+import LitUtils from "../commons/utils/lit-utils.js";
 import "./file-preview.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
 
-export default class FileView extends LitElement {
+export default class FileSummary extends LitElement {
 
     constructor() {
         super();
@@ -290,4 +290,4 @@ export default class FileView extends LitElement {
 
 }
 
-customElements.define("file-view", FileView);
+customElements.define("file-summary", FileSummary);
