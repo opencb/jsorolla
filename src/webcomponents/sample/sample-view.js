@@ -37,16 +37,16 @@ export default class SampleView extends LitElement {
     static get properties() {
         return {
             sampleId: {
-                type: String
+                type: String,
             },
             sample: {
-                type: Object
+                type: Object,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
-            config: {
-                type: Object
+            displayConfig: {
+                type: Object,
             },
         };
     }
@@ -55,7 +55,6 @@ export default class SampleView extends LitElement {
         this.COMPONENT_ID = "sample-view";
         this._sample = null;
         this._config = this.getDefaultConfig();
-        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
@@ -65,19 +64,14 @@ export default class SampleView extends LitElement {
         if (changedProperties.has("sample")) {
             this.sampleObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            this.#updateDetailTabs();
+        if (changedProperties.has("displayConfig")) {
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
     sampleObserver() {
         this._sample = {...this.sample};
-        this.requestUpdate();
     }
 
     sampleIdObserver() {
@@ -97,13 +91,6 @@ export default class SampleView extends LitElement {
         }
     }
 
-    #updateDetailTabs() {
-        this._config.sections = [
-            ...this._config.sections,
-            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
-        ];
-    }
-
     render() {
         if (!this.opencgaSession || !this._sample) {
             return nothing;
@@ -111,20 +98,18 @@ export default class SampleView extends LitElement {
 
         return html`
             <data-form
-                .data="${this._sample}"
-                .config="${this._config}">
+                .data="${this._sample || {}}"
+                .config="${this._config || {}}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
         return {
-            // title: "Sample",
             display: {
-                // titleClass: "mt-4",
-                // contentClass: "p-3"
                 type: "tabs",
                 buttonsVisible: false,
+                ...this.displayConfig,
             },
             sections: [
                 {
@@ -194,7 +179,8 @@ export default class SampleView extends LitElement {
                             .active="${active}">
                         </json-viewer>
                     `,
-                }
+                },
+                ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
             ],
         };
     }
