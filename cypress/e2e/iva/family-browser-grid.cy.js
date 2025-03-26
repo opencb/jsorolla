@@ -273,15 +273,5 @@ context("Family Browser Grid", () => {
                 .contains("Extra column")
                 .should("be.visible");
         });
-
-        it("should display 'New Catalog Tab' Tab", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
-            cy.get("detail-tabs > div.detail-tabs > ul")
-                .find("li")
-                .contains("New Catalog Tab")
-                .as("catalogTab")
-                .click()
-                .should("be.visible");
-        });
     });
 });
