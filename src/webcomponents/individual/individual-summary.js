@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import Types from "../commons/types.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/forms/data-form.js";
@@ -58,17 +57,8 @@ export default class IndividualSummary extends LitElement {
     #init() {
         this.individual = {};
         this.search = false;
-
         this.isLoading = false;
-        this.displayConfigDefault = {
-            collapsable: true,
-            titleVisible: false,
-            titleWidth: 2,
-            defaultValue: "-",
-            defaultLayout: "horizontal",
-            buttonsVisible: false,
-            pdf: false,
-        };
+
         this._config = this.getDefaultConfig();
     }
 
@@ -78,20 +68,14 @@ export default class IndividualSummary extends LitElement {
     }
 
     update(changedProperties) {
-        // to update disorders if it has more than one
-        // if (changedProperties.has("individual")) {
-        //     this._config = this.getDefaultConfig();
-        // }
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
+
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig
-            };
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -142,17 +126,20 @@ export default class IndividualSummary extends LitElement {
 
         return html`
             <data-form
-                .data="${this.individual}"
-                .config="${this._config}">
+                .data="${this.individual || {}}"
+                .config="${this._config || {}}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
+        return {
             title: "Summary",
-            icon: "",
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                titleVisible: false,
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "Search",
@@ -428,7 +415,7 @@ export default class IndividualSummary extends LitElement {
                     ],
                 },
             ],
-        });
+        };
     }
 
 }
