@@ -19,6 +19,7 @@ import ExtensionsManager from "../extensions-manager.js";
 import "../commons/forms/data-form.js";
 import "./sample-summary.js";
 import "./sample-variant-stats-view.js";
+import "../individual/individual-summary.js";
 import "../alignment/qc/samtools-flagstats-view.js";
 
 export default class SampleView extends LitElement {
@@ -160,14 +161,14 @@ export default class SampleView extends LitElement {
                     `,
                 },
                 {
-                    id: "individual-view",
+                    id: "individual-summary",
                     name: "Individual",
                     render: (sample, active) => html`
-                        <individual-view
+                        <individual-summary
                             .individualId="${sample?.individualId}"
                             .active="${active}"
                             .opencgaSession="${this.opencgaSession}">
-                        </individual-view>
+                        </individual-summary>
                     `,
                 },
                 {

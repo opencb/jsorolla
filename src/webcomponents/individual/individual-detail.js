@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
-import "./individual-view.js";
+import "./individual-summary.js";
 import "./../commons/view/detail-tabs.js";
 
 export default class IndividualDetail extends LitElement {

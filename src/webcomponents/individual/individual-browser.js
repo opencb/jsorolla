@@ -22,7 +22,7 @@ import "../clinical/clinical-analysis-grid.js";
 import "../commons/opencga-browser.js";
 import "../commons/aggregation-stats.js";
 import "../commons/json-viewer.js";
-import "./individual-view.js";
+import "./individual-summary.js";
 import "./individual-grid.js";
 import "./individual-detail.js";
 
@@ -274,10 +274,10 @@ export default class IndividualBrowser extends LitElement {
                             name: "Overview",
                             active: true,
                             render: (individual, active, opencgaSession) => html`
-                                <individual-view
+                                <individual-summary
                                     .individual="${individual}"
                                     .opencgaSession="${opencgaSession}">
-                                </individual-view>
+                                </individual-summary>
                             `,
                         },
                         {

@@ -25,7 +25,7 @@ import "../../clinical/clinical-analysis-audit-browser.js";
 import "../../clinical/clinical-analysis-view.js";
 import "../../project/project-cellbase-info.js";
 import "../../commons/view/detail-tabs.js";
-import "../../individual/individual-view.js";
+import "../../individual/individual-summary.js";
 import "../../loading-spinner.js";
 
 class VariantInterpreterLanding extends LitElement {
@@ -159,10 +159,10 @@ class VariantInterpreterLanding extends LitElement {
                         return html`
                             <div class="col-md-10 offset-md-1">
                                 <tool-header title="Clinical Data"></tool-header>
-                                <individual-view
+                                <individual-summary
                                     .individual="${clinicalAnalysis.proband}"
                                     .opencgaSession="${opencgaSession}">
-                                </individual-view>
+                                </individual-summary>
                             </div>
                         `;
                     }
