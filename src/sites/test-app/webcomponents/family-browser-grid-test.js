@@ -18,11 +18,8 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/family/family-grid.js";
-import "../../../webcomponents/family/family-detail.js";
-import "../../../webcomponents/family/family-view.js";
 import "../../../webcomponents/family/family-create.js";
 import "../../../webcomponents/family/family-update.js";
-import "../../../webcomponents/commons/json-viewer.js";
 
 class FamilyBrowserGridTest extends LitElement {
 
@@ -118,11 +115,6 @@ class FamilyBrowserGridTest extends LitElement {
                     @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${e => this.onSelectRow(e)}">
                 </family-grid>
-                <family-detail
-                    .family="${this._selectedRow}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.detail}">
-                </family-detail>
             </div>
         `;
     }
@@ -130,35 +122,6 @@ class FamilyBrowserGridTest extends LitElement {
     getDefaultConfig() {
         return {
             grid: {},
-            detail: {
-                title: "Family",
-                showTitle: true,
-                items: [
-                    {
-                        id: "family-view",
-                        name: "Overview",
-                        active: true,
-                        render: (family, active, opencgaSession) => html`
-                            <family-view
-                                .opencgaSession="${opencgaSession}"
-                                .family="${family}"
-                                @settingsUpdate="${() => this.onSettingsUpdate()}"
-                                .settings="${{}}">
-                            </family-view>
-                        `,
-                    },
-                    {
-                        id: "json-view",
-                        name: "JSON Data",
-                        render: (family, active) => html`
-                            <json-viewer
-                                .data="${family}"
-                                .active="${active}">
-                            </json-viewer>
-                        `,
-                    }
-                ],
-            },
         };
     }
 
