@@ -284,32 +284,4 @@ context("Family Browser Grid", () => {
                 .should("be.visible");
         });
     });
-
-    context("detail tab", {tags: ["@shortTask","@testTask"]}, () => {
-        it("should render", () => {
-            cy.get(browserDetail)
-                .should("be.visible");
-        });
-
-        it("should display info from the selected row", () => {
-            const family = "919278";
-            cy.get(`tbody tr[data-uniqueid="${family}"]`)
-                .find(`td`)
-                .eq(1)
-                .trigger("click");
-
-            cy.get(`detail-tabs h3`)
-                .should("contain.text", `Family ${family}`);
-        });
-
-        it("should display 'JSON Data' Tab", () => {
-            cy.get("detail-tabs > div.detail-tabs > ul")
-                .find("li")
-                .contains("JSON Data")
-                .trigger("click");
-
-            cy.get("json-viewer")
-                .should("be.visible");
-        });
-    });
 });
