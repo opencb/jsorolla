@@ -135,8 +135,7 @@ export default class SampleBrowser extends LitElement {
                         ${params?.detail ? html`
                             <sample-view
                                 .sampleId="${params.detail?.id}"
-                                .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}">
+                                .opencgaSession="${params.opencgaSession}">
                             </sample-view>
                         ` : nothing}
                     `,
