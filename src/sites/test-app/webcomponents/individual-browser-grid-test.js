@@ -18,7 +18,6 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/individual/individual-grid.js";
-import "../../../webcomponents/commons/json-viewer.js";
 import "../../../webcomponents/individual/individual-update.js";
 import "../../../webcomponents/individual/individual-create.js";
 
