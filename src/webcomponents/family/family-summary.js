@@ -21,9 +21,9 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
 import "../commons/image-viewer.js";
 import "../loading-spinner.js";
-import LitUtils from "../commons/utils/lit-utils";
+import LitUtils from "../commons/utils/lit-utils.js";
 
-export default class FamilyView extends LitElement {
+export default class FamilySummary extends LitElement {
 
     constructor() {
         super();
@@ -361,4 +361,4 @@ export default class FamilyView extends LitElement {
 
 }
 
-customElements.define("family-view", FamilyView);
+customElements.define("family-summary", FamilySummary);
