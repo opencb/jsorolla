@@ -18,12 +18,9 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/individual/individual-grid.js";
-import "../../../webcomponents/individual/individual-detail.js";
-import "../../../webcomponents/individual/individual-view.js";
 import "../../../webcomponents/commons/json-viewer.js";
 import "../../../webcomponents/individual/individual-update.js";
 import "../../../webcomponents/individual/individual-create.js";
-
 
 class IndividualBrowserGridTest extends LitElement {
 
@@ -303,11 +300,6 @@ class IndividualBrowserGridTest extends LitElement {
                     @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${e => this.onSelectRow(e)}">
                 </individual-grid>
-                <individual-detail
-                    .individual="${this._selectedRow}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.detail}">
-                </individual-detail>
             </div>
         `;
     }
@@ -315,34 +307,6 @@ class IndividualBrowserGridTest extends LitElement {
     getDefaultConfig() {
         return {
             grid: {},
-            detail: {
-                title: "Individual",
-                showTitle: true,
-                items: [
-                    {
-                        id: "individual-view",
-                        name: "Overview",
-                        active: true,
-                        render: (individual, active, opencgaSession) => html`
-                            <individual-view
-                                .individual="${individual}"
-                                .active="${active}"
-                                .opencgaSession="${opencgaSession}">
-                            </individual-view>
-                        `,
-                    },
-                    {
-                        id: "json-view",
-                        name: "JSON Data",
-                        render: (individual, active) => html`
-                            <json-viewer
-                                .data="${individual}"
-                                .active="${active}">
-                            </json-viewer>
-                        `,
-                    }
-                ],
-            },
         };
     }
 
