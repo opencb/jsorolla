@@ -135,7 +135,6 @@ export default class IndividualBrowser extends LitElement {
                         ${params?.detail ? html`
                             <individual-view
                                 .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}"
                                 .individualId="${params.detail?.id}">
                             </individual-view>
                         ` : nothing}
