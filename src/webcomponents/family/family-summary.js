@@ -16,12 +16,11 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import Types from "../commons/types.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/image-viewer.js";
 import "../loading-spinner.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 
 export default class FamilySummary extends LitElement {
 
@@ -64,16 +63,8 @@ export default class FamilySummary extends LitElement {
     #init() {
         this.family = {};
         this.search = false;
-
         this.isLoading = false;
-        this.displayConfigDefault = {
-            buttonsVisible: false,
-            collapsable: true,
-            titleVisible: false,
-            titleWidth: 2,
-            defaultValue: "-",
-            pdf: false,
-        };
+
         this._config = this.getDefaultConfig();
     }
 
@@ -86,16 +77,15 @@ export default class FamilySummary extends LitElement {
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
         }
+
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
+
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig
-            };
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -161,7 +151,9 @@ export default class FamilySummary extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+            return html`
+                <loading-spinner></loading-spinner>,
+            `;
         }
 
         if (!this.family?.id && this.search === false) {
@@ -175,17 +167,20 @@ export default class FamilySummary extends LitElement {
 
         return html`
             <data-form
-                .data="${this.family}"
-                .config="${this._config}">
+                .data="${this.family || {}}"
+                .config="${this._config || {}}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
+        return {
             title: "Summary",
-            icon: "",
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                titleVisible: false,
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "Search",
@@ -337,17 +332,6 @@ export default class FamilySummary extends LitElement {
                                 ]
                             }
                         },
-                        // {
-                        //     title: "Pedigree",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: () => html`
-                        //             <image-viewer
-                        //                 .data="${this.family?.pedigreeGraph?.base64}">
-                        //             </image-viewer>
-                        //         `,
-                        //     }
-                        // },
                         {
                             title: "Pedigree",
                             type: "image",
@@ -356,7 +340,7 @@ export default class FamilySummary extends LitElement {
                     ]
                 }
             ]
-        });
+        };
     }
 
 }
