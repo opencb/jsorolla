@@ -23,7 +23,7 @@ import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../loading-spinner.js";
 
-export default class IndividualView extends LitElement {
+export default class IndividualSummary extends LitElement {
 
     constructor() {
         super();
@@ -433,4 +433,4 @@ export default class IndividualView extends LitElement {
 
 }
 
-customElements.define("individual-view", IndividualView);
+customElements.define("individual-summary", IndividualSummary);
