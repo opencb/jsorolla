@@ -16,8 +16,12 @@
 
 import {LitElement, html, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
+import "../commons/forms/data-form.js";
+import "../commons/json-viewer.js";
+import "../clinical/clinical-analysis-grid.js";
 import "./individual-summary.js";
-import "../commons/view/detail-tabs.js";
+import "./qc/individual-qc-inferred-sex.js";
+import "./qc/individual-qc-mendelian-errors.js";
 
 export default class IndividualView extends LitElement {
 
@@ -33,16 +37,16 @@ export default class IndividualView extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             individualId: {
-                type: String
+                type: String,
             },
             individual: {
-                type: Object
+                type: Object,
             },
-            config: {
-                type: Object
+            displayConfig: {
+                type: Object,
             },
         };
     }
@@ -51,7 +55,6 @@ export default class IndividualView extends LitElement {
         this.COMPONENT_ID = "individual-view";
         this._individual = null;
         this._config = this.getDefaultConfig();
-        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
@@ -64,11 +67,7 @@ export default class IndividualView extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            this.#updateDetailTabs();
+            this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
@@ -92,14 +91,6 @@ export default class IndividualView extends LitElement {
 
     individualObserver() {
         this._individual = {...this.individual};
-        this.requestUpdate();
-    }
-
-    #updateDetailTabs() {
-        this._config.items = [
-            ...this._config.items,
-            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
-        ];
     }
 
     render() {
@@ -117,7 +108,81 @@ export default class IndividualView extends LitElement {
 
     getDefaultConfig() {
         return {
-            items: [],
+            display: {
+                type: "tabs",
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
+            sections: [
+                {
+                    id: "individual-summary",
+                    name: "Overview",
+                    render: (individual, active) => html`
+                        <individual-summary
+                            .individual="${individual}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </individual-summary>
+                    `,
+                },
+                {
+                    id: "clinical-analysis-grid",
+                    name: "Clinical Analysis",
+                    render: (individual, active) => html`
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <span>Clinical Analysis in which the individual <b>${individual.id}</b> is the proband.</span>
+                        </div>
+                        <clinical-analysis-grid
+                            .active="${active}"
+                            .query="${{
+                                proband: individual.id,
+                            }}"
+                            .config=${{
+                                readOnlyMode: true,
+                                showExport: false,
+                                showActions: false,
+                                showSettings: false,
+                                showCreate: false,
+                            }}
+                            .opencgaSession="${this.opencgaSession}">
+                        </clinical-analysis-grid>
+                    `,
+                },
+                {
+                    id: "individual-inferred-sex",
+                    name: "Inferred Sex",
+                    render: (individual, active) => html`
+                        <individual-qc-inferred-sex
+                            .individual="${individual}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </individual-qc-inferred-sex>
+                    `,
+                },
+                {
+                    id: "individual-mendelian-error",
+                    name: "Mendelian Error",
+                    render: (individual, active) => html`
+                        <individual-qc-mendelian-errors
+                            .individual="${individual}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </individual-qc-mendelian-errors>
+                    `,
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (individual, active) => html`
+                        <json-viewer
+                            .data="${individual}"
+                            .active="${active}">
+                        </json-viewer>
+                    `,
+                },
+            ],
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
         };
     }
 

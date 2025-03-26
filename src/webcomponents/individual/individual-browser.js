@@ -16,16 +16,10 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import "./qc/individual-qc-inferred-sex.js";
-import "./qc/individual-qc-mendelian-errors.js";
-import "../clinical/clinical-analysis-grid.js";
 import "../commons/opencga-browser.js";
 import "../commons/aggregation-stats.js";
-import "../commons/json-viewer.js";
-import "./individual-summary.js";
 import "./individual-grid.js";
 import "./individual-view.js";
-
 
 export default class IndividualBrowser extends LitElement {
 
@@ -261,74 +255,6 @@ export default class IndividualBrowser extends LitElement {
                         showSelectCheckbox: false
                     }
                 },
-                detail: {
-                    title: "Individual",
-                    showTitle: true,
-                    display: {
-                        titleClass: "mt-4",
-                        contentClass: "p-3"
-                    },
-                    items: [
-                        {
-                            id: "individual-view",
-                            name: "Overview",
-                            active: true,
-                            render: (individual, active, opencgaSession) => html`
-                                <individual-summary
-                                    .individual="${individual}"
-                                    .opencgaSession="${opencgaSession}">
-                                </individual-summary>
-                            `,
-                        },
-                        {
-                            id: "clinical-analysis-grid",
-                            name: "Clinical Analysis",
-                            render: (individual, active, opencgaSession) => {
-                                const config = {
-                                    readOnlyMode: true
-                                };
-                                return html`
-                                    <p class="alert"> <i class="fas fa-info-circle align-middle"></i> Clinical Analysis in which the individual is the proband.</p>
-                                    <clinical-analysis-grid
-                                        .query="${{"proband": individual.id}}"
-                                        .config=${config}
-                                        .opencgaSession="${opencgaSession}">
-                                    </clinical-analysis-grid>
-                                `;
-                            }
-                        },
-                        {
-                            id: "individual-inferred-sex",
-                            name: "Inferred Sex",
-                            render: (individual, active, opencgaSession) => html`
-                                <individual-qc-inferred-sex
-                                    .individual="${individual}"
-                                    .opencgaSession="${opencgaSession}">
-                                </individual-qc-inferred-sex>
-                            `,
-                        },
-                        {
-                            id: "individual-mendelian-error",
-                            name: "Mendelian Error",
-                            render: (individual, active, opencgaSession) => html`
-                                <individual-qc-mendelian-errors
-                                    .individual="${individual}"
-                                    .opencgaSession="${opencgaSession}">
-                                </individual-qc-mendelian-errors>
-                            `
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (individual, active) => html`
-                                <json-viewer
-                                    .data="${individual}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        }
-                    ]
-                }
             },
             aggregation: {
                 default: ["disorders", "creationYear[MONTH]"],
