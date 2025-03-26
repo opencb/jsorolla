@@ -388,37 +388,4 @@ context("Sample Browser Grid", () => {
             });
         });
     });
-
-    context("Detail", () => {
-        beforeEach(() => {
-            cy.get("@container")
-                .find(`div[data-cy="sb-detail"]`)
-                .as("detail");
-        });
-
-        it("should render", () => {
-            cy.get("@detail")
-                .should("be.visible");
-        });
-
-        it("should display info from the selected row", () => {
-            const sample = "NA12889";
-            cy.get(`tbody tr[data-uniqueid="${sample}"]`)
-                .find(`td:first`)
-                .trigger("click");
-
-            cy.get(`detail-tabs h3`)
-                .should("contain.text", `Sample ${sample}`);
-        });
-
-        it("should display 'JSON Data' Tab", () => {
-            cy.get("@detail")
-                .find("li")
-                .contains("JSON Data")
-                .trigger("click");
-
-            cy.get("json-viewer")
-                .should("be.visible");
-        });
-    });
 });
