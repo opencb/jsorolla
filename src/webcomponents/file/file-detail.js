@@ -17,7 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
 import "../commons/json-viewer.js";
-import "./file-view.js";
+import "./file-summary.js";
 import "./file-preview.js";
 
 export default class OpencgaFileDetail extends LitElement {

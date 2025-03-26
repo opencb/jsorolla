@@ -290,14 +290,14 @@ export default class FileBrowser extends LitElement {
                     showTitle: true,
                     items: [
                         {
-                            id: "file-view",
+                            id: "file-summary",
                             name: "Overview",
                             active: true,
                             render: (file, active, opencgaSession) => html`
-                                <file-view
+                                <file-summary
                                     .opencgaSession="${opencgaSession}"
                                     .file="${file}">
-                                </file-view>
+                                </file-summary>
                             `,
                         },
                         {
