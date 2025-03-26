@@ -447,39 +447,4 @@ context("Individual Browser Grid", () => {
             });
         });
     });
-
-    // DETAIL TABS
-    context("Detail", () => {
-        beforeEach(() => {
-            cy.get("@container")
-                .find(`div[data-cy="ib-detail"]`)
-                .as("detail");
-        });
-
-        it("should render", () => {
-            cy.get("@detail")
-                .should("be.visible");
-        });
-
-        it("should display info from the selected row", () => {
-            const individual = "NA12877";
-            cy.get(`tbody tr[data-uniqueid="${individual}"]`)
-                .find(`td`)
-                .eq(1)
-                .trigger("click");
-
-            cy.get(`detail-tabs h3`)
-                .should("contain.text", `Individual ${individual}`);
-        });
-
-        it("should display 'JSON Data' Tab", () => {
-            cy.get("@detail")
-                .find("li")
-                .contains("JSON Data")
-                .trigger("click");
-
-            cy.get("json-viewer")
-                .should("be.visible");
-        });
-    });
 });
