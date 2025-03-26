@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
 import "./individual-summary.js";
-import "./../commons/view/detail-tabs.js";
+import "../commons/view/detail-tabs.js";
 
-export default class IndividualDetail extends LitElement {
+export default class IndividualView extends LitElement {
 
     constructor() {
         super();
@@ -48,7 +48,7 @@ export default class IndividualDetail extends LitElement {
     }
 
     #init() {
-        this.COMPONENT_ID = "individual-detail";
+        this.COMPONENT_ID = "individual-view";
         this._individual = null;
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
@@ -103,18 +103,15 @@ export default class IndividualDetail extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession) {
-            return "";
+        if (!this.opencgaSession || !this._individual) {
+            return nothing;
         }
 
         return html`
-            <div data-cy="ib-detail">
-                <detail-tabs
-                    .data="${this._individual}"
-                    .config="${this._config}"
-                    .opencgaSession="${this.opencgaSession}">
-                </detail-tabs>
-            </div>
+            <data-form
+                .data="${this._individual}"
+                .config="${this._config}">
+            </data-form>
         `;
     }
 
@@ -126,4 +123,4 @@ export default class IndividualDetail extends LitElement {
 
 }
 
-customElements.define("individual-detail", IndividualDetail);
+customElements.define("individual-view", IndividualView);

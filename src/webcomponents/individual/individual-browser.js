@@ -24,7 +24,7 @@ import "../commons/aggregation-stats.js";
 import "../commons/json-viewer.js";
 import "./individual-summary.js";
 import "./individual-grid.js";
-import "./individual-detail.js";
+import "./individual-view.js";
 
 
 export default class IndividualBrowser extends LitElement {
@@ -139,11 +139,11 @@ export default class IndividualBrowser extends LitElement {
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </individual-grid>
                         ${params?.detail ? html`
-                            <individual-detail
+                            <individual-view
                                 .opencgaSession="${params.opencgaSession}"
                                 .config="${params.config.filter.detail}"
                                 .individualId="${params.detail?.id}">
-                            </individual-detail>
+                            </individual-view>
                         ` : nothing}
                     `,
                 },
