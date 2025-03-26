@@ -61,7 +61,6 @@ import "../../webcomponents/organization/admin/organization-admin.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/study/admin/study-admin-iva.js";
-import "../../webcomponents/study/admin/catalog-admin.js";
 import "../../webcomponents/study/admin/variant/operations-admin.js";
 import "../../webcomponents/study/study-dashboard.js";
 import "../../webcomponents/user/user-profile.js";
@@ -1423,14 +1422,6 @@ class IvaApp extends LitElement {
                         @studyUpdateRequest="${this.onStudyUpdateRequest}"
                         @sessionUpdateRequest="${this.onSessionUpdateRequest}">
                     </organization-admin>
-                `;
-                break;
-            case "catalog-admin":
-                content = html`
-                    <catalog-admin
-                        .opencgaSession="${this.opencgaSession}"
-                        @sessionUpdateRequest="${this.onSessionUpdateRequest}">
-                    </catalog-admin>
                 `;
                 break;
             // case "projects-admin":
