@@ -213,7 +213,9 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
             this.title ?? this.TITLE,
             this.DESCRIPTION,
             params,
-            this.check()
+            this.check(),
+            {},
+            this.opencgaSession
         );
     }
 
