@@ -50,9 +50,6 @@ export default class FileSummary extends LitElement {
             preview: {
                 type: Boolean
             },
-            mode: {
-                type: String
-            },
             displayConfig: {
                 type: Object
             }
@@ -65,14 +62,6 @@ export default class FileSummary extends LitElement {
         this.preview = false;
         this.isLoading = false;
 
-        this.displayConfigDefault = {
-            buttonsVisible: false,
-            collapsable: true,
-            titleVisible: false,
-            titleWidth: 2,
-            defaultValue: "-",
-            pdf: false,
-        };
         this._config = this.getDefaultConfig();
     }
 
@@ -85,16 +74,11 @@ export default class FileSummary extends LitElement {
         if (changedProperties.has("fileId")) {
             this.fileIdObserver();
         }
-        if (changedProperties.has("preview")) {
+
+        if (changedProperties.has("displayConfig") || changedProperties.has("preview")) {
             this._config = this.getDefaultConfig();
         }
-        if (changedProperties.has("mode")) {
-            this._config = this.getDefaultConfig();
-        }
-        if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
-            this._config = this.getDefaultConfig();
-        }
+
         super.update(changedProperties);
     }
 
@@ -132,7 +116,9 @@ export default class FileSummary extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
         }
 
         if (!this.file?.id && this.search === false) {
@@ -147,16 +133,18 @@ export default class FileSummary extends LitElement {
         return html`
             <data-form
                 .data="${this.file}"
-                .config="${this._config}">
+                .config="${this._config || {}}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
         return {
-            title: "Summary",
-            icon: "",
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                buttonsVisible: false,
+                titleVisible: false,
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "Search",
@@ -166,10 +154,9 @@ export default class FileSummary extends LitElement {
                     elements: [
                         {
                             title: "File",
-                            // field: "fileId",
                             type: "custom",
                             display: {
-                                render: () => html `
+                                render: () => html`
                                     <catalog-search-autocomplete
                                         .value="${this.file?.id}"
                                         .resource="${"FILE"}"
@@ -261,7 +248,7 @@ export default class FileSummary extends LitElement {
                 {
                     title: "File Preview",
                     display: {
-                        visible: file => file?.id && this.preview === true || this.mode === "full",
+                        visible: file => file?.id && this.preview === true,
                         layout: "vertical",
                         collapsed: false,
                     },
@@ -270,7 +257,6 @@ export default class FileSummary extends LitElement {
                             field: "name",
                         },
                         {
-                            // title: "Preview",
                             type: "custom",
                             display: {
                                 render: file => html`
