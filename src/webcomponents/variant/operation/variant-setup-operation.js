@@ -93,11 +93,6 @@ export default class VariantSetupOperation extends LitElement {
                 message: "Approximate expected files is mandatory."
             };
         }
-        if (!this.toolParams.fileType) {
-            return {
-                message: "File type is mandatory."
-            };
-        }
         return null;
     }
 
@@ -180,9 +175,7 @@ export default class VariantSetupOperation extends LitElement {
                         type: "input-num",
                         display: {
                             defaultValue: 1000,
-                            help: {
-                                text: "Expected number of samples in the study"
-                            }
+                            helpMessage: "Expected number of samples in the study"
                         }
                     },
                     {
@@ -191,9 +184,7 @@ export default class VariantSetupOperation extends LitElement {
                         type: "input-num",
                         display: {
                             defaultValue: 1000,
-                            help: {
-                                text: "Expected number of files in the study"
-                            }
+                            helpMessage: "Expected number of files in the study"
                         }
                     },
                     {
@@ -203,9 +194,7 @@ export default class VariantSetupOperation extends LitElement {
                         allowedValues: ["GENOME_VCF", "GENOME_gVCF", "EXOME"],
                         defaultValue: "GENOME_VCF",
                         display: {
-                            help: {
-                                text: "Most common type of VCF file"
-                            }
+                            helpMessage: "Most common type of VCF file"
                         }
                     },
                 ],
@@ -217,7 +206,14 @@ export default class VariantSetupOperation extends LitElement {
             this.title ?? this.TITLE,
             this.DESCRIPTION,
             params,
-            this.check()
+            this.check(),
+            {
+                isJob: false,
+                buttons: {
+                    okText: "Update",
+                    clearText: "Discard Changes",
+                },
+            }
         );
     }
 

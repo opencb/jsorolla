@@ -155,7 +155,7 @@ export default class AnalysisUtils {
                     title: "Job Info",
                     display: {
                         className: "p-2",
-                        visible: config.isJob !== undefined ? config.isJob : true,
+                        visible: config.isJob ?? true,
                     },
                     elements: [
                         {
