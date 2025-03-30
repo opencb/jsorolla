@@ -190,7 +190,8 @@ export default class SampleBrowser extends LitElement {
                             {
                                 id: "somatic",
                                 title: "Somatic",
-                                description: ""
+                                description: "",
+                                quick: true
                             },
                             {
                                 id: "date",

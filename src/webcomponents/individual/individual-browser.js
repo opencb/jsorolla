@@ -211,7 +211,8 @@ export default class IndividualBrowser extends LitElement {
                                 id: "sex",
                                 title: "Sex",
                                 multiple: true,
-                                description: ""
+                                description: "",
+                                quick: true
                             },
                             {
                                 id: "karyotypicSex",
@@ -224,7 +225,8 @@ export default class IndividualBrowser extends LitElement {
                                 title: "Ethnicity",
                                 type: "string",
                                 placeholder: "White caucasian,asiatic...",
-                                description: ""
+                                description: "",
+                                quick: true
                             },
                             {
                                 id: "date",

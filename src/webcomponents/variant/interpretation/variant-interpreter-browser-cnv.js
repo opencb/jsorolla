@@ -286,6 +286,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
                                 tooltip: tooltips.sample,
+                                quick: true
                             },
                             {
                                 id: "variant-file",
@@ -319,7 +320,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
                         filters: [
                             {
                                 id: "region",
-                                title: "Genomic Location",
+                                title: "Genomic Region",
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Regions will be intersected with selected panels.",
@@ -328,12 +329,14 @@ class VariantInterpreterBrowserCNV extends LitElement {
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs (gene, ...)",
+                                title: "Feature ID",
+                                description: "Select a feature from the list (gene, SNP, etc.)",
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Feature regions will be intersected with selected panels.",
                                 },
                                 tooltip: tooltips.feature,
+                                quick: true
                             },
                             {
                                 id: "biotype",
@@ -358,13 +361,14 @@ class VariantInterpreterBrowserCNV extends LitElement {
                         filters: [
                             {
                                 id: "diseasePanels",
-                                title: "Disease Panels",
+                                title: "Disease Panel",
                                 disabled: () => this.clinicalAnalysis.panelLocked,
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Case Panel is locked, you are not allowed to change selected panel(s)."
                                 },
-                                tooltip: tooltips.diseasePanels
+                                tooltip: tooltips.diseasePanels,
+                                quick: true
                             },
                         ],
                     },

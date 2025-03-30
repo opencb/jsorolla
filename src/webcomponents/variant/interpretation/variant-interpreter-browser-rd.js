@@ -332,36 +332,16 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
                                 visible: () => this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "CANCER",
-                                // params: {
-                                //     genotypes: [
-                                //         {
-                                //             id: "0/1", name: "HET (0/1)"
-                                //         },
-                                //         {
-                                //             id: "1/1", name: "HOM_ALT (1/1)"
-                                //         },
-                                //         {
-                                //             separator: true
-                                //         },
-                                //         {
-                                //             id: "1", name: "HAPLOID (1)"
-                                //         },
-                                //         {
-                                //             id: "1/2", name: "BIALLELIC (1/2)"
-                                //         },
-                                //         {
-                                //             id: "NA", name: "NA"
-                                //         }
-                                //     ]
-                                // },
                                 tooltip: tooltips.sample,
+                                quick: this.clinicalAnalysis?.type?.toUpperCase() === "SINGLE" || this.clinicalAnalysis?.type?.toUpperCase() === "CANCER"
                             },
                             {
                                 id: "family-genotype",
                                 title: "Sample Genotype",
-                                tooltip: tooltips.sample,
                                 clinicalAnalysis: this.clinicalAnalysis,
-                                visible: () => this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                                visible: () => this.clinicalAnalysis.type.toUpperCase() === "FAMILY",
+                                tooltip: tooltips.sample,
+                                quick: this.clinicalAnalysis?.type?.toUpperCase() === "FAMILY"
                             },
                             {
                                 id: "individual-hpo",
@@ -415,8 +395,15 @@ class VariantInterpreterBrowserRd extends LitElement {
                         collapsed: true,
                         filters: [
                             {
+                                id: "variant",
+                                title: "Variant ID",
+                                description: "Introduce a comma separated list of variant IDs. Accepted format is chrom:position:ref:alt, eg: 11:66923381:-:A",
+                                tooltip: tooltips.variant,
+                                quick: true,
+                            },
+                            {
                                 id: "region",
-                                title: "Genomic Location",
+                                title: "Genomic Region",
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Regions will be intersected with selected panels.",
@@ -425,12 +412,14 @@ class VariantInterpreterBrowserRd extends LitElement {
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs (gene, SNPs, ...)",
+                                title: "Feature ID",
+                                description: "Select a feature from the list (gene, SNP, etc.)",
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Feature regions will be intersected with selected panels.",
                                 },
                                 tooltip: tooltips.feature,
+                                quick: true
                             },
                             {
                                 id: "biotype",
@@ -443,8 +432,10 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 title: "Variant Type",
                                 tooltip: tooltips.type,
                                 params: {
-                                    types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV"]
+                                    // types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV"]
+                                    types: VARIANT_TYPES
                                 },
+                                quick: true
                             }
                         ]
                     },
@@ -454,8 +445,9 @@ class VariantInterpreterBrowserRd extends LitElement {
                         filters: [
                             {
                                 id: "consequence-type",
-                                title: "Select SO terms",
-                                tooltip: tooltips.consequenceTypeSelect
+                                title: "Consequence Type",
+                                tooltip: tooltips.consequenceTypeSelect,
+                                quick: true
                             }
                         ]
                     },
@@ -465,7 +457,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                         filters: [
                             {
                                 id: "populationFrequency",
-                                title: "Select Population Frequency",
+                                title: "Population Frequency",
                                 tooltip: tooltips.populationFrequencies,
                                 params: {
                                     showSetAll: false,
@@ -481,18 +473,20 @@ class VariantInterpreterBrowserRd extends LitElement {
                         filters: [
                             {
                                 id: "diseasePanels",
-                                title: "Disease Panels",
+                                title: "Disease Panel",
                                 disabled: () => this.clinicalAnalysis.panelLock,
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLock,
                                     text: "Case Panel is locked, you are not allowed to change selected panel(s)."
                                 },
-                                tooltip: tooltips.diseasePanels
+                                tooltip: tooltips.diseasePanels,
+                                quick: true
                             },
                             {
                                 id: "clinical-annotation",
                                 title: "Clinical Annotation",
-                                tooltip: tooltips.clinical
+                                tooltip: tooltips.clinical,
+                                quick: true
                             }
                         ]
                     },

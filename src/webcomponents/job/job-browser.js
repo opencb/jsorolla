@@ -177,7 +177,7 @@ export default class JobBrowser extends LitElement {
                             },
                             {
                                 id: "tool",
-                                title: "Analysis Tool ID",
+                                title: "Tool ID",
                                 placeholder: "Tool",
                                 allowedValues: "",
                                 defaultValue: "",
@@ -219,6 +219,7 @@ export default class JobBrowser extends LitElement {
                                 allowedValues: "",
                                 defaultValue: "",
                                 description: "",
+                                quick: true
                             },
                             {
                                 id: "creationDate",

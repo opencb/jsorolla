@@ -311,6 +311,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
                                 tooltip: tooltips.sample,
+                                quick: true
                             },
                             {
                                 id: "variant-file",
@@ -352,8 +353,15 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         collapsed: true,
                         filters: [
                             {
+                                id: "variant",
+                                title: "Variant ID",
+                                description: "Introduce a comma separated list of variant IDs. Accepted format is chrom:position:ref:alt, eg: 11:66923381:-:A",
+                                tooltip: tooltips.variant,
+                                quick: true,
+                            },
+                            {
                                 id: "region",
-                                title: "Genomic Location",
+                                title: "Genomic Region",
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Regions will be intersected with selected panels.",
@@ -362,12 +370,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs (gene, SNPs, ...)",
+                                title: "Feature ID",
+                                description: "Select a feature from the list (gene, SNP, etc.)",
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Feature regions will be intersected with selected panels.",
                                 },
                                 tooltip: tooltips.feature,
+                                quick: true
                             },
                             {
                                 id: "biotype",
@@ -380,8 +390,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 title: "Variant Type",
                                 tooltip: tooltips.type,
                                 params: {
-                                    types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV", "BREAKEND"]
+                                    types: VARIANT_TYPES
                                 },
+                                quick: true
                             }
                         ]
                     },
@@ -391,8 +402,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         filters: [
                             {
                                 id: "consequence-type",
-                                title: "Select SO terms",
-                                tooltip: tooltips.consequenceTypeSelect
+                                title: "Consequence Type",
+                                tooltip: tooltips.consequenceTypeSelect,
+                                quick: true
                             }
                         ]
                     },
@@ -402,7 +414,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         filters: [
                             {
                                 id: "populationFrequency",
-                                title: "Select Population Frequency",
+                                title: "Population Frequency",
                                 tooltip: tooltips.populationFrequencies,
                                 params: {
                                     showSetAll: false,
@@ -418,22 +430,24 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         filters: [
                             {
                                 id: "diseasePanels",
-                                title: "Disease Panels",
+                                title: "Disease Panel",
                                 disabled: () => this.clinicalAnalysis.panelLocked,
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Case Panel is locked, you are not allowed to change selected panel(s)."
                                 },
-                                tooltip: tooltips.diseasePanels
+                                tooltip: tooltips.diseasePanels,
+                                quick: true
                             },
                             {
                                 id: "clinical-annotation",
                                 title: "Clinical Annotation",
-                                tooltip: tooltips.clinical
+                                tooltip: tooltips.clinical,
+                                quick: true
                             },
                             {
                                 id: "role-in-cancer",
-                                title: "Gene Role In Cancer",
+                                title: "Role In Cancer",
                                 tooltip: tooltips.roleInCancer,
                                 disabled: () => UtilsNew.compareVersions("2.6.0", this.opencgaSession.about.Version) < 0,
                                 message: {
@@ -443,6 +457,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 params: {
                                     rolesInCancer: ROLE_IN_CANCER
                                 },
+                                quick: true
                             },
                         ]
                     },

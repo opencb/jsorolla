@@ -377,12 +377,12 @@ export default class VariantBrowser extends LitElement {
                             },
                             {
                                 id: "region",
-                                title: "Genomic Location",
+                                title: "Genomic Region",
                                 tooltip: tooltips.region
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs",
+                                title: "Feature ID",
                                 description: "Select a feature from the list (gene, SNP, etc.)",
                                 tooltip: tooltips.feature,
                                 quick: true,
@@ -410,7 +410,7 @@ export default class VariantBrowser extends LitElement {
                         filters: [
                             {
                                 id: "consequence-type",
-                                title: "Select SO terms",
+                                title: "Consequence Type",
                                 tooltip: tooltips.consequenceTypeSelect,
                                 params: {
                                     consequenceTypes: this.consequenceTypes || CONSEQUENCE_TYPES
@@ -425,12 +425,13 @@ export default class VariantBrowser extends LitElement {
                         filters: [
                             {
                                 id: "populationFrequency",
-                                title: "Select Population Frequency",
+                                title: "Population Frequency",
                                 tooltip: tooltips.populationFrequencies,
                                 params: {
                                     populationFrequencies: this.populationFrequencies || POPULATION_FREQUENCIES,
                                     showSetAll: true
-                                }
+                                },
+                                quick: true
                             }
                         ]
                     },
@@ -440,7 +441,7 @@ export default class VariantBrowser extends LitElement {
                         filters: [
                             {
                                 id: "diseasePanels",
-                                title: "Disease Panels",
+                                title: "Disease Panel",
                                 tooltip: tooltips.diseasePanels,
                                 quick: true,
                             },

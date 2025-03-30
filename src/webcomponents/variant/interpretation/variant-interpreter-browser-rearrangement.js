@@ -313,18 +313,34 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                             },
                             {
                                 id: "region",
-                                title: "Genomic Location",
-                                tooltip: tooltips.region
+                                title: "Genomic Region",
+                                tooltip: tooltips.region,
+                                quick: true
+
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs (gene, SNPs, ...)",
-                                tooltip: tooltips.feature
+                                title: "Feature ID",
+                                description: "Select a feature from the list (gene, SNP, etc.)",
+                                tooltip: tooltips.feature,
+                                quick: true
                             },
+                            // {
+                            //     id: "diseasePanels",
+                            //     title: "Disease Panel",
+                            //     tooltip: tooltips.diseasePanels,
+                            //     quick: true
+                            // },
                             {
                                 id: "diseasePanels",
-                                title: "Disease Panels",
-                                tooltip: tooltips.diseasePanels
+                                title: "Disease Panel",
+                                disabled: () => this.clinicalAnalysis.panelLocked,
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLocked,
+                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
+                                },
+                                tooltip: tooltips.diseasePanels,
+                                quick: true
                             },
                             {
                                 id: "biotype",
@@ -334,12 +350,13 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                             },
                             {
                                 id: "ext-svtype",
-                                title: "SVTYPE",
+                                title: "SV Type",
                                 types: ["TRANSLOCATION", "DUPLICATION", "INVERSION", "DELETION"],
                                 tooltip: tooltips.type,
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["brass"]?.name : null}`,
-                                }
+                                },
+                                quick: true
                             }
                         ]
                     }
