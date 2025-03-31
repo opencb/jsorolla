@@ -22,9 +22,9 @@ import PdfBuilder, {stylePdf} from "../commons/forms/pdf-builder.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
 import "../study/annotationset/annotation-set-view.js";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 
-export default class CohortView extends LitElement {
+export default class CohortSummary extends LitElement {
 
     constructor() {
         super();
@@ -142,13 +142,6 @@ export default class CohortView extends LitElement {
         }
 
         return html`
-<!--
-            <button class="btn btn-primary" style="margin-bottom:14px; display: $UtilsNew.isNotEmpty(this.cohort) ? "block": "none"}"
-                @click="$this.onDownloadPdf}">
-                <i class="fas fa-file-pdf"></i>
-                Export PDF (Beta)
-            </button>
--->
             <data-form
                 .data=${this.cohort}
                 .config="${this._config}">
@@ -314,5 +307,5 @@ export default class CohortView extends LitElement {
 
 }
 
-customElements.define("cohort-view", CohortView);
+customElements.define("cohort-summary", CohortSummary);
 
