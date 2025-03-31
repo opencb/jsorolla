@@ -16,8 +16,10 @@
 
 import {LitElement, html} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
+import "../commons/forms/data-form.js";
+import "../commons/json-viewer.js";
+import "../sample/sample-grid.js";
 import "./cohort-summary.js";
-import "../commons/view/detail-tabs.js";
 
 export default class CohortView extends LitElement {
 
@@ -41,17 +43,16 @@ export default class CohortView extends LitElement {
             cohort: {
                 type: Object
             },
-            config: {
-                type: Object
-            }
+            defaultConfig: {
+                type: Object,
+            },
         };
     }
 
     #init() {
-        this.COMPONENT_ID = "cohort-detail";
+        this.COMPONENT_ID = "cohort-view";
         this._cohort = null;
         this._config = this.getDefaultConfig();
-        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
@@ -63,12 +64,8 @@ export default class CohortView extends LitElement {
             this.cohortObserver();
         }
 
-        if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            this.#updateDetailTabs();
+        if (changedProperties.has("defaultConfig")) {
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
@@ -91,32 +88,65 @@ export default class CohortView extends LitElement {
 
     cohortObserver() {
         this._cohort = {...this.cohort};
-        this.requestUpdate();
-    }
-
-    #updateDetailTabs() {
-        this._config.items = [
-            ...this._config.items,
-            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
-        ];
     }
 
     render() {
-        if (!this.opencgaSession) {
+        if (!this.opencgaSession || !this._cohort) {
             return "";
         }
 
         return html`
-            <detail-tabs
+            <data-form
                 .data="${this._cohort}"
-                .config="${this._config}"
-                .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>`;
+                .config="${this._config || {}}">
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
         return {
-            items: [],
+            sections: [
+                {
+                    id: "cohort-summary",
+                    name: "Overview",
+                    active: true,
+                    render: (cohort, active) => html`
+                        <cohort-summary
+                            .opencgaSession="${this.opencgaSession}"
+                            .active="${active}"
+                            .cohort="${cohort}">
+                        </cohort-summary>
+                    `,
+                },
+                {
+                    id: "sample-view",
+                    name: "Samples",
+                    render: (cohort, active) => html`
+                        <sample-grid
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${{
+                                cohortIds: cohort.id,
+                            }}"
+                            .config="${{
+                                showToolbar: false,
+                                showSelectCheckbox: false,
+                            }}"
+                            .active="${active}">
+                        </sample-grid>
+                    `,
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (cohort, active) => html`
+                        <json-viewer
+                            .data="${cohort}"
+                            .active="${active}">
+                        </json-viewer>
+                    `,
+                },
+                ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+            ],
         };
     }
 
