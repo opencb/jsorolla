@@ -21,7 +21,7 @@ import "../commons/opencga-browser.js";
 import "../commons/forms/toggle-radio.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "./note-grid.js";
-import "./note-detail.js";
+import "./note-view.js";
 
 export default class NoteBrowser extends LitElement {
 
@@ -145,12 +145,11 @@ export default class NoteBrowser extends LitElement {
                                 @settingsUpdate="${() => this.onSettingsUpdate()}">
                             </note-grid>
                             ${params?.detail ? html`
-                                <note-detail
+                                <note-view
                                     .noteId="${params.detail?.id}"
                                     .noteScope="${params?.detail?.scope}"
-                                    .opencgaSession="${params.opencgaSession}"
-                                    .config="${params.config.filter.detail}">
-                                </note-detail>
+                                    .opencgaSession="${params.opencgaSession}">
+                                </note-view>
                             ` : nothing}
                         `;
                     }
@@ -295,35 +294,7 @@ export default class NoteBrowser extends LitElement {
                         exportTabs: ["download", "link", "code"]
                     }
                 },
-                detail: {
-                    title: "Note",
-                    showTitle: true,
-                    items: [
-                        {
-                            id: "note-view",
-                            name: "Overview",
-                            active: true,
-                            render: (note, active, opencgaSession) => html`
-                                <note-view
-                                    .note="${note}"
-                                    .active="${active}"
-                                    .opencgaSession="${opencgaSession}">
-                                </note-view>
-                            `,
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (note, active, opencgaSession) => html`
-                                <json-viewer
-                                    .data="${note}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        }
-                    ]
-                }
-            }
+            },
         };
     }
 
