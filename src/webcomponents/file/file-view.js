@@ -20,7 +20,7 @@ import "../commons/json-viewer.js";
 import "./file-summary.js";
 import "./file-preview.js";
 
-export default class OpencgaFileDetail extends LitElement {
+export default class FileView extends LitElement {
 
     constructor() {
         super();
@@ -122,15 +122,15 @@ export default class OpencgaFileDetail extends LitElement {
             showTitle: false,
             items: [
                 {
-                    id: "file-view",
+                    id: "file-summary",
                     name: "Overview",
                     active: true,
                     render: (file, active, opencgaSession) => html`
-                        <file-view
+                        <file-summary
                             .opencgaSession="${opencgaSession}"
                             .active="${active}"
                             .file="${file}">
-                        </file-view>
+                        </file-summary>
                     `,
                 },
                 {
@@ -160,4 +160,4 @@ export default class OpencgaFileDetail extends LitElement {
 
 }
 
-customElements.define("file-detail", OpencgaFileDetail);
+customElements.define("file-view", FileView);
