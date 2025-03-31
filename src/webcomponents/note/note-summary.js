@@ -16,11 +16,7 @@
 
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
-import "../commons/filters/catalog-search-autocomplete.js";
-import "../study/annotationset/annotation-set-view.js";
-import "../loading-spinner.js";
 
 export default class NoteSummary extends LitElement {
 
@@ -54,14 +50,6 @@ export default class NoteSummary extends LitElement {
     }
 
     #init() {
-        this.displayConfigDefault = {
-            buttonsVisible: false,
-            collapsable: true,
-            titleVisible: false,
-            titleWidth: 2,
-            defaultValue: "-",
-            pdf: false,
-        };
         this._note = null;
         this._config = this.getDefaultConfig();
     }
@@ -70,17 +58,20 @@ export default class NoteSummary extends LitElement {
         if (changedProperties.has("noteId") || changedProperties.has("noteScope")) {
             this.noteIdOrScopeObserver();
         }
+
         if (changedProperties.has("note")) {
             this.noteObserver();
         }
+
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
     noteObserver() {
-        this._note = this.note;
+        this._note = {...this.note};
     }
 
     noteIdOrScopeObserver() {
@@ -110,30 +101,29 @@ export default class NoteSummary extends LitElement {
     }
 
     render() {
-        if (!this._note) {
+        if (!this.opencgaSession || !this._note) {
             return nothing;
         }
 
         return html`
             <data-form
-                .data="${this._note}"
-                .config="${this._config}">
+                .data="${this._note || {}}"
+                .config="${this._config || {}}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
+        return {
             title: "Summary",
-            icon: "",
             display: {
-                ...this.displayConfigDefault,
-                ...(this.displayConfig || {}),
+                titleVisible: false,
+                buttonsVisible: false,
+                ...this.displayConfig,
             },
             sections: [
                 {
                     title: "General",
-                    collapsed: false,
                     elements: [
                         {
                             title: "Note ID",
@@ -215,7 +205,7 @@ export default class NoteSummary extends LitElement {
                     ],
                 },
             ],
-        });
+        };
     }
 
 }
