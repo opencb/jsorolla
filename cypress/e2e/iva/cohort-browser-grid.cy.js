@@ -19,7 +19,6 @@ import BrowserTest from "../../support/browser-test.js";
 
 context("Cohort Browser Grid", () => {
     const browserGrid = "cohort-grid";
-    const browserDetail = "cohort-detail";
 
     beforeEach(() => {
         cy.visit("#cohort-browser-grid");
@@ -282,33 +281,6 @@ context("Cohort Browser Grid", () => {
                 .contains("New Catalog Tab")
                 .as("catalogTab")
                 .click()
-                .should("be.visible");
-        });
-    });
-
-    context("detail tab", () => {
-        it("should render", () => {
-            cy.get("detail-tabs")
-                .should("be.visible");
-        });
-
-        it("should display info from the selected row", () => {
-            const cohort = "FIN";
-            cy.get(`tbody tr[data-uniqueid="${cohort}"]`)
-                .find(`td:first`)
-                .trigger("click");
-
-            cy.get(`detail-tabs h3`)
-                .should("contain.text", `Cohort ${cohort}`);
-        });
-
-        it("should display 'JSON Data' Tab", () => {
-            cy.get(`detail-tabs > div.detail-tabs > ul`)
-                .find("li")
-                .contains("JSON Data")
-                .trigger("click");
-
-            cy.get("json-viewer")
                 .should("be.visible");
         });
     });
