@@ -17,9 +17,9 @@
 import {LitElement, html, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
 import "./note-view.js";
-import "./../commons/view/detail-tabs.js";
+import "../commons/view/detail-tabs.js";
 
-export default class NoteDetail extends LitElement {
+export default class NoteView extends LitElement {
 
     constructor() {
         super();
@@ -135,4 +135,4 @@ export default class NoteDetail extends LitElement {
 
 }
 
-customElements.define("note-detail", NoteDetail);
+customElements.define("note-view", NoteView);
