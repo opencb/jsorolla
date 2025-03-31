@@ -17,7 +17,6 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/disease-panel/disease-panel-grid.js";
-import "../../../webcomponents/disease-panel/disease-panel-detail.js";
 import "../../../webcomponents/disease-panel/disease-panel-create.js";
 import "../../../webcomponents/disease-panel/disease-panel-update.js";
 
@@ -116,11 +115,6 @@ class DiseasePanelBrowserGridTest extends LitElement {
                     @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${e => this.onSelectRow(e)}">
                 </disease-panel-grid>
-                <disease-panel-detail
-                    .diseasePanel="${this._selectedRow}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.detail}">
-                </disease-panel-detail>
             </div>
         `;
     }
@@ -139,33 +133,6 @@ class DiseasePanelBrowserGridTest extends LitElement {
                     showSettings: false,
                     exportTabs: ["download", "link", "code"]
                 },
-            },
-            detail: {
-                title: "Disease Panel",
-                showTitle: true,
-                items: [
-                    {
-                        id: "disease-panel-view",
-                        name: "Summary",
-                        active: true,
-                        render: (diseasePanel, _active, opencgaSession) => html`
-                            <disease-panel-summary
-                                .diseasePanel="${diseasePanel}"
-                                .opencgaSession="${opencgaSession}">
-                            </disease-panel-summary>
-                        `,
-                    },
-                    {
-                        id: "json-view",
-                        name: "JSON Data",
-                        render: (diseasePanel, active) => html`
-                            <json-viewer
-                                .data="${diseasePanel}"
-                                .active="${active}">
-                            </json-viewer>
-                        `,
-                    },
-                ]
             },
         };
     }
