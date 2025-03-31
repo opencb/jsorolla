@@ -22,7 +22,7 @@ import "./disease-panel-region-view.js";
 import "../commons/view/detail-tabs.js";
 import {construction} from "../commons/under-construction.js";
 
-export default class DiseasePanelDetail extends LitElement {
+export default class DiseasePanelView extends LitElement {
 
     constructor() {
         super();
@@ -178,4 +178,4 @@ export default class DiseasePanelDetail extends LitElement {
 
 }
 
-customElements.define("disease-panel-detail", DiseasePanelDetail);
+customElements.define("disease-panel-view", DiseasePanelView);
