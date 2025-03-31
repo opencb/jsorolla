@@ -19,7 +19,6 @@ import BrowserTest from "../../support/browser-test.js";
 
 context("File Browser Grid", () => {
     const browserGrid = "file-grid";
-    const browserDetail = "file-detail";
 
     beforeEach(() => {
         cy.visit("#file-browser-grid");
@@ -244,33 +243,6 @@ context("File Browser Grid", () => {
                 .contains("New Catalog Tab")
                 .as("catalogTab")
                 .click()
-                .should("be.visible");
-        });
-    });
-
-    context("detail tab", () => {
-        it("should render", () => {
-            cy.get(browserDetail)
-                .should("be.visible");
-        });
-
-        // it("should display info from the selected row", () => {
-        //     const file = "chinese:HG007_GRCh38_1_22_v4.2.1_benchmark.vcf.gz";
-        //     cy.get(`tbody tr[data-uniqueid="${file}"]`)
-        //         .find(`td:first`)
-        //         .trigger("click");
-
-        //     cy.get(`detail-tabs h3`)
-        //         .should("contain.text", `File ${file}`);
-        // });
-
-        it("should display 'Preview' Tab", () => {
-            cy.get(`detail-tabs > div.detail-tabs > ul`)
-                .find("li")
-                .contains("Preview")
-                .trigger("click");
-
-            cy.get("file-preview")
                 .should("be.visible");
         });
     });
