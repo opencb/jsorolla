@@ -22,7 +22,7 @@ import "../commons/filters/catalog-search-autocomplete.js";
 import "../study/annotationset/annotation-set-view.js";
 import "../loading-spinner.js";
 
-export default class NoteView extends LitElement {
+export default class NoteSummary extends LitElement {
 
     constructor() {
         super();
@@ -220,4 +220,4 @@ export default class NoteView extends LitElement {
 
 }
 
-customElements.define("note-view", NoteView);
+customElements.define("note-summary", NoteSummary);
