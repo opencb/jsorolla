@@ -105,6 +105,11 @@ export default class CohortView extends LitElement {
 
     getDefaultConfig() {
         return {
+            display: {
+                type: "tabs",
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     id: "cohort-summary",
