@@ -17,12 +17,10 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
-import Types from "../commons/types.js";
-import PdfBuilder, {stylePdf} from "../commons/forms/pdf-builder.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
 import "../study/annotationset/annotation-set-view.js";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 
 export default class CohortSummary extends LitElement {
 
@@ -61,15 +59,6 @@ export default class CohortSummary extends LitElement {
         this.search = false;
         this.isLoading = false;
 
-        this.displayConfigDefault = {
-            buttonsVisible: false,
-            collapsable: true,
-            titleAlign: "left",
-            titleVisible: false,
-            titleWidth: 2,
-            defaultValue: "-",
-            pdf: false,
-        };
         this._config = this.getDefaultConfig();
     }
 
@@ -82,10 +71,11 @@ export default class CohortSummary extends LitElement {
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
         }
+
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -120,16 +110,11 @@ export default class CohortSummary extends LitElement {
         this.cohortId = e.detail.value;
     }
 
-    onDownloadPdf() {
-        const dataFormConf = this.getDefaultConfig();
-        const pdfDocument = new PdfBuilder(this.cohort, dataFormConf);
-        pdfDocument.exportToPdf();
-    }
-
-
     render() {
         if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
         }
 
         if (!this.cohort?.id && this.search === false) {
@@ -143,38 +128,20 @@ export default class CohortSummary extends LitElement {
 
         return html`
             <data-form
-                .data=${this.cohort}
-                .config="${this._config}">
+                .data=${this.cohort || {}}
+                .config="${this._config || {}}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
+        return {
             title: "Summary",
-            icon: "",
-            display: this.displayConfig || this.displayConfigDefault,
-            // displayDoc: {
-            //     headerTitle: {
-            //         title: `Cohort ${this.cohort?.id}`,
-            //         display: {
-            //             classes: "h1",
-            //             propsStyle: {
-            //                 ...stylePdf({
-            //                     alignment: "center",
-            //                     bold: true,
-            //                 })
-            //             },
-            //         },
-            //     },
-            //     watermark: {
-            //         text: "Demo",
-            //         color: "blue",
-            //         opacity: 0.3,
-            //         bold: true,
-            //         italics: false
-            //     },
-            // },
+            display: {
+                titleVisible: false,
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "Search",
