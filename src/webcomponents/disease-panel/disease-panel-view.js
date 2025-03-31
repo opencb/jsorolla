@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
+import "../commons/forms/data-form.js";
 import "./disease-panel-summary.js";
 import "./disease-panel-gene-view.js";
 import "./disease-panel-region-view.js";
-import "../commons/view/detail-tabs.js";
-import {construction} from "../commons/under-construction.js";
 
 export default class DiseasePanelView extends LitElement {
 
@@ -44,17 +43,16 @@ export default class DiseasePanelView extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
+            displayConfig: {
+                type: Object,
             },
         };
     }
 
     #init() {
-        this.COMPONENT_ID = "disease-panel-detail";
+        this.COMPONENT_ID = "disease-panel-view";
         this._diseasePanel = null;
         this._config = this.getDefaultConfig();
-        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
@@ -66,12 +64,8 @@ export default class DiseasePanelView extends LitElement {
             this.diseasePanelObserver();
         }
 
-        if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            this.#updateDetailTabs();
+        if (changedProperties.has("displayConfig")) {
+            this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
@@ -95,72 +89,58 @@ export default class DiseasePanelView extends LitElement {
 
     diseasePanelObserver() {
         this._diseasePanel = {...this.diseasePanel};
-        this.requestUpdate();
-    }
-
-    #updateDetailTabs() {
-        this._config.items = [
-            ...this._config.items,
-            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
-        ];
     }
 
     render() {
-        if (!this.opencgaSession) {
-            return "";
+        if (!this.opencgaSession || !this._diseasePanel) {
+            return nothing;
         }
 
         return html`
-            <div data-cy="dpb-detail">
-                <detail-tabs
-                    .data="${this._diseasePanel}"
-                    .config="${this._config}"
-                    .opencgaSession="${this.opencgaSession}">
-                </detail-tabs>
-            </div>
+            <data-form
+                .data="${this._diseasePanel || {}}"
+                .config="${this._config || {}}">
+            </data-form>
         `;
     }
 
     getDefaultConfig() {
         return {
             title: "Disease Panel",
-            showTitle: true,
-            items: [
+            sections: [
                 {
-                    id: "disease-panel-view",
+                    id: "disease-panel-summary",
                     name: "Overview",
                     active: true,
-                    render: (diseasePanel, _active, opencgaSession) => html`
+                    render: (diseasePanel, active) => html`
                         <disease-panel-summary
                             .diseasePanel="${diseasePanel}"
-                            .opencgaSession="${opencgaSession}">
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
                         </disease-panel-summary>
                     `,
                 },
                 {
                     id: "disease-panel-genes",
                     name: "Genes",
-                    render: (diseasePanel, active, opencgaSession) => html`
+                    render: (diseasePanel, active) => html`
                         <disease-panel-gene-view
                             .genePanels="${diseasePanel.genes}"
-                            .opencgaSession="${opencgaSession}">
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
                         </disease-panel-gene-view>
                     `,
                 },
                 {
                     id: "disease-panel-regions",
                     name: "Regions",
-                    render: (diseasePanel, active, opencgaSession) => html`
+                    render: (diseasePanel, active) => html`
                         <disease-panel-region-view
                             .regions="${diseasePanel.regions}"
-                            .opencgaSession="${opencgaSession}">
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
                         </disease-panel-region-view>
                     `,
-                },
-                {
-                    id: "disease-panel-variants",
-                    name: "Variants",
-                    render: () => construction,
                 },
                 {
                     id: "json-view",
@@ -171,7 +151,8 @@ export default class DiseasePanelView extends LitElement {
                             .active="${active}">
                         </json-viewer>
                     `,
-                }
+                },
+                ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
             ]
         };
     }
