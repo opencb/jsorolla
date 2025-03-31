@@ -18,8 +18,6 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/file/file-grid.js";
-import "../../../webcomponents/file/file-detail.js";
-
 
 class FileBrowserGridTest extends LitElement {
 
@@ -115,11 +113,6 @@ class FileBrowserGridTest extends LitElement {
                     @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${e => this.onSelectRow(e)}">
                 </file-grid>
-                <file-detail
-                    .file="${this._selectedRow}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.detail}">
-                </file-detail>
             </div>
         `;
     }
