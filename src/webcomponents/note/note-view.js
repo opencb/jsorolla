@@ -16,8 +16,9 @@
 
 import {LitElement, html, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
-import "./note-view.js";
-import "../commons/view/detail-tabs.js";
+import "../commons/forms/data-form.js";
+import "../commons/json-viewer.js";
+import "./note-summary.js";
 
 export default class NoteView extends LitElement {
 
@@ -45,39 +46,36 @@ export default class NoteView extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
-            }
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
     #init() {
-        this.COMPONENT_ID = "note-detail";
+        this.COMPONENT_ID = "note-view";
         this._note = null;
         this._config = this.getDefaultConfig();
-        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
         if (changedProperties.has("noteId") || changedProperties.has("noteScope")) {
             this.noteIdOrScopeObserver();
         }
+
         if (changedProperties.has("note")) {
             this.noteObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            this.#updateDetailTabs();
+
+        if (changedProperties.has("displayConfig")) {
+            this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
     noteObserver() {
-        // No need to create a local clone of the note object
-        this._note = this.note;
+        this._note = {...this.note};
     }
 
     noteIdOrScopeObserver() {
@@ -106,30 +104,50 @@ export default class NoteView extends LitElement {
         }
     }
 
-    #updateDetailTabs() {
-        this._config.items = [
-            ...this._config.items,
-            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
-        ];
-    }
-
     render() {
         if (!this.opencgaSession || !this._note) {
             return nothing;
         }
 
         return html`
-            <detail-tabs
-                .data="${this._note}"
-                .config="${this._config}"
-                .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>
+            <data-form
+                .data="${this._note || {}}"
+                .config="${this._config || {}}">
+            </data-form>
         `;
     }
 
     getDefaultConfig() {
         return {
-            items: [],
+            display: {
+                type: "tabs",
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
+            sections: [
+                {
+                    id: "note-summary",
+                    name: "Overview",
+                    render: (note, active) => html`
+                        <note-summary
+                            .note="${note}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </note-summary>
+                    `,
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (note, active) => html`
+                        <json-viewer
+                            .data="${note}"
+                            .active="${active}">
+                        </json-viewer>
+                    `,
+                },
+                ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+            ],
         };
     }
 
