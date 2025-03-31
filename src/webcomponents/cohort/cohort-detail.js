@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
-import "./cohort-view.js";
+import "./cohort-summary.js";
 import "./../commons/view/detail-tabs.js";
 
 export default class CohortDetail extends LitElement {
