@@ -17,7 +17,6 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
-import Types from "../commons/types.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
@@ -57,17 +56,6 @@ export default class DiseasePanelSummary extends LitElement {
         this.diseasePanel = {};
         this.isLoading = false;
 
-        this.displayConfigDefault = {
-            collapsable: true,
-            titleVisible: false,
-            titleWidth: 2,
-            defaultValue: "-",
-            defaultLayout: "horizontal",
-            buttonsVisible: false,
-            showTitle: false,
-            labelWidth: 3,
-            pdf: false,
-        };
         this._config = this.getDefaultConfig();
     }
 
@@ -80,11 +68,8 @@ export default class DiseasePanelSummary extends LitElement {
         if (changedProperties.has("diseasePanelId")) {
             this.diseasePanelIdObserver();
         }
+
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig
-            };
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -127,7 +112,9 @@ export default class DiseasePanelSummary extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
         }
 
         if (!this.diseasePanel?.id) {
@@ -143,14 +130,17 @@ export default class DiseasePanelSummary extends LitElement {
             <data-form
                 .data=${this.diseasePanel}
                 .config="${this._config}">
-            </data-form>`;
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
-            title: "Summary",
-            icon: "",
-            display: this.displayConfig || this.displayConfigDefault,
+        return {
+            display: {
+                titleVisible: false,
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General",
@@ -216,7 +206,7 @@ export default class DiseasePanelSummary extends LitElement {
                     ]
                 }
             ]
-        });
+        };
     }
 
 }
