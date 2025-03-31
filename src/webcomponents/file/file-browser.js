@@ -285,56 +285,6 @@ export default class FileBrowser extends LitElement {
                 result: {
                     grid: {}
                 },
-                detail: {
-                    title: "File",
-                    showTitle: true,
-                    items: [
-                        {
-                            id: "file-summary",
-                            name: "Overview",
-                            active: true,
-                            render: (file, active, opencgaSession) => html`
-                                <file-summary
-                                    .opencgaSession="${opencgaSession}"
-                                    .file="${file}">
-                                </file-summary>
-                            `,
-                        },
-                        {
-                            id: "file-preview",
-                            name: "Preview",
-                            render: (file, active, opencgaSession) => {
-                                let title = "";
-                                switch (file.format) {
-                                    case "VCF":
-                                        title = "VCF HEAD";
-                                        break;
-                                    case "IMAGE":
-                                        title = "IMAGE";
-                                        break;
-                                }
-                                return html`
-                                    <div><h3>${title}</h3></div>
-                                    <file-preview
-                                        .active="${active}"
-                                        .file="${file}"
-                                        .opencgaSession="${opencgaSession}">
-                                    </file-preview>
-                                `;
-                            }
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (file, active) => html`
-                                <json-viewer
-                                    .data="${file}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        },
-                    ]
-                }
             },
             aggregation: {
                 default: ["format", "status", "size[0..214748364800]:10737418240"],

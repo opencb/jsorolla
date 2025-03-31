@@ -29,7 +29,7 @@ import "./file-folder-create.js";
 import "./file-create.js";
 import "./file-upload.js";
 import "./file-fetch.js";
-import "./file-detail.js";
+import "./file-view.js";
 import "../variant/operation/variant-index-operation.js";
 
 export default class OpencgaFileGrid extends LitElement {
@@ -673,10 +673,10 @@ export default class OpencgaFileGrid extends LitElement {
                         modalSize: "modal-lg",
                     },
                     render: () => html`
-                        <file-detail
+                        <file-view
                             .fileId="${this._selectedFile.id}"
                             .opencgaSession="${this.opencgaSession}">
-                        </file-detail>
+                        </file-view>
                     `,
                 };
                 break;
