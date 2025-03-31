@@ -74,6 +74,7 @@ export default class OpencgaFileGrid extends LitElement {
         this.active = true;
         this.activeActionModal = "";
         this.lastFilters = null;
+        this._selectedFile = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -132,11 +133,11 @@ export default class OpencgaFileGrid extends LitElement {
         });
     }
 
-    hasPermission(mode) {
+    hasPermission(resource = "FILE", mode = "VIEW") {
         return OpencgaCatalogUtils.getStudyEffectivePermission(
             this.opencgaSession.study,
             this.opencgaSession.user.id,
-            WebUtils.getPermissionID("FILE", mode),
+            WebUtils.getPermissionID(resource, mode),
             this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
     }
 
@@ -230,7 +231,7 @@ export default class OpencgaFileGrid extends LitElement {
                     if (row.type === "DIRECTORY") {
                         this.onPathChange(row.path);
                     } else {
-                        this.fileId = row.id;
+                        this._selectedFile = row;
                         this.changeActiveActionModal("view");
                     }
                 },
@@ -338,9 +339,10 @@ export default class OpencgaFileGrid extends LitElement {
                 title: "Name",
                 field: "name",
                 formatter: (fileName, row) => {
+                    const parentPath = "/" + row.path.split("/").slice(0, -1).join("/").replace(/\/\//g, "/");
                     return `
                         <div class="fw-bold mb-1">${fileName}</div>
-                        <div class="text-secondary">${("/" + row.path.replace(row.name, "")).replace("//", "/")}</div>
+                        <div class="text-secondary">${parentPath}</div>
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("name")
@@ -438,8 +440,8 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "actions",
                 field: "actions",
                 formatter: (value, row) => {
-                    // const hasWritePermission = this.hasPermission("WRITE");
-                    const hasDeletePermission = this.hasPermission("DELETE");
+                    const hasDownloadPermission = this.hasPermission("FILE", "DOWNLOAD");
+                    const hasDeletePermission = this.hasPermission("FILE", "DELETE");
                     const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
                     const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
 
@@ -457,7 +459,7 @@ export default class OpencgaFileGrid extends LitElement {
                                         <i class="fas fa-eye me-1"></i>
                                         <span>View</span>
                                     </a>
-                                    <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
+                                    <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" || !hasDownloadPermission ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
                                         <i class="fas fa-download me-1"></i> Download
                                     </a>
                                     <hr class="dropdown-divider">
@@ -504,7 +506,7 @@ export default class OpencgaFileGrid extends LitElement {
         const action = (event.currentTarget?.dataset?.action || "").toLowerCase();
         switch (action) {
             case "view":
-                this.fileId = file.id;
+                this._selectedFile = file;
                 this.changeActiveActionModal("view");
                 break;
             case "copy-json":
@@ -514,7 +516,7 @@ export default class OpencgaFileGrid extends LitElement {
                 UtilsNew.downloadData([JSON.stringify(file, null, "\t")], file.id + ".json");
                 break;
             case "variant-index":
-                this.fileId = file.id;
+                this._selectedFile = file;
                 this.changeActiveActionModal("variant-index");
                 break;
             case "delete":
@@ -627,7 +629,10 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     getRightToolbar() {
-        const hasWritePermission = this.hasPermission("WRITE");
+        const hasWritePermission = this.hasPermission("FILE", "WRITE");
+        const hasUploadPermission = this.hasPermission("FILE", "UPLOAD");
+        const hasJobExecutionPermission = this.hasPermission("JOB", "EXECUTE");
+
         return [
             {
                 icon: "fa-folder-plus",
@@ -644,13 +649,13 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 icon: "fa-file-upload",
                 title: "Upload File",
-                disabled: !hasWritePermission,
+                disabled: !hasWritePermission || !hasUploadPermission,
                 onClick: () => this.changeActiveActionModal("upload-file"),
             },
             {
                 icon: "fas fa-cloud-download-alt",
                 title: "Fetch File",
-                disabled: !hasWritePermission,
+                disabled: !hasWritePermission || !hasJobExecutionPermission,
                 onClick: () => this.changeActiveActionModal("fetch-file"),
             },
         ];
@@ -663,13 +668,13 @@ export default class OpencgaFileGrid extends LitElement {
             case "view":
                 config = {
                     display: {
-                        modalTitle: `File ${this.fileId}`,
+                        modalTitle: `File ${this._selectedFile?.name}`,
                         modalCyDataName: `modal-file-view`,
                         modalSize: "modal-lg",
                     },
                     render: () => html`
                         <file-detail
-                            .fileId="${this.fileId}"
+                            .fileId="${this._selectedFile.id}"
                             .opencgaSession="${this.opencgaSession}">
                         </file-detail>
                     `,
@@ -769,7 +774,7 @@ export default class OpencgaFileGrid extends LitElement {
                         <variant-index-operation
                             .opencgaSession="${this.opencgaSession}"
                             .toolParams="${{
-                                file: this.fileId,
+                                file: this._selectedFile.id,
                                 study: this.opencgaSession.study.fqn,
                             }}">
                         </variant-index-operation>

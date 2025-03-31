@@ -162,8 +162,8 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     onQuerySearch(e) {
-        this.preparedQuery = e.detail.query;
-        this.executedQuery = e.detail.query;
+        this.preparedQuery = {...e.detail.query};
+        this.executedQuery = {...e.detail.query};
         this.searchActive = false;
         this.detail = null;
         this.notifySearch(this.preparedQuery);

@@ -109,7 +109,7 @@ class AggregationStats extends LitElement {
             case "COHORT":
                 return this.opencgaSession.opencgaClient.cohorts();
             case "DISEASE_PANEL":
-                return this.opencgaSession.opencgaClient.clinical();
+                return this.opencgaSession.opencgaClient.panels();
             case "CLINICAL_ANALYSIS":
                 return this.opencgaSession.opencgaClient.clinical();
             default:
@@ -119,6 +119,7 @@ class AggregationStats extends LitElement {
 
     onAggregationFieldChange(e) {
         this.preparedFacetQueryFormatted = e.detail.value;
+        this.requestUpdate();
     }
 
     /**

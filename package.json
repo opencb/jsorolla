@@ -16,7 +16,7 @@
     "serve:dev": "webpack serve",
     "serve:build": "cross-env PORT=4000 node ./scripts/server.js",
     "clean": "rm -rf build",
-    "build": "npm run clean && cross-env NODE_ENV=production webpack build",
+    "build": "npm run clean && npm install && cross-env NODE_ENV=production webpack build",
     "test:open": "cypress open",
     "test:prepare": "./prepare-test.sh",
     "test:run": "cypress run --spec cypress/e2e/commons/data-form.cy.js,cypress/e2e/iva/**/*.cy.js",

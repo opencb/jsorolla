@@ -45,6 +45,7 @@ export default class AnalysisUtils {
     static fillJobParams(toolParams, prefix) {
         return {
             jobId: toolParams.jobId || `${prefix}-${UtilsNew.getDatetime()}`,
+            jobDependsOn: toolParams.jobDependsOn || "",
             jobTags: toolParams.jobTags || "",
             jobDescription: toolParams.jobDescription || "",
         };
@@ -123,14 +124,14 @@ export default class AnalysisUtils {
         ];
     }
 
-    static getAnalysisConfiguration(id, title, description, paramSections, check, config = {}) {
+    static getAnalysisConfiguration(id, title, description, paramSections, check, config = {}, opencgaSession) {
         return {
             id: id,
             icon: config.icon || "",
             title: config.title || title,
             description: config.description || description,
             display: {
-                buttonOkText: "Run Analysis",
+                buttonOkText: config.buttons?.okText || "Run Analysis",
                 ...config?.display
             },
             buttons: config?.buttons || {},
@@ -154,7 +155,7 @@ export default class AnalysisUtils {
                     title: "Job Info",
                     display: {
                         className: "p-2",
-                        visible: config.isJob !== undefined ? config.isJob : true,
+                        visible: config.isJob ?? true,
                     },
                     elements: [
                         {
@@ -168,28 +169,36 @@ export default class AnalysisUtils {
                                 }
                             },
                         },
-                        // {
-                        //     title: "Depends on",
-                        //     field: "jobDependsOn",
-                        //     type: "custom",
-                        //     display: {
-                        //         placeholder: "Add job tags...",
-                        //         render: () => html`
-                        //             <catalog-search-autocomplete
-                        //                 .resource="${"JOB"}"
-                        //                 .opencgaSession="${this.opencgaSession}"
-                        //                 .config="${{multiple: false}}"
-                        //                 @filterChange="${e => this.onFilterChange(e)}">
-                        //             </catalog-search-autocomplete>
-                        //         `
-                        //     },
-                        // },
+                        {
+                            title: "Depends On",
+                            field: "jobDependsOn",
+                            type: "custom",
+                            display: {
+                                placeholder: "Add job tags...",
+                                visible: !!opencgaSession,
+                                render: (data, onFieldChange) => html`
+                                    <catalog-search-autocomplete
+                                        .resource="${"JOB"}"
+                                        .opencgaSession="${opencgaSession}"
+                                        .query="${
+                                            {
+                                                internalStatus: "PENDING,QUEUED,RUNNING",
+                                                include: "id,name",
+                                            }}"
+                                        .config="${{multiple: false}}"
+                                        @filterChange="${e => onFieldChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `,
+                                helpMessage: "Job ID that this job depends on. The job will not start until the specified job has finished. Only jobs in PENDING, QUEUED or RUNNING status can be selected.",
+                            },
+                        },
                         {
                             title: "Tags",
                             field: "jobTags",
                             type: "input-text",
                             display: {
                                 placeholder: "Add job tags...",
+                                helpMessage: "Comma separated list of tags to be associated to the job",
                             },
                         },
                         {
@@ -197,8 +206,9 @@ export default class AnalysisUtils {
                             field: "jobDescription",
                             type: "input-text",
                             display: {
-                                rows: 2,
+                                rows: 3,
                                 placeholder: "Add a job description...",
+                                helpMessage: "Description of the job",
                             },
                         },
                     ]

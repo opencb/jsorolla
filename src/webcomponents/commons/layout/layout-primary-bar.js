@@ -157,17 +157,24 @@ export default class LayoutPrimaryBar extends LitElement {
                         ${this.renderSeparator()}
                         <div class="d-flex" title="Variant Browser">
                             <a href="#research/variant-browser" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
-                                <i class="fas fa-dna lh-1"></i>
+                                <i class="fas fa-dna lh-1 fs-6"></i>
                             </a>
                         </div>
                         <div class="d-flex" title="File Manager">
                             <a href="#catalog/file-manager" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
-                                <i class="fas fa-folder lh-1"></i>
+                                <i class="fas fa-folder lh-1 fs-6"></i>
+                            </a>
+                        </div>
+                        <div class="d-flex" title="Job Browser">
+                            <a href="#catalog/job-browser" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
+                                <i class="fas fa-cogs lh-1 fs-6"></i>
                             </a>
                         </div>
                         <div class="d-flex" title="Workflow Manager">
                             <a href="#research/workflow-manager" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
-                                <img src="https://raw.githubusercontent.com/nextflow-io/trademark/refs/heads/master/nextflow-icon.svg" height="16px">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" class="fs-6">
+                                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5C3 5 3 3 5 3L9 3C11 3 11 5 11 5L11 9C11 9 11 11 9 11L5 11C3 11 3 9 3 9L3 5ZM13 15C13 15 13 13 15 13L19 13C21 13 21 15 21 15L21 19C21 19 21 21 19 21L15 21C13 21 13 19 13 19L13 15ZM7 11L7 15C7 15 7 17 9 17L13 17" />
+                                </svg>
                             </a>
                         </div>
                         <div class="d-flex" title="Jupyter Lab Notebooks">
@@ -182,7 +189,7 @@ export default class LayoutPrimaryBar extends LitElement {
                         </div>
                         <div class="d-flex" title="REST API - DEPRECATED">
                             <a href="#rest-api" class="d-flex align-items-center btn border border-gray-700 hover:bg-gray-800 text-white">
-                                <i class="fas fa-code lh-1"></i>
+                                <i class="fas fa-code lh-1 fs-6"></i>
                             </a>
                         </div>
 

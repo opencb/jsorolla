@@ -290,21 +290,13 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     onVariantFilterSearch(e) {
-        this.preparedQuery = e.detail.query;
-        this.executedQuery = e.detail.query;
+        this.preparedQuery = {...e.detail.query};
+        this.executedQuery = {...e.detail.query};
         this.query = {...e.detail.query}; // We need to update the internal query to propagate to filters
         this.variant = null;
         this.notifyQueryChange();
         this.requestUpdate();
     }
-
-    // onActiveFilterChange(e) {
-    //     VariantUtils.validateQuery(e.detail);
-    //     this.query = {...e.detail};
-    //     this.variant = null;
-    //     this.notifyQueryChange();
-    //     this.requestUpdate();
-    // }
 
     onSearch() {
         this.onVariantFilterSearch({

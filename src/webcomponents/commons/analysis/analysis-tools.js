@@ -321,32 +321,32 @@ export default class AnalysisTools extends LitElement {
                         },
                     ],
                 },
-                {
-                    id: "data-management",
-                    name: "Data Management",
-                    submenu: [
-                        {
-                            id: "alignment-index",
-                            name: "Alignment Index",
-                            description: "Create a .bai index file.",
-                            render: opencgaSession => html`
-                                <opencga-alignment-index-analysis
-                                    .opencgaSession="${opencgaSession}">
-                                </opencga-alignment-index-analysis>
-                            `,
-                        },
-                        {
-                            id: "coverage-index",
-                            name: "Coverage Index",
-                            description: "Precompute coverage in a BigWig file",
-                            render: opencgaSession => html`
-                                <opencga-coverage-index-analysis
-                                    .opencgaSession="${opencgaSession}">
-                                </opencga-coverage-index-analysis>
-                            `,
-                        },
-                    ],
-                },
+                // {
+                //     id: "data-management",
+                //     name: "Data Management",
+                //     submenu: [
+                //         {
+                //             id: "alignment-index",
+                //             name: "Alignment Index",
+                //             description: "Create a .bai index file.",
+                //             render: opencgaSession => html`
+                //                 <opencga-alignment-index-analysis
+                //                     .opencgaSession="${opencgaSession}">
+                //                 </opencga-alignment-index-analysis>
+                //             `,
+                //         },
+                //         {
+                //             id: "coverage-index",
+                //             name: "Coverage Index",
+                //             description: "Precompute coverage in a BigWig file",
+                //             render: opencgaSession => html`
+                //                 <opencga-coverage-index-analysis
+                //                     .opencgaSession="${opencgaSession}">
+                //                 </opencga-coverage-index-analysis>
+                //             `,
+                //         },
+                //     ],
+                // },
                 // {
                 //     id: "summary-stats",
                 //     name: "Summary Stats",

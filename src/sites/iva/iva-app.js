@@ -649,10 +649,8 @@ class IvaApp extends LitElement {
 
         // 0. in case of empty hash fragments, redirect to home tool
         if (window.location.hash === "" || window.location.hash === "#") {
-            if (this.opencgaSession?.project?.id && this.opencgaSession?.study?.id) {
-                window.location.hash = `home/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
-                return;
-            }
+            window.location.hash = ["home", this.opencgaSession?.project?.id, this.opencgaSession?.study?.id].filter(Boolean).join("/");
+            return;
         }
 
         // 1. parse hash fragments
@@ -671,12 +669,14 @@ class IvaApp extends LitElement {
 
         // 3. make sure that project and study is in the hash fragment
         if (!hashProject || !hashStudy) {
-            window.location.hash = [hashApp, hashTool || "home", this.opencgaSession?.project?.id, this.opencgaSession?.study?.id].filter(Boolean).join("/");
-            return;
+            if (this.opencgaSession?.project?.id && this.opencgaSession?.study?.id) {
+                window.location.hash = [hashApp, hashTool || "home", this.opencgaSession?.project?.id, this.opencgaSession?.study?.id].filter(Boolean).join("/");
+                return;
+            }
         }
 
         // 4. parse project and study
-        if (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
+        if (!!hashProject && !!hashStudy && (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id)) {
             this.changeActiveStudy(`${this.opencgaSession.organization.id}@${hashProject}:${hashStudy}`);
         }
 
@@ -934,7 +934,6 @@ class IvaApp extends LitElement {
                             .consequenceTypes="${this.config.consequenceTypes}"
                             .populationFrequencies="${this.config.populationFrequencies}"
                             .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                            @onGene="${this.geneSelected}"
                             @onSamplechange="${this.onSampleChange}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "variant-browser")}"
                             onqueryChange="${e => this.onQueryChange(e, "variant")}"
@@ -1163,14 +1162,12 @@ class IvaApp extends LitElement {
                     <div class="content">
                         <opencga-gene-view
                             .opencgaSession="${this.opencgaSession}"
-                            .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
-                            .geneId="${this.gene}"
+                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                            .geneId="${this.queries["gene"]?.id || ""}"
                             .populationFrequencies="${this.config.populationFrequencies}"
                             .consequenceTypes="${this.config.consequenceTypes}"
                             .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}"
-                            .summary="${this.config.opencga.summary}"
-                            @querySearch="${e => this.onQueryFilterSearch(e, "variant")}">
+                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
                         </opencga-gene-view>
                     </div>
                 `;
