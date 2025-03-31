@@ -18,11 +18,8 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/cohort/cohort-grid.js";
-import "../../../webcomponents/cohort/cohort-detail.js";
-import "../../../webcomponents/cohort/cohort-view.js";
 import "../../../webcomponents/cohort/cohort-update.js";
 import "../../../webcomponents/cohort/cohort-create.js";
-import "../../../webcomponents/commons/json-viewer.js";
 
 class CohortBrowserGridTest extends LitElement {
 
@@ -118,11 +115,6 @@ class CohortBrowserGridTest extends LitElement {
                     @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${e => this.onSelectRow(e)}">
                 </cohort-grid>
-                <cohort-detail
-                    .cohort="${this._selectedRow}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.detail}">
-                </cohort-detail>
             </div>
         `;
     }
@@ -130,37 +122,6 @@ class CohortBrowserGridTest extends LitElement {
     getDefaultConfig() {
         return {
             grid: {},
-            detail: {
-                title: "Cohort",
-                showTitle: true,
-                items: [
-                    {
-                        id: "cohort-view",
-                        name: "Overview",
-                        active: true,
-                        render: (cohort, active, opencgaSession) => {
-                            return html`
-                                <cohort-view
-                                    .opencgaSession="${opencgaSession}"
-                                    .cohort="${cohort}">
-                                </cohort-view>
-                            `;
-                        }
-                    },
-                    {
-                        id: "json-view",
-                        name: "JSON Data",
-                        render: (cohort, active) => {
-                            return html`
-                                <json-viewer
-                                    .data="${cohort}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `;
-                        }
-                    }
-                ],
-            },
         };
     }
 
