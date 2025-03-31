@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
 import "../commons/forms/data-form.js";
+import "../commons/json-viewer.js";
 import "./disease-panel-summary.js";
 import "./disease-panel-gene-view.js";
 import "./disease-panel-region-view.js";
@@ -107,6 +108,11 @@ export default class DiseasePanelView extends LitElement {
     getDefaultConfig() {
         return {
             title: "Disease Panel",
+            display: {
+                type: "tabs",
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     id: "disease-panel-summary",
