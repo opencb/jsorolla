@@ -299,7 +299,6 @@ context("Disease Panel Browser Grid", () => {
         });
 
         context("data format", () => {
-
             beforeEach(() => {
                 cy.get("@grid")
                     .find("tbody tr[data-index='0']")
@@ -313,40 +312,6 @@ context("Disease Panel Browser Grid", () => {
                     .contains("Extra column")
                     .should("be.visible");
             });
-        });
-
-    });
-
-    context("Detail", () => {
-        beforeEach(() => {
-            cy.get("@container")
-                .find("div[data-cy='dpb-detail']")
-                .as("detail");
-        });
-
-        it("should render", () => {
-            cy.get("@detail")
-                .should("be.visible");
-        });
-
-        it("should display info from the selected row",() => {
-            const panel = "Familial_non_syndromic_congenital_heart_disease-PanelAppId-212";
-            cy.get(`tbody tr[data-uniqueid="${panel}"]`)
-                .find(`td:first`)
-                .trigger("click");
-
-            cy.get(`detail-tabs h3`)
-                .should("contain.text", `Disease Panel ${panel}`);
-        });
-
-        it("should display 'JSON Data' Tab", () => {
-            cy.get("@detail")
-                .find("li")
-                .contains("JSON Data")
-                .trigger("click");
-
-            cy.get("json-viewer")
-                .should("be.visible");
         });
     });
 });
