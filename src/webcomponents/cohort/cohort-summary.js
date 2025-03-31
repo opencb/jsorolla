@@ -269,7 +269,7 @@ export default class CohortSummary extends LitElement {
                     ],
                 },
             ],
-        });
+        };
     }
 
 }
