@@ -17,9 +17,9 @@
 import {LitElement, html} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
 import "./cohort-summary.js";
-import "./../commons/view/detail-tabs.js";
+import "../commons/view/detail-tabs.js";
 
-export default class CohortDetail extends LitElement {
+export default class CohortView extends LitElement {
 
     constructor() {
         super();
@@ -122,4 +122,4 @@ export default class CohortDetail extends LitElement {
 
 }
 
-customElements.define("cohort-detail", CohortDetail);
+customElements.define("cohort-view", CohortView);
