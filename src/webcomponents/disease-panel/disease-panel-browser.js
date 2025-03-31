@@ -16,13 +16,12 @@
 
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import {construction} from "../commons/under-construction.js";
+import "../commons/opencga-browser.js";
 import "./disease-panel-gene-view.js";
 import "./disease-panel-region-view.js";
 import "./disease-panel-summary.js";
 import "./disease-panel-grid.js";
-import "./disease-panel-detail.js";
-import "../commons/opencga-browser.js";
+import "./disease-panel-view.js";
 
 export default class DiseasePanelBrowser extends LitElement {
 
@@ -133,11 +132,10 @@ export default class DiseasePanelBrowser extends LitElement {
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </disease-panel-grid>
                         ${params?.detail ? html`
-                            <disease-panel-detail
+                            <disease-panel-view
                                 .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}"
                                 .diseasePanelId="${params.detail?.id}">
-                            </disease-panel-detail>
+                            </disease-panel-view>
                         ` : nothing}
                     `,
                 },
@@ -239,60 +237,6 @@ export default class DiseasePanelBrowser extends LitElement {
                         multiSelection: false,
                         showSelectCheckbox: false
                     }
-                },
-                detail: {
-                    title: "Selected Disease Panel:",
-                    showTitle: true,
-                    display: {
-                        titleClass: "mt-4",
-                        contentClass: "p-3"
-                    },
-                    items: [
-                        {
-                            id: "disease-panel-view",
-                            name: "Summary",
-                            active: true,
-                            render: (diseasePanel, _active, opencgaSession) => html`
-                                <disease-panel-summary
-                                    .diseasePanel="${diseasePanel}"
-                                    .opencgaSession="${opencgaSession}">
-                                </disease-panel-summary>`,
-                        },
-                        {
-                            id: "disease-panel-genes",
-                            name: "Genes",
-                            render: (diseasePanel, _active, opencgaSession) => html`
-                                <disease-panel-gene-view
-                                    .genePanels="${diseasePanel.genes}"
-                                    .opencgaSession=${opencgaSession}>
-                                </disease-panel-gene-view>`,
-                        },
-                        {
-                            id: "disease-panel-regions",
-                            name: "Regions",
-                            render: (diseasePanel, active, opencgaSession) => {
-                                return html`
-                                    <disease-panel-region-view
-                                        .regions="${diseasePanel.regions}"
-                                        .opencgaSession=${opencgaSession}>
-                                    </disease-panel-region-view>`;
-                            }
-                        },
-                        {
-                            id: "disease-panel-variants",
-                            name: "Variants",
-                            render: () => construction,
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (diseasePanel, active) => html`
-                                <json-viewer
-                                    .data="${diseasePanel}"
-                                    .active="${active}">
-                                </json-viewer>`,
-                        },
-                    ],
                 },
             },
             aggregation: {
