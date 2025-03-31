@@ -106,7 +106,7 @@ export default class VariantIndexOperation extends LitElement {
             calculateStats: this.toolParams.calculateStats || false,
             annotate: this.toolParams.annotate || false,
             resume: this.toolParams.resume || false,
-            loadMultiFileData: this.toolParams.loadMultiFileData || true,
+            loadMultiFileData: this.toolParams.loadMultiFileData || false,
         };
         const params = {
             study: this.toolParams.study || this.opencgaSession.study.fqn,
