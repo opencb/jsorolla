@@ -140,34 +140,6 @@ class SampleBrowserGridTest extends LitElement {
     getDefaultConfig() {
         return {
             grid: {},
-            detail: {
-                title: "Sample",
-                showTitle: true,
-                items: [
-                    {
-                        id: "sample-view",
-                        name: "Overview",
-                        active: true,
-                        render: (sample, active, opencgaSession) => html`
-                            <sample-view
-                                .sample="${sample}"
-                                .active="${active}"
-                                .opencgaSession="${opencgaSession}">
-                            </sample-view>
-                        `,
-                    },
-                    {
-                        id: "json-view",
-                        name: "JSON Data",
-                        render: (sample, active) => html`
-                            <json-viewer
-                                .data="${sample}"
-                                .active="${active}">
-                            </json-viewer>
-                        `,
-                    }
-                ],
-            },
         };
     }
 
