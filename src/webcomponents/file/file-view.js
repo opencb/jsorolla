@@ -16,6 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
+import "../commons/forms/data-form.js";
 import "../commons/json-viewer.js";
 import "./file-summary.js";
 import "./file-preview.js";
@@ -42,17 +43,16 @@ export default class FileView extends LitElement {
             fileId: {
                 type: String
             },
-            config: {
-                type: Object
-            }
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
     #init() {
-        this.COMPONENT_ID = "file-detail";
+        this.COMPONENT_ID = "file-view";
         this._file = null;
         this._config = this.getDefaultConfig();
-        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
@@ -64,12 +64,8 @@ export default class FileView extends LitElement {
             this.fileObserver();
         }
 
-        if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            this.#updateDetailTabs();
+        if (changedProperties.has("defaultConfig")) {
+            this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
@@ -93,41 +89,36 @@ export default class FileView extends LitElement {
 
     fileObserver() {
         this._file = {...this.file};
-        this.requestUpdate();
-    }
-
-    #updateDetailTabs() {
-        this._config.items = [
-            ...this._config.items,
-            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
-        ];
     }
 
     render() {
-        if (!this.opencgaSession) {
+        if (!this.opencgaSession || !this._file) {
             return nothing;
         }
 
         return html`
-            <detail-tabs
+            <data-form
                 .data="${this._file}"
-                .config="${this._config}"
-                .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>
+                .config="${this._config || {}}">
+            </data-form>
         `;
     }
 
     getDefaultConfig() {
         return {
-            showTitle: false,
-            items: [
+            display: {
+                type: "tabs",
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
+            sections: [
                 {
                     id: "file-summary",
                     name: "Overview",
                     active: true,
-                    render: (file, active, opencgaSession) => html`
+                    render: (file, active) => html`
                         <file-summary
-                            .opencgaSession="${opencgaSession}"
+                            .opencgaSession="${this.opencgaSession}"
                             .active="${active}"
                             .file="${file}">
                         </file-summary>
@@ -136,9 +127,9 @@ export default class FileView extends LitElement {
                 {
                     id: "file-preview",
                     name: "Preview",
-                    render: (file, active, opencgaSession) => html`
+                    render: (file, active) => html`
                         <file-preview
-                            .opencgaSession=${opencgaSession}
+                            .opencgaSession=${this.opencgaSession}
                             .active="${active}"
                             .file="${file}">
                         </file-preview>
@@ -154,6 +145,7 @@ export default class FileView extends LitElement {
                         </json-viewer>
                     `,
                 },
+                ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
             ],
         };
     }
