@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/image-viewer.js";
-import "../loading-spinner.js";
 
 export default class FamilySummary extends LitElement {
 
@@ -45,13 +43,7 @@ export default class FamilySummary extends LitElement {
             individualId: {
                 type: String,
             },
-            search: {
-                type: Boolean,
-            },
             opencgaSession: {
-                type: Object,
-            },
-            settings: {
                 type: Object,
             },
             displayConfig: {
@@ -61,16 +53,8 @@ export default class FamilySummary extends LitElement {
     }
 
     #init() {
-        this.family = {};
-        this.search = false;
-        this.isLoading = false;
-
+        this._family = null;
         this._config = this.getDefaultConfig();
-    }
-
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
     }
 
     update(changedProperties) {
@@ -82,6 +66,10 @@ export default class FamilySummary extends LitElement {
             this.individualIdObserver();
         }
 
+        if (changedProperties.has("family")) {
+            this.familyObserver();
+        }
+
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
@@ -90,84 +78,53 @@ export default class FamilySummary extends LitElement {
     }
 
     familyIdObserver() {
+        this._family = null;
         if (this.familyId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-            };
-            let error;
-            this.#setLoading(true);
             this.opencgaSession.opencgaClient.families()
-                .info(this.familyId, params)
+                .info(this.familyId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
-                    this.family = response.responses[0].results[0];
+                    this._family = response.responses[0].results[0];
+                    this.requestUpdate();
                 })
                 .catch(reason => {
-                    this.family = {};
-                    error = reason;
                     console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...params}}, error);
-                    this.#setLoading(false);
                 });
-        } else {
-            this.family = {};
         }
     }
 
     individualIdObserver() {
+        this._family = null;
         if (this.individualId && this.opencgaSession) {
-            const params = {
-                members: this.individualId,
-                study: this.opencgaSession.study.fqn
-            };
-            let error;
-            this.#setLoading(true);
             this.opencgaSession.opencgaClient.families()
-                .search(params)
+                .search({
+                    members: this.individualId,
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
                     // We use the first family found
-                    this.family = response.responses[0].results[0];
+                    this._family = response.responses[0].results[0];
+                    this.requestUpdate();
                 })
                 .catch(reason => {
-                    this.family = {};
-                    error = reason;
                     console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...params}}, error);
-                    this.#setLoading(false);
                 });
-        } else {
-            this.familyId = {};
         }
     }
 
-    onFilterChange(e) {
-        this.familyId = e.detail.value;
+    familyObserver() {
+        this._family = {...this.family};
     }
 
     render() {
-        if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>,
-            `;
-        }
-
-        if (!this.family?.id && this.search === false) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    No Family ID found.
-                </div>
-            `;
+        if (!this.opencgaSession || !this._family) {
+            return nothing;
         }
 
         return html`
             <data-form
-                .data="${this.family || {}}"
+                .data="${this._family || {}}"
                 .config="${this._config || {}}">
             </data-form>
         `;
@@ -175,7 +132,6 @@ export default class FamilySummary extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Summary",
             display: {
                 titleVisible: false,
                 buttonsVisible: false,
@@ -183,35 +139,7 @@ export default class FamilySummary extends LitElement {
             },
             sections: [
                 {
-                    title: "Search",
-                    display: {
-                        visible: family => !family?.id && this.search === true,
-                    },
-                    elements: [
-                        {
-                            title: "Family ID",
-                            // field: "familyId",
-                            type: "custom",
-                            display: {
-                                render: () => html `
-                                    <catalog-search-autocomplete
-                                        .value="${this.family?.id}"
-                                        .resource="${"FAMILY"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
-                                        @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>
-                                `,
-                            }
-                        }
-                    ]
-                },
-                {
                     title: "General",
-                    collapsed: false,
-                    display: {
-                        visible: family => family?.id,
-                    },
                     elements: [
                         {
                             title: "Family ID",
@@ -277,10 +205,6 @@ export default class FamilySummary extends LitElement {
                 },
                 {
                     title: "Family Members",
-                    display: {
-                        visible: family => family?.id,
-                        defaultValue: "-"
-                    },
                     elements: [
                         {
                             title: "List of Members:",
