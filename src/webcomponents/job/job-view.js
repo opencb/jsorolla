@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
-import "./job-view.js";
+import "../commons/forms/data-form.js";
+import "../commons/json-viewer.js";
+import "./job-summary.js";
 import "./job-result.js";
 import "./job-detail-log.js";
-import "../commons/view/detail-tabs.js";
 
 export default class JobView extends LitElement {
 
@@ -43,17 +44,16 @@ export default class JobView extends LitElement {
             job: {
                 type: Object
             },
-            config: {
-                type: Object
-            }
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
     #init() {
-        this.COMPONENT_ID = "job-detail";
+        this.COMPONENT_ID = "job-view";
         this._job = null;
         this._config = this.getDefaultConfig();
-        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
@@ -65,12 +65,8 @@ export default class JobView extends LitElement {
             this.jobObserver();
         }
 
-        if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            this.#updateDetailTabs();
+        if (changedProperties.has("displayConfig")) {
+            this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
@@ -94,72 +90,73 @@ export default class JobView extends LitElement {
 
     jobObserver() {
         this._job = {...this.job};
-        this.requestUpdate();
-    }
-
-    #updateDetailTabs() {
-        this._config.items = [
-            ...this._config.items,
-            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
-        ];
     }
 
     render() {
-        if (!this.opencgaSession) {
-            return "";
+        if (!this.opencgaSession || !this._job) {
+            return nothing;
         }
 
         return html`
-            <detail-tabs
-                .data="${this._job}"
-                .config="${this._config}"
-                .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>
+            <ata-form
+                .data="${this._job || {}}"
+                .config="${this._config || {}}">
+            </ata-form>
         `;
     }
 
     getDefaultConfig() {
         return {
-            title: "Job",
-            showTitle: true,
             display: {
-                titleClass: "mt-4",
-                contentClass: "p-3"
+                type: "tabs",
+                buttonsVisible: false,
+                ...this.displayConfig,
             },
-            items: [
+            sections: [
                 {
-                    id: "job-view",
+                    id: "job-summary",
                     name: "Overview",
-                    active: true,
-                    render: (job, _active, opencgaSession) => html`
-                        <job-view
-                            .opencgaSession="${opencgaSession}"
-                            mode="simple"
+                    render: (job, active) => html`
+                        <job-summary
+                            .opencgaSession="${this.opencgaSession}"
+                            .active="${active}"
                             .job="${job}">
-                        </job-view>
+                        </job-summary>
                     `,
                 },
                 {
                     id: "job-result",
-                    name: "Result",
-                    render: (job, active, opencgaSession) => html`
+                    name: "Execution Result",
+                    render: (job, active) => html`
                         <job-result
                             .job="${job}"
-                            .opencgaSession="${opencgaSession}">
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
                         </job-result>
                     `,
                 },
                 {
                     id: "job-log",
                     name: "Logs",
-                    render: (job, active, opencgaSession) => html`
+                    render: (job, active) => html`
                         <job-detail-log
-                            .opencgaSession="${opencgaSession}"
+                            .opencgaSession="${this.opencgaSession}"
                             .active="${active}"
                             .job="${job}">
                         </job-detail-log>
                     `,
                 },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (job, active) => html`
+                        <json-viewer
+                            .data="${job}"
+                            .active="${active}">
+                        </json-viewer>
+                    `,
+                },
+                ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
             ],
         };
     }
