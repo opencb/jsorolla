@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import "./file-preview.js";
 import "../commons/forms/data-form.js";
-import "../loading-spinner.js";
 
 export default class FileSummary extends LitElement {
 
@@ -41,9 +39,6 @@ export default class FileSummary extends LitElement {
             fileId: {
                 type: String
             },
-            search: {
-                type: Boolean
-            },
             opencgaSession: {
                 type: Object
             },
@@ -57,22 +52,17 @@ export default class FileSummary extends LitElement {
     }
 
     #init() {
-        this.file = {};
-        this.search = false;
-        this.preview = false;
-        this.isLoading = false;
-
+        this._file = null;
         this._config = this.getDefaultConfig();
-    }
-
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
     }
 
     update(changedProperties) {
         if (changedProperties.has("fileId")) {
             this.fileIdObserver();
+        }
+
+        if (changedProperties.has("file")) {
+            this.fileObserver();
         }
 
         if (changedProperties.has("displayConfig") || changedProperties.has("preview")) {
@@ -83,56 +73,34 @@ export default class FileSummary extends LitElement {
     }
 
     fileIdObserver() {
+        this._file = null;
         if (this.fileId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn
-            };
-            let error;
-            this.#setLoading(true);
             this.opencgaSession.opencgaClient.files()
-                .info(this.fileId, params)
+                .info(this.fileId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
-                    this.file = response.responses[0].results[0];
-                    // images = await UtilsNew.xyz(aaa)
+                    this._file = response.responses[0].results[0];
+                    this.requestUpdate();
                 })
                 .catch(reason => {
-                    this.file = {};
-                    error = reason;
                     console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "fileSearch", this.file, {}, error);
-                    this.#setLoading(false);
                 });
-        } else {
-            this.file = {};
         }
     }
 
-    onFilterChange(e) {
-        this.fileId = e.detail.value;
+    fileObserver() {
+        this._file = {...this.file};
     }
 
     render() {
-        if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>
-            `;
-        }
-
-        if (!this.file?.id && this.search === false) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    No File ID found.
-                </div>
-            `;
+        if (!this.opencgaSession || !this._file) {
+            return nothing;
         }
 
         return html`
             <data-form
-                .data="${this.file}"
+                .data="${this._file}"
                 .config="${this._config || {}}">
             </data-form>
         `;
@@ -147,40 +115,12 @@ export default class FileSummary extends LitElement {
             },
             sections: [
                 {
-                    title: "Search",
-                    display: {
-                        visible: file => !file?.id && this.search === true,
-                    },
-                    elements: [
-                        {
-                            title: "File",
-                            type: "custom",
-                            display: {
-                                render: () => html`
-                                    <catalog-search-autocomplete
-                                        .value="${this.file?.id}"
-                                        .resource="${"FILE"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
-                                        @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>
-                                `,
-                            },
-                        },
-                    ],
-                },
-                {
                     title: "General",
-                    display: {
-                        collapsed: false,
-                        visible: file => file?.id,
-                    },
                     elements: [
                         {
                             title: "File ID",
                             type: "complex",
                             display: {
-                                visible: file => file?.id,
                                 template: "${id} (UUID: ${uuid})",
                                 style: {
                                     id: {
@@ -250,7 +190,6 @@ export default class FileSummary extends LitElement {
                     display: {
                         visible: file => file?.id && this.preview === true,
                         layout: "vertical",
-                        collapsed: false,
                     },
                     elements: [
                         {
