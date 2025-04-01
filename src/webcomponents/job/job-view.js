@@ -21,7 +21,7 @@ import "./job-result.js";
 import "./job-detail-log.js";
 import "../commons/view/detail-tabs.js";
 
-export default class JobDetail extends LitElement {
+export default class JobView extends LitElement {
 
     constructor() {
         super();
@@ -166,4 +166,4 @@ export default class JobDetail extends LitElement {
 
 }
 
-customElements.define("job-detail", JobDetail);
+customElements.define("job-view", JobView);
