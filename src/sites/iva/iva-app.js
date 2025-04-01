@@ -51,7 +51,6 @@ import "../../webcomponents/individual/individual-browser.js";
 import "../../webcomponents/individual/individual-update.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
-import "../../webcomponents/job/job-view.js";
 import "../../webcomponents/workflow/workflow-browser.js";
 import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/job/job-monitor.js";
@@ -1394,21 +1393,6 @@ class IvaApp extends LitElement {
                             .settings="${this.settings.VARIANT_INTERPRETER_SETTINGS}"
                             @selectClinicalAnalysis="${this.onSelectClinicalAnalysis}">
                         </variant-interpreter>
-                    </div>
-                `;
-                break;
-            case "job-view":
-                content = html`
-                    <tool-header
-                        title="${this.jobSelected || "No job selected"}"
-                        icon="${"fas fa-rocket"}">
-                    </tool-header>
-                    <div class="content">
-                        <job-view
-                            mode="full"
-                            .jobId="${this.jobSelected}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </job-view>
                     </div>
                 `;
                 break;
