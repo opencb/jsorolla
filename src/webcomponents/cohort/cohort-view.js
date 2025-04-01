@@ -67,6 +67,7 @@ export default class CohortView extends LitElement {
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -114,7 +115,6 @@ export default class CohortView extends LitElement {
                 {
                     id: "cohort-summary",
                     name: "Overview",
-                    active: true,
                     render: (cohort, active) => html`
                         <cohort-summary
                             .opencgaSession="${this.opencgaSession}"
