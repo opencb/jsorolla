@@ -98,10 +98,10 @@ export default class JobView extends LitElement {
         }
 
         return html`
-            <ata-form
+            <data-form
                 .data="${this._job || {}}"
                 .config="${this._config || {}}">
-            </ata-form>
+            </data-form>
         `;
     }
 
