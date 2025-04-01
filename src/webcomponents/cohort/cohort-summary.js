@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
-import "../loading-spinner.js";
 import "../study/annotationset/annotation-set-view.js";
 
 export default class CohortSummary extends LitElement {
@@ -37,39 +35,32 @@ export default class CohortSummary extends LitElement {
     static get properties() {
         return {
             cohort: {
-                type: Object
+                type: Object,
             },
             cohortId: {
-                type: String
-            },
-            search: {
-                type: Boolean
+                type: String,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             displayConfig: {
-                type: Object
+                type: Object,
             },
         };
     }
 
     #init() {
-        this.cohort = {};
-        this.search = false;
-        this.isLoading = false;
-
+        this._cohort = null;
         this._config = this.getDefaultConfig();
-    }
-
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
     }
 
     update(changedProperties) {
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
+        }
+
+        if (changedProperties.has("cohort")) {
+            this.cohortObserver();
         }
 
         if (changedProperties.has("displayConfig")) {
@@ -80,55 +71,34 @@ export default class CohortSummary extends LitElement {
     }
 
     cohortIdObserver() {
+        this._cohort = null;
         if (this.cohortId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-            };
-            let error;
-            this.#setLoading(true);
             this.opencgaSession.opencgaClient.cohorts()
-                .info(this.cohortId, params)
+                .info(this.cohortId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
-                    this.cohort = response.responses[0].results[0];
+                    this._cohort = response.responses[0].results[0];
+                    this.requestUpdate();
                 })
                 .catch(reason => {
-                    this.cohort = {};
-                    error = reason;
                     console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "cohortSearch", this.cohort, {}, error);
-                    this.#setLoading(false);
                 });
-        } else {
-            this.cohort = {};
         }
     }
 
-    onFilterChange(e) {
-        this.cohortId = e.detail.value;
+    cohortObserver() {
+        this._cohort = {...this.cohort};
     }
 
     render() {
-        if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>
-            `;
-        }
-
-        if (!this.cohort?.id && this.search === false) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    No Cohort ID found.
-                </div>
-            `;
+        if (!this.opencgaSession || !this._cohort) {
+            return nothing;
         }
 
         return html`
             <data-form
-                .data=${this.cohort || {}}
+                .data=${this._cohort || {}}
                 .config="${this._config || {}}">
             </data-form>
         `;
@@ -144,37 +114,8 @@ export default class CohortSummary extends LitElement {
             },
             sections: [
                 {
-                    title: "Search",
-                    display: {
-                        visible: cohort => !cohort?.id && this.search === true,
-                        showPDF: false,
-                    },
-                    elements: [
-                        {
-                            title: "Cohort ID",
-                            // field: "cohortId",
-                            type: "custom",
-                            display: {
-                                render: () => html `
-                                    <catalog-search-autocomplete
-                                        .value="${this.cohort?.id}"
-                                        .resource="${"COHORT"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
-                                        @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>`,
-                            },
-                        },
-                    ],
-                },
-                {
                     title: "General",
-                    collapsed: false,
-                    display: {
-                        visible: cohort => cohort?.id,
-                    },
                     elements: [
-                        // available types: basic (optional/default), complex, list (horizontal and vertical), table, plot, custom
                         {
                             title: "Cohort Id",
                             type: "complex",
@@ -223,9 +164,7 @@ export default class CohortSummary extends LitElement {
                             title: "Annotation sets",
                             field: "annotationSets",
                             type: "custom",
-                            // FIXME: fix export to PDF
                             display: {
-                                showPDF: false,
                                 render: field => html`
                                     <annotation-set-view
                                         .annotationSets="${field}">
@@ -238,15 +177,12 @@ export default class CohortSummary extends LitElement {
                             title: "Samples",
                             field: "samples",
                             type: "table",
-                            // FIXME: fix export to PDF
                             display: {
                                 columns: [
                                     {
                                         id: "sample",
                                         title: "Samples ID",
                                         field: "id",
-                                        // width: "*",
-                                        // sortable: true,
                                     },
                                     {
                                         title: "Somatic",
@@ -262,8 +198,6 @@ export default class CohortSummary extends LitElement {
                                         },
                                     },
                                 ],
-                                // pagination: true,
-                                // search: true,
                             },
                         }
                     ],
