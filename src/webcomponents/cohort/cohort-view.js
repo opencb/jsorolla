@@ -43,7 +43,7 @@ export default class CohortView extends LitElement {
             cohort: {
                 type: Object
             },
-            defaultConfig: {
+            displayConfig: {
                 type: Object,
             },
         };
@@ -64,7 +64,7 @@ export default class CohortView extends LitElement {
             this.cohortObserver();
         }
 
-        if (changedProperties.has("defaultConfig")) {
+        if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
