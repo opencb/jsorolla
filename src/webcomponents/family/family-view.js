@@ -115,7 +115,6 @@ export default class FamilyView extends LitElement {
                 {
                     id: "family-summary",
                     name: "Overview",
-                    active: true,
                     render: (family, active) => html`
                         <family-summary
                             .opencgaSession="${this.opencgaSession}"

@@ -115,7 +115,6 @@ export default class FileView extends LitElement {
                 {
                     id: "file-summary",
                     name: "Overview",
-                    active: true,
                     render: (file, active) => html`
                         <file-summary
                             .opencgaSession="${this.opencgaSession}"
