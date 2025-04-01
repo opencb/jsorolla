@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
@@ -41,9 +40,6 @@ export default class JobSummary extends LitElement {
             jobId: {
                 type: String,
             },
-            search: {
-                type: Boolean,
-            },
             opencgaSession: {
                 type: Object,
             },
@@ -54,84 +50,63 @@ export default class JobSummary extends LitElement {
     }
 
     #init() {
-        this.job = {};
-        this.search = false;
-        this.isLoading = false;
-
+        this._job = null;
         this._config = this.getDefaultConfig();
-    }
-
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-
-    #prepareData() {
-        // 0. Local copy
-        this._job = UtilsNew.objectClone(this.job);
-
-        // 1. Transform datapoint Input Parameters 'params' object into an array
-        if (this._job?.params && typeof this._job.params === "object") {
-            this._job.params = Object.entries(this._job.params)
-                .map(([paramKey, content]) => {
-                    const paramValue = (content && typeof content === "object") ?
-                        JSON.stringify(content, null, 8) :
-                        content;
-                    return {paramKey, paramValue};
-                });
-        }
     }
 
     update(changedProperties) {
         if (changedProperties.has("job")) {
             this.jobObserver();
         }
+
         if (changedProperties.has("jobId")) {
             this.jobIdObserver();
         }
+
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
     jobObserver() {
-        this.#prepareData();
+        // we have to perform a full clone the job object to avoid modifying the original one
+        this._job = UtilsNew.objectClone(this.job);
+        this.formatJobParams();
     }
 
     jobIdObserver() {
+        this._job = null;
         if (this.jobId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn
-            };
-            let error;
-            this.#setLoading(true);
             this.opencgaSession.opencgaClient.jobs()
-                .info(this.jobId, params)
+                .info(this.jobId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
-                    this.job = response.responses[0].results[0];
-                    this.#prepareData();
+                    this._job = response.responses[0].results[0];
+                    this.formatJobParams();
+                    this.requestUpdate();
                 })
                 .catch(reason => {
-                    this.job = {};
-                    error = reason;
                     console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "jobSearch", this.job, {}, error);
-                    this.#setLoading(false);
                 });
-        } else {
-            this.job = {};
         }
     }
 
-    onFilterChange(e) {
-        this.jobId = e.detail.value;
+    formatJobParams() {
+        // transform datapoint Input Parameters 'params' object into an array
+        if (this._job?.params && typeof this._job.params === "object") {
+            this._job.params = Object.keys(this._job.params).map(paramKey => {
+                const content = this._job.params[paramKey];
+                return {
+                    paramKey: paramKey,
+                    paramValue: (content && typeof content === "object") ? JSON.stringify(content, null, 8) : content,
+                };
+            });
+        }
     }
 
-    // FORMATTERS
     jobOutputFilesFormatter(output, job, opencgaSession) {
         // CAUTION: Temporary patch for managing outputFiles array of nulls.
         //  See details in: https://app.clickup.com/t/36631768/TASK-1704
@@ -157,49 +132,39 @@ export default class JobSummary extends LitElement {
             return "No output files yet";
         }
 
-        return `${outputFiles
-            .map(file => {
-                const url = [
-                    opencgaSession.server.host,
-                    "/webservices/rest/",
-                    opencgaSession.server.version,
-                    "/files/",
-                    file.id,
-                    "/download?study=",
-                    opencgaSession.study.fqn,
-                    "&sid=",
-                    opencgaSession.token,
-                ];
-                return `
-                    <div>
-                        <span style="margin-right: 10px">${file.name} ${file.size > 0 ? `(${UtilsNew.getDiskUsage(file.size)})` : ""}</span>
-                        <a href="${url.join("")}" target="_blank">
-                            <i class="fas fa-download icon-padding"></i>
-                        </a>
-                    </div>`;
-            })
-            .join("")}`;
+        return outputFiles.map(file => {
+            const url = [
+                opencgaSession.server.host,
+                "/webservices/rest/",
+                opencgaSession.server.version,
+                "/files/",
+                file.id,
+                "/download?study=",
+                opencgaSession.study.fqn,
+                "&sid=",
+                opencgaSession.token,
+            ];
+            return `
+                <div>
+                    <span style="margin-right: 10px">
+                        ${file.name} ${file.size > 0 ? `(${UtilsNew.getDiskUsage(file.size)})` : ""}
+                    </span>
+                    <a href="${url.join("")}" target="_blank">
+                        <i class="fas fa-download"></i>
+                    </a>
+                </div>
+            `;
+        }).join("");
     }
 
     render() {
-        if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>
-            `;
-        }
-
-        if (!this._job?.id && this.search === false) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    No Job ID found.
-                </div>
-            `;
+        if (!this.opencgaSession || !this._job) {
+            return nothing;
         }
 
         return html`
             <data-form
-                .data="${this._job || {}}"
+                .data="${this._job}"
                 .config="${this._config || {}}">
             </data-form>
         `;
@@ -214,33 +179,7 @@ export default class JobSummary extends LitElement {
             },
             sections: [
                 {
-                    title: "Search",
-                    display: {
-                        visible: job => !job?.id && this.search === true,
-                    },
-                    elements: [
-                        {
-                            title: "Job ID",
-                            type: "custom",
-                            display: {
-                                render: job => html`
-                                    <catalog-search-autocomplete
-                                        .value="${job?.id}"
-                                        .resource="${"JOB"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
-                                        @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>
-                                `,
-                            },
-                        },
-                    ],
-                },
-                {
                     title: "Summary",
-                    display: {
-                        visible: job => job?.id,
-                    },
                     elements: [
                         {
                             name: "Job ID",
@@ -317,9 +256,6 @@ export default class JobSummary extends LitElement {
                 },
                 {
                     title: "Execution",
-                    display: {
-                        visible: job => job?.id,
-                    },
                     elements: [
                         {
                             name: "Start Time",
@@ -370,7 +306,9 @@ export default class JobSummary extends LitElement {
                             display: {
                                 template: "${output}",
                                 format: {
-                                    "output": (output, data) => this.jobOutputFilesFormatter(output, data, this.opencgaSession),
+                                    "output": (output, data) => {
+                                        return this.jobOutputFilesFormatter(output, data, this.opencgaSession);
+                                    },
                                 }
                             },
                         },
@@ -388,9 +326,6 @@ export default class JobSummary extends LitElement {
                 },
                 {
                     title: "Job Dependencies",
-                    display: {
-                        visible: job => job?.id,
-                    },
                     elements: [
                         {
                             name: "Dependencies",
