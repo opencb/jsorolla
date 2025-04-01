@@ -62,15 +62,6 @@ export default class JobSummary extends LitElement {
         this.search = false;
         this.isLoading = false;
 
-        this.displayConfigDefault = {
-            collapsable: true,
-            titleVisible: false,
-            titleWidth: 3,
-            defaultValue: "-",
-            defaultLayout: "horizontal",
-            buttonsVisible: false,
-            pdf: false,
-        };
         this._config = this.getDefaultConfig();
     }
 
@@ -103,10 +94,6 @@ export default class JobSummary extends LitElement {
             this.jobIdObserver();
         }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig
-            };
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -200,7 +187,9 @@ export default class JobSummary extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
         }
 
         if (!this._job?.id && this.search === false) {
@@ -214,18 +203,19 @@ export default class JobSummary extends LitElement {
 
         return html`
             <data-form
-                .data="${this._job}"
-                .config="${this._config}">
+                .data="${this._job || {}}"
+                .config="${this._config || {}}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
         return {
-            title: "Summary",
-            icon: "",
-            nullData: "",
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                buttonsVisible: false,
+                titleVisible: false,
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "Search",
@@ -235,17 +225,17 @@ export default class JobSummary extends LitElement {
                     elements: [
                         {
                             title: "Job ID",
-                            // field: "jobId",
                             type: "custom",
                             display: {
-                                render: job => html `
+                                render: job => html`
                                     <catalog-search-autocomplete
                                         .value="${job?.id}"
                                         .resource="${"JOB"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>`,
+                                    </catalog-search-autocomplete>
+                                `,
                             },
                         },
                     ],
@@ -314,11 +304,6 @@ export default class JobSummary extends LitElement {
                             display: {
                                 separator: "",
                                 contentLayout: "bullets",
-                                // transform: tags => tags.map(tag => ({tag})),
-                                // template: "${tag}",
-                                // className: {
-                                //     "tag": "badge badge-pill badge-primary",
-                                // },
                             },
                         },
                         {
@@ -387,7 +372,6 @@ export default class JobSummary extends LitElement {
                             name: "Output Files",
                             type: "complex",
                             display: {
-                                // FIXME: export pdf not working
                                 template: "${output}",
                                 format: {
                                     "output": (output, data) => this.jobOutputFilesFormatter(output, data, this.opencgaSession),
@@ -397,35 +381,15 @@ export default class JobSummary extends LitElement {
                         {
                             name: "Command Line",
                             field: "commandLine",
-                            // type: "text",
-                            // text: data => data.commandLine,
                             display: {
                                 className: "cmd",
                                 style: {
                                     "display": "block"
                                 },
-                                // textClassName: "cmd",
                             },
                         },
                     ],
                 },
-                /*
-                {
-                    title: "Results",
-                    display: {
-                        visible: job => job?.id,
-                    },
-                    elements: [
-                        {
-                            type: "custom",
-                            display: {
-                                defaultLayout: "vertical",
-                                render: () => {}
-                            },
-                        },
-                    ],
-                },
-                 */
                 {
                     title: "Job Dependencies",
                     display: {
