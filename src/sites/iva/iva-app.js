@@ -650,10 +650,8 @@ class IvaApp extends LitElement {
 
         // 0. in case of empty hash fragments, redirect to home tool
         if (window.location.hash === "" || window.location.hash === "#") {
-            if (this.opencgaSession?.project?.id && this.opencgaSession?.study?.id) {
-                window.location.hash = `home/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
-                return;
-            }
+            window.location.hash = ["home", this.opencgaSession?.project?.id, this.opencgaSession?.study?.id].filter(Boolean).join("/");
+            return;
         }
 
         // 1. parse hash fragments
@@ -672,12 +670,14 @@ class IvaApp extends LitElement {
 
         // 3. make sure that project and study is in the hash fragment
         if (!hashProject || !hashStudy) {
-            window.location.hash = [hashApp, hashTool || "home", this.opencgaSession?.project?.id, this.opencgaSession?.study?.id].filter(Boolean).join("/");
-            return;
+            if (this.opencgaSession?.project?.id && this.opencgaSession?.study?.id) {
+                window.location.hash = [hashApp, hashTool || "home", this.opencgaSession?.project?.id, this.opencgaSession?.study?.id].filter(Boolean).join("/");
+                return;
+            }
         }
 
         // 4. parse project and study
-        if (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
+        if (!!hashProject && !!hashStudy && (hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id)) {
             this.changeActiveStudy(`${this.opencgaSession.organization.id}@${hashProject}:${hashStudy}`);
         }
 

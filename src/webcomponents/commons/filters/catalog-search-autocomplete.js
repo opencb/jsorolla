@@ -65,14 +65,12 @@ export default class CatalogSearchAutocomplete extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
         }
-
         super.update(changedProperties);
     }
 
@@ -139,7 +137,6 @@ export default class CatalogSearchAutocomplete extends LitElement {
                     include: "id"
                 }
             },
-
             "CLINICAL_ANALYSIS": {
                 searchField: "id",
                 placeholder: "Start typing",

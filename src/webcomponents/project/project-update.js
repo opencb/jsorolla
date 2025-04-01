@@ -283,6 +283,16 @@ export default class ProjectUpdate extends LitElement {
                                     field: "cellbase.dataRelease",
                                     type: "input-text",
                                 },
+                                {
+                                    title: "API Key",
+                                    field: "cellbase.apiKey",
+                                    type: "input-text",
+                                    display: {
+                                        help: {
+                                            text: "Add your CellBase API key (optional)",
+                                        }
+                                    }
+                                },
                             ]
                         },
                         {
