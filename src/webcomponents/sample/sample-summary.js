@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
@@ -43,9 +43,6 @@ export default class SampleSummary extends LitElement {
             sampleId: {
                 type: String,
             },
-            search: {
-                type: Boolean,
-            },
             opencgaSession: {
                 type: Object,
             },
@@ -56,21 +53,17 @@ export default class SampleSummary extends LitElement {
     }
 
     #init() {
-        this.sample = {};
-        this.search = false;
-        this.isLoading = false;
-
+        this._sample = null;
         this._config = this.getDefaultConfig();
-    }
-
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
     }
 
     update(changedProperties) {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
+        }
+
+        if (changedProperties.has("sample")) {
+            this.sampleObserver();
         }
 
         if (changedProperties.has("displayConfig")) {
@@ -81,49 +74,30 @@ export default class SampleSummary extends LitElement {
     }
 
     sampleIdObserver() {
+        this._sample = null;
         if (this.sampleId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-                includeIndividual: true,
-            };
-            let error;
-            this.#setLoading(true);
             this.opencgaSession.opencgaClient.samples()
-                .info(this.sampleId, params)
+                .info(this.sampleId, {
+                    study: this.opencgaSession.study.fqn,
+                    includeIndividual: true,
+                })
                 .then(response => {
-                    this.sample = response.responses[0].results[0];
+                    this._sample = response.responses[0].results[0];
+                    this.requestUpdate();
                 })
                 .catch(reason => {
-                    this.sample = {};
-                    error = reason;
                     console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "sampleSearch", this.sample, {query: {includeIndividual: true}}, error);
-                    this.#setLoading(false);
                 });
-        } else {
-            this.sample = {};
         }
     }
 
-    onFilterChange(e) {
-        this.sampleId = e.detail.value;
+    sampleObserver() {
+        this._sample = {...this.sample};
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
-        }
-
-        if (!this.sample?.id && this.search === false) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    Sample ID not found.
-                </div>
-            `;
+        if (!this.opencgaSession || !this.sample) {
+            return nothing;
         }
 
         return html`
@@ -136,7 +110,6 @@ export default class SampleSummary extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Summary",
             display: {
                 titleVisible: false,
                 buttonsVisible: false,
@@ -144,36 +117,7 @@ export default class SampleSummary extends LitElement {
             },
             sections: [
                 {
-                    title: "Search",
-                    display: {
-                        visible: sample => !sample?.id && this.search === true,
-                        showPDF: false,
-                    },
-                    elements: [
-                        {
-                            title: "Sample ID",
-                            // field: "sampleId",
-                            type: "custom",
-                            display: {
-                                render: () => html`
-                                    <catalog-search-autocomplete
-                                        .value="${this.sample?.id}"
-                                        .resource="${"SAMPLE"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
-                                        @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>
-                                `,
-                            },
-                        },
-                    ],
-                },
-                {
                     title: "General",
-                    collapsed: false,
-                    display: {
-                        visible: sample => sample?.id,
-                    },
                     elements: [
                         {
                             title: "Sample ID",
@@ -247,7 +191,6 @@ export default class SampleSummary extends LitElement {
                             field: "phenotypes",
                             type: "list",
                             display: {
-                                // showPDF: false,
                                 contentLayout: "bullets",
                                 format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
                             },
